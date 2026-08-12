@@ -65,6 +65,47 @@ providers --------------------------+
 - Do not add an abstraction until there is a concrete second consumer or framework
   boundary that requires it.
 
+## Mandatory file-placement rules
+
+Use this table before creating a file. AI-generated code that lands in the wrong
+layer must be moved before the task is considered complete.
+
+| Code being added                        | Required location                         | Must not contain                                 |
+| --------------------------------------- | ----------------------------------------- | ------------------------------------------------ |
+| URL registration                        | `app/routes.ts`                           | UI, fetching, business rules                     |
+| Route metadata/params/redirect/prefetch | `app/routes/<route>.tsx`                  | Reusable page layout or feature workflow         |
+| Full route-level UI                     | `app/features/<feature>/pages/*-page.tsx` | Router manifest declarations                     |
+| Feature-only UI piece                   | `app/features/<feature>/components/*.tsx` | Generic app-wide primitives                      |
+| Feature orchestration hook              | `app/features/<feature>/hooks/use-*.ts`   | Raw `fetch`, translated JSX, unrelated features  |
+| Feature mapper/view model               | `app/features/<feature>/model/*.ts`       | React or browser APIs when a pure function works |
+| Reusable domain display logic           | `app/entities/<entity>/`                  | One-feature workflow logic                       |
+| Generic UI primitive                    | `app/shared/ui/`                          | License/user/approval-specific behavior          |
+| Generic utility/config                  | `app/shared/lib/`, `app/shared/config/`   | Imports from routes/features/entities            |
+| Generated client/types/mocks            | `app/shared/api/generated/`               | Hand edits                                       |
+
+A small feature may start flat with `home-page.tsx` and its test. Once it has more
+than one page, hook, component, or model, use the full shape below; do not accumulate
+ten unrelated files at the feature root.
+
+```text
+app/features/licenses/
+  index.ts                         public exports only
+  pages/licenses-page.tsx          route-level composition
+  pages/license-details-page.tsx
+  components/license-card.tsx      feature-only presentation
+  components/license-filters.tsx
+  hooks/use-license-list.ts         query + feature orchestration
+  hooks/use-license-filters.ts      URL/filter interaction
+  model/license-list.model.ts       pure mapping/types
+  components/license-card.test.tsx
+  pages/licenses-page.test.tsx
+```
+
+Other features import only `~/features/licenses`, never
+`~/features/licenses/components/license-card`. Routes also prefer the feature's
+public `index.ts`. Do not create a barrel for `shared/` or the whole application.
+See the complete code example in `ARCHITECTURE.md`.
+
 ## Data and API rules
 
 - Remote state belongs in TanStack Query. Do not fetch remote data from ad-hoc
@@ -129,11 +170,25 @@ providers --------------------------+
 - Do not commit `.env`, build output, coverage, or generated React Router types.
 - Update `ARCHITECTURE.md` when changing a boundary, public interface, rendering
   model, API generation policy, or deployment assumption.
+- A page/screen is composition; a component is presentation; a hook is stateful
+  orchestration; a model is pure data transformation. Do not put all four jobs in
+  one 300-line component.
+- Before adding a new helper, search for an existing equivalent. Before promoting
+  code to `shared`, identify at least two real consumers and remove domain naming.
+- Refactor AI output in the same task: split mixed responsibilities, remove duplicate
+  fetching/state, replace hardcoded copy with i18n keys, and add behavior tests. A
+  passing render with known structural debt is not "done".
 
 ## AI workflow
 
 1. Read this file and `ARCHITECTURE.md`.
-2. Inspect the nearest feature and tests before editing.
-3. State any assumption that changes product behavior or access control.
-4. Make one coherent slice; generate rather than hand-edit API code.
-5. Run relevant checks and report exact results plus any remaining risk.
+2. Inspect the nearest feature, its public `index.ts`, generated API export, and tests
+   before editing. Search before inventing a new pattern.
+3. Write the target file tree in the task plan for any feature touching three or more
+   authored files; assign every file one responsibility.
+4. State any assumption that changes product behavior or access control.
+5. Make one vertical slice: route -> page -> hook/model -> component -> test. Generate
+   rather than hand-edit API code.
+6. Re-read the diff specifically for oversized components, cross-feature private
+   imports, duplicate API wrappers, `useEffect` fetching, hardcoded copy, and `any`.
+7. Run relevant checks and report exact results plus any remaining risk.

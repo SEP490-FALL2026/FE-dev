@@ -9,3 +9,6 @@
 /build/
 /coverage/
 /.vercel/
+
+#plan/spec files
+docs/
