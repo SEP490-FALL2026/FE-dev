@@ -5,25 +5,29 @@ import { setAppLanguage, type SupportedLanguage } from '~/shared/i18n/i18n'
 const languages: SupportedLanguage[] = ['vi', 'en']
 
 export function LanguageSwitch() {
-  const { i18n, t } = useTranslation()
+  const { i18n, t } = useTranslation('common')
   const currentLanguage = i18n.resolvedLanguage?.split('-')[0] ?? 'vi'
 
   return (
-    <div aria-label={t('common.language.selector')} className='flex gap-1' role='group'>
+    <div
+      aria-label={t('language.selector')}
+      className='flex h-10 items-center rounded-full border border-border bg-surface/80 p-1 backdrop-blur'
+      role='group'
+    >
       {languages.map((language) => {
         const isCurrent = currentLanguage === language
-        const languageName = t(language === 'vi' ? 'common.language.vietnamese' : 'common.language.english')
+        const languageName = t(language === 'vi' ? 'language.vietnamese' : 'language.english')
 
         return (
           <button
-            aria-label={t('common.language.switchTo', { language: languageName })}
+            aria-label={t('language.switchTo', { language: languageName })}
             aria-pressed={isCurrent}
-            className='rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-teal-700 hover:text-teal-700 aria-pressed:border-teal-700 aria-pressed:bg-teal-50 aria-pressed:text-teal-800'
+            className='rounded-full px-2.5 py-1.5 text-xs font-semibold text-muted-foreground transition hover:text-primary aria-pressed:bg-primary-soft aria-pressed:text-primary'
             key={language}
             onClick={() => void setAppLanguage(language)}
             type='button'
           >
-            {t(language === 'vi' ? 'common.language.vietnameseShort' : 'common.language.englishShort')}
+            {t(language === 'vi' ? 'language.vietnameseShort' : 'language.englishShort')}
           </button>
         )
       })}

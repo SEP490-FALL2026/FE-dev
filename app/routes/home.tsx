@@ -1,12 +1,13 @@
 import type { Route } from './+types/home'
 import { HomePage } from '~/features/home/home-page'
+import { i18n } from '~/shared/i18n/i18n'
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: 'SaaS-Sentry' },
+    { title: i18n.t('brand', { ns: 'common' }) },
     {
       name: 'description',
-      content: 'Quản trị bản quyền phần mềm và tối ưu chi phí công nghệ.'
+      content: i18n.t('metaDescription', { ns: 'landing' })
     }
   ]
 }

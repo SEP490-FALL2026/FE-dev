@@ -1,0 +1,1248 @@
+{
+    "generatedAt":  "2026-09-16T12:42:56.6213425+07:00",
+    "checker":  {
+                    "path":  "D:\\FPT\\FALL2026\\Docs\\Diagrams\\workflows-activity-diagram\\tools\\check-workflow-parity.ps1",
+                    "sha256":  "70E897E4787E2F0F7E42A2DD5EC2CFA8891B40A01ED364F857681D55746E8290",
+                    "scope":  "Behavior-critical parity for WF-07, WF-09, WF-10, WF-15, WF-16, WF-17 and WF-18 (QĐ-20/QĐ-22 changes added 14/09/2026; QĐ-30a control-edge counts and detached side-flow assertions added 16/09/2026); every run also scans all 22 current Workflow drawio sources for semantic-duplicate cells. controlEdgeCounts asserts the exact number of outgoing CONTROL edges of a decision in both drawio and Mermaid — dashed information edges and dashed note connectors are excluded from the count on both sides. detachedSideFlows asserts that the Finance inquiry chain exists, that no control edge crosses its boundary, and that it reaches the decision only through a dashed information edge."
+                },
+    "inputs":  {
+                   "index":  {
+                                 "path":  "D:\\FPT\\FALL2026\\Docs\\Diagrams\\workflows-activity-diagram\\index.md",
+                                 "sha256":  "F83CC63C0BBC2F5C5D54B2738D2E70F13A228CC457ACB6F3B193B9B43B95DD47"
+                             },
+                   "manifest":  {
+                                    "path":  "D:\\FPT\\FALL2026\\Docs\\Diagrams\\workflows-activity-diagram\\tools\\behavior-parity-manifest.json",
+                                    "sha256":  "5994B34510B6559647888B3FC14D75AFCDA4E65B2455CF9826B8D2DF5AEA0841"
+                                },
+                   "drawioSourcesScanned":  22
+               },
+    "status":  "pass",
+    "pageResults":  [
+                        {
+                            "page":  "WF-09",
+                            "source":  "drawio/WF-09.drawio",
+                            "sourceSha256":  "6003011974E258673F10DE637A58054C1F27B72D77EFF85F483B46998AB78288",
+                            "status":  "pass",
+                            "errors":  [
+
+                                       ],
+                            "canonicalNodes":  [
+                                                   {
+                                                       "id":  "a4b",
+                                                       "type":  "action",
+                                                       "lane":  "Hệ thống",
+                                                       "labelContains":  "Xác định người duyệt bước quản lý"
+                                                   },
+                                                   {
+                                                       "id":  "a4c",
+                                                       "type":  "action",
+                                                       "lane":  "Hệ thống",
+                                                       "labelContains":  "Giữ Request chờ có kiểm soát"
+                                                   },
+                                                   {
+                                                       "id":  "a4d",
+                                                       "type":  "acceptEvent",
+                                                       "lane":  "Hệ thống",
+                                                       "labelContains":  "Chờ sự kiện dữ liệu: vai trò hoặc cây quản lý đã đổi"
+                                                   },
+                                                   {
+                                                       "id":  "a5",
+                                                       "type":  "action",
+                                                       "lane":  "Người duyệt bước quản lý",
+                                                       "labelContains":  "Xem yêu cầu"
+                                                   },
+                                                   {
+                                                       "id":  "d2",
+                                                       "type":  "decision",
+                                                       "lane":  "Người duyệt bước quản lý",
+                                                       "labelContains":  "Quyết định của"
+                                                   },
+                                                   {
+                                                       "id":  "s1",
+                                                       "type":  "action",
+                                                       "lane":  "Người duyệt chi",
+                                                       "labelContains":  "Gửi yêu cầu thông tin ngân sách"
+                                                   },
+                                                   {
+                                                       "id":  "a7",
+                                                       "type":  "action",
+                                                       "lane":  "Tài chính",
+                                                       "labelContains":  "Trả lời yêu cầu thông tin"
+                                                   },
+                                                   {
+                                                       "id":  "d4",
+                                                       "type":  "decision",
+                                                       "lane":  "Người duyệt chi",
+                                                       "labelContains":  "duyệt chi?"
+                                                   },
+                                                   {
+                                                       "id":  "a9",
+                                                       "type":  "action",
+                                                       "lane":  "Tài chính",
+                                                       "labelContains":  "Ghi nhận ngân sách chính thức"
+                                                   },
+                                                   {
+                                                       "id":  "a6",
+                                                       "type":  "action",
+                                                       "lane":  "Hệ thống",
+                                                       "labelContains":  "không đổi người duyệt"
+                                                   },
+                                                   {
+                                                       "id":  "a6b",
+                                                       "type":  "action",
+                                                       "lane":  "Hệ thống",
+                                                       "labelContains":  "Giữ bước duyệt chi chờ có kiểm soát"
+                                                   },
+                                                   {
+                                                       "id":  "a7b",
+                                                       "type":  "action",
+                                                       "lane":  "Hệ thống",
+                                                       "labelContains":  "Hiển thị snapshot ngân sách"
+                                                   },
+                                                   {
+                                                       "id":  "a11",
+                                                       "type":  "action",
+                                                       "lane":  "Hệ thống",
+                                                       "labelContains":  "Tạo khoản cam kết"
+                                                   }
+                                               ],
+                            "expectedEdges":  [
+                                                  {
+                                                      "source":  "a4b",
+                                                      "target":  "m1",
+                                                      "guard":  "[có người duyệt hợp lệ]"
+                                                  },
+                                                  {
+                                                      "source":  "a4b",
+                                                      "target":  "a4c",
+                                                      "guard":  "[hết người hợp lệ]"
+                                                  },
+                                                  {
+                                                      "source":  "a4c",
+                                                      "target":  "a4d",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a4d",
+                                                      "target":  "a4b",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "m1",
+                                                      "target":  "a5",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a5",
+                                                      "target":  "d2",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "d3",
+                                                      "target":  "m2",
+                                                      "guard":  "[không]"
+                                                  },
+                                                  {
+                                                      "source":  "d4",
+                                                      "target":  "fin3",
+                                                      "guard":  "[từ chối, bắt buộc có lý do]"
+                                                  },
+                                                  {
+                                                      "source":  "fk1",
+                                                      "target":  "a9",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a9",
+                                                      "target":  "ff1",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "fk1",
+                                                      "target":  "m2",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "m2",
+                                                      "target":  "c1",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "d2",
+                                                      "target":  "a6",
+                                                      "guard":  "[quá thời hạn xử lý]"
+                                                  },
+                                                  {
+                                                      "source":  "a6",
+                                                      "target":  "m1",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "d3",
+                                                      "target":  "a7b",
+                                                      "guard":  "[có]"
+                                                  },
+                                                  {
+                                                      "source":  "a7b",
+                                                      "target":  "d4",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "ini2",
+                                                      "target":  "s1",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "s1",
+                                                      "target":  "a7",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a7",
+                                                      "target":  "ff2",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "d4",
+                                                      "target":  "a11",
+                                                      "guard":  "[duyệt]"
+                                                  },
+                                                  {
+                                                      "source":  "d4",
+                                                      "target":  "a6b",
+                                                      "guard":  "[quá thời hạn xử lý]"
+                                                  },
+                                                  {
+                                                      "source":  "a6b",
+                                                      "target":  "d4",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a11",
+                                                      "target":  "fk1",
+                                                      "guard":  ""
+                                                  }
+                                              ],
+                            "controlEdgeCounts":  [
+                                                      {
+                                                          "node":  "d4",
+                                                          "expectedOutgoing":  3,
+                                                          "drawioOutgoing":  3,
+                                                          "mermaidOutgoing":  3,
+                                                          "drawioTargets":  [
+                                                                                "fin3 [[từ chối, bắt buộc có lý do]]",
+                                                                                "a11 [[duyệt]]",
+                                                                                "a6b [[quá thời hạn xử lý]]"
+                                                                            ],
+                                                          "rationale":  "QĐ-30a/BR-07.9: đúng ba lối ra control — [duyệt], [từ chối, bắt buộc có lý do], [quá thời hạn xử lý]. Cạnh thông tin nét đứt a7 -\u003e d4 KHÔNG được tính."
+                                                      },
+                                                      {
+                                                          "node":  "d2",
+                                                          "expectedOutgoing":  3,
+                                                          "drawioOutgoing":  3,
+                                                          "mermaidOutgoing":  3,
+                                                          "drawioTargets":  [
+                                                                                "fin1 [[từ chối, bắt buộc có lý do]]",
+                                                                                "a6 [[quá thời hạn xử lý]]",
+                                                                                "d3 [[duyệt]]"
+                                                                            ],
+                                                          "rationale":  "SLA bước quản lý giữ nguyên: [duyệt], [từ chối, bắt buộc có lý do], [quá thời hạn xử lý] -\u003e a6 -\u003e m1."
+                                                      }
+                                                  ],
+                            "detachedSideFlows":  [
+                                                      {
+                                                          "id":  "finance-inquiry",
+                                                          "chain":  [
+                                                                        "ini2",
+                                                                        "s1",
+                                                                        "a7",
+                                                                        "ff2"
+                                                                    ],
+                                                          "informationEdge":  "a7 -.-\u003e d4",
+                                                          "status":  "pass",
+                                                          "errors":  [
+
+                                                                     ],
+                                                          "rationale":  "QĐ-30a: luồng phụ tách rời, có initial riêng ở làn Người duyệt chi và kết thúc flow final; nối về d4 chỉ bằng cạnh thông tin nét đứt."
+                                                      }
+                                                  ],
+                            "finals":  [
+                                           {
+                                               "id":  "fin0",
+                                               "kind":  "activityFinal"
+                                           },
+                                           {
+                                               "id":  "fin1",
+                                               "kind":  "activityFinal"
+                                           },
+                                           {
+                                               "id":  "fin2",
+                                               "kind":  "activityFinal"
+                                           },
+                                           {
+                                               "id":  "fin3",
+                                               "kind":  "activityFinal"
+                                           },
+                                           {
+                                               "id":  "ff1",
+                                               "kind":  "flowFinal"
+                                           },
+                                           {
+                                               "id":  "ff2",
+                                               "kind":  "flowFinal"
+                                           }
+                                       ],
+                            "allowedPresentationExceptions":  [
+                                                                  "Dashed note connectors are excluded from control-flow comparison; their rules are mapped in the index table.",
+                                                                  "QĐ-27/QĐ-28d: a6 -\u003e m1 returns to the SAME assigned approver (remind + notify only); it is not an escalation that changes the approver. Re-resolution happens only through the data-event accept node a4d -\u003e a4b.",
+                                                                  "QĐ-22/QĐ-28c/QĐ-30a: the conflict-of-interest substitute (FR-3.15) and the commitment release on hard provisioning failure stay in note nt6 and WF-09a. The SLA of the spend-approval step is now DRAWN: d4 -[quá thời hạn xử lý]-\u003e a6b -\u003e d4. a6b is a distinct node from a6: a6 serves the MANAGER step and returns to m1, while a6b serves the SPEND-APPROVAL step and returns to d4 only. a6b must never retarget the approver, auto-approve, auto-reject, or route back to the manager step.",
+                                                                  "QĐ-30a: the Finance inquiry is a DETACHED SIDE FLOW, not a branch of the spend-approval decision. ini2 -\u003e s1 -\u003e a7 -\u003e ff2 has its own initial node in the Người duyệt chi lane (the approver may ask at any time) and ends in a flow final (the reply never blocks). It is intentionally disconnected from the main control path; this is NOT the split-topology defect the WF-15 regression fixture guards against.",
+                                                                  "QĐ-30a: a7 -\u003e d4 is an INFORMATION edge (dashed=1, labelled \u0027Bổ sung ý kiến ngân sách\u0027), excluded from control-flow comparison by design and drawn as -.-\u003e in Mermaid so neither format reports it as control flow. d4 keeps exactly three outgoing control edges: [duyệt], [từ chối, bắt buộc có lý do], [quá thời hạn xử lý].",
+                                                                  "QĐ-29b: the spend-approval step stays with the SAME approver and its SLA does not pause while an inquiry is outstanding. Finance recording (a9) runs in parallel with provisioning after fk1; the over-budget notification is carried by note nt7."
+                                                              ]
+                        },
+                        {
+                            "page":  "WF-10",
+                            "source":  "drawio/WF-10.drawio",
+                            "sourceSha256":  "E4FBF8AED35BA8B8D00A1207841DC59E5B45FD062B52C700337390695C0C9386",
+                            "status":  "pass",
+                            "errors":  [
+
+                                       ],
+                            "canonicalNodes":  [
+                                                   {
+                                                       "id":  "a6",
+                                                       "type":  "action",
+                                                       "lane":  "Hệ thống",
+                                                       "labelContains":  "Hiển thị snapshot ngân sách"
+                                                   },
+                                                   {
+                                                       "id":  "d3",
+                                                       "type":  "decision",
+                                                       "lane":  "Hệ thống",
+                                                       "labelContains":  "Có phát sinh"
+                                                   },
+                                                   {
+                                                       "id":  "d4",
+                                                       "type":  "decision",
+                                                       "lane":  "Người duyệt chi",
+                                                       "labelContains":  "duyệt SaaS mới?"
+                                                   },
+                                                   {
+                                                       "id":  "s1",
+                                                       "type":  "action",
+                                                       "lane":  "Người duyệt chi",
+                                                       "labelContains":  "Gửi yêu cầu thông tin ngân sách"
+                                                   },
+                                                   {
+                                                       "id":  "a6b",
+                                                       "type":  "action",
+                                                       "lane":  "Tài chính",
+                                                       "labelContains":  "Trả lời yêu cầu thông tin"
+                                                   }
+                                               ],
+                            "expectedEdges":  [
+                                                  {
+                                                      "source":  "m1",
+                                                      "target":  "d3",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "d3",
+                                                      "target":  "a6",
+                                                      "guard":  "[có]"
+                                                  },
+                                                  {
+                                                      "source":  "a6",
+                                                      "target":  "m2",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "d3",
+                                                      "target":  "m2",
+                                                      "guard":  "[không]"
+                                                  },
+                                                  {
+                                                      "source":  "m2",
+                                                      "target":  "d4",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "d4",
+                                                      "target":  "fin3",
+                                                      "guard":  "[từ chối, bắt buộc có lý do]"
+                                                  },
+                                                  {
+                                                      "source":  "d4",
+                                                      "target":  "c1",
+                                                      "guard":  "[duyệt]"
+                                                  },
+                                                  {
+                                                      "source":  "c1",
+                                                      "target":  "c2",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "ini2",
+                                                      "target":  "s1",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "s1",
+                                                      "target":  "a6b",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a6b",
+                                                      "target":  "ff2",
+                                                      "guard":  ""
+                                                  }
+                                              ],
+                            "controlEdgeCounts":  [
+                                                      {
+                                                          "node":  "d4",
+                                                          "expectedOutgoing":  2,
+                                                          "drawioOutgoing":  2,
+                                                          "mermaidOutgoing":  2,
+                                                          "drawioTargets":  [
+                                                                                "fin3 [[từ chối, bắt buộc có lý do]]",
+                                                                                "c1 [[duyệt]]"
+                                                                            ],
+                                                          "rationale":  "QĐ-30a: đúng hai lối ra control — [duyệt], [từ chối, bắt buộc có lý do]. Cạnh thông tin nét đứt a6b -\u003e d4 KHÔNG được tính."
+                                                      }
+                                                  ],
+                            "detachedSideFlows":  [
+                                                      {
+                                                          "id":  "finance-inquiry",
+                                                          "chain":  [
+                                                                        "ini2",
+                                                                        "s1",
+                                                                        "a6b",
+                                                                        "ff2"
+                                                                    ],
+                                                          "informationEdge":  "a6b -.-\u003e d4",
+                                                          "status":  "pass",
+                                                          "errors":  [
+
+                                                                     ],
+                                                          "rationale":  "QĐ-30a: luồng phụ tách rời, có initial riêng ở làn Người duyệt chi và kết thúc flow final; nối về d4 chỉ bằng cạnh thông tin nét đứt."
+                                                      }
+                                                  ],
+                            "finals":  [
+                                           {
+                                               "id":  "fin1",
+                                               "kind":  "activityFinal"
+                                           },
+                                           {
+                                               "id":  "fin2",
+                                               "kind":  "activityFinal"
+                                           },
+                                           {
+                                               "id":  "fin3",
+                                               "kind":  "activityFinal"
+                                           },
+                                           {
+                                               "id":  "ff2",
+                                               "kind":  "flowFinal"
+                                           }
+                                       ],
+                            "allowedPresentationExceptions":  [
+                                                                  "Dashed note connectors are excluded from control-flow comparison.",
+                                                                  "QĐ-22: the budget commitment is drawn on WF-09 (a9); on WF-10 note nt3 states that the called WF-09 reuses this spend decision.",
+                                                                  "QĐ-30a: the Finance inquiry is a DETACHED SIDE FLOW ini2 -\u003e s1 -\u003e a6b -\u003e ff2 with its own initial node in the Người duyệt chi lane and a flow-final end; it is intentionally disconnected from the main control path. a6b -\u003e d4 is an INFORMATION edge (dashed=1 in drawio, -.-\u003e in Mermaid), excluded from control-flow comparison by design. d4 keeps exactly two outgoing control edges: [duyệt] and [từ chối, bắt buộc có lý do].",
+                                                                  "QĐ-30a/DA-01: note nt0 (BR-09.1) states that IT risk review and the Finance reply are NOT approval steps and that the only decision maker on this page is the Người duyệt chi at d4.",
+                                                                  "QĐ-29b: the step stays with the same spend approver and its SLA does not pause while an inquiry is outstanding."
+                                                              ]
+                        },
+                        {
+                            "page":  "WF-15",
+                            "source":  "drawio/WF-15.drawio",
+                            "sourceSha256":  "64F0BC21744403B54E7AC8628D8E97B8BFE7895B9787DB6F758FF07C70D806CC",
+                            "status":  "pass",
+                            "errors":  [
+
+                                       ],
+                            "canonicalNodes":  [
+                                                   {
+                                                       "id":  "d1",
+                                                       "type":  "decision",
+                                                       "lane":  "Hệ thống",
+                                                       "labelContains":  "Dữ liệu"
+                                                   },
+                                                   {
+                                                       "id":  "a2",
+                                                       "type":  "action",
+                                                       "lane":  "Hệ thống",
+                                                       "labelContains":  "Suy ra từ số ngày báo trước"
+                                                   },
+                                                   {
+                                                       "id":  "a3",
+                                                       "type":  "action",
+                                                       "lane":  "Hệ thống",
+                                                       "labelContains":  "thiếu dữ liệu hợp đồng"
+                                                   },
+                                                   {
+                                                       "id":  "d2",
+                                                       "type":  "decision",
+                                                       "lane":  "Người duyệt chi",
+                                                       "labelContains":  "Người duyệt chi?"
+                                                   },
+                                                   {
+                                                       "id":  "a7",
+                                                       "type":  "action",
+                                                       "lane":  "Hệ thống",
+                                                       "labelContains":  "giữ nguyên số lượng"
+                                                   },
+                                                   {
+                                                       "id":  "a8",
+                                                       "type":  "action",
+                                                       "lane":  "Hệ thống",
+                                                       "labelContains":  "giảm số lượng"
+                                                   },
+                                                   {
+                                                       "id":  "a9",
+                                                       "type":  "action",
+                                                       "lane":  "Hệ thống",
+                                                       "labelContains":  "thông báo hủy"
+                                                   },
+                                                   {
+                                                       "id":  "a10",
+                                                       "type":  "action",
+                                                       "lane":  "Hệ thống",
+                                                       "labelContains":  "Tự động gia hạn"
+                                                   },
+                                                   {
+                                                       "id":  "s1",
+                                                       "type":  "action",
+                                                       "lane":  "Người duyệt chi",
+                                                       "labelContains":  "Gửi yêu cầu thông tin ngân sách"
+                                                   },
+                                                   {
+                                                       "id":  "a6",
+                                                       "type":  "action",
+                                                       "lane":  "Tài chính",
+                                                       "labelContains":  "Trả lời yêu cầu thông tin"
+                                                   },
+                                                   {
+                                                       "id":  "a6s",
+                                                       "type":  "action",
+                                                       "lane":  "Hệ thống",
+                                                       "labelContains":  "Hiển thị snapshot ngân sách"
+                                                   }
+                                               ],
+                            "expectedEdges":  [
+                                                  {
+                                                      "source":  "ini",
+                                                      "target":  "t1",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "t1",
+                                                      "target":  "a1",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a1",
+                                                      "target":  "d1",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "d1",
+                                                      "target":  "m2",
+                                                      "guard":  "[có mốc rõ ràng]"
+                                                  },
+                                                  {
+                                                      "source":  "d1",
+                                                      "target":  "a2",
+                                                      "guard":  "[chỉ có số ngày báo trước]"
+                                                  },
+                                                  {
+                                                      "source":  "a2",
+                                                      "target":  "m2",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "d1",
+                                                      "target":  "a3",
+                                                      "guard":  "[không có dữ liệu]"
+                                                  },
+                                                  {
+                                                      "source":  "a3",
+                                                      "target":  "ff1",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "d2",
+                                                      "target":  "a7",
+                                                      "guard":  "[gia hạn nguyên trạng]"
+                                                  },
+                                                  {
+                                                      "source":  "d2",
+                                                      "target":  "a8",
+                                                      "guard":  "[gia hạn và giảm số lượng]"
+                                                  },
+                                                  {
+                                                      "source":  "d2",
+                                                      "target":  "a9",
+                                                      "guard":  "[hủy dịch vụ]"
+                                                  },
+                                                  {
+                                                      "source":  "d2",
+                                                      "target":  "a10",
+                                                      "guard":  "[quá hạn, không ai xử lý]"
+                                                  },
+                                                  {
+                                                      "source":  "a7",
+                                                      "target":  "m3",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a8",
+                                                      "target":  "m3",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a10",
+                                                      "target":  "m3",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a9",
+                                                      "target":  "fin",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "ini2",
+                                                      "target":  "s1",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "s1",
+                                                      "target":  "a6",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a6",
+                                                      "target":  "ff2",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a5",
+                                                      "target":  "a6s",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a6s",
+                                                      "target":  "d2",
+                                                      "guard":  ""
+                                                  }
+                                              ],
+                            "controlEdgeCounts":  [
+                                                      {
+                                                          "node":  "d2",
+                                                          "expectedOutgoing":  4,
+                                                          "drawioOutgoing":  4,
+                                                          "mermaidOutgoing":  4,
+                                                          "drawioTargets":  [
+                                                                                "a7 [[gia hạn nguyên trạng]]",
+                                                                                "a8 [[gia hạn và giảm số lượng]]",
+                                                                                "a9 [[hủy dịch vụ]]",
+                                                                                "a10 [[quá hạn, không ai xử lý]]"
+                                                                            ],
+                                                          "rationale":  "QĐ-29b: đúng bốn lối ra control — [gia hạn nguyên trạng], [gia hạn và giảm số lượng], [hủy dịch vụ], [quá hạn, không ai xử lý]. Cạnh thông tin nét đứt a6 -\u003e d2 KHÔNG được tính."
+                                                      }
+                                                  ],
+                            "detachedSideFlows":  [
+                                                      {
+                                                          "id":  "finance-inquiry",
+                                                          "chain":  [
+                                                                        "ini2",
+                                                                        "s1",
+                                                                        "a6",
+                                                                        "ff2"
+                                                                    ],
+                                                          "informationEdge":  "a6 -.-\u003e d2",
+                                                          "status":  "pass",
+                                                          "errors":  [
+
+                                                                     ],
+                                                          "rationale":  "QĐ-30a: luồng phụ tách rời, có initial riêng ở làn Người duyệt chi và kết thúc flow final; nối về d2 chỉ bằng cạnh thông tin nét đứt."
+                                                      }
+                                                  ],
+                            "finals":  [
+                                           {
+                                               "id":  "ff1",
+                                               "kind":  "flowFinal"
+                                           },
+                                           {
+                                               "id":  "ff2",
+                                               "kind":  "flowFinal"
+                                           },
+                                           {
+                                               "id":  "fin",
+                                               "kind":  "activityFinal"
+                                           }
+                                       ],
+                            "allowedPresentationExceptions":  [
+                                                                  "m2 and m3 are UML merge nodes whose blank label is intentional.",
+                                                                  "Dashed notes are not control-flow nodes.",
+                                                                  "QĐ-30a: the Finance inquiry is a DETACHED SIDE FLOW ini2 -\u003e s1 -\u003e a6 -\u003e ff2 with its own initial node in the Người duyệt chi lane and a flow-final end; it is intentionally disconnected from the main control path and is NOT the split-topology defect this page\u0027s regression fixture guards against (the fixture covers d1/a2/a3/a7/m3 and the ini -\u003e t1 -\u003e a1 -\u003e d1 spine, none of which change here). a6 -\u003e d2 is an INFORMATION edge (dashed=1 in drawio, -.-\u003e in Mermaid), excluded from control-flow comparison by design.",
+                                                                  "QĐ-29b: d2 keeps exactly four outgoing control edges ([gia hạn nguyên trạng], [gia hạn và giảm số lượng], [hủy dịch vụ], [quá hạn, không ai xử lý]); the step stays with the same approver and its SLA does not pause. Finance recording after the renewal decision is carried by note nt3, not a separate node on this page."
+                                                              ]
+                        },
+                        {
+                            "page":  "WF-16",
+                            "source":  "drawio/WF-16.drawio",
+                            "sourceSha256":  "E157345521796C2890B46FE44F8C51B1F1BA5F1B9F974533A3D3694C23F9745F",
+                            "status":  "pass",
+                            "errors":  [
+
+                                       ],
+                            "canonicalNodes":  [
+                                                   {
+                                                       "id":  "dq",
+                                                       "type":  "decision",
+                                                       "lane":  "Hệ thống",
+                                                       "labelContains":  "ProvisioningTask"
+                                                   },
+                                                   {
+                                                       "id":  "dq2",
+                                                       "type":  "decision",
+                                                       "lane":  "Hệ thống",
+                                                       "labelContains":  "active"
+                                                   },
+                                                   {
+                                                       "id":  "a11",
+                                                       "type":  "action",
+                                                       "lane":  "Hệ thống",
+                                                       "labelContains":  "hoàn tất chính ProvisioningTask liên kết"
+                                                   },
+                                                   {
+                                                       "id":  "a6",
+                                                       "type":  "action",
+                                                       "lane":  "Hệ thống",
+                                                       "labelContains":  "Sinh bản ghi sai lệch"
+                                                   },
+                                                   {
+                                                       "id":  "a10",
+                                                       "type":  "action",
+                                                       "lane":  "Hệ thống",
+                                                       "labelContains":  "Đóng bản ghi"
+                                                   }
+                                               ],
+                            "expectedEdges":  [
+                                                  {
+                                                      "source":  "dq",
+                                                      "target":  "dq2",
+                                                      "guard":  "[có]"
+                                                  },
+                                                  {
+                                                      "source":  "dq",
+                                                      "target":  "m1",
+                                                      "guard":  "[không]"
+                                                  },
+                                                  {
+                                                      "source":  "dq2",
+                                                      "target":  "ff2",
+                                                      "guard":  "[vẫn chờ chấp nhận]"
+                                                  },
+                                                  {
+                                                      "source":  "dq2",
+                                                      "target":  "a11",
+                                                      "guard":  "[đã active, đúng tài khoản]"
+                                                  },
+                                                  {
+                                                      "source":  "a11",
+                                                      "target":  "ff3",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "dq2",
+                                                      "target":  "m1",
+                                                      "guard":  "[sai tài khoản, hoặc lời mời hết hạn / bị từ chối]"
+                                                  },
+                                                  {
+                                                      "source":  "m1",
+                                                      "target":  "a6",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a10",
+                                                      "target":  "fin",
+                                                      "guard":  ""
+                                                  }
+                                              ],
+                            "controlEdgeCounts":  [
+
+                                                  ],
+                            "detachedSideFlows":  [
+
+                                                  ],
+                            "finals":  [
+                                           {
+                                               "id":  "ff1",
+                                               "kind":  "flowFinal"
+                                           },
+                                           {
+                                               "id":  "ff2",
+                                               "kind":  "flowFinal"
+                                           },
+                                           {
+                                               "id":  "ff3",
+                                               "kind":  "flowFinal"
+                                           },
+                                           {
+                                               "id":  "fin",
+                                               "kind":  "activityFinal"
+                                           }
+                                       ],
+                            "allowedPresentationExceptions":  [
+                                                                  "Provider/API details are in the evidence mapping table, not in a new activity node.",
+                                                                  "Dashed notes are excluded from control-flow comparison."
+                                                              ]
+                        },
+                        {
+                            "page":  "WF-07",
+                            "source":  "drawio/WF-07.drawio",
+                            "sourceSha256":  "DF3A3A0B950AD596EBEDD634D1E30741C6BADD69BBE1024D0F7375D10F2217AA",
+                            "status":  "pass",
+                            "errors":  [
+
+                                       ],
+                            "canonicalNodes":  [
+                                                   {
+                                                       "id":  "b3",
+                                                       "type":  "action",
+                                                       "lane":  "Hệ thống",
+                                                       "labelContains":  "Chấm dứt đăng ký"
+                                                   }
+                                               ],
+                            "expectedEdges":  [
+                                                  {
+                                                      "source":  "fk",
+                                                      "target":  "b3",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "b3",
+                                                      "target":  "jn",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "fk",
+                                                      "target":  "b1",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "fk",
+                                                      "target":  "b2",
+                                                      "guard":  ""
+                                                  }
+                                              ],
+                            "controlEdgeCounts":  [
+
+                                                  ],
+                            "detachedSideFlows":  [
+
+                                                  ],
+                            "finals":  [
+                                           {
+                                               "id":  "fin",
+                                               "kind":  "activityFinal"
+                                           }
+                                       ],
+                            "allowedPresentationExceptions":  [
+                                                                  "Fork/join bars carry no guard."
+                                                              ]
+                        },
+                        {
+                            "page":  "WF-17",
+                            "source":  "drawio/WF-17.drawio",
+                            "sourceSha256":  "756C65581C0BD26104A1DF8564CF4CB52329BDBD292BCD2CF0999448A7A70726",
+                            "status":  "pass",
+                            "errors":  [
+
+                                       ],
+                            "canonicalNodes":  [
+                                                   {
+                                                       "id":  "a2b",
+                                                       "type":  "action",
+                                                       "lane":  "Hệ thống",
+                                                       "labelContains":  "Tổng hợp tên miền"
+                                                   }
+                                               ],
+                            "expectedEdges":  [
+                                                  {
+                                                      "source":  "d0",
+                                                      "target":  "a1",
+                                                      "guard":  "[sao kê ngân hàng]"
+                                                  },
+                                                  {
+                                                      "source":  "d0",
+                                                      "target":  "a2",
+                                                      "guard":  "[hệ định danh]"
+                                                  },
+                                                  {
+                                                      "source":  "d0",
+                                                      "target":  "a2b",
+                                                      "guard":  "[bộ thu thập trên thiết bị]"
+                                                  },
+                                                  {
+                                                      "source":  "a2b",
+                                                      "target":  "m1",
+                                                      "guard":  ""
+                                                  }
+                                              ],
+                            "controlEdgeCounts":  [
+
+                                                  ],
+                            "detachedSideFlows":  [
+
+                                                  ],
+                            "finals":  [
+                                           {
+                                               "id":  "ff1",
+                                               "kind":  "flowFinal"
+                                           },
+                                           {
+                                               "id":  "ff2",
+                                               "kind":  "flowFinal"
+                                           },
+                                           {
+                                               "id":  "ff3",
+                                               "kind":  "flowFinal"
+                                           },
+                                           {
+                                               "id":  "fin",
+                                               "kind":  "activityFinal"
+                                           }
+                                       ],
+                            "allowedPresentationExceptions":  [
+                                                                  "Dashed note connectors are excluded from control-flow comparison."
+                                                              ]
+                        },
+                        {
+                            "page":  "WF-18",
+                            "source":  "drawio/WF-18.drawio",
+                            "sourceSha256":  "D057EB30A859A7214B8EEDCE06CE0D0172279DB8485D0F4264A87A79965C8E40",
+                            "status":  "pass",
+                            "errors":  [
+
+                                       ],
+                            "canonicalNodes":  [
+                                                   {
+                                                       "id":  "a1",
+                                                       "type":  "action",
+                                                       "lane":  "Quản trị viên CNTT",
+                                                       "labelContains":  "Đăng ký thiết bị"
+                                                   },
+                                                   {
+                                                       "id":  "d1",
+                                                       "type":  "decision",
+                                                       "lane":  "Nhân viên",
+                                                       "labelContains":  "Bấm xác nhận"
+                                                   },
+                                                   {
+                                                       "id":  "a4",
+                                                       "type":  "action",
+                                                       "lane":  "Hệ thống",
+                                                       "labelContains":  "mở cổng nhận"
+                                                   },
+                                                   {
+                                                       "id":  "t1",
+                                                       "type":  "acceptEvent",
+                                                       "lane":  "Hệ thống",
+                                                       "labelContains":  "Mỗi ngày"
+                                                   },
+                                                   {
+                                                       "id":  "a5",
+                                                       "type":  "action",
+                                                       "lane":  "Hệ thống",
+                                                       "labelContains":  "Trên thiết bị: đo phút"
+                                                   },
+                                                   {
+                                                       "id":  "d2",
+                                                       "type":  "decision",
+                                                       "lane":  "Hệ thống",
+                                                       "labelContains":  "Cổng nhận"
+                                                   },
+                                                   {
+                                                       "id":  "a7",
+                                                       "type":  "action",
+                                                       "lane":  "Hệ thống",
+                                                       "labelContains":  "Từ chối bản ghi"
+                                                   },
+                                                   {
+                                                       "id":  "c1",
+                                                       "type":  "action",
+                                                       "lane":  "Hệ thống",
+                                                       "labelContains":  "WF-12a"
+                                                   }
+                                               ],
+                            "expectedEdges":  [
+                                                  {
+                                                      "source":  "d1",
+                                                      "target":  "a4",
+                                                      "guard":  "[đã xác nhận]"
+                                                  },
+                                                  {
+                                                      "source":  "d1",
+                                                      "target":  "fin1",
+                                                      "guard":  "[chưa xác nhận]"
+                                                  },
+                                                  {
+                                                      "source":  "a4",
+                                                      "target":  "t1",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "t1",
+                                                      "target":  "a5",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a6",
+                                                      "target":  "d2",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "d2",
+                                                      "target":  "a7",
+                                                      "guard":  "[sai]"
+                                                  },
+                                                  {
+                                                      "source":  "d2",
+                                                      "target":  "c1",
+                                                      "guard":  "[đúng]"
+                                                  },
+                                                  {
+                                                      "source":  "a7",
+                                                      "target":  "m1",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a8",
+                                                      "target":  "m1",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "m1",
+                                                      "target":  "a9",
+                                                      "guard":  ""
+                                                  }
+                                              ],
+                            "controlEdgeCounts":  [
+
+                                                  ],
+                            "detachedSideFlows":  [
+
+                                                  ],
+                            "finals":  [
+                                           {
+                                               "id":  "fin1",
+                                               "kind":  "activityFinal"
+                                           },
+                                           {
+                                               "id":  "fin2",
+                                               "kind":  "activityFinal"
+                                           }
+                                       ],
+                            "allowedPresentationExceptions":  [
+                                                                  "The daily loop is drawn as one pass after accept-event t1.",
+                                                                  "Stop-collection and silent-device cases are carried by note nt3; both end at the gate rejection branch."
+                                                              ]
+                        }
+                    ],
+    "duplicateSemanticCells":  [
+                                   {
+                                       "page":  "WF-01",
+                                       "sourceSha256":  "E909EB3A76FAD90E094461AA35F7CEB90161EB029F5435888FC083E5844DAB58",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-02",
+                                       "sourceSha256":  "C0C172BA0630595604ABA648CD669E34ECB2366A878E0C5664C38E4BCC3415A9",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-03",
+                                       "sourceSha256":  "4EE929FEC30355E96D2D24CC3B1FFE2896373CD3AC02A2D6722B1C31E2C68A63",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-04",
+                                       "sourceSha256":  "7DA6D1BA15B022F6F765C6156DC2385192031764C860C91E62E3915F6728BF2A",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-05",
+                                       "sourceSha256":  "7306345DFDDFE9A4486F35EBB662F1BE9B0DB9EC94957526ABDBA00E7277E5D3",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-06",
+                                       "sourceSha256":  "A33C6A46F3572F8514D42867B90A169239143F3DC16D546900CBD9CB8D910579",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-07",
+                                       "sourceSha256":  "DF3A3A0B950AD596EBEDD634D1E30741C6BADD69BBE1024D0F7375D10F2217AA",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-08",
+                                       "sourceSha256":  "A1F6D72BADA827EBFCC45DE593FF27B6EAF80E927713E0C41FDB75F2FA5297F5",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-09",
+                                       "sourceSha256":  "6003011974E258673F10DE637A58054C1F27B72D77EFF85F483B46998AB78288",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-09a",
+                                       "sourceSha256":  "65C2709CEE3192A4465772E85BFF95253F4FB0313AAFF3C9F4A07B7BAAC6BD49",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-10",
+                                       "sourceSha256":  "E4FBF8AED35BA8B8D00A1207841DC59E5B45FD062B52C700337390695C0C9386",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-11",
+                                       "sourceSha256":  "30BFAFB10959439BDC6557479E1D23B3C76EA4E390D79F8F9EA1B9B9AC0D46B4",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-12",
+                                       "sourceSha256":  "345C5CE7B28C28AD83A82928DE758865B8E5D93BCFF5EF45E0A5E9CB6358FB43",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-12a",
+                                       "sourceSha256":  "BD9A145431151F2FBDCD27B74B5BDED07243EC68A186A47633FA9C25C499FDD7",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-13",
+                                       "sourceSha256":  "8BAC30882568BBD48F78751517BED1A4C02E0DF1FD33BC5C30E70D2F929AF46C",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-13a",
+                                       "sourceSha256":  "84415F3E8D84E863C3B0DEEFC9BAEBEAEC34C054ED0127F691F60B8D83B06E8B",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-14",
+                                       "sourceSha256":  "3C0CDF5536E11FC851809285E1951B1D64F05DF0ED9EECA8BA7E7CD0F2CA1466",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-15",
+                                       "sourceSha256":  "64F0BC21744403B54E7AC8628D8E97B8BFE7895B9787DB6F758FF07C70D806CC",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-16",
+                                       "sourceSha256":  "E157345521796C2890B46FE44F8C51B1F1BA5F1B9F974533A3D3694C23F9745F",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-17",
+                                       "sourceSha256":  "756C65581C0BD26104A1DF8564CF4CB52329BDBD292BCD2CF0999448A7A70726",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-17a",
+                                       "sourceSha256":  "FC37A3F595D42D8480E9AC4840F3D068D26D113CBAB21A3578395AFE621BB695",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-18",
+                                       "sourceSha256":  "D057EB30A859A7214B8EEDCE06CE0D0172279DB8485D0F4264A87A79965C8E40",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   }
+                               ],
+    "regressionFixture":  {
+                              "path":  "D:\\FPT\\FALL2026\\Docs\\Diagrams\\workflows-activity-diagram\\tools\\wf15-parity-regression-fixture.json",
+                              "expectedDuplicateCandidates":  1,
+                              "actualDuplicateCandidates":  1,
+                              "status":  "pass"
+                          },
+    "manualRequired":  [
+                           "Read the cited BRD/decision source and walk through boundary scenarios; matching Mermaid and drawio does not prove business correctness.",
+                           "Render each changed page and inspect the whole page for clipping, overlapping labels, lane ownership and readable guards.",
+                           "Check every non-manifest page that changes before extending this manifest; do not treat the current three-page scope as a full semantic review of 21 pages."
+                       ],
+    "errors":  [
+
+               ]
+}
