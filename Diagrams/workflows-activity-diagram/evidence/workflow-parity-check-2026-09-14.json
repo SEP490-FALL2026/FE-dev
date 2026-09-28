@@ -1,0 +1,1279 @@
+{
+    "generatedAt":  "2026-09-18T15:18:49.0864975+07:00",
+    "checker":  {
+                    "path":  "D:\\FPT\\FALL2026\\Docs\\Diagrams\\workflows-activity-diagram\\tools\\check-workflow-parity.ps1",
+                    "sha256":  "70A5462A3EE971733225365DFDC2FA3B0E5343EF74954E9950D77E55C16D16AD",
+                    "scope":  "Behavior-critical parity for WF-07, WF-09, WF-10, WF-15, WF-16, WF-17 and WF-18 (QĐ-20/QĐ-22 changes added 14/09/2026; QĐ-30a control-edge counts and detached side-flow assertions added 16/09/2026; labels translated to English 18/09/2026, see Docs/Reviews/current-review.md); every run also scans all 22 current Workflow drawio sources for semantic-duplicate cells. controlEdgeCounts asserts the exact number of outgoing CONTROL edges of a decision in both drawio and Mermaid — dashed information edges and dashed note connectors are excluded from the count on both sides. detachedSideFlows asserts that the Finance inquiry chain exists, that no control edge crosses its boundary, and that it reaches the decision only through a dashed information edge."
+                },
+    "inputs":  {
+                   "index":  {
+                                 "path":  "D:\\FPT\\FALL2026\\Docs\\Diagrams\\workflows-activity-diagram\\index.md",
+                                 "sha256":  "FDE9710C89B3A3F023D25BF2E00CAB07585EC95FE92EF8849AF273676CA69A29"
+                             },
+                   "manifest":  {
+                                    "path":  "D:\\FPT\\FALL2026\\Docs\\Diagrams\\workflows-activity-diagram\\tools\\behavior-parity-manifest.json",
+                                    "sha256":  "202FF8084F7F82495A781B0966EFAB3178D36D35AA38ED5156A4478D32B39316"
+                                },
+                   "drawioSourcesScanned":  22
+               },
+    "status":  "pass",
+    "pageResults":  [
+                        {
+                            "page":  "WF-09",
+                            "source":  "drawio/WF-09.drawio",
+                            "sourceSha256":  "63DCCD4C49FF04C67AB68BD7B27B60CDE62BE4B4C1FA0FFD93497D638694030A",
+                            "status":  "pass",
+                            "errors":  [
+
+                                       ],
+                            "canonicalNodes":  [
+                                                   {
+                                                       "id":  "a4b",
+                                                       "type":  "action",
+                                                       "lane":  "System",
+                                                       "labelContains":  "Resolve Manager Approver"
+                                                   },
+                                                   {
+                                                       "id":  "a4c",
+                                                       "type":  "action",
+                                                       "lane":  "System",
+                                                       "labelContains":  "Hold Request in Controlled Wait"
+                                                   },
+                                                   {
+                                                       "id":  "a4d",
+                                                       "type":  "acceptEvent",
+                                                       "lane":  "System",
+                                                       "labelContains":  "Wait for Data Event: Role"
+                                                   },
+                                                   {
+                                                       "id":  "a5",
+                                                       "type":  "action",
+                                                       "lane":  "Manager Approver",
+                                                       "labelContains":  "View Request"
+                                                   },
+                                                   {
+                                                       "id":  "d2",
+                                                       "type":  "decision",
+                                                       "lane":  "Manager Approver",
+                                                       "labelContains":  "Decision?"
+                                                   },
+                                                   {
+                                                       "id":  "s1",
+                                                       "type":  "action",
+                                                       "lane":  "Spending Approver",
+                                                       "labelContains":  "Send Budget Information Request"
+                                                   },
+                                                   {
+                                                       "id":  "a7",
+                                                       "type":  "action",
+                                                       "lane":  "Finance",
+                                                       "labelContains":  "Reply to Information Request"
+                                                   },
+                                                   {
+                                                       "id":  "d4",
+                                                       "type":  "decision",
+                                                       "lane":  "Spending Approver",
+                                                       "labelContains":  "Decision?"
+                                                   },
+                                                   {
+                                                       "id":  "a9",
+                                                       "type":  "action",
+                                                       "lane":  "Finance",
+                                                       "labelContains":  "Record Official Budget"
+                                                   },
+                                                   {
+                                                       "id":  "a6",
+                                                       "type":  "action",
+                                                       "lane":  "System",
+                                                       "labelContains":  "same approver"
+                                                   },
+                                                   {
+                                                       "id":  "a6b",
+                                                       "type":  "action",
+                                                       "lane":  "System",
+                                                       "labelContains":  "Hold Spend-approval Step"
+                                                   },
+                                                   {
+                                                       "id":  "a7b",
+                                                       "type":  "action",
+                                                       "lane":  "System",
+                                                       "labelContains":  "Show Budget Snapshot"
+                                                   },
+                                                   {
+                                                       "id":  "a11",
+                                                       "type":  "action",
+                                                       "lane":  "System",
+                                                       "labelContains":  "Create Commitment"
+                                                   }
+                                               ],
+                            "expectedEdges":  [
+                                                  {
+                                                      "source":  "a4b",
+                                                      "target":  "m1",
+                                                      "guard":  "[valid approver found]"
+                                                  },
+                                                  {
+                                                      "source":  "a4b",
+                                                      "target":  "a4c",
+                                                      "guard":  "[no valid approver left]"
+                                                  },
+                                                  {
+                                                      "source":  "a4c",
+                                                      "target":  "a4d",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a4d",
+                                                      "target":  "a4b",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "m1",
+                                                      "target":  "a5",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a5",
+                                                      "target":  "d2",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "d3",
+                                                      "target":  "m2",
+                                                      "guard":  "[no]"
+                                                  },
+                                                  {
+                                                      "source":  "d4",
+                                                      "target":  "fin3",
+                                                      "guard":  "[rejected, reason required]"
+                                                  },
+                                                  {
+                                                      "source":  "fk1",
+                                                      "target":  "a9",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a9",
+                                                      "target":  "ff1",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "fk1",
+                                                      "target":  "m2",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "m2",
+                                                      "target":  "c1",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "d2",
+                                                      "target":  "a6",
+                                                      "guard":  "[SLA overdue]"
+                                                  },
+                                                  {
+                                                      "source":  "a6",
+                                                      "target":  "m1",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "d3",
+                                                      "target":  "a7b",
+                                                      "guard":  "[yes]"
+                                                  },
+                                                  {
+                                                      "source":  "a7b",
+                                                      "target":  "d4",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "ini2",
+                                                      "target":  "s1",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "s1",
+                                                      "target":  "a7",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a7",
+                                                      "target":  "ff2",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "d4",
+                                                      "target":  "a11",
+                                                      "guard":  "[approved]"
+                                                  },
+                                                  {
+                                                      "source":  "d4",
+                                                      "target":  "a6b",
+                                                      "guard":  "[SLA overdue]"
+                                                  },
+                                                  {
+                                                      "source":  "a6b",
+                                                      "target":  "d4",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a11",
+                                                      "target":  "fk1",
+                                                      "guard":  ""
+                                                  }
+                                              ],
+                            "controlEdgeCounts":  [
+                                                      {
+                                                          "node":  "d4",
+                                                          "expectedOutgoing":  3,
+                                                          "drawioOutgoing":  3,
+                                                          "mermaidOutgoing":  3,
+                                                          "drawioTargets":  [
+                                                                                "fin3 [[rejected, reason required]]",
+                                                                                "a11 [[approved]]",
+                                                                                "a6b [[SLA overdue]]"
+                                                                            ],
+                                                          "rationale":  "QĐ-30a/BR-07.9: đúng ba lối ra control — [approved], [rejected, reason required], [SLA overdue]. Cạnh thông tin nét đứt a7 -\u003e d4 KHÔNG được tính."
+                                                      },
+                                                      {
+                                                          "node":  "d2",
+                                                          "expectedOutgoing":  3,
+                                                          "drawioOutgoing":  3,
+                                                          "mermaidOutgoing":  3,
+                                                          "drawioTargets":  [
+                                                                                "fin1 [[rejected, reason required]]",
+                                                                                "a6 [[SLA overdue]]",
+                                                                                "d3 [[approved]]"
+                                                                            ],
+                                                          "rationale":  "SLA bước quản lý giữ nguyên: [approved], [rejected, reason required], [SLA overdue] -\u003e a6 -\u003e m1."
+                                                      }
+                                                  ],
+                            "detachedSideFlows":  [
+                                                      {
+                                                          "id":  "finance-inquiry",
+                                                          "chain":  [
+                                                                        "ini2",
+                                                                        "s1",
+                                                                        "a7",
+                                                                        "ff2"
+                                                                    ],
+                                                          "informationEdge":  "a7 -.-\u003e d4",
+                                                          "status":  "pass",
+                                                          "errors":  [
+
+                                                                     ],
+                                                          "rationale":  "QĐ-30a: luồng phụ tách rời, có initial riêng ở làn Spending Approver và kết thúc flow final; nối về d4 chỉ bằng cạnh thông tin nét đứt."
+                                                      }
+                                                  ],
+                            "noteAssertions":  [
+
+                                               ],
+                            "finals":  [
+                                           {
+                                               "id":  "fin0",
+                                               "kind":  "activityFinal"
+                                           },
+                                           {
+                                               "id":  "fin1",
+                                               "kind":  "activityFinal"
+                                           },
+                                           {
+                                               "id":  "fin2",
+                                               "kind":  "activityFinal"
+                                           },
+                                           {
+                                               "id":  "fin3",
+                                               "kind":  "activityFinal"
+                                           },
+                                           {
+                                               "id":  "ff1",
+                                               "kind":  "flowFinal"
+                                           },
+                                           {
+                                               "id":  "ff2",
+                                               "kind":  "flowFinal"
+                                           }
+                                       ],
+                            "allowedPresentationExceptions":  [
+                                                                  "Dashed note connectors are excluded from control-flow comparison; their rules are mapped in the index table.",
+                                                                  "QĐ-27/QĐ-28d: a6 -\u003e m1 returns to the SAME assigned approver (remind + notify only); it is not an escalation that changes the approver. Re-resolution happens only through the data-event accept node a4d -\u003e a4b.",
+                                                                  "QĐ-22/QĐ-28c/QĐ-30a: the conflict-of-interest substitute (FR-3.15) and the commitment release on hard provisioning failure stay in note nt6 and WF-09a. The SLA of the spend-approval step is now DRAWN: d4 -[SLA overdue]-\u003e a6b -\u003e d4. a6b is a distinct node from a6: a6 serves the MANAGER step and returns to m1, while a6b serves the SPEND-APPROVAL step and returns to d4 only. a6b must never retarget the approver, auto-approve, auto-reject, or route back to the manager step.",
+                                                                  "QĐ-30a: the Finance inquiry is a DETACHED SIDE FLOW, not a branch of the spend-approval decision. ini2 -\u003e s1 -\u003e a7 -\u003e ff2 has its own initial node in the Spending Approver lane (the approver may ask at any time) and ends in a flow final (the reply never blocks). It is intentionally disconnected from the main control path; this is NOT the split-topology defect the WF-15 regression fixture guards against.",
+                                                                  "QĐ-30a: a7 -\u003e d4 is an INFORMATION edge (dashed=1, labelled \u0027Additional Budget Input\u0027), excluded from control-flow comparison by design and drawn as -.-\u003e in Mermaid so neither format reports it as control flow. d4 keeps exactly three outgoing control edges: [approved], [rejected, reason required], [SLA overdue].",
+                                                                  "QĐ-29b: the spend-approval step stays with the SAME approver and its SLA does not pause while an inquiry is outstanding. Finance recording (a9) runs in parallel with provisioning after fk1; the over-budget notification is carried by note nt7."
+                                                              ]
+                        },
+                        {
+                            "page":  "WF-10",
+                            "source":  "drawio/WF-10.drawio",
+                            "sourceSha256":  "EC7314014C4816D63F544854F62C444334F14241DF7E96CD74C3A54274E86026",
+                            "status":  "pass",
+                            "errors":  [
+
+                                       ],
+                            "canonicalNodes":  [
+                                                   {
+                                                       "id":  "a6",
+                                                       "type":  "action",
+                                                       "lane":  "System",
+                                                       "labelContains":  "Show Budget Snapshot"
+                                                   },
+                                                   {
+                                                       "id":  "d3",
+                                                       "type":  "decision",
+                                                       "lane":  "System",
+                                                       "labelContains":  "Has Cost"
+                                                   },
+                                                   {
+                                                       "id":  "d4",
+                                                       "type":  "decision",
+                                                       "lane":  "Spending Approver",
+                                                       "labelContains":  "Approval Decision?"
+                                                   },
+                                                   {
+                                                       "id":  "s1",
+                                                       "type":  "action",
+                                                       "lane":  "Spending Approver",
+                                                       "labelContains":  "Send Budget Information Request"
+                                                   },
+                                                   {
+                                                       "id":  "a6b",
+                                                       "type":  "action",
+                                                       "lane":  "Finance",
+                                                       "labelContains":  "Reply to Information Request"
+                                                   }
+                                               ],
+                            "expectedEdges":  [
+                                                  {
+                                                      "source":  "m1",
+                                                      "target":  "d3",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "d3",
+                                                      "target":  "a6",
+                                                      "guard":  "[yes]"
+                                                  },
+                                                  {
+                                                      "source":  "a6",
+                                                      "target":  "m2",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "d3",
+                                                      "target":  "m2",
+                                                      "guard":  "[no]"
+                                                  },
+                                                  {
+                                                      "source":  "m2",
+                                                      "target":  "d4",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "d4",
+                                                      "target":  "fin3",
+                                                      "guard":  "[rejected, reason required]"
+                                                  },
+                                                  {
+                                                      "source":  "d4",
+                                                      "target":  "c1",
+                                                      "guard":  "[approved]"
+                                                  },
+                                                  {
+                                                      "source":  "c1",
+                                                      "target":  "c2",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "ini2",
+                                                      "target":  "s1",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "s1",
+                                                      "target":  "a6b",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a6b",
+                                                      "target":  "ff2",
+                                                      "guard":  ""
+                                                  }
+                                              ],
+                            "controlEdgeCounts":  [
+                                                      {
+                                                          "node":  "d4",
+                                                          "expectedOutgoing":  2,
+                                                          "drawioOutgoing":  2,
+                                                          "mermaidOutgoing":  2,
+                                                          "drawioTargets":  [
+                                                                                "fin3 [[rejected, reason required]]",
+                                                                                "c1 [[approved]]"
+                                                                            ],
+                                                          "rationale":  "QĐ-30a: đúng hai lối ra control — [approved], [rejected, reason required]. Cạnh thông tin nét đứt a6b -\u003e d4 KHÔNG được tính."
+                                                      }
+                                                  ],
+                            "detachedSideFlows":  [
+                                                      {
+                                                          "id":  "finance-inquiry",
+                                                          "chain":  [
+                                                                        "ini2",
+                                                                        "s1",
+                                                                        "a6b",
+                                                                        "ff2"
+                                                                    ],
+                                                          "informationEdge":  "a6b -.-\u003e d4",
+                                                          "status":  "pass",
+                                                          "errors":  [
+
+                                                                     ],
+                                                          "rationale":  "QĐ-30a: luồng phụ tách rời, có initial riêng ở làn Spending Approver và kết thúc flow final; nối về d4 chỉ bằng cạnh thông tin nét đứt."
+                                                      }
+                                                  ],
+                            "noteAssertions":  [
+                                                   {
+                                                       "id":  "nt0",
+                                                       "rule":  "BR-09.1",
+                                                       "status":  "pass",
+                                                       "drawioText":  "BR-09.1 Risk assessment and cataloging are two different roles within the same IT department. Merging them would force the Spending Approver to decide spend on an app no one has risk-assessed. The IT assessment and the Finance input are BOTH NOT approval steps; the only decision-maker on this page is the Spending Approver (d4)",
+                                                       "mermaidText":  "BR-09.1 Risk assessment and cataloging are two different roles within the same IT department. Merging them would force the Spending Approver to decide spend on an app no one has risk-assessed. The IT assessment and the Finance input are BOTH NOT approval steps; the only decision-maker on this page is the Spending Approver (d4)",
+                                                       "errors":  [
+
+                                                                  ],
+                                                       "rationale":  "QĐ30-R01: câu cũ \u0027Gộp lại thì tài chính phải duyệt tiền\u0027 gán quyền duyệt chi cho Tài chính, trái SoD-3/QĐ-29b/QĐ-30a. Note phải nêu Spending Approver là người quyết duy nhất và nói rõ đánh giá của CNTT lẫn ý kiến Finance đều không phải bước duyệt. Nội dung note không nằm trong graph control-flow nên phép so node/edge không bắt được khi nó lệch; assertion này so cả Mermaid, source rời và tệp gộp. Wording translated to English 18/09/2026; assertions updated to match (Docs/Reviews/current-review.md)."
+                                                   }
+                                               ],
+                            "finals":  [
+                                           {
+                                               "id":  "fin1",
+                                               "kind":  "activityFinal"
+                                           },
+                                           {
+                                               "id":  "fin2",
+                                               "kind":  "activityFinal"
+                                           },
+                                           {
+                                               "id":  "fin3",
+                                               "kind":  "activityFinal"
+                                           },
+                                           {
+                                               "id":  "ff2",
+                                               "kind":  "flowFinal"
+                                           }
+                                       ],
+                            "allowedPresentationExceptions":  [
+                                                                  "Dashed note connectors are excluded from control-flow comparison.",
+                                                                  "QĐ-22: the budget commitment is drawn on WF-09 (a9); on WF-10 note nt3 states that the called WF-09 reuses this spend decision.",
+                                                                  "QĐ-30a: the Finance inquiry is a DETACHED SIDE FLOW ini2 -\u003e s1 -\u003e a6b -\u003e ff2 with its own initial node in the Spending Approver lane and a flow-final end; it is intentionally disconnected from the main control path. a6b -\u003e d4 is an INFORMATION edge (dashed=1 in drawio, -.-\u003e in Mermaid), excluded from control-flow comparison by design. d4 keeps exactly two outgoing control edges: [approved] and [rejected, reason required].",
+                                                                  "QĐ-30a/DA-01: note nt0 (BR-09.1) states that IT risk review and the Finance reply are NOT approval steps and that the only decision maker on this page is the Spending Approver at d4.",
+                                                                  "QĐ-29b: the step stays with the same spend approver and its SLA does not pause while an inquiry is outstanding."
+                                                              ]
+                        },
+                        {
+                            "page":  "WF-15",
+                            "source":  "drawio/WF-15.drawio",
+                            "sourceSha256":  "82A547FCE9D7AC31C38F78BA5DD9BEF4A63A18EE96BF054A8624EAD60E10D1E3",
+                            "status":  "pass",
+                            "errors":  [
+
+                                       ],
+                            "canonicalNodes":  [
+                                                   {
+                                                       "id":  "d1",
+                                                       "type":  "decision",
+                                                       "lane":  "System",
+                                                       "labelContains":  "Cancellation Deadline"
+                                                   },
+                                                   {
+                                                       "id":  "a2",
+                                                       "type":  "action",
+                                                       "lane":  "System",
+                                                       "labelContains":  "Derive From Notice Period"
+                                                   },
+                                                   {
+                                                       "id":  "a3",
+                                                       "type":  "action",
+                                                       "lane":  "System",
+                                                       "labelContains":  "Missing Contract Data"
+                                                   },
+                                                   {
+                                                       "id":  "d2",
+                                                       "type":  "decision",
+                                                       "lane":  "Spending Approver",
+                                                       "labelContains":  "Decision?"
+                                                   },
+                                                   {
+                                                       "id":  "a7",
+                                                       "type":  "action",
+                                                       "lane":  "System",
+                                                       "labelContains":  "Keep Quantity Unchanged"
+                                                   },
+                                                   {
+                                                       "id":  "a8",
+                                                       "type":  "action",
+                                                       "lane":  "System",
+                                                       "labelContains":  "Reduced"
+                                                   },
+                                                   {
+                                                       "id":  "a9",
+                                                       "type":  "action",
+                                                       "lane":  "System",
+                                                       "labelContains":  "Cancellation"
+                                                   },
+                                                   {
+                                                       "id":  "a10",
+                                                       "type":  "action",
+                                                       "lane":  "System",
+                                                       "labelContains":  "Auto-renew"
+                                                   },
+                                                   {
+                                                       "id":  "s1",
+                                                       "type":  "action",
+                                                       "lane":  "Spending Approver",
+                                                       "labelContains":  "Send Budget Information Request"
+                                                   },
+                                                   {
+                                                       "id":  "a6",
+                                                       "type":  "action",
+                                                       "lane":  "Finance",
+                                                       "labelContains":  "Reply to Information Request"
+                                                   },
+                                                   {
+                                                       "id":  "a6s",
+                                                       "type":  "action",
+                                                       "lane":  "System",
+                                                       "labelContains":  "Show Budget Snapshot"
+                                                   }
+                                               ],
+                            "expectedEdges":  [
+                                                  {
+                                                      "source":  "ini",
+                                                      "target":  "t1",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "t1",
+                                                      "target":  "a1",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a1",
+                                                      "target":  "d1",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "d1",
+                                                      "target":  "m2",
+                                                      "guard":  "[explicit date]"
+                                                  },
+                                                  {
+                                                      "source":  "d1",
+                                                      "target":  "a2",
+                                                      "guard":  "[notice period only]"
+                                                  },
+                                                  {
+                                                      "source":  "a2",
+                                                      "target":  "m2",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "d1",
+                                                      "target":  "a3",
+                                                      "guard":  "[no data]"
+                                                  },
+                                                  {
+                                                      "source":  "a3",
+                                                      "target":  "ff1",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "d2",
+                                                      "target":  "a7",
+                                                      "guard":  "[renew as-is]"
+                                                  },
+                                                  {
+                                                      "source":  "d2",
+                                                      "target":  "a8",
+                                                      "guard":  "[renew and reduce quantity]"
+                                                  },
+                                                  {
+                                                      "source":  "d2",
+                                                      "target":  "a9",
+                                                      "guard":  "[cancel service]"
+                                                  },
+                                                  {
+                                                      "source":  "d2",
+                                                      "target":  "a10",
+                                                      "guard":  "[overdue, unhandled]"
+                                                  },
+                                                  {
+                                                      "source":  "a7",
+                                                      "target":  "m3",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a8",
+                                                      "target":  "m3",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a10",
+                                                      "target":  "m3",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a9",
+                                                      "target":  "fin",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "ini2",
+                                                      "target":  "s1",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "s1",
+                                                      "target":  "a6",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a6",
+                                                      "target":  "ff2",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a5",
+                                                      "target":  "a6s",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a6s",
+                                                      "target":  "d2",
+                                                      "guard":  ""
+                                                  }
+                                              ],
+                            "controlEdgeCounts":  [
+                                                      {
+                                                          "node":  "d2",
+                                                          "expectedOutgoing":  4,
+                                                          "drawioOutgoing":  4,
+                                                          "mermaidOutgoing":  4,
+                                                          "drawioTargets":  [
+                                                                                "a7 [[renew as-is]]",
+                                                                                "a8 [[renew and reduce quantity]]",
+                                                                                "a9 [[cancel service]]",
+                                                                                "a10 [[overdue, unhandled]]"
+                                                                            ],
+                                                          "rationale":  "QĐ-29b: đúng bốn lối ra control — [renew as-is], [renew and reduce quantity], [cancel service], [overdue, unhandled]. Cạnh thông tin nét đứt a6 -\u003e d2 KHÔNG được tính."
+                                                      }
+                                                  ],
+                            "detachedSideFlows":  [
+                                                      {
+                                                          "id":  "finance-inquiry",
+                                                          "chain":  [
+                                                                        "ini2",
+                                                                        "s1",
+                                                                        "a6",
+                                                                        "ff2"
+                                                                    ],
+                                                          "informationEdge":  "a6 -.-\u003e d2",
+                                                          "status":  "pass",
+                                                          "errors":  [
+
+                                                                     ],
+                                                          "rationale":  "QĐ-30a: luồng phụ tách rời, có initial riêng ở làn Spending Approver và kết thúc flow final; nối về d2 chỉ bằng cạnh thông tin nét đứt."
+                                                      }
+                                                  ],
+                            "noteAssertions":  [
+
+                                               ],
+                            "finals":  [
+                                           {
+                                               "id":  "ff1",
+                                               "kind":  "flowFinal"
+                                           },
+                                           {
+                                               "id":  "ff2",
+                                               "kind":  "flowFinal"
+                                           },
+                                           {
+                                               "id":  "fin",
+                                               "kind":  "activityFinal"
+                                           }
+                                       ],
+                            "allowedPresentationExceptions":  [
+                                                                  "m2 and m3 are UML merge nodes whose blank label is intentional.",
+                                                                  "Dashed notes are not control-flow nodes.",
+                                                                  "QĐ-30a: the Finance inquiry is a DETACHED SIDE FLOW ini2 -\u003e s1 -\u003e a6 -\u003e ff2 with its own initial node in the Spending Approver lane and a flow-final end; it is intentionally disconnected from the main control path and is NOT the split-topology defect this page\u0027s regression fixture guards against (the fixture covers d1/a2/a3/a7/m3 and the ini -\u003e t1 -\u003e a1 -\u003e d1 spine, none of which change here). a6 -\u003e d2 is an INFORMATION edge (dashed=1 in drawio, -.-\u003e in Mermaid), excluded from control-flow comparison by design.",
+                                                                  "QĐ-29b: d2 keeps exactly four outgoing control edges ([renew as-is], [renew and reduce quantity], [cancel service], [overdue, unhandled]); the step stays with the same approver and its SLA does not pause. Finance recording after the renewal decision is carried by note nt3, not a separate node on this page."
+                                                              ]
+                        },
+                        {
+                            "page":  "WF-16",
+                            "source":  "drawio/WF-16.drawio",
+                            "sourceSha256":  "DB274F614A8CB8C5F17A2C307620E67EA2D8E1F2FE3B3DC63E8E89559A0689A1",
+                            "status":  "pass",
+                            "errors":  [
+
+                                       ],
+                            "canonicalNodes":  [
+                                                   {
+                                                       "id":  "dq",
+                                                       "type":  "decision",
+                                                       "lane":  "System",
+                                                       "labelContains":  "ProvisioningTask"
+                                                   },
+                                                   {
+                                                       "id":  "dq2",
+                                                       "type":  "decision",
+                                                       "lane":  "System",
+                                                       "labelContains":  "Active Member"
+                                                   },
+                                                   {
+                                                       "id":  "a11",
+                                                       "type":  "action",
+                                                       "lane":  "System",
+                                                       "labelContains":  "Complete the Same Linked ProvisioningTask"
+                                                   },
+                                                   {
+                                                       "id":  "a6",
+                                                       "type":  "action",
+                                                       "lane":  "System",
+                                                       "labelContains":  "Generate Discrepancy Record"
+                                                   },
+                                                   {
+                                                       "id":  "a10",
+                                                       "type":  "action",
+                                                       "lane":  "System",
+                                                       "labelContains":  "Close Record"
+                                                   }
+                                               ],
+                            "expectedEdges":  [
+                                                  {
+                                                      "source":  "dq",
+                                                      "target":  "dq2",
+                                                      "guard":  "[yes]"
+                                                  },
+                                                  {
+                                                      "source":  "dq",
+                                                      "target":  "m1",
+                                                      "guard":  "[no]"
+                                                  },
+                                                  {
+                                                      "source":  "dq2",
+                                                      "target":  "ff2",
+                                                      "guard":  "[still pending acceptance]"
+                                                  },
+                                                  {
+                                                      "source":  "dq2",
+                                                      "target":  "a11",
+                                                      "guard":  "[active, right account]"
+                                                  },
+                                                  {
+                                                      "source":  "a11",
+                                                      "target":  "ff3",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "dq2",
+                                                      "target":  "m1",
+                                                      "guard":  "[wrong account, or invite expired / rejected]"
+                                                  },
+                                                  {
+                                                      "source":  "m1",
+                                                      "target":  "a6",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a10",
+                                                      "target":  "fin",
+                                                      "guard":  ""
+                                                  }
+                                              ],
+                            "controlEdgeCounts":  [
+
+                                                  ],
+                            "detachedSideFlows":  [
+
+                                                  ],
+                            "noteAssertions":  [
+
+                                               ],
+                            "finals":  [
+                                           {
+                                               "id":  "ff1",
+                                               "kind":  "flowFinal"
+                                           },
+                                           {
+                                               "id":  "ff2",
+                                               "kind":  "flowFinal"
+                                           },
+                                           {
+                                               "id":  "ff3",
+                                               "kind":  "flowFinal"
+                                           },
+                                           {
+                                               "id":  "fin",
+                                               "kind":  "activityFinal"
+                                           }
+                                       ],
+                            "allowedPresentationExceptions":  [
+                                                                  "Provider/API details are in the evidence mapping table, not in a new activity node.",
+                                                                  "Dashed notes are excluded from control-flow comparison."
+                                                              ]
+                        },
+                        {
+                            "page":  "WF-07",
+                            "source":  "drawio/WF-07.drawio",
+                            "sourceSha256":  "53769B1F118FC55615AC613915CBAEE0C9A57FE0F8559BA1D441B5751CD02B9F",
+                            "status":  "pass",
+                            "errors":  [
+
+                                       ],
+                            "canonicalNodes":  [
+                                                   {
+                                                       "id":  "b3",
+                                                       "type":  "action",
+                                                       "lane":  "System",
+                                                       "labelContains":  "End Company"
+                                                   }
+                                               ],
+                            "expectedEdges":  [
+                                                  {
+                                                      "source":  "fk",
+                                                      "target":  "b3",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "b3",
+                                                      "target":  "jn",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "fk",
+                                                      "target":  "b1",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "fk",
+                                                      "target":  "b2",
+                                                      "guard":  ""
+                                                  }
+                                              ],
+                            "controlEdgeCounts":  [
+
+                                                  ],
+                            "detachedSideFlows":  [
+
+                                                  ],
+                            "noteAssertions":  [
+
+                                               ],
+                            "finals":  [
+                                           {
+                                               "id":  "fin",
+                                               "kind":  "activityFinal"
+                                           }
+                                       ],
+                            "allowedPresentationExceptions":  [
+                                                                  "Fork/join bars carry no guard."
+                                                              ]
+                        },
+                        {
+                            "page":  "WF-17",
+                            "source":  "drawio/WF-17.drawio",
+                            "sourceSha256":  "86AAF48D68092F0135FC3F62374D520A7CD71CCDFAFB9799422D6B27E98CAFFC",
+                            "status":  "pass",
+                            "errors":  [
+
+                                       ],
+                            "canonicalNodes":  [
+                                                   {
+                                                       "id":  "a2b",
+                                                       "type":  "action",
+                                                       "lane":  "System",
+                                                       "labelContains":  "Aggregate Domains"
+                                                   }
+                                               ],
+                            "expectedEdges":  [
+                                                  {
+                                                      "source":  "d0",
+                                                      "target":  "a1",
+                                                      "guard":  "[bank statement]"
+                                                  },
+                                                  {
+                                                      "source":  "d0",
+                                                      "target":  "a2",
+                                                      "guard":  "[IdP]"
+                                                  },
+                                                  {
+                                                      "source":  "d0",
+                                                      "target":  "a2b",
+                                                      "guard":  "[device collector]"
+                                                  },
+                                                  {
+                                                      "source":  "a2b",
+                                                      "target":  "m1",
+                                                      "guard":  ""
+                                                  }
+                                              ],
+                            "controlEdgeCounts":  [
+
+                                                  ],
+                            "detachedSideFlows":  [
+
+                                                  ],
+                            "noteAssertions":  [
+
+                                               ],
+                            "finals":  [
+                                           {
+                                               "id":  "ff1",
+                                               "kind":  "flowFinal"
+                                           },
+                                           {
+                                               "id":  "ff2",
+                                               "kind":  "flowFinal"
+                                           },
+                                           {
+                                               "id":  "ff3",
+                                               "kind":  "flowFinal"
+                                           },
+                                           {
+                                               "id":  "fin",
+                                               "kind":  "activityFinal"
+                                           }
+                                       ],
+                            "allowedPresentationExceptions":  [
+                                                                  "Dashed note connectors are excluded from control-flow comparison."
+                                                              ]
+                        },
+                        {
+                            "page":  "WF-18",
+                            "source":  "drawio/WF-18.drawio",
+                            "sourceSha256":  "DEC1EE33E250567C63DCBB55ED793CCE0396307BAC462670F0AE61D67848165F",
+                            "status":  "pass",
+                            "errors":  [
+
+                                       ],
+                            "canonicalNodes":  [
+                                                   {
+                                                       "id":  "a1",
+                                                       "type":  "action",
+                                                       "lane":  "IT Admin",
+                                                       "labelContains":  "Register Company Device"
+                                                   },
+                                                   {
+                                                       "id":  "d1",
+                                                       "type":  "decision",
+                                                       "lane":  "Employee",
+                                                       "labelContains":  "Acknowledge?"
+                                                   },
+                                                   {
+                                                       "id":  "a4",
+                                                       "type":  "action",
+                                                       "lane":  "System",
+                                                       "labelContains":  "Open Ingest Gate"
+                                                   },
+                                                   {
+                                                       "id":  "t1",
+                                                       "type":  "acceptEvent",
+                                                       "lane":  "System",
+                                                       "labelContains":  "Every Day"
+                                                   },
+                                                   {
+                                                       "id":  "a5",
+                                                       "type":  "action",
+                                                       "lane":  "System",
+                                                       "labelContains":  "On Device: Measure Minutes"
+                                                   },
+                                                   {
+                                                       "id":  "d2",
+                                                       "type":  "decision",
+                                                       "lane":  "System",
+                                                       "labelContains":  "Ingest Gate"
+                                                   },
+                                                   {
+                                                       "id":  "a7",
+                                                       "type":  "action",
+                                                       "lane":  "System",
+                                                       "labelContains":  "Reject Record"
+                                                   },
+                                                   {
+                                                       "id":  "c1",
+                                                       "type":  "action",
+                                                       "lane":  "System",
+                                                       "labelContains":  "WF-12a"
+                                                   }
+                                               ],
+                            "expectedEdges":  [
+                                                  {
+                                                      "source":  "d1",
+                                                      "target":  "a4",
+                                                      "guard":  "[acknowledged]"
+                                                  },
+                                                  {
+                                                      "source":  "d1",
+                                                      "target":  "fin1",
+                                                      "guard":  "[not acknowledged]"
+                                                  },
+                                                  {
+                                                      "source":  "a4",
+                                                      "target":  "t1",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "t1",
+                                                      "target":  "a5",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a6",
+                                                      "target":  "d2",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "d2",
+                                                      "target":  "a7",
+                                                      "guard":  "[invalid]"
+                                                  },
+                                                  {
+                                                      "source":  "d2",
+                                                      "target":  "c1",
+                                                      "guard":  "[valid]"
+                                                  },
+                                                  {
+                                                      "source":  "a7",
+                                                      "target":  "m1",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "a8",
+                                                      "target":  "m1",
+                                                      "guard":  ""
+                                                  },
+                                                  {
+                                                      "source":  "m1",
+                                                      "target":  "a9",
+                                                      "guard":  ""
+                                                  }
+                                              ],
+                            "controlEdgeCounts":  [
+
+                                                  ],
+                            "detachedSideFlows":  [
+
+                                                  ],
+                            "noteAssertions":  [
+
+                                               ],
+                            "finals":  [
+                                           {
+                                               "id":  "fin1",
+                                               "kind":  "activityFinal"
+                                           },
+                                           {
+                                               "id":  "fin2",
+                                               "kind":  "activityFinal"
+                                           }
+                                       ],
+                            "allowedPresentationExceptions":  [
+                                                                  "The daily loop is drawn as one pass after accept-event t1.",
+                                                                  "Stop-collection and silent-device cases are carried by note nt3; both end at the gate rejection branch."
+                                                              ]
+                        }
+                    ],
+    "duplicateSemanticCells":  [
+                                   {
+                                       "page":  "WF-01",
+                                       "sourceSha256":  "B9E446BEC7C3B6A470B6A7E0F62D7903FB960C1C380C531972C83FDC849797DB",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-02",
+                                       "sourceSha256":  "C358BF2E3C7D0E7BF5147145CD62EC33604AE76FFC5AA67B525C76D79EFD972F",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-03",
+                                       "sourceSha256":  "DA5E8343C93E06BB12FF6BAE2379C680594FC1CF68F9B0B8FD9CBB42345C21E1",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-04",
+                                       "sourceSha256":  "D32700E28B77750ECBD2FFACF4A666F6968F5CEBDBDEFF5E3F37A1291A819260",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-05",
+                                       "sourceSha256":  "D0679DC58B9EB56681BC1E6A2DF19595052E9990C7E945754791381EBF999AAF",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-06",
+                                       "sourceSha256":  "9AE0A29E9232D3141D3534AAB7A286BFC310DBD5AD2444CEA3E51F47BE78DBD8",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-07",
+                                       "sourceSha256":  "53769B1F118FC55615AC613915CBAEE0C9A57FE0F8559BA1D441B5751CD02B9F",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-08",
+                                       "sourceSha256":  "E7F30063F129047E50FC940535F7E6569CED3CAA4D539A08E64B5B4968EF25B7",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-09",
+                                       "sourceSha256":  "63DCCD4C49FF04C67AB68BD7B27B60CDE62BE4B4C1FA0FFD93497D638694030A",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-09a",
+                                       "sourceSha256":  "BFA020FA026D5EE2C585A7EAB9ECD9DB59AF404B3CC7E97D71EBE52C2C0FF193",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-10",
+                                       "sourceSha256":  "EC7314014C4816D63F544854F62C444334F14241DF7E96CD74C3A54274E86026",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-11",
+                                       "sourceSha256":  "F2A940D27AC31412D8C86DF48332FCC113C1496D66B80001C70A17A851167810",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-12",
+                                       "sourceSha256":  "F20361424B2A0A2AF5DE5D4D37A9E0AFB3F82ED857D48FEBB8F009D8ABC72E7E",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-12a",
+                                       "sourceSha256":  "BF348862F74EC10045CB2D75FED4C0FD8A936E003A4C45B8BA993DFD75B9E7FD",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-13",
+                                       "sourceSha256":  "8D8C4BE47D9FC30B3C10BDCE94AB8AD7B5C0447B0C32EE8F85A7ECCC52F90CC3",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-13a",
+                                       "sourceSha256":  "198F180453ECC63FE0B362F1B1FA77CC871891882A053833DFCA1B518F7EF3A4",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-14",
+                                       "sourceSha256":  "167169661432567D6FA1263E0D5E2FBBFC2B81E55D1CF20860410E37E0F1D282",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-15",
+                                       "sourceSha256":  "82A547FCE9D7AC31C38F78BA5DD9BEF4A63A18EE96BF054A8624EAD60E10D1E3",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-16",
+                                       "sourceSha256":  "DB274F614A8CB8C5F17A2C307620E67EA2D8E1F2FE3B3DC63E8E89559A0689A1",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-17",
+                                       "sourceSha256":  "86AAF48D68092F0135FC3F62374D520A7CD71CCDFAFB9799422D6B27E98CAFFC",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-17a",
+                                       "sourceSha256":  "B5E7CBF84B7154083078D013FB62E0BD3EF9BB00A0BCF7B06EE3A2C4112C5613",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   },
+                                   {
+                                       "page":  "WF-18",
+                                       "sourceSha256":  "DEC1EE33E250567C63DCBB55ED793CCE0396307BAC462670F0AE61D67848165F",
+                                       "candidateCount":  0,
+                                       "candidates":  [
+
+                                                      ]
+                                   }
+                               ],
+    "regressionFixture":  {
+                              "path":  "D:\\FPT\\FALL2026\\Docs\\Diagrams\\workflows-activity-diagram\\tools\\wf15-parity-regression-fixture.json",
+                              "expectedDuplicateCandidates":  1,
+                              "actualDuplicateCandidates":  1,
+                              "status":  "pass"
+                          },
+    "manualRequired":  [
+                           "Read the cited BRD/decision source and walk through boundary scenarios; matching Mermaid and drawio does not prove business correctness.",
+                           "Render each changed page and inspect the whole page for clipping, overlapping labels, lane ownership and readable guards.",
+                           "Check every non-manifest page that changes before extending this manifest; do not treat the current three-page scope as a full semantic review of 21 pages."
+                       ],
+    "errors":  [
+
+               ]
+}

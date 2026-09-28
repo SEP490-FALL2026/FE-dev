@@ -1,0 +1,399 @@
+{
+    "generatedAt":  "2026-09-18T15:11:09.2628483+07:00",
+    "drawio":  {
+                   "renderer":  "draw.io Desktop CLI",
+                   "version":  "29.3.0.0",
+                   "commandTemplate":  "draw.io -x -f png -b 10 -s 2 -o \u003coutput.png\u003e \u003cinput.drawio\u003e"
+               },
+    "sources":  [
+                    {
+                        "path":  "Docs/Diagrams/workflows-activity-diagram/drawio/WF-01.drawio",
+                        "sha256":  "B9E446BEC7C3B6A470B6A7E0F62D7903FB960C1C380C531972C83FDC849797DB"
+                    },
+                    {
+                        "path":  "Docs/Diagrams/workflows-activity-diagram/drawio/WF-02.drawio",
+                        "sha256":  "C358BF2E3C7D0E7BF5147145CD62EC33604AE76FFC5AA67B525C76D79EFD972F"
+                    },
+                    {
+                        "path":  "Docs/Diagrams/workflows-activity-diagram/drawio/WF-03.drawio",
+                        "sha256":  "DA5E8343C93E06BB12FF6BAE2379C680594FC1CF68F9B0B8FD9CBB42345C21E1"
+                    },
+                    {
+                        "path":  "Docs/Diagrams/workflows-activity-diagram/drawio/WF-04.drawio",
+                        "sha256":  "D32700E28B77750ECBD2FFACF4A666F6968F5CEBDBDEFF5E3F37A1291A819260"
+                    },
+                    {
+                        "path":  "Docs/Diagrams/workflows-activity-diagram/drawio/WF-05.drawio",
+                        "sha256":  "D0679DC58B9EB56681BC1E6A2DF19595052E9990C7E945754791381EBF999AAF"
+                    },
+                    {
+                        "path":  "Docs/Diagrams/workflows-activity-diagram/drawio/WF-06.drawio",
+                        "sha256":  "9AE0A29E9232D3141D3534AAB7A286BFC310DBD5AD2444CEA3E51F47BE78DBD8"
+                    },
+                    {
+                        "path":  "Docs/Diagrams/workflows-activity-diagram/drawio/WF-07.drawio",
+                        "sha256":  "53769B1F118FC55615AC613915CBAEE0C9A57FE0F8559BA1D441B5751CD02B9F"
+                    },
+                    {
+                        "path":  "Docs/Diagrams/workflows-activity-diagram/drawio/WF-08.drawio",
+                        "sha256":  "E7F30063F129047E50FC940535F7E6569CED3CAA4D539A08E64B5B4968EF25B7"
+                    },
+                    {
+                        "path":  "Docs/Diagrams/workflows-activity-diagram/drawio/WF-09.drawio",
+                        "sha256":  "63DCCD4C49FF04C67AB68BD7B27B60CDE62BE4B4C1FA0FFD93497D638694030A"
+                    },
+                    {
+                        "path":  "Docs/Diagrams/workflows-activity-diagram/drawio/WF-09a.drawio",
+                        "sha256":  "BFA020FA026D5EE2C585A7EAB9ECD9DB59AF404B3CC7E97D71EBE52C2C0FF193"
+                    },
+                    {
+                        "path":  "Docs/Diagrams/workflows-activity-diagram/drawio/WF-10.drawio",
+                        "sha256":  "EC7314014C4816D63F544854F62C444334F14241DF7E96CD74C3A54274E86026"
+                    },
+                    {
+                        "path":  "Docs/Diagrams/workflows-activity-diagram/drawio/WF-11.drawio",
+                        "sha256":  "F2A940D27AC31412D8C86DF48332FCC113C1496D66B80001C70A17A851167810"
+                    },
+                    {
+                        "path":  "Docs/Diagrams/workflows-activity-diagram/drawio/WF-12.drawio",
+                        "sha256":  "F20361424B2A0A2AF5DE5D4D37A9E0AFB3F82ED857D48FEBB8F009D8ABC72E7E"
+                    },
+                    {
+                        "path":  "Docs/Diagrams/workflows-activity-diagram/drawio/WF-12a.drawio",
+                        "sha256":  "BF348862F74EC10045CB2D75FED4C0FD8A936E003A4C45B8BA993DFD75B9E7FD"
+                    },
+                    {
+                        "path":  "Docs/Diagrams/workflows-activity-diagram/drawio/WF-13.drawio",
+                        "sha256":  "8D8C4BE47D9FC30B3C10BDCE94AB8AD7B5C0447B0C32EE8F85A7ECCC52F90CC3"
+                    },
+                    {
+                        "path":  "Docs/Diagrams/workflows-activity-diagram/drawio/WF-13a.drawio",
+                        "sha256":  "198F180453ECC63FE0B362F1B1FA77CC871891882A053833DFCA1B518F7EF3A4"
+                    },
+                    {
+                        "path":  "Docs/Diagrams/workflows-activity-diagram/drawio/WF-14.drawio",
+                        "sha256":  "167169661432567D6FA1263E0D5E2FBBFC2B81E55D1CF20860410E37E0F1D282"
+                    },
+                    {
+                        "path":  "Docs/Diagrams/workflows-activity-diagram/drawio/WF-15.drawio",
+                        "sha256":  "82A547FCE9D7AC31C38F78BA5DD9BEF4A63A18EE96BF054A8624EAD60E10D1E3"
+                    },
+                    {
+                        "path":  "Docs/Diagrams/workflows-activity-diagram/drawio/WF-16.drawio",
+                        "sha256":  "DB274F614A8CB8C5F17A2C307620E67EA2D8E1F2FE3B3DC63E8E89559A0689A1"
+                    },
+                    {
+                        "path":  "Docs/Diagrams/workflows-activity-diagram/drawio/WF-17.drawio",
+                        "sha256":  "86AAF48D68092F0135FC3F62374D520A7CD71CCDFAFB9799422D6B27E98CAFFC"
+                    },
+                    {
+                        "path":  "Docs/Diagrams/workflows-activity-diagram/drawio/WF-17a.drawio",
+                        "sha256":  "B5E7CBF84B7154083078D013FB62E0BD3EF9BB00A0BCF7B06EE3A2C4112C5613"
+                    },
+                    {
+                        "path":  "Docs/Diagrams/workflows-activity-diagram/drawio/WF-18.drawio",
+                        "sha256":  "DEC1EE33E250567C63DCBB55ED793CCE0396307BAC462670F0AE61D67848165F"
+                    }
+                ],
+    "artifacts":  [
+                      {
+                          "path":  "Docs/Diagrams/workflows-activity-diagram/SaaS-Sentry-Activity-Diagrams.drawio",
+                          "sha256":  "5276FA9CA64136D2BDEC7B4E6FE22C150DD53FA489841932849790A1B1E7C8C8"
+                      },
+                      {
+                          "path":  "Docs/Diagrams/workflows-activity-diagram/png/WF-01.png",
+                          "sha256":  "162EF25F6634AB0BB7E43F44601B61781B31E43420A325A32F72F14805ACF916"
+                      },
+                      {
+                          "path":  "Docs/Diagrams/workflows-activity-diagram/png/WF-02.png",
+                          "sha256":  "34C9D69BD028A6936ADA7678FC4D61274B8AC61C4077123E051561604C9BD3B6"
+                      },
+                      {
+                          "path":  "Docs/Diagrams/workflows-activity-diagram/png/WF-03.png",
+                          "sha256":  "DFB9D5E9E0E8D7638A51F665A699C4166C149F5F4240234FE85467025D5F2306"
+                      },
+                      {
+                          "path":  "Docs/Diagrams/workflows-activity-diagram/png/WF-04.png",
+                          "sha256":  "3C84C7606527CC3923287ED0B87AD02B3D8ACE8674B29D0ADB38BFB317DBF64E"
+                      },
+                      {
+                          "path":  "Docs/Diagrams/workflows-activity-diagram/png/WF-05.png",
+                          "sha256":  "BDF2966C294AF45FEC59AD1491F905889C31070BC9D24F87B32BE7D1B82DBAAF"
+                      },
+                      {
+                          "path":  "Docs/Diagrams/workflows-activity-diagram/png/WF-06.png",
+                          "sha256":  "1D13DED06442739F3420019A3C4CE75C2C9970BBC173BC38E81735B9B1B3F817"
+                      },
+                      {
+                          "path":  "Docs/Diagrams/workflows-activity-diagram/png/WF-07.png",
+                          "sha256":  "4197F222159A943301AB952D8CA29808870DDCF8DC4E088FE841576E288FBFA7"
+                      },
+                      {
+                          "path":  "Docs/Diagrams/workflows-activity-diagram/png/WF-08.png",
+                          "sha256":  "A14634E820840C24FDDBB68FDB921AD591923CC687CE99674D6FFB35BC886048"
+                      },
+                      {
+                          "path":  "Docs/Diagrams/workflows-activity-diagram/png/WF-09.png",
+                          "sha256":  "BEB0F52CE57E866E9D478524ABC6F31F445BF4A2E36D9793AD05B38AC4DC195B"
+                      },
+                      {
+                          "path":  "Docs/Diagrams/workflows-activity-diagram/png/WF-09a.png",
+                          "sha256":  "BA2E849D9B462CA6DAE903F7037E56C577689A15E2C39091933302C0A650A830"
+                      },
+                      {
+                          "path":  "Docs/Diagrams/workflows-activity-diagram/png/WF-10.png",
+                          "sha256":  "52DBBA9E544994AA5037F68324908A0826F6B7BE729C245E27FFFF9E0433E3F2"
+                      },
+                      {
+                          "path":  "Docs/Diagrams/workflows-activity-diagram/png/WF-11.png",
+                          "sha256":  "CA2D3C7979DA2EAB76F4BA9781814A574E1FC56D3759ACADDBA1AFC6AB346B0D"
+                      },
+                      {
+                          "path":  "Docs/Diagrams/workflows-activity-diagram/png/WF-12.png",
+                          "sha256":  "4D3DCC64AEF7BBC1607BC8216C267C9819E4C3291E80A834D4836CB8F62D64B8"
+                      },
+                      {
+                          "path":  "Docs/Diagrams/workflows-activity-diagram/png/WF-12a.png",
+                          "sha256":  "B92EA629259C0B5A4958647D3F3B5DAA3BFE686E2E36D45FC9D10DC5CF6B53C1"
+                      },
+                      {
+                          "path":  "Docs/Diagrams/workflows-activity-diagram/png/WF-13.png",
+                          "sha256":  "7960F182E9EF009CB8CB4CB2A90255C7A91F9180A160B9B0C743944990C152DC"
+                      },
+                      {
+                          "path":  "Docs/Diagrams/workflows-activity-diagram/png/WF-13a.png",
+                          "sha256":  "3C3502BE711B3185F8E4DCCC367EFB69B1956D0E0D4C65FB4993D7919CEF8810"
+                      },
+                      {
+                          "path":  "Docs/Diagrams/workflows-activity-diagram/png/WF-14.png",
+                          "sha256":  "2B0303C5868EFC305DA82BEC6720552A68CC95F589EE0DAE4C6C42C1AE94C55B"
+                      },
+                      {
+                          "path":  "Docs/Diagrams/workflows-activity-diagram/png/WF-15.png",
+                          "sha256":  "3ED0A76C1A286D943E12000F41868FE9368EDEB727D13C2457B132B47C4A243C"
+                      },
+                      {
+                          "path":  "Docs/Diagrams/workflows-activity-diagram/png/WF-16.png",
+                          "sha256":  "8ABC1E5FE4EE88E69B6871726D11729295B10EDEB07268012287146EF24AE46F"
+                      },
+                      {
+                          "path":  "Docs/Diagrams/workflows-activity-diagram/png/WF-17.png",
+                          "sha256":  "6DD7B59E102ACC001892058657C634AEC70E89FF6EDD5285F0273747660FD03A"
+                      },
+                      {
+                          "path":  "Docs/Diagrams/workflows-activity-diagram/png/WF-17a.png",
+                          "sha256":  "35A3435B413CD2BAC537523D0B922612F55CA9D8594B5C0FC4745845054C16E8"
+                      },
+                      {
+                          "path":  "Docs/Diagrams/workflows-activity-diagram/png/WF-18.png",
+                          "sha256":  "EE1A1CFF3301BF91564B13C9DB1D436614F0AB3B05E41C4B55A100C171894A69"
+                      }
+                  ],
+    "pathConvention":  "Repository-relative, forward slashes, rooted at the parent of Docs.",
+    "visualReview":  "Recorded separately in Reviews; successful export does not replace visual inspection.",
+    "pngIntegrity":  {
+                         "checkedAtExport":  true,
+                         "checks":  "PNG signature, per-chunk CRC, IHDR present with width/height \u003e 0, IDAT present, valid trailing IEND.",
+                         "embeddedXmlFlag":  "Dropped on 16/09/2026: draw.io Desktop 29.x with \u0027-e\u0027 writes a wrong zTXt CRC and truncates IEND, producing files no decoder can read (finding QÄ30-C02). The editable sources are the .drawio files listed under \u0027sources\u0027.",
+                         "results":  [
+                                         {
+                                             "page":  "WF-01",
+                                             "width":  2236,
+                                             "height":  2745,
+                                             "ok":  true,
+                                             "problems":  [
+
+                                                          ]
+                                         },
+                                         {
+                                             "page":  "WF-02",
+                                             "width":  1772,
+                                             "height":  3533,
+                                             "ok":  true,
+                                             "problems":  [
+
+                                                          ]
+                                         },
+                                         {
+                                             "page":  "WF-03",
+                                             "width":  3056,
+                                             "height":  2077,
+                                             "ok":  true,
+                                             "problems":  [
+
+                                                          ]
+                                         },
+                                         {
+                                             "page":  "WF-04",
+                                             "width":  2236,
+                                             "height":  3139,
+                                             "ok":  true,
+                                             "problems":  [
+
+                                                          ]
+                                         },
+                                         {
+                                             "page":  "WF-05",
+                                             "width":  3092,
+                                             "height":  2615,
+                                             "ok":  true,
+                                             "problems":  [
+
+                                                          ]
+                                         },
+                                         {
+                                             "page":  "WF-06",
+                                             "width":  1772,
+                                             "height":  2885,
+                                             "ok":  true,
+                                             "problems":  [
+
+                                                          ]
+                                         },
+                                         {
+                                             "page":  "WF-07",
+                                             "width":  2336,
+                                             "height":  3053,
+                                             "ok":  true,
+                                             "problems":  [
+
+                                                          ]
+                                         },
+                                         {
+                                             "page":  "WF-08",
+                                             "width":  2532,
+                                             "height":  3099,
+                                             "ok":  true,
+                                             "problems":  [
+
+                                                          ]
+                                         },
+                                         {
+                                             "page":  "WF-09",
+                                             "width":  4617,
+                                             "height":  4481,
+                                             "ok":  true,
+                                             "problems":  [
+
+                                                          ]
+                                         },
+                                         {
+                                             "page":  "WF-09a",
+                                             "width":  4313,
+                                             "height":  3137,
+                                             "ok":  true,
+                                             "problems":  [
+
+                                                          ]
+                                         },
+                                         {
+                                             "page":  "WF-10",
+                                             "width":  4113,
+                                             "height":  3533,
+                                             "ok":  true,
+                                             "problems":  [
+
+                                                          ]
+                                         },
+                                         {
+                                             "page":  "WF-11",
+                                             "width":  2916,
+                                             "height":  1965,
+                                             "ok":  true,
+                                             "problems":  [
+
+                                                          ]
+                                         },
+                                         {
+                                             "page":  "WF-12",
+                                             "width":  2340,
+                                             "height":  3393,
+                                             "ok":  true,
+                                             "problems":  [
+
+                                                          ]
+                                         },
+                                         {
+                                             "page":  "WF-12a",
+                                             "width":  1772,
+                                             "height":  2697,
+                                             "ok":  true,
+                                             "problems":  [
+
+                                                          ]
+                                         },
+                                         {
+                                             "page":  "WF-13",
+                                             "width":  2664,
+                                             "height":  4089,
+                                             "ok":  true,
+                                             "problems":  [
+
+                                                          ]
+                                         },
+                                         {
+                                             "page":  "WF-13a",
+                                             "width":  1516,
+                                             "height":  3131,
+                                             "ok":  true,
+                                             "problems":  [
+
+                                                          ]
+                                         },
+                                         {
+                                             "page":  "WF-14",
+                                             "width":  2236,
+                                             "height":  2307,
+                                             "ok":  true,
+                                             "problems":  [
+
+                                                          ]
+                                         },
+                                         {
+                                             "page":  "WF-15",
+                                             "width":  4097,
+                                             "height":  3579,
+                                             "ok":  true,
+                                             "problems":  [
+
+                                                          ]
+                                         },
+                                         {
+                                             "page":  "WF-16",
+                                             "width":  4437,
+                                             "height":  3673,
+                                             "ok":  true,
+                                             "problems":  [
+
+                                                          ]
+                                         },
+                                         {
+                                             "page":  "WF-17",
+                                             "width":  3357,
+                                             "height":  3299,
+                                             "ok":  true,
+                                             "problems":  [
+
+                                                          ]
+                                         },
+                                         {
+                                             "page":  "WF-17a",
+                                             "width":  3056,
+                                             "height":  1895,
+                                             "ok":  true,
+                                             "problems":  [
+
+                                                          ]
+                                         },
+                                         {
+                                             "page":  "WF-18",
+                                             "width":  2773,
+                                             "height":  3417,
+                                             "ok":  true,
+                                             "problems":  [
+
+                                                          ]
+                                         }
+                                     ]
+                     }
+}

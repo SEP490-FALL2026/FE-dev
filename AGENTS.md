@@ -13,7 +13,7 @@ in this repository. Read `ARCHITECTURE.md` before changing structure or data flo
 
 ## Stack
 
-- React 19 and React Router 8 in Framework Mode with SPA rendering
+- React 19 and React Router 7 in Framework Mode with SPA rendering
 - Vite 8 and Tailwind CSS 4
 - TanStack Query 5 for remote/server state
 - Orval 8 for OpenAPI client, hook, Faker factory, and MSW handler generation

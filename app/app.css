@@ -1,15 +1,69 @@
 @import 'tailwindcss';
 
-@theme {
+@theme inline {
   --font-sans:
     ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --color-background: var(--theme-background);
+  --color-sidebar: var(--theme-sidebar);
+  --color-surface: var(--theme-surface);
+  --color-surface-subtle: var(--theme-surface-subtle);
+  --color-border: var(--theme-border);
+  --color-foreground: var(--theme-foreground);
+  --color-muted-foreground: var(--theme-muted-foreground);
+  --color-primary: var(--theme-primary);
+  --color-primary-hover: var(--theme-primary-hover);
+  --color-primary-foreground: var(--theme-primary-foreground);
+  --color-primary-soft: var(--theme-primary-soft);
+  --color-success: var(--theme-success);
+  --color-warning: var(--theme-warning);
+  --color-danger: var(--theme-danger);
+  --color-info: var(--theme-info);
+}
+
+:root,
+[data-theme='light'] {
+  color-scheme: light;
+  --theme-background: #fef7ef;
+  --theme-sidebar: #fdfaf5;
+  --theme-surface: #fefbf6;
+  --theme-surface-subtle: #fdf3e7;
+  --theme-border: #efe3d7;
+  --theme-foreground: #241c18;
+  --theme-muted-foreground: #7c7068;
+  --theme-primary: #ff7020;
+  --theme-primary-hover: #f06018;
+  --theme-primary-foreground: #ffffff;
+  --theme-primary-soft: #ffe0c0;
+  --theme-success: #40b880;
+  --theme-warning: #ffc070;
+  --theme-danger: #e84840;
+  --theme-info: #2888d8;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+  --theme-background: #05162a;
+  --theme-sidebar: #011226;
+  --theme-surface: #0d1c33;
+  --theme-surface-subtle: #102440;
+  --theme-border: #1b3553;
+  --theme-foreground: #f8fcff;
+  --theme-muted-foreground: #a8b8cc;
+  --theme-primary: #2888ff;
+  --theme-primary-hover: #4098ff;
+  --theme-primary-foreground: #ffffff;
+  --theme-primary-soft: #103870;
+  --theme-success: #10b8c0;
+  --theme-warning: #f0a830;
+  --theme-danger: #f04850;
+  --theme-info: #2888ff;
 }
 
 html,
 body {
-  @apply min-h-full bg-slate-50 text-slate-950 antialiased;
+  @apply min-h-full bg-background text-foreground antialiased;
 }
 
 body {
-  @apply min-h-screen;
+  @apply min-h-screen transition-colors duration-200;
 }

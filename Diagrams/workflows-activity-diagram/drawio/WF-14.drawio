@@ -1,0 +1,137 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.6.6 Chrome/144.0.7559.236 Electron/40.8.4 Safari/537.36" version="29.6.6">
+  <diagram id="p17" name="WF-14 · Periodic Access Review">
+    <mxGraphModel dx="1603" dy="963" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1112" pageHeight="1227" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="_ttl" parent="1" style="text;html=1;fontSize=18;fontStyle=1;align=left;verticalAlign=middle;fontColor=#1F1F1F;" value="WF-14  Periodic Access Review" vertex="1">
+          <mxGeometry height="26" width="1056" x="56" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="_sub" parent="1" style="text;html=1;fontSize=11;align=left;verticalAlign=middle;fontColor=#6E6E6E;" value="MF-3  ·  Cadence: Scheduled, design-only" vertex="1">
+          <mxGeometry height="16" width="1056" x="56" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="_trg" parent="1" style="text;html=1;fontSize=11;align=left;verticalAlign=middle;fontColor=#6E6E6E;" value="Trigger: Configured review cycle is reached" vertex="1">
+          <mxGeometry height="16" width="1056" x="56" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="_ph0" parent="1" style="text;html=1;fontSize=10;fontStyle=1;align=center;verticalAlign=middle;fontColor=#8A8A8A;horizontal=0;letterSpacing=1;" value="BUILD LIST" vertex="1">
+          <mxGeometry height="286" width="20" x="10" y="153" as="geometry" />
+        </mxCell>
+        <mxCell id="_ph1" parent="1" style="text;html=1;fontSize=10;fontStyle=1;align=center;verticalAlign=middle;fontColor=#8A8A8A;horizontal=0;letterSpacing=1;" value="CONFIRM" vertex="1">
+          <mxGeometry height="453" width="20" x="10" y="439" as="geometry" />
+        </mxCell>
+        <mxCell id="_sep1" edge="1" parent="1" style="endArrow=none;html=1;dashed=1;dashPattern=8 6;strokeColor=#C4C4C4;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="16" y="439" as="sourcePoint" />
+            <mxPoint x="752" y="439" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="_ph2" parent="1" style="text;html=1;fontSize=10;fontStyle=1;align=center;verticalAlign=middle;fontColor=#8A8A8A;horizontal=0;letterSpacing=1;" value="SAVE EVIDENCE" vertex="1">
+          <mxGeometry height="266" width="20" x="10" y="892" as="geometry" />
+        </mxCell>
+        <mxCell id="_sep2" edge="1" parent="1" style="endArrow=none;html=1;dashed=1;dashPattern=8 6;strokeColor=#C4C4C4;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="16" y="892" as="sourcePoint" />
+            <mxPoint x="752" y="892" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="_pool" parent="1" style="swimlane;html=1;startSize=0;fillColor=none;strokeColor=#C4C4C4;collapsible=0;" value="" vertex="1">
+          <mxGeometry height="1045" width="696" x="56" y="118" as="geometry" />
+        </mxCell>
+        <mxCell id="_lane_QL" parent="_pool" style="swimlane;html=1;startSize=34;horizontal=1;fillColor=#FFFFFF;strokeColor=#C4C4C4;swimlaneFillColor=#FFFFFF;fontSize=12;fontStyle=1;fontColor=#3D3D3D;collapsible=0;" value="Manager" vertex="1">
+          <mxGeometry height="1045" width="232" as="geometry" />
+        </mxCell>
+        <mxCell id="a2" parent="_lane_QL" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#5A5A5A;strokeWidth=1.4;fontSize=12;fontColor=#1F1F1F;" value="Confirm Each Access&lt;br&gt;Still Needed or Not" vertex="1">
+          <mxGeometry height="56" width="196" x="18" y="344" as="geometry" />
+        </mxCell>
+        <mxCell id="d1" parent="_lane_QL" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#5A5A5A;strokeWidth=1.4;fontSize=11;fontColor=#1F1F1F;" value="Confirmation&lt;br&gt;Result?" vertex="1">
+          <mxGeometry height="84" width="158" x="37" y="446" as="geometry" />
+        </mxCell>
+        <mxCell id="_lane_IT" parent="_pool" style="swimlane;html=1;startSize=34;horizontal=1;fillColor=#FAFAFA;strokeColor=#C4C4C4;swimlaneFillColor=#FAFAFA;fontSize=12;fontStyle=1;fontColor=#3D3D3D;collapsible=0;" value="IT Admin" vertex="1">
+          <mxGeometry height="1045" width="232" x="232" as="geometry" />
+        </mxCell>
+        <mxCell id="a4" parent="_lane_IT" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#5A5A5A;strokeWidth=1.4;fontSize=12;fontColor=#1F1F1F;" value="Reclaim Access&lt;br&gt;No Longer Needed" vertex="1">
+          <mxGeometry height="56" width="196" x="18" y="576" as="geometry" />
+        </mxCell>
+        <mxCell id="c1" parent="_lane_IT" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#EFEFEF;strokeColor=#5A5A5A;strokeWidth=1.4;fontSize=12;fontColor=#1F1F1F;" value="Execute&lt;br&gt;Provisioning&lt;br&gt;(WF-09a)" vertex="1">
+          <mxGeometry height="73" width="196" x="18" y="678" as="geometry" />
+        </mxCell>
+        <mxCell id="_lane_HT" parent="_pool" style="swimlane;html=1;startSize=34;horizontal=1;fillColor=#FFFFFF;strokeColor=#C4C4C4;swimlaneFillColor=#FFFFFF;fontSize=12;fontStyle=1;fontColor=#3D3D3D;collapsible=0;" value="System" vertex="1">
+          <mxGeometry height="1045" width="232" x="464" as="geometry" />
+        </mxCell>
+        <mxCell id="ini" parent="_lane_HT" style="ellipse;html=1;fillColor=#1F1F1F;strokeColor=#1F1F1F;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="101" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="t1" parent="_lane_HT" style="shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;fixedSize=1;size=14;direction=south;fillColor=#F4F4F4;strokeColor=#5A5A5A;strokeWidth=1.4;fontSize=11;fontColor=#1F1F1F;" value="Review Cycle&lt;br&gt;Reached" vertex="1">
+          <mxGeometry height="58" width="168" x="32" y="138" as="geometry" />
+        </mxCell>
+        <mxCell id="a1" parent="_lane_HT" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#5A5A5A;strokeWidth=1.4;fontSize=12;fontColor=#1F1F1F;" value="Build List of&lt;br&gt;Access to Review" vertex="1">
+          <mxGeometry height="56" width="196" x="18" y="242" as="geometry" />
+        </mxCell>
+        <mxCell id="a3" parent="_lane_HT" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#5A5A5A;strokeWidth=1.4;fontSize=12;fontColor=#1F1F1F;" value="Record Retention&lt;br&gt;With Confirmer" vertex="1">
+          <mxGeometry height="56" width="196" x="18" y="576" as="geometry" />
+        </mxCell>
+        <mxCell id="m1" parent="_lane_HT" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#5A5A5A;strokeWidth=1.4;" value="" vertex="1">
+          <mxGeometry height="38" width="38" x="97" y="797" as="geometry" />
+        </mxCell>
+        <mxCell id="a5" parent="_lane_HT" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#5A5A5A;strokeWidth=1.4;fontSize=12;fontColor=#1F1F1F;" value="Save Review Evidence&lt;br&gt;for Audit" vertex="1">
+          <mxGeometry height="56" width="196" x="18" y="881" as="geometry" />
+        </mxCell>
+        <mxCell id="fin" parent="_lane_HT" style="ellipse;html=1;shape=endState;fillColor=#1F1F1F;strokeColor=#1F1F1F;" value="" vertex="1">
+          <mxGeometry height="34" width="34" x="99" y="983" as="geometry" />
+        </mxCell>
+        <mxCell id="_e0" edge="1" parent="_pool" source="ini" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;strokeColor=#5A5A5A;strokeWidth=1.3;fontSize=10;fontColor=#3D3D3D;labelBackgroundColor=#FFFFFF;endArrow=open;endSize=8;endFill=0;" target="t1" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_e1" edge="1" parent="_pool" source="t1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;strokeColor=#5A5A5A;strokeWidth=1.3;fontSize=10;fontColor=#3D3D3D;labelBackgroundColor=#FFFFFF;endArrow=open;endSize=8;endFill=0;" target="a1" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_e2" edge="1" parent="_pool" source="a1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;strokeColor=#5A5A5A;strokeWidth=1.3;fontSize=10;fontColor=#3D3D3D;labelBackgroundColor=#FFFFFF;endArrow=open;endSize=8;endFill=0;" target="a2" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_e3" edge="1" parent="_pool" source="a2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;strokeColor=#5A5A5A;strokeWidth=1.3;fontSize=10;fontColor=#3D3D3D;labelBackgroundColor=#FFFFFF;endArrow=open;endSize=8;endFill=0;" target="d1" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_e4" edge="1" parent="_pool" source="d1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;strokeColor=#5A5A5A;strokeWidth=1.3;fontSize=10;fontColor=#3D3D3D;labelBackgroundColor=#FFFFFF;endArrow=open;endSize=8;endFill=0;" target="a3" value="[still needed]">
+          <mxGeometry relative="1" x="0.814" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="_e5" edge="1" parent="_pool" source="a3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;strokeColor=#5A5A5A;strokeWidth=1.3;fontSize=10;fontColor=#3D3D3D;labelBackgroundColor=#FFFFFF;endArrow=open;endSize=8;endFill=0;" target="m1" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_e6" edge="1" parent="_pool" source="d1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;strokeColor=#5A5A5A;strokeWidth=1.3;fontSize=10;fontColor=#3D3D3D;labelBackgroundColor=#FFFFFF;endArrow=open;endSize=8;endFill=0;" target="a4" value="[no longer needed]">
+          <mxGeometry relative="1" x="0.2885" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="116" y="604" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="_e7" edge="1" parent="_pool" source="a4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;strokeColor=#5A5A5A;strokeWidth=1.3;fontSize=10;fontColor=#3D3D3D;labelBackgroundColor=#FFFFFF;endArrow=open;endSize=8;endFill=0;" target="c1" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_e8" edge="1" parent="_pool" source="c1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;strokeColor=#5A5A5A;strokeWidth=1.3;fontSize=10;fontColor=#3D3D3D;labelBackgroundColor=#FFFFFF;endArrow=open;endSize=8;endFill=0;" target="m1" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_e9" edge="1" parent="_pool" source="m1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;strokeColor=#5A5A5A;strokeWidth=1.3;fontSize=10;fontColor=#3D3D3D;labelBackgroundColor=#FFFFFF;endArrow=open;endSize=8;endFill=0;" target="a5" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_e10" edge="1" parent="_pool" source="a5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;strokeColor=#5A5A5A;strokeWidth=1.3;fontSize=10;fontColor=#3D3D3D;labelBackgroundColor=#FFFFFF;endArrow=open;endSize=8;endFill=0;" target="fin" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="nt0" parent="1" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#FBFBF4;strokeColor=#A8A8A8;fontSize=10;fontColor=#3D3D3D;align=left;spacingLeft=8;verticalAlign=middle;" value="Review evidence is data flow L53&lt;br&gt;sent to Audit in the Context Diagram" vertex="1">
+          <mxGeometry height="73" width="258" x="798" y="990" as="geometry" />
+        </mxCell>
+        <mxCell id="nt1" parent="1" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#FBFBF4;strokeColor=#A8A8A8;fontSize=10;fontColor=#3D3D3D;align=left;spacingLeft=8;verticalAlign=middle;" value="This workflow is design-only —&lt;br&gt;not implemented within the project scope" vertex="1">
+          <mxGeometry height="73" width="258" x="798" y="351" as="geometry" />
+        </mxCell>
+        <mxCell id="_ne0" edge="1" parent="1" source="nt0" style="endArrow=none;html=1;dashed=1;dashPattern=3 3;strokeColor=#A8A8A8;strokeWidth=1;edgeStyle=none;" target="a5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_ne1" edge="1" parent="1" source="nt1" style="endArrow=none;html=1;dashed=1;dashPattern=3 3;strokeColor=#A8A8A8;strokeWidth=1;edgeStyle=none;" target="a1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
