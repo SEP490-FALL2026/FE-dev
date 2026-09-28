@@ -2,14 +2,50 @@
 
 @theme {
   --font-sans:
-    ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+    'Noto Color Emoji';
+
+  /* SaaS-Sentry warm palette */
+  --color-brand-50: #fef5ed;
+  --color-brand-100: #fce4d2;
+  --color-brand-200: #fcb978;
+  --color-brand-500: #fc7523;
+  --color-brand-600: #e85d16;
+  --color-brand-bg: #fefbf7;
+
+  --color-neutral-50: #fefbf7;
+  --color-neutral-100: #fef5ed;
+  --color-neutral-200: #ede7e2;
+  --color-neutral-500: #4d4745;
+  --color-neutral-900: #121211;
+
+  --color-success: #3db87f;
+  --color-success-bg: #e8f8f0;
+  --color-danger: #ef6b5b;
+  --color-danger-bg: #fdeceb;
 }
 
 html,
 body {
-  @apply min-h-full bg-slate-50 text-slate-950 antialiased;
+  @apply min-h-full bg-neutral-100 text-neutral-900 antialiased;
 }
 
 body {
   @apply min-h-screen;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-neutral-200);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-200);
 }

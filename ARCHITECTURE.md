@@ -45,18 +45,39 @@ requests to `index.html`; `nginx.conf` contains this rule. `/api` must be routed
 NestJS by the deployment ingress/reverse proxy. Vite supplies the equivalent proxy
 in local development.
 
-### Feature-oriented source tree
+### Feature-oriented source tree (Multi-Role Enterprise Architecture)
+
+SaaS-Sentry serves multiple user roles with distinct business capabilities:
+
+- **Employee**: Self-service portal (my software, license requests, renewals, return seat).
+- **IT Admin**: SaaS catalog, license seat inventory & allocation, vendor contracts, Shadow IT discovery.
+- **Manager / Approver**: Approval inbox, team license overview, department spend.
+- **Finance**: SaaS cost analysis, optimization recommendations, budget tracking.
+
+To keep the codebase maintainable as the number of screens grows, routes and features are grouped by role/portal, while cross-role domain logic is shared through `entities/`:
 
 ```text
 app/
   root.tsx                 document shell and error boundary
-  routes.ts                route manifest
-  routes/                  thin route modules
+  routes.ts                route manifest defining nested layouts per role
+  routes/                  thin route modules grouped by role/portal
+    auth/                  login, sso-callback, forbidden
+    employee/              employee portal routes (layout, dashboard, software, requests...)
+    admin/                 IT admin portal routes (layout, catalog, licenses, contracts...)
+    manager/               manager portal routes (layout, approvals...)
+    finance/               finance portal routes (layout, cost-analytics...)
   providers/               root-only framework providers
-  features/
-    <capability>/           screen, components, hooks, tests, feature-local models
-  entities/
-    <domain-concept>/       reusable domain presentation logic, only when needed
+  features/                business capabilities grouped by role/portal
+    employee/              employee portal features (layout, dashboard, my-software, requests...)
+    admin/                 IT admin portal features (layout, catalog, licenses, contracts...)
+    manager/               manager portal features (layout, approvals...)
+    finance/               finance portal features (layout, cost-optimization...)
+    shared/                cross-role features (auth, profile-settings, notifications)
+  entities/                domain presentation logic and models shared across roles
+    license/               LicenseStatusBadge, LicenseCard, license domain types
+    software/              SoftwareLogo, SoftwarePlanBadge, software domain types
+    request/               RequestStatusBadge, ApprovalTimeline, request domain types
+    user/                  UserAvatar, UserRoleBadge, user domain types
   shared/
     api/
       generated/
@@ -67,7 +88,7 @@ app/
     config/                 validated public runtime/build configuration
     i18n/                   typed vi/en resources and language lifecycle
     lib/                    framework-neutral utilities
-    ui/                     reusable presentation primitives
+    ui/                     reusable presentation primitives (Button, Modal, Input, Table...)
 test/                       global test setup
 openapi/                    committed API contract snapshot
 ```
@@ -81,10 +102,76 @@ routes -> features -> entities -> shared
 providers -------------------------> shared
 ```
 
-A lower layer cannot import a higher layer. Features do not import other features'
-private modules. When multiple features need a true domain concept, move that concept
-to `entities/`; when they need generic infrastructure or a primitive, move it to
-`shared/`.
+A lower layer cannot import a higher layer:
+
+- A route module only renders its corresponding feature and configures loaders/meta.
+- Features within one role do not import features from another role.
+- Cross-role presentation or domain concepts MUST live in `entities/` (e.g. both Employee and Admin can import `LicenseStatusBadge` from `entities/license/`).
+- Generic UI primitives and infrastructure live in `shared/ui/` and `shared/api/`.
+
+### Role layouts and access control (RBAC)
+
+1. **Dedicated Role Layouts**: Each role has its own layout shell (e.g., `features/employee/layout/employee-layout.tsx` for Employee, `features/admin/layout/admin-layout.tsx` for Admin). This ensures navigation items, headers, and quick actions are role-tailored without complex conditional logic in a single monolith layout.
+2. **Layout-Level Route Guards**: Access control checks (e.g. verifying role permissions) run at the parent layout route module in `routes/<role>/layout.tsx`. Unauthorized users are intercepted before child route screens mount.
+
+### Feature-internal organization
+
+Each feature is self-contained. When a feature screen grows beyond a comfortable size, split it into focused files inside that feature folder:
+
+```text
+features/
+  <role>/
+    <feature>/
+      <feature>-page.tsx              page component (~100 lines, composes children)
+      components/                     feature-private child components
+        <child-component>.tsx
+      hooks/                          feature-private hooks
+        use-<feature>-filters.ts
+      __tests__/
+        <feature>-page.test.tsx
+```
+
+Child components and hooks inside `components/` and `hooks/` are private to the
+feature. Do not import them from other features. When a genuine second consumer
+appears, promote the module to `entities/` (domain concept) or `shared/ui/`
+(generic primitive).
+
+#### Naming conventions
+
+All file names use `kebab-case`. Exported symbols use their idiomatic JavaScript
+casing (PascalCase for components, camelCase for hooks and functions).
+
+| File type       | File name pattern            | Export pattern     | Example                                                 |
+| --------------- | ---------------------------- | ------------------ | ------------------------------------------------------- |
+| Page/screen     | `<feature>-page.tsx`         | `<Feature>Page`    | `employee-dashboard-page.tsx` → `EmployeeDashboardPage` |
+| Child component | `<description>.tsx`          | `<Description>`    | `software-table.tsx` → `SoftwareTable`                  |
+| Hook            | `use-<description>.ts`       | `use<Description>` | `use-license-filters.ts` → `useLicenseFilters`          |
+| Utility         | `<description>.ts`           | named exports      | `format-currency.ts` → `formatCurrency`                 |
+| Type-only       | `<description>.types.ts`     | named exports      | `license.types.ts`                                      |
+| Constants       | `<description>.constants.ts` | named exports      | `license.constants.ts`                                  |
+| Test            | `<source-file>.test.tsx`     | —                  | `software-table.test.tsx`                               |
+
+#### File size guideline
+
+These are soft guidelines, not hard rules. Tailwind class names make JSX wider than
+CSS-module equivalents, so the threshold is slightly generous.
+
+| Lines   | Action                                                                  |
+| ------- | ----------------------------------------------------------------------- |
+| ≤ 150   | Ideal. Keep as-is.                                                      |
+| 150–300 | Review: split if the file has two or more distinct responsibilities.    |
+| > 300   | Split. A file this long almost certainly handles more than one concern. |
+
+#### Splitting triggers
+
+Beyond line count, split a component when any of these apply:
+
+- The component owns two or more independent UI sections (table + filters + drawer).
+- It accumulates more than four or five pieces of local state (`useState`,
+  `useReducer`); extract a custom hook.
+- A rendered list item has non-trivial logic of its own; extract an item component.
+- The same markup or logic appears in two features; promote to `entities/` or
+  `shared/ui/`.
 
 ### State ownership
 
