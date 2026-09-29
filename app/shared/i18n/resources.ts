@@ -1,6 +1,40 @@
+import { manager as managerEn } from './locales/en/manager'
+import { manager as managerVi } from './locales/vi/manager'
+import { managerTeam as managerTeamEn } from './locales/en/manager-team'
+import { managerTeam as managerTeamVi } from './locales/vi/manager-team'
+import { employeeDetail as employeeDetailEn } from './locales/en/employee-detail'
+import { employeeDetail as employeeDetailVi } from './locales/vi/employee-detail'
+import { teamRequests as teamRequestsEn } from './locales/en/team-requests'
+import { teamRequests as teamRequestsVi } from './locales/vi/team-requests'
+import { requestApproval as requestApprovalEn } from './locales/en/request-approval'
+import { requestApproval as requestApprovalVi } from './locales/vi/request-approval'
+import { teamSoftware as teamSoftwareEn } from './locales/en/team-software'
+import { teamSoftware as teamSoftwareVi } from './locales/vi/team-software'
+import { ghostSeat as ghostSeatEn } from './locales/en/ghost-seat'
+import { ghostSeat as ghostSeatVi } from './locales/vi/ghost-seat'
+import { ghostDetail as ghostDetailEn } from './locales/en/ghost-detail'
+import { ghostDetail as ghostDetailVi } from './locales/vi/ghost-detail'
+import { createEmployee as createEmployeeEn } from './locales/en/create-employee'
+import { createEmployee as createEmployeeVi } from './locales/vi/create-employee'
+import { accessReview as accessReviewEn } from './locales/en/access-review'
+import { accessReview as accessReviewVi } from './locales/vi/access-review'
+import { assignmentDetail as assignmentDetailEn } from './locales/en/assignment-detail'
+import { assignmentDetail as assignmentDetailVi } from './locales/vi/assignment-detail'
+
 export const resources = {
   en: {
     translation: {
+      manager: managerEn,
+      managerTeam: managerTeamEn,
+      employeeDetail: employeeDetailEn,
+      teamRequests: teamRequestsEn,
+      requestApproval: requestApprovalEn,
+      teamSoftware: teamSoftwareEn,
+      ghostSeat: ghostSeatEn,
+      ghostDetail: ghostDetailEn,
+      createEmployee: createEmployeeEn,
+      accessReview: accessReviewEn,
+      assignmentDetail: assignmentDetailEn,
       common: {
         brand: 'SaaS-Sentry',
         brandSubtitle: 'License Management',
@@ -1278,6 +1312,17 @@ export const resources = {
   },
   vi: {
     translation: {
+      manager: managerVi,
+      managerTeam: managerTeamVi,
+      employeeDetail: employeeDetailVi,
+      teamRequests: teamRequestsVi,
+      requestApproval: requestApprovalVi,
+      teamSoftware: teamSoftwareVi,
+      ghostSeat: ghostSeatVi,
+      ghostDetail: ghostDetailVi,
+      createEmployee: createEmployeeVi,
+      accessReview: accessReviewVi,
+      assignmentDetail: assignmentDetailVi,
       common: {
         brand: 'SaaS-Sentry',
         brandSubtitle: 'Quản lý bản quyền',

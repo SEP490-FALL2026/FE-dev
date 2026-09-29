@@ -23,5 +23,21 @@ export default [
     ])
   ]),
 
+  ...prefix('manager', [
+    layout('routes/manager/layout.tsx', [
+      route('dashboard', 'routes/manager/dashboard.tsx'),
+      route('create-request', 'routes/manager/create-request.tsx'),
+      route('access-review', 'routes/manager/access-review.tsx'),
+      route('access-review/:id', 'routes/manager/assignment-detail.tsx'),
+      route('my-team', 'routes/manager/my-team.tsx'),
+      route('my-team/:id', 'routes/manager/employee-detail.tsx'),
+      route('team-software', 'routes/manager/team-software.tsx'),
+      route('ghost-seat-review', 'routes/manager/ghost-seat-review.tsx'),
+      route('ghost-seat-review/:id', 'routes/manager/ghost-seat-detail.tsx'),
+      route('team-requests', 'routes/manager/team-requests.tsx'),
+      route('team-requests/:id', 'routes/manager/request-approval-detail.tsx')
+    ])
+  ]),
+
   route('*', 'routes/not-found.tsx')
 ] satisfies RouteConfig
