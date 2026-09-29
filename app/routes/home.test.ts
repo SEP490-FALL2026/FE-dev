@@ -8,7 +8,7 @@ describe('home route metadata', () => {
   it('uses localized landing metadata', async () => {
     await setAppLanguage('en', false)
 
-    expect(meta({} as never)).toEqual([
+    expect(meta()).toEqual([
       { title: 'SaaS-Sentry' },
       {
         name: 'description',

@@ -3,27 +3,23 @@
  * Converts canonical data and screen ID into pixel-perfect 1440 × 1024 markup
  */
 
-(function () {
-  'use strict';
+;(function () {
+  'use strict'
 
   function escapeHtml(str) {
-    if (!str) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+    if (!str) return ''
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
   }
 
   function renderApp(data, screenId) {
-    const screen = data.screens.find(s => s.id === screenId) || data.screens[0];
-    const ledger = data.ledgers[screen.ledgerKey] || data.ledgers.l01;
-    const isFinance = screen.role.includes('Finance') && !screen.role.includes('IT Admin');
+    const screen = data.screens.find((s) => s.id === screenId) || data.screens[0]
+    const ledger = data.ledgers[screen.ledgerKey] || data.ledgers.l01
+    const isFinance = screen.role.includes('Finance') && !screen.role.includes('IT Admin')
 
-    const actorName = isFinance ? 'Nguyễn Thị Hoa' : 'Trần Quốc Bảo';
-    const actorRole = isFinance ? 'Kế toán trưởng · Finance' : 'IT Security Lead · IT Admin';
-    const actorEmail = isFinance ? 'finance@company.com' : 'it-admin@company.com';
-    const actorAvatar = isFinance ? 'TH' : 'QB';
+    const actorName = isFinance ? 'Nguyễn Thị Hoa' : 'Trần Quốc Bảo'
+    const actorRole = isFinance ? 'Kế toán trưởng · Finance' : 'IT Security Lead · IT Admin'
+    const actorEmail = isFinance ? 'finance@company.com' : 'it-admin@company.com'
+    const actorAvatar = isFinance ? 'TH' : 'QB'
 
     // 1. Sidebar HTML
     const sidebarHtml = `
@@ -77,7 +73,7 @@
           </div>
         </div>
       </aside>
-    `;
+    `
 
     // 2. Topbar HTML
     const topbarHtml = `
@@ -101,27 +97,29 @@
           </div>
         </div>
       </header>
-    `;
+    `
 
     // 3. Stepper Bar HTML
     const stepperHtml = `
       <div class="stepper-bar">
-        ${data.stages.map((st, idx) => {
-          const isCompleted = screen.stage > st.id;
-          const isCurrent = screen.stage === st.id;
-          const stateClass = isCompleted ? 'completed' : isCurrent ? 'current' : '';
-          const symbol = isCompleted ? '✓' : st.id;
-          const divider = idx < data.stages.length - 1 ? '<div class="step-divider"></div>' : '';
-          return `
+        ${data.stages
+          .map((st, idx) => {
+            const isCompleted = screen.stage > st.id
+            const isCurrent = screen.stage === st.id
+            const stateClass = isCompleted ? 'completed' : isCurrent ? 'current' : ''
+            const symbol = isCompleted ? '✓' : st.id
+            const divider = idx < data.stages.length - 1 ? '<div class="step-divider"></div>' : ''
+            return `
             <div class="stepper-item ${stateClass}">
               <div class="step-circle">${symbol}</div>
               <span>${escapeHtml(st.name)}</span>
             </div>
             ${divider}
-          `;
-        }).join('')}
+          `
+          })
+          .join('')}
       </div>
-    `;
+    `
 
     // 4. Metric Grid HTML
     const metricsGridHtml = `
@@ -155,10 +153,10 @@
           </div>
         </div>
       </div>
-    `;
+    `
 
     // 5. Screen Body Generator
-    let bodyHtml = '';
+    let bodyHtml = ''
 
     if (screen.id === '01') {
       bodyHtml = `
@@ -231,7 +229,7 @@
             </tbody>
           </table>
         </div>
-      `;
+      `
     } else if (screen.id === '02') {
       bodyHtml = `
         <div class="alert-banner warning">
@@ -283,7 +281,7 @@
             </tbody>
           </table>
         </div>
-      `;
+      `
     } else if (screen.id === '03') {
       bodyHtml = `
         <div class="alert-banner success">
@@ -335,7 +333,7 @@
             </div>
           </div>
         </div>
-      `;
+      `
     } else if (screen.id === '04') {
       bodyHtml = `
         <div class="alert-banner info">
@@ -364,7 +362,7 @@
             </div>
           </div>
         </div>
-      `;
+      `
     } else if (screen.id === '05') {
       bodyHtml = `
         <div class="alert-banner warning">
@@ -429,7 +427,7 @@
             </div>
           </div>
         </div>
-      `;
+      `
     } else if (screen.id === '06') {
       bodyHtml = `
         <div class="card-panel">
@@ -480,7 +478,7 @@
             </div>
           </div>
         </div>
-      `;
+      `
     } else if (screen.id === '07') {
       bodyHtml = `
         <div class="alert-banner success">
@@ -534,7 +532,7 @@
             </div>
           </div>
         </div>
-      `;
+      `
     } else if (screen.id === '08') {
       bodyHtml = `
         <div class="alert-banner info">
@@ -574,7 +572,7 @@
             </tbody>
           </table>
         </div>
-      `;
+      `
     } else if (screen.id === '09') {
       bodyHtml = `
         <div class="alert-banner warning">
@@ -609,7 +607,7 @@
             Hóa đơn tính tiền cho 55 seats, cao hơn 5 seats so với hồ sơ thuê bao 50 seats đang lưu trữ. Cần phân định nguyên nhân để giải tỏa khoản cam kết hoặc khiếu nại nhà cung cấp.
           </p>
         </div>
-      `;
+      `
     } else if (screen.id === '10') {
       bodyHtml = `
         <div class="alert-banner info">
@@ -655,7 +653,7 @@
             <button class="btn btn-primary">Chuyển sang ITA-04 cập nhật hồ sơ thuê bao ➔</button>
           </div>
         </div>
-      `;
+      `
     } else if (screen.id === '11') {
       bodyHtml = `
         <div class="alert-banner success">
@@ -687,7 +685,7 @@
             <button class="btn btn-primary">Lưu thay đổi & Đóng đối soát hóa đơn ➔</button>
           </div>
         </div>
-      `;
+      `
     } else if (screen.id === '12') {
       bodyHtml = `
         <div class="alert-banner success">
@@ -730,7 +728,7 @@
             </div>
           </div>
         </div>
-      `;
+      `
     } else if (screen.id === '13') {
       bodyHtml = `
         <div class="alert-banner danger">
@@ -787,7 +785,7 @@
             </div>
           </div>
         </div>
-      `;
+      `
     } else if (screen.id === '14') {
       bodyHtml = `
         <div class="alert-banner danger">
@@ -818,7 +816,7 @@
             <button class="btn btn-danger">Thu hồi tài khoản khẩn cấp (o2 → s4) ➔</button>
           </div>
         </div>
-      `;
+      `
     } else if (screen.id === '15') {
       bodyHtml = `
         <div class="card-panel">
@@ -857,7 +855,7 @@
             </div>
           </div>
         </div>
-      `;
+      `
     } else if (screen.id === '16') {
       bodyHtml = `
         <div class="alert-banner success">
@@ -926,7 +924,7 @@
             </tbody>
           </table>
         </div>
-      `;
+      `
     }
 
     // Wrap everything in app shell
@@ -961,15 +959,15 @@
           </main>
         </div>
       </div>
-    `.trim();
+    `.trim()
   }
 
-  const moduleExports = { renderApp };
+  const moduleExports = { renderApp }
 
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = moduleExports;
+    module.exports = moduleExports
   }
   if (typeof globalThis !== 'undefined') {
-    globalThis.UF14Renderer = moduleExports;
+    globalThis.UF14Renderer = moduleExports
   }
-})();
+})()

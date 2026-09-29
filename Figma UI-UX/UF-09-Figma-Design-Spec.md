@@ -60,66 +60,66 @@ Mọi frame phải hiển thị đủ `Bước n / 7`. Bước đã qua, hiện 
 
 ### 4.1. Hồ sơ offboarding
 
-| Trường | Giá trị cố định |
-| --- | --- |
-| Mã offboarding | `OFF-2026-044` |
-| Nhân viên | Trần Minh · `NV-0174` |
-| Email | `tran.minh@company.com` |
-| Cost Center | Marketing · `CC-MKT-01` |
-| Manager trực tiếp | Lê Thu Hà · `NV-0311` |
-| Trạng thái đầu | Đang làm việc |
-| Trạng thái trung gian | Đang bàn giao |
-| Ngày làm việc cuối | 17/09/2026 |
-| Khởi tạo bởi | IT Admin · `it-admin@company.com` |
-| Thời điểm khởi tạo | 10/09/2026 · 09:12 ICT |
-| Hạn bàn giao | 16/09/2026 · 17:00 ICT |
+| Trường                    | Giá trị cố định                    |
+| ------------------------- | ---------------------------------- |
+| Mã offboarding            | `OFF-2026-044`                     |
+| Nhân viên                 | Trần Minh · `NV-0174`              |
+| Email                     | `tran.minh@company.com`            |
+| Cost Center               | Marketing · `CC-MKT-01`            |
+| Manager trực tiếp         | Lê Thu Hà · `NV-0311`              |
+| Trạng thái đầu            | Đang làm việc                      |
+| Trạng thái trung gian     | Đang bàn giao                      |
+| Ngày làm việc cuối        | 17/09/2026                         |
+| Khởi tạo bởi              | IT Admin · `it-admin@company.com`  |
+| Thời điểm khởi tạo        | 10/09/2026 · 09:12 ICT             |
+| Hạn bàn giao              | 16/09/2026 · 17:00 ICT             |
 | Manager xác nhận bàn giao | Lê Thu Hà · 16/09/2026 · 16:42 ICT |
 
 ### 4.2. Quan hệ cần kế nhiệm
 
-| Quan hệ | Trước offboarding | Người kế nhiệm | Có hiệu lực |
-| --- | --- | --- | --- |
-| Quản lý trực tiếp của 3 nhân viên | Trần Minh | Nguyễn Hoàng Long · `NV-0216` | 18/09/2026 |
-| Business Owner của Figma Professional | Trần Minh | Lê Thu Hà · `NV-0311` | 18/09/2026 |
+| Quan hệ                               | Trước offboarding | Người kế nhiệm                | Có hiệu lực |
+| ------------------------------------- | ----------------- | ----------------------------- | ----------- |
+| Quản lý trực tiếp của 3 nhân viên     | Trần Minh         | Nguyễn Hoàng Long · `NV-0216` | 18/09/2026  |
+| Business Owner của Figma Professional | Trần Minh         | Lê Thu Hà · `NV-0311`         | 18/09/2026  |
 
 Ba nhân viên trực thuộc được giữ cố định trên mọi frame liên quan: Nguyễn Mai Anh `NV-0384`, Phạm Quốc Bảo `NV-0412`, Võ Gia Hân `NV-0461`.
 
 ### 4.3. Thiết bị công ty
 
-| Trường | Giá trị |
-| --- | --- |
-| Device ID | `DEV-LT-0174` |
-| Thiết bị | Dell Latitude 7440 |
-| Đăng ký hiện tại | Active |
-| `effective_to` | 17/09/2026 · 18:00 ICT |
-| Dữ liệu sau mốc | Endpoint từ chối; ghi lý do `DEVICE_REGISTRATION_EXPIRED` |
+| Trường           | Giá trị                                                   |
+| ---------------- | --------------------------------------------------------- |
+| Device ID        | `DEV-LT-0174`                                             |
+| Thiết bị         | Dell Latitude 7440                                        |
+| Đăng ký hiện tại | Active                                                    |
+| `effective_to`   | 17/09/2026 · 18:00 ICT                                    |
+| Dữ liệu sau mốc  | Endpoint từ chối; ghi lý do `DEVICE_REGISTRATION_EXPIRED` |
 
 ### 4.4. Năm Assignment cần thu hồi
 
-| # | Ứng dụng | Assignment | Subscription | Kênh | ProvisioningTask | Bằng chứng cuối |
-| ---: | --- | --- | --- | --- | --- | --- |
-| 1 | Microsoft 365 E3 | `ASN-3868` | `SUB-M365-E3-01` | Connector | `PV-2043` | `MS365-EVT-771992` |
-| 2 | Slack Business+ | `ASN-3869` | `SUB-SLK-BP-01` | Connector | `PV-2044` | `SLK-EVT-772011` |
-| 3 | GitHub Business | `ASN-3870` | `SUB-GH-BIZ-01` | Connector | `PV-2045` | `GH-EVT-772086` |
-| 4 | Zoom Pro | `ASN-3871` | `SUB-ZOOM-PRO-01` | Manual | `PV-2046` | `ZM-EVT-772733` |
-| 5 | Figma Professional | `ASN-3872` | `SUB-FIG-PRO-02` | Manual | `PV-2042` | `FIG-EVT-772904` |
+|   # | Ứng dụng           | Assignment | Subscription      | Kênh      | ProvisioningTask | Bằng chứng cuối    |
+| --: | ------------------ | ---------- | ----------------- | --------- | ---------------- | ------------------ |
+|   1 | Microsoft 365 E3   | `ASN-3868` | `SUB-M365-E3-01`  | Connector | `PV-2043`        | `MS365-EVT-771992` |
+|   2 | Slack Business+    | `ASN-3869` | `SUB-SLK-BP-01`   | Connector | `PV-2044`        | `SLK-EVT-772011`   |
+|   3 | GitHub Business    | `ASN-3870` | `SUB-GH-BIZ-01`   | Connector | `PV-2045`        | `GH-EVT-772086`    |
+|   4 | Zoom Pro           | `ASN-3871` | `SUB-ZOOM-PRO-01` | Manual    | `PV-2046`        | `ZM-EVT-772733`    |
+|   5 | Figma Professional | `ASN-3872` | `SUB-FIG-PRO-02`  | Manual    | `PV-2042`        | `FIG-EVT-772904`   |
 
 `PV-2042`, `ASN-3872`, `SUB-FIG-PRO-02`, `FIG-EVT-772904` và `OFF-2026-044` phải khớp bộ dữ liệu UF-08 hiện hành.
 
 ### 4.5. Ledger trạng thái
 
-| Mốc | Seat còn gắn | Blocker kế nhiệm | Blocker bàn giao | G2 mở | Task đang mở | Seat đã nhả | Usage detail còn lại |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Frame 01–03 | 5 | 2 | 1 | 0 | 0 | 0 | 12.480 |
-| Frame 04 | 5 | 2 | 1 | 0 | 0 | 0 | 12.480 |
-| Frame 05 | 5 | 0 | 1 | 0 | 0 | 0 | 12.480 |
-| Frame 06 | 5 | 0 | 1 | 0 | 0 | 0 | 12.480 |
-| Frame 07 | 5 | 0 | 0 | 0 | 0 | 0 | 12.480 |
-| Frame 08–10 | 5 | 0 | 0 | 5 | 0 | 0 | 12.480 |
-| Frame 11 | 5 | 0 | 0 | 5 | 5 | 0 | 12.480 |
-| Frame 12–13 | 1 | 0 | 0 | 1 | 1 | 4 | 12.480 |
-| Frame 14–15 | 0 | 0 | 0 | 0 | 0 | 5 | 12.480 |
-| Frame 16 | 0 | 0 | 0 | 0 | 0 | 5 | 0 |
+| Mốc         | Seat còn gắn | Blocker kế nhiệm | Blocker bàn giao | G2 mở | Task đang mở | Seat đã nhả | Usage detail còn lại |
+| ----------- | -----------: | ---------------: | ---------------: | ----: | -----------: | ----------: | -------------------: |
+| Frame 01–03 |            5 |                2 |                1 |     0 |            0 |           0 |               12.480 |
+| Frame 04    |            5 |                2 |                1 |     0 |            0 |           0 |               12.480 |
+| Frame 05    |            5 |                0 |                1 |     0 |            0 |           0 |               12.480 |
+| Frame 06    |            5 |                0 |                1 |     0 |            0 |           0 |               12.480 |
+| Frame 07    |            5 |                0 |                0 |     0 |            0 |           0 |               12.480 |
+| Frame 08–10 |            5 |                0 |                0 |     5 |            0 |           0 |               12.480 |
+| Frame 11    |            5 |                0 |                0 |     5 |            5 |           0 |               12.480 |
+| Frame 12–13 |            1 |                0 |                0 |     1 |            1 |           4 |               12.480 |
+| Frame 14–15 |            0 |                0 |                0 |     0 |            0 |           5 |               12.480 |
+| Frame 16    |            0 |                0 |                0 |     0 |            0 |           5 |                    0 |
 
 Quy tắc ledger:
 
@@ -131,33 +131,33 @@ Quy tắc ledger:
 
 ### 4.6. Ledger tiết kiệm
 
-| Loại | Giá trị demo | Ứng dụng | Thời điểm được ghi |
-| --- | ---: | --- | --- |
-| Có thể thực hiện ngay | 740.000 đ/tháng | Slack Business+, GitHub Business | Sau khi bằng chứng hợp lệ và điều khoản giảm giữa kỳ được áp dụng |
-| Tại kỳ gia hạn | 13.200.000 đ/năm | Microsoft 365 E3, Figma Professional, Zoom Pro | Gắn với kỳ gia hạn tương ứng, không cộng vào tiết kiệm ngay |
+| Loại                  |     Giá trị demo | Ứng dụng                                       | Thời điểm được ghi                                                |
+| --------------------- | ---------------: | ---------------------------------------------- | ----------------------------------------------------------------- |
+| Có thể thực hiện ngay |  740.000 đ/tháng | Slack Business+, GitHub Business               | Sau khi bằng chứng hợp lệ và điều khoản giảm giữa kỳ được áp dụng |
+| Tại kỳ gia hạn        | 13.200.000 đ/năm | Microsoft 365 E3, Figma Professional, Zoom Pro | Gắn với kỳ gia hạn tương ứng, không cộng vào tiết kiệm ngay       |
 
 Frame 08–13 chỉ được gọi các số trên là **ước tính theo loại**. Frame 14–15 mới ghi nhận kết quả sau bằng chứng và vẫn tách hai loại; không cộng thành một con số gây hiểu nhầm.
 
 ## 5. Danh sách 16 frame
 
-| # | Bước | Tên frame | Màn hình | Nội dung và trạng thái cuối |
-| ---: | ---: | --- | --- | --- |
-| 01 | 1/7 | Danh sách nhân sự sắp nghỉ | `ITA-12` | Filter `Sắp nghỉ việc`; chọn Trần Minh; hiện 5 seat, 2 quan hệ cần kế nhiệm và 1 thiết bị |
-| 02 | 1/7 | Hồ sơ và tác động offboarding | `ITA-12` | Hồ sơ, 5 Assignment, 3 cấp dưới, Figma Business Owner, thiết bị; CTA `Bắt đầu bàn giao` |
-| 03 | 1/7 | Thiết lập ngày làm việc cuối | `ITA-13` dialog | Chọn `Đang bàn giao`, ngày 17/09/2026, hạn 16/09; ngày bắt buộc; xác nhận tạo `OFF-2026-044` |
-| 04 | 2/7 | Kế hoạch offboarding đã tạo | `ITA-13` | Timeline, 5 seat, lịch hết hiệu lực thiết bị, 2 blocker kế nhiệm và 1 blocker bàn giao |
-| 05 | 2/7 | Chỉ định người kế nhiệm | `ITA-14` | Chọn Nguyễn Hoàng Long cho 3 cấp dưới và Lê Thu Hà cho Figma; lưu lịch sử hiệu lực, blocker kế nhiệm về 0 |
-| 06 | 3/7 | Chờ xác nhận bàn giao dữ liệu | Handoff trong `ITA-13` | Manager chưa xác nhận; IT chỉ được nhắc, không có CTA thu hồi; hiện checklist và hạn 16/09 |
-| 07 | 3/7 | Bàn giao đã được xác nhận | `ITA-13` | Lê Thu Hà xác nhận lúc 16:42; mọi blocker bằng 0; thiết bị vẫn active tới 17/09 18:00; chờ ngày cuối |
-| 08 | 4/7 | Sinh năm khuyến nghị G2 | `ITA-10` | Đến ngày cuối: nhân viên thành đã nghỉ; 5 G2 độ tin cậy tuyệt đối, bỏ qua ngưỡng ngày, không cần Manager xác nhận |
-| 09 | 4/7 | Chọn thu hồi hàng loạt | `ITA-10` | Chọn đủ 5 G2; bảng tác động theo app, kênh, loại tiết kiệm; CTA `Thu hồi 5 seat` |
-| 10 | 4/7 | Xác nhận thu hồi hàng loạt | `ITA-10` dialog | Bắt buộc gõ `5`; lý do `Nhân viên nghỉ việc · OFF-2026-044`; CTA bị khóa nếu sai số lượng hoặc thiếu lý do |
-| 11 | 5/7 | Đã tạo tác vụ thực thi | `ITA-10` + handoff UF-08 | Tạo `PV-2042`–`PV-2046`; 5 seat vẫn chiếm chỗ; 3 Connector và 2 Manual; CTA mở hàng đợi UF-08 |
-| 12 | 6/7 | Theo dõi bằng chứng thu hồi | `ITA-04` | Bốn task đủ bằng chứng và bốn seat đã nhả; Figma `PV-2042` còn chờ; ledger 4/5 |
-| 13 | 6/7 | Bằng chứng Figma chưa đủ | `ITA-04` | Hiện thiếu mã tham chiếu/xác nhận người thật; seat Figma chưa trống; CTA mở `PV-2042` trong UF-08 |
-| 14 | 6/7 | Đủ bằng chứng — nhả seat cuối | `ITA-04` | Nhận `FIG-EVT-772904`; seat Figma về trống; 5/5 G2 đóng; ghi tiết kiệm đúng loại |
-| 15 | 7/7 | Không còn seat · chờ xóa dữ liệu | Summary | Không còn seat gắn với Trần Minh; hiển thị tiết kiệm tách loại; lịch xóa 12.480 bản ghi vào 17/10/2026 |
-| 16 | 7/7 | Đã xóa dữ liệu sau 30 ngày | Compliance/Audit | Xóa thật 12.480 usage detail; giữ 5 dòng tổng hợp phi định danh và Audit Trail; tìm kiếm usage cá nhân trả rỗng |
+|   # | Bước | Tên frame                        | Màn hình                 | Nội dung và trạng thái cuối                                                                                       |
+| --: | ---: | -------------------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+|  01 |  1/7 | Danh sách nhân sự sắp nghỉ       | `ITA-12`                 | Filter `Sắp nghỉ việc`; chọn Trần Minh; hiện 5 seat, 2 quan hệ cần kế nhiệm và 1 thiết bị                         |
+|  02 |  1/7 | Hồ sơ và tác động offboarding    | `ITA-12`                 | Hồ sơ, 5 Assignment, 3 cấp dưới, Figma Business Owner, thiết bị; CTA `Bắt đầu bàn giao`                           |
+|  03 |  1/7 | Thiết lập ngày làm việc cuối     | `ITA-13` dialog          | Chọn `Đang bàn giao`, ngày 17/09/2026, hạn 16/09; ngày bắt buộc; xác nhận tạo `OFF-2026-044`                      |
+|  04 |  2/7 | Kế hoạch offboarding đã tạo      | `ITA-13`                 | Timeline, 5 seat, lịch hết hiệu lực thiết bị, 2 blocker kế nhiệm và 1 blocker bàn giao                            |
+|  05 |  2/7 | Chỉ định người kế nhiệm          | `ITA-14`                 | Chọn Nguyễn Hoàng Long cho 3 cấp dưới và Lê Thu Hà cho Figma; lưu lịch sử hiệu lực, blocker kế nhiệm về 0         |
+|  06 |  3/7 | Chờ xác nhận bàn giao dữ liệu    | Handoff trong `ITA-13`   | Manager chưa xác nhận; IT chỉ được nhắc, không có CTA thu hồi; hiện checklist và hạn 16/09                        |
+|  07 |  3/7 | Bàn giao đã được xác nhận        | `ITA-13`                 | Lê Thu Hà xác nhận lúc 16:42; mọi blocker bằng 0; thiết bị vẫn active tới 17/09 18:00; chờ ngày cuối              |
+|  08 |  4/7 | Sinh năm khuyến nghị G2          | `ITA-10`                 | Đến ngày cuối: nhân viên thành đã nghỉ; 5 G2 độ tin cậy tuyệt đối, bỏ qua ngưỡng ngày, không cần Manager xác nhận |
+|  09 |  4/7 | Chọn thu hồi hàng loạt           | `ITA-10`                 | Chọn đủ 5 G2; bảng tác động theo app, kênh, loại tiết kiệm; CTA `Thu hồi 5 seat`                                  |
+|  10 |  4/7 | Xác nhận thu hồi hàng loạt       | `ITA-10` dialog          | Bắt buộc gõ `5`; lý do `Nhân viên nghỉ việc · OFF-2026-044`; CTA bị khóa nếu sai số lượng hoặc thiếu lý do        |
+|  11 |  5/7 | Đã tạo tác vụ thực thi           | `ITA-10` + handoff UF-08 | Tạo `PV-2042`–`PV-2046`; 5 seat vẫn chiếm chỗ; 3 Connector và 2 Manual; CTA mở hàng đợi UF-08                     |
+|  12 |  6/7 | Theo dõi bằng chứng thu hồi      | `ITA-04`                 | Bốn task đủ bằng chứng và bốn seat đã nhả; Figma `PV-2042` còn chờ; ledger 4/5                                    |
+|  13 |  6/7 | Bằng chứng Figma chưa đủ         | `ITA-04`                 | Hiện thiếu mã tham chiếu/xác nhận người thật; seat Figma chưa trống; CTA mở `PV-2042` trong UF-08                 |
+|  14 |  6/7 | Đủ bằng chứng — nhả seat cuối    | `ITA-04`                 | Nhận `FIG-EVT-772904`; seat Figma về trống; 5/5 G2 đóng; ghi tiết kiệm đúng loại                                  |
+|  15 |  7/7 | Không còn seat · chờ xóa dữ liệu | Summary                  | Không còn seat gắn với Trần Minh; hiển thị tiết kiệm tách loại; lịch xóa 12.480 bản ghi vào 17/10/2026            |
+|  16 |  7/7 | Đã xóa dữ liệu sau 30 ngày       | Compliance/Audit         | Xóa thật 12.480 usage detail; giữ 5 dòng tổng hợp phi định danh và Audit Trail; tìm kiếm usage cá nhân trả rỗng   |
 
 Mỗi frame có hai ảnh đối xứng:
 
@@ -243,53 +243,53 @@ Quy tắc continuity:
 
 ### 8.1. Kích thước và mật độ
 
-| Thuộc tính | Giá trị |
-| --- | --- |
-| Frame | `1440 × 1024 px` |
-| Sidebar | `224 px` |
-| Topbar | `64 px` |
-| Content gutter | `24 px` |
-| Stepper | 7 bước, cao `72–80 px` |
-| Main content | 12-column grid |
-| Context panel | `280 px` khi có |
-| Table row | `56–72 px` |
-| Card radius | `12–16 px` |
-| Input/Button radius | `10 px` |
-| Border | `1 px` |
-| Font | Inter; fallback `Segoe UI`, sans-serif |
+| Thuộc tính          | Giá trị                                |
+| ------------------- | -------------------------------------- |
+| Frame               | `1440 × 1024 px`                       |
+| Sidebar             | `224 px`                               |
+| Topbar              | `64 px`                                |
+| Content gutter      | `24 px`                                |
+| Stepper             | 7 bước, cao `72–80 px`                 |
+| Main content        | 12-column grid                         |
+| Context panel       | `280 px` khi có                        |
+| Table row           | `56–72 px`                             |
+| Card radius         | `12–16 px`                             |
+| Input/Button radius | `10 px`                                |
+| Border              | `1 px`                                 |
+| Font                | Inter; fallback `Segoe UI`, sans-serif |
 
 ### 8.2. Semantic color tokens
 
-| Token | Dark | Light | Vai trò |
-| --- | --- | --- | --- |
-| `color/bg/canvas` | `#07182D` | `#FFF9F2` | Nền trang |
-| `color/bg/sidebar` | `#061426` | `#FFF4E8` | Sidebar |
-| `color/bg/surface` | `#0D223A` | `#FFFFFF` | Card, panel, dialog |
-| `color/bg/subtle` | `#102943` | `#FFFAF4` | Table header, group, hover |
-| `color/border/default` | `#213D5C` | `#EFDDCA` | Border trung tính |
-| `color/text/primary` | `#F5F9FF` | `#2B241F` | Nội dung chính |
-| `color/text/secondary` | `#91A8C2` | `#897568` | Metadata/helper |
-| `color/action/primary` | `#2D86FF` | `#FF7417` | CTA, active nav, focus |
+| Token                  | Dark      | Light     | Vai trò                    |
+| ---------------------- | --------- | --------- | -------------------------- |
+| `color/bg/canvas`      | `#07182D` | `#FFF9F2` | Nền trang                  |
+| `color/bg/sidebar`     | `#061426` | `#FFF4E8` | Sidebar                    |
+| `color/bg/surface`     | `#0D223A` | `#FFFFFF` | Card, panel, dialog        |
+| `color/bg/subtle`      | `#102943` | `#FFFAF4` | Table header, group, hover |
+| `color/border/default` | `#213D5C` | `#EFDDCA` | Border trung tính          |
+| `color/text/primary`   | `#F5F9FF` | `#2B241F` | Nội dung chính             |
+| `color/text/secondary` | `#91A8C2` | `#897568` | Metadata/helper            |
+| `color/action/primary` | `#2D86FF` | `#FF7417` | CTA, active nav, focus     |
 
 Success, Warning, Danger và Info là token ngữ nghĩa độc lập. G2 dùng Danger/Warning cho mức cần xử lý nhưng không dùng màu làm bằng chứng duy nhất. Trạng thái luôn có icon, label và mô tả.
 
 ## 9. Component inventory
 
-| Nhóm | Component và variants |
-| --- | --- |
-| Shell | `AppShell`, `SidebarItem`, `Topbar`, `Breadcrumb`, `UserMenu` |
-| Lifecycle | `OffboardingStepper`, `StepState`, `CaseHeader`, `OffboardingTimeline` |
-| Employee | `EmployeeQueue`, `EmployeeProfileCard`, `EmploymentStatusBadge`, `ImpactSummary` |
-| Succession | `SuccessorAssignment`, `DirectReportList`, `BusinessOwnerTransfer`, `EffectiveDate` |
-| Handover | `HandoverChecklist`, `ManagerConfirmation`, `DeadlineAlert`, `ReminderAction` |
-| Device | `ManagedDeviceCard`, `RegistrationSchedule`, `IngestionGuardStatus` |
-| Recommendation | `G2Card`, `ConfidenceBadge`, `BulkSelection`, `SavingsType` |
-| Execution | `ProvisioningTaskList`, `ChannelBadge`, `UF08Handoff`, `EvidenceProgress` |
-| Evidence | `EvidenceCard`, `InsufficientEvidence`, `SeatReservationBanner`, `ReleaseSummary` |
-| Retention | `DeletionSchedule`, `DeletionJobResult`, `AnonymizedDataSummary`, `AuditTimeline` |
-| Overlay | `StartOffboardingDialog`, `BulkRevokeDialog` |
-| Feedback | Alert, Badge, Toast, Progress, Empty/Blocked State |
-| Action | Primary, Secondary, Ghost, Danger; Default/Hover/Focus/Disabled/Loading |
+| Nhóm           | Component và variants                                                               |
+| -------------- | ----------------------------------------------------------------------------------- |
+| Shell          | `AppShell`, `SidebarItem`, `Topbar`, `Breadcrumb`, `UserMenu`                       |
+| Lifecycle      | `OffboardingStepper`, `StepState`, `CaseHeader`, `OffboardingTimeline`              |
+| Employee       | `EmployeeQueue`, `EmployeeProfileCard`, `EmploymentStatusBadge`, `ImpactSummary`    |
+| Succession     | `SuccessorAssignment`, `DirectReportList`, `BusinessOwnerTransfer`, `EffectiveDate` |
+| Handover       | `HandoverChecklist`, `ManagerConfirmation`, `DeadlineAlert`, `ReminderAction`       |
+| Device         | `ManagedDeviceCard`, `RegistrationSchedule`, `IngestionGuardStatus`                 |
+| Recommendation | `G2Card`, `ConfidenceBadge`, `BulkSelection`, `SavingsType`                         |
+| Execution      | `ProvisioningTaskList`, `ChannelBadge`, `UF08Handoff`, `EvidenceProgress`           |
+| Evidence       | `EvidenceCard`, `InsufficientEvidence`, `SeatReservationBanner`, `ReleaseSummary`   |
+| Retention      | `DeletionSchedule`, `DeletionJobResult`, `AnonymizedDataSummary`, `AuditTimeline`   |
+| Overlay        | `StartOffboardingDialog`, `BulkRevokeDialog`                                        |
+| Feedback       | Alert, Badge, Toast, Progress, Empty/Blocked State                                  |
+| Action         | Primary, Secondary, Ghost, Danger; Default/Hover/Focus/Disabled/Loading             |
 
 ## 10. Nội dung bắt buộc theo vùng
 
@@ -385,23 +385,23 @@ Không tạo storyboard ghép chung. Mỗi PNG là một canvas desktop đầy �
 
 ## 14. Truy vết nguồn
 
-| Thiết kế | Nguồn |
-| --- | --- |
-| IT là bên duy nhất thay đổi seat | `SoD-5`, `FR-2.4` |
-| Automation không tự thu hồi | `SoD-6` |
-| Ngày làm việc cuối bắt buộc | `BR-05.3`, `FR-2.1` |
-| Business Owner không được trống | `FR-1.7`, `INV-06` |
-| Manager xác nhận bàn giao khi có dữ liệu | User Flows `F-05`, mục ngoại lệ |
-| G2 nội bộ, confidence tuyệt đối | BRD mục 5.4.1, `BR-05.1` |
-| G2 không qua Manager xác nhận | `BR-05.2` |
-| Bulk revoke gõ số lượng + lý do | `BR-05.4` |
-| Assignment tách ProvisioningTask | `FR-2.5`, `ADR-07` |
-| Seat chỉ trống khi đủ bằng chứng | `BR-14.2`, UF-09 node `d2` |
-| Tiết kiệm đúng loại | `BR-22.2`, `FR-4.15` |
-| Thiết bị hết hiệu lực khi nhân viên nghỉ | `FR-4.18`, `BR-45.7`, `INV-17` |
-| Xóa usage detail sau 30 ngày | `FR-10.6`, `BR-41.1` |
-| Giữ dữ liệu phi định danh và Audit Trail | `BR-41.2`, `BR-41.3`, `INV-05` |
-| Quyết định có Audit Trail | Quy tắc chung User Flows mục 0.3; `FR-8.3` |
+| Thiết kế                                 | Nguồn                                      |
+| ---------------------------------------- | ------------------------------------------ |
+| IT là bên duy nhất thay đổi seat         | `SoD-5`, `FR-2.4`                          |
+| Automation không tự thu hồi              | `SoD-6`                                    |
+| Ngày làm việc cuối bắt buộc              | `BR-05.3`, `FR-2.1`                        |
+| Business Owner không được trống          | `FR-1.7`, `INV-06`                         |
+| Manager xác nhận bàn giao khi có dữ liệu | User Flows `F-05`, mục ngoại lệ            |
+| G2 nội bộ, confidence tuyệt đối          | BRD mục 5.4.1, `BR-05.1`                   |
+| G2 không qua Manager xác nhận            | `BR-05.2`                                  |
+| Bulk revoke gõ số lượng + lý do          | `BR-05.4`                                  |
+| Assignment tách ProvisioningTask         | `FR-2.5`, `ADR-07`                         |
+| Seat chỉ trống khi đủ bằng chứng         | `BR-14.2`, UF-09 node `d2`                 |
+| Tiết kiệm đúng loại                      | `BR-22.2`, `FR-4.15`                       |
+| Thiết bị hết hiệu lực khi nhân viên nghỉ | `FR-4.18`, `BR-45.7`, `INV-17`             |
+| Xóa usage detail sau 30 ngày             | `FR-10.6`, `BR-41.1`                       |
+| Giữ dữ liệu phi định danh và Audit Trail | `BR-41.2`, `BR-41.3`, `INV-05`             |
+| Quyết định có Audit Trail                | Quy tắc chung User Flows mục 0.3; `FR-8.3` |
 
 ## 15. Phần không được tự suy diễn
 

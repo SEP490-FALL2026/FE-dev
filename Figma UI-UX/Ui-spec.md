@@ -5,7 +5,7 @@
 > **Tệp đi kèm:** `SaaS-Sentry-User-Flows.drawio` (14 trang) · thư mục `png/` và `svg/` (14 ảnh, xuất sẵn để xem nhanh).
 > **Không đụng vào:** 43 mã `F-xx` và các quy tắc `BR-xx.x` của **User Flows nghiệp vụ v0.4** · `FR`, `ADR`, `INV`, `SoD` của **BRD v3.6** · 41 mã màn hình · 21 activity diagram của **Business Workflows v2.2**.
 >
-> ⚠️ **Trạng thái đối chiếu — đọc trước khi trích tài liệu này** *(ghi ngày 08/09/2026)*: các phép kiểm ở mục 4 **chạy ngày 07/09/2026 với bộ nguồn khi đó**: User Flows **v0.3**, BRD **v3.5**, Business Workflows **v2.0**. Bộ nguồn hiện tại là **v0.4 / v3.6 / v2.2** và **phép kiểm CHƯA được chạy lại toàn bộ** với bộ mới. Chỉ dòng `UF-09` được sửa theo User Flows v0.4 *(`QĐ-08`)* và phép đếm mã màn hình được chạy lại — xem mục 4.1. Vì vậy tài liệu này dùng được như **chỉ mục luồng màn hình**, nhưng **không được trình bày là đã đối chiếu đầy đủ với bộ nguồn hiện hành**.
+> ⚠️ **Trạng thái đối chiếu — đọc trước khi trích tài liệu này** _(ghi ngày 08/09/2026)_: các phép kiểm ở mục 4 **chạy ngày 07/09/2026 với bộ nguồn khi đó**: User Flows **v0.3**, BRD **v3.5**, Business Workflows **v2.0**. Bộ nguồn hiện tại là **v0.4 / v3.6 / v2.2** và **phép kiểm CHƯA được chạy lại toàn bộ** với bộ mới. Chỉ dòng `UF-09` được sửa theo User Flows v0.4 _(`QĐ-08`)_ và phép đếm mã màn hình được chạy lại — xem mục 4.1. Vì vậy tài liệu này dùng được như **chỉ mục luồng màn hình**, nhưng **không được trình bày là đã đối chiếu đầy đủ với bộ nguồn hiện hành**.
 > **Dùng cho ai:** dev frontend đọc để dựng Figma hoặc đưa vào công cụ sinh giao diện; hội đồng đọc để thấy hệ thống vận hành từ phía người dùng.
 
 ---
@@ -16,13 +16,13 @@ Câu hỏi này có một câu trả lời gọn, và nó phụ thuộc vào **v
 
 | Giáo viên thực sự đang hỏi                        | Đưa tài liệu nào                                                             | Vì sao                                                                        |
 | ------------------------------------------------- | ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| *“Hệ thống của em chạy thế nào?”* — mạch tổng thể | **User Flows nghiệp vụ v0.4, mục 1.4 → 1.9** — sáu main flow `MF-0` → `MF-5` | Ngắn, thuần chữ, một main flow vừa một slide. Trả lời được trong 30 giây      |
-| *“Ai làm gì, ai bàn giao cho ai?”*                | **Business Workflows v2.2** — 21 activity diagram có swimlane                | Swimlane cho thấy `SoD-1` → `SoD-6` thành hình, không cần giải thích bằng lời |
-| *“Người dùng bấm gì, thấy màn hình nào?”*         | **Tài liệu này** — 14 screen flow                                            | Nút là màn hình có mã, cạnh là hành động của người dùng                       |
+| _“Hệ thống của em chạy thế nào?”_ — mạch tổng thể | **User Flows nghiệp vụ v0.4, mục 1.4 → 1.9** — sáu main flow `MF-0` → `MF-5` | Ngắn, thuần chữ, một main flow vừa một slide. Trả lời được trong 30 giây      |
+| _“Ai làm gì, ai bàn giao cho ai?”_                | **Business Workflows v2.2** — 21 activity diagram có swimlane                | Swimlane cho thấy `SoD-1` → `SoD-6` thành hình, không cần giải thích bằng lời |
+| _“Người dùng bấm gì, thấy màn hình nào?”_         | **Tài liệu này** — 14 screen flow                                            | Nút là màn hình có mã, cạnh là hành động của người dùng                       |
 
 **Câu trả lời một dòng khi bị hỏi bất ngờ:**
 
-> *“Nhóm em có ba tầng: main flow tổng ở User Flows để nắm mạch, activity diagram để thấy bàn giao giữa các vai trò, và screen flow để dựng giao diện. Thầy muốn xem tầng nào ạ?”*
+> _“Nhóm em có ba tầng: main flow tổng ở User Flows để nắm mạch, activity diagram để thấy bàn giao giữa các vai trò, và screen flow để dựng giao diện. Thầy muốn xem tầng nào ạ?”_
 
 Câu đó chuyển thế bị động thành chủ động, và nó chứng minh nhóm **biết ba thứ này khác nhau** — điều mà phần lớn đồ án không phân biệt được.
 
@@ -92,7 +92,7 @@ Bộ sinh từ chối xuất nếu vi phạm bất kỳ điều kiện nào. Đ�
 
 ### 2.4. Vì sao bản `.drawio` và bản ảnh không thể lệch nhau
 
-Cả hai sinh ra từ **một tệp đặc tả duy nhất**. Mỗi nút và mỗi cạnh chỉ được viết một lần; sửa một bước thì cả hai bản đổi cùng lúc và mười phép kiểm chạy lại. Đây là cách xử lý trực tiếp bài học đã ghi ở Định nghĩa Phạm vi mục 7.1: *hai nguồn chân lý mâu thuẫn tốn kém hơn một nguồn chân lý chưa hoàn hảo.*
+Cả hai sinh ra từ **một tệp đặc tả duy nhất**. Mỗi nút và mỗi cạnh chỉ được viết một lần; sửa một bước thì cả hai bản đổi cùng lúc và mười phép kiểm chạy lại. Đây là cách xử lý trực tiếp bài học đã ghi ở Định nghĩa Phạm vi mục 7.1: _hai nguồn chân lý mâu thuẫn tốn kém hơn một nguồn chân lý chưa hoàn hảo._
 
 ---
 
@@ -141,19 +141,19 @@ Cả hai sinh ra từ **một tệp đặc tả duy nhất**. Mỗi nút và m�
 
 ---
 
-## 4. Kết quả đối chiếu — chạy ngày 07/09/2026 *(với bộ nguồn v0.3 / v3.5 / v2.0)*
+## 4. Kết quả đối chiếu — chạy ngày 07/09/2026 _(với bộ nguồn v0.3 / v3.5 / v2.0)_
 
 > 📌 **Nhãn thời điểm.** Toàn bộ mục 4 là **kết quả của lần chạy ngày 07/09/2026**, đối chiếu với User Flows v0.3, BRD v3.5 và Business Workflows v2.0. Giữ nguyên làm bằng chứng lịch sử. **Không đọc mục này như kết quả đối chiếu với v0.4 / v3.6 / v2.2.** Ngoại lệ duy nhất đã chạy lại ngày 08/09/2026 là dòng mã màn hình ở mục 4.1.
 
 ### 4.1. Đối chiếu mã của chính tài liệu này
 
-| Nhóm mã                                                                                       | Số lượng dùng | Kết quả                                                      |
-| --------------------------------------------------------------------------------------------- | ------------- | ------------------------------------------------------------ |
-| Mã màn hình `SYS/EMP/MGR/ITA/FIN/ADM`                                                         | **41**        | ✅ **Chạy lại 08/09/2026:** 41 mã duy nhất, **khớp đúng 41 mã của User Flows v0.4, không có mã chết**. 🛑 *Kết quả cũ ghi "27 mã, toàn bộ tồn tại trong UI Spec mục 4" — **không kiểm chứng được**: tài liệu UI Spec đặc tả màn hình **không tồn tại trong repo**. Nay đối chiếu với User Flows, là nguồn có thật* |
-| Quy tắc `BR-xx.x`                                                                             | 36            | **Toàn bộ tồn tại trong User Flows v0.3** — không có mã chết |
-| Luồng `F-xx`                                                                                  | 26            | **Toàn bộ tồn tại trong User Flows v0.3**                    |
-| `FR-3.6`, `FR-4.15`, `FR-6.5`, `FR-7.2`                                                       | 4             | Tồn tại trong BRD v3.5                                       |
-| `SoD-1`, `SoD-2`, `SoD-4` · `KPI-4` · `ADR-10` · `G1` → `G4` · `PP-2`, `PP-5` · `D-1` → `D-4` | 15            | Tồn tại                                                      |
+| Nhóm mã                                                                                       | Số lượng dùng | Kết quả                                                                                                                                                                                                                                                                                                            |
+| --------------------------------------------------------------------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Mã màn hình `SYS/EMP/MGR/ITA/FIN/ADM`                                                         | **41**        | ✅ **Chạy lại 08/09/2026:** 41 mã duy nhất, **khớp đúng 41 mã của User Flows v0.4, không có mã chết**. 🛑 _Kết quả cũ ghi "27 mã, toàn bộ tồn tại trong UI Spec mục 4" — **không kiểm chứng được**: tài liệu UI Spec đặc tả màn hình **không tồn tại trong repo**. Nay đối chiếu với User Flows, là nguồn có thật_ |
+| Quy tắc `BR-xx.x`                                                                             | 36            | **Toàn bộ tồn tại trong User Flows v0.3** — không có mã chết                                                                                                                                                                                                                                                       |
+| Luồng `F-xx`                                                                                  | 26            | **Toàn bộ tồn tại trong User Flows v0.3**                                                                                                                                                                                                                                                                          |
+| `FR-3.6`, `FR-4.15`, `FR-6.5`, `FR-7.2`                                                       | 4             | Tồn tại trong BRD v3.5                                                                                                                                                                                                                                                                                             |
+| `SoD-1`, `SoD-2`, `SoD-4` · `KPI-4` · `ADR-10` · `G1` → `G4` · `PP-2`, `PP-5` · `D-1` → `D-4` | 15            | Tồn tại                                                                                                                                                                                                                                                                                                            |
 
 ### 4.2. Đối chiếu nội dung với BRD v3.5
 
@@ -161,13 +161,13 @@ Bảy điểm dễ vẽ sai nhất đã tra lại tại nguồn:
 
 | Nội dung trên sơ đồ                                               | Căn cứ BRD | Khớp |
 | ----------------------------------------------------------------- | ---------- | ---- |
-| Ngưỡng 30–59 / ≥60 / ≥90 ngày, mức “theo dõi” không gửi thông báo | `FR-4.12`  | ✅    |
-| Thứ tự ưu tiên ngưỡng: ứng dụng > phòng ban > tổ chức > mặc định  | `FR-4.13`  | ✅    |
-| Hai con số tiết kiệm tách biệt, không bao giờ cộng                | `FR-4.15`  | ✅    |
-| Nguồn bắt buộc khai định nghĩa “hoạt động”                        | `FR-4.16`  | ✅    |
-| Miễn trừ bắt buộc có hạn, tối đa 12 tháng                         | `FR-3.10`  | ✅    |
-| Quá hạn thì nhắc rồi leo cấp, **không tự duyệt**                  | `FR-3.8`   | ✅    |
-| Người duyệt dự phòng ở gốc cây tổ chức                            | `FR-3.6`   | ✅    |
+| Ngưỡng 30–59 / ≥60 / ≥90 ngày, mức “theo dõi” không gửi thông báo | `FR-4.12`  | ✅   |
+| Thứ tự ưu tiên ngưỡng: ứng dụng > phòng ban > tổ chức > mặc định  | `FR-4.13`  | ✅   |
+| Hai con số tiết kiệm tách biệt, không bao giờ cộng                | `FR-4.15`  | ✅   |
+| Nguồn bắt buộc khai định nghĩa “hoạt động”                        | `FR-4.16`  | ✅   |
+| Miễn trừ bắt buộc có hạn, tối đa 12 tháng                         | `FR-3.10`  | ✅   |
+| Quá hạn thì nhắc rồi leo cấp, **không tự duyệt**                  | `FR-3.8`   | ✅   |
+| Người duyệt dự phòng ở gốc cây tổ chức                            | `FR-3.6`   | ✅   |
 
 ### 4.3. Có cần đối chiếu với Business Workflows v2.0 không
 
@@ -183,25 +183,25 @@ Bảy điểm dễ vẽ sai nhất đã tra lại tại nguồn:
 
 Xếp theo mức dễ bị hội đồng nhặt ra.
 
-| #     | Ở đâu                                  | Lỗi                                                                                                                                                 | Sửa thành                                                                                         |
-| ----- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| **1** | UI Spec `NT-UI-3` và mục 11            | Dẫn `INV-08` cho *“thu hồi seat giữa kỳ không tiết kiệm được đồng nào”*. Trong BRD v3.5, **`INV-08` là “không ai duyệt yêu cầu của chính mình”**    | Dẫn **`FR-4.15`** — không có mã `INV` nào cho nội dung này                                        |
-| **2** | UI Spec `MGR-04` và mục 11             | Dẫn `INV-11` cho hộp thoại miễn trừ bắt buộc có hạn. **`INV-11` là “nguồn phải khai định nghĩa hoạt động”**                                         | Dẫn **`INV-09`** (BRD mục 5.12.3, vòng đời `Attestation`)                                         |
-| **3** | UI Spec `NT-UI-6`                      | Dẫn `INV-14` cho *“đánh dấu `is_service_account` bắt buộc ghi chú”*. **`INV-14` là “một nhân viên gắn với đúng một Cost Center tại mỗi thời điểm”** | Bỏ mã, hoặc tìm đúng mã trong BRD mục 5.12.2                                                      |
-| **4** | UI Spec `EMP-02` bước 2                | Dẫn `BR-01.2` cho *“quá 12 tháng cần xác nhận thêm”*. **`BR-01.2` là quy tắc đánh dấu dữ liệu khởi tạo**                                            | Dẫn **`BR-07.4`**                                                                                 |
-| **5** | UI Spec, dòng nguồn và 4 chỗ dẫn chiếu | Ghi *“Nguồn: BRD v2.0, Domain Spec Phần 1, Phần 1b (ERD), Phần 2”*; còn dẫn *“Phần 1b mục 4.5”*, *“Phần 2 mục 5.2”*, *“Phần 2 mục 10”*              | BRD nay là **v3.6**; bộ Domain Spec **đã gỡ bỏ** ở v3.5 và **đã xóa khỏi repo**, nội dung lõi chuyển vào **BRD mục 5.12** |
-| **6** | Tên tệp Business Workflows             | Tệp tên `... v1.0.md` nhưng nội dung bên trong ghi *“Phiên bản 2.0 — thay thế v1.0”*                                                                | Đổi tên tệp thành **v2.0**                                                                        |
+| #     | Ở đâu                                  | Lỗi                                                                                                                                                 | Sửa thành                                                                                                                 |
+| ----- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| **1** | UI Spec `NT-UI-3` và mục 11            | Dẫn `INV-08` cho _“thu hồi seat giữa kỳ không tiết kiệm được đồng nào”_. Trong BRD v3.5, **`INV-08` là “không ai duyệt yêu cầu của chính mình”**    | Dẫn **`FR-4.15`** — không có mã `INV` nào cho nội dung này                                                                |
+| **2** | UI Spec `MGR-04` và mục 11             | Dẫn `INV-11` cho hộp thoại miễn trừ bắt buộc có hạn. **`INV-11` là “nguồn phải khai định nghĩa hoạt động”**                                         | Dẫn **`INV-09`** (BRD mục 5.12.3, vòng đời `Attestation`)                                                                 |
+| **3** | UI Spec `NT-UI-6`                      | Dẫn `INV-14` cho _“đánh dấu `is_service_account` bắt buộc ghi chú”_. **`INV-14` là “một nhân viên gắn với đúng một Cost Center tại mỗi thời điểm”** | Bỏ mã, hoặc tìm đúng mã trong BRD mục 5.12.2                                                                              |
+| **4** | UI Spec `EMP-02` bước 2                | Dẫn `BR-01.2` cho _“quá 12 tháng cần xác nhận thêm”_. **`BR-01.2` là quy tắc đánh dấu dữ liệu khởi tạo**                                            | Dẫn **`BR-07.4`**                                                                                                         |
+| **5** | UI Spec, dòng nguồn và 4 chỗ dẫn chiếu | Ghi _“Nguồn: BRD v2.0, Domain Spec Phần 1, Phần 1b (ERD), Phần 2”_; còn dẫn _“Phần 1b mục 4.5”_, _“Phần 2 mục 5.2”_, _“Phần 2 mục 10”_              | BRD nay là **v3.6**; bộ Domain Spec **đã gỡ bỏ** ở v3.5 và **đã xóa khỏi repo**, nội dung lõi chuyển vào **BRD mục 5.12** |
+| **6** | Tên tệp Business Workflows             | Tệp tên `... v1.0.md` nhưng nội dung bên trong ghi _“Phiên bản 2.0 — thay thế v1.0”_                                                                | Đổi tên tệp thành **v2.0**                                                                                                |
 
 **Hai khoản nợ cũ** đã ghi ở User Flows v0.3 mục 10 và Business Workflows mục 6 — **cả hai nay đã đóng**:
 
-- ~~Định nghĩa Phạm vi v1.1 mục 5.2 vẫn ghi phạm vi `37 / 5 / 1`~~ → ✅ **đã sửa thành `38 / 3 / 2`** ở Định nghĩa Phạm vi v1.2 *(08/09/2026)*.
-- ~~Chưa chốt vai trò nào đóng người duyệt dự phòng ở gốc cây~~ → ✅ **đã chốt** *(`QĐ-02`, nhóm trưởng, 08/09/2026)*: **một Employee cụ thể do Super Admin cấu hình**, duyệt với tư cách vai Manager. Xem BRD `FR-3.6`. Nhánh trên `UF-01` và `UF-04` nay có tác nhân.
+- ~~Định nghĩa Phạm vi v1.1 mục 5.2 vẫn ghi phạm vi `37 / 5 / 1`~~ → ✅ **đã sửa thành `38 / 3 / 2`** ở Định nghĩa Phạm vi v1.2 _(08/09/2026)_.
+- ~~Chưa chốt vai trò nào đóng người duyệt dự phòng ở gốc cây~~ → ✅ **đã chốt** _(`QĐ-02`, nhóm trưởng, 08/09/2026)_: **một Employee cụ thể do Super Admin cấu hình**, duyệt với tư cách vai Manager. Xem BRD `FR-3.6`. Nhánh trên `UF-01` và `UF-04` nay có tác nhân.
 
-> ✅ **Đã sửa trong chính tài liệu này ngày 08/09/2026** *(`QĐ-08`)*: dòng `UF-09` ở bảng mục 2 trước ghi `ITA-05, ITA-10, ITA-12 → ITA-14`, lệch hai chỗ so với User Flows v0.4 (bản mới hơn). Nay sửa thành `ITA-04, ITA-10, ITA-12, ITA-13, ITA-14`. `ITA-13` là màn hình *"Chuyển trạng thái Đang bàn giao, đặt ngày làm việc cuối"*, gắn `BR-05.3`.
+> ✅ **Đã sửa trong chính tài liệu này ngày 08/09/2026** _(`QĐ-08`)_: dòng `UF-09` ở bảng mục 2 trước ghi `ITA-05, ITA-10, ITA-12 → ITA-14`, lệch hai chỗ so với User Flows v0.4 (bản mới hơn). Nay sửa thành `ITA-04, ITA-10, ITA-12, ITA-13, ITA-14`. `ITA-13` là màn hình _"Chuyển trạng thái Đang bàn giao, đặt ngày làm việc cuối"_, gắn `BR-05.3`.
 >
 > ⚠️ **Chưa sửa và KHÔNG được đánh dấu đã sửa:** sáu lỗi ở bảng trên nằm trong **UI Spec** — tài liệu đó **không tồn tại trong repo**, nên không có tệp đích để sửa. Chúng vẫn mở.
 >
-> 🔄 **Đính chính 08/09/2026 — kiểm tại nguồn ở lượt review diagram.** Mô tả *"`.drawio` của `UF-09` chưa đồng bộ — cần **thêm** nút `ITA-13` và **đổi** `ITA-05` thành `ITA-04`"* **là sai**. Parse XML và render trang `UF-09` cho thấy các nút **đã đúng từ trước**: `ITA-12` · `ITA-13` *(kèm `BR-05.3`)* · `ITA-14` · `ITA-10` ×2 · `ITA-04` *(kèm `BR-14.2`)*, và **không tồn tại nút `ITA-05` nào** trong trang này. Thứ thật sự lệch chỉ là **dòng phụ đề (metadata)** ghi *"màn hình ITA-12, ITA-13, ITA-10, ITA-05"*. **Đã sửa phụ đề** ở lượt này; không thêm hay đổi nút nào.
+> 🔄 **Đính chính 08/09/2026 — kiểm tại nguồn ở lượt review diagram.** Mô tả _"`.drawio` của `UF-09` chưa đồng bộ — cần **thêm** nút `ITA-13` và **đổi** `ITA-05` thành `ITA-04`"_ **là sai**. Parse XML và render trang `UF-09` cho thấy các nút **đã đúng từ trước**: `ITA-12` · `ITA-13` _(kèm `BR-05.3`)_ · `ITA-14` · `ITA-10` ×2 · `ITA-04` _(kèm `BR-14.2`)_, và **không tồn tại nút `ITA-05` nào** trong trang này. Thứ thật sự lệch chỉ là **dòng phụ đề (metadata)** ghi _"màn hình ITA-12, ITA-13, ITA-10, ITA-05"_. **Đã sửa phụ đề** ở lượt này; không thêm hay đổi nút nào.
 >
 > Năm trong sáu lỗi nằm ở UI Spec, và UI Spec là **đầu vào trực tiếp của Figma**. Sửa trước khi dựng rẻ hơn nhiều so với sửa sau, vì mỗi mã sai sẽ được chép lại vào chú thích trong Figma, rồi vào comment trong mã nguồn.
 
@@ -209,11 +209,11 @@ Xếp theo mức dễ bị hội đồng nhặt ra.
 
 ## 6. Việc còn lại
 
-| #   | Việc                                                                                                       | Người     | Mốc                           |
-| --- | ---------------------------------------------------------------------------------------------------------- | --------- | ----------------------------- |
-| 1   | Sửa 4 mã sai trong UI Spec (`INV-08`, `INV-11`, `INV-14`, `BR-01.2`) và cập nhật dòng nguồn                | Phú       | Trước khi dựng Figma          |
-| 2   | ~~Sửa con số phạm vi ở Định nghĩa Phạm vi mục 5.2 thành `38 / 3 / 2`~~ → ✅ **đã xong** ở Định nghĩa Phạm vi v1.2 *(08/09/2026)* | Phi       | ✅ Đã đóng                     |
-| 3   | Ghi `F-35` thuộc `WF-16` vào **User Flows v0.4** mục 1.10 — **vẫn mở**                                     | Phi       | Lần cập nhật kế tiếp          |
-| 4   | ~~Chốt vai trò người duyệt dự phòng ở gốc cây~~ → ✅ **đã chốt** *(`QĐ-02`, 08/09/2026)*: một Employee cụ thể do Super Admin cấu hình | Nhóm      | ✅ Đã đóng                     |
-| 5   | Dùng 14 sơ đồ này làm đầu vào cho Figma: mỗi nút màn hình là một frame, mỗi cạnh là một liên kết prototype | Phú, Đăng | Sau khi có ERD                |
-| 6   | Đối chiếu mã màn hình khi UI Spec lên v0.2 — nếu thêm hoặc bỏ màn hình thì chạy lại phép kiểm mục 4.1      | Phú       | Mỗi lần UI Spec đổi phiên bản |
+| #   | Việc                                                                                                                                  | Người     | Mốc                           |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------- | --------- | ----------------------------- |
+| 1   | Sửa 4 mã sai trong UI Spec (`INV-08`, `INV-11`, `INV-14`, `BR-01.2`) và cập nhật dòng nguồn                                           | Phú       | Trước khi dựng Figma          |
+| 2   | ~~Sửa con số phạm vi ở Định nghĩa Phạm vi mục 5.2 thành `38 / 3 / 2`~~ → ✅ **đã xong** ở Định nghĩa Phạm vi v1.2 _(08/09/2026)_      | Phi       | ✅ Đã đóng                    |
+| 3   | Ghi `F-35` thuộc `WF-16` vào **User Flows v0.4** mục 1.10 — **vẫn mở**                                                                | Phi       | Lần cập nhật kế tiếp          |
+| 4   | ~~Chốt vai trò người duyệt dự phòng ở gốc cây~~ → ✅ **đã chốt** _(`QĐ-02`, 08/09/2026)_: một Employee cụ thể do Super Admin cấu hình | Nhóm      | ✅ Đã đóng                    |
+| 5   | Dùng 14 sơ đồ này làm đầu vào cho Figma: mỗi nút màn hình là một frame, mỗi cạnh là một liên kết prototype                            | Phú, Đăng | Sau khi có ERD                |
+| 6   | Đối chiếu mã màn hình khi UI Spec lên v0.2 — nếu thêm hoặc bỏ màn hình thì chạy lại phép kiểm mục 4.1                                 | Phú       | Mỗi lần UI Spec đổi phiên bản |

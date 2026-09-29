@@ -1,18 +1,17 @@
 # SaaS-Sentry — User Flows nghiệp vụ chi tiết
 
-> **Phiên bản:** 0.7 — đồng bộ **BRD v3.10**, Định nghĩa Phạm vi v1.6 · *(0.6 đồng bộ BRD v3.9, Định nghĩa Phạm vi v1.5)* · *(0.5 đồng bộ BRD v3.8, Định nghĩa Phạm vi v1.4)* · *(v0.4 đồng bộ BRD v3.5, Định nghĩa Phạm vi v1.1, Context Diagram v0.1, UI Spec v0.1)*
+> **Phiên bản:** 0.7 — đồng bộ **BRD v3.10**, Định nghĩa Phạm vi v1.6 · _(0.6 đồng bộ BRD v3.9, Định nghĩa Phạm vi v1.5)_ · _(0.5 đồng bộ BRD v3.8, Định nghĩa Phạm vi v1.4)_ · _(v0.4 đồng bộ BRD v3.5, Định nghĩa Phạm vi v1.1, Context Diagram v0.1, UI Spec v0.1)_
 >
 > **Thay đổi ở v0.7 — theo `QĐ-29a`, `QĐ-29b`, Owner chốt 15/09/2026:**
 >
 > - **Tài chính không nằm trên đường duyệt** (`QĐ-29b`): Người duyệt chi quyết trên **snapshot ngân sách**, có thể **hỏi Tài chính** (SLA không dừng); hệ thống tạo khoản cam kết khi duyệt; **Tài chính ghi nhận ∥ IT cấp phát**. Viết lại `MF-2` B2.5/B2.5b, `MF-4` B4.3, `F-07`/`F-08`, `F-09`, `F-27`; sửa `BR-03.4`, `BR-07.6`, `BR-07.9`, `BR-09.3`, `BR-09.4`, `BR-27.4`; mục 8, 9.
 > - **Nhánh không phát sinh chi phí không qua Người duyệt chi** — Owner xác nhận (`QĐ-29a`); `F-47` báo cáo quy trình thêm tổng hợp suất cấp theo nhánh này. Đóng BRD `OQ-19`, `OQ-20`.
-> - Phần 11: **`UF-11`** vẽ lại và đổi tên *Tài chính kiểm soát ngân sách và theo dõi kỳ gia hạn*; **`UF-15`** vẽ lại (snapshot, nhánh hỏi Tài chính); **`UF-02`** đổi thứ tự; **`UF-08`**, **`UF-10`** đảo thứ tự hai tham chiếu; `UF-01`, `UF-04` đổi nhãn. `.drawio`, HTML, PDF sinh lại bằng tool; HTML có **lọc theo vai trò**.
+> - Phần 11: **`UF-11`** vẽ lại và đổi tên _Tài chính kiểm soát ngân sách và theo dõi kỳ gia hạn_; **`UF-15`** vẽ lại (snapshot, nhánh hỏi Tài chính); **`UF-02`** đổi thứ tự; **`UF-08`**, **`UF-10`** đảo thứ tự hai tham chiếu; `UF-01`, `UF-04` đổi nhãn. `.drawio`, HTML, PDF sinh lại bằng tool; HTML có **lọc theo vai trò**.
 > - **Không đổi phạm vi:** vẫn `48` = `43 / 3 / 2`.
->
 >
 > **Thay đổi ở v0.6 — theo `QĐ-27`, `QĐ-28a` → `QĐ-28d`, nhóm trưởng chốt 15/09/2026:**
 >
-> - **Bỏ ủy quyền duyệt** (`QĐ-27`): `F-13` **giữ mã**, viết lại thành *Xử lý bước duyệt nghẽn, xung đột lợi ích và xác định lại người duyệt*; `BR-13.1`, `BR-13.3`, `BR-13.5`, `BR-13.7` **nghỉ hưu**; thêm `BR-13.8` → `BR-13.10`. `MF-2`, `F-07`/`F-08`, mục 8, 9 sửa theo.
+> - **Bỏ ủy quyền duyệt** (`QĐ-27`): `F-13` **giữ mã**, viết lại thành _Xử lý bước duyệt nghẽn, xung đột lợi ích và xác định lại người duyệt_; `BR-13.1`, `BR-13.3`, `BR-13.5`, `BR-13.7` **nghỉ hưu**; thêm `BR-13.8` → `BR-13.10`. `MF-2`, `F-07`/`F-08`, mục 8, 9 sửa theo.
 > - **Escalate chỉ là thông báo**; chỉ xác định lại người duyệt khi dữ liệu tổ chức hoặc cấu hình vai trò đổi thật (`QĐ-28d`) — `BR-07.7`, `BR-13.9`.
 > - **Người thay thế khi Người duyệt chi xung đột lợi ích**, Quản trị hệ thống cấu hình trước (`QĐ-28c`) — `BR-13.10`.
 > - **GitHub đo sử dụng bằng lịch sử commit và tiện ích trình duyệt**, audit log không là nguồn usage (`QĐ-28a`) — `F-17`. **Tiện ích demo bằng load unpacked** (`QĐ-28b`) — `F-45`.
@@ -26,26 +25,28 @@
 > - **Bỏ phòng ban** (`QĐ-23`): `F-03` giữ mã, đổi tên; `F-29` gom theo cost center và cây người phụ trách; `BR-20.1` bỏ cấp phòng ban.
 > - `F-17`, `F-42` thêm nguồn bộ thu thập và **xác nhận chủ động**; `F-30` ghi **hoãn lớp L2** (`QĐ-25`).
 > - ⚠️ **Chưa đồng bộ lúc chốt v0.5:** sơ đồ `UF` ở Phần 11, bản `.drawio`, `.png`, `.pdf`, `.html` — để phiên sau theo `QĐ-25`. Phần 11 có khối cảnh báo liệt kê từng `UF` bị ảnh hưởng. **✅ Đóng 14/09/2026, cùng ngày, lượt sau:** 16 `.drawio` sinh lại từ Mermaid, `.html`/`.pdf` xuất lại bằng `tools/export-user-flows.py`; chuỗi kiểm cũ đã được rút gọn tại `Docs/Reviews/review-history-summary.md`.
-> **Viết cho ai:** cả nhóm, kể cả người không viết code. Tài liệu mô tả **ai làm gì, hệ thống phản hồi ra sao, và quy tắc nào chi phối** — không nhắc màn hình, bảng dữ liệu hay công nghệ.
-> **Vì sao tách khỏi màn hình:** thiết kế giao diện còn đổi nhiều lần; luồng nghiệp vụ thì không. Gắn hai thứ vào nhau khiến mỗi lần đổi nút bấm lại phải sửa tài liệu nghiệp vụ.
+>   **Viết cho ai:** cả nhóm, kể cả người không viết code. Tài liệu mô tả **ai làm gì, hệ thống phản hồi ra sao, và quy tắc nào chi phối** — không nhắc màn hình, bảng dữ liệu hay công nghệ.
+>   **Vì sao tách khỏi màn hình:** thiết kế giao diện còn đổi nhiều lần; luồng nghiệp vụ thì không. Gắn hai thứ vào nhau khiến mỗi lần đổi nút bấm lại phải sửa tài liệu nghiệp vụ.
 >
 > **Thay đổi ở v0.3 — bổ sung tầng main flow, sửa bốn lỗi tồn:**
 >
 > - **Bổ sung mục 1.3 → 1.11: sáu Main Flow tổng `MF-0` → `MF-5`.** Trước v0.3, tài liệu nhảy thẳng từ bản đồ năm luồng giá trị vào 43 luồng chi tiết — người đọc thấy được từng luồng nhưng không thấy được **thứ tự và chỗ nối giữa chúng**. Tầng main flow lấp đúng khoảng trống đó: mỗi main flow là một chuỗi bước end-to-end viết thuần chữ, mỗi bước trỏ xuống đúng một hoặc vài mã `F-xx` đã có.
 > - **43 mã `F-xx` giữ nguyên, không đánh lại, không gộp, không tách.** BRD v3.5 và Context Diagram v0.1 đang trích các mã này; đổi mã sẽ tạo mã chết ở hai tài liệu khác. Tầng main flow chỉ **thêm bên trên**, không sửa bên dưới.
-> - **Số mục cũ giữ nguyên hoàn toàn.** Phần main flow được đặt bên trong Phần 1 (mục 1.3 → 1.11) chứ không chèn thành một phần mới, để mục 1.2 vẫn là *Bảng chốt phạm vi* (Context Diagram mục 8 trỏ vào đây) và mục 10 vẫn là *Cần team quyết* (Context Diagram mục 7 trỏ vào đây).
-> - ⚠️ **Sửa lỗi phân loại phạm vi ở mục 1.2.** v0.2 ghi *"37 hiện thực, 5 chỉ đặc tả, 1 ngoài phạm vi"*. Đếm lại trên chính bảng đó: **38 hiện thực, 3 chỉ đặc tả (`F-16`, `F-24`, `F-36`), 2 ngoài phạm vi (`F-25`, `F-33`)**. Tổng vẫn là 43 nên lỗi không lộ ra khi cộng. **Định nghĩa Phạm vi v1.1 mục 5.2 đang chép lại con số sai này và cần sửa theo.**
-> - ⚠️ **Sửa mục 0.1** — tiêu đề ghi *"Sáu tác nhân"* nhưng bảng có bảy dòng.
+> - **Số mục cũ giữ nguyên hoàn toàn.** Phần main flow được đặt bên trong Phần 1 (mục 1.3 → 1.11) chứ không chèn thành một phần mới, để mục 1.2 vẫn là _Bảng chốt phạm vi_ (Context Diagram mục 8 trỏ vào đây) và mục 10 vẫn là _Cần team quyết_ (Context Diagram mục 7 trỏ vào đây).
+> - ⚠️ **Sửa lỗi phân loại phạm vi ở mục 1.2.** v0.2 ghi _"37 hiện thực, 5 chỉ đặc tả, 1 ngoài phạm vi"_. Đếm lại trên chính bảng đó: **38 hiện thực, 3 chỉ đặc tả (`F-16`, `F-24`, `F-36`), 2 ngoài phạm vi (`F-25`, `F-33`)**. Tổng vẫn là 43 nên lỗi không lộ ra khi cộng. **Định nghĩa Phạm vi v1.1 mục 5.2 đang chép lại con số sai này và cần sửa theo.**
+> - ⚠️ **Sửa mục 0.1** — tiêu đề ghi _"Sáu tác nhân"_ nhưng bảng có bảy dòng.
 > - **Bổ sung `F-04` vào bản đồ mermaid mục 1.1** — v0.2 có `F-04` trong bảng phạm vi và có mục 2.4 đặc tả, nhưng thiếu trên hình.
 > - **Bổ sung hai dòng `F-37`, `F-38` vào bảng tiêu chí hoàn thành mục 8** — hai luồng này ở phạm vi ✅ nhưng v0.2 không ghi tiêu chí nghiệm thu.
->>
+>
+> >
+>
 > **Thay đổi ở v0.4 — bổ sung tầng thứ ba: user flow mức màn hình:**
 >
 > - **Bổ sung Phần 11: 14 user flow `UF-01` → `UF-14`**, vẽ bằng flowchart, mỗi nút là một màn hình có mã trong UI Spec. Tài liệu nay chứa **cả ba tầng** — main flow tổng (mục 1.4 → 1.9), luồng nghiệp vụ chi tiết (Phần 2 → 7), và luồng màn hình (Phần 11) — nên không còn tài liệu thứ hai để lệch.
 > - **Số mục cũ giữ nguyên hoàn toàn.** Phần 11 đặt sau mục 10, không phần nào bị đánh số lại.
 > - **43 mã `F-xx` và mọi mã `BR-xx.x` giữ nguyên.** Tầng `UF` chỉ nối xuống mã màn hình của UI Spec và nối lên mã `F-xx` đã có.
-> - **Mỗi user flow được xếp một trong ba mức ưu tiên trình bày** (mục 11.3.1), kèm kịch bản 12 phút và bảng tra ngược *câu hỏi → mở flow nào*. Mức ưu tiên in ngay trên đầu mỗi sơ đồ, và bản `.pdf` được sắp lại theo thứ tự đó.
-> - Sơ đồ trong tài liệu này và bản `.drawio` sinh từ **một tệp đặc tả duy nhất**, nên hai bản không thể lệch nhau. Bản `.drawio` (14 trang, và 14 tệp rời), bản `.png`, `.svg`, `.pdf` đi kèm riêng. *(14/09/2026 — tệp đặc tả gốc không có trong kho; từ v0.5, `.drawio` của Phần 11 sinh từ **khối Mermaid trong chính tài liệu này** bằng `tools/generate-uf-drawio.py`: 16 tệp rời. `.pdf`, `.html` chưa sinh lại — xem đầu Phần 11.)*
+> - **Mỗi user flow được xếp một trong ba mức ưu tiên trình bày** (mục 11.3.1), kèm kịch bản 12 phút và bảng tra ngược _câu hỏi → mở flow nào_. Mức ưu tiên in ngay trên đầu mỗi sơ đồ, và bản `.pdf` được sắp lại theo thứ tự đó.
+> - Sơ đồ trong tài liệu này và bản `.drawio` sinh từ **một tệp đặc tả duy nhất**, nên hai bản không thể lệch nhau. Bản `.drawio` (14 trang, và 14 tệp rời), bản `.png`, `.svg`, `.pdf` đi kèm riêng. _(14/09/2026 — tệp đặc tả gốc không có trong kho; từ v0.5, `.drawio` của Phần 11 sinh từ **khối Mermaid trong chính tài liệu này** bằng `tools/generate-uf-drawio.py`: 16 tệp rời. `.pdf`, `.html` chưa sinh lại — xem đầu Phần 11.)_
 >
 > **Thay đổi ở v0.2:** bổ sung 5 luồng mới phát sinh từ BRD v3.1–v3.4; nâng mức chi tiết của mọi luồng lên mẫu đặc tả thống nhất có quy tắc nghiệp vụ và tiêu chí hoàn thành riêng cho từng luồng.
 
@@ -53,20 +54,20 @@
 
 ## 0. Cách đọc
 
-### 0.1. Tám ký hiệu tác nhân *(bảy tới v0.4)*
+### 0.1. Tám ký hiệu tác nhân _(bảy tới v0.4)_
 
 Năm dòng đầu là **tác nhân người** — có tài khoản đăng nhập. `HT` là tác nhân tự động **nằm bên trong** ranh giới hệ thống. `NCC` nằm **ngoài** ranh giới hệ thống. Ba loại này khác nhau về bản chất, không gộp chung (Context Diagram mục 0.3).
 
-| Ký hiệu | Tác nhân           | Là ai                                            | Vị trí so với hệ thống  |
-| ------- | ------------------ | ------------------------------------------------ | ----------------------- |
-| **NV**  | Nhân viên          | Người cần dùng phần mềm                          | Người dùng              |
-| **QL**  | Quản lý trực tiếp  | Người xác nhận nhu cầu nghiệp vụ                 | Người dùng              |
-| **TC**  | Tài chính          | Người **kiểm soát ngân sách** — trả lời khi Người duyệt chi hỏi, ghi nhận ngân sách và khoản cam kết **sau** duyệt; **không quyết chi**, **không** nằm trên đường duyệt *(sửa ở v0.5, v0.7)* | Người dùng              |
-| **DC**  | Người duyệt chi *(mới ở v0.5)* | Người có thẩm quyền chi, mặc định CEO — quyết định cuối cho khoản chi và SaaS mới, trên snapshot ngân sách *(v0.7)* | Người dùng              |
-| **IT**  | Quản trị viên CNTT | Người duy nhất thực hiện thay đổi quyền          | Người dùng              |
-| **QT**  | Quản trị hệ thống  | Super Admin — cấu hình, không thao tác nghiệp vụ | Người dùng              |
-| **HT**  | Hệ thống           | Bao gồm cả dịch vụ tự động chạy nền              | **Bên trong** ranh giới |
-| **NCC** | Nhà cung cấp       | Figma, Slack, GitHub… — nằm ngoài hệ thống       | **Bên ngoài** ranh giới |
+| Ký hiệu | Tác nhân                       | Là ai                                                                                                                                                                                        | Vị trí so với hệ thống  |
+| ------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| **NV**  | Nhân viên                      | Người cần dùng phần mềm                                                                                                                                                                      | Người dùng              |
+| **QL**  | Quản lý trực tiếp              | Người xác nhận nhu cầu nghiệp vụ                                                                                                                                                             | Người dùng              |
+| **TC**  | Tài chính                      | Người **kiểm soát ngân sách** — trả lời khi Người duyệt chi hỏi, ghi nhận ngân sách và khoản cam kết **sau** duyệt; **không quyết chi**, **không** nằm trên đường duyệt _(sửa ở v0.5, v0.7)_ | Người dùng              |
+| **DC**  | Người duyệt chi _(mới ở v0.5)_ | Người có thẩm quyền chi, mặc định CEO — quyết định cuối cho khoản chi và SaaS mới, trên snapshot ngân sách _(v0.7)_                                                                          | Người dùng              |
+| **IT**  | Quản trị viên CNTT             | Người duy nhất thực hiện thay đổi quyền                                                                                                                                                      | Người dùng              |
+| **QT**  | Quản trị hệ thống              | Super Admin — cấu hình, không thao tác nghiệp vụ                                                                                                                                             | Người dùng              |
+| **HT**  | Hệ thống                       | Bao gồm cả dịch vụ tự động chạy nền                                                                                                                                                          | **Bên trong** ranh giới |
+| **NCC** | Nhà cung cấp                   | Figma, Slack, GitHub… — nằm ngoài hệ thống                                                                                                                                                   | **Bên ngoài** ranh giới |
 
 ### 0.2. Mẫu đặc tả dùng cho mọi luồng
 
@@ -178,6 +179,7 @@ flowchart TB
 ```
 
 Hai mũi tên đáng chú ý:
+
 - **C4 → D2**: thu hồi suất chỉ thành tiền thật tại kỳ gia hạn. Mắt xích quyết định giá trị của cả hệ thống.
 - **E2 → B1**: một ứng dụng ngoài danh mục được hợp thức hóa sẽ quay lại thành yêu cầu mua chính thức. Vòng lặp khép kín, không phải ngõ cụt.
 
@@ -187,66 +189,66 @@ Hai mũi tên đáng chú ý:
 
 Cột **MF** cho biết luồng đó nằm trong main flow nào ở mục 1.4 → 1.9.
 
-| Mã   | Luồng                                           | Thuộc | MF   | Phạm vi | Chi tiết ở mục |
-| ---- | ----------------------------------------------- | ----- | ---- | ------- | -------------- |
-| F-01 | Khởi tạo dữ liệu ban đầu cho tổ chức            | VS-0  | MF-0 | ✅       | 2.1            |
-| F-02 | Nhân viên mới vào                               | VS-0  | MF-1 | ✅       | 2.2            |
-| F-03 | Nhân viên đổi người quản lý hoặc cost center *(đổi tên ở v0.5)* | VS-0  | MF-1 | ✅       | 2.3            |
-| F-04 | Nhân viên nghỉ dài và quay lại                  | VS-0  | MF-1 | ✅       | 2.4            |
-| F-05 | Nhân viên nghỉ việc                             | VS-0  | MF-1 | ✅       | 2.5            |
-| F-39 | Nhà thầu, thực tập sinh sắp hết hạn             | VS-0  | MF-1 | ✅       | 2.6            |
-| F-06 | Khai báo danh mục, gói, hợp đồng, thuê bao      | VS-1  | MF-0 | ✅       | 3.1            |
-| F-07 | Xin cấp suất — không phát sinh chi phí          | VS-1  | MF-2 | ✅       | 3.2            |
-| F-08 | Xin cấp suất — có phát sinh chi phí             | VS-1  | MF-2 | ✅       | 3.2            |
-| F-09 | Xin phần mềm chưa có trong danh mục             | VS-1  | MF-2 | ✅       | 3.3            |
-| F-10 | Thực thi cấp phát qua kết nối tự động           | VS-1  | MF-2 | ✅       | 3.4            |
-| F-11 | Thực thi cấp phát thủ công có theo dõi          | VS-1  | MF-2 | ✅       | 3.4            |
-| F-12 | Xử lý cấp phát thất bại                         | VS-1  | MF-2 | ✅       | 3.5            |
-| F-13 | Xử lý bước duyệt nghẽn, xung đột lợi ích và xác định lại người duyệt *(v0.6; tới v0.5: ủy quyền phê duyệt)* | VS-1  | MF-2 | ✅       | 3.6            |
-| F-14 | Hoàn trả suất theo yêu cầu                      | VS-1  | MF-2 | ✅       | 3.7            |
-| F-15 | Gia hạn quyền có thời hạn                       | VS-1  | MF-2 | ✅       | 3.7            |
-| F-16 | Đổi gói — nâng hoặc hạ                          | VS-1  | MF-2 | 📐       | —              |
-| F-17 | Import dữ liệu sử dụng                          | VS-2  | MF-3 | ✅       | 4.1            |
-| F-18 | Xử lý hàng đợi chưa khớp danh tính              | VS-2  | MF-3 | ✅       | 4.2            |
-| F-19 | Phát hiện lãng phí nhóm G1, G2                  | VS-2  | MF-3 | ✅       | 4.3            |
-| F-20 | Phát hiện lãng phí nhóm G3, G4                  | VS-2  | MF-3 | ✅       | 4.3            |
-| F-21 | Quản lý xác nhận Giữ / Thu hồi / Miễn trừ       | VS-2  | MF-3 | ✅       | 4.4            |
-| F-22 | Thu hồi suất sau xác nhận                       | VS-2  | MF-3 | ✅       | 4.5            |
-| F-23 | Mở lại khuyến nghị khi hết hạn miễn trừ         | VS-2  | MF-3 | ✅       | 4.5            |
-| F-24 | Rà soát quyền truy cập định kỳ                  | VS-2  | MF-3 | 📐       | —              |
-| F-25 | Phát hiện nhóm G5 — hạ gói theo mức dùng        | VS-2  | MF-3 | ❌       | —              |
-| F-26 | Cảnh báo trước hạn chót báo hủy                 | VS-3  | MF-4 | ✅       | 5.1            |
-| F-27 | Quyết định gia hạn, giảm số lượng hoặc hủy      | VS-3  | MF-4 | ✅       | 5.2            |
-| F-28 | Đối soát với nhà cung cấp                       | VS-3  | MF-4 | ✅       | 5.3            |
-| F-29 | Bảng chi tiêu, tiết kiệm và phân bổ theo cost center *(đổi tên ở v0.5)* | VS-4  | MF-5 | ✅       | 6.1            |
-| F-30 | Dự báo chi phí ba lớp                           | VS-4  | MF-5 | ✅       | 6.2            |
-| F-31 | Phát hiện phần mềm ngoài danh mục từ sao kê     | VS-4  | MF-5 | ✅       | 6.3            |
-| F-32 | Phát hiện từ dữ liệu cấp quyền của hệ định danh | VS-4  | MF-5 | ✅       | 6.3            |
-| F-33 | Phát hiện từ nhật ký truy cập web               | VS-4  | MF-5 | ❌       | —              |
-| F-34 | Hợp thức hóa ứng dụng vào danh mục              | VS-4  | MF-5 | ✅       | 6.4            |
-| F-35 | Đối soát hóa đơn với suất và mức sử dụng        | VS-4  | MF-5 | ✅       | 6.5            |
-| F-36 | Lập và theo dõi ngân sách                       | VS-4  | MF-5 | ✅ *(📐 tới v0.4)* | 6.6            |
-| F-37 | Quản trị người dùng, vai trò, cấu hình          | —     | MF-0 | ✅       | 7.1            |
-| F-38 | Nhật ký kiểm toán và giám sát tác vụ nền        | —     | MF-0 | ✅       | 7.1            |
-| F-40 | Nhân viên xem và xuất dữ liệu của chính mình    | —     | MF-0 | ✅       | 7.2            |
-| F-41 | Xóa dữ liệu hoạt động của người đã nghỉ         | —     | MF-1 | ✅       | 7.3            |
-| F-42 | Thông báo khi bắt đầu theo dõi một ứng dụng     | —     | MF-3 | ✅       | 7.4            |
-| F-43 | Xử lý khi các nguồn dữ liệu mâu thuẫn           | —     | MF-0 | ✅       | 7.5            |
-| F-44 | Xóa dữ liệu quá hạn lưu giữ theo chính sách     | —     | MF-0 | ✅       | 7.6            |
-| **F-45** | Triển khai và vận hành tiện ích trình duyệt trên thiết bị công ty *(mới ở v0.5)* | VS-2 | MF-3 | ✅ | 7.7 |
-| **F-46** | Phát hiện SaaS ngoài danh mục từ bộ thu thập *(mới ở v0.5)* | VS-4 | MF-5 | ✅ | 7.8 |
-| **F-47** | Xem báo cáo hiệu suất và chất lượng *(mới ở v0.5)* | VS-4 | MF-5 | ✅ | 7.9 |
-| **F-48** | Agent trên máy công ty *(mới ở v0.5)* | VS-2 | MF-3 | 📐 | 7.10 |
+| Mã       | Luồng                                                                                                       | Thuộc | MF   | Phạm vi            | Chi tiết ở mục |
+| -------- | ----------------------------------------------------------------------------------------------------------- | ----- | ---- | ------------------ | -------------- |
+| F-01     | Khởi tạo dữ liệu ban đầu cho tổ chức                                                                        | VS-0  | MF-0 | ✅                 | 2.1            |
+| F-02     | Nhân viên mới vào                                                                                           | VS-0  | MF-1 | ✅                 | 2.2            |
+| F-03     | Nhân viên đổi người quản lý hoặc cost center _(đổi tên ở v0.5)_                                             | VS-0  | MF-1 | ✅                 | 2.3            |
+| F-04     | Nhân viên nghỉ dài và quay lại                                                                              | VS-0  | MF-1 | ✅                 | 2.4            |
+| F-05     | Nhân viên nghỉ việc                                                                                         | VS-0  | MF-1 | ✅                 | 2.5            |
+| F-39     | Nhà thầu, thực tập sinh sắp hết hạn                                                                         | VS-0  | MF-1 | ✅                 | 2.6            |
+| F-06     | Khai báo danh mục, gói, hợp đồng, thuê bao                                                                  | VS-1  | MF-0 | ✅                 | 3.1            |
+| F-07     | Xin cấp suất — không phát sinh chi phí                                                                      | VS-1  | MF-2 | ✅                 | 3.2            |
+| F-08     | Xin cấp suất — có phát sinh chi phí                                                                         | VS-1  | MF-2 | ✅                 | 3.2            |
+| F-09     | Xin phần mềm chưa có trong danh mục                                                                         | VS-1  | MF-2 | ✅                 | 3.3            |
+| F-10     | Thực thi cấp phát qua kết nối tự động                                                                       | VS-1  | MF-2 | ✅                 | 3.4            |
+| F-11     | Thực thi cấp phát thủ công có theo dõi                                                                      | VS-1  | MF-2 | ✅                 | 3.4            |
+| F-12     | Xử lý cấp phát thất bại                                                                                     | VS-1  | MF-2 | ✅                 | 3.5            |
+| F-13     | Xử lý bước duyệt nghẽn, xung đột lợi ích và xác định lại người duyệt _(v0.6; tới v0.5: ủy quyền phê duyệt)_ | VS-1  | MF-2 | ✅                 | 3.6            |
+| F-14     | Hoàn trả suất theo yêu cầu                                                                                  | VS-1  | MF-2 | ✅                 | 3.7            |
+| F-15     | Gia hạn quyền có thời hạn                                                                                   | VS-1  | MF-2 | ✅                 | 3.7            |
+| F-16     | Đổi gói — nâng hoặc hạ                                                                                      | VS-1  | MF-2 | 📐                 | —              |
+| F-17     | Import dữ liệu sử dụng                                                                                      | VS-2  | MF-3 | ✅                 | 4.1            |
+| F-18     | Xử lý hàng đợi chưa khớp danh tính                                                                          | VS-2  | MF-3 | ✅                 | 4.2            |
+| F-19     | Phát hiện lãng phí nhóm G1, G2                                                                              | VS-2  | MF-3 | ✅                 | 4.3            |
+| F-20     | Phát hiện lãng phí nhóm G3, G4                                                                              | VS-2  | MF-3 | ✅                 | 4.3            |
+| F-21     | Quản lý xác nhận Giữ / Thu hồi / Miễn trừ                                                                   | VS-2  | MF-3 | ✅                 | 4.4            |
+| F-22     | Thu hồi suất sau xác nhận                                                                                   | VS-2  | MF-3 | ✅                 | 4.5            |
+| F-23     | Mở lại khuyến nghị khi hết hạn miễn trừ                                                                     | VS-2  | MF-3 | ✅                 | 4.5            |
+| F-24     | Rà soát quyền truy cập định kỳ                                                                              | VS-2  | MF-3 | 📐                 | —              |
+| F-25     | Phát hiện nhóm G5 — hạ gói theo mức dùng                                                                    | VS-2  | MF-3 | ❌                 | —              |
+| F-26     | Cảnh báo trước hạn chót báo hủy                                                                             | VS-3  | MF-4 | ✅                 | 5.1            |
+| F-27     | Quyết định gia hạn, giảm số lượng hoặc hủy                                                                  | VS-3  | MF-4 | ✅                 | 5.2            |
+| F-28     | Đối soát với nhà cung cấp                                                                                   | VS-3  | MF-4 | ✅                 | 5.3            |
+| F-29     | Bảng chi tiêu, tiết kiệm và phân bổ theo cost center _(đổi tên ở v0.5)_                                     | VS-4  | MF-5 | ✅                 | 6.1            |
+| F-30     | Dự báo chi phí ba lớp                                                                                       | VS-4  | MF-5 | ✅                 | 6.2            |
+| F-31     | Phát hiện phần mềm ngoài danh mục từ sao kê                                                                 | VS-4  | MF-5 | ✅                 | 6.3            |
+| F-32     | Phát hiện từ dữ liệu cấp quyền của hệ định danh                                                             | VS-4  | MF-5 | ✅                 | 6.3            |
+| F-33     | Phát hiện từ nhật ký truy cập web                                                                           | VS-4  | MF-5 | ❌                 | —              |
+| F-34     | Hợp thức hóa ứng dụng vào danh mục                                                                          | VS-4  | MF-5 | ✅                 | 6.4            |
+| F-35     | Đối soát hóa đơn với suất và mức sử dụng                                                                    | VS-4  | MF-5 | ✅                 | 6.5            |
+| F-36     | Lập và theo dõi ngân sách                                                                                   | VS-4  | MF-5 | ✅ _(📐 tới v0.4)_ | 6.6            |
+| F-37     | Quản trị người dùng, vai trò, cấu hình                                                                      | —     | MF-0 | ✅                 | 7.1            |
+| F-38     | Nhật ký kiểm toán và giám sát tác vụ nền                                                                    | —     | MF-0 | ✅                 | 7.1            |
+| F-40     | Nhân viên xem và xuất dữ liệu của chính mình                                                                | —     | MF-0 | ✅                 | 7.2            |
+| F-41     | Xóa dữ liệu hoạt động của người đã nghỉ                                                                     | —     | MF-1 | ✅                 | 7.3            |
+| F-42     | Thông báo khi bắt đầu theo dõi một ứng dụng                                                                 | —     | MF-3 | ✅                 | 7.4            |
+| F-43     | Xử lý khi các nguồn dữ liệu mâu thuẫn                                                                       | —     | MF-0 | ✅                 | 7.5            |
+| F-44     | Xóa dữ liệu quá hạn lưu giữ theo chính sách                                                                 | —     | MF-0 | ✅                 | 7.6            |
+| **F-45** | Triển khai và vận hành tiện ích trình duyệt trên thiết bị công ty _(mới ở v0.5)_                            | VS-2  | MF-3 | ✅                 | 7.7            |
+| **F-46** | Phát hiện SaaS ngoài danh mục từ bộ thu thập _(mới ở v0.5)_                                                 | VS-4  | MF-5 | ✅                 | 7.8            |
+| **F-47** | Xem báo cáo hiệu suất và chất lượng _(mới ở v0.5)_                                                          | VS-4  | MF-5 | ✅                 | 7.9            |
+| **F-48** | Agent trên máy công ty _(mới ở v0.5)_                                                                       | VS-2  | MF-3 | 📐                 | 7.10           |
 
 **Tổng: 48 luồng — 43 hiện thực, 3 chỉ đặc tả thiết kế, 2 ngoài phạm vi.**
 
-> 🆕 **Cập nhật 14/09/2026 — v0.5, theo `QĐ-20`, `QĐ-22`, `QĐ-24`:** đếm từng nhóm trên bảng trên — **✅ 43** *(39 cũ + `F-36` + `F-45` + `F-46` + `F-47`)* · **📐 3** — `F-16`, `F-24`, `F-48` · **❌ 2** — `F-25`, `F-33`. `F-33` **vẫn ngoài phạm vi**: nhật ký truy cập web đầy đủ khác tiện ích trình duyệt lọc theo danh sách cho phép (`F-45`, `F-46`). Hoãn lớp L2 (`QĐ-25`) **không** đổi số luồng — `F-30` vẫn ✅ với L1 và L3. 📁 *Dòng tổng `44 — 39 / 3 / 2` và hai ghi chú dưới là lịch sử.*
+> 🆕 **Cập nhật 14/09/2026 — v0.5, theo `QĐ-20`, `QĐ-22`, `QĐ-24`:** đếm từng nhóm trên bảng trên — **✅ 43** _(39 cũ + `F-36` + `F-45` + `F-46` + `F-47`)_ · **📐 3** — `F-16`, `F-24`, `F-48` · **❌ 2** — `F-25`, `F-33`. `F-33` **vẫn ngoài phạm vi**: nhật ký truy cập web đầy đủ khác tiện ích trình duyệt lọc theo danh sách cho phép (`F-45`, `F-46`). Hoãn lớp L2 (`QĐ-25`) **không** đổi số luồng — `F-30` vẫn ✅ với L1 và L3. 📁 _Dòng tổng `44 — 39 / 3 / 2` và hai ghi chú dưới là lịch sử._
 
-> 🆕 **`F-44` thêm ngày 09/09/2026.** Trước đó `FR-10.3` *(xóa dữ liệu quá hạn lưu giữ theo chính sách BRD mục 7.5)* **không có luồng nào phủ**: `F-41` chỉ phủ nhánh sự kiện *nghỉ việc* của `FR-10.6`, còn nhánh **định kỳ khi nhân viên vẫn đang làm việc** thì không ai nhận. Đã cân nhắc mở rộng `F-41` và **loại**, vì `F-41` là một bước trong vòng đời nhân sự (`MF-1`, `WF-07`) còn `F-44` là **tác vụ vòng đời dữ liệu độc lập**, chạy theo lịch, không gắn với sự kiện nhân sự nào. Nhồi hai thứ vào một mã sẽ làm tên luồng rộng hơn chỗ nó được gọi. **Không đổi chính sách BRD** — `F-44` chỉ hiện thực `FR-10.3` vốn đã có.
+> 🆕 **`F-44` thêm ngày 09/09/2026.** Trước đó `FR-10.3` _(xóa dữ liệu quá hạn lưu giữ theo chính sách BRD mục 7.5)_ **không có luồng nào phủ**: `F-41` chỉ phủ nhánh sự kiện _nghỉ việc_ của `FR-10.6`, còn nhánh **định kỳ khi nhân viên vẫn đang làm việc** thì không ai nhận. Đã cân nhắc mở rộng `F-41` và **loại**, vì `F-41` là một bước trong vòng đời nhân sự (`MF-1`, `WF-07`) còn `F-44` là **tác vụ vòng đời dữ liệu độc lập**, chạy theo lịch, không gắn với sự kiện nhân sự nào. Nhồi hai thứ vào một mã sẽ làm tên luồng rộng hơn chỗ nó được gọi. **Không đổi chính sách BRD** — `F-44` chỉ hiện thực `FR-10.3` vốn đã có.
 >
 > ✅ **`F-44` ĐÃ ĐƯỢC PHÊ DUYỆT — `QĐ-14`, nhóm trưởng, 10/09/2026.** Phê duyệt theo nội dung hiện hành tại mục 7.6; giữ `F-44` thuộc `MF-0`, phạm vi `44` — `39 / 3 / 2`, và phân loại không tạo workflow riêng. Không thay đổi nội dung nghiệp vụ `F-44`. Xem `QĐ-14` trong `Decisions/project-decisions.md`.
 
-> 📁 **Lịch sử — tại thời điểm v0.3 (07/09/2026), khi phạm vi còn là 43 luồng.** Khi đó v0.2 và Định nghĩa Phạm vi v1.1 mục 5.2 đều ghi *37 / 5 / 1*; đếm lại trên chính bảng trên cho **38 / 3 / 2**, tổng 43, nên lỗi không lộ ra khi cộng. ✅ **Đã xử lý xong:** Định nghĩa Phạm vi đã sửa ở v1.2 và cập nhật tiếp ngày 09/09/2026. **Con số hiện hành là `44` — `39 / 3 / 2`**, xem dòng tổng ngay trên. Yêu cầu *"cần sửa Định nghĩa Phạm vi v1.1"* của ghi chú cũ **đã hết hiệu lực**, giữ lại chỉ để truy vết bài học: đối chiếu tổng không thay được đối chiếu từng nhóm.
+> 📁 **Lịch sử — tại thời điểm v0.3 (07/09/2026), khi phạm vi còn là 43 luồng.** Khi đó v0.2 và Định nghĩa Phạm vi v1.1 mục 5.2 đều ghi _37 / 5 / 1_; đếm lại trên chính bảng trên cho **38 / 3 / 2**, tổng 43, nên lỗi không lộ ra khi cộng. ✅ **Đã xử lý xong:** Định nghĩa Phạm vi đã sửa ở v1.2 và cập nhật tiếp ngày 09/09/2026. **Con số hiện hành là `44` — `39 / 3 / 2`**, xem dòng tổng ngay trên. Yêu cầu _"cần sửa Định nghĩa Phạm vi v1.1"_ của ghi chú cũ **đã hết hiệu lực**, giữ lại chỉ để truy vết bài học: đối chiếu tổng không thay được đối chiếu từng nhóm.
 
 ### 1.3. Ba tầng của tài liệu và cách đọc main flow
 
@@ -256,23 +258,23 @@ Cột **MF** cho biết luồng đó nằm trong main flow nào ở mục 1.4 �
 | **L1 · Main flow** | Sáu chuỗi bước end-to-end, thuần chữ | **Mục 1.4 → 1.9** | Giải thích hệ thống chạy thế nào; chương phân tích nghiệp vụ |
 | **L2 · Flow con**  | 48 luồng `F-xx` có đủ bảy phần       | Phần 2 → 7        | Viết đặc tả, viết kịch bản kiểm thử, chia việc               |
 
-**Vì sao cần tầng L1.** Bốn mươi tám luồng chi tiết trả lời được câu *"luồng này chạy ra sao"* nhưng không trả lời được câu *"cái gì nối vào cái gì"*. Người đọc lần đầu — giảng viên hướng dẫn, hội đồng, thành viên mới — cần thấy mạch trước khi thấy chi tiết. Đây cũng là cách phân rã quy trình theo cấp mà các khung công nghiệp dùng chung: một cấp cao đủ ngắn để nhớ, mỗi bước của nó phân rã xuống cấp thấp hơn, và **mỗi phần tử cấp thấp thuộc về đúng một phần tử cấp trên**.
+**Vì sao cần tầng L1.** Bốn mươi tám luồng chi tiết trả lời được câu _"luồng này chạy ra sao"_ nhưng không trả lời được câu _"cái gì nối vào cái gì"_. Người đọc lần đầu — giảng viên hướng dẫn, hội đồng, thành viên mới — cần thấy mạch trước khi thấy chi tiết. Đây cũng là cách phân rã quy trình theo cấp mà các khung công nghiệp dùng chung: một cấp cao đủ ngắn để nhớ, mỗi bước của nó phân rã xuống cấp thấp hơn, và **mỗi phần tử cấp thấp thuộc về đúng một phần tử cấp trên**.
 
 **Ký pháp dùng trong mục 1.4 → 1.9:**
 
-| Ký hiệu       | Nghĩa                                                          |
-| ------------- | -------------------------------------------------------------- |
-| `├─` `└─` `│` | Bước tuần tự và nhánh rẽ trong cùng một main flow              |
-| `──>`         | Đi tới bước khác, luồng khác, hoặc main flow khác              |
-| `[F-xx]`      | Bước này được đặc tả chi tiết ở flow con mã `F-xx`             |
-| `(BR-xx.x)`   | Quy tắc nghiệp vụ chi phối bước này                            |
-| `◆`           | Điểm rẽ nhánh do **người** quyết định                          |
-| `⚙`           | Bước do **hệ thống** hoặc tác vụ nền tự chạy, không ai bấm nút |
+| Ký hiệu       | Nghĩa                                                                          |
+| ------------- | ------------------------------------------------------------------------------ |
+| `├─` `└─` `│` | Bước tuần tự và nhánh rẽ trong cùng một main flow                              |
+| `──>`         | Đi tới bước khác, luồng khác, hoặc main flow khác                              |
+| `[F-xx]`      | Bước này được đặc tả chi tiết ở flow con mã `F-xx`                             |
+| `(BR-xx.x)`   | Quy tắc nghiệp vụ chi phối bước này                                            |
+| `◆`           | Điểm rẽ nhánh do **người** quyết định                                          |
+| `⚙`           | Bước do **hệ thống** hoặc tác vụ nền tự chạy, không ai bấm nút                 |
 | `⏱`           | Bước có thời hạn xử lý; quá hạn thì nhắc và thông báo — không đổi người (v0.6) |
-| `⛔`           | **Cổng chặn** — không đủ điều kiện thì dừng, không đi tiếp     |
-| `⭐`           | Mắt xích tạo ra giá trị lớn nhất, đáng chỉ tay vào khi bảo vệ  |
-| `↺`           | Vòng lặp quay lại một main flow đã đi qua                      |
-| `★ D-x`       | Bước này nằm trong chuỗi demo bắt buộc `D-x`                   |
+| `⛔`          | **Cổng chặn** — không đủ điều kiện thì dừng, không đi tiếp                     |
+| `⭐`          | Mắt xích tạo ra giá trị lớn nhất, đáng chỉ tay vào khi bảo vệ                  |
+| `↺`           | Vòng lặp quay lại một main flow đã đi qua                                      |
+| `★ D-x`       | Bước này nằm trong chuỗi demo bắt buộc `D-x`                                   |
 
 > **Cách dùng khi trình bày:** một main flow vừa một slide. Đọc từ trên xuống, dừng lại ở các `⛔` và `⭐` — đó là chỗ thể hiện nhóm hiểu vấn đề, phần còn lại chỉ là trình tự.
 
@@ -797,7 +799,7 @@ XONG KHI: mọi thuê bao có tự động gia hạn đều có một quyết đ
 
 ### 1.9. `MF-5` · Minh bạch chi tiêu và phát hiện ngoài danh mục ★ D-4
 
-> **Mục đích:** Tài chính trả lời được *"khoản này của ai, phục vụ việc gì"*, và bộ phận CNTT thấy được thứ đang tồn tại ngoài hệ thống.
+> **Mục đích:** Tài chính trả lời được _"khoản này của ai, phục vụ việc gì"_, và bộ phận CNTT thấy được thứ đang tồn tại ngoài hệ thống.
 > **Kích hoạt bởi:** nhánh 1 luôn sẵn sàng, không có điểm bắt đầu; nhánh 2 bắt đầu khi có file sao kê hoặc dữ liệu cấp quyền.
 > **Đo bằng:** `KPI-1` — tỷ lệ chi tiêu nằm trong danh mục đã duyệt.
 
@@ -904,21 +906,21 @@ XONG KHI: mọi con số trên bảng bấm được để xem căn cứ tính; 
 
 Mỗi mã `F-xx` có **đúng một** main flow chủ sở hữu. Cột cuối ghi các main flow khác **gọi tới** luồng đó — đây là chỗ để kiểm tra không có luồng nào mồ côi và không có luồng nào bị hai chỗ cùng nhận.
 
-| Main flow                       | Luồng con thuộc về                                         | Số luồng | Được gọi từ                                                   | Chuỗi demo |
-| ------------------------------- | ---------------------------------------------------------- | -------- | ------------------------------------------------------------- | ---------- |
-| **MF-0** Nền móng và quản trị   | F-01, F-06, F-37, F-38, F-40, F-43, **F-44**               | 7        | MF-2 gọi F-06 · MF-5 gọi F-06 · MF-4 gọi F-43 · MF-5 gọi F-43 | —          |
-| **MF-1** Vòng đời nhân sự       | F-02, F-03, F-04, F-05, F-39, F-41                         | 6        | —                                                             | **D-3**    |
-| **MF-2** Cấp quyền có kiểm soát | F-07, F-08, F-09, F-10, F-11, F-12, F-13, F-14, F-15, F-16 | 10       | MF-1 gọi F-15 · MF-3 dùng lại B2.6 (F-10, F-11)               | **D-1**    |
-| **MF-3** Thu hồi lãng phí       | F-17, F-18, F-19, F-20, F-21, F-22, F-23, F-24, F-25, F-42, **F-45, F-48** | 12       | MF-0 gọi F-42 · MF-1 gọi F-22                                 | **D-2**    |
-| **MF-4** Kiểm soát hợp đồng     | F-26, F-27, F-28                                           | 3        | —                                                             | —          |
-| **MF-5** Minh bạch chi tiêu     | F-29, F-30, F-31, F-32, F-33, F-34, F-35, F-36, **F-46, F-47** | 10       | MF-4 gọi B5.6 khi hợp thức hóa · **MF-4 gọi `F-35`** qua `WF-16` | **D-4**    |
-|                                 | **Tổng**                                                   | **48** *(44 tới v0.4)* |                                                               | 4 chuỗi    |
+| Main flow                       | Luồng con thuộc về                                                         | Số luồng               | Được gọi từ                                                      | Chuỗi demo |
+| ------------------------------- | -------------------------------------------------------------------------- | ---------------------- | ---------------------------------------------------------------- | ---------- |
+| **MF-0** Nền móng và quản trị   | F-01, F-06, F-37, F-38, F-40, F-43, **F-44**                               | 7                      | MF-2 gọi F-06 · MF-5 gọi F-06 · MF-4 gọi F-43 · MF-5 gọi F-43    | —          |
+| **MF-1** Vòng đời nhân sự       | F-02, F-03, F-04, F-05, F-39, F-41                                         | 6                      | —                                                                | **D-3**    |
+| **MF-2** Cấp quyền có kiểm soát | F-07, F-08, F-09, F-10, F-11, F-12, F-13, F-14, F-15, F-16                 | 10                     | MF-1 gọi F-15 · MF-3 dùng lại B2.6 (F-10, F-11)                  | **D-1**    |
+| **MF-3** Thu hồi lãng phí       | F-17, F-18, F-19, F-20, F-21, F-22, F-23, F-24, F-25, F-42, **F-45, F-48** | 12                     | MF-0 gọi F-42 · MF-1 gọi F-22                                    | **D-2**    |
+| **MF-4** Kiểm soát hợp đồng     | F-26, F-27, F-28                                                           | 3                      | —                                                                | —          |
+| **MF-5** Minh bạch chi tiêu     | F-29, F-30, F-31, F-32, F-33, F-34, F-35, F-36, **F-46, F-47**             | 10                     | MF-4 gọi B5.6 khi hợp thức hóa · **MF-4 gọi `F-35`** qua `WF-16` | **D-4**    |
+|                                 | **Tổng**                                                                   | **48** _(44 tới v0.4)_ |                                                                  | 4 chuỗi    |
 
 **Đối chiếu ngược — mỗi main flow phục vụ pain point nào:**
 
 | Main flow | Pain point xử lý                            | Năng lực   | Chỉ số đo                    |
 | --------- | ------------------------------------------- | ---------- | ---------------------------- |
-| MF-0      | *(nền móng — không xử lý PP nào trực tiếp)* | —          | điều kiện để mọi KPI đo được |
+| MF-0      | _(nền móng — không xử lý PP nào trực tiếp)_ | —          | điều kiện để mọi KPI đo được |
 | MF-1      | PP-1 nhóm G2                                | NL-2       | KPI-3                        |
 | MF-2      | PP-5 quy trình chậm, PP-4 gián tiếp         | NL-3       | KPI-2                        |
 | MF-3      | PP-1 ghost seat                             | NL-2, NL-4 | KPI-3, KPI-5, TC-2           |
@@ -933,9 +935,9 @@ Mỗi mã `F-xx` có **đúng một** main flow chủ sở hữu. Cột cuối g
 
 | #     | Mắt xích                                                     | Từ → Tới                                 | Vì sao đây là chỗ chết người                                                                                                                                                                                                                                                                                |
 | ----- | ------------------------------------------------------------ | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **1** | ⭐ Khuyến nghị thu hồi → kỳ gia hạn                           | `MF-3` B3.6 → `MF-4` B4.2                | Với hợp đồng cam kết theo năm, thu hồi suất giữa kỳ **không tiết kiệm được đồng nào**. Tiền chỉ thật khi giảm số lượng tại ngày gia hạn. Một danh sách khuyến nghị tách rời khỏi lịch hợp đồng là phát hiện đúng nhưng không bao giờ thành tiền — đây là lý do nhiều nỗ lực tối ưu license không đi tới đâu |
+| **1** | ⭐ Khuyến nghị thu hồi → kỳ gia hạn                          | `MF-3` B3.6 → `MF-4` B4.2                | Với hợp đồng cam kết theo năm, thu hồi suất giữa kỳ **không tiết kiệm được đồng nào**. Tiền chỉ thật khi giảm số lượng tại ngày gia hạn. Một danh sách khuyến nghị tách rời khỏi lịch hợp đồng là phát hiện đúng nhưng không bao giờ thành tiền — đây là lý do nhiều nỗ lực tối ưu license không đi tới đâu |
 | **2** | Nhật ký hoạt động neo vào **quyền**, không neo vào **người** | `MF-2` B2.7 → `MF-3` B3.1                | `BR-17.6`. Một người có thể được cấp suất, trả lại, rồi được cấp lại — ba lần cấp quyền riêng biệt. Neo vào người thì lần cấp mới thừa hưởng lịch sử lần cũ và **không bao giờ** bị phát hiện. Lỗi này không gây báo lỗi, không hiện trong nhật ký, chỉ làm phân hệ âm thầm mất tác dụng                    |
-| **3** | Đơn vị chịu chi phí lấy **tại thời điểm phát sinh**          | `MF-1` F-03 → `MF-5` B5.1                | `BR-29.3`. Lấy đơn vị hiện tại thì báo cáo tháng trước đổi số mỗi lần có người đổi cost center, và mọi báo cáo đã phát hành thành vô nghĩa                                                                                                                                                                 |
+| **3** | Đơn vị chịu chi phí lấy **tại thời điểm phát sinh**          | `MF-1` F-03 → `MF-5` B5.1                | `BR-29.3`. Lấy đơn vị hiện tại thì báo cáo tháng trước đổi số mỗi lần có người đổi cost center, và mọi báo cáo đã phát hành thành vô nghĩa                                                                                                                                                                  |
 | **4** | Hợp thức hóa quay lại thành yêu cầu mua                      | `MF-5` B5.6 → `MF-2` B2.1 và `MF-0` B0.3 | Vòng lặp khép kín. Nếu phát hiện Shadow IT chỉ dừng ở việc "ghi nhận rồi để đó", phân hệ trở thành một danh sách buộc tội không dẫn tới hành động nào                                                                                                                                                       |
 | **5** | Thông báo phải đi **trước** dữ liệu                          | `MF-0` B0.6 → `MF-3` `F-42`              | `BR-42.1`. Đây không phải tính năng tùy chọn mà là **điều kiện để việc thu thập dữ liệu hợp pháp**. Bỏ nó thì cả phân hệ phát hiện mất cơ sở                                                                                                                                                                |
 
@@ -943,7 +945,7 @@ Mỗi mã `F-xx` có **đúng một** main flow chủ sở hữu. Cột cuối g
 
 ## 2. VS-0 — Vòng đời nhân sự
 
-*Thuộc `MF-1`, trừ `F-01` thuộc `MF-0`. Xem mạch tổng ở mục 1.5.*
+_Thuộc `MF-1`, trừ `F-01` thuộc `MF-0`. Xem mạch tổng ở mục 1.5._
 
 ### 2.1. F-01 · Khởi tạo dữ liệu ban đầu
 
@@ -955,14 +957,14 @@ Mỗi mã `F-xx` có **đúng một** main flow chủ sở hữu. Cột cuối g
 
 **Các bước:**
 
-| #   | Ai  | Làm gì                                                                                                      | Hệ thống phản hồi                                                                                              |
-| --- | --- | ----------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| 1   | IT  | Nhập file nhân sự: mã, họ tên, email công việc, đơn vị chịu chi phí, quản lý trực tiếp, ngày vào *(v0.5 — cột phòng ban nếu có chỉ lưu làm nhãn hiển thị)* | Dựng cây tổ chức; báo số nhân viên không xác định được quản lý                                                 |
-| 2   | IT  | Khai báo từng ứng dụng đang dùng                                                                            | Yêu cầu điền người sở hữu nghiệp vụ và mức nhạy cảm dữ liệu; hỏi ứng dụng có thuộc nhóm dịch vụ liên lạc không |
-| 3   | IT  | Nhập hợp đồng, gói, số suất đã mua, kỳ hạn, **hạn chót báo hủy**                                            | Cảnh báo nếu thuê bao tự động gia hạn mà thiếu hạn báo hủy                                                     |
-| 4   | IT  | Ghi nhận hiện trạng ai đang giữ suất nào                                                                    | Tính ngay số suất trống; đánh dấu các bản ghi này là dữ liệu khởi tạo                                          |
-| 5   | HT  | —                                                                                                           | **Chạy lần đánh giá đầu tiên cho nhóm G1 và G2**, hiển thị kết quả lên bảng điều khiển                         |
-| 6   | IT  | Import file nhật ký sử dụng nếu lấy được                                                                    | Nêu rõ nguồn này phát hiện được nhóm lãng phí nào                                                              |
+| #   | Ai  | Làm gì                                                                                                                                                     | Hệ thống phản hồi                                                                                              |
+| --- | --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| 1   | IT  | Nhập file nhân sự: mã, họ tên, email công việc, đơn vị chịu chi phí, quản lý trực tiếp, ngày vào _(v0.5 — cột phòng ban nếu có chỉ lưu làm nhãn hiển thị)_ | Dựng cây tổ chức; báo số nhân viên không xác định được quản lý                                                 |
+| 2   | IT  | Khai báo từng ứng dụng đang dùng                                                                                                                           | Yêu cầu điền người sở hữu nghiệp vụ và mức nhạy cảm dữ liệu; hỏi ứng dụng có thuộc nhóm dịch vụ liên lạc không |
+| 3   | IT  | Nhập hợp đồng, gói, số suất đã mua, kỳ hạn, **hạn chót báo hủy**                                                                                           | Cảnh báo nếu thuê bao tự động gia hạn mà thiếu hạn báo hủy                                                     |
+| 4   | IT  | Ghi nhận hiện trạng ai đang giữ suất nào                                                                                                                   | Tính ngay số suất trống; đánh dấu các bản ghi này là dữ liệu khởi tạo                                          |
+| 5   | HT  | —                                                                                                                                                          | **Chạy lần đánh giá đầu tiên cho nhóm G1 và G2**, hiển thị kết quả lên bảng điều khiển                         |
+| 6   | IT  | Import file nhật ký sử dụng nếu lấy được                                                                                                                   | Nêu rõ nguồn này phát hiện được nhóm lãng phí nào                                                              |
 
 **Quy tắc nghiệp vụ:**
 
@@ -997,12 +999,12 @@ Mỗi mã `F-xx` có **đúng một** main flow chủ sở hữu. Cột cuối g
 
 **Các bước:**
 
-| #   | Ai  | Làm gì                                                                               | Hệ thống phản hồi                                                      |
-| --- | --- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
-| 1   | IT  | Tạo hồ sơ nhân viên, gán đơn vị chịu chi phí, quản lý trực tiếp, ngày vào *(v0.5 — bỏ phòng ban)* | Tạo bản ghi quan hệ tổ chức có hiệu lực từ ngày vào                    |
-| 2   | QL  | Tạo yêu cầu hộ cho nhân viên mới, chọn nhiều ứng dụng cùng lúc                       | Tách thành các yêu cầu riêng theo từng ứng dụng, gộp chung một mã lô   |
-| 3   | HT  | —                                                                                    | Mỗi yêu cầu chạy luồng phê duyệt riêng theo chính sách của ứng dụng đó |
-| 4   | IT  | Xử lý các yêu cầu đã duyệt                                                           | Gộp hiển thị theo người để IT làm một lượt                             |
+| #   | Ai  | Làm gì                                                                                            | Hệ thống phản hồi                                                      |
+| --- | --- | ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| 1   | IT  | Tạo hồ sơ nhân viên, gán đơn vị chịu chi phí, quản lý trực tiếp, ngày vào _(v0.5 — bỏ phòng ban)_ | Tạo bản ghi quan hệ tổ chức có hiệu lực từ ngày vào                    |
+| 2   | QL  | Tạo yêu cầu hộ cho nhân viên mới, chọn nhiều ứng dụng cùng lúc                                    | Tách thành các yêu cầu riêng theo từng ứng dụng, gộp chung một mã lô   |
+| 3   | HT  | —                                                                                                 | Mỗi yêu cầu chạy luồng phê duyệt riêng theo chính sách của ứng dụng đó |
+| 4   | IT  | Xử lý các yêu cầu đã duyệt                                                                        | Gộp hiển thị theo người để IT làm một lượt                             |
 
 **Quy tắc nghiệp vụ:**
 
@@ -1020,7 +1022,7 @@ Mỗi mã `F-xx` có **đúng một** main flow chủ sở hữu. Cột cuối g
 
 ### 2.3. F-03 · Nhân viên đổi người quản lý hoặc cost center
 
-> **Đổi tên ở v0.5 — `QĐ-23`.** Tên cũ *"Nhân viên chuyển phòng ban"*. Hệ thống không còn quản lý phòng ban; mã `F-03` **giữ nguyên** vì BRD, Context Diagram và Business Workflows đang trích. Nội dung luồng không đổi bản chất: vẫn là thay đổi quan hệ tổ chức có ngày hiệu lực.
+> **Đổi tên ở v0.5 — `QĐ-23`.** Tên cũ _"Nhân viên chuyển phòng ban"_. Hệ thống không còn quản lý phòng ban; mã `F-03` **giữ nguyên** vì BRD, Context Diagram và Business Workflows đang trích. Nội dung luồng không đổi bản chất: vẫn là thay đổi quan hệ tổ chức có ngày hiệu lực.
 
 |                    |                                                          |
 | ------------------ | -------------------------------------------------------- |
@@ -1030,21 +1032,21 @@ Mỗi mã `F-xx` có **đúng một** main flow chủ sở hữu. Cột cuối g
 
 **Các bước:**
 
-| #   | Ai  | Làm gì                                                                      | Hệ thống phản hồi                                                                  |
-| --- | --- | --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| 1   | IT  | Cập nhật đơn vị chịu chi phí và/hoặc quản lý mới, kèm **ngày hiệu lực**     | **Không ghi đè** dữ liệu cũ — đóng giai đoạn cũ, mở giai đoạn mới                  |
-| 2   | HT  | —                                                                           | Chi phí trước ngày hiệu lực vẫn thuộc đơn vị cũ; từ ngày hiệu lực thuộc đơn vị mới |
-| 3   | HT  | —                                                                           | Chuyển các yêu cầu đang chờ duyệt sang quản lý mới, thông báo cả hai người         |
-| 4   | HT  | —                                                                           | Lập danh sách suất người này đang giữ, gửi quản lý mới xem lại                     |
+| #   | Ai  | Làm gì                                                                  | Hệ thống phản hồi                                                                  |
+| --- | --- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| 1   | IT  | Cập nhật đơn vị chịu chi phí và/hoặc quản lý mới, kèm **ngày hiệu lực** | **Không ghi đè** dữ liệu cũ — đóng giai đoạn cũ, mở giai đoạn mới                  |
+| 2   | HT  | —                                                                       | Chi phí trước ngày hiệu lực vẫn thuộc đơn vị cũ; từ ngày hiệu lực thuộc đơn vị mới |
+| 3   | HT  | —                                                                       | Chuyển các yêu cầu đang chờ duyệt sang quản lý mới, thông báo cả hai người         |
+| 4   | HT  | —                                                                       | Lập danh sách suất người này đang giữ, gửi quản lý mới xem lại                     |
 
 **Quy tắc nghiệp vụ:**
 
-| Mã      | Nội dung                                                                                                                        |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| BR-03.1 | Ngày hiệu lực được phép đặt trong quá khứ, nhưng phải cảnh báo là sẽ làm thay đổi báo cáo chi phí đã phát hành                  |
-| BR-03.2 | Các giai đoạn quan hệ tổ chức của cùng một nhân viên **không được chồng lấn** nhau                                              |
-| BR-03.3 | Suất **đi theo người**; chỉ đơn vị chịu chi phí thay đổi. Nhưng quản lý mới nhận danh sách để xem lại                           |
-| BR-03.4 | Yêu cầu đã tới bước duyệt chi hoặc bước IT thì **không** chuyển approver — giữ nguyên để không mất tính liên tục của quyết định *(sửa ở v0.5, v0.7)* |
+| Mã      | Nội dung                                                                                                                                             |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-03.1 | Ngày hiệu lực được phép đặt trong quá khứ, nhưng phải cảnh báo là sẽ làm thay đổi báo cáo chi phí đã phát hành                                       |
+| BR-03.2 | Các giai đoạn quan hệ tổ chức của cùng một nhân viên **không được chồng lấn** nhau                                                                   |
+| BR-03.3 | Suất **đi theo người**; chỉ đơn vị chịu chi phí thay đổi. Nhưng quản lý mới nhận danh sách để xem lại                                                |
+| BR-03.4 | Yêu cầu đã tới bước duyệt chi hoặc bước IT thì **không** chuyển approver — giữ nguyên để không mất tính liên tục của quyết định _(sửa ở v0.5, v0.7)_ |
 
 **Ngoại lệ:**
 
@@ -1170,7 +1172,7 @@ sequenceDiagram
 
 ## 3. VS-1 — Cấp quyền có kiểm soát
 
-*Thuộc `MF-2`, trừ `F-06` thuộc `MF-0`. Xem mạch tổng ở mục 1.6.*
+_Thuộc `MF-2`, trừ `F-06` thuộc `MF-0`. Xem mạch tổng ở mục 1.6._
 
 ### 3.1. F-06 · Khai báo danh mục, gói, hợp đồng, thuê bao
 
@@ -1205,7 +1207,7 @@ sequenceDiagram
 
 ### 3.2. F-07 và F-08 · Xin cấp suất
 
-Hai luồng chỉ khác nhau ở chỗ F-08 có thêm **bước duyệt chi của Người duyệt chi** vì phát sinh chi phí; Tài chính **không** nằm trên đường duyệt — chỉ trả lời khi Người duyệt chi hỏi và ghi nhận ngân sách **sau** khi đã duyệt. *(Viết lại ở v0.7 — `QĐ-29b`. v0.5 → v0.6: Tài chính ghi ý kiến trước Người duyệt chi. Tới v0.4, Tài chính là người duyệt chi phí.)*
+Hai luồng chỉ khác nhau ở chỗ F-08 có thêm **bước duyệt chi của Người duyệt chi** vì phát sinh chi phí; Tài chính **không** nằm trên đường duyệt — chỉ trả lời khi Người duyệt chi hỏi và ghi nhận ngân sách **sau** khi đã duyệt. _(Viết lại ở v0.7 — `QĐ-29b`. v0.5 → v0.6: Tài chính ghi ý kiến trước Người duyệt chi. Tới v0.4, Tài chính là người duyệt chi phí.)_
 
 |                    |                                                                               |
 | ------------------ | ----------------------------------------------------------------------------- |
@@ -1246,53 +1248,53 @@ sequenceDiagram
 
 **Các bước chi tiết:**
 
-| #   | Ai  | Làm gì                                                               | Hệ thống phản hồi                                                                                         |
-| --- | --- | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| 1   | NV  | Chọn phần mềm từ danh mục đã duyệt                                   | Hiện ngay tình trạng: còn suất, hết suất, hoặc không áp dụng                                              |
-| 2   | NV  | Nhập lý do nghiệp vụ, đơn vị chịu chi phí, khoảng thời gian cần dùng | Mặc định đơn vị theo quan hệ tổ chức hiện hành                                                            |
-| 3   | HT  | —                                                                    | **Hiện chi phí quy đổi và chuỗi người duyệt kèm thời gian dự kiến, trước khi gửi**                        |
-| 4   | NV  | Gửi                                                                  | Chọn chính sách duyệt, **chốt cứng** chính sách đó vào yêu cầu, sinh toàn bộ bước, đặt thời hạn từng bước |
-| 5   | QL  | Xem và quyết định                                                    | Hiển thị kèm **các suất người này đang giữ ở phần mềm cùng nhóm chức năng**                               |
-| 6   | DC  | **Duyệt chi hoặc từ chối kèm lý do** *(chỉ F-08)*                    | Hiển thị **snapshot ngân sách**: ngân sách kỳ · thực chi · khoản cam kết đang giữ · còn lại · đang chờ duyệt của cost center, cùng nhu cầu đã được quản lý xác nhận. Chưa có ngân sách thì ghi rõ, không hiện 0 *(sửa ở v0.7)* |
-| 6b  | TC  | *(tùy chọn, chỉ khi Người duyệt chi hỏi)* **Trả lời yêu cầu thông tin**: Trong hạn mức · Vượt hạn mức · Chưa có ngân sách | Bước duyệt chi **vẫn** của Người duyệt chi; SLA **không** dừng; câu trả lời **không chặn** *(mới ở v0.7)* |
-| 8   | HT + TC | Hệ thống tạo **khoản cam kết**; Tài chính **ghi nhận ngân sách chính thức** *(chỉ F-08, song song với bước 9)* | Khoản cam kết ở trạng thái *Đang giữ*, gắn đúng yêu cầu này. Ghi *Vượt hạn mức*/*Chưa có ngân sách* ⟹ thông báo Người duyệt chi, **không** hoàn tác, **không** dừng cấp phát *(sửa ở v0.7)* |
-| 9   | IT  | Chọn thuê bao và cấp suất                                            | Kiểm tra còn chỗ trong một giao dịch có khóa                                                              |
-| 10  | HT  | —                                                                    | Thông báo, ghi nhật ký, tính thời gian xử lý toàn trình **tách theo từng bước**                           |
+| #   | Ai      | Làm gì                                                                                                                    | Hệ thống phản hồi                                                                                                                                                                                                              |
+| --- | ------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | NV      | Chọn phần mềm từ danh mục đã duyệt                                                                                        | Hiện ngay tình trạng: còn suất, hết suất, hoặc không áp dụng                                                                                                                                                                   |
+| 2   | NV      | Nhập lý do nghiệp vụ, đơn vị chịu chi phí, khoảng thời gian cần dùng                                                      | Mặc định đơn vị theo quan hệ tổ chức hiện hành                                                                                                                                                                                 |
+| 3   | HT      | —                                                                                                                         | **Hiện chi phí quy đổi và chuỗi người duyệt kèm thời gian dự kiến, trước khi gửi**                                                                                                                                             |
+| 4   | NV      | Gửi                                                                                                                       | Chọn chính sách duyệt, **chốt cứng** chính sách đó vào yêu cầu, sinh toàn bộ bước, đặt thời hạn từng bước                                                                                                                      |
+| 5   | QL      | Xem và quyết định                                                                                                         | Hiển thị kèm **các suất người này đang giữ ở phần mềm cùng nhóm chức năng**                                                                                                                                                    |
+| 6   | DC      | **Duyệt chi hoặc từ chối kèm lý do** _(chỉ F-08)_                                                                         | Hiển thị **snapshot ngân sách**: ngân sách kỳ · thực chi · khoản cam kết đang giữ · còn lại · đang chờ duyệt của cost center, cùng nhu cầu đã được quản lý xác nhận. Chưa có ngân sách thì ghi rõ, không hiện 0 _(sửa ở v0.7)_ |
+| 6b  | TC      | _(tùy chọn, chỉ khi Người duyệt chi hỏi)_ **Trả lời yêu cầu thông tin**: Trong hạn mức · Vượt hạn mức · Chưa có ngân sách | Bước duyệt chi **vẫn** của Người duyệt chi; SLA **không** dừng; câu trả lời **không chặn** _(mới ở v0.7)_                                                                                                                      |
+| 8   | HT + TC | Hệ thống tạo **khoản cam kết**; Tài chính **ghi nhận ngân sách chính thức** _(chỉ F-08, song song với bước 9)_            | Khoản cam kết ở trạng thái _Đang giữ_, gắn đúng yêu cầu này. Ghi _Vượt hạn mức_/_Chưa có ngân sách_ ⟹ thông báo Người duyệt chi, **không** hoàn tác, **không** dừng cấp phát _(sửa ở v0.7)_                                    |
+| 9   | IT      | Chọn thuê bao và cấp suất                                                                                                 | Kiểm tra còn chỗ trong một giao dịch có khóa                                                                                                                                                                                   |
+| 10  | HT      | —                                                                                                                         | Thông báo, ghi nhật ký, tính thời gian xử lý toàn trình **tách theo từng bước**                                                                                                                                                |
 
 **Quy tắc nghiệp vụ:**
 
-| Mã      | Nội dung                                                                                                                                   |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| BR-07.1 | Bước 3 **không được bỏ**. Người yêu cầu phải nhìn thấy con số và thời gian dự kiến trước khi gửi — biện pháp rẻ nhất để giảm yêu cầu thừa  |
-| BR-07.2 | Chính sách duyệt được **chốt cứng tại thời điểm gửi**. Nếu quản trị hệ thống sửa chính sách giữa chừng, yêu cầu đang chạy vẫn theo luật cũ. *(v0.6 — phân phạm vi với `QĐ-28d`)* Thứ được chốt là **nhánh và chuỗi loại bước**; **người cụ thể** giữ một bước đang chờ vẫn được xác định lại khi có sự kiện dữ liệu theo `BR-13.9` |
-| BR-07.3 | Một nhân viên không được có hai quyền đang hiệu lực trên cùng một thuê bao                                                                 |
-| BR-07.4 | Thời hạn cần dùng quá 12 tháng phải có xác nhận thêm                                                                                       |
-| BR-07.5 | Từ chối **bắt buộc** có lý do; duyệt thì không bắt buộc                                                                                    |
-| BR-07.6 | Hết suất giữa luồng thì **chèn thêm bước duyệt chi vào chuỗi hiện có**, không hủy yêu cầu bắt làm lại *(sửa ở v0.5, v0.7)* |
-| BR-07.7 | Quá hạn xử lý thì nhắc người được giao và **thông báo** cấp trên — *escalate chỉ là thông báo*, **không đổi người duyệt**. **Không bao giờ tự duyệt** *(sửa ở v0.6 — `QĐ-28d`, BRD `FR-3.8`)* |
-| BR-07.8 | *(mới ở v0.5)* **Quản lý trực tiếp chính là Người duyệt chi** ⟹ vẫn **hai bước riêng** cho cùng một người, nhật ký **gắn cờ *cùng người***. Người duyệt chi là người yêu cầu hoặc người thụ hưởng ⟹ không tự duyệt; bước duyệt chi **tạo thẳng cho người thay thế khi xung đột** đã cấu hình trước (`BR-13.10`), chưa cấu hình thì chờ có kiểm soát — BRD `SoD-7`, `FR-3.15`, `FR-3.12` *(sửa ở v0.6 — trước đó đi theo ủy quyền)* |
-| BR-07.9 | *(mới ở v0.5; viết lại ở v0.7 — `QĐ-29b`)* **Tài chính không nằm trên đường duyệt.** Người duyệt chi quyết trên snapshot ngân sách; **hỏi Tài chính là tùy chọn**, bước vẫn thuộc Người duyệt chi, **SLA không dừng, không đặt lại**; câu trả lời và ghi nhận sau duyệt **không chặn** — Người duyệt chi quyết cả khi *Chưa có ngân sách* hoặc Tài chính chưa trả lời — BRD `FR-3.14` |
-| BR-07.10 | *(mới ở v0.5)* Khoản cam kết **chỉ sinh khi duyệt chi**. Từ chối thì không sinh; yêu cầu bị hủy hoặc cấp phát thất bại hẳn thì **giải phóng** — BRD `FR-5.8`, `INV-16` |
+| Mã       | Nội dung                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-07.1  | Bước 3 **không được bỏ**. Người yêu cầu phải nhìn thấy con số và thời gian dự kiến trước khi gửi — biện pháp rẻ nhất để giảm yêu cầu thừa                                                                                                                                                                                                                                                                                          |
+| BR-07.2  | Chính sách duyệt được **chốt cứng tại thời điểm gửi**. Nếu quản trị hệ thống sửa chính sách giữa chừng, yêu cầu đang chạy vẫn theo luật cũ. _(v0.6 — phân phạm vi với `QĐ-28d`)_ Thứ được chốt là **nhánh và chuỗi loại bước**; **người cụ thể** giữ một bước đang chờ vẫn được xác định lại khi có sự kiện dữ liệu theo `BR-13.9`                                                                                                 |
+| BR-07.3  | Một nhân viên không được có hai quyền đang hiệu lực trên cùng một thuê bao                                                                                                                                                                                                                                                                                                                                                         |
+| BR-07.4  | Thời hạn cần dùng quá 12 tháng phải có xác nhận thêm                                                                                                                                                                                                                                                                                                                                                                               |
+| BR-07.5  | Từ chối **bắt buộc** có lý do; duyệt thì không bắt buộc                                                                                                                                                                                                                                                                                                                                                                            |
+| BR-07.6  | Hết suất giữa luồng thì **chèn thêm bước duyệt chi vào chuỗi hiện có**, không hủy yêu cầu bắt làm lại _(sửa ở v0.5, v0.7)_                                                                                                                                                                                                                                                                                                         |
+| BR-07.7  | Quá hạn xử lý thì nhắc người được giao và **thông báo** cấp trên — _escalate chỉ là thông báo_, **không đổi người duyệt**. **Không bao giờ tự duyệt** _(sửa ở v0.6 — `QĐ-28d`, BRD `FR-3.8`)_                                                                                                                                                                                                                                      |
+| BR-07.8  | _(mới ở v0.5)_ **Quản lý trực tiếp chính là Người duyệt chi** ⟹ vẫn **hai bước riêng** cho cùng một người, nhật ký **gắn cờ _cùng người_**. Người duyệt chi là người yêu cầu hoặc người thụ hưởng ⟹ không tự duyệt; bước duyệt chi **tạo thẳng cho người thay thế khi xung đột** đã cấu hình trước (`BR-13.10`), chưa cấu hình thì chờ có kiểm soát — BRD `SoD-7`, `FR-3.15`, `FR-3.12` _(sửa ở v0.6 — trước đó đi theo ủy quyền)_ |
+| BR-07.9  | _(mới ở v0.5; viết lại ở v0.7 — `QĐ-29b`)_ **Tài chính không nằm trên đường duyệt.** Người duyệt chi quyết trên snapshot ngân sách; **hỏi Tài chính là tùy chọn**, bước vẫn thuộc Người duyệt chi, **SLA không dừng, không đặt lại**; câu trả lời và ghi nhận sau duyệt **không chặn** — Người duyệt chi quyết cả khi _Chưa có ngân sách_ hoặc Tài chính chưa trả lời — BRD `FR-3.14`                                              |
+| BR-07.10 | _(mới ở v0.5)_ Khoản cam kết **chỉ sinh khi duyệt chi**. Từ chối thì không sinh; yêu cầu bị hủy hoặc cấp phát thất bại hẳn thì **giải phóng** — BRD `FR-5.8`, `INV-16`                                                                                                                                                                                                                                                             |
 
 **Ngoại lệ:**
 
-| Tình huống                       | Xử lý                                                                               |
-| -------------------------------- | ----------------------------------------------------------------------------------- |
-| Đã có quyền cho ứng dụng đó      | Chặn ngay từ bước 1, hiện thông tin quyền đang có                                   |
-| Hết suất trống                   | **Vẫn cho gửi**, gắn cờ phát sinh chi phí, chuyển sang chính sách có bước duyệt chi *(sửa ở v0.5, v0.7)* |
-| Người duyệt chi vắng mặt hoặc nghẽn *(sửa ở v0.6)* | **Không** ủy quyền, **không** dùng người thay thế khi xung đột; nhắc, thông báo, cảnh báo Quản trị hệ thống — xem F-13, `BR-13.8` |
-| Yêu cầu bị hủy hoặc cấp phát thất bại hẳn sau khi đã duyệt chi *(v0.5)* | Giải phóng khoản cam kết, ghi nhật ký              |
-| Tài chính ghi nhận *Vượt hạn mức* hoặc *Chưa có ngân sách* sau khi đã duyệt chi *(mới ở v0.7)* | Thông báo Người duyệt chi; quyết định và cấp phát giữ nguyên |
-| Không có quản lý trực tiếp       | Dùng người duyệt dự phòng ở gốc cây, nói rõ cho người yêu cầu biết                  |
-| Người yêu cầu chính là quản lý   | Chuyển lên cấp trên một bậc *(định tuyến theo cây `FR-3.3`, không phải ủy quyền)*   |
-| Người duyệt chi là người yêu cầu hoặc người thụ hưởng *(mới ở v0.6)* | Bước duyệt chi tạo cho người thay thế khi xung đột; chưa cấu hình thì chờ có kiểm soát — `BR-13.10` |
-| Người duyệt vắng mặt hoặc nghẽn *(sửa ở v0.6)* | **Không** đổi người; nhắc, thông báo cấp trên, cảnh báo Quản trị hệ thống khi vượt ngưỡng backlog — xem F-13, `BR-13.8` |
-| Người yêu cầu rút yêu cầu        | Cho phép nếu chưa tới bước IT thực hiện                                             |
-| Người duyệt nghỉ việc giữa chừng, hoặc `manager_id` của người yêu cầu đổi *(sửa ở v0.6)* | Xác định lại người duyệt theo cây tổ chức mới, SLA không đặt lại — xem F-13, `BR-13.9` |
+| Tình huống                                                                                     | Xử lý                                                                                                                             |
+| ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Đã có quyền cho ứng dụng đó                                                                    | Chặn ngay từ bước 1, hiện thông tin quyền đang có                                                                                 |
+| Hết suất trống                                                                                 | **Vẫn cho gửi**, gắn cờ phát sinh chi phí, chuyển sang chính sách có bước duyệt chi _(sửa ở v0.5, v0.7)_                          |
+| Người duyệt chi vắng mặt hoặc nghẽn _(sửa ở v0.6)_                                             | **Không** ủy quyền, **không** dùng người thay thế khi xung đột; nhắc, thông báo, cảnh báo Quản trị hệ thống — xem F-13, `BR-13.8` |
+| Yêu cầu bị hủy hoặc cấp phát thất bại hẳn sau khi đã duyệt chi _(v0.5)_                        | Giải phóng khoản cam kết, ghi nhật ký                                                                                             |
+| Tài chính ghi nhận _Vượt hạn mức_ hoặc _Chưa có ngân sách_ sau khi đã duyệt chi _(mới ở v0.7)_ | Thông báo Người duyệt chi; quyết định và cấp phát giữ nguyên                                                                      |
+| Không có quản lý trực tiếp                                                                     | Dùng người duyệt dự phòng ở gốc cây, nói rõ cho người yêu cầu biết                                                                |
+| Người yêu cầu chính là quản lý                                                                 | Chuyển lên cấp trên một bậc _(định tuyến theo cây `FR-3.3`, không phải ủy quyền)_                                                 |
+| Người duyệt chi là người yêu cầu hoặc người thụ hưởng _(mới ở v0.6)_                           | Bước duyệt chi tạo cho người thay thế khi xung đột; chưa cấu hình thì chờ có kiểm soát — `BR-13.10`                               |
+| Người duyệt vắng mặt hoặc nghẽn _(sửa ở v0.6)_                                                 | **Không** đổi người; nhắc, thông báo cấp trên, cảnh báo Quản trị hệ thống khi vượt ngưỡng backlog — xem F-13, `BR-13.8`           |
+| Người yêu cầu rút yêu cầu                                                                      | Cho phép nếu chưa tới bước IT thực hiện                                                                                           |
+| Người duyệt nghỉ việc giữa chừng, hoặc `manager_id` của người yêu cầu đổi _(sửa ở v0.6)_       | Xác định lại người duyệt theo cây tổ chức mới, SLA không đặt lại — xem F-13, `BR-13.9`                                            |
 
-> **Ba chi tiết tạo ra khác biệt.** Bước 3 đặt kỳ vọng đúng và biến thời hạn xử lý thành lời hứa nhìn thấy được. Bước 5 cho quản lý thấy người này đang giữ công cụ tương tự nào — phát hiện trùng lặp *trước khi* tiêu tiền rẻ hơn nhiều so với phát hiện sau sáu tháng qua báo cáo. BR-07.6 tránh bắt quản lý duyệt lại thứ họ đã duyệt, vốn là loại ma sát sinh ra Shadow IT.
+> **Ba chi tiết tạo ra khác biệt.** Bước 3 đặt kỳ vọng đúng và biến thời hạn xử lý thành lời hứa nhìn thấy được. Bước 5 cho quản lý thấy người này đang giữ công cụ tương tự nào — phát hiện trùng lặp _trước khi_ tiêu tiền rẻ hơn nhiều so với phát hiện sau sáu tháng qua báo cáo. BR-07.6 tránh bắt quản lý duyệt lại thứ họ đã duyệt, vốn là loại ma sát sinh ra Shadow IT.
 
-**Xong khi:** người yêu cầu nhận được thông báo có quyền truy cập, và hệ thống ghi được tổng thời gian từ lúc gửi tới lúc xong, tách theo từng bước. *(v0.5)* Với `F-08`: có đúng **một** khoản cam kết ở trạng thái *Đang giữ* gắn với yêu cầu, và bước duyệt chi được đo riêng.
+**Xong khi:** người yêu cầu nhận được thông báo có quyền truy cập, và hệ thống ghi được tổng thời gian từ lúc gửi tới lúc xong, tách theo từng bước. _(v0.5)_ Với `F-08`: có đúng **một** khoản cam kết ở trạng thái _Đang giữ_ gắn với yêu cầu, và bước duyệt chi được đo riêng.
 
 ---
 
@@ -1303,22 +1305,22 @@ sequenceDiagram
 | **Mục đích**      | Cho Shadow IT một đường chính thức thay vì chặn nó        |
 | **Kích hoạt bởi** | Nhân viên không tìm thấy phần mềm cần dùng trong danh mục |
 
-| #   | Ai  | Làm gì                                                                                                                      | Ghi chú                                          |
-| --- | --- | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
-| 1   | NV  | Nhập tên phần mềm, trang chủ, mục đích, **loại dữ liệu sẽ đưa vào**                                                         | Câu hỏi về loại dữ liệu là điểm khác so với F-07 |
-| 2   | QL  | Xác nhận nhu cầu nghiệp vụ                                                                                                  |                                                  |
-| 3   | IT  | **Đánh giá danh mục và rủi ro** — đã có công cụ tương đương chưa, mức nhạy cảm dữ liệu, có hỗ trợ đăng nhập tập trung không | Bước riêng, không gộp với bước thực hiện         |
-| 4   | DC  | **Duyệt hoặc từ chối** — **luôn chạy, kể cả SaaS miễn phí** *(mới ở v0.5)*; có chi phí thì thấy snapshot ngân sách và có thể hỏi Tài chính *(v0.7)* | Xem `BR-09.4`, `BR-07.9`                        |
-| 5   | IT + TC | IT thêm vào danh mục theo F-06, tạo thuê bao, cấp suất; **song song** hệ thống tạo khoản cam kết và Tài chính ghi nhận ngân sách **nếu có chi phí** *(sửa ở v0.7)* | IT không chờ Tài chính                          |
+| #   | Ai      | Làm gì                                                                                                                                                             | Ghi chú                                          |
+| --- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------ |
+| 1   | NV      | Nhập tên phần mềm, trang chủ, mục đích, **loại dữ liệu sẽ đưa vào**                                                                                                | Câu hỏi về loại dữ liệu là điểm khác so với F-07 |
+| 2   | QL      | Xác nhận nhu cầu nghiệp vụ                                                                                                                                         |                                                  |
+| 3   | IT      | **Đánh giá danh mục và rủi ro** — đã có công cụ tương đương chưa, mức nhạy cảm dữ liệu, có hỗ trợ đăng nhập tập trung không                                        | Bước riêng, không gộp với bước thực hiện         |
+| 4   | DC      | **Duyệt hoặc từ chối** — **luôn chạy, kể cả SaaS miễn phí** _(mới ở v0.5)_; có chi phí thì thấy snapshot ngân sách và có thể hỏi Tài chính _(v0.7)_                | Xem `BR-09.4`, `BR-07.9`                         |
+| 5   | IT + TC | IT thêm vào danh mục theo F-06, tạo thuê bao, cấp suất; **song song** hệ thống tạo khoản cam kết và Tài chính ghi nhận ngân sách **nếu có chi phí** _(sửa ở v0.7)_ | IT không chờ Tài chính                           |
 
 **Quy tắc nghiệp vụ:**
 
-| Mã      | Nội dung                                                                                                                                            |
-| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| BR-09.1 | Bước 3 và bước 5 là **hai vai trò khác nhau của cùng bộ phận**: đánh giá được phép dùng hay không, và thực hiện. Không gộp                          |
-| BR-09.2 | Kết quả "không duyệt" là kết quả hợp lệ và tích cực nếu công ty đã có công cụ tương đương — khi đó hệ thống hướng người yêu cầu sang công cụ sẵn có |
-| BR-09.3 | Ứng dụng chạm dữ liệu ở mức nhạy cảm cao phải có ý kiến của người sở hữu nghiệp vụ nhóm tương ứng trước bước 4 *(bước duyệt chi)*                  |
-| BR-09.4 | *(mới ở v0.5 — `QĐ-22`)* **SaaS chưa có trong danh mục luôn đi qua Người duyệt chi, kể cả gói miễn phí** — thêm một SaaS nghĩa là thêm một nơi dữ liệu công ty nằm và thêm một đối tượng phải quản trị. Snapshot ngân sách, khoản cam kết và ghi nhận của Tài chính **chỉ có khi có chi phí** *(sửa ở v0.7)* |
+| Mã      | Nội dung                                                                                                                                                                                                                                                                                                     |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| BR-09.1 | Bước 3 và bước 5 là **hai vai trò khác nhau của cùng bộ phận**: đánh giá được phép dùng hay không, và thực hiện. Không gộp                                                                                                                                                                                   |
+| BR-09.2 | Kết quả "không duyệt" là kết quả hợp lệ và tích cực nếu công ty đã có công cụ tương đương — khi đó hệ thống hướng người yêu cầu sang công cụ sẵn có                                                                                                                                                          |
+| BR-09.3 | Ứng dụng chạm dữ liệu ở mức nhạy cảm cao phải có ý kiến của người sở hữu nghiệp vụ nhóm tương ứng trước bước 4 _(bước duyệt chi)_                                                                                                                                                                            |
+| BR-09.4 | _(mới ở v0.5 — `QĐ-22`)_ **SaaS chưa có trong danh mục luôn đi qua Người duyệt chi, kể cả gói miễn phí** — thêm một SaaS nghĩa là thêm một nơi dữ liệu công ty nằm và thêm một đối tượng phải quản trị. Snapshot ngân sách, khoản cam kết và ghi nhận của Tài chính **chỉ có khi có chi phí** _(sửa ở v0.7)_ |
 
 > **Vì sao IT xuất hiện hai lần:** gộp lại sẽ khiến người quyết chi phải duyệt tiền cho một ứng dụng chưa ai đánh giá rủi ro — sai thứ tự nghiệp vụ, và sẽ bị hỏi ngay khi bảo vệ.
 
@@ -1350,12 +1352,12 @@ flowchart TB
 
 **Hai kênh, cùng một cách theo dõi:**
 
-| Bước       | Kênh tự động                             | Kênh thủ công                                |
-| ---------- | ---------------------------------------- | -------------------------------------------- |
-| Nhận việc  | Worker nhặt khỏi hàng đợi                | IT bấm "tôi đang xử lý"                      |
-| Thực hiện  | Gọi giao diện lập trình của nhà cung cấp | IT thao tác trên trang quản trị              |
-| Hoàn tất   | **Không phải khi API trả về thành công.** Với nhà cung cấp mà thao tác cấp quyền tạo ra **lời mời chờ chấp nhận**, phản hồi thành công chỉ chứng minh *lời mời đã gửi*. Chỉ hoàn tất khi **đối soát thấy tài khoản trong danh sách thành viên** | IT bấm "đã hoàn tất", ghi tên người xác nhận |
-| Bằng chứng | Nội dung phản hồi lưu vào nhật ký        | Ghi chú tùy chọn                             |
+| Bước       | Kênh tự động                                                                                                                                                                                                                                    | Kênh thủ công                                |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| Nhận việc  | Worker nhặt khỏi hàng đợi                                                                                                                                                                                                                       | IT bấm "tôi đang xử lý"                      |
+| Thực hiện  | Gọi giao diện lập trình của nhà cung cấp                                                                                                                                                                                                        | IT thao tác trên trang quản trị              |
+| Hoàn tất   | **Không phải khi API trả về thành công.** Với nhà cung cấp mà thao tác cấp quyền tạo ra **lời mời chờ chấp nhận**, phản hồi thành công chỉ chứng minh _lời mời đã gửi_. Chỉ hoàn tất khi **đối soát thấy tài khoản trong danh sách thành viên** | IT bấm "đã hoàn tất", ghi tên người xác nhận |
+| Bằng chứng | Nội dung phản hồi lưu vào nhật ký                                                                                                                                                                                                               | Ghi chú tùy chọn                             |
 
 **Quy tắc nghiệp vụ:**
 
@@ -1368,21 +1370,21 @@ flowchart TB
 
 **Xong khi:** có bằng chứng **tài khoản đã tồn tại phía nhà cung cấp** — bằng **xác nhận của người thật** (kênh thủ công), hoặc bằng **kết quả đối soát danh sách thành viên** (kênh tự động). **Riêng phản hồi thành công của lời gọi API thì chưa đủ.**
 
-> 🔗 **Ràng buộc từ BRD mục 6.3 và `QĐ-03` — sửa ở lượt review diagram 08/09/2026.** Bản trước của mục này ghi *"Hoàn tất = nhà cung cấp trả về thành công"* và *"Xong khi: … hoặc phản hồi thành công"*. Câu đó **mâu thuẫn với BRD mục 6.3**, vốn quy định: *"`ProvisioningTask` **không được** chuyển sang trạng thái hoàn tất chỉ vì `PUT` trả về thành công — cần một bước đối soát lại bằng `GET .../members` hoặc bằng trạng thái membership."*
+> 🔗 **Ràng buộc từ BRD mục 6.3 và `QĐ-03` — sửa ở lượt review diagram 08/09/2026.** Bản trước của mục này ghi _"Hoàn tất = nhà cung cấp trả về thành công"_ và _"Xong khi: … hoặc phản hồi thành công"_. Câu đó **mâu thuẫn với BRD mục 6.3**, vốn quy định: _"`ProvisioningTask` **không được** chuyển sang trạng thái hoàn tất chỉ vì `PUT` trả về thành công — cần một bước đối soát lại bằng `GET .../members` hoặc bằng trạng thái membership."_
 >
-> **Vì sao:** với API thành viên tổ chức của GitHub, `PUT /orgs/{org}/memberships/{username}` cho người **chưa** là thành viên sẽ **gửi lời mời**, và tư cách thành viên ở trạng thái **`pending` cho tới khi người đó chấp nhận** *(kiểm chứng tại `docs.github.com/en/rest/orgs/members`)*. Đây là **ràng buộc của nhà cung cấp**, không phải lựa chọn thiết kế của nhóm.
+> **Vì sao:** với API thành viên tổ chức của GitHub, `PUT /orgs/{org}/memberships/{username}` cho người **chưa** là thành viên sẽ **gửi lời mời**, và tư cách thành viên ở trạng thái **`pending` cho tới khi người đó chấp nhận** _(kiểm chứng tại `docs.github.com/en/rest/orgs/members`)_. Đây là **ràng buộc của nhà cung cấp**, không phải lựa chọn thiết kế của nhóm.
 >
 > **Hệ quả cho ba loại "thành công" — không được đánh đồng:**
 >
-> | Thứ được xác nhận | Nghĩa là gì | Đủ để hoàn tất `ProvisioningTask`? |
-> | --- | --- | --- |
-> | **Phản hồi API** thành công | Yêu cầu đã được nhà cung cấp nhận | ❌ **Không** |
-> | **Trạng thái phía nhà cung cấp** là `pending` | Lời mời đã gửi, chưa được chấp nhận | ❌ **Không** — suất vẫn chiếm chỗ theo `BR-10.4` |
-> | **Trạng thái phía nhà cung cấp** là thành viên đang hoạt động | Tài khoản đã tồn tại thật | ✅ **Có** |
+> | Thứ được xác nhận                                             | Nghĩa là gì                         | Đủ để hoàn tất `ProvisioningTask`?               |
+> | ------------------------------------------------------------- | ----------------------------------- | ------------------------------------------------ |
+> | **Phản hồi API** thành công                                   | Yêu cầu đã được nhà cung cấp nhận   | ❌ **Không**                                     |
+> | **Trạng thái phía nhà cung cấp** là `pending`                 | Lời mời đã gửi, chưa được chấp nhận | ❌ **Không** — suất vẫn chiếm chỗ theo `BR-10.4` |
+> | **Trạng thái phía nhà cung cấp** là thành viên đang hoạt động | Tài khoản đã tồn tại thật           | ✅ **Có**                                        |
 >
 > **Đối xứng với `BR-10.1`:** `BR-10.1` đã cấm **kênh thủ công** tự chuyển sang hoàn tất khi chưa có người thật xác nhận. Ràng buộc trên là vế còn thiếu cho **kênh tự động**: không được coi phản hồi máy là bằng chứng đã cấp xong.
 >
-> **Nơi thể hiện:** `UF-08` và `WF-09a` có kết thúc riêng *"đã gửi lời mời, chờ chấp nhận"*; `UF-14` và `WF-16` có guard **bỏ qua** suất đang có lời mời chờ, để không sinh sai lệch giả *(nhóm trưởng chốt 08/09/2026)*. **Không đặt thêm thời hạn hay số lần thử mới** — chỉ dùng nhịp đối soát đã có.
+> **Nơi thể hiện:** `UF-08` và `WF-09a` có kết thúc riêng _"đã gửi lời mời, chờ chấp nhận"_; `UF-14` và `WF-16` có guard **bỏ qua** suất đang có lời mời chờ, để không sinh sai lệch giả _(nhóm trưởng chốt 08/09/2026)_. **Không đặt thêm thời hạn hay số lần thử mới** — chỉ dùng nhịp đối soát đã có.
 
 ---
 
@@ -1411,47 +1413,47 @@ flowchart TB
 
 ---
 
-### 3.6. F-13 · Xử lý bước duyệt nghẽn, xung đột lợi ích và xác định lại người duyệt *(tới v0.5: “Ủy quyền phê duyệt”)*
+### 3.6. F-13 · Xử lý bước duyệt nghẽn, xung đột lợi ích và xác định lại người duyệt _(tới v0.5: “Ủy quyền phê duyệt”)_
 
 > **Viết lại ở v0.6 — `QĐ-27`, `QĐ-28c`, `QĐ-28d`.** Giữ mã `F-13` vì BRD, Context Diagram và Business Workflows đang trích. **Không còn ủy quyền duyệt**: người được giao tự nhận và tự quyết. Luồng này mô tả ba việc hệ thống làm thay cho ủy quyền — nhắc và cảnh báo khi nghẽn, tạo bước cho người thay thế **chỉ** khi Người duyệt chi xung đột lợi ích, và xác định lại người duyệt **chỉ** khi dữ liệu tổ chức hoặc cấu hình vai trò đổi thật.
 
-|                    |                                                                                         |
-| ------------------ | --------------------------------------------------------------------------------------- |
-| **Mục đích**       | Giữ luồng không treo vô hạn mà **không** chuyền quyền duyệt, để việc của ai người đó nhận |
+|                    |                                                                                                           |
+| ------------------ | --------------------------------------------------------------------------------------------------------- |
+| **Mục đích**       | Giữ luồng không treo vô hạn mà **không** chuyền quyền duyệt, để việc của ai người đó nhận                 |
 | **Kích hoạt bởi**  | Bước quá SLA · backlog vượt ngưỡng · Người duyệt chi là người yêu cầu/thụ hưởng · sự kiện dữ liệu tổ chức |
-| **Tiền điều kiện** | Request đã được gửi và chính sách duyệt đã chốt (`BR-07.2`)                            |
+| **Tiền điều kiện** | Request đã được gửi và chính sách duyệt đã chốt (`BR-07.2`)                                               |
 
-| #   | Ai | Làm gì | Hệ thống phản hồi |
-| --- | --- | --- | --- |
-| 1   | HT | Khi tạo bước duyệt chi: kiểm Người duyệt chi có phải người yêu cầu hoặc người thụ hưởng không | Có ⟹ **tạo thẳng** bước cho **người thay thế khi xung đột** Quản trị hệ thống đã cấu hình; ghi lý do *xung đột lợi ích*. Chưa cấu hình hoặc người thay thế cũng xung đột ⟹ chờ có kiểm soát (`BR-13.6`) |
-| 2   | HT | Mỗi bước đang chờ: theo dõi người được giao, thời điểm nhận, tuổi SLA, số lần nhắc | Quá SLA ⟹ nhắc người được giao, **thông báo** cấp trên của người đó (nếu có). **Không** đổi người |
-| 3   | HT | Số bước đang chờ của một người vượt ngưỡng backlog, hoặc có bước quá SLA | Cảnh báo Quản trị hệ thống, đưa vào **bảng theo dõi nghẽn** (BRD `FR-5.11`) |
-| 4   | QT | Xem bảng theo dõi nghẽn | Chỉ được sửa cấu hình, dữ liệu tổ chức, hoặc ghi nhận sự cố. **Không** có nút duyệt thay |
-| 5   | HT | Nhận sự kiện dữ liệu: `manager_id` của người yêu cầu đổi · người được giao nghỉ việc · QT đổi người giữ vai Người duyệt chi, người thay thế khi xung đột, hoặc người duyệt dự phòng ở gốc | **Xác định lại** người duyệt của bước đang chờ theo đúng quy tắc định tuyến gốc; ghi sự kiện nguồn, người cũ, người mới. SLA **không** đặt lại |
-| 6   | Người được giao | Tự nhận và quyết định | Người quyết thực tế **phải trùng** người được giao hiện hành |
+| #   | Ai              | Làm gì                                                                                                                                                                                    | Hệ thống phản hồi                                                                                                                                                                                       |
+| --- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | HT              | Khi tạo bước duyệt chi: kiểm Người duyệt chi có phải người yêu cầu hoặc người thụ hưởng không                                                                                             | Có ⟹ **tạo thẳng** bước cho **người thay thế khi xung đột** Quản trị hệ thống đã cấu hình; ghi lý do _xung đột lợi ích_. Chưa cấu hình hoặc người thay thế cũng xung đột ⟹ chờ có kiểm soát (`BR-13.6`) |
+| 2   | HT              | Mỗi bước đang chờ: theo dõi người được giao, thời điểm nhận, tuổi SLA, số lần nhắc                                                                                                        | Quá SLA ⟹ nhắc người được giao, **thông báo** cấp trên của người đó (nếu có). **Không** đổi người                                                                                                       |
+| 3   | HT              | Số bước đang chờ của một người vượt ngưỡng backlog, hoặc có bước quá SLA                                                                                                                  | Cảnh báo Quản trị hệ thống, đưa vào **bảng theo dõi nghẽn** (BRD `FR-5.11`)                                                                                                                             |
+| 4   | QT              | Xem bảng theo dõi nghẽn                                                                                                                                                                   | Chỉ được sửa cấu hình, dữ liệu tổ chức, hoặc ghi nhận sự cố. **Không** có nút duyệt thay                                                                                                                |
+| 5   | HT              | Nhận sự kiện dữ liệu: `manager_id` của người yêu cầu đổi · người được giao nghỉ việc · QT đổi người giữ vai Người duyệt chi, người thay thế khi xung đột, hoặc người duyệt dự phòng ở gốc | **Xác định lại** người duyệt của bước đang chờ theo đúng quy tắc định tuyến gốc; ghi sự kiện nguồn, người cũ, người mới. SLA **không** đặt lại                                                          |
+| 6   | Người được giao | Tự nhận và quyết định                                                                                                                                                                     | Người quyết thực tế **phải trùng** người được giao hiện hành                                                                                                                                            |
 
 **Quy tắc nghiệp vụ:**
 
-| Mã      | Nội dung |
-| ------- | -------- |
-| ~~BR-13.1~~ | 📁 **Nghỉ hưu ở v0.6** — chặn ủy quyền vòng tròn; không còn ủy quyền (`QĐ-27`) |
-| BR-13.2 | Mọi lần xác định lại người duyệt **không đặt lại đồng hồ thời hạn xử lý**. Thời hạn thuộc về bước, không thuộc về người *(tới v0.5 phát biểu cho ủy quyền; nghĩa gốc giữ nguyên)* |
-| ~~BR-13.3~~ | 📁 **Nghỉ hưu ở v0.6** — ràng buộc của người được ủy quyền; không còn ủy quyền. Nguyên tắc không tự duyệt vẫn giữ ở `SoD-4`, `INV-08` |
-| BR-13.4 | Nhật ký ghi tách **người được giao** và **người quyết thực tế**, cộng lịch sử mọi lần xác định lại. Từ v0.6 hai người phải trùng nhau tại lúc quyết — lệch là lỗi phân quyền, không phải ủy quyền |
-| ~~BR-13.5~~ | 📁 **Nghỉ hưu ở v0.6** — người được ủy quyền trùng người yêu cầu (`QĐ-12`, bị `QĐ-27` thay thế) |
-| BR-13.6 | **Hết người duyệt hợp lệ trong cả chuỗi ⟹ giữ Request ở trạng thái chờ**, gắn cờ *chưa có người duyệt hợp lệ*, nhắc và **thông báo** theo `FR-3.8`, **báo Quản trị hệ thống cấu hình lại**. Không tự duyệt, không tự từ chối, không giao quyền duyệt cho Quản trị hệ thống *(`SoD-1`)* — `QĐ-13`, BRD `FR-3.12` *(sửa ở v0.6: bỏ chữ “leo cấp”)* |
-| ~~BR-13.7~~ | 📁 **Nghỉ hưu ở v0.6** — Người duyệt chi ủy quyền được; không còn ủy quyền |
-| BR-13.8 | *(mới ở v0.6 — `QĐ-27`, `QĐ-28d`)* **Nghẽn chỉ được xử lý bằng nhắc, thông báo và cảnh báo.** Không ủy quyền, không đổi người, không tự duyệt, không tự từ chối. Quản trị hệ thống **không** được duyệt thay — BRD `FR-3.5`, `FR-3.8` |
-| BR-13.9 | *(mới ở v0.6 — `QĐ-28d`)* **Chỉ xác định lại người duyệt khi có sự kiện dữ liệu thật** — `manager_id` đổi, người được giao nghỉ việc hoặc không còn hợp lệ, Quản trị hệ thống đổi cấu hình vai trò. Nghỉ phép, vắng mặt, backlog cao **không** phải sự kiện — BRD `FR-3.16` |
-| BR-13.10 | *(mới ở v0.6 — `QĐ-28c`)* **Người thay thế khi xung đột** là cấu hình tĩnh của Quản trị hệ thống, lập trước. Chỉ áp khi Người duyệt chi là người yêu cầu hoặc người thụ hưởng; **không** do Quản lý, Người duyệt chi hay người yêu cầu chọn; **không** áp cho backlog; **không** tạo ứng viên song song; **không** dùng để né SLA — bước được tạo thẳng cho người thay thế ngay từ đầu. Người thay thế chịu đủ `SoD-7`, `SoD-8` — BRD `FR-3.15` |
+| Mã          | Nội dung                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ~~BR-13.1~~ | 📁 **Nghỉ hưu ở v0.6** — chặn ủy quyền vòng tròn; không còn ủy quyền (`QĐ-27`)                                                                                                                                                                                                                                                                                                                                                                  |
+| BR-13.2     | Mọi lần xác định lại người duyệt **không đặt lại đồng hồ thời hạn xử lý**. Thời hạn thuộc về bước, không thuộc về người _(tới v0.5 phát biểu cho ủy quyền; nghĩa gốc giữ nguyên)_                                                                                                                                                                                                                                                               |
+| ~~BR-13.3~~ | 📁 **Nghỉ hưu ở v0.6** — ràng buộc của người được ủy quyền; không còn ủy quyền. Nguyên tắc không tự duyệt vẫn giữ ở `SoD-4`, `INV-08`                                                                                                                                                                                                                                                                                                           |
+| BR-13.4     | Nhật ký ghi tách **người được giao** và **người quyết thực tế**, cộng lịch sử mọi lần xác định lại. Từ v0.6 hai người phải trùng nhau tại lúc quyết — lệch là lỗi phân quyền, không phải ủy quyền                                                                                                                                                                                                                                               |
+| ~~BR-13.5~~ | 📁 **Nghỉ hưu ở v0.6** — người được ủy quyền trùng người yêu cầu (`QĐ-12`, bị `QĐ-27` thay thế)                                                                                                                                                                                                                                                                                                                                                 |
+| BR-13.6     | **Hết người duyệt hợp lệ trong cả chuỗi ⟹ giữ Request ở trạng thái chờ**, gắn cờ _chưa có người duyệt hợp lệ_, nhắc và **thông báo** theo `FR-3.8`, **báo Quản trị hệ thống cấu hình lại**. Không tự duyệt, không tự từ chối, không giao quyền duyệt cho Quản trị hệ thống _(`SoD-1`)_ — `QĐ-13`, BRD `FR-3.12` _(sửa ở v0.6: bỏ chữ “leo cấp”)_                                                                                                |
+| ~~BR-13.7~~ | 📁 **Nghỉ hưu ở v0.6** — Người duyệt chi ủy quyền được; không còn ủy quyền                                                                                                                                                                                                                                                                                                                                                                      |
+| BR-13.8     | _(mới ở v0.6 — `QĐ-27`, `QĐ-28d`)_ **Nghẽn chỉ được xử lý bằng nhắc, thông báo và cảnh báo.** Không ủy quyền, không đổi người, không tự duyệt, không tự từ chối. Quản trị hệ thống **không** được duyệt thay — BRD `FR-3.5`, `FR-3.8`                                                                                                                                                                                                           |
+| BR-13.9     | _(mới ở v0.6 — `QĐ-28d`)_ **Chỉ xác định lại người duyệt khi có sự kiện dữ liệu thật** — `manager_id` đổi, người được giao nghỉ việc hoặc không còn hợp lệ, Quản trị hệ thống đổi cấu hình vai trò. Nghỉ phép, vắng mặt, backlog cao **không** phải sự kiện — BRD `FR-3.16`                                                                                                                                                                     |
+| BR-13.10    | _(mới ở v0.6 — `QĐ-28c`)_ **Người thay thế khi xung đột** là cấu hình tĩnh của Quản trị hệ thống, lập trước. Chỉ áp khi Người duyệt chi là người yêu cầu hoặc người thụ hưởng; **không** do Quản lý, Người duyệt chi hay người yêu cầu chọn; **không** áp cho backlog; **không** tạo ứng viên song song; **không** dùng để né SLA — bước được tạo thẳng cho người thay thế ngay từ đầu. Người thay thế chịu đủ `SoD-7`, `SoD-8` — BRD `FR-3.15` |
 
 **Ngoại lệ:**
 
-| Tình huống | Xử lý |
-| --- | --- |
-| Người duyệt chi nghỉ phép dài | Không phải sự kiện dữ liệu, không phải xung đột ⟹ nhắc và cảnh báo backlog; nếu tổ chức muốn đổi người giữ vai thì Quản trị hệ thống đổi **cấu hình**, việc xác định lại theo `BR-13.9` |
-| Người thay thế khi xung đột nghỉ việc trong lúc đang giữ bước | Sự kiện dữ liệu ⟹ xác định lại theo `BR-13.9`; không còn ai hợp lệ ⟹ `BR-13.6` |
-| Quản lý trực tiếp cũng là Người duyệt chi, **không** phải người yêu cầu | Không phải xung đột ⟹ giữ hai bước, gắn cờ *cùng người* (`BR-07.8`) |
+| Tình huống                                                              | Xử lý                                                                                                                                                                                   |
+| ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Người duyệt chi nghỉ phép dài                                           | Không phải sự kiện dữ liệu, không phải xung đột ⟹ nhắc và cảnh báo backlog; nếu tổ chức muốn đổi người giữ vai thì Quản trị hệ thống đổi **cấu hình**, việc xác định lại theo `BR-13.9` |
+| Người thay thế khi xung đột nghỉ việc trong lúc đang giữ bước           | Sự kiện dữ liệu ⟹ xác định lại theo `BR-13.9`; không còn ai hợp lệ ⟹ `BR-13.6`                                                                                                          |
+| Quản lý trực tiếp cũng là Người duyệt chi, **không** phải người yêu cầu | Không phải xung đột ⟹ giữ hai bước, gắn cờ _cùng người_ (`BR-07.8`)                                                                                                                     |
 
 > **Vì sao người thay thế khi xung đột không phải ủy quyền:** ủy quyền là người đang giữ quyền **tự chọn** người thay, theo **thời gian vắng mặt**, áp lên **mọi** bước. Người thay thế ở đây là **cấu hình tổ chức** lập trước, áp theo **điều kiện xung đột trên đúng một Request**, và không ai trong luồng chọn được.
 
@@ -1480,15 +1482,15 @@ flowchart TB
 
 ## 4. VS-2 — Thu hồi lãng phí có bằng chứng
 
-*Thuộc `MF-3`. Xem mạch tổng ở mục 1.7.*
+_Thuộc `MF-3`. Xem mạch tổng ở mục 1.7._
 
 ### 4.1. F-17 · Import dữ liệu sử dụng
 
-|                    |                                                                                     |
-| ------------------ | ----------------------------------------------------------------------------------- |
-| **Mục đích**       | Đưa dữ liệu hoạt động từ bên ngoài vào **mà không kết luận sai trên dữ liệu thiếu** |
-| **Kích hoạt bởi**  | IT tải file lên; *(v0.5)* hoặc **bộ thu thập trên thiết bị gửi bản tổng hợp theo ngày** — xem `F-45` |
-| **Tiền điều kiện** | Ứng dụng đã có trong danh mục và có mẫu cấu hình nguồn                              |
+|                    |                                                                                                      |
+| ------------------ | ---------------------------------------------------------------------------------------------------- |
+| **Mục đích**       | Đưa dữ liệu hoạt động từ bên ngoài vào **mà không kết luận sai trên dữ liệu thiếu**                  |
+| **Kích hoạt bởi**  | IT tải file lên; _(v0.5)_ hoặc **bộ thu thập trên thiết bị gửi bản tổng hợp theo ngày** — xem `F-45` |
+| **Tiền điều kiện** | Ứng dụng đã có trong danh mục và có mẫu cấu hình nguồn                                               |
 
 ```mermaid
 flowchart LR
@@ -1515,17 +1517,17 @@ flowchart LR
 
 **Quy tắc nghiệp vụ:**
 
-| Mã      | Nội dung                                                                                                    |
-| ------- | ----------------------------------------------------------------------------------------------------------- |
-| BR-17.1 | Khoảng thời gian bao phủ **bắt buộc**. File không tự chứa thì IT khai tay, không cho bỏ qua                 |
-| BR-17.2 | Chuẩn hóa múi giờ về múi giờ tổ chức **trước khi** cắt theo ngày                                            |
-| BR-17.3 | Chuẩn hóa email theo đúng một hàm dùng chung, áp cả khi tạo ánh xạ lẫn khi đối chiếu                        |
-| BR-17.4 | Sự kiện chỉ mang tính xác thực — đăng nhập, chuyển hướng đăng nhập một lần — **không** tính là hoạt động    |
-| BR-17.5 | Mẫu cấu hình **bắt buộc** khai báo nguồn hiểu "hoạt động" là gì. Nguồn có định nghĩa lỏng bị hạ mức tin cậy |
-| BR-17.6 | Dữ liệu hoạt động gắn vào **quyền đang hiệu lực tại ngày xảy ra sự kiện**, không gắn vào con người          |
-| BR-17.7 | Lỗi ở một dòng không làm hỏng cả file                                                                       |
-| BR-17.8 | Không import dữ liệu hoạt động cho ứng dụng có cờ nhóm dịch vụ liên lạc, trừ khi đã được bật có chủ đích    |
-| BR-17.9 | *(mới ở v0.5 — `QĐ-20`)* Dữ liệu từ bộ thu thập **không đi qua bước xem trước** vì đến tự động theo ngày, nhưng vẫn qua đủ **khớp danh tính, cửa sổ bao phủ, định nghĩa hoạt động**; và **bị từ chối ngay tại cổng nhận** nếu thiết bị chưa đăng ký, nhân viên chưa xác nhận, hoặc bản ghi mang trường ngoài lược đồ — BRD `INV-17`, `ADR-13` |
+| Mã      | Nội dung                                                                                                                                                                                                                                                                                                                                      |
+| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-17.1 | Khoảng thời gian bao phủ **bắt buộc**. File không tự chứa thì IT khai tay, không cho bỏ qua                                                                                                                                                                                                                                                   |
+| BR-17.2 | Chuẩn hóa múi giờ về múi giờ tổ chức **trước khi** cắt theo ngày                                                                                                                                                                                                                                                                              |
+| BR-17.3 | Chuẩn hóa email theo đúng một hàm dùng chung, áp cả khi tạo ánh xạ lẫn khi đối chiếu                                                                                                                                                                                                                                                          |
+| BR-17.4 | Sự kiện chỉ mang tính xác thực — đăng nhập, chuyển hướng đăng nhập một lần — **không** tính là hoạt động                                                                                                                                                                                                                                      |
+| BR-17.5 | Mẫu cấu hình **bắt buộc** khai báo nguồn hiểu "hoạt động" là gì. Nguồn có định nghĩa lỏng bị hạ mức tin cậy                                                                                                                                                                                                                                   |
+| BR-17.6 | Dữ liệu hoạt động gắn vào **quyền đang hiệu lực tại ngày xảy ra sự kiện**, không gắn vào con người                                                                                                                                                                                                                                            |
+| BR-17.7 | Lỗi ở một dòng không làm hỏng cả file                                                                                                                                                                                                                                                                                                         |
+| BR-17.8 | Không import dữ liệu hoạt động cho ứng dụng có cờ nhóm dịch vụ liên lạc, trừ khi đã được bật có chủ đích                                                                                                                                                                                                                                      |
+| BR-17.9 | _(mới ở v0.5 — `QĐ-20`)_ Dữ liệu từ bộ thu thập **không đi qua bước xem trước** vì đến tự động theo ngày, nhưng vẫn qua đủ **khớp danh tính, cửa sổ bao phủ, định nghĩa hoạt động**; và **bị từ chối ngay tại cổng nhận** nếu thiết bị chưa đăng ký, nhân viên chưa xác nhận, hoặc bản ghi mang trường ngoài lược đồ — BRD `INV-17`, `ADR-13` |
 
 > **BR-17.6 là chi tiết dễ bỏ sót nhất của cả phân hệ.** Một nhân viên có thể được cấp suất, trả lại, rồi được cấp lại — ba lần cấp quyền riêng biệt. Nếu gắn nhật ký vào con người rồi lấy ngày hoạt động gần nhất, lần cấp mới sẽ thừa hưởng lịch sử của lần cũ và **không bao giờ** bị phát hiện. Lỗi này không gây báo lỗi, không hiện trong nhật ký, chỉ làm phân hệ âm thầm mất tác dụng.
 >
@@ -1542,7 +1544,7 @@ flowchart LR
 
 **Xong khi:** không dòng nào được ghi trước khi người dùng xác nhận, và sau khi ghi thì tình trạng sử dụng của các quyền liên quan đã được tính lại.
 
-> **Ví dụ nguồn GitHub — v0.6, `QĐ-28a`.** GitHub có **hai** nguồn usage riêng, mỗi nguồn khai cửa sổ bao phủ và định nghĩa hoạt động riêng: **(1) lịch sử commit** vào repo của org — hoạt động = có commit trong ngày, định danh là `login`; **(2) tiện ích trình duyệt** với `github.com` theo `F-45`. Ngày hoạt động cuối lấy **muộn nhất trong các nguồn còn đủ độ mới và đã khớp danh tính**. **Audit log organization không phải nguồn usage** — nó chỉ ghi hành động quản trị. Không có commit hoặc không có dữ liệu tiện ích mà cửa sổ không đủ thì là *không có dữ liệu*, **không** phải *không hoạt động* (BRD `FR-4.10`).
+> **Ví dụ nguồn GitHub — v0.6, `QĐ-28a`.** GitHub có **hai** nguồn usage riêng, mỗi nguồn khai cửa sổ bao phủ và định nghĩa hoạt động riêng: **(1) lịch sử commit** vào repo của org — hoạt động = có commit trong ngày, định danh là `login`; **(2) tiện ích trình duyệt** với `github.com` theo `F-45`. Ngày hoạt động cuối lấy **muộn nhất trong các nguồn còn đủ độ mới và đã khớp danh tính**. **Audit log organization không phải nguồn usage** — nó chỉ ghi hành động quản trị. Không có commit hoặc không có dữ liệu tiện ích mà cửa sổ không đủ thì là _không có dữ liệu_, **không** phải _không hoạt động_ (BRD `FR-4.10`).
 
 ---
 
@@ -1574,10 +1576,10 @@ flowchart LR
 
 | Nhóm   | Là gì                                | Cần dữ liệu ngoài | Độ chắc chắn | Ai quyết định      |
 | ------ | ------------------------------------ | ----------------- | ------------ | ------------------ |
-| **G1** | Suất đã mua chưa gán cho ai          | ❌                 | Tuyệt đối    | IT, tại kỳ gia hạn |
-| **G2** | Suất của người **đã nghỉ việc**      | ❌                 | Tuyệt đối    | IT, thu hồi ngay   |
-| **G3** | Suất đã gán nhưng **chưa từng** dùng | ✅                 | Cao          | Quản lý xác nhận   |
-| **G4** | Suất từng dùng nhưng **đã ngừng**    | ✅                 | Trung bình   | Quản lý xác nhận   |
+| **G1** | Suất đã mua chưa gán cho ai          | ❌                | Tuyệt đối    | IT, tại kỳ gia hạn |
+| **G2** | Suất của người **đã nghỉ việc**      | ❌                | Tuyệt đối    | IT, thu hồi ngay   |
+| **G3** | Suất đã gán nhưng **chưa từng** dùng | ✅                | Cao          | Quản lý xác nhận   |
+| **G4** | Suất từng dùng nhưng **đã ngừng**    | ✅                | Trung bình   | Quản lý xác nhận   |
 
 **Tám cổng lọc chạy trước mọi đánh giá:**
 
@@ -1607,23 +1609,23 @@ flowchart TB
 
 **Ba mức độ, và không phải mức nào cũng gửi thông báo:**
 
-| Mức         | Điều kiện mặc định                                 | Gửi thông báo                   |
-| ----------- | -------------------------------------------------- | ------------------------------- |
+| Mức         | Điều kiện mặc định                                 | Gửi thông báo                                                                            |
+| ----------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------- |
 | Theo dõi    | Không dùng 30–59 ngày                              | ❌ Chỉ hiện trên bảng điều khiển **của IT Admin** — không hiện trên màn hình của quản lý |
-| Cần xem xét | Từ 60 ngày                                         | ✅ Gửi quản lý                   |
-| Cần xử lý   | Từ 90 ngày, hoặc chưa từng dùng, hoặc đã nghỉ việc | ✅ Gửi quản lý và IT             |
+| Cần xem xét | Từ 60 ngày                                         | ✅ Gửi quản lý                                                                           |
+| Cần xử lý   | Từ 90 ngày, hoặc chưa từng dùng, hoặc đã nghỉ việc | ✅ Gửi quản lý và IT                                                                     |
 
 **Quy tắc nghiệp vụ:**
 
-| Mã      | Nội dung                                                                                                                                                |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| BR-19.1 | G1 nhắm vào **thuê bao**, không nhắm vào người — hành động là giảm số lượng tại kỳ gia hạn                                                              |
-| BR-19.2 | G2 bỏ qua mọi ngưỡng ngày và không cần quản lý xác nhận                                                                                                 |
-| BR-20.1 | Ngưỡng phân giải theo thứ tự: từng ứng dụng > tổ chức > mặc định hệ thống *(sửa ở v0.5 — bỏ cấp phòng ban, `QĐ-23`)*                                     |
-| BR-20.2 | Số tiết kiệm thực hiện được ngay chỉ lớn hơn 0 khi gói theo tháng hoặc hợp đồng cho giảm giữa kỳ                                                        |
-| BR-20.3 | Bằng chứng là **bản chụp tại thời điểm sinh**, không phải con trỏ tới nguồn — nếu nguồn bị import đè, khuyến nghị cũ sẽ hiển thị căn cứ của dữ liệu mới |
-| BR-20.4 | Cổng lọc số 6 làm cả lần chạy dừng cho ứng dụng đó, **không** âm thầm chạy với dữ liệu cũ                                                               |
-| BR-20.5 | Mức "theo dõi" **không gửi thông báo** — nếu mọi phát hiện đều gửi thư, quản lý sẽ lọc vào thùng rác trong tuần đầu. **Chốt ở `QĐ-09`, đã ghi vào `FR-4.12`:** mức này **chỉ IT Admin thấy**, không hiện trên màn hình của quản lý; quản lý chỉ nhận từ mức *cần xem xét* trở lên |
+| Mã      | Nội dung                                                                                                                                                                                                                                                                          |
+| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-19.1 | G1 nhắm vào **thuê bao**, không nhắm vào người — hành động là giảm số lượng tại kỳ gia hạn                                                                                                                                                                                        |
+| BR-19.2 | G2 bỏ qua mọi ngưỡng ngày và không cần quản lý xác nhận                                                                                                                                                                                                                           |
+| BR-20.1 | Ngưỡng phân giải theo thứ tự: từng ứng dụng > tổ chức > mặc định hệ thống _(sửa ở v0.5 — bỏ cấp phòng ban, `QĐ-23`)_                                                                                                                                                              |
+| BR-20.2 | Số tiết kiệm thực hiện được ngay chỉ lớn hơn 0 khi gói theo tháng hoặc hợp đồng cho giảm giữa kỳ                                                                                                                                                                                  |
+| BR-20.3 | Bằng chứng là **bản chụp tại thời điểm sinh**, không phải con trỏ tới nguồn — nếu nguồn bị import đè, khuyến nghị cũ sẽ hiển thị căn cứ của dữ liệu mới                                                                                                                           |
+| BR-20.4 | Cổng lọc số 6 làm cả lần chạy dừng cho ứng dụng đó, **không** âm thầm chạy với dữ liệu cũ                                                                                                                                                                                         |
+| BR-20.5 | Mức "theo dõi" **không gửi thông báo** — nếu mọi phát hiện đều gửi thư, quản lý sẽ lọc vào thùng rác trong tuần đầu. **Chốt ở `QĐ-09`, đã ghi vào `FR-4.12`:** mức này **chỉ IT Admin thấy**, không hiện trên màn hình của quản lý; quản lý chỉ nhận từ mức _cần xem xét_ trở lên |
 
 > **Tám cổng lọc quan trọng ngang với chính thuật toán phát hiện.** Chứng minh hệ thống **không báo động giả** có giá trị hơn chứng minh nó tìm ra nhiều.
 
@@ -1655,15 +1657,15 @@ flowchart TB
 | BR-21.1 | Quản lý **không** xem được nhật ký hoạt động thô — chỉ thấy số liệu tổng hợp                                    |
 | BR-21.2 | Chọn hàng loạt phải nhập **một** lý do chung, không cho để trống                                                |
 | BR-21.3 | Miễn trừ không có ngày hết hạn bị chặn ở cả ba tầng: giao diện, dịch vụ, cơ sở dữ liệu                          |
-| BR-21.4 | Hiển thị phải nêu rõ giới hạn dữ liệu, ví dụ *"nguồn chỉ bao phủ 30 ngày — chưa đủ để kết luận chưa từng dùng"* |
+| BR-21.4 | Hiển thị phải nêu rõ giới hạn dữ liệu, ví dụ _"nguồn chỉ bao phủ 30 ngày — chưa đủ để kết luận chưa từng dùng"_ |
 | BR-21.5 | "Giữ lại" **không** đóng vĩnh viễn; chu kỳ sau vẫn hỏi nhưng hiển thị kèm quyết định lần trước                  |
 | BR-21.6 | Khuyến nghị bị dữ liệu mới phủ định thì đóng **im lặng**, không thông báo                                       |
 
 > **BR-21.4 quyết định phân hệ này sống hay chết.** Quản lý là người có bối cảnh mà hệ thống không có; họ chỉ hợp tác nếu tin rằng hệ thống đang nói thật về mức độ chắc chắn của nó. Một khuyến nghị sai được trình bày với giọng chắc nịch sẽ làm hỏng niềm tin vào cả trăm khuyến nghị đúng còn lại.
 >
-> **BR-21.5** — "giữ lại" là phát biểu có thời hạn: *tại thời điểm này tôi vẫn cần*. Nếu đóng vĩnh viễn, sau vài chu kỳ phần lớn suất lãng phí sẽ nằm trong vùng không bao giờ được hỏi lại.
+> **BR-21.5** — "giữ lại" là phát biểu có thời hạn: _tại thời điểm này tôi vẫn cần_. Nếu đóng vĩnh viễn, sau vài chu kỳ phần lớn suất lãng phí sẽ nằm trong vùng không bao giờ được hỏi lại.
 >
-> **BR-21.6** — gửi thông báo *"khuyến nghị hôm trước không còn đúng"* chỉ làm giảm niềm tin. Đóng im lặng, vẫn ghi nhật ký, và **số lượng khuyến nghị bị phủ định là một chỉ số chất lượng của rule engine**.
+> **BR-21.6** — gửi thông báo _"khuyến nghị hôm trước không còn đúng"_ chỉ làm giảm niềm tin. Đóng im lặng, vẫn ghi nhật ký, và **số lượng khuyến nghị bị phủ định là một chỉ số chất lượng của rule engine**.
 
 **Xong khi:** mọi khuyến nghị mức cần xem xét trở lên đều có một quyết định kèm lý do trong vòng một chu kỳ.
 
@@ -1690,7 +1692,7 @@ flowchart TB
 
 ## 5. VS-3 — Kiểm soát hợp đồng
 
-*Thuộc `MF-4`. Xem mạch tổng ở mục 1.8.*
+_Thuộc `MF-4`. Xem mạch tổng ở mục 1.8._
 
 ### 5.1. F-26 · Cảnh báo trước hạn chót báo hủy
 
@@ -1732,7 +1734,7 @@ flowchart LR
 
 > Cảnh báo trước ngày gia hạn 7 ngày trong khi hợp đồng buộc báo hủy trước 30 ngày là **một cảnh báo vô dụng được gửi đúng giờ** — nó tạo cảm giác an toàn giả.
 >
-> **BR-26.2 là nơi hai phân hệ gặp nhau** và tạo ra giá trị lớn nhất của toàn hệ thống: quản lý thấy *"gói này sắp gia hạn, và đang có 6 suất không ai dùng"* — thông tin đủ để ra quyết định giảm số lượng.
+> **BR-26.2 là nơi hai phân hệ gặp nhau** và tạo ra giá trị lớn nhất của toàn hệ thống: quản lý thấy _"gói này sắp gia hạn, và đang có 6 suất không ai dùng"_ — thông tin đủ để ra quyết định giảm số lượng.
 
 **Xong khi:** mọi thuê bao có tự động gia hạn đều có một quyết định được ghi nhận trước hạn báo hủy.
 
@@ -1740,22 +1742,22 @@ flowchart LR
 
 ### 5.2. F-27 · Quyết định gia hạn
 
-| #   | Ai       | Làm gì                                                    | Hệ thống phản hồi                                                         |
-| --- | -------- | --------------------------------------------------------- | ------------------------------------------------------------------------- |
-| 1   | IT và TC | Xem mốc gia hạn kèm khuyến nghị lãng phí đang mở          | Hiển thị so sánh số suất kỳ này với kỳ trước                              |
-| 1b  | TC       | *(tùy chọn, khi Người duyệt chi hỏi)* **Trả lời yêu cầu thông tin ngân sách** *(sửa ở v0.7)* | Không chặn, SLA của Người duyệt chi không dừng                   |
-| 2   | **DC** *(sửa ở v0.5 — tới v0.4 là TC)* | Quyết định: gia hạn nguyên trạng, giảm số lượng, hoặc hủy | Hiển thị cạnh nút quyết: **snapshot ngân sách**, khuyến nghị đang mở, tiết kiệm tại kỳ gia hạn *(sửa ở v0.7)* |
-| 3   | HT       | —                                                         | Gia hạn thì **tạo bản ghi thuê bao mới**, bản ghi cũ chuyển sang hết hạn  |
-| 4   | HT       | —                                                         | Chuyển các quyền đang hiệu lực sang thuê bao mới trong cùng một giao dịch |
+| #   | Ai                                     | Làm gì                                                                                       | Hệ thống phản hồi                                                                                             |
+| --- | -------------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| 1   | IT và TC                               | Xem mốc gia hạn kèm khuyến nghị lãng phí đang mở                                             | Hiển thị so sánh số suất kỳ này với kỳ trước                                                                  |
+| 1b  | TC                                     | _(tùy chọn, khi Người duyệt chi hỏi)_ **Trả lời yêu cầu thông tin ngân sách** _(sửa ở v0.7)_ | Không chặn, SLA của Người duyệt chi không dừng                                                                |
+| 2   | **DC** _(sửa ở v0.5 — tới v0.4 là TC)_ | Quyết định: gia hạn nguyên trạng, giảm số lượng, hoặc hủy                                    | Hiển thị cạnh nút quyết: **snapshot ngân sách**, khuyến nghị đang mở, tiết kiệm tại kỳ gia hạn _(sửa ở v0.7)_ |
+| 3   | HT                                     | —                                                                                            | Gia hạn thì **tạo bản ghi thuê bao mới**, bản ghi cũ chuyển sang hết hạn                                      |
+| 4   | HT                                     | —                                                                                            | Chuyển các quyền đang hiệu lực sang thuê bao mới trong cùng một giao dịch                                     |
 
 **Quy tắc nghiệp vụ:**
 
-| Mã      | Nội dung                                                                                  |
-| ------- | ----------------------------------------------------------------------------------------- |
-| BR-27.1 | Gia hạn **không sửa đè** ngày trên bản ghi cũ — sửa đè sẽ xóa mất lịch sử giá và số lượng |
-| BR-27.2 | Số tiết kiệm thật chỉ được ghi nhận khi số suất kỳ mới **thấp hơn** kỳ cũ                 |
-| BR-27.3 | Hủy dịch vụ phải kiểm tra còn quyền nào đang hiệu lực không, và cảnh báo người đang dùng  |
-| BR-27.4 | *(mới ở v0.5 — `QĐ-22`; sửa ở v0.7 — `QĐ-29b`)* Quyết định gia hạn, giảm, hủy thuộc **Người duyệt chi**, trên snapshot ngân sách; hỏi Tài chính là tùy chọn, Tài chính ghi nhận **sau** quyết định. Cùng một nguyên tắc với luồng mua mới — BRD `FR-3.13`, `FR-3.14` |
+| Mã      | Nội dung                                                                                                                                                                                                                                                             |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-27.1 | Gia hạn **không sửa đè** ngày trên bản ghi cũ — sửa đè sẽ xóa mất lịch sử giá và số lượng                                                                                                                                                                            |
+| BR-27.2 | Số tiết kiệm thật chỉ được ghi nhận khi số suất kỳ mới **thấp hơn** kỳ cũ                                                                                                                                                                                            |
+| BR-27.3 | Hủy dịch vụ phải kiểm tra còn quyền nào đang hiệu lực không, và cảnh báo người đang dùng                                                                                                                                                                             |
+| BR-27.4 | _(mới ở v0.5 — `QĐ-22`; sửa ở v0.7 — `QĐ-29b`)_ Quyết định gia hạn, giảm, hủy thuộc **Người duyệt chi**, trên snapshot ngân sách; hỏi Tài chính là tùy chọn, Tài chính ghi nhận **sau** quyết định. Cùng một nguyên tắc với luồng mua mới — BRD `FR-3.13`, `FR-3.14` |
 
 **Xong khi:** có bản ghi thuê bao kỳ mới với số suất phản ánh đúng quyết định, và so sánh được với kỳ trước.
 
@@ -1782,26 +1784,26 @@ flowchart LR
 
 ## 6. VS-4 — Minh bạch chi tiêu
 
-*Thuộc `MF-5`. Xem mạch tổng ở mục 1.9.*
+_Thuộc `MF-5`. Xem mạch tổng ở mục 1.9._
 
 ### 6.1. F-29 · Bảng chi tiêu, tiết kiệm và phân bổ
 
-|                   |                                                            |
-| ----------------- | ---------------------------------------------------------- |
-| **Mục đích**      | Tài chính và Người duyệt chi trả lời được "khoản này của ai, phục vụ việc gì, và hệ thống đã tiết kiệm được bao nhiêu" *(mở rộng ở v0.5 — `QĐ-24`)* |
-| **Kích hoạt bởi** | Người dùng mở bảng điều khiển                              |
+|                   |                                                                                                                                                     |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Mục đích**      | Tài chính và Người duyệt chi trả lời được "khoản này của ai, phục vụ việc gì, và hệ thống đã tiết kiệm được bao nhiêu" _(mở rộng ở v0.5 — `QĐ-24`)_ |
+| **Kích hoạt bởi** | Người dùng mở bảng điều khiển                                                                                                                       |
 
 **Quy tắc nghiệp vụ:**
 
-| Mã      | Nội dung                                                                                                                                |
-| ------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| BR-29.1 | Mọi số tiền hiển thị theo đồng tiền báo cáo; di chuột thì hiện nguyên tệ và tỷ giá đã dùng                                              |
-| BR-29.2 | Bảng luôn hiển thị **cơ sở ghi nhận đang xem** — theo kỳ hay theo dòng tiền — không để người dùng đọc một con số mà không biết nó là gì |
-| BR-29.3 | Chi phí của gói theo đầu người quy về **cost center** của nhân viên **tại thời điểm phát sinh**, không phải cost center hiện tại *(sửa chữ ở v0.5)* |
-| BR-29.4 | Chi phí của gói cố định và gói dùng chung chia theo tỷ lệ khai ở cấp thuê bao                                                           |
-| BR-29.5 | Hiển thị **thời điểm dữ liệu cập nhật gần nhất**; chỉ gọi là thời gian thực khi nguồn thực sự hỗ trợ                                    |
-| BR-29.6 | *(mới ở v0.5 — `QĐ-23`, `QĐ-24`)* Thêm các chiều nhóm **theo ứng dụng, nhà cung cấp, và cây người phụ trách** — tổng chi của mọi người dưới quyền một người, theo quan hệ quản lý có hiệu lực tại thời điểm phát sinh. **Không** có chiều nhóm theo phòng ban |
-| BR-29.7 | *(mới ở v0.5)* Tách ba con số **ngân sách — thực chi — khoản cam kết đang giữ**. Bảng **tiết kiệm** luôn đặt cạnh tổng chi, với *tiết kiệm thực hiện ngay* và *tiết kiệm tại kỳ gia hạn* **tách riêng, không cộng** — BRD `FR-5.8`, `FR-5.9` |
+| Mã      | Nội dung                                                                                                                                                                                                                                                      |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-29.1 | Mọi số tiền hiển thị theo đồng tiền báo cáo; di chuột thì hiện nguyên tệ và tỷ giá đã dùng                                                                                                                                                                    |
+| BR-29.2 | Bảng luôn hiển thị **cơ sở ghi nhận đang xem** — theo kỳ hay theo dòng tiền — không để người dùng đọc một con số mà không biết nó là gì                                                                                                                       |
+| BR-29.3 | Chi phí của gói theo đầu người quy về **cost center** của nhân viên **tại thời điểm phát sinh**, không phải cost center hiện tại _(sửa chữ ở v0.5)_                                                                                                           |
+| BR-29.4 | Chi phí của gói cố định và gói dùng chung chia theo tỷ lệ khai ở cấp thuê bao                                                                                                                                                                                 |
+| BR-29.5 | Hiển thị **thời điểm dữ liệu cập nhật gần nhất**; chỉ gọi là thời gian thực khi nguồn thực sự hỗ trợ                                                                                                                                                          |
+| BR-29.6 | _(mới ở v0.5 — `QĐ-23`, `QĐ-24`)_ Thêm các chiều nhóm **theo ứng dụng, nhà cung cấp, và cây người phụ trách** — tổng chi của mọi người dưới quyền một người, theo quan hệ quản lý có hiệu lực tại thời điểm phát sinh. **Không** có chiều nhóm theo phòng ban |
+| BR-29.7 | _(mới ở v0.5)_ Tách ba con số **ngân sách — thực chi — khoản cam kết đang giữ**. Bảng **tiết kiệm** luôn đặt cạnh tổng chi, với _tiết kiệm thực hiện ngay_ và _tiết kiệm tại kỳ gia hạn_ **tách riêng, không cộng** — BRD `FR-5.8`, `FR-5.9`                  |
 
 > Cột **chi phí trên mỗi suất đang hoạt động** — chứ không phải trên mỗi suất đã mua — là con số tài chính quan tâm nhất mà hầu như không hệ thống nào hiển thị. Nó cho thấy ngay ứng dụng nào đang trả tiền cho không khí.
 
@@ -1811,17 +1813,17 @@ flowchart LR
 
 ### 6.2. F-30 · Dự báo chi phí ba lớp
 
-| Lớp    | Nội dung                            | Cơ chế                                    |
-| ------ | ----------------------------------- | ----------------------------------------- |
-| **L1** | Chi phí đã cam kết                  | Công thức xác định từ hợp đồng            |
-| **L2** | Chi phí biến động theo mức tiêu thụ | Mô hình xu hướng **có cổng kiểm chứng** — ⏸️ **hoãn, không hiện thực trong MVP** *(v0.5 — `QĐ-25`)*; giao diện ghi rõ *"dự báo theo mô hình chưa được hiện thực"* |
-| **L3** | Chi phí phụ thuộc quyết định        | Ba kịch bản theo giả định người dùng nhập |
+| Lớp    | Nội dung                            | Cơ chế                                                                                                                                                            |
+| ------ | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **L1** | Chi phí đã cam kết                  | Công thức xác định từ hợp đồng                                                                                                                                    |
+| **L2** | Chi phí biến động theo mức tiêu thụ | Mô hình xu hướng **có cổng kiểm chứng** — ⏸️ **hoãn, không hiện thực trong MVP** _(v0.5 — `QĐ-25`)_; giao diện ghi rõ _"dự báo theo mô hình chưa được hiện thực"_ |
+| **L3** | Chi phí phụ thuộc quyết định        | Ba kịch bản theo giả định người dùng nhập                                                                                                                         |
 
 **Cổng kiểm chứng cho L2:**
 
 | Điều kiện                                        | Không đạt thì sao                                                    |
 | ------------------------------------------------ | -------------------------------------------------------------------- |
-| Có tối thiểu 12 tháng dữ liệu                    | Hiện *"chưa đủ dữ liệu lịch sử để dự báo có kiểm chứng"*             |
+| Có tối thiểu 12 tháng dữ liệu                    | Hiện _"chưa đủ dữ liệu lịch sử để dự báo có kiểm chứng"_             |
 | Sai số kiểm chứng lùi trong ngưỡng, mặc định 20% | **Ẩn dự báo mô hình**, chỉ hiển thị khoảng kịch bản, nêu rõ lý do ẩn |
 
 **Quy tắc nghiệp vụ:**
@@ -1832,7 +1834,7 @@ flowchart LR
 | BR-30.2 | **Không** hiển thị con số dự báo trần trụi trong bất kỳ trường hợp nào; luôn kèm khoảng dữ liệu, giả định, sai số đo được và thời điểm tính |
 | BR-30.3 | Sai số đo được hiển thị cạnh dự báo, không chỉ dùng ngầm để bật tắt                                                                         |
 
-**Xong khi:** dự báo hoặc hiển thị kèm đủ bốn thông tin bắt buộc, hoặc không hiển thị kèm lý do rõ ràng. *(v0.5)* Trong MVP: L1 và L3 hiển thị đủ; L2 hiển thị lý do chưa hiện thực.
+**Xong khi:** dự báo hoặc hiển thị kèm đủ bốn thông tin bắt buộc, hoặc không hiển thị kèm lý do rõ ràng. _(v0.5)_ Trong MVP: L1 và L3 hiển thị đủ; L2 hiển thị lý do chưa hiện thực.
 
 ---
 
@@ -1912,38 +1914,38 @@ sequenceDiagram
 | BR-35.1 | Hệ thống **không tự sửa** thuê bao theo hóa đơn — xem F-43                                                                      |
 | BR-35.2 | Chênh lệch phải quy được về một trong ba nguyên nhân: đã mua thêm chưa cập nhật, nhà cung cấp tính sai, hoặc dữ liệu nội bộ sai |
 
-**Xong khi:** mọi dòng hóa đơn đều ghép được về một thuê bao, hoặc được đánh dấu là chi phí ngoài danh mục. *(v0.5)* Hóa đơn khớp một yêu cầu đã duyệt chi thì khoản cam kết tương ứng chuyển sang *Đã thành chi phí*.
+**Xong khi:** mọi dòng hóa đơn đều ghép được về một thuê bao, hoặc được đánh dấu là chi phí ngoài danh mục. _(v0.5)_ Hóa đơn khớp một yêu cầu đã duyệt chi thì khoản cam kết tương ứng chuyển sang _Đã thành chi phí_.
 
 ---
 
-### 6.6. F-36 · Lập và theo dõi ngân sách *(✅ từ v0.5 — tới v0.4 chỉ đặc tả)*
+### 6.6. F-36 · Lập và theo dõi ngân sách _(✅ từ v0.5 — tới v0.4 chỉ đặc tả)_
 
-|                    |                                                                                        |
-| ------------------ | -------------------------------------------------------------------------------------- |
-| **Mục đích**       | Có ngân sách để snapshot của bước duyệt chi và ghi nhận của Tài chính có số để so *(sửa ở v0.7)*, và để thấy tiền đã chi, đã hứa chi, còn lại |
-| **Kích hoạt bởi**  | Tài chính nhập ngân sách cho kỳ mới; hoặc một khoản cam kết đổi trạng thái              |
-| **Tiền điều kiện** | Đã có cost center (`F-01`)                                                             |
+|                    |                                                                                                                                               |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Mục đích**       | Có ngân sách để snapshot của bước duyệt chi và ghi nhận của Tài chính có số để so _(sửa ở v0.7)_, và để thấy tiền đã chi, đã hứa chi, còn lại |
+| **Kích hoạt bởi**  | Tài chính nhập ngân sách cho kỳ mới; hoặc một khoản cam kết đổi trạng thái                                                                    |
+| **Tiền điều kiện** | Đã có cost center (`F-01`)                                                                                                                    |
 
-> **Vì sao chuyển từ 📐 sang ✅ — `QĐ-22`:** *(v0.7 — `QĐ-29b`: nay là **snapshot ngân sách** của bước duyệt chi và ghi nhận của Tài chính)* bước *ý kiến ngân sách* của `F-08`, `F-09`, `F-27` cần một con số *ngân sách còn lại*. Không có `F-36` thì bước đó chỉ còn là ý kiến cảm tính. Phạm vi hiện thực **tối thiểu**: nhập ngân sách, xem ba con số, theo dõi khoản cam kết — **không** gồm lập kế hoạch ngân sách nhiều phiên bản hay phê duyệt ngân sách.
+> **Vì sao chuyển từ 📐 sang ✅ — `QĐ-22`:** _(v0.7 — `QĐ-29b`: nay là **snapshot ngân sách** của bước duyệt chi và ghi nhận của Tài chính)_ bước _ý kiến ngân sách_ của `F-08`, `F-09`, `F-27` cần một con số _ngân sách còn lại_. Không có `F-36` thì bước đó chỉ còn là ý kiến cảm tính. Phạm vi hiện thực **tối thiểu**: nhập ngân sách, xem ba con số, theo dõi khoản cam kết — **không** gồm lập kế hoạch ngân sách nhiều phiên bản hay phê duyệt ngân sách.
 
 **Các bước:**
 
-| #   | Ai  | Làm gì                                                        | Hệ thống phản hồi                                                                  |
-| --- | --- | ------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| 1   | TC  | Nhập ngân sách cho từng cost center theo kỳ, nhập tay hoặc import file | Dùng khung import có bước xem trước (`FR-7.1`)                               |
-| 2   | HT  | —                                                             | Tính **ngân sách còn lại = ngân sách kỳ − thực chi − khoản cam kết đang giữ**      |
-| 3   | HT  | —                                                             | Khi Người duyệt chi duyệt một yêu cầu có chi phí: tạo khoản cam kết *Đang giữ*    |
-| 4   | HT  | —                                                             | Hóa đơn khớp (`F-35`) ⟹ *Đã thành chi phí*; yêu cầu bị hủy hoặc cấp phát thất bại hẳn ⟹ *Đã giải phóng* |
-| 5   | TC  | Xem bảng ngân sách theo cost center và kỳ                     | Ba con số cạnh nhau; bấm vào khoản cam kết thì mở yêu cầu nguồn                    |
+| #   | Ai  | Làm gì                                                                 | Hệ thống phản hồi                                                                                       |
+| --- | --- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| 1   | TC  | Nhập ngân sách cho từng cost center theo kỳ, nhập tay hoặc import file | Dùng khung import có bước xem trước (`FR-7.1`)                                                          |
+| 2   | HT  | —                                                                      | Tính **ngân sách còn lại = ngân sách kỳ − thực chi − khoản cam kết đang giữ**                           |
+| 3   | HT  | —                                                                      | Khi Người duyệt chi duyệt một yêu cầu có chi phí: tạo khoản cam kết _Đang giữ_                          |
+| 4   | HT  | —                                                                      | Hóa đơn khớp (`F-35`) ⟹ _Đã thành chi phí_; yêu cầu bị hủy hoặc cấp phát thất bại hẳn ⟹ _Đã giải phóng_ |
+| 5   | TC  | Xem bảng ngân sách theo cost center và kỳ                              | Ba con số cạnh nhau; bấm vào khoản cam kết thì mở yêu cầu nguồn                                         |
 
 **Quy tắc nghiệp vụ:**
 
-| Mã      | Nội dung |
-| ------- | -------- |
+| Mã      | Nội dung                                                                                                                             |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | BR-36.1 | Mỗi khoản cam kết gắn **đúng một** yêu cầu đã được Người duyệt chi duyệt; một yêu cầu có **tối đa một** khoản cam kết — BRD `INV-16` |
-| BR-36.2 | Khoản cam kết **không chuyển ngược** từ *Đã thành chi phí* |
-| BR-36.3 | Vượt ngân sách **không chặn** việc duyệt chi — chỉ hiện cảnh báo và ý kiến của Tài chính (`BR-07.9`) |
-| BR-36.4 | Mọi số tiền theo quy tắc đa tiền tệ của `BR-29.1` |
+| BR-36.2 | Khoản cam kết **không chuyển ngược** từ _Đã thành chi phí_                                                                           |
+| BR-36.3 | Vượt ngân sách **không chặn** việc duyệt chi — chỉ hiện cảnh báo và ý kiến của Tài chính (`BR-07.9`)                                 |
+| BR-36.4 | Mọi số tiền theo quy tắc đa tiền tệ của `BR-29.1`                                                                                    |
 
 **Xong khi:** ngân sách còn lại luôn bằng ngân sách kỳ trừ thực chi trừ khoản cam kết đang giữ; không có khoản cam kết nào không gắn với một yêu cầu đã duyệt chi.
 
@@ -1951,7 +1953,7 @@ sequenceDiagram
 
 ## 7. Luồng xuyên suốt
 
-*`F-37`, `F-38`, `F-40`, `F-43`, `F-44` thuộc `MF-0` (mục 1.4) · `F-41` thuộc `MF-1` (mục 1.5) · `F-42` thuộc `MF-3` (mục 1.7).*
+_`F-37`, `F-38`, `F-40`, `F-43`, `F-44` thuộc `MF-0` (mục 1.4) · `F-41` thuộc `MF-1` (mục 1.5) · `F-42` thuộc `MF-3` (mục 1.7)._
 
 ### 7.1. F-37 và F-38 · Quản trị hệ thống và nhật ký
 
@@ -1962,15 +1964,16 @@ sequenceDiagram
 
 **Quy tắc nghiệp vụ:**
 
-| Mã      | Nội dung                                                                      |
-| ------- | ----------------------------------------------------------------------------- |
-| BR-37.1 | Quản trị hệ thống **không** gán suất và **không** phê duyệt yêu cầu nghiệp vụ |
-| BR-37.2 | Sửa **chính sách duyệt** (nhánh, chuỗi loại bước) không ảnh hưởng các yêu cầu đang chạy. *(v0.6 — `QĐ-28d`)* Đổi **người giữ vai** — Người duyệt chi, người thay thế khi xung đột, người duyệt dự phòng ở gốc — thì bước đang chờ được xác định lại theo `BR-13.9`, SLA không đặt lại |
-| BR-38.1 | Nhật ký kiểm toán chỉ ghi thêm, không sửa không xóa                           |
-| BR-38.2 | Tác vụ nền thất bại phải hiện lên, không im lặng bỏ qua                       |
+| Mã      | Nội dung                                                                                                                                                                                                                                                                              |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-37.1 | Quản trị hệ thống **không** gán suất và **không** phê duyệt yêu cầu nghiệp vụ                                                                                                                                                                                                         |
+| BR-37.2 | Sửa **chính sách duyệt** (nhánh, chuỗi loại bước) không ảnh hưởng các yêu cầu đang chạy. _(v0.6 — `QĐ-28d`)_ Đổi **người giữ vai** — Người duyệt chi, người thay thế khi xung đột, người duyệt dự phòng ở gốc — thì bước đang chờ được xác định lại theo `BR-13.9`, SLA không đặt lại |
+| BR-38.1 | Nhật ký kiểm toán chỉ ghi thêm, không sửa không xóa                                                                                                                                                                                                                                   |
+| BR-38.2 | Tác vụ nền thất bại phải hiện lên, không im lặng bỏ qua                                                                                                                                                                                                                               |
 
 **Xong khi:**
-- **F-37** — mỗi vai trò chỉ làm được đúng những việc thuộc vai trò đó; **tám** nguyên tắc phân tách trách nhiệm đều có ít nhất một trường hợp bị hệ thống chặn *(sáu tới v0.4)*. *(v0.5)* Quản trị hệ thống cấu hình thêm **Người duyệt chi** và **nội dung thông báo theo dõi có đánh phiên bản**; cấu hình không phải phê duyệt.
+
+- **F-37** — mỗi vai trò chỉ làm được đúng những việc thuộc vai trò đó; **tám** nguyên tắc phân tách trách nhiệm đều có ít nhất một trường hợp bị hệ thống chặn _(sáu tới v0.4)_. _(v0.5)_ Quản trị hệ thống cấu hình thêm **Người duyệt chi** và **nội dung thông báo theo dõi có đánh phiên bản**; cấu hình không phải phê duyệt.
 - **F-38** — mọi thay đổi có hậu quả đều truy được về một dòng nhật ký, và mọi tác vụ nền thất bại đều hiển thị được, không có tác vụ nào hỏng trong im lặng.
 
 ---
@@ -2053,14 +2056,14 @@ sequenceDiagram
 
 **Quy tắc nghiệp vụ:**
 
-| Mã      | Nội dung                                                                                                                          |
-| ------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| BR-42.1 | Đây **không phải tính năng tùy chọn**. *(Sửa ở v0.5:)* Nó là **biện pháp thiết kế** hiện thực yêu cầu *"người lao động biết rõ biện pháp đó"* của **Điều 25 khoản 3 Luật 91/2025/QH15, đã đọc nguyên văn**. Tài liệu **không** khẳng định có nó thì việc thu thập đã hợp pháp — xem BRD mục 7.7.7 |
-| BR-42.2 | Không cho ghi dữ liệu trước khi thông báo được ghi nhận                                                                           |
-| BR-42.3 | Nhân viên được cấp suất **sau** thời điểm thông báo cũng nhận thông báo tại thời điểm được cấp                                    |
-| BR-42.4 | *(mới ở v0.5 — `QĐ-20`)* Với **bộ thu thập trên thiết bị**, thông báo **đơn thuần là không đủ**: nhân viên phải **bấm xác nhận chủ động**, hệ thống lưu **phiên bản nội dung thông báo và thời điểm**. Chưa xác nhận thì **không nhận dữ liệu** từ thiết bị đó — BRD `FR-4.18`, `INV-17` |
-| BR-42.5 | *(mới ở v0.5)* Nội dung thông báo đổi ⟹ **phiên bản mới** ⟹ nhân viên phải xác nhận lại trước khi thiết bị tiếp tục gửi dữ liệu |
-| BR-42.6 | *(mới ở v0.5)* Nhân viên có **nút yêu cầu dừng thu thập**; yêu cầu đi theo quy trình quyền chủ thể dữ liệu (`F-40`, BRD `FR-10.5`) |
+| Mã      | Nội dung                                                                                                                                                                                                                                                                                          |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-42.1 | Đây **không phải tính năng tùy chọn**. _(Sửa ở v0.5:)_ Nó là **biện pháp thiết kế** hiện thực yêu cầu _"người lao động biết rõ biện pháp đó"_ của **Điều 25 khoản 3 Luật 91/2025/QH15, đã đọc nguyên văn**. Tài liệu **không** khẳng định có nó thì việc thu thập đã hợp pháp — xem BRD mục 7.7.7 |
+| BR-42.2 | Không cho ghi dữ liệu trước khi thông báo được ghi nhận                                                                                                                                                                                                                                           |
+| BR-42.3 | Nhân viên được cấp suất **sau** thời điểm thông báo cũng nhận thông báo tại thời điểm được cấp                                                                                                                                                                                                    |
+| BR-42.4 | _(mới ở v0.5 — `QĐ-20`)_ Với **bộ thu thập trên thiết bị**, thông báo **đơn thuần là không đủ**: nhân viên phải **bấm xác nhận chủ động**, hệ thống lưu **phiên bản nội dung thông báo và thời điểm**. Chưa xác nhận thì **không nhận dữ liệu** từ thiết bị đó — BRD `FR-4.18`, `INV-17`          |
+| BR-42.5 | _(mới ở v0.5)_ Nội dung thông báo đổi ⟹ **phiên bản mới** ⟹ nhân viên phải xác nhận lại trước khi thiết bị tiếp tục gửi dữ liệu                                                                                                                                                                   |
+| BR-42.6 | _(mới ở v0.5)_ Nhân viên có **nút yêu cầu dừng thu thập**; yêu cầu đi theo quy trình quyền chủ thể dữ liệu (`F-40`, BRD `FR-10.5`)                                                                                                                                                                |
 
 **Xong khi:** không có dữ liệu hoạt động nào được ghi cho một ứng dụng mà chưa có bản ghi thông báo tương ứng.
 
@@ -2075,7 +2078,7 @@ sequenceDiagram
 
 **Nguyên tắc phân định:**
 
-> **Dữ liệu nội bộ đã qua quy trình phê duyệt là nguồn chân lý về *ý định*. Dữ liệu từ nhà cung cấp là nguồn chân lý về *thực tế*. Khi hai thứ lệch nhau, đó là một sự kiện nghiệp vụ cần người xử lý, không phải lỗi dữ liệu cần tự sửa.**
+> **Dữ liệu nội bộ đã qua quy trình phê duyệt là nguồn chân lý về _ý định_. Dữ liệu từ nhà cung cấp là nguồn chân lý về _thực tế_. Khi hai thứ lệch nhau, đó là một sự kiện nghiệp vụ cần người xử lý, không phải lỗi dữ liệu cần tự sửa.**
 
 **Bảy tình huống:**
 
@@ -2101,199 +2104,198 @@ sequenceDiagram
 
 **Xong khi:** mọi mâu thuẫn đều có một quyết định của người thật được ghi nhận.
 
-
 ### 7.6. F-44 · Xóa dữ liệu quá hạn lưu giữ theo chính sách
 
 > **Phân biệt với `F-41` — hai luồng, hai trigger, không thay nhau được:**
 >
-> | | `F-41` | `F-44` |
-> | --- | --- | --- |
-> | **Nguồn** | `FR-10.6` | **`FR-10.3`** |
-> | **Kích hoạt** | Nhân viên chuyển sang *đã nghỉ việc* | **Tác vụ chạy hằng ngày**, không gắn sự kiện nhân sự |
-> | **Đối tượng** | Người **đã nghỉ** | **Mọi** chủ thể dữ liệu, gồm người **đang làm việc** |
-> | **Mốc** | 30 ngày sau ngày làm việc cuối | **6 tháng** *(hoạt động chi tiết)* · **24 tháng** *(tổng hợp, bằng chứng discovery)* |
-> | **Thuộc** | `MF-1` · `WF-07` | `MF-0` · không phải workflow *(Business Workflows mục 2.3)* |
+> |               | `F-41`                               | `F-44`                                                                               |
+> | ------------- | ------------------------------------ | ------------------------------------------------------------------------------------ |
+> | **Nguồn**     | `FR-10.6`                            | **`FR-10.3`**                                                                        |
+> | **Kích hoạt** | Nhân viên chuyển sang _đã nghỉ việc_ | **Tác vụ chạy hằng ngày**, không gắn sự kiện nhân sự                                 |
+> | **Đối tượng** | Người **đã nghỉ**                    | **Mọi** chủ thể dữ liệu, gồm người **đang làm việc**                                 |
+> | **Mốc**       | 30 ngày sau ngày làm việc cuối       | **6 tháng** _(hoạt động chi tiết)_ · **24 tháng** _(tổng hợp, bằng chứng discovery)_ |
+> | **Thuộc**     | `MF-1` · `WF-07`                     | `MF-0` · không phải workflow _(Business Workflows mục 2.3)_                          |
 >
 > Hai mốc của **cùng một bản ghi hoạt động chi tiết** chạy song song; **cái nào đến trước thì cái đó xóa** (BRD mục 7.5). Với người đã nghỉ, mốc 30 ngày gần như luôn đến trước — nhưng `F-44` vẫn phải phủ, vì người **chưa** nghỉ không có mốc nào khác.
 
-|                    |                                                                                        |
-| ------------------ | -------------------------------------------------------------------------------------- |
-| **Mục đích**       | Không giữ dữ liệu lâu hơn chính sách đã công bố, và chứng minh được điều đó            |
-| **Kích hoạt bởi**  | Tác vụ chạy hằng ngày                                                                  |
+|                    |                                                                                         |
+| ------------------ | --------------------------------------------------------------------------------------- |
+| **Mục đích**       | Không giữ dữ liệu lâu hơn chính sách đã công bố, và chứng minh được điều đó             |
+| **Kích hoạt bởi**  | Tác vụ chạy hằng ngày                                                                   |
 | **Tiền điều kiện** | Quản trị hệ thống đã cấu hình chính sách lưu giữ (`F-37`); mọi bản ghi có mốc thời gian |
 
 **Năm lớp dữ liệu trong phạm vi chính sách và cách xử lý — theo BRD mục 7.5, không diễn giải thêm:**
 
-| Lớp dữ liệu                                                | Thời hạn                                                   | Hành động          |
-| ---------------------------------------------------------- | ---------------------------------------------------------- | ------------------ |
-| Bản ghi hoạt động chi tiết theo ngày — **mọi ứng dụng**    | **6 tháng**, hoặc 30 ngày sau ngày làm việc cuối *(`F-41`)* | Xóa thật           |
-| Bản ghi hoạt động của **nhóm dịch vụ liên lạc**            | Như trên; chỉ phát sinh khi doanh nghiệp **chủ động bật** thu thập | Xóa thật   |
-| Dữ liệu tổng hợp **đã phi định danh** theo ứng dụng, đơn vị | **24 tháng**                                               | Xóa thật           |
-| Bằng chứng discovery từ sao kê, hóa đơn                    | **24 tháng**                                               | Xóa thật           |
-| **Nhật ký kiểm toán**                                      | Theo pháp luật kế toán, kiểm toán và nội quy doanh nghiệp  | ⛔ **KHÔNG xóa**   |
+| Lớp dữ liệu                                                 | Thời hạn                                                           | Hành động        |
+| ----------------------------------------------------------- | ------------------------------------------------------------------ | ---------------- |
+| Bản ghi hoạt động chi tiết theo ngày — **mọi ứng dụng**     | **6 tháng**, hoặc 30 ngày sau ngày làm việc cuối _(`F-41`)_        | Xóa thật         |
+| Bản ghi hoạt động của **nhóm dịch vụ liên lạc**             | Như trên; chỉ phát sinh khi doanh nghiệp **chủ động bật** thu thập | Xóa thật         |
+| Dữ liệu tổng hợp **đã phi định danh** theo ứng dụng, đơn vị | **24 tháng**                                                       | Xóa thật         |
+| Bằng chứng discovery từ sao kê, hóa đơn                     | **24 tháng**                                                       | Xóa thật         |
+| **Nhật ký kiểm toán**                                       | Theo pháp luật kế toán, kiểm toán và nội quy doanh nghiệp          | ⛔ **KHÔNG xóa** |
 
 > ⚠️ **Hai thứ khác nhau, đừng gộp — sửa 09/09/2026 sau kiểm chéo (`UF-RET-01`):**
 >
-> | | Là gì | `F-44` làm gì | Nguồn |
-> | --- | --- | --- | --- |
-> | **Bằng chứng discovery từ sao kê, hóa đơn** | Dữ liệu import của phân hệ phát hiện ngoài danh mục *(BRD mục 5.6, `FR-6.3`)* | **Xóa thật ở mốc 24 tháng.** Đây **không** phải ngoại lệ, kể cả khi bản ghi là một dòng hóa đơn | BRD mục 7.5, hàng cuối bảng lưu giữ |
-> | **Hồ sơ tài chính của phân hệ hợp đồng và chi tiêu** — hợp đồng, tệp hóa đơn/thanh toán đính kèm, thuê bao, bản ghi chi phí | Dữ liệu doanh nghiệp của phân hệ 5.1 và 5.5 *(BRD mục 7.7.2)* | **Không quét tới** — chúng **không nằm trong** bảng lưu giữ BRD mục 7.5, nên không có mốc để xóa. Đây là *ngoài phạm vi chính sách*, **không** phải *được miễn xóa* | BRD mục 7.5 *(không liệt kê)* và mục 7.7.2 |
+> |                                                                                                                             | Là gì                                                                         | `F-44` làm gì                                                                                                                                                       | Nguồn                                      |
+> | --------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+> | **Bằng chứng discovery từ sao kê, hóa đơn**                                                                                 | Dữ liệu import của phân hệ phát hiện ngoài danh mục _(BRD mục 5.6, `FR-6.3`)_ | **Xóa thật ở mốc 24 tháng.** Đây **không** phải ngoại lệ, kể cả khi bản ghi là một dòng hóa đơn                                                                     | BRD mục 7.5, hàng cuối bảng lưu giữ        |
+> | **Hồ sơ tài chính của phân hệ hợp đồng và chi tiêu** — hợp đồng, tệp hóa đơn/thanh toán đính kèm, thuê bao, bản ghi chi phí | Dữ liệu doanh nghiệp của phân hệ 5.1 và 5.5 _(BRD mục 7.7.2)_                 | **Không quét tới** — chúng **không nằm trong** bảng lưu giữ BRD mục 7.5, nên không có mốc để xóa. Đây là _ngoài phạm vi chính sách_, **không** phải _được miễn xóa_ | BRD mục 7.5 _(không liệt kê)_ và mục 7.7.2 |
 >
-> **Ngoại lệ được ghi trong chính sách chỉ có một: nhật ký kiểm toán** — BRD mục 7.5 ghi *"chỉ ghi thêm; **không** xóa theo chính sách này"*. Muốn đặt mốc lưu giữ cho nhóm hồ sơ tài chính thì phải có **chính sách riêng, nêu tên loại hồ sơ, phạm vi và nguồn** — `F-44` không tự đặt. Đây là đồng bộ đặc tả thiết kế, **không** phải kết luận pháp lý.
+> **Ngoại lệ được ghi trong chính sách chỉ có một: nhật ký kiểm toán** — BRD mục 7.5 ghi _"chỉ ghi thêm; **không** xóa theo chính sách này"_. Muốn đặt mốc lưu giữ cho nhóm hồ sơ tài chính thì phải có **chính sách riêng, nêu tên loại hồ sơ, phạm vi và nguồn** — `F-44` không tự đặt. Đây là đồng bộ đặc tả thiết kế, **không** phải kết luận pháp lý.
 
 **Các bước:**
 
-| #   | Ai  | Làm gì                                          | Hệ thống phản hồi                                                              |
-| --- | --- | ----------------------------------------------- | ------------------------------------------------------------------------------ |
-| 1   | HT  | Quét từng lớp dữ liệu theo mốc riêng của lớp đó | Lập danh sách bản ghi quá hạn, tách theo lớp                                   |
-| 2   | HT  | —                                               | Xóa thật các bản ghi quá hạn                                                   |
+| #   | Ai  | Làm gì                                          | Hệ thống phản hồi                                                                                                                                   |
+| --- | --- | ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | HT  | Quét từng lớp dữ liệu theo mốc riêng của lớp đó | Lập danh sách bản ghi quá hạn, tách theo lớp                                                                                                        |
+| 2   | HT  | —                                               | Xóa thật các bản ghi quá hạn                                                                                                                        |
 | 3   | HT  | —                                               | **Giữ nguyên nhật ký kiểm toán** — ngoại lệ duy nhất của chính sách. Không chạm hồ sơ tài chính phân hệ 5.1/5.5 vì chúng nằm **ngoài** bảng lưu giữ |
-| 4   | HT  | —                                               | Ghi nhật ký: **số bản ghi đã xóa** theo từng lớp, thời điểm thực hiện          |
-| 5   | QT  | Xem trạng thái tác vụ nền                       | Hiện lần chạy gần nhất, kết quả, số bản ghi xử lý và lỗi — dùng chung `F-38`   |
+| 4   | HT  | —                                               | Ghi nhật ký: **số bản ghi đã xóa** theo từng lớp, thời điểm thực hiện                                                                               |
+| 5   | QT  | Xem trạng thái tác vụ nền                       | Hiện lần chạy gần nhất, kết quả, số bản ghi xử lý và lỗi — dùng chung `F-38`                                                                        |
 
 **Quy tắc nghiệp vụ:**
 
-| Mã      | Nội dung                                                                                                                                                   |
-| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| BR-44.1 | Mốc **6 tháng** áp cho **mọi** nhân viên, không chỉ người đã nghỉ. Người đang làm việc vẫn được xóa dữ liệu hoạt động cũ hơn mốc                          |
-| BR-44.2 | Xóa là **xóa thật**, không đánh dấu ẩn và không "phi định danh" bằng cách chỉ đổi tên hiển thị                                                             |
+| Mã      | Nội dung                                                                                                                                                                                                                                                                                                                                                    |
+| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-44.1 | Mốc **6 tháng** áp cho **mọi** nhân viên, không chỉ người đã nghỉ. Người đang làm việc vẫn được xóa dữ liệu hoạt động cũ hơn mốc                                                                                                                                                                                                                            |
+| BR-44.2 | Xóa là **xóa thật**, không đánh dấu ẩn và không "phi định danh" bằng cách chỉ đổi tên hiển thị                                                                                                                                                                                                                                                              |
 | BR-44.3 | **Ngoại lệ duy nhất của chính sách này là nhật ký kiểm toán** — chỉ ghi thêm, không xóa (BRD mục 7.5). **Bằng chứng discovery từ sao kê và hóa đơn KHÔNG phải ngoại lệ**: vẫn xóa thật ở mốc 24 tháng. Hồ sơ tài chính của phân hệ 5.1/5.5 nằm ngoài bảng lưu giữ nên tác vụ này không quét tới; đặt mốc cho chúng cần một chính sách riêng có tên và nguồn |
-| BR-44.4 | Mỗi lần chạy ghi **số bản ghi đã xóa theo từng lớp** và thời điểm — đây là bằng chứng đáp ứng `FR-10.3`, không phải log kỹ thuật                           |
-| BR-44.5 | Muốn giữ lâu hơn mốc đã công bố thì phải có **thỏa thuận** trong hợp đồng lao động hoặc chính sách nội bộ đã thông báo, không chỉ đổi cấu hình (`BR-41.4`) |
+| BR-44.4 | Mỗi lần chạy ghi **số bản ghi đã xóa theo từng lớp** và thời điểm — đây là bằng chứng đáp ứng `FR-10.3`, không phải log kỹ thuật                                                                                                                                                                                                                            |
+| BR-44.5 | Muốn giữ lâu hơn mốc đã công bố thì phải có **thỏa thuận** trong hợp đồng lao động hoặc chính sách nội bộ đã thông báo, không chỉ đổi cấu hình (`BR-41.4`)                                                                                                                                                                                                  |
 
 **Ngoại lệ:**
 
-| Tình huống                                                     | Xử lý                                                                                     |
-| -------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Tình huống                                                    | Xử lý                                                                                         |
+| ------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
 | Bản ghi vừa quá hạn 6 tháng nhưng người đó cũng vừa nghỉ việc | Không xóa hai lần; lớp dữ liệu chỉ có một trạng thái, mốc nào đến trước thì lần chạy đó xử lý |
-| Tác vụ chạy thất bại                                           | Nổi lên bảng trạng thái tác vụ nền, **không im lặng bỏ qua** (`BR-38.2`)                  |
-| Doanh nghiệp chưa bật thu thập cho nhóm dịch vụ liên lạc       | Không có dữ liệu loại đó để xóa; không coi là lỗi                                         |
+| Tác vụ chạy thất bại                                          | Nổi lên bảng trạng thái tác vụ nền, **không im lặng bỏ qua** (`BR-38.2`)                      |
+| Doanh nghiệp chưa bật thu thập cho nhóm dịch vụ liên lạc      | Không có dữ liệu loại đó để xóa; không coi là lỗi                                             |
 
 **Xong khi:** không còn bản ghi nào cũ hơn mốc lưu giữ của lớp mình — **kể cả bằng chứng discovery từ sao kê, hóa đơn quá 24 tháng**; **nhật ký kiểm toán vẫn nguyên vẹn**; hồ sơ tài chính của phân hệ 5.1/5.5 không bị tác vụ này đụng tới vì nằm ngoài bảng lưu giữ; và mỗi lần chạy đều có con số bản ghi đã xóa theo từng lớp để trình bày.
 
 ---
 
-### 7.7. F-45 · Triển khai và vận hành tiện ích trình duyệt trên thiết bị công ty *(mới ở v0.5 — `QĐ-20`)*
+### 7.7. F-45 · Triển khai và vận hành tiện ích trình duyệt trên thiết bị công ty _(mới ở v0.5 — `QĐ-20`)_
 
-|                    |                                                                                                   |
-| ------------------ | ------------------------------------------------------------------------------------------------- |
-| **Mục đích**       | Biết nhân viên **có thật sự mở** SaaS công ty đang trả tiền, mà máy chủ không bao giờ nhận dữ liệu vượt mục đích |
-| **Kích hoạt bởi**  | IT đăng ký một thiết bị công ty cho một nhân viên; sau đó tiện ích gửi bản tổng hợp mỗi ngày      |
-| **Tiền điều kiện** | Doanh nghiệp quản lý được trình duyệt trên máy công ty cấp (BRD `GĐ-9`); đã có danh mục và từ điển nhà cung cấp; nội dung thông báo theo dõi đã được cấu hình (`F-37`) |
-| **Cách cài trong demo** *(v0.6 — `QĐ-28b`)* | Tiện ích nạp bằng **Developer mode → Load unpacked** trên máy thành viên nhóm. **Cài bắt buộc** qua chính sách trình duyệt được quản lý là **thiết kế triển khai** tại doanh nghiệp — **chưa** triển khai hay kiểm chứng live (BRD `OQ-18`) |
+|                                             |                                                                                                                                                                                                                                             |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Mục đích**                                | Biết nhân viên **có thật sự mở** SaaS công ty đang trả tiền, mà máy chủ không bao giờ nhận dữ liệu vượt mục đích                                                                                                                            |
+| **Kích hoạt bởi**                           | IT đăng ký một thiết bị công ty cho một nhân viên; sau đó tiện ích gửi bản tổng hợp mỗi ngày                                                                                                                                                |
+| **Tiền điều kiện**                          | Doanh nghiệp quản lý được trình duyệt trên máy công ty cấp (BRD `GĐ-9`); đã có danh mục và từ điển nhà cung cấp; nội dung thông báo theo dõi đã được cấu hình (`F-37`)                                                                      |
+| **Cách cài trong demo** _(v0.6 — `QĐ-28b`)_ | Tiện ích nạp bằng **Developer mode → Load unpacked** trên máy thành viên nhóm. **Cài bắt buộc** qua chính sách trình duyệt được quản lý là **thiết kế triển khai** tại doanh nghiệp — **chưa** triển khai hay kiểm chứng live (BRD `OQ-18`) |
 
 **Các bước:**
 
-| #   | Ai  | Làm gì                                                                 | Hệ thống phản hồi                                                                                     |
-| --- | --- | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| 1   | IT  | Đăng ký thiết bị công ty ↔ nhân viên, có ngày hiệu lực                  | Ghi đăng ký; **chưa** nhận dữ liệu từ thiết bị                                                         |
-| 2   | HT  | —                                                                      | Sinh **danh sách cho phép**: tên miền của SaaS trong danh mục và từ điển, **trừ mọi ứng dụng mang cờ liên lạc** |
-| 3   | HT  | —                                                                      | Gửi thông báo theo dõi cho nhân viên theo `F-42`                                                        |
-| 4   | NV  | Đọc thông báo và **bấm xác nhận**                                       | Lưu phiên bản nội dung và thời điểm; mở cổng nhận dữ liệu cho thiết bị                                 |
-| 5   | HT  | *(tiện ích trên máy)* Đo thời gian tab thuộc danh sách đang ở phía trước khi trình duyệt không rảnh | **Bỏ ngay trên máy** mọi tên miền ngoài danh sách, URL đầy đủ, tiêu đề, nội dung                    |
-| 6   | HT  | *(tiện ích trên máy)* Gửi bản tổng hợp theo ngày: thiết bị, tên miền, ngày, số phút làm tròn | Cổng nhận kiểm tra: thiết bị đã đăng ký, nhân viên đã xác nhận, không có trường ngoài lược đồ — sai thì **từ chối** |
-| 7   | HT  | —                                                                      | Đưa vào nguồn usage theo `F-17` (khớp danh tính, cửa sổ bao phủ, định nghĩa hoạt động)                 |
-| 8   | IT  | Xem trạng thái bộ thu thập                                             | Số thiết bị đã đăng ký, đã xác nhận, lần gửi gần nhất, số bản ghi bị từ chối và lý do                  |
+| #   | Ai  | Làm gì                                                                                              | Hệ thống phản hồi                                                                                                   |
+| --- | --- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| 1   | IT  | Đăng ký thiết bị công ty ↔ nhân viên, có ngày hiệu lực                                              | Ghi đăng ký; **chưa** nhận dữ liệu từ thiết bị                                                                      |
+| 2   | HT  | —                                                                                                   | Sinh **danh sách cho phép**: tên miền của SaaS trong danh mục và từ điển, **trừ mọi ứng dụng mang cờ liên lạc**     |
+| 3   | HT  | —                                                                                                   | Gửi thông báo theo dõi cho nhân viên theo `F-42`                                                                    |
+| 4   | NV  | Đọc thông báo và **bấm xác nhận**                                                                   | Lưu phiên bản nội dung và thời điểm; mở cổng nhận dữ liệu cho thiết bị                                              |
+| 5   | HT  | _(tiện ích trên máy)_ Đo thời gian tab thuộc danh sách đang ở phía trước khi trình duyệt không rảnh | **Bỏ ngay trên máy** mọi tên miền ngoài danh sách, URL đầy đủ, tiêu đề, nội dung                                    |
+| 6   | HT  | _(tiện ích trên máy)_ Gửi bản tổng hợp theo ngày: thiết bị, tên miền, ngày, số phút làm tròn        | Cổng nhận kiểm tra: thiết bị đã đăng ký, nhân viên đã xác nhận, không có trường ngoài lược đồ — sai thì **từ chối** |
+| 7   | HT  | —                                                                                                   | Đưa vào nguồn usage theo `F-17` (khớp danh tính, cửa sổ bao phủ, định nghĩa hoạt động)                              |
+| 8   | IT  | Xem trạng thái bộ thu thập                                                                          | Số thiết bị đã đăng ký, đã xác nhận, lần gửi gần nhất, số bản ghi bị từ chối và lý do                               |
 
 **Quy tắc nghiệp vụ:**
 
-| Mã      | Nội dung |
-| ------- | -------- |
-| BR-45.1 | **Chưa xác nhận thì không có dữ liệu.** Không có đường nào để dữ liệu từ thiết bị vào hệ thống trước bước 4 — BRD `INV-17` |
-| BR-45.2 | **Lọc tại nguồn là bắt buộc**, lọc ở máy chủ chỉ là lớp phòng thủ thứ hai — BRD `ADR-13` |
-| BR-45.3 | **Không bao giờ** thu: URL đầy đủ, tiêu đề trang, nội dung, phím bấm, ảnh màn hình, vị trí, tên miền ngoài danh sách |
-| BR-45.4 | Ứng dụng mang cờ liên lạc **không bao giờ** nằm trong danh sách cho phép — `ADR-10` giữ nguyên |
-| BR-45.5 | Định nghĩa hoạt động khai báo theo `FR-4.16`: đang ở phía trước **và** không rảnh, cộng dồn **≥ N phút/ngày** |
-| BR-45.6 | Chỉ dùng cho tối ưu license. **Không** có màn hình xếp hạng thời gian dùng theo người; Manager chỉ thấy *có / không hoạt động* — BRD `SoD-2`, `ĐK-09` |
-| BR-45.7 | Nhân viên nghỉ việc ⟹ đăng ký thiết bị hết hiệu lực; dữ liệu xóa theo `F-41`, `F-44` |
+| Mã      | Nội dung                                                                                                                                              |
+| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-45.1 | **Chưa xác nhận thì không có dữ liệu.** Không có đường nào để dữ liệu từ thiết bị vào hệ thống trước bước 4 — BRD `INV-17`                            |
+| BR-45.2 | **Lọc tại nguồn là bắt buộc**, lọc ở máy chủ chỉ là lớp phòng thủ thứ hai — BRD `ADR-13`                                                              |
+| BR-45.3 | **Không bao giờ** thu: URL đầy đủ, tiêu đề trang, nội dung, phím bấm, ảnh màn hình, vị trí, tên miền ngoài danh sách                                  |
+| BR-45.4 | Ứng dụng mang cờ liên lạc **không bao giờ** nằm trong danh sách cho phép — `ADR-10` giữ nguyên                                                        |
+| BR-45.5 | Định nghĩa hoạt động khai báo theo `FR-4.16`: đang ở phía trước **và** không rảnh, cộng dồn **≥ N phút/ngày**                                         |
+| BR-45.6 | Chỉ dùng cho tối ưu license. **Không** có màn hình xếp hạng thời gian dùng theo người; Manager chỉ thấy _có / không hoạt động_ — BRD `SoD-2`, `ĐK-09` |
+| BR-45.7 | Nhân viên nghỉ việc ⟹ đăng ký thiết bị hết hiệu lực; dữ liệu xóa theo `F-41`, `F-44`                                                                  |
 
 **Ngoại lệ:**
 
-| Tình huống                                   | Xử lý                                                                          |
-| -------------------------------------------- | ------------------------------------------------------------------------------ |
-| Nhân viên không xác nhận                     | Không nhận dữ liệu; ứng dụng của người đó chỉ còn G1/G2 từ nguồn nhà cung cấp; hiện trên trạng thái bộ thu thập |
-| Nhân viên yêu cầu dừng thu thập              | Đi theo `F-40`; khi xử lý xong thì thiết bị ngừng được nhận dữ liệu            |
-| Nội dung thông báo đổi                       | Phiên bản mới; nhân viên phải xác nhận lại (`BR-42.5`)                        |
-| Thiết bị không gửi dữ liệu nhiều ngày        | Không suy ra *không hoạt động*; cửa sổ bao phủ của nguồn dừng ở ngày gửi cuối |
-| Tiện ích bị gỡ | Trong demo *load unpacked*, người dùng gỡ được — ghi thành điểm mù, không kết luận *không hoạt động*. Việc cài bắt buộc chặn gỡ trên trình duyệt được quản lý là thiết kế triển khai, chưa kiểm chứng (`OQ-18`) *(sửa ở v0.6)* |
+| Tình huống                            | Xử lý                                                                                                                                                                                                                          |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Nhân viên không xác nhận              | Không nhận dữ liệu; ứng dụng của người đó chỉ còn G1/G2 từ nguồn nhà cung cấp; hiện trên trạng thái bộ thu thập                                                                                                                |
+| Nhân viên yêu cầu dừng thu thập       | Đi theo `F-40`; khi xử lý xong thì thiết bị ngừng được nhận dữ liệu                                                                                                                                                            |
+| Nội dung thông báo đổi                | Phiên bản mới; nhân viên phải xác nhận lại (`BR-42.5`)                                                                                                                                                                         |
+| Thiết bị không gửi dữ liệu nhiều ngày | Không suy ra _không hoạt động_; cửa sổ bao phủ của nguồn dừng ở ngày gửi cuối                                                                                                                                                  |
+| Tiện ích bị gỡ                        | Trong demo _load unpacked_, người dùng gỡ được — ghi thành điểm mù, không kết luận _không hoạt động_. Việc cài bắt buộc chặn gỡ trên trình duyệt được quản lý là thiết kế triển khai, chưa kiểm chứng (`OQ-18`) _(sửa ở v0.6)_ |
 
 **Xong khi:** không có bản ghi nào từ thiết bị chưa đăng ký hoặc nhân viên chưa xác nhận; kiểm thử gửi tên miền ngoài danh sách, ứng dụng liên lạc, hay trường ngoài lược đồ **đều bị chặn**; và ít nhất một ứng dụng chỉ có G1/G2 từ nhà cung cấp được đánh giá G3/G4 bằng dữ liệu tiện ích thật.
 
 ---
 
-### 7.8. F-46 · Phát hiện SaaS ngoài danh mục từ bộ thu thập *(mới ở v0.5 — `QĐ-20`)*
+### 7.8. F-46 · Phát hiện SaaS ngoài danh mục từ bộ thu thập _(mới ở v0.5 — `QĐ-20`)_
 
-|                    |                                                                          |
-| ------------------ | ------------------------------------------------------------------------ |
-| **Mục đích**       | Thêm nguồn bằng chứng thứ ba *"ai đang thực sự mở"* cho các SaaS **đã biết** nhưng chưa được duyệt |
-| **Kích hoạt bởi**  | Tác vụ tổng hợp dữ liệu bộ thu thập, chạy theo lịch                     |
+|                    |                                                                                                       |
+| ------------------ | ----------------------------------------------------------------------------------------------------- |
+| **Mục đích**       | Thêm nguồn bằng chứng thứ ba _"ai đang thực sự mở"_ cho các SaaS **đã biết** nhưng chưa được duyệt    |
+| **Kích hoạt bởi**  | Tác vụ tổng hợp dữ liệu bộ thu thập, chạy theo lịch                                                   |
 | **Tiền điều kiện** | `F-45` đang chạy; tên miền nằm trong **từ điển nhà cung cấp** nhưng **không** thuộc danh mục đã duyệt |
 
-| #   | Ai  | Làm gì                             | Hệ thống phản hồi                                                                    |
-| --- | --- | ---------------------------------- | ------------------------------------------------------------------------------------ |
+| #   | Ai  | Làm gì                                                  | Hệ thống phản hồi                                                                              |
+| --- | --- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
 | 1   | HT  | Tổng hợp tên miền trong từ điển mà không thuộc danh mục | Tạo hoặc cập nhật bản ghi phát hiện theo nhà cung cấp — **dùng chung** quy trình `F-31`/`F-32` |
-| 2   | HT  | —                                  | Ghi bằng chứng: số nhân viên đã xác nhận có mở, khoảng ngày — **không** ghi URL      |
-| 3   | IT  | Xử lý như `F-31`/`F-32`            | Đã duyệt → `F-34`; chưa duyệt; báo nhầm                                              |
+| 2   | HT  | —                                                       | Ghi bằng chứng: số nhân viên đã xác nhận có mở, khoảng ngày — **không** ghi URL                |
+| 3   | IT  | Xử lý như `F-31`/`F-32`                                 | Đã duyệt → `F-34`; chưa duyệt; báo nhầm                                                        |
 
 **Quy tắc nghiệp vụ:**
 
-| Mã      | Nội dung |
-| ------- | -------- |
+| Mã      | Nội dung                                                                                                                                                                                    |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | BR-46.1 | **Chỉ tên miền đã có trong từ điển** mới được xét. Tên miền lạ chưa có trong từ điển đã bị bỏ ngay trên máy (`BR-45.3`), nên nguồn này **mù với SaaS hoàn toàn mới** — ghi rõ khi trình bày |
-| BR-46.2 | Một nhà cung cấp chỉ có **một** bản ghi phát hiện đang mở, dù bằng chứng đến từ ba nguồn — BRD `INV-13` |
-| BR-46.3 | Bản ghi phát hiện **không phải kết luận vi phạm** — BRD `FR-6.6` |
+| BR-46.2 | Một nhà cung cấp chỉ có **một** bản ghi phát hiện đang mở, dù bằng chứng đến từ ba nguồn — BRD `INV-13`                                                                                     |
+| BR-46.3 | Bản ghi phát hiện **không phải kết luận vi phạm** — BRD `FR-6.6`                                                                                                                            |
 
 **Xong khi:** mỗi SaaS đã biết mà nhân viên đang mở ngoài danh mục đều có đúng một bản ghi phát hiện với bằng chứng từ bộ thu thập, và có quyết định của IT.
 
 ---
 
-### 7.9. F-47 · Xem báo cáo hiệu suất và chất lượng *(mới ở v0.5 — `QĐ-24`)*
+### 7.9. F-47 · Xem báo cáo hiệu suất và chất lượng _(mới ở v0.5 — `QĐ-24`)_
 
-|                   |                                                                   |
-| ----------------- | ----------------------------------------------------------------- |
-| **Mục đích**      | Trả lời *"hệ thống chạy có hiệu quả không, và tin được tới đâu"*  |
-| **Kích hoạt bởi** | Người dùng mở màn hình báo cáo                                    |
+|                   |                                                                  |
+| ----------------- | ---------------------------------------------------------------- |
+| **Mục đích**      | Trả lời _"hệ thống chạy có hiệu quả không, và tin được tới đâu"_ |
+| **Kích hoạt bởi** | Người dùng mở màn hình báo cáo                                   |
 
 **Nội dung theo nhóm báo cáo — BRD `FR-5.10` → `FR-5.12`:**
 
-| Nhóm | Chỉ số | Ai xem |
-| --- | --- | --- |
-| **Hiệu suất sử dụng** | `KPI-3`; số suất theo G1 → G4; **chi phí trên mỗi người dùng có hoạt động** | IT Admin; Người duyệt chi dạng tóm tắt; Manager chỉ phạm vi cấp dưới, tổng hợp |
-| **Hiệu suất quy trình** | `KPI-2` tách theo từng bước — nhu cầu, đánh giá IT, duyệt chi, cấp phát; thời gian Tài chính phản hồi và ghi nhận **đo riêng**; **tỷ lệ bước quá SLA**; `KPI-4`; **tổng hợp suất cấp theo nhánh không chi phí** *(v0.7 — `QĐ-29a`, `QĐ-29b`)* | IT Admin, Super Admin; Người duyệt chi dạng tóm tắt |
-| **Chất lượng** | `KPI-5`; `KPI-1`; tỷ lệ định danh đã khớp; độ mới từng nguồn; số sai lệch đang mở; tỷ lệ thuê bao thiếu hạn chót báo hủy; **trạng thái bộ thu thập** | IT Admin; Super Admin (gồm `KPI-5`) |
+| Nhóm                    | Chỉ số                                                                                                                                                                                                                                        | Ai xem                                                                         |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| **Hiệu suất sử dụng**   | `KPI-3`; số suất theo G1 → G4; **chi phí trên mỗi người dùng có hoạt động**                                                                                                                                                                   | IT Admin; Người duyệt chi dạng tóm tắt; Manager chỉ phạm vi cấp dưới, tổng hợp |
+| **Hiệu suất quy trình** | `KPI-2` tách theo từng bước — nhu cầu, đánh giá IT, duyệt chi, cấp phát; thời gian Tài chính phản hồi và ghi nhận **đo riêng**; **tỷ lệ bước quá SLA**; `KPI-4`; **tổng hợp suất cấp theo nhánh không chi phí** _(v0.7 — `QĐ-29a`, `QĐ-29b`)_ | IT Admin, Super Admin; Người duyệt chi dạng tóm tắt                            |
+| **Chất lượng**          | `KPI-5`; `KPI-1`; tỷ lệ định danh đã khớp; độ mới từng nguồn; số sai lệch đang mở; tỷ lệ thuê bao thiếu hạn chót báo hủy; **trạng thái bộ thu thập**                                                                                          | IT Admin; Super Admin (gồm `KPI-5`)                                            |
 
 **Quy tắc nghiệp vụ:**
 
-| Mã      | Nội dung |
-| ------- | -------- |
-| BR-47.1 | *Chi phí trên mỗi người dùng có hoạt động* **chỉ tính** cho gói theo đầu người **và** ứng dụng có nguồn phát hiện được G3/G4; không đủ điều kiện thì **ẩn kèm lý do** |
-| BR-47.2 | **Không đặt con số mục tiêu** cho KPI — BRD `OQ-10` |
-| BR-47.3 | Mọi con số bấm được để xem căn cứ tính, như `F-29` |
-| BR-47.4 | Không có báo cáo nào xếp hạng nhân viên theo thời gian sử dụng (`BR-45.6`) |
+| Mã      | Nội dung                                                                                                                                                              |
+| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-47.1 | _Chi phí trên mỗi người dùng có hoạt động_ **chỉ tính** cho gói theo đầu người **và** ứng dụng có nguồn phát hiện được G3/G4; không đủ điều kiện thì **ẩn kèm lý do** |
+| BR-47.2 | **Không đặt con số mục tiêu** cho KPI — BRD `OQ-10`                                                                                                                   |
+| BR-47.3 | Mọi con số bấm được để xem căn cứ tính, như `F-29`                                                                                                                    |
+| BR-47.4 | Không có báo cáo nào xếp hạng nhân viên theo thời gian sử dụng (`BR-45.6`)                                                                                            |
 
 **Xong khi:** mỗi vai trò chỉ thấy đúng nhóm báo cáo của mình; mọi chỉ số hiển thị kèm khoảng thời gian tính và thời điểm cập nhật, hoặc ẩn kèm lý do.
 
 ---
 
-### 7.10. F-48 · Agent trên máy công ty *(mới ở v0.5 — 📐 chỉ đặc tả)*
+### 7.10. F-48 · Agent trên máy công ty _(mới ở v0.5 — 📐 chỉ đặc tả)_
 
 > **📐 Không hiện thực trong MVP** — `QĐ-20`. Nâng lên ✅ bằng một quyết định riêng nếu còn thời gian hoặc GVHD yêu cầu. Khi đó cập nhật bảng mục 1.2 và số đếm ở Định nghĩa Phạm vi mục 5.2.
 
-|                    |                                                                         |
-| ------------------ | ----------------------------------------------------------------------- |
+|                    |                                                                                      |
+| ------------------ | ------------------------------------------------------------------------------------ |
 | **Mục đích**       | Mở rộng `F-45` sang **ứng dụng desktop** — Figma desktop, Cursor, ứng dụng văn phòng |
-| **Kích hoạt bởi**  | Như `F-45`                                                              |
-| **Tiền điều kiện** | Như `F-45`, cộng: doanh nghiệp cài được phần mềm trên máy công ty       |
+| **Kích hoạt bởi**  | Như `F-45`                                                                           |
+| **Tiền điều kiện** | Như `F-45`, cộng: doanh nghiệp cài được phần mềm trên máy công ty                    |
 
 **Khác biệt so với `F-45`, còn lại áp nguyên vẹn `BR-45.1` → `BR-45.7`:**
 
-| Mục | Agent |
-| --- | --- |
-| Quan sát | **Tên tiến trình** trong danh sách cho phép; thời gian cửa sổ ở phía trước khi máy không rảnh; danh sách phần mềm đã cài |
-| **Không bao giờ thu** | **Tiêu đề cửa sổ** *(có thể chứa tên tài liệu, nội dung tin nhắn)*, phím bấm, ảnh màn hình, tiến trình ngoài danh sách |
-| Công nghệ đã đánh giá | ActivityWatch *(MPL-2.0, lưu cục bộ, có REST API — **mặc định ghi tiêu đề cửa sổ**, nên cần bộ xuất dữ liệu bỏ tiêu đề trước khi gửi)*; osquery để kiểm kê phần mềm và tiện ích đã cài |
+| Mục                   | Agent                                                                                                                                                                                  |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Quan sát              | **Tên tiến trình** trong danh sách cho phép; thời gian cửa sổ ở phía trước khi máy không rảnh; danh sách phần mềm đã cài                                                               |
+| **Không bao giờ thu** | **Tiêu đề cửa sổ** _(có thể chứa tên tài liệu, nội dung tin nhắn)_, phím bấm, ảnh màn hình, tiến trình ngoài danh sách                                                                 |
+| Công nghệ đã đánh giá | ActivityWatch _(MPL-2.0, lưu cục bộ, có REST API — **mặc định ghi tiêu đề cửa sổ**, nên cần bộ xuất dữ liệu bỏ tiêu đề trước khi gửi)_; osquery để kiểm kê phần mềm và tiện ích đã cài |
 
-**Xong khi** *(khi được nâng lên ✅)*: đạt đủ tiêu chí của `F-45`, cộng kiểm thử chứng minh **không có tiêu đề cửa sổ nào** rời khỏi máy.
+**Xong khi** _(khi được nâng lên ✅)_: đạt đủ tiêu chí của `F-45`, cộng kiểm thử chứng minh **không có tiêu đề cửa sổ nào** rời khỏi máy.
 
 ---
 
@@ -2301,64 +2303,64 @@ sequenceDiagram
 
 Dùng để viết kịch bản kiểm thử. Cột **MF** cho biết luồng nằm ở main flow nào.
 
-| Luồng    | MF   | Coi là xong khi                                                                                                                   |
-| -------- | ---- | --------------------------------------------------------------------------------------------------------------------------------- |
-| F-01     | MF-0 | Bảng điều khiển hiển thị tổng chi phí, tổng suất và ít nhất một cảnh báo có thật                                                  |
-| F-02     | MF-1 | Nhân viên mới đăng nhập được vào mọi ứng dụng đã duyệt trong ngày đầu                                                             |
-| F-03     | MF-1 | Báo cáo chi phí tháng trước ngày chuyển vẫn hiển thị đơn vị cũ                                                                    |
-| F-04     | MF-1 | Người vừa quay lại sau nghỉ dài không xuất hiện trong hàng đợi khuyến nghị                                                        |
-| F-05     | MF-1 | Không còn suất nào gắn với người đã nghỉ; sau 30 ngày dữ liệu hoạt động đã xóa                                                    |
-| F-39     | MF-1 | Không có quyền có thời hạn nào tồn tại quá 7 ngày sau hạn mà không có quyết định                                                  |
-| F-06     | MF-0 | Ứng dụng xuất hiện trong danh mục và lịch cảnh báo gia hạn đã có mốc                                                              |
-| F-07/08  | MF-2 | Người yêu cầu nhận thông báo có quyền; đo được thời gian từng bước. *(v0.5)* `F-08`: đúng một khoản cam kết *Đang giữ*; bước duyệt chi đo riêng |
-| F-09     | MF-2 | Ứng dụng vào danh mục, hoặc có quyết định không duyệt kèm gợi ý thay thế                                                          |
-| F-10/11  | MF-2 | Có bằng chứng tài khoản đã tồn tại phía nhà cung cấp                                                                              |
-| F-12     | MF-2 | Mọi việc thất bại đều có một quyết định được ghi nhận                                                                             |
-| F-13     | MF-2 | Không bước nào bị đổi người vì nghẽn; mọi lần xác định lại truy được về sự kiện dữ liệu; khoản chi Người duyệt chi xung đột vẫn có quyết định *(v0.6)* |
-| F-14/15  | MF-2 | Suất về trạng thái trống, hoặc được ghi nhận để giảm tại kỳ gia hạn                                                               |
-| F-17     | MF-3 | Không dòng nào được ghi trước khi người dùng xác nhận                                                                             |
-| F-18     | MF-3 | Không có kết luận nào sinh từ dữ liệu chưa khớp danh tính                                                                         |
-| F-19/20  | MF-3 | Mỗi khuyến nghị kèm đủ căn cứ để phản biện được                                                                                   |
-| F-21     | MF-3 | Mọi khuyến nghị mức cần xem xét trở lên có quyết định kèm lý do trong một chu kỳ                                                  |
-| F-22/23  | MF-3 | Suất về trống, khuyến nghị đóng, tiết kiệm ghi **đúng loại**                                                                      |
-| F-26     | MF-4 | Mọi thuê bao tự gia hạn đều có quyết định trước hạn báo hủy                                                                       |
-| F-27     | MF-4 | Có bản ghi thuê bao kỳ mới, so sánh được với kỳ trước; *(v0.7)* quyết định do Người duyệt chi trên snapshot ngân sách, Tài chính ghi nhận sau |
-| F-28     | MF-4 | Mọi sai lệch có quyết định của người thật                                                                                         |
-| F-29     | MF-5 | Mọi con số bấm được để xem căn cứ tính                                                                                            |
-| F-30     | MF-5 | Dự báo hiển thị kèm đủ bốn thông tin, hoặc không hiển thị kèm lý do                                                               |
-| F-31/32  | MF-5 | Mỗi bản ghi có người chịu trách nhiệm và quyết định cuối                                                                          |
-| F-34     | MF-5 | Ứng dụng có mặt trong danh mục đầy đủ; người đang dùng có quyền chính thức                                                        |
-| F-35     | MF-5 | Mọi dòng hóa đơn ghép được về thuê bao, hoặc đánh dấu ngoài danh mục                                                              |
-| **F-36** | MF-5 | **Ngân sách còn lại luôn bằng ngân sách kỳ − thực chi − cam kết đang giữ; không khoản cam kết nào mồ côi** *(✅ từ v0.5)*            |
-| **F-37** | MF-0 | **Mỗi vai trò chỉ làm được việc thuộc vai trò đó; tám nguyên tắc phân tách trách nhiệm đều có trường hợp bị chặn** *(mới ở v0.3; tám từ v0.5)* |
-| **F-38** | MF-0 | **Mọi thay đổi có hậu quả truy được về một dòng nhật ký; không tác vụ nền nào hỏng trong im lặng** *(mới ở v0.3)*                 |
-| F-40     | MF-0 | Nhân viên nhận được file đầy đủ dữ liệu về mình; thời gian xử lý được ghi                                                         |
-| F-41     | MF-1 | Sau 30 ngày, dữ liệu hoạt động rỗng nhưng báo cáo chi phí lịch sử vẫn đúng                                                        |
-| F-42     | MF-3 | Không có dữ liệu hoạt động nào được ghi mà chưa có bản ghi thông báo; *(v0.5)* với bộ thu thập — chưa có xác nhận chủ động thì không nhận dữ liệu |
-| F-43     | MF-0 | Mọi mâu thuẫn có một quyết định của người thật                                                                                    |
-| F-44     | MF-0 | Không còn bản ghi nào cũ hơn mốc lưu giữ của lớp mình, kể cả bằng chứng discovery quá 24 tháng; nhật ký kiểm toán vẫn nguyên vẹn |
-| **F-45** | MF-3 | **Không bản ghi nào từ thiết bị chưa đăng ký hoặc chưa xác nhận; tên miền ngoài danh sách, ứng dụng liên lạc, trường ngoài lược đồ đều bị chặn** *(mới ở v0.5)* |
-| **F-46** | MF-5 | **Mỗi SaaS đã biết đang được mở ngoài danh mục có đúng một bản ghi phát hiện kèm quyết định** *(mới ở v0.5)* |
-| **F-47** | MF-5 | **Mỗi vai trò chỉ thấy đúng nhóm báo cáo của mình; chỉ số kèm khoảng tính, hoặc ẩn kèm lý do** *(mới ở v0.5)* |
+| Luồng    | MF   | Coi là xong khi                                                                                                                                                 |
+| -------- | ---- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| F-01     | MF-0 | Bảng điều khiển hiển thị tổng chi phí, tổng suất và ít nhất một cảnh báo có thật                                                                                |
+| F-02     | MF-1 | Nhân viên mới đăng nhập được vào mọi ứng dụng đã duyệt trong ngày đầu                                                                                           |
+| F-03     | MF-1 | Báo cáo chi phí tháng trước ngày chuyển vẫn hiển thị đơn vị cũ                                                                                                  |
+| F-04     | MF-1 | Người vừa quay lại sau nghỉ dài không xuất hiện trong hàng đợi khuyến nghị                                                                                      |
+| F-05     | MF-1 | Không còn suất nào gắn với người đã nghỉ; sau 30 ngày dữ liệu hoạt động đã xóa                                                                                  |
+| F-39     | MF-1 | Không có quyền có thời hạn nào tồn tại quá 7 ngày sau hạn mà không có quyết định                                                                                |
+| F-06     | MF-0 | Ứng dụng xuất hiện trong danh mục và lịch cảnh báo gia hạn đã có mốc                                                                                            |
+| F-07/08  | MF-2 | Người yêu cầu nhận thông báo có quyền; đo được thời gian từng bước. _(v0.5)_ `F-08`: đúng một khoản cam kết _Đang giữ_; bước duyệt chi đo riêng                 |
+| F-09     | MF-2 | Ứng dụng vào danh mục, hoặc có quyết định không duyệt kèm gợi ý thay thế                                                                                        |
+| F-10/11  | MF-2 | Có bằng chứng tài khoản đã tồn tại phía nhà cung cấp                                                                                                            |
+| F-12     | MF-2 | Mọi việc thất bại đều có một quyết định được ghi nhận                                                                                                           |
+| F-13     | MF-2 | Không bước nào bị đổi người vì nghẽn; mọi lần xác định lại truy được về sự kiện dữ liệu; khoản chi Người duyệt chi xung đột vẫn có quyết định _(v0.6)_          |
+| F-14/15  | MF-2 | Suất về trạng thái trống, hoặc được ghi nhận để giảm tại kỳ gia hạn                                                                                             |
+| F-17     | MF-3 | Không dòng nào được ghi trước khi người dùng xác nhận                                                                                                           |
+| F-18     | MF-3 | Không có kết luận nào sinh từ dữ liệu chưa khớp danh tính                                                                                                       |
+| F-19/20  | MF-3 | Mỗi khuyến nghị kèm đủ căn cứ để phản biện được                                                                                                                 |
+| F-21     | MF-3 | Mọi khuyến nghị mức cần xem xét trở lên có quyết định kèm lý do trong một chu kỳ                                                                                |
+| F-22/23  | MF-3 | Suất về trống, khuyến nghị đóng, tiết kiệm ghi **đúng loại**                                                                                                    |
+| F-26     | MF-4 | Mọi thuê bao tự gia hạn đều có quyết định trước hạn báo hủy                                                                                                     |
+| F-27     | MF-4 | Có bản ghi thuê bao kỳ mới, so sánh được với kỳ trước; _(v0.7)_ quyết định do Người duyệt chi trên snapshot ngân sách, Tài chính ghi nhận sau                   |
+| F-28     | MF-4 | Mọi sai lệch có quyết định của người thật                                                                                                                       |
+| F-29     | MF-5 | Mọi con số bấm được để xem căn cứ tính                                                                                                                          |
+| F-30     | MF-5 | Dự báo hiển thị kèm đủ bốn thông tin, hoặc không hiển thị kèm lý do                                                                                             |
+| F-31/32  | MF-5 | Mỗi bản ghi có người chịu trách nhiệm và quyết định cuối                                                                                                        |
+| F-34     | MF-5 | Ứng dụng có mặt trong danh mục đầy đủ; người đang dùng có quyền chính thức                                                                                      |
+| F-35     | MF-5 | Mọi dòng hóa đơn ghép được về thuê bao, hoặc đánh dấu ngoài danh mục                                                                                            |
+| **F-36** | MF-5 | **Ngân sách còn lại luôn bằng ngân sách kỳ − thực chi − cam kết đang giữ; không khoản cam kết nào mồ côi** _(✅ từ v0.5)_                                       |
+| **F-37** | MF-0 | **Mỗi vai trò chỉ làm được việc thuộc vai trò đó; tám nguyên tắc phân tách trách nhiệm đều có trường hợp bị chặn** _(mới ở v0.3; tám từ v0.5)_                  |
+| **F-38** | MF-0 | **Mọi thay đổi có hậu quả truy được về một dòng nhật ký; không tác vụ nền nào hỏng trong im lặng** _(mới ở v0.3)_                                               |
+| F-40     | MF-0 | Nhân viên nhận được file đầy đủ dữ liệu về mình; thời gian xử lý được ghi                                                                                       |
+| F-41     | MF-1 | Sau 30 ngày, dữ liệu hoạt động rỗng nhưng báo cáo chi phí lịch sử vẫn đúng                                                                                      |
+| F-42     | MF-3 | Không có dữ liệu hoạt động nào được ghi mà chưa có bản ghi thông báo; _(v0.5)_ với bộ thu thập — chưa có xác nhận chủ động thì không nhận dữ liệu               |
+| F-43     | MF-0 | Mọi mâu thuẫn có một quyết định của người thật                                                                                                                  |
+| F-44     | MF-0 | Không còn bản ghi nào cũ hơn mốc lưu giữ của lớp mình, kể cả bằng chứng discovery quá 24 tháng; nhật ký kiểm toán vẫn nguyên vẹn                                |
+| **F-45** | MF-3 | **Không bản ghi nào từ thiết bị chưa đăng ký hoặc chưa xác nhận; tên miền ngoài danh sách, ứng dụng liên lạc, trường ngoài lược đồ đều bị chặn** _(mới ở v0.5)_ |
+| **F-46** | MF-5 | **Mỗi SaaS đã biết đang được mở ngoài danh mục có đúng một bản ghi phát hiện kèm quyết định** _(mới ở v0.5)_                                                    |
+| **F-47** | MF-5 | **Mỗi vai trò chỉ thấy đúng nhóm báo cáo của mình; chỉ số kèm khoảng tính, hoặc ẩn kèm lý do** _(mới ở v0.5)_                                                   |
 
-> Bảng này **không có dòng** cho `F-16`, `F-24`, `F-48` (📐 chỉ đặc tả) và `F-25`, `F-33` (❌ ngoài phạm vi) — đúng theo phạm vi ở mục 1.2. *(v0.5 — `F-36` nay có dòng vì đã chuyển sang ✅.)*
+> Bảng này **không có dòng** cho `F-16`, `F-24`, `F-48` (📐 chỉ đặc tả) và `F-25`, `F-33` (❌ ngoài phạm vi) — đúng theo phạm vi ở mục 1.2. _(v0.5 — `F-36` nay có dòng vì đã chuyển sang ✅.)_
 
 ---
 
-## 9. Mười chỗ luồng dễ đứt *(tám tới v0.4)*
+## 9. Mười chỗ luồng dễ đứt _(tám tới v0.4)_
 
-| #   | Chỗ đứt                                 | Ở main flow nào       | Hậu quả                                                  | Cách phòng                                              |
-| --- | --------------------------------------- | --------------------- | -------------------------------------------------------- | ------------------------------------------------------- |
-| 1   | Người duyệt vắng hoặc nghẽn *(sửa ở v0.6)* | MF-2 B2.4             | Toàn bộ luồng treo, nhân viên quay lại đường tắt         | **Không** ủy quyền: SLA từng bước, nhắc, thông báo, cảnh báo backlog cho Quản trị hệ thống (`BR-13.8`); người duyệt dự phòng ở gốc khi không có quản lý |
-| 2   | Hết suất khi đã tới bước IT             | MF-2 B2.5             | Hủy phiếu bắt làm lại thì mất niềm tin vào quy trình     | Chèn bước duyệt chi vào luồng đang chạy *(v0.5; sửa v0.7)* |
-| 3   | Cấp phát thất bại rồi bị quên           | MF-2 B2.6             | Nhân viên đã được duyệt nhưng không bao giờ có tài khoản | Việc lỗi nổi lên bảng điều khiển sau 7 ngày             |
-| 4   | Import thiếu khoảng bao phủ             | MF-3 B3.1             | Kết luận sai hàng loạt mà không có dấu hiệu gì           | Bắt buộc khai; chỉ đánh giá suất nằm trong cửa sổ       |
-| 5   | Không biết nguồn hiểu "hoạt động" là gì | MF-3 B3.1             | Nhận nhiễu làm tín hiệu, kết quả phát hiện về gần 0      | Mẫu cấu hình bắt buộc khai định nghĩa hoạt động         |
-| 6   | Quản lý bị ngập thông báo               | MF-3 B3.3             | Bỏ qua toàn bộ, phân hệ mất tác dụng dù chạy đúng        | Mức theo dõi không gửi thông báo; gộp theo tuần         |
-| 7   | Khuyến nghị tách rời khỏi lịch gia hạn  | MF-3 B3.6 → MF-4 B4.2 | Phát hiện đúng nhưng không bao giờ thành tiền            | Mốc gia hạn hiển thị kèm khuyến nghị của chính thuê bao |
-| 8   | Thu thập dữ liệu trước khi thông báo    | MF-0 B0.6 → MF-3 F-42 | Mất cơ sở pháp lý cho toàn bộ phân hệ phát hiện          | F-42 chặn ghi dữ liệu trước khi có bản ghi thông báo    |
-| **9** | **Thiết bị gửi dữ liệu trước khi nhân viên xác nhận** *(v0.5)* | MF-3 F-45 | Xử lý dữ liệu nhạy cảm trái Điều 25 khoản 3 Luật 91/2025; phạt tới 3 tỷ đồng với tổ chức | Cổng nhận từ chối theo `INV-17`; kiểm thử phủ định bắt buộc |
-| **10** | **Người duyệt chi duy nhất thành nút thắt** *(v0.5)* | MF-2 B2.5b | Yêu cầu có chi phí dồn về một người, nhân viên quay lại đường tắt | Nhánh không chi phí không đi qua *(Owner xác nhận — `QĐ-29a`)*; Tài chính không nằm trên đường duyệt (`QĐ-29b`); cảnh báo backlog `BR-13.8`; KPI-2 đo riêng bước duyệt chi — chậm thì mở lại ma trận nhiều mức *(v0.6 — bỏ ủy quyền)* |
+| #      | Chỗ đứt                                                        | Ở main flow nào       | Hậu quả                                                                                  | Cách phòng                                                                                                                                                                                                                            |
+| ------ | -------------------------------------------------------------- | --------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1      | Người duyệt vắng hoặc nghẽn _(sửa ở v0.6)_                     | MF-2 B2.4             | Toàn bộ luồng treo, nhân viên quay lại đường tắt                                         | **Không** ủy quyền: SLA từng bước, nhắc, thông báo, cảnh báo backlog cho Quản trị hệ thống (`BR-13.8`); người duyệt dự phòng ở gốc khi không có quản lý                                                                               |
+| 2      | Hết suất khi đã tới bước IT                                    | MF-2 B2.5             | Hủy phiếu bắt làm lại thì mất niềm tin vào quy trình                                     | Chèn bước duyệt chi vào luồng đang chạy _(v0.5; sửa v0.7)_                                                                                                                                                                            |
+| 3      | Cấp phát thất bại rồi bị quên                                  | MF-2 B2.6             | Nhân viên đã được duyệt nhưng không bao giờ có tài khoản                                 | Việc lỗi nổi lên bảng điều khiển sau 7 ngày                                                                                                                                                                                           |
+| 4      | Import thiếu khoảng bao phủ                                    | MF-3 B3.1             | Kết luận sai hàng loạt mà không có dấu hiệu gì                                           | Bắt buộc khai; chỉ đánh giá suất nằm trong cửa sổ                                                                                                                                                                                     |
+| 5      | Không biết nguồn hiểu "hoạt động" là gì                        | MF-3 B3.1             | Nhận nhiễu làm tín hiệu, kết quả phát hiện về gần 0                                      | Mẫu cấu hình bắt buộc khai định nghĩa hoạt động                                                                                                                                                                                       |
+| 6      | Quản lý bị ngập thông báo                                      | MF-3 B3.3             | Bỏ qua toàn bộ, phân hệ mất tác dụng dù chạy đúng                                        | Mức theo dõi không gửi thông báo; gộp theo tuần                                                                                                                                                                                       |
+| 7      | Khuyến nghị tách rời khỏi lịch gia hạn                         | MF-3 B3.6 → MF-4 B4.2 | Phát hiện đúng nhưng không bao giờ thành tiền                                            | Mốc gia hạn hiển thị kèm khuyến nghị của chính thuê bao                                                                                                                                                                               |
+| 8      | Thu thập dữ liệu trước khi thông báo                           | MF-0 B0.6 → MF-3 F-42 | Mất cơ sở pháp lý cho toàn bộ phân hệ phát hiện                                          | F-42 chặn ghi dữ liệu trước khi có bản ghi thông báo                                                                                                                                                                                  |
+| **9**  | **Thiết bị gửi dữ liệu trước khi nhân viên xác nhận** _(v0.5)_ | MF-3 F-45             | Xử lý dữ liệu nhạy cảm trái Điều 25 khoản 3 Luật 91/2025; phạt tới 3 tỷ đồng với tổ chức | Cổng nhận từ chối theo `INV-17`; kiểm thử phủ định bắt buộc                                                                                                                                                                           |
+| **10** | **Người duyệt chi duy nhất thành nút thắt** _(v0.5)_           | MF-2 B2.5b            | Yêu cầu có chi phí dồn về một người, nhân viên quay lại đường tắt                        | Nhánh không chi phí không đi qua _(Owner xác nhận — `QĐ-29a`)_; Tài chính không nằm trên đường duyệt (`QĐ-29b`); cảnh báo backlog `BR-13.8`; KPI-2 đo riêng bước duyệt chi — chậm thì mở lại ma trận nhiều mức _(v0.6 — bỏ ủy quyền)_ |
 
 > Bảy trong tám chỗ đứt nằm ở `MF-2` và `MF-3` — đúng hai main flow phục vụ `PP-5` và `PP-1`, hai pain point có nhiều người hưởng lợi nhất và cũng là hai chuỗi demo được ưu tiên phát triển trước. Đây không phải trùng hợp: chỗ nào tạo ra nhiều giá trị nhất thì cũng là chỗ có nhiều mắt xích nhất để đứt.
 
@@ -2366,51 +2368,50 @@ Dùng để viết kịch bản kiểm thử. Cột **MF** cho biết luồng n�
 
 ## 10. Cần team quyết
 
-| #      | Câu hỏi                                                                                               | Đề xuất                                                                                                                                                                                                                                              |
-| ------ | ----------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1      | Seat có đi theo người khi đổi người quản lý hoặc cost center không? *(sửa chữ ở v0.5)*                | Có; chỉ đổi đơn vị chịu chi phí. Quản lý mới nhận danh sách xem lại                                                                                                                                                                                  |
-| 2      | Thời gian xử lý tính theo giờ làm việc hay giờ đồng hồ?                                               | Giờ làm việc. Nếu không kịp làm thì ghi rõ giới hạn trong tài liệu                                                                                                                                                                                   |
-| 3      | ~~Rule phát hiện chạy hằng ngày hay hằng tuần?~~ **ĐÃ CHỐT**                                          | ✅ **`QĐ-09` (08/09/2026)** — hằng ngày cho `G1`/`G2`, hằng tuần cho `G3`/`G4`. Đã ghi vào BRD **`FR-4.12b`**                                                                                                                                        |
-| 4      | ~~Mức "theo dõi" có hiện cho quản lý không?~~ **ĐÃ CHỐT**                                             | ✅ **`QĐ-09` (08/09/2026)** — **không**, chỉ IT Admin thấy. Đã ghi vào BRD **`FR-4.12`**; đã đồng bộ vào mục 1.7 `B3.3`, mục 4.3 và `BR-20.5` ở lượt review 09/09/2026                                                                              |
-| 5      | Cấp phát thử lại tối đa mấy lần?                                                                      | 6 lần, giãn cách tăng dần, tổng khoảng 1 giờ                                                                                                                                                                                                         |
-| 6      | ~~Ai đóng vai người duyệt dự phòng ở gốc cây?~~ **ĐÃ CHỐT**                                           | ✅ **`QĐ-02` (08/09/2026)** — **một Employee cụ thể do Super Admin cấu hình**, duyệt **với tư cách vai Manager**, không thêm vai trò thứ sáu. Đã ghi vào BRD **`FR-3.6`**; đã vẽ trên `UF-01` và `UF-04`. ⚠️ `WF-09` **chưa có nhánh này** — xem mục 11.20 |
-| 7      | F-42 gửi thông báo qua kênh nào?                                                                      | Trong ứng dụng và thư điện tử; cần chốt mẫu nội dung                                                                                                                                                                                                 |
-| **8**  | ~~**Sửa con số phạm vi ở Định nghĩa Phạm vi mục 5.2**~~ **ĐÃ XONG**                                   | ✅ *Định nghĩa Phạm vi* **v1.2 mục 5.2** nay ghi **`38 / 3 / 2`** *(kiểm 09/09/2026: khối changelog dòng 21 và mục 5.2 dòng 396 đều đã sửa)*. Đã grep BRD: **không** chỗ nào chép lại bộ số này                                                     |
-| **9**  | **`MF-0` có cần một chuỗi demo riêng không?** *(mới ở v0.3)*                                          | **Không cần chuỗi riêng, nhưng `B0.5` — hệ thống sinh cảnh báo có thật khi chưa có một dòng log ngoài nào — nên được diễn ngay đầu chuỗi `D-2` để chặn trước câu hỏi *"nếu không lấy được API của nhà cung cấp thì hệ thống còn dùng được không?"*** |
-| **10** | **Khi thầy hỏi “main flows”, nhóm đưa tài liệu nào?** *(mới ở v0.4)*                                  | **Hỏi lại một câu trước khi đưa. Xem mục 11.1** — ba tầng trả lời ba câu hỏi khác nhau, đưa nhầm tầng là tự tạo ra câu hỏi vặn                                                                                                                       |
-| **11** | ~~Ai duyệt chi phí — Tài chính hay người có thẩm quyền chi?~~ **ĐÃ CHỐT** *(mới ở v0.5)*               | ✅ **`QĐ-22` (14/09/2026)** — **Người duyệt chi**, một người, mặc định CEO; Tài chính chỉ ghi ý kiến *(v0.7 — `QĐ-29b`: trả lời khi được hỏi và ghi nhận sau duyệt)*. Lưu ý: câu 6 ghi *"không thêm vai trò thứ sáu"* là cho **người duyệt dự phòng**; `QĐ-22` thêm vai trò thứ sáu cho **một loại quyết định khác**, không mâu thuẫn |
-| **12** | ~~Theo dõi nhân viên có thật sự dùng phần mềm bằng cách nào?~~ **ĐÃ CHỐT** *(mới ở v0.5)*               | ✅ **`QĐ-20` (14/09/2026)** — nhà cung cấp + tiện ích trình duyệt ✅ + agent 📐; xác nhận chủ động |
-| **13** | Tiện ích trình duyệt hỗ trợ trình duyệt nào? *(mới ở v0.5)*                                           | Chưa chốt — BRD `OQ-17`, quyết ở thiết kế kỹ thuật `CN-17` |
-
+| #      | Câu hỏi                                                                                   | Đề xuất                                                                                                                                                                                                                                                                                                                               |
+| ------ | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1      | Seat có đi theo người khi đổi người quản lý hoặc cost center không? _(sửa chữ ở v0.5)_    | Có; chỉ đổi đơn vị chịu chi phí. Quản lý mới nhận danh sách xem lại                                                                                                                                                                                                                                                                   |
+| 2      | Thời gian xử lý tính theo giờ làm việc hay giờ đồng hồ?                                   | Giờ làm việc. Nếu không kịp làm thì ghi rõ giới hạn trong tài liệu                                                                                                                                                                                                                                                                    |
+| 3      | ~~Rule phát hiện chạy hằng ngày hay hằng tuần?~~ **ĐÃ CHỐT**                              | ✅ **`QĐ-09` (08/09/2026)** — hằng ngày cho `G1`/`G2`, hằng tuần cho `G3`/`G4`. Đã ghi vào BRD **`FR-4.12b`**                                                                                                                                                                                                                         |
+| 4      | ~~Mức "theo dõi" có hiện cho quản lý không?~~ **ĐÃ CHỐT**                                 | ✅ **`QĐ-09` (08/09/2026)** — **không**, chỉ IT Admin thấy. Đã ghi vào BRD **`FR-4.12`**; đã đồng bộ vào mục 1.7 `B3.3`, mục 4.3 và `BR-20.5` ở lượt review 09/09/2026                                                                                                                                                                |
+| 5      | Cấp phát thử lại tối đa mấy lần?                                                          | 6 lần, giãn cách tăng dần, tổng khoảng 1 giờ                                                                                                                                                                                                                                                                                          |
+| 6      | ~~Ai đóng vai người duyệt dự phòng ở gốc cây?~~ **ĐÃ CHỐT**                               | ✅ **`QĐ-02` (08/09/2026)** — **một Employee cụ thể do Super Admin cấu hình**, duyệt **với tư cách vai Manager**, không thêm vai trò thứ sáu. Đã ghi vào BRD **`FR-3.6`**; đã vẽ trên `UF-01` và `UF-04`. ⚠️ `WF-09` **chưa có nhánh này** — xem mục 11.20                                                                            |
+| 7      | F-42 gửi thông báo qua kênh nào?                                                          | Trong ứng dụng và thư điện tử; cần chốt mẫu nội dung                                                                                                                                                                                                                                                                                  |
+| **8**  | ~~**Sửa con số phạm vi ở Định nghĩa Phạm vi mục 5.2**~~ **ĐÃ XONG**                       | ✅ _Định nghĩa Phạm vi_ **v1.2 mục 5.2** nay ghi **`38 / 3 / 2`** _(kiểm 09/09/2026: khối changelog dòng 21 và mục 5.2 dòng 396 đều đã sửa)_. Đã grep BRD: **không** chỗ nào chép lại bộ số này                                                                                                                                       |
+| **9**  | **`MF-0` có cần một chuỗi demo riêng không?** _(mới ở v0.3)_                              | **Không cần chuỗi riêng, nhưng `B0.5` — hệ thống sinh cảnh báo có thật khi chưa có một dòng log ngoài nào — nên được diễn ngay đầu chuỗi `D-2` để chặn trước câu hỏi _"nếu không lấy được API của nhà cung cấp thì hệ thống còn dùng được không?"_**                                                                                  |
+| **10** | **Khi thầy hỏi “main flows”, nhóm đưa tài liệu nào?** _(mới ở v0.4)_                      | **Hỏi lại một câu trước khi đưa. Xem mục 11.1** — ba tầng trả lời ba câu hỏi khác nhau, đưa nhầm tầng là tự tạo ra câu hỏi vặn                                                                                                                                                                                                        |
+| **11** | ~~Ai duyệt chi phí — Tài chính hay người có thẩm quyền chi?~~ **ĐÃ CHỐT** _(mới ở v0.5)_  | ✅ **`QĐ-22` (14/09/2026)** — **Người duyệt chi**, một người, mặc định CEO; Tài chính chỉ ghi ý kiến _(v0.7 — `QĐ-29b`: trả lời khi được hỏi và ghi nhận sau duyệt)_. Lưu ý: câu 6 ghi _"không thêm vai trò thứ sáu"_ là cho **người duyệt dự phòng**; `QĐ-22` thêm vai trò thứ sáu cho **một loại quyết định khác**, không mâu thuẫn |
+| **12** | ~~Theo dõi nhân viên có thật sự dùng phần mềm bằng cách nào?~~ **ĐÃ CHỐT** _(mới ở v0.5)_ | ✅ **`QĐ-20` (14/09/2026)** — nhà cung cấp + tiện ích trình duyệt ✅ + agent 📐; xác nhận chủ động                                                                                                                                                                                                                                    |
+| **13** | Tiện ích trình duyệt hỗ trợ trình duyệt nào? _(mới ở v0.5)_                               | Chưa chốt — BRD `OQ-17`, quyết ở thiết kế kỹ thuật `CN-17`                                                                                                                                                                                                                                                                            |
 
 ---
 
 ## 11. User flow mức màn hình
 
-> ✅ **PHẦN 11 ĐỒNG BỘ v0.7 — 15/09/2026, theo `QĐ-29b`.** Vẽ lại **`UF-11`** *(Tài chính trả lời yêu cầu thông tin và ghi nhận sau duyệt: 21 nút · 21 cạnh)* và **`UF-15`** *(snapshot ngân sách, nhánh hỏi Tài chính: 19→22 nút, 20→23 cạnh)*; **`UF-02`** đổi thứ tự *(Người duyệt chi trước, Tài chính ghi nhận sau)*; **`UF-08`**, **`UF-10`** đảo thứ tự hai tham chiếu `UF-15` → `UF-11`; **`UF-01`**, **`UF-04`** đổi nhãn. Bảy `.drawio` sinh lại bằng `tools/generate-uf-drawio.py`; HTML (thêm lọc theo vai trò), PDF, manifest xuất lại bằng `tools/export-user-flows.py`. Kết quả kiểm ghi ở `Docs/Reviews/current-review.md`.
+> ✅ **PHẦN 11 ĐỒNG BỘ v0.7 — 15/09/2026, theo `QĐ-29b`.** Vẽ lại **`UF-11`** _(Tài chính trả lời yêu cầu thông tin và ghi nhận sau duyệt: 21 nút · 21 cạnh)_ và **`UF-15`** _(snapshot ngân sách, nhánh hỏi Tài chính: 19→22 nút, 20→23 cạnh)_; **`UF-02`** đổi thứ tự _(Người duyệt chi trước, Tài chính ghi nhận sau)_; **`UF-08`**, **`UF-10`** đảo thứ tự hai tham chiếu `UF-15` → `UF-11`; **`UF-01`**, **`UF-04`** đổi nhãn. Bảy `.drawio` sinh lại bằng `tools/generate-uf-drawio.py`; HTML (thêm lọc theo vai trò), PDF, manifest xuất lại bằng `tools/export-user-flows.py`. Kết quả kiểm ghi ở `Docs/Reviews/current-review.md`.
 
-> ✅ **PHẦN 11 ĐỒNG BỘ v0.6 — 15/09/2026, theo `QĐ-27`, `QĐ-28c`, `QĐ-28d`.** Sửa khối Mermaid của **`UF-04`** *(bỏ nhánh ủy quyền và `MGR-06`: 15→11 nút, 14→10 cạnh)*, **`UF-13`** *(nhãn `a5` thêm người thay thế khi xung đột và ngưỡng backlog)*, **`UF-15`** *(nhãn `a1`, `s1`, `e1`: nhắc/thông báo, người thay thế khi xung đột)*; `UF-01` chỉ sửa bảng truy vết dưới hình, Mermaid không đổi. Ba `.drawio` sinh lại bằng `tools/generate-uf-drawio.py`; HTML, PDF, manifest xuất lại bằng `tools/export-user-flows.py`. Kết quả kiểm và ảnh đã xem ghi ở `Docs/Reviews/current-review.md`.
+> ✅ **PHẦN 11 ĐỒNG BỘ v0.6 — 15/09/2026, theo `QĐ-27`, `QĐ-28c`, `QĐ-28d`.** Sửa khối Mermaid của **`UF-04`** _(bỏ nhánh ủy quyền và `MGR-06`: 15→11 nút, 14→10 cạnh)_, **`UF-13`** _(nhãn `a5` thêm người thay thế khi xung đột và ngưỡng backlog)_, **`UF-15`** _(nhãn `a1`, `s1`, `e1`: nhắc/thông báo, người thay thế khi xung đột)_; `UF-01` chỉ sửa bảng truy vết dưới hình, Mermaid không đổi. Ba `.drawio` sinh lại bằng `tools/generate-uf-drawio.py`; HTML, PDF, manifest xuất lại bằng `tools/export-user-flows.py`. Kết quả kiểm và ảnh đã xem ghi ở `Docs/Reviews/current-review.md`.
 
-> ✅ **PHẦN 11 ĐÃ ĐỒNG BỘ VỚI v0.5 — 14/09/2026.** Sửa khối Mermaid của `UF-01`, `UF-02`, `UF-03`, `UF-04`, `UF-06`, `UF-09`, `UF-11`, `UF-12`, `UF-13`; thêm **`UF-15`** *(Người duyệt chi — mục 11.17a)* và **`UF-16`** *(bộ thu thập — mục 11.17b)*. 11 tệp `.drawio` tương ứng được **sinh lại từ chính khối Mermaid** bằng `tools/generate-uf-drawio.py`, render và xem lại từng trang; 5 tệp `UF-05`, `UF-07`, `UF-08`, `UF-10`, `UF-14` không đổi nghiệp vụ nên giữ nguyên **ở lượt đó**.
+> ✅ **PHẦN 11 ĐÃ ĐỒNG BỘ VỚI v0.5 — 14/09/2026.** Sửa khối Mermaid của `UF-01`, `UF-02`, `UF-03`, `UF-04`, `UF-06`, `UF-09`, `UF-11`, `UF-12`, `UF-13`; thêm **`UF-15`** _(Người duyệt chi — mục 11.17a)_ và **`UF-16`** _(bộ thu thập — mục 11.17b)_. 11 tệp `.drawio` tương ứng được **sinh lại từ chính khối Mermaid** bằng `tools/generate-uf-drawio.py`, render và xem lại từng trang; 5 tệp `UF-05`, `UF-07`, `UF-08`, `UF-10`, `UF-14` không đổi nghiệp vụ nên giữ nguyên **ở lượt đó**.
 >
-> | `UF` | Đã sửa | Quyết định |
-> | --- | --- | --- |
-> | `UF-01`, `UF-04` | Mốc *chờ ý kiến ngân sách* và *chờ Người duyệt chi* thay *chờ Tài chính* | `QĐ-22` |
-> | `UF-02` | Nhánh *có chi phí / miễn phí*; SaaS mới **luôn** qua Người duyệt chi (`BR-09.4`) | `QĐ-22` |
-> | `UF-11` | Đổi tên *Tài chính ghi ý kiến ngân sách và theo dõi kỳ gia hạn*; ghi khoản cam kết (`FIN-06`); quyết định kỳ gia hạn chuyển sang `UF-15` | `QĐ-22` |
-> | `UF-13` | Bỏ cấp *phòng ban* ở `ADM-02`; thêm cấu hình Người duyệt chi và nội dung thông báo theo dõi | `QĐ-22`, `QĐ-23` |
-> | `UF-03` | Dữ liệu bộ thu thập trong *Dữ liệu của tôi*; nhánh **yêu cầu dừng thu thập** | `QĐ-20` |
-> | `UF-06`, `UF-12` | Tham chiếu nguồn thứ hai `UF-16`; nguồn bằng chứng thứ ba ở `UF-12` | `QĐ-20` |
-> | `UF-09` | Bước chấm dứt đăng ký thiết bị (`BR-45.7`). *Đính chính khối cảnh báo cũ:* kiểm lại thì `UF-09` **không** có chữ *phòng ban* | `QĐ-20` |
+> | `UF`             | Đã sửa                                                                                                                                   | Quyết định       |
+> | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+> | `UF-01`, `UF-04` | Mốc _chờ ý kiến ngân sách_ và _chờ Người duyệt chi_ thay _chờ Tài chính_                                                                 | `QĐ-22`          |
+> | `UF-02`          | Nhánh _có chi phí / miễn phí_; SaaS mới **luôn** qua Người duyệt chi (`BR-09.4`)                                                         | `QĐ-22`          |
+> | `UF-11`          | Đổi tên _Tài chính ghi ý kiến ngân sách và theo dõi kỳ gia hạn_; ghi khoản cam kết (`FIN-06`); quyết định kỳ gia hạn chuyển sang `UF-15` | `QĐ-22`          |
+> | `UF-13`          | Bỏ cấp _phòng ban_ ở `ADM-02`; thêm cấu hình Người duyệt chi và nội dung thông báo theo dõi                                              | `QĐ-22`, `QĐ-23` |
+> | `UF-03`          | Dữ liệu bộ thu thập trong _Dữ liệu của tôi_; nhánh **yêu cầu dừng thu thập**                                                             | `QĐ-20`          |
+> | `UF-06`, `UF-12` | Tham chiếu nguồn thứ hai `UF-16`; nguồn bằng chứng thứ ba ở `UF-12`                                                                      | `QĐ-20`          |
+> | `UF-09`          | Bước chấm dứt đăng ký thiết bị (`BR-45.7`). _Đính chính khối cảnh báo cũ:_ kiểm lại thì `UF-09` **không** có chữ _phòng ban_             | `QĐ-20`          |
 >
-> ⚠️ **Đính chính lượt follow-up 14/09/2026 (sau lượt trên, trước independent verification) — `UF-08`, `UF-10` THỰC RA có đổi nghiệp vụ, dòng "không đổi nên giữ nguyên" ở trên chỉ đúng tới lượt đó.** Cả hai còn tham chiếu sai *"Tài chính duyệt/quyết định"* sót lại từ trước `QĐ-22`:
+> ⚠️ **Đính chính lượt follow-up 14/09/2026 (sau lượt trên, trước independent verification) — `UF-08`, `UF-10` THỰC RA có đổi nghiệp vụ, dòng "không đổi nên giữ nguyên" ở trên chỉ đúng tới lượt đó.** Cả hai còn tham chiếu sai _"Tài chính duyệt/quyết định"_ sót lại từ trước `QĐ-22`:
 >
-> | `UF` | Lỗi tìm thấy | Đã sửa |
-> | --- | --- | --- |
-> | `UF-08` | Nhánh hết hạn mức license dẫn tới một tham chiếu duy nhất *"UF-11 Tài chính duyệt mua thêm suất"* | Tách thành hai tham chiếu nối tiếp: `UF-11` *Tài chính ghi ý kiến ngân sách* → `UF-15` *Người duyệt chi quyết định mua thêm suất*. 20→21 nút, 21→22 cạnh |
-> | `UF-10` | Nhánh `G1` (kỳ gia hạn) dẫn tới một tham chiếu duy nhất *"UF-11 Tài chính quyết định tại kỳ gia hạn"* | Tách thành hai tham chiếu nối tiếp: `UF-11` *Tài chính ghi ý kiến ngân sách tại kỳ gia hạn* → `UF-15` *Người duyệt chi quyết định tại kỳ gia hạn*. 17→18 nút, 17→18 cạnh |
+> | `UF`    | Lỗi tìm thấy                                                                                          | Đã sửa                                                                                                                                                                   |
+> | ------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+> | `UF-08` | Nhánh hết hạn mức license dẫn tới một tham chiếu duy nhất _"UF-11 Tài chính duyệt mua thêm suất"_     | Tách thành hai tham chiếu nối tiếp: `UF-11` _Tài chính ghi ý kiến ngân sách_ → `UF-15` _Người duyệt chi quyết định mua thêm suất_. 20→21 nút, 21→22 cạnh                 |
+> | `UF-10` | Nhánh `G1` (kỳ gia hạn) dẫn tới một tham chiếu duy nhất _"UF-11 Tài chính quyết định tại kỳ gia hạn"_ | Tách thành hai tham chiếu nối tiếp: `UF-11` _Tài chính ghi ý kiến ngân sách tại kỳ gia hạn_ → `UF-15` _Người duyệt chi quyết định tại kỳ gia hạn_. 17→18 nút, 17→18 cạnh |
 >
-> Cùng lượt này còn sửa nhãn *"CHUYỂN PHÒNG BAN"* ở khối `MF-1` (mục 1.5) thành *"ĐỔI NGƯỜI QUẢN LÝ HOẶC COST CENTER"*, câu *"TÀI CHÍNH QUYẾT ĐỊNH"* ở khối `MF-4`/`F-27` (mục 1.8) thành *"TC Ý KIẾN NGÂN SÁCH → DC QUYẾT ĐỊNH"*, và hai chỗ dùng chữ *"team"* làm đơn vị tổ chức (`B5.6` ở `MF-5`, sequence diagram mục 6.3 của `F-31`/`F-32`) thành *"nhiều người dùng"* — không tạo lại `Team`/`Department` như thực thể. Lịch sử lượt sửa được rút gọn tại `Docs/Reviews/review-history-summary.md`.
+> Cùng lượt này còn sửa nhãn _"CHUYỂN PHÒNG BAN"_ ở khối `MF-1` (mục 1.5) thành _"ĐỔI NGƯỜI QUẢN LÝ HOẶC COST CENTER"_, câu _"TÀI CHÍNH QUYẾT ĐỊNH"_ ở khối `MF-4`/`F-27` (mục 1.8) thành _"TC Ý KIẾN NGÂN SÁCH → DC QUYẾT ĐỊNH"_, và hai chỗ dùng chữ _"team"_ làm đơn vị tổ chức (`B5.6` ở `MF-5`, sequence diagram mục 6.3 của `F-31`/`F-32`) thành _"nhiều người dùng"_ — không tạo lại `Team`/`Department` như thực thể. Lịch sử lượt sửa được rút gọn tại `Docs/Reviews/review-history-summary.md`.
 >
 > ✅ **Đóng 14/09/2026 — `SaaS-Sentry-Luong-man-hinh.html` và `SaaS-Sentry-User-Flows.pdf` nay là bản v0.5.** Dòng ⚠️ trước đây báo hai tệp này còn là bản 12/09 (v0.4) vì kho chưa có bộ sinh HTML/PDF; nay đã có `tools/export-user-flows.py`, chạy trực tiếp trên 16 tệp `.drawio` hiện hành và metadata (tiêu đề/vai trò/ưu tiên) đọc thẳng từ Phần 11 mục này — hai bản không thể lệch cách đọc nguồn với `tools/generate-uf-drawio.py`. Đã render và xem lại từng trang đã đổi (đặc biệt `UF-01`, `UF-02`, `UF-04`, `UF-11`, `UF-13`, `UF-15`, `UF-16`) và mở HTML bằng trình duyệt thật ở cả hai theme; không cắt chữ, không chồng nhãn. Băm SHA-256 input/output ở `SaaS-Sentry-User-Flows.export-manifest.json`; lịch sử review đã rút gọn tại `Docs/Reviews/review-history-summary.md`.
 >
@@ -2418,23 +2419,23 @@ Dùng để viết kịch bản kiểm thử. Cột **MF** cho biết luồng n�
 >
 > Mã màn hình mới `APV-01`–`APV-03`, `ITA-16`, `EMP-05` vẫn là **đề xuất** — UI Spec chưa chốt, không dùng làm mã chính thức cho tới khi Owner duyệt UI Spec.
 
-> **Tầng thứ ba của tài liệu.** Mục 1.4 → 1.9 trả lời *hệ thống chạy thế nào*; Phần 2 → 7 trả lời *luồng nghiệp vụ nào chi phối*; Phần 11 trả lời **người dùng bấm gì và thấy màn hình nào**.
+> **Tầng thứ ba của tài liệu.** Mục 1.4 → 1.9 trả lời _hệ thống chạy thế nào_; Phần 2 → 7 trả lời _luồng nghiệp vụ nào chi phối_; Phần 11 trả lời **người dùng bấm gì và thấy màn hình nào**.
 > **Dùng cho ai:** người dựng Figma và dev frontend. Mỗi nút màn hình là một frame; mỗi cạnh là một liên kết prototype.
-> **Tệp đi kèm hiện hành:** 16 tệp `.drawio` rời *(14 tới v0.4)* là nguồn xuất · `SaaS-Sentry-Luong-man-hinh.html` nhúng bản xem web · `SaaS-Sentry-User-Flows.pdf` (vector, một sơ đồ một trang). Tệp gộp và các thư mục `png/`/`svg/` đã được loại khỏi deliverable hiện hành; không khôi phục chúng chỉ để đồng nhất công cụ.
+> **Tệp đi kèm hiện hành:** 16 tệp `.drawio` rời _(14 tới v0.4)_ là nguồn xuất · `SaaS-Sentry-Luong-man-hinh.html` nhúng bản xem web · `SaaS-Sentry-User-Flows.pdf` (vector, một sơ đồ một trang). Tệp gộp và các thư mục `png/`/`svg/` đã được loại khỏi deliverable hiện hành; không khôi phục chúng chỉ để đồng nhất công cụ.
 
 ### 11.1. Khi bị hỏi “main flows”, đưa tầng nào
 
 Câu hỏi này có một câu trả lời gọn, và nó phụ thuộc **vế sau của câu hỏi**, không phụ thuộc tài liệu nào đẹp hơn.
 
-| Người hỏi thực sự đang hỏi                | Đưa tầng nào                                                  | Vì sao                                                             |
-| ----------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------ |
-| *“Hệ thống của em chạy thế nào?”*         | **Mục 1.4 → 1.9** — sáu main flow `MF-0` → `MF-5`             | Thuần chữ, một main flow vừa một slide, trả lời được trong 30 giây |
-| *“Ai làm gì, ai bàn giao cho ai?”*        | **Business Workflows v2.3** — 22 activity diagram có swimlane | Swimlane làm tám nguyên tắc `SoD-1` → `SoD-8` của sáu vai trò hiện thành hình |
-| *“Người dùng bấm gì, thấy màn hình nào?”* | **Phần 11 này** — 16 user flow mức màn hình                   | Nút là màn hình có mã, cạnh là hành động của người dùng            |
+| Người hỏi thực sự đang hỏi                | Đưa tầng nào                                                  | Vì sao                                                                        |
+| ----------------------------------------- | ------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| _“Hệ thống của em chạy thế nào?”_         | **Mục 1.4 → 1.9** — sáu main flow `MF-0` → `MF-5`             | Thuần chữ, một main flow vừa một slide, trả lời được trong 30 giây            |
+| _“Ai làm gì, ai bàn giao cho ai?”_        | **Business Workflows v2.3** — 22 activity diagram có swimlane | Swimlane làm tám nguyên tắc `SoD-1` → `SoD-8` của sáu vai trò hiện thành hình |
+| _“Người dùng bấm gì, thấy màn hình nào?”_ | **Phần 11 này** — 16 user flow mức màn hình                   | Nút là màn hình có mã, cạnh là hành động của người dùng                       |
 
 **Câu trả lời an toàn khi bị hỏi bất ngờ:**
 
-> *“Nhóm em có ba tầng: main flow tổng để nắm mạch, activity diagram để thấy bàn giao giữa các vai trò, và screen flow để dựng giao diện. Thầy muốn xem tầng nào ạ?”*
+> _“Nhóm em có ba tầng: main flow tổng để nắm mạch, activity diagram để thấy bàn giao giữa các vai trò, và screen flow để dựng giao diện. Thầy muốn xem tầng nào ạ?”_
 
 Câu đó chuyển thế bị động thành chủ động và chứng minh nhóm **biết ba thứ này khác nhau** — điều phần lớn đồ án không phân biệt được.
 
@@ -2446,14 +2447,14 @@ Câu đó chuyển thế bị động thành chủ động và chứng minh nhó
 
 **Sáu loại nút:**
 
-| Hình                                | Loại                                  | Nghĩa                                                                                         |
-| ----------------------------------- | ------------------------------------- | --------------------------------------------------------------------------------------------- |
-| Bo tròn hai đầu, viền mực           | **Bắt đầu · Kết thúc**                | Mỗi sơ đồ đúng một điểm bắt đầu; kết thúc viền xanh lá là kết cục tốt, viền đỏ là kết cục xấu |
-| Chữ nhật viền xanh dương, nền trắng | **Màn hình người dùng thao tác**      | Dòng đầu in đậm là **mã màn hình trong UI Spec**                                              |
-| Chữ nhật viền xám, nền xám nhạt     | **Hệ thống tự xử lý**                 | Người dùng không bấm gì, chỉ thấy kết quả                                                     |
-| Hình thoi viền hổ phách             | **Điểm rẽ nhánh**                     | Mọi cạnh ra **bắt buộc** mang guard                                                           |
-| Chữ nhật viền đỏ                    | **Màn hình chặn hoặc trạng thái lỗi** | Hiện thực `NT-UI-5` của UI Spec: lỗi là công dân hạng nhất                                    |
-| Chữ nhật hai vạch đứng `[[UF-xx …]]` | **Điểm chuyển phạm vi**              | Chỉ sang User Flow khác; nhãn bắt buộc mang đúng một mã `UF-xx` trong 16 User Flow hiện hành (không trỏ về chính nó). **Không phải điểm kết thúc**, không kích hoạt hoặc chờ luồng kia; được phép không có cạnh ra — phạm vi sơ đồ hiện tại dừng tại đây *(chốt 15/09/2026)* |
+| Hình                                 | Loại                                  | Nghĩa                                                                                                                                                                                                                                                                        |
+| ------------------------------------ | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Bo tròn hai đầu, viền mực            | **Bắt đầu · Kết thúc**                | Mỗi sơ đồ đúng một điểm bắt đầu; kết thúc viền xanh lá là kết cục tốt, viền đỏ là kết cục xấu                                                                                                                                                                                |
+| Chữ nhật viền xanh dương, nền trắng  | **Màn hình người dùng thao tác**      | Dòng đầu in đậm là **mã màn hình trong UI Spec**                                                                                                                                                                                                                             |
+| Chữ nhật viền xám, nền xám nhạt      | **Hệ thống tự xử lý**                 | Người dùng không bấm gì, chỉ thấy kết quả                                                                                                                                                                                                                                    |
+| Hình thoi viền hổ phách              | **Điểm rẽ nhánh**                     | Mọi cạnh ra **bắt buộc** mang guard                                                                                                                                                                                                                                          |
+| Chữ nhật viền đỏ                     | **Màn hình chặn hoặc trạng thái lỗi** | Hiện thực `NT-UI-5` của UI Spec: lỗi là công dân hạng nhất                                                                                                                                                                                                                   |
+| Chữ nhật hai vạch đứng `[[UF-xx …]]` | **Điểm chuyển phạm vi**               | Chỉ sang User Flow khác; nhãn bắt buộc mang đúng một mã `UF-xx` trong 16 User Flow hiện hành (không trỏ về chính nó). **Không phải điểm kết thúc**, không kích hoạt hoặc chờ luồng kia; được phép không có cạnh ra — phạm vi sơ đồ hiện tại dừng tại đây _(chốt 15/09/2026)_ |
 
 **Quy ước cạnh tham chiếu trong User Flows.** Cạnh liền có mũi tên là **control-flow**, biểu diễn trình tự hoặc điều hướng. Cạnh nét đứt mang nhãn **“Tham chiếu UF-xx”** chỉ là liên kết tra cứu tới flow khác, không mang nghĩa kích hoạt, gọi/trả về hoặc chờ `UF` đó. Điều kiện nghiệp vụ cho phép đi tiếp luôn nằm trên cạnh control-flow chính. Đây là quy ước riêng của User Flows; không áp nét đứt này máy móc cho UML Activity/Workflow.
 
@@ -2470,47 +2471,47 @@ Câu đó chuyển thế bị động thành chủ động và chứng minh nhó
 
 **Mười phép kiểm chạy tự động trước khi sinh và trước khi xuất.** `tools/check-user-flow-syntax.py` kiểm K1–K8 trên khối Mermaid của từng `UF`, K9–K10 trên SVG do draw.io Desktop render từ `.drawio`, cùng K0 (dòng Mermaid nhận dạng được, `.drawio` cùng tập nút và cạnh với Mermaid). `tools/generate-uf-drawio.py` từ chối ghi `.drawio` và `tools/export-user-flows.py` từ chối xuất HTML/PDF/manifest khi có bất kỳ vi phạm nào. Chạy riêng tại thư mục này: `python tools/check-user-flow-syntax.py` — exit 0 là pass.
 
-| #   | Phép kiểm                                           |     | #   | Phép kiểm                                  |
-| --- | --------------------------------------------------- | --- | --- | ------------------------------------------ |
+| #   | Phép kiểm                                           |     | #   | Phép kiểm                                                                                                                              |
+| --- | --------------------------------------------------- | --- | --- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | K1  | Đúng một điểm bắt đầu                               |     | K6  | Mọi nút trừ điểm kết thúc và điểm chuyển phạm vi có cạnh ra, và dẫn tới một trong hai; điểm chuyển phạm vi phải trỏ tới `UF` hiện hành |
-| K2  | Ít nhất một điểm kết thúc                           |     | K7  | **Mọi cạnh ra của điểm rẽ nhánh có guard** |
-| K3  | Điểm bắt đầu không có cạnh vào, có đúng một cạnh ra |     | K8  | Điểm rẽ nhánh có ít nhất hai cạnh ra       |
-| K4  | Điểm kết thúc không có cạnh ra                      |     | K9  | Không hai nút chồng lên nhau trên hình draw.io render |
-| K5  | Mọi nút có cạnh vào và tới được từ điểm bắt đầu     |     | K10 | Không đường cạnh nào draw.io vẽ đi xuyên qua một nút khác |
+| K2  | Ít nhất một điểm kết thúc                           |     | K7  | **Mọi cạnh ra của điểm rẽ nhánh có guard**                                                                                             |
+| K3  | Điểm bắt đầu không có cạnh vào, có đúng một cạnh ra |     | K8  | Điểm rẽ nhánh có ít nhất hai cạnh ra                                                                                                   |
+| K4  | Điểm kết thúc không có cạnh ra                      |     | K9  | Không hai nút chồng lên nhau trên hình draw.io render                                                                                  |
+| K5  | Mọi nút có cạnh vào và tới được từ điểm bắt đầu     |     | K10 | Không đường cạnh nào draw.io vẽ đi xuyên qua một nút khác                                                                              |
 
-**Kết quả lần chạy 15/09/2026:** 16 sơ đồ `UF-01` → `UF-16` · **0 vi phạm K0–K10** (`check-user-flow-syntax.py`, draw.io Desktop 29.3.0) · **16/16 khối Mermaid render được** bằng Mermaid CLI 11.17.0 (exit 0, SVG không phải sơ đồ lỗi, số nút/cạnh khớp nguồn) · **0 nút tràn chữ** trên 297 nút và 0 nhãn cạnh đè nút/nhãn khác — đo khung chữ đã dàn dòng trong Chrome headless trên SVG draw.io. *Hai phép đo chữ này chạy thủ công, chưa nằm trong pipeline tự động.* 📁 *Dòng cũ “14 sơ đồ · 0 lỗi ký pháp · 0 nút tràn chữ · 14/14” không có công cụ kiểm trong repo làm căn cứ; đã thay bằng kết quả trên.*
+**Kết quả lần chạy 15/09/2026:** 16 sơ đồ `UF-01` → `UF-16` · **0 vi phạm K0–K10** (`check-user-flow-syntax.py`, draw.io Desktop 29.3.0) · **16/16 khối Mermaid render được** bằng Mermaid CLI 11.17.0 (exit 0, SVG không phải sơ đồ lỗi, số nút/cạnh khớp nguồn) · **0 nút tràn chữ** trên 297 nút và 0 nhãn cạnh đè nút/nhãn khác — đo khung chữ đã dàn dòng trong Chrome headless trên SVG draw.io. _Hai phép đo chữ này chạy thủ công, chưa nằm trong pipeline tự động._ 📁 _Dòng cũ “14 sơ đồ · 0 lỗi ký pháp · 0 nút tràn chữ · 14/14” không có công cụ kiểm trong repo làm căn cứ; đã thay bằng kết quả trên._
 
-### 11.3. Mười sáu user flow *(mười bốn tới v0.4)*
+### 11.3. Mười sáu user flow _(mười bốn tới v0.4)_
 
-| Mã        | User flow                                         | Vai trò            | **Ưu tiên** | Nút | Rẽ nhánh | Màn hình đi qua                            | Demo    |
-| --------- | ------------------------------------------------- | ------------------ | ----------- | --- | -------- | ------------------------------------------ | ------- |
-| **UF-01** | Nhân viên xin cấp phần mềm | Employee | **★ Mức 1** | 22 | 5 | EMP-01 · EMP-02 · EMP-03 · EMP-04 | **D-1** |
-| **UF-02** | Nhân viên xin phần mềm chưa có trong danh mục | Employee | Mức 2 | 20 | 3 | EMP-01 · EMP-02 · EMP-03 · SYS-02 | — |
-| **UF-03** | Nhân viên xem và xuất dữ liệu của chính mình | Employee | Mức 3 | 14 | 1 | EMP-01 · EMP-03 · SYS-02 · SYS-03 | — |
-| **UF-04** | Quản lý duyệt yêu cầu cấp quyền | Manager | Mức 2 | 11 | 2 | MGR-02 · MGR-03 | **D-1** |
-| **UF-05** | Quản lý xác nhận license                          | Manager            | **★ Mức 1** | 15  | 2        | MGR-04                                     | **D-2** |
-| **UF-06** | IT Admin nạp dữ liệu sử dụng | IT Admin | Mức 2 | 24 | 6 | ITA-07 · ITA-08 | **D-2** |
-| **UF-07** | IT Admin xử lý hàng đợi chưa khớp danh tính       | IT Admin           | Mức 3       | 12  | 2        | ITA-09                                     | —       |
-| **UF-08** | IT Admin xử lý hàng đợi cấp phát                  | IT Admin           | Mức 3       | 21  | 5        | ITA-05                                     | —       |
-| **UF-09** | IT Admin xử lý nhân viên nghỉ việc | IT Admin | **★ Mức 1** | 18 | 2 | ITA-04 · ITA-10 · ITA-12 · ITA-13 · ITA-14 | **D-3** |
-| **UF-10** | IT Admin xử lý bảng tối ưu license                | IT Admin           | **★ Mức 1** | 18  | 2        | ITA-04 · ITA-10                            | **D-2** |
-| **UF-11** | Tài chính kiểm soát ngân sách và theo dõi kỳ gia hạn *(đổi tên v0.5, v0.7)* | Finance | **★ Mức 1** | 21 | 3 | FIN-03 · FIN-05 · FIN-06 | — |
-| **UF-12** | Phát hiện và hợp thức hóa phần mềm ngoài danh mục | Finance + IT Admin | **★ Mức 1** | 22 | 4 | FIN-04 · ITA-03 · ITA-07 · ITA-15 | **D-4** |
-| **UF-13** | Super Admin sửa cấu hình và luồng phê duyệt | Super Admin | Mức 2 | 17 | 3 | ADM-02 · ADM-03 · SYS-04 | — |
-| **UF-14** | IT Admin xử lý sai lệch và mâu thuẫn dữ liệu      | IT Admin + Finance | Mức 3       | 24  | 5        | FIN-04 · ITA-04 · ITA-05 · ITA-11 · ITA-15 | —       |
-| **UF-15** | Người duyệt chi duyệt khoản chi và quyết định kỳ gia hạn *(mới v0.5)* | Người duyệt chi | **★ Mức 1** | 22 | 4 | APV-01 · APV-02 · APV-03 *(dự kiến)* | **D-1** |
-| **UF-16** | IT Admin triển khai bộ thu thập, nhân viên xác nhận theo dõi *(mới v0.5)* | IT Admin + Employee | Mức 2 | 15 | 2 | ITA-16 · EMP-05 *(dự kiến)* | **D-2** |
+| Mã        | User flow                                                                   | Vai trò             | **Ưu tiên** | Nút | Rẽ nhánh | Màn hình đi qua                            | Demo    |
+| --------- | --------------------------------------------------------------------------- | ------------------- | ----------- | --- | -------- | ------------------------------------------ | ------- |
+| **UF-01** | Nhân viên xin cấp phần mềm                                                  | Employee            | **★ Mức 1** | 22  | 5        | EMP-01 · EMP-02 · EMP-03 · EMP-04          | **D-1** |
+| **UF-02** | Nhân viên xin phần mềm chưa có trong danh mục                               | Employee            | Mức 2       | 20  | 3        | EMP-01 · EMP-02 · EMP-03 · SYS-02          | —       |
+| **UF-03** | Nhân viên xem và xuất dữ liệu của chính mình                                | Employee            | Mức 3       | 14  | 1        | EMP-01 · EMP-03 · SYS-02 · SYS-03          | —       |
+| **UF-04** | Quản lý duyệt yêu cầu cấp quyền                                             | Manager             | Mức 2       | 11  | 2        | MGR-02 · MGR-03                            | **D-1** |
+| **UF-05** | Quản lý xác nhận license                                                    | Manager             | **★ Mức 1** | 15  | 2        | MGR-04                                     | **D-2** |
+| **UF-06** | IT Admin nạp dữ liệu sử dụng                                                | IT Admin            | Mức 2       | 24  | 6        | ITA-07 · ITA-08                            | **D-2** |
+| **UF-07** | IT Admin xử lý hàng đợi chưa khớp danh tính                                 | IT Admin            | Mức 3       | 12  | 2        | ITA-09                                     | —       |
+| **UF-08** | IT Admin xử lý hàng đợi cấp phát                                            | IT Admin            | Mức 3       | 21  | 5        | ITA-05                                     | —       |
+| **UF-09** | IT Admin xử lý nhân viên nghỉ việc                                          | IT Admin            | **★ Mức 1** | 18  | 2        | ITA-04 · ITA-10 · ITA-12 · ITA-13 · ITA-14 | **D-3** |
+| **UF-10** | IT Admin xử lý bảng tối ưu license                                          | IT Admin            | **★ Mức 1** | 18  | 2        | ITA-04 · ITA-10                            | **D-2** |
+| **UF-11** | Tài chính kiểm soát ngân sách và theo dõi kỳ gia hạn _(đổi tên v0.5, v0.7)_ | Finance             | **★ Mức 1** | 21  | 3        | FIN-03 · FIN-05 · FIN-06                   | —       |
+| **UF-12** | Phát hiện và hợp thức hóa phần mềm ngoài danh mục                           | Finance + IT Admin  | **★ Mức 1** | 22  | 4        | FIN-04 · ITA-03 · ITA-07 · ITA-15          | **D-4** |
+| **UF-13** | Super Admin sửa cấu hình và luồng phê duyệt                                 | Super Admin         | Mức 2       | 17  | 3        | ADM-02 · ADM-03 · SYS-04                   | —       |
+| **UF-14** | IT Admin xử lý sai lệch và mâu thuẫn dữ liệu                                | IT Admin + Finance  | Mức 3       | 24  | 5        | FIN-04 · ITA-04 · ITA-05 · ITA-11 · ITA-15 | —       |
+| **UF-15** | Người duyệt chi duyệt khoản chi và quyết định kỳ gia hạn _(mới v0.5)_       | Người duyệt chi     | **★ Mức 1** | 22  | 4        | APV-01 · APV-02 · APV-03 _(dự kiến)_       | **D-1** |
+| **UF-16** | IT Admin triển khai bộ thu thập, nhân viên xác nhận theo dõi _(mới v0.5)_   | IT Admin + Employee | Mức 2       | 15  | 2        | ITA-16 · EMP-05 _(dự kiến)_                | **D-2** |
 
-**Tổng: 296 nút · 51 điểm rẽ nhánh · 34 màn hình *(gồm 5 mã dự kiến)* · 4 chuỗi demo được phủ kín.** *(Đếm lại 15/09/2026 lượt v0.7 trực tiếp từ 16 khối Mermaid bằng `tools/generate-uf-drawio.py --stats`, không đếm từ bảng — con số 297/52 của lượt trước chưa trừ 4 nút, 1 điểm rẽ nhánh bỏ ở `UF-04` v0.6; số màn hình giữ nguyên lần đếm 14/09/2026. Tới v0.4: 239 nút · 39 điểm rẽ nhánh · 27 màn hình.)*
+**Tổng: 296 nút · 51 điểm rẽ nhánh · 34 màn hình _(gồm 5 mã dự kiến)_ · 4 chuỗi demo được phủ kín.** _(Đếm lại 15/09/2026 lượt v0.7 trực tiếp từ 16 khối Mermaid bằng `tools/generate-uf-drawio.py --stats`, không đếm từ bảng — con số 297/52 của lượt trước chưa trừ 4 nút, 1 điểm rẽ nhánh bỏ ở `UF-04` v0.6; số màn hình giữ nguyên lần đếm 14/09/2026. Tới v0.4: 239 nút · 39 điểm rẽ nhánh · 27 màn hình.)_
 
 **Bốn chuỗi demo đi qua những user flow nào:**
 
-| Chuỗi                                      | Đi qua                                                    |
-| ------------------------------------------ | --------------------------------------------------------- |
-| **D-1** Xin công cụ có phát sinh chi phí   | `UF-01` → `UF-04` → `UF-11` → **`UF-15`** → `UF-08` → quay về `UF-01` *(v0.5)* |
-| **D-2** Từ file nhật ký tới tiền tiết kiệm | `UF-06` *(và/hoặc `UF-16`)* → `UF-07` → `UF-10` → `UF-05` → `UF-08` → `UF-11` |
-| **D-3** Nhân viên nghỉ việc                | `UF-09` → `UF-08`                                         |
-| **D-4** Phát hiện chi tiêu ngoài danh mục  | `UF-12` → `UF-02` → `UF-08`                               |
+| Chuỗi                                      | Đi qua                                                                         |
+| ------------------------------------------ | ------------------------------------------------------------------------------ |
+| **D-1** Xin công cụ có phát sinh chi phí   | `UF-01` → `UF-04` → `UF-11` → **`UF-15`** → `UF-08` → quay về `UF-01` _(v0.5)_ |
+| **D-2** Từ file nhật ký tới tiền tiết kiệm | `UF-06` _(và/hoặc `UF-16`)_ → `UF-07` → `UF-10` → `UF-05` → `UF-08` → `UF-11`  |
+| **D-3** Nhân viên nghỉ việc                | `UF-09` → `UF-08`                                                              |
+| **D-4** Phát hiện chi tiêu ngoài danh mục  | `UF-12` → `UF-02` → `UF-08`                                                    |
 
 **Mười bốn màn hình không có screen flow, và vì sao:**
 
@@ -2524,7 +2525,6 @@ Câu đó chuyển thế bị động thành chủ động và chứng minh nhó
 | `ITA-03` Chi tiết ứng dụng                                              | Là đích đến của `UF-12`, không phải một hành trình riêng                               |
 
 > Nói ra danh sách này có lợi khi bảo vệ: nó chứng minh 16 flow **được lọc**, không phải gom cho dày. Phép kiểm dùng ở đây giống hệt phép kiểm ở Business Workflows mục 2.3.
-
 
 #### 11.3.1. Mức ưu tiên trình bày
 
@@ -2545,22 +2545,22 @@ Bốn tiêu chí xếp mức, theo đúng thứ tự: **① có nằm trong chu�
 
 **Lý do xếp mức của từng flow:**
 
-| Mức         | Mã      | User flow                                         | Vì sao                                                                                                  |
-| ----------- | ------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| ★ **Mức 1** | `UF-01` | Nhân viên xin cấp phần mềm                        | Xương sống của D-1 và của PP-5 — bước “xem lại trước khi gửi” là biện pháp rẻ nhất giảm yêu cầu thừa    |
-| ★ **Mức 1** | `UF-05` | Quản lý xác nhận license                          | Màn hình quyết định phân hệ Ghost Seat sống hay chết — nơi hệ thống nói thật về mức độ chắc chắn của nó |
-| ★ **Mức 1** | `UF-09` | IT Admin xử lý nhân viên nghỉ việc                | Kịch bản demo giá trị nhất: vừa là chi phí vừa là lỗ hổng bảo mật, và chỉ dùng dữ liệu nội bộ           |
-| ★ **Mức 1** | `UF-10` | IT Admin xử lý bảng tối ưu license                | Chỗ tiền hiện ra — bốn nhóm lãng phí và hai con số tiết kiệm không bao giờ được cộng lại                |
+| Mức         | Mã      | User flow                                            | Vì sao                                                                                                  |
+| ----------- | ------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| ★ **Mức 1** | `UF-01` | Nhân viên xin cấp phần mềm                           | Xương sống của D-1 và của PP-5 — bước “xem lại trước khi gửi” là biện pháp rẻ nhất giảm yêu cầu thừa    |
+| ★ **Mức 1** | `UF-05` | Quản lý xác nhận license                             | Màn hình quyết định phân hệ Ghost Seat sống hay chết — nơi hệ thống nói thật về mức độ chắc chắn của nó |
+| ★ **Mức 1** | `UF-09` | IT Admin xử lý nhân viên nghỉ việc                   | Kịch bản demo giá trị nhất: vừa là chi phí vừa là lỗ hổng bảo mật, và chỉ dùng dữ liệu nội bộ           |
+| ★ **Mức 1** | `UF-10` | IT Admin xử lý bảng tối ưu license                   | Chỗ tiền hiện ra — bốn nhóm lãng phí và hai con số tiết kiệm không bao giờ được cộng lại                |
 | ★ **Mức 1** | `UF-11` | Tài chính kiểm soát ngân sách và theo dõi kỳ gia hạn | Mắt xích biến khuyến nghị thành tiền thật; cảnh báo đếm từ hạn chót báo hủy chứ không từ ngày gia hạn   |
-| ★ **Mức 1** | `UF-12` | Phát hiện và hợp thức hóa phần mềm ngoài danh mục | D-4 — đưa Shadow IT vào diện quản trị mà không kết tội; vòng lặp khép kín về lại danh mục               |
-| Mức 2       | `UF-02` | Nhân viên xin phần mềm chưa có trong danh mục     | Mở khi thầy hỏi “nhân viên cần phần mềm chưa có trong danh mục thì sao”                                 |
-| Mức 2       | `UF-04` | Quản lý duyệt yêu cầu cấp quyền                   | Cùng chuỗi D-1 với UF-01 nhưng nhìn từ phía người duyệt; mở khi thầy hỏi về phân tách trách nhiệm       |
-| Mức 2       | `UF-06` | IT Admin nạp dữ liệu sử dụng                      | Mở NGAY khi thầy hỏi “dữ liệu sử dụng ở đâu ra” hoặc “có xin phép người lao động không”                 |
-| Mức 2       | `UF-13` | Super Admin sửa cấu hình và luồng phê duyệt       | Vai trò Super Admin chỉ có một flow; mở khi thầy hỏi về cấu hình và phân quyền                          |
-| Mức 3       | `UF-03` | Nhân viên xem và xuất dữ liệu của chính mình      | Tra cứu — mở khi thầy hỏi về quyền của người lao động với dữ liệu của chính họ                          |
-| Mức 3       | `UF-07` | IT Admin xử lý hàng đợi chưa khớp danh tính       | Tra cứu — mở khi thầy hỏi “khớp tài khoản bên nhà cung cấp với nhân viên bằng cách nào”                 |
-| Mức 3       | `UF-08` | IT Admin xử lý hàng đợi cấp phát                  | Tra cứu — mở khi thầy hỏi “cấp phát lỗi thì sao” hoặc “ứng dụng không có API thì làm thế nào”           |
-| Mức 3       | `UF-14` | IT Admin xử lý sai lệch và mâu thuẫn dữ liệu      | Tra cứu — mở khi thầy hỏi “hai nguồn dữ liệu lệch nhau thì tin cái nào”                                 |
+| ★ **Mức 1** | `UF-12` | Phát hiện và hợp thức hóa phần mềm ngoài danh mục    | D-4 — đưa Shadow IT vào diện quản trị mà không kết tội; vòng lặp khép kín về lại danh mục               |
+| Mức 2       | `UF-02` | Nhân viên xin phần mềm chưa có trong danh mục        | Mở khi thầy hỏi “nhân viên cần phần mềm chưa có trong danh mục thì sao”                                 |
+| Mức 2       | `UF-04` | Quản lý duyệt yêu cầu cấp quyền                      | Cùng chuỗi D-1 với UF-01 nhưng nhìn từ phía người duyệt; mở khi thầy hỏi về phân tách trách nhiệm       |
+| Mức 2       | `UF-06` | IT Admin nạp dữ liệu sử dụng                         | Mở NGAY khi thầy hỏi “dữ liệu sử dụng ở đâu ra” hoặc “có xin phép người lao động không”                 |
+| Mức 2       | `UF-13` | Super Admin sửa cấu hình và luồng phê duyệt          | Vai trò Super Admin chỉ có một flow; mở khi thầy hỏi về cấu hình và phân quyền                          |
+| Mức 3       | `UF-03` | Nhân viên xem và xuất dữ liệu của chính mình         | Tra cứu — mở khi thầy hỏi về quyền của người lao động với dữ liệu của chính họ                          |
+| Mức 3       | `UF-07` | IT Admin xử lý hàng đợi chưa khớp danh tính          | Tra cứu — mở khi thầy hỏi “khớp tài khoản bên nhà cung cấp với nhân viên bằng cách nào”                 |
+| Mức 3       | `UF-08` | IT Admin xử lý hàng đợi cấp phát                     | Tra cứu — mở khi thầy hỏi “cấp phát lỗi thì sao” hoặc “ứng dụng không có API thì làm thế nào”           |
+| Mức 3       | `UF-14` | IT Admin xử lý sai lệch và mâu thuẫn dữ liệu         | Tra cứu — mở khi thầy hỏi “hai nguồn dữ liệu lệch nhau thì tin cái nào”                                 |
 
 #### 11.3.2. Kịch bản trình bày 12 phút
 
@@ -2568,14 +2568,14 @@ Sáu flow Mức 1 phủ kín cả bốn chuỗi demo; vai trò Super Admin và N
 
 | #   | Flow    | Vai trò      | Dừng lại ở đâu — câu cần nói                                                                                                                                                                  |
 | --- | ------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | `UF-01` | Employee     | Bước 3 “xem lại”: chi phí quy đổi và chuỗi người duyệt hiện **trước** khi gửi. *“Đây là biện pháp rẻ nhất để giảm yêu cầu thừa, và nó biến thời hạn xử lý thành một lời hứa nhìn thấy được.”* |
-| 2   | `UF-05` | Manager      | Dòng cảnh báo giới hạn dữ liệu, và **hai con số tiết kiệm tách biệt**. *“Hệ thống nói thật về mức độ chắc chắn của nó — đó là lý do quản lý chịu hợp tác.”*                                   |
-| 3   | `UF-09` | IT Admin     | Nhánh sinh nhóm `G2`. *“Chỗ này chỉ dùng dữ liệu nội bộ, không cần API của nhà cung cấp nào — nên nó luôn chạy được.”*                                                                        |
-| 4   | `UF-10` | IT Admin     | Bốn thẻ `G1`–`G4` không trộn lẫn. *“Bốn nhóm khác nhau về nguồn dữ liệu và độ tin cậy, nên cách xử lý cũng khác nhau.”*                                                                       |
-| 5   | `UF-11` | Finance      | Mốc cảnh báo hiện kèm khuyến nghị lãng phí của chính thuê bao đó. *“Đây là chỗ khuyến nghị thành tiền thật — thu hồi giữa kỳ không tiết kiệm được đồng nào.”*                                 |
-| 6   | `UF-12` | Finance + IT | Nhánh “đã duyệt”. *“Hợp thức hóa là kết cục bình thường và tích cực, không phải ngoại lệ — Shadow IT thường là tín hiệu bộ công cụ đã duyệt còn thiếu.”*                                      |
+| 1   | `UF-01` | Employee     | Bước 3 “xem lại”: chi phí quy đổi và chuỗi người duyệt hiện **trước** khi gửi. _“Đây là biện pháp rẻ nhất để giảm yêu cầu thừa, và nó biến thời hạn xử lý thành một lời hứa nhìn thấy được.”_ |
+| 2   | `UF-05` | Manager      | Dòng cảnh báo giới hạn dữ liệu, và **hai con số tiết kiệm tách biệt**. _“Hệ thống nói thật về mức độ chắc chắn của nó — đó là lý do quản lý chịu hợp tác.”_                                   |
+| 3   | `UF-09` | IT Admin     | Nhánh sinh nhóm `G2`. _“Chỗ này chỉ dùng dữ liệu nội bộ, không cần API của nhà cung cấp nào — nên nó luôn chạy được.”_                                                                        |
+| 4   | `UF-10` | IT Admin     | Bốn thẻ `G1`–`G4` không trộn lẫn. _“Bốn nhóm khác nhau về nguồn dữ liệu và độ tin cậy, nên cách xử lý cũng khác nhau.”_                                                                       |
+| 5   | `UF-11` | Finance      | Mốc cảnh báo hiện kèm khuyến nghị lãng phí của chính thuê bao đó. _“Đây là chỗ khuyến nghị thành tiền thật — thu hồi giữa kỳ không tiết kiệm được đồng nào.”_                                 |
+| 6   | `UF-12` | Finance + IT | Nhánh “đã duyệt”. _“Hợp thức hóa là kết cục bình thường và tích cực, không phải ngoại lệ — Shadow IT thường là tín hiệu bộ công cụ đã duyệt còn thiếu.”_                                      |
 
-> **Nếu chỉ còn 5 phút:** nói `UF-09` → `UF-10` → `UF-11`. Ba flow đó là một mạch liền — người nghỉ việc sinh lãng phí, bảng tối ưu phát hiện, kỳ gia hạn biến nó thành tiền — và trả lời được câu *“hệ thống này tạo ra giá trị gì”* mà không cần nhắc tới một dòng nhật ký bên ngoài nào.
+> **Nếu chỉ còn 5 phút:** nói `UF-09` → `UF-10` → `UF-11`. Ba flow đó là một mạch liền — người nghỉ việc sinh lãng phí, bảng tối ưu phát hiện, kỳ gia hạn biến nó thành tiền — và trả lời được câu _“hệ thống này tạo ra giá trị gì”_ mà không cần nhắc tới một dòng nhật ký bên ngoài nào.
 
 #### 11.3.3. Bảng tra ngược — thầy hỏi câu nào thì mở flow nào
 
@@ -2604,15 +2604,16 @@ Dùng trong phần hỏi đáp. Mười bốn câu dưới đây phủ đúng m�
 
 ### 11.4. `UF-01` — Nhân viên xin cấp phần mềm
 
-|                               |                                                                                                                                       |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| **Vai trò**                   | Employee                                                                                                                              |
-| **Ưu tiên trình bày**         | **MỨC 1 · Bắt buộc trình bày** — Xương sống của D-1 và của PP-5 — bước “xem lại trước khi gửi” là biện pháp rẻ nhất giảm yêu cầu thừa |
-| **Màn hình đi qua**           | `EMP-01` · `EMP-02` · `EMP-03` · `EMP-04`                                                                                             |
-| **Luồng nghiệp vụ tương ứng** | —                                                                                                                                     |
-| **Quy tắc chi phối**          | `BR-07.1` · `BR-07.2` · `BR-07.3` · `BR-07.4` · `BR-07.6` · **`BR-07.8`** *(v0.5)* · `BR-12.5` · **`BR-13.6`** *(hết người hợp lệ)* · **`BR-13.10`** *(người thay thế khi xung đột — v0.6)*                                                                 |
-| **Chuỗi demo**                | **D-1** — Xin công cụ có phát sinh chi phí                                                                                            |
-| **Quy mô**                    | 22 nút · 23 cạnh · 5 điểm rẽ nhánh                                                                                                    |
+|                               |                                                                                                                                                                                             |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Vai trò**                   | Employee                                                                                                                                                                                    |
+| **Ưu tiên trình bày**         | **MỨC 1 · Bắt buộc trình bày** — Xương sống của D-1 và của PP-5 — bước “xem lại trước khi gửi” là biện pháp rẻ nhất giảm yêu cầu thừa                                                       |
+| **Màn hình đi qua**           | `EMP-01` · `EMP-02` · `EMP-03` · `EMP-04`                                                                                                                                                   |
+| **Luồng nghiệp vụ tương ứng** | —                                                                                                                                                                                           |
+| **Quy tắc chi phối**          | `BR-07.1` · `BR-07.2` · `BR-07.3` · `BR-07.4` · `BR-07.6` · **`BR-07.8`** _(v0.5)_ · `BR-12.5` · **`BR-13.6`** _(hết người hợp lệ)_ · **`BR-13.10`** _(người thay thế khi xung đột — v0.6)_ |
+| **Chuỗi demo**                | **D-1** — Xin công cụ có phát sinh chi phí                                                                                                                                                  |
+| **Quy mô**                    | 22 nút · 23 cạnh · 5 điểm rẽ nhánh                                                                                                                                                          |
+
 ```mermaid
 flowchart TB
     st(["BẮT ĐẦU<br/>Nhân viên cần một công cụ"])
@@ -2683,19 +2684,21 @@ flowchart TB
 
 **Ánh xạ tuyến duyệt của bước hệ thống `s2`.** Hình chỉ giữ phản hồi Employee cần thấy; bảng này giữ truy vết cho từng kết quả của cùng một bước, không thêm các nhánh backend vào User Flow.
 
-| Neo trên hình | Trình tự hoặc kết quả bắt buộc | Nguồn truy vết |
-| --- | --- | --- |
-| `s2` → `a7` — có người hợp lệ | Xác định người duyệt theo `FR-3.3` hoặc `FR-3.6`; bước duyệt chi theo `FR-3.13`. **Không** ủy quyền *(v0.6)*. | `F-13` · `FR-3.5` · `QĐ-02` · `QĐ-27` |
-| `s2` → `a7` — Người duyệt chi là người yêu cầu/thụ hưởng *(v0.6)* | Bước duyệt chi **tạo thẳng** cho người thay thế khi xung đột do Quản trị hệ thống cấu hình trước; không ai trong luồng chọn; SLA tính từ lúc tạo. | `BR-13.10` · `FR-3.15` · `QĐ-28c` |
-| `s2` → `a7` — hết người hợp lệ | Giữ Request **chờ có kiểm soát**: gắn cờ, nhắc và **thông báo**, báo Quản trị hệ thống cấu hình lại; chỉ xác định lại sau sự kiện dữ liệu/cấu hình (`BR-13.9`). Không tự duyệt/từ chối và Super Admin chỉ cấu hình. | `BR-13.6` · `FR-3.12` · `QĐ-13` · `QĐ-28d` · `SoD-1` |
+| Neo trên hình                                                     | Trình tự hoặc kết quả bắt buộc                                                                                                                                                                                      | Nguồn truy vết                                       |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| `s2` → `a7` — có người hợp lệ                                     | Xác định người duyệt theo `FR-3.3` hoặc `FR-3.6`; bước duyệt chi theo `FR-3.13`. **Không** ủy quyền _(v0.6)_.                                                                                                       | `F-13` · `FR-3.5` · `QĐ-02` · `QĐ-27`                |
+| `s2` → `a7` — Người duyệt chi là người yêu cầu/thụ hưởng _(v0.6)_ | Bước duyệt chi **tạo thẳng** cho người thay thế khi xung đột do Quản trị hệ thống cấu hình trước; không ai trong luồng chọn; SLA tính từ lúc tạo.                                                                   | `BR-13.10` · `FR-3.15` · `QĐ-28c`                    |
+| `s2` → `a7` — hết người hợp lệ                                    | Giữ Request **chờ có kiểm soát**: gắn cờ, nhắc và **thông báo**, báo Quản trị hệ thống cấu hình lại; chỉ xác định lại sau sự kiện dữ liệu/cấu hình (`BR-13.9`). Không tự duyệt/từ chối và Super Admin chỉ cấu hình. | `BR-13.6` · `FR-3.12` · `QĐ-13` · `QĐ-28d` · `SoD-1` |
 
 **EMP-04 hiển thị mốc theo tuyến thực tế, không áp một chuỗi bắt buộc cho mọi Request.**
 
-- “Chờ Người duyệt chi” chỉ có khi `d4` đi nhánh **hết suất**/phát sinh chi phí; không phải mốc mặc định. Tài chính **không** có mốc chờ trên timeline vì không nằm trên đường duyệt *(sửa ở v0.7 — `QĐ-29b`; v0.5 → v0.6 có thêm “Chờ ý kiến ngân sách”; tới v0.4 là “Chờ Tài chính”)*. Quản lý trực tiếp cũng là Người duyệt chi thì vẫn hiện **hai mốc riêng** (`BR-07.8`).
+- “Chờ Người duyệt chi” chỉ có khi `d4` đi nhánh **hết suất**/phát sinh chi phí; không phải mốc mặc định. Tài chính **không** có mốc chờ trên timeline vì không nằm trên đường duyệt _(sửa ở v0.7 — `QĐ-29b`; v0.5 → v0.6 có thêm “Chờ ý kiến ngân sách”; tới v0.4 là “Chờ Tài chính”)_. Quản lý trực tiếp cũng là Người duyệt chi thì vẫn hiện **hai mốc riêng** (`BR-07.8`).
 - Những mốc còn lại chỉ xuất hiện khi Request đi qua trạng thái đó; kết quả cuối vẫn tách ở `d5`.
 
 > Ba màn hình P0 bắt buộc: EMP-01, EMP-02 (wizard 4 bước), EMP-03, EMP-04.
+
 ---
+
 ### 11.5. `UF-02` — Nhân viên xin phần mềm chưa có trong danh mục
 
 |                               |                                                                                                                   |
@@ -2704,9 +2707,10 @@ flowchart TB
 | **Ưu tiên trình bày**         | **MỨC 2 · Trình bày nếu còn thời gian** — Mở khi thầy hỏi “nhân viên cần phần mềm chưa có trong danh mục thì sao” |
 | **Màn hình đi qua**           | `EMP-01` · `EMP-02` · `EMP-03` · `SYS-02`                                                                         |
 | **Luồng nghiệp vụ tương ứng** | `F-06`, `F-09`                                                                                                    |
-| **Quy tắc chi phối**          | `BR-09.1` · `BR-09.2` · `BR-09.3` · **`BR-09.4`** *(v0.5)*                                                                                 |
+| **Quy tắc chi phối**          | `BR-09.1` · `BR-09.2` · `BR-09.3` · **`BR-09.4`** _(v0.5)_                                                        |
 | **Chuỗi demo**                | —                                                                                                                 |
 | **Quy mô**                    | 20 nút · 21 cạnh · 3 điểm rẽ nhánh                                                                                |
+
 ```mermaid
 flowchart TB
     st(["BẮT ĐẦU<br/>Không tìm thấy app trong danh mục"])
@@ -2772,7 +2776,9 @@ flowchart TB
 ```
 
 > IT xuất hiện hai lần với hai vai trò khác nhau: đánh giá rủi ro, rồi mới thực hiện.
+
 ---
+
 ### 11.6. `UF-03` — Nhân viên xem và xuất dữ liệu của chính mình
 
 |                               |                                                                                                                |
@@ -2781,9 +2787,10 @@ flowchart TB
 | **Ưu tiên trình bày**         | **MỨC 3 · Chỉ mở khi bị hỏi** — Tra cứu — mở khi thầy hỏi về quyền của người lao động với dữ liệu của chính họ |
 | **Màn hình đi qua**           | `EMP-01` · `EMP-03` · `SYS-02` · `SYS-03`                                                                      |
 | **Luồng nghiệp vụ tương ứng** | `F-40`                                                                                                         |
-| **Quy tắc chi phối**          | `BR-40.1` · `BR-40.2` · `BR-40.3` · **`BR-42.6`** *(v0.5)*                                                                              |
+| **Quy tắc chi phối**          | `BR-40.1` · `BR-40.2` · `BR-40.3` · **`BR-42.6`** _(v0.5)_                                                     |
 | **Chuỗi demo**                | —                                                                                                              |
 | **Quy mô**                    | 14 nút · 13 cạnh · 1 điểm rẽ nhánh                                                                             |
+
 ```mermaid
 flowchart TB
     st(["BẮT ĐẦU<br/>Nhân viên muốn biết hệ thống<br/>lưu gì về mình"])
@@ -2832,18 +2839,21 @@ flowchart TB
 ```
 
 > Hai mốc thời gian ở BR-40.2 là thứ dùng để chứng minh đáp ứng đúng thời hạn quy định.
+
 ---
+
 ### 11.7. `UF-04` — Quản lý duyệt yêu cầu cấp quyền
 
 |                               |                                                                                                                                             |
 | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Vai trò**                   | Manager                                                                                                                                     |
 | **Ưu tiên trình bày**         | **MỨC 2 · Trình bày nếu còn thời gian** — Cùng chuỗi D-1 với UF-01 nhưng nhìn từ phía người duyệt; mở khi thầy hỏi về phân tách trách nhiệm |
-| **Màn hình đi qua**           | `MGR-02` · `MGR-03` *(v0.6 — bỏ `MGR-06 · Ủy quyền`, `QĐ-27`)*                                                                              |
+| **Màn hình đi qua**           | `MGR-02` · `MGR-03` _(v0.6 — bỏ `MGR-06 · Ủy quyền`, `QĐ-27`)_                                                                              |
 | **Luồng nghiệp vụ tương ứng** | `F-07`, `F-08`, `F-13`                                                                                                                      |
-| **Quy tắc chi phối**          | `BR-02.2` · `BR-07.5` · `BR-07.7` · `BR-13.2` · `BR-13.4` · **`BR-13.6`** · **`BR-13.8`** · **`BR-13.9`** *(v0.6)*                             |
+| **Quy tắc chi phối**          | `BR-02.2` · `BR-07.5` · `BR-07.7` · `BR-13.2` · `BR-13.4` · **`BR-13.6`** · **`BR-13.8`** · **`BR-13.9`** _(v0.6)_                          |
 | **Chuỗi demo**                | **D-1** — Xin công cụ có phát sinh chi phí                                                                                                  |
 | **Quy mô**                    | 11 nút · 10 cạnh · 2 điểm rẽ nhánh                                                                                                          |
+
 ```mermaid
 flowchart TB
     st(["BẮT ĐẦU<br/>Có yêu cầu chờ tôi duyệt"])
@@ -2886,17 +2896,19 @@ flowchart TB
     linkStyle default stroke:#5C6B7A,stroke-width:1.5px
 ```
 
-> **Sửa ở v0.6 — `QĐ-27`, `QĐ-28d`.** Bỏ quyết định `d1` *“Tôi sắp vắng mặt?”*, màn hình `a2` *MGR-06 · Ủy quyền*, bước `s1` và kết thúc `e1` *“Người được ủy quyền xử lý”*: **15 → 11 nút, 14 → 10 cạnh, 3 → 2 điểm rẽ nhánh**. Mã nút còn lại giữ nguyên để diff truy được. Quản lý sắp vắng **không** có thao tác nào trong hệ thống; nếu yêu cầu quá hạn thì hệ thống nhắc, thông báo và cảnh báo backlog (`BR-13.8`) — đó là việc của hệ thống, không phải một màn hình của quản lý.
+> **Sửa ở v0.6 — `QĐ-27`, `QĐ-28d`.** Bỏ quyết định `d1` _“Tôi sắp vắng mặt?”_, màn hình `a2` _MGR-06 · Ủy quyền_, bước `s1` và kết thúc `e1` _“Người được ủy quyền xử lý”_: **15 → 11 nút, 14 → 10 cạnh, 3 → 2 điểm rẽ nhánh**. Mã nút còn lại giữ nguyên để diff truy được. Quản lý sắp vắng **không** có thao tác nào trong hệ thống; nếu yêu cầu quá hạn thì hệ thống nhắc, thông báo và cảnh báo backlog (`BR-13.8`) — đó là việc của hệ thống, không phải một màn hình của quản lý.
 
-**Ánh xạ kết quả loại trừ nhau của `s2`.** `s2` là xử lý định tuyến sau guard `d2` *“đúng, tôi là người yêu cầu”*; nó không trao quyền duyệt cho Quản trị hệ thống hay Super Admin, và **không phải ủy quyền**.
+**Ánh xạ kết quả loại trừ nhau của `s2`.** `s2` là xử lý định tuyến sau guard `d2` _“đúng, tôi là người yêu cầu”_; nó không trao quyền duyệt cho Quản trị hệ thống hay Super Admin, và **không phải ủy quyền**.
 
-| Tình huống tại `d2`/`s2` | Kết quả đến `e2` | Nguồn truy vết |
-| --- | --- | --- |
-| Người duyệt gốc trùng requester | Chuyển lên quản lý cấp trên; nếu cần, dùng người duyệt dự phòng ở gốc với vai Manager. | `BR-02.2` · `FR-3.3` · `FR-3.6` · `SoD-4` |
-| Không còn người duyệt hợp lệ | Giữ Request **chờ có kiểm soát**, gắn cờ, nhắc và **thông báo**, báo cấu hình lại; chỉ xác định lại sau sự kiện dữ liệu/cấu hình (`BR-13.9`). Không tự duyệt hoặc tự từ chối. | `BR-13.6` · `FR-3.12` · `QĐ-13` · `QĐ-28d` · `SoD-1` |
+| Tình huống tại `d2`/`s2`        | Kết quả đến `e2`                                                                                                                                                              | Nguồn truy vết                                       |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| Người duyệt gốc trùng requester | Chuyển lên quản lý cấp trên; nếu cần, dùng người duyệt dự phòng ở gốc với vai Manager.                                                                                        | `BR-02.2` · `FR-3.3` · `FR-3.6` · `SoD-4`            |
+| Không còn người duyệt hợp lệ    | Giữ Request **chờ có kiểm soát**, gắn cờ, nhắc và **thông báo**, báo cấu hình lại; chỉ xác định lại sau sự kiện dữ liệu/cấu hình (`BR-13.9`). Không tự duyệt hoặc tự từ chối. | `BR-13.6` · `FR-3.12` · `QĐ-13` · `QĐ-28d` · `SoD-1` |
 
 > “Hỏi thêm” cũng là một hành động ở MGR-03 nhưng không dừng đồng hồ SLA, nên không tạo nhánh riêng.
+
 ---
+
 ### 11.8. `UF-05` — Quản lý xác nhận license
 
 |                               |                                                                                                                                          |
@@ -2962,7 +2974,9 @@ flowchart TB
 ```
 
 > Cả ba lựa chọn đều bắt buộc nhập lý do. “Giữ lại” là phát biểu có thời hạn, không đóng vĩnh viễn.
+
 ---
+
 ### 11.9. `UF-06` — IT Admin nạp dữ liệu sử dụng
 
 |                               |                                                                                                                                   |
@@ -2974,6 +2988,7 @@ flowchart TB
 | **Quy tắc chi phối**          | `BR-17.1` · `BR-17.6` · `BR-17.8` · `BR-18.1` · `BR-42.2`                                                                         |
 | **Chuỗi demo**                | **D-2** — Từ file nhật ký tới tiền tiết kiệm                                                                                      |
 | **Quy mô**                    | 24 nút · 26 cạnh · 6 điểm rẽ nhánh                                                                                                |
+
 ```mermaid
 flowchart TB
     st(["BẮT ĐẦU<br/>IT có file nhật ký sử dụng"])
@@ -3048,7 +3063,9 @@ flowchart TB
 ```
 
 > Bước 4 là chỗ chặn mọi kết luận sai trên dữ liệu thiếu — không được rút gọn (FR-7.2).
+
 ---
+
 ### 11.10. `UF-07` — IT Admin xử lý hàng đợi chưa khớp danh tính
 
 |                               |                                                                                                                         |
@@ -3106,6 +3123,7 @@ flowchart TB
 ```
 
 ---
+
 ### 11.11. `UF-08` — IT Admin xử lý hàng đợi cấp phát
 
 |                               |                                                                                                                               |
@@ -3184,8 +3202,10 @@ flowchart TB
     linkStyle default stroke:#5C6B7A,stroke-width:1.5px
 ```
 
-> Phần lớn phần mềm doanh nghiệp Việt Nam không có kết nối tự động, nên nhánh thủ công quan trọng hơn nhánh tự động. Hết hạn mức license quay lại đúng chuỗi `QĐ-22`/`QĐ-29b`: Người duyệt chi **quyết định** mua thêm suất (`UF-15`) trên snapshot ngân sách, rồi Tài chính **ghi nhận** ngân sách (`UF-11`) — không có bước nào ở đây để Tài chính tự duyệt. *(v0.7 — đảo thứ tự `o2` → `o1`; số nút, cạnh không đổi.)*
+> Phần lớn phần mềm doanh nghiệp Việt Nam không có kết nối tự động, nên nhánh thủ công quan trọng hơn nhánh tự động. Hết hạn mức license quay lại đúng chuỗi `QĐ-22`/`QĐ-29b`: Người duyệt chi **quyết định** mua thêm suất (`UF-15`) trên snapshot ngân sách, rồi Tài chính **ghi nhận** ngân sách (`UF-11`) — không có bước nào ở đây để Tài chính tự duyệt. _(v0.7 — đảo thứ tự `o2` → `o1`; số nút, cạnh không đổi.)_
+
 ---
+
 ### 11.12. `UF-09` — IT Admin xử lý nhân viên nghỉ việc
 
 |                               |                                                                                                                                |
@@ -3194,9 +3214,10 @@ flowchart TB
 | **Ưu tiên trình bày**         | **MỨC 1 · Bắt buộc trình bày** — Kịch bản demo giá trị nhất: vừa là chi phí vừa là lỗ hổng bảo mật, và chỉ dùng dữ liệu nội bộ |
 | **Màn hình đi qua**           | `ITA-04` · `ITA-10` · `ITA-12` · `ITA-13` · `ITA-14`                                                                           |
 | **Luồng nghiệp vụ tương ứng** | `F-05`, `F-41`                                                                                                                 |
-| **Quy tắc chi phối**          | `BR-05.1` · `BR-05.2` · `BR-05.3` · `BR-05.4` · `BR-14.2` · `BR-22.2` · `BR-41.1` · `BR-41.3` · **`BR-45.7`** *(v0.5)*                                  |
+| **Quy tắc chi phối**          | `BR-05.1` · `BR-05.2` · `BR-05.3` · `BR-05.4` · `BR-14.2` · `BR-22.2` · `BR-41.1` · `BR-41.3` · **`BR-45.7`** _(v0.5)_         |
 | **Chuỗi demo**                | **D-3** — Nhân viên nghỉ việc                                                                                                  |
 | **Quy mô**                    | 18 nút · 19 cạnh · 2 điểm rẽ nhánh                                                                                             |
+
 ```mermaid
 flowchart TB
     st(["BẮT ĐẦU<br/>Nhân sự báo một nhân viên nghỉ việc"])
@@ -3257,7 +3278,9 @@ flowchart TB
 ```
 
 > Đây là kịch bản demo giá trị nhất: vừa là chi phí vừa là lỗ hổng bảo mật, và chỉ dùng dữ liệu nội bộ.
+
 ---
+
 ### 11.13. `UF-10` — IT Admin xử lý bảng tối ưu license
 
 |                               |                                                                                                                           |
@@ -3331,21 +3354,24 @@ flowchart TB
 >
 > 🔧 **Sửa ở v0.7 — `QĐ-29b`.** Nhánh `G1` nay đi `a2 → o1b → o1`: Người duyệt chi quyết tại kỳ gia hạn (`UF-15`) trước, Tài chính ghi nhận sau (`UF-11`). Số nút, cạnh không đổi.
 >
-> 🔧 **Sửa ở lượt follow-up 14/09/2026 — `QĐ-22`.** Nhánh `G1` trước đây dẫn thẳng tới một tham chiếu ghi *"Tài chính quyết định tại kỳ gia hạn"* — sai, vì Tài chính không còn quyết định gì từ `QĐ-22`. Nay `a2 → o1 → o1b`: `o1` chỉ còn ghi ý kiến ngân sách (`UF-11`), `o1b` mới là nơi Người duyệt chi quyết (`UF-15`). Không đổi nghiệp vụ của nhánh `G2`/`G3`/`G4`.
+> 🔧 **Sửa ở lượt follow-up 14/09/2026 — `QĐ-22`.** Nhánh `G1` trước đây dẫn thẳng tới một tham chiếu ghi _"Tài chính quyết định tại kỳ gia hạn"_ — sai, vì Tài chính không còn quyết định gì từ `QĐ-22`. Nay `a2 → o1 → o1b`: `o1` chỉ còn ghi ý kiến ngân sách (`UF-11`), `o1b` mới là nơi Người duyệt chi quyết (`UF-15`). Không đổi nghiệp vụ của nhánh `G2`/`G3`/`G4`.
 >
-> 🔧 **Sửa ở lượt review 09/09/2026.** Trước đó nhánh `G2` đi `a5 → d2` *(“IT đồng ý với xác nhận của quản lý?”)*, mà nhánh `không đồng ý` của `d2` kết thúc ở *“Trả lại quản lý xem xét”*. Với `G2` **không hề có xác nhận của quản lý** để đồng ý hay không, và trả về cho quản lý là điều `BR-05.2` cấm — *“người đã nghỉ thì không có gì để bàn”*. Nay `G2` đi **thẳng `a5 → o3`**, khớp `BR-05.2`, `BR-19.2` và mục 1.7 *(“G2 KHÔNG đi qua bước B3.4”)*. `d2` giữ nguyên ngữ nghĩa `BR-22.1` cho nhánh `G3`/`G4`. Số nút, số cạnh và số điểm rẽ nhánh **không đổi**.
+> 🔧 **Sửa ở lượt review 09/09/2026.** Trước đó nhánh `G2` đi `a5 → d2` _(“IT đồng ý với xác nhận của quản lý?”)_, mà nhánh `không đồng ý` của `d2` kết thúc ở _“Trả lại quản lý xem xét”_. Với `G2` **không hề có xác nhận của quản lý** để đồng ý hay không, và trả về cho quản lý là điều `BR-05.2` cấm — _“người đã nghỉ thì không có gì để bàn”_. Nay `G2` đi **thẳng `a5 → o3`**, khớp `BR-05.2`, `BR-19.2` và mục 1.7 _(“G2 KHÔNG đi qua bước B3.4”)_. `d2` giữ nguyên ngữ nghĩa `BR-22.1` cho nhánh `G3`/`G4`. Số nút, số cạnh và số điểm rẽ nhánh **không đổi**.
+
 ---
+
 ### 11.14. `UF-11` — Tài chính kiểm soát ngân sách và theo dõi kỳ gia hạn
 
-|                               |                                                                                                                                        |
-| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| **Vai trò**                   | Finance                                                                                                                                |
-| **Ưu tiên trình bày**         | **MỨC 1 · Bắt buộc trình bày** — Mắt xích biến khuyến nghị thành tiền thật; cảnh báo đếm từ hạn chót báo hủy chứ không từ ngày gia hạn. *(v0.7 — Tài chính **không** nằm trên đường duyệt: trả lời khi Người duyệt chi hỏi, ghi nhận sau duyệt; Người duyệt chi quyết: `UF-15`)* |
-| **Màn hình đi qua**           | `FIN-03` · `FIN-05` · `FIN-06`                                                                                                                    |
-| **Luồng nghiệp vụ tương ứng** | `F-08`, `F-26`, `F-27`, `F-36`                                                                                                                 |
-| **Quy tắc chi phối**          | `BR-07.9` · `BR-07.10` · `BR-26.1` · `BR-26.2` · `BR-26.3` · `BR-27.1` · `BR-27.2` · `BR-27.3` · `BR-27.4`                                                                  |
-| **Chuỗi demo**                | —                                                                                                                                      |
-| **Quy mô**                    | 21 nút · 21 cạnh · 3 điểm rẽ nhánh                                                                                                     |
+|                               |                                                                                                                                                                                                                                                                                  |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Vai trò**                   | Finance                                                                                                                                                                                                                                                                          |
+| **Ưu tiên trình bày**         | **MỨC 1 · Bắt buộc trình bày** — Mắt xích biến khuyến nghị thành tiền thật; cảnh báo đếm từ hạn chót báo hủy chứ không từ ngày gia hạn. _(v0.7 — Tài chính **không** nằm trên đường duyệt: trả lời khi Người duyệt chi hỏi, ghi nhận sau duyệt; Người duyệt chi quyết: `UF-15`)_ |
+| **Màn hình đi qua**           | `FIN-03` · `FIN-05` · `FIN-06`                                                                                                                                                                                                                                                   |
+| **Luồng nghiệp vụ tương ứng** | `F-08`, `F-26`, `F-27`, `F-36`                                                                                                                                                                                                                                                   |
+| **Quy tắc chi phối**          | `BR-07.9` · `BR-07.10` · `BR-26.1` · `BR-26.2` · `BR-26.3` · `BR-27.1` · `BR-27.2` · `BR-27.3` · `BR-27.4`                                                                                                                                                                       |
+| **Chuỗi demo**                | —                                                                                                                                                                                                                                                                                |
+| **Quy mô**                    | 21 nút · 21 cạnh · 3 điểm rẽ nhánh                                                                                                                                                                                                                                               |
+
 ```mermaid
 flowchart TB
     st(["BẮT ĐẦU<br/>Tài chính mở hệ thống"])
@@ -3413,8 +3439,10 @@ flowchart TB
 
 > Cảnh báo trước ngày gia hạn 7 ngày trong khi hợp đồng buộc báo hủy trước 30 ngày là một cảnh báo vô dụng gửi đúng giờ.
 >
-> **Vẽ lại ở v0.7 — `QĐ-29b`.** Tài chính không còn hàng đợi *ghi ý kiến trước duyệt chi*. Ba việc: **trả lời yêu cầu thông tin** khi Người duyệt chi hỏi (`a1` → `e5`), **ghi nhận ngân sách** trên khoản cam kết hệ thống đã tạo khi duyệt (`a7` → `e4`), và **theo dõi kỳ gia hạn** (`a2` → `e2`/`e3`). Bỏ `s5`, `e1` *(từ chối không còn đi qua Tài chính)*; thêm `e5`, `s7`: **21 nút, 20 → 21 cạnh**, 3 điểm rẽ nhánh.
+> **Vẽ lại ở v0.7 — `QĐ-29b`.** Tài chính không còn hàng đợi _ghi ý kiến trước duyệt chi_. Ba việc: **trả lời yêu cầu thông tin** khi Người duyệt chi hỏi (`a1` → `e5`), **ghi nhận ngân sách** trên khoản cam kết hệ thống đã tạo khi duyệt (`a7` → `e4`), và **theo dõi kỳ gia hạn** (`a2` → `e2`/`e3`). Bỏ `s5`, `e1` _(từ chối không còn đi qua Tài chính)_; thêm `e5`, `s7`: **21 nút, 20 → 21 cạnh**, 3 điểm rẽ nhánh.
+
 ---
+
 ### 11.15. `UF-12` — Phát hiện và hợp thức hóa phần mềm ngoài danh mục
 
 |                               |                                                                                                                            |
@@ -3422,10 +3450,11 @@ flowchart TB
 | **Vai trò**                   | Finance + IT Admin                                                                                                         |
 | **Ưu tiên trình bày**         | **MỨC 1 · Bắt buộc trình bày** — D-4 — đưa Shadow IT vào diện quản trị mà không kết tội; vòng lặp khép kín về lại danh mục |
 | **Màn hình đi qua**           | `FIN-04` · `ITA-03` · `ITA-07` · `ITA-15`                                                                                  |
-| **Luồng nghiệp vụ tương ứng** | `F-06`, `F-31`, `F-32`, `F-34`, `F-46`                                                                                             |
-| **Quy tắc chi phối**          | `BR-31.1` · `BR-31.2` · `BR-31.3` · `BR-31.4` · `BR-34.1` · `BR-34.2` · `BR-46.1` · `BR-46.2`                                                      |
+| **Luồng nghiệp vụ tương ứng** | `F-06`, `F-31`, `F-32`, `F-34`, `F-46`                                                                                     |
+| **Quy tắc chi phối**          | `BR-31.1` · `BR-31.2` · `BR-31.3` · `BR-31.4` · `BR-34.1` · `BR-34.2` · `BR-46.1` · `BR-46.2`                              |
 | **Chuỗi demo**                | **D-4** — Phát hiện chi tiêu ngoài danh mục                                                                                |
 | **Quy mô**                    | 22 nút · 24 cạnh · 4 điểm rẽ nhánh                                                                                         |
+
 ```mermaid
 flowchart TB
     st(["BẮT ĐẦU<br/>Có sao kê hoặc dữ liệu cấp quyền mới"])
@@ -3494,7 +3523,9 @@ flowchart TB
 ```
 
 > Bản ghi phát hiện là “có dấu hiệu một phần mềm chưa nằm trong danh mục”, không phải kết luận vi phạm.
+
 ---
+
 ### 11.16. `UF-13` — Super Admin sửa cấu hình và luồng phê duyệt
 
 |                               |                                                                                                                          |
@@ -3502,10 +3533,11 @@ flowchart TB
 | **Vai trò**                   | Super Admin                                                                                                              |
 | **Ưu tiên trình bày**         | **MỨC 2 · Trình bày nếu còn thời gian** — Vai trò Super Admin chỉ có một flow; mở khi thầy hỏi về cấu hình và phân quyền |
 | **Màn hình đi qua**           | `ADM-02` · `ADM-03` · `SYS-04`                                                                                           |
-| **Luồng nghiệp vụ tương ứng** | `F-37`, `F-38`, `F-42`                                                                                                           |
-| **Quy tắc chi phối**          | `BR-20.1` · `BR-37.1` · `BR-37.2` · `BR-38.1` · `BR-42.5` · `BR-13.9` *(v0.6)*                                                                            |
+| **Luồng nghiệp vụ tương ứng** | `F-37`, `F-38`, `F-42`                                                                                                   |
+| **Quy tắc chi phối**          | `BR-20.1` · `BR-37.1` · `BR-37.2` · `BR-38.1` · `BR-42.5` · `BR-13.9` _(v0.6)_                                           |
 | **Chuỗi demo**                | —                                                                                                                        |
 | **Quy mô**                    | 17 nút · 19 cạnh · 3 điểm rẽ nhánh                                                                                       |
+
 ```mermaid
 flowchart TB
     st(["BẮT ĐẦU<br/>Cần đổi ngưỡng phát hiện<br/>hoặc chuỗi người duyệt"])
@@ -3565,7 +3597,9 @@ flowchart TB
 ```
 
 > Không có khối xem thử thì Super Admin chỉnh chính sách trong bóng tối, sai sót chỉ lộ ra khi một yêu cầu thật đi sai đường.
+
 ---
+
 ### 11.17. `UF-14` — IT Admin xử lý sai lệch và mâu thuẫn dữ liệu
 
 |                               |                                                                                                         |
@@ -3652,19 +3686,21 @@ flowchart TB
 ```
 
 > Ba trong bảy tình huống mâu thuẫn là dấu hiệu của một vấn đề nghiệp vụ thật — tự đồng bộ cho khớp là xóa mất chính bằng chứng.
+
 ---
 
-### 11.17a. `UF-15` — Người duyệt chi duyệt khoản chi và quyết định kỳ gia hạn *(mới ở v0.5 — `QĐ-22`)*
+### 11.17a. `UF-15` — Người duyệt chi duyệt khoản chi và quyết định kỳ gia hạn _(mới ở v0.5 — `QĐ-22`)_
 
-|                               |                                                                                                   |
-| ----------------------------- | ------------------------------------------------------------------------------------------------- |
-| **Vai trò**                   | Người duyệt chi *(mặc định CEO)* · hoặc **người thay thế khi xung đột** với đúng Request mà Người duyệt chi là người yêu cầu/thụ hưởng |
-| **Ưu tiên trình bày**         | **MỨC 1 · Bắt buộc trình bày** — Góp ý của mentor: người có thẩm quyền chi quyết cuối; Tài chính báo cáo khi được hỏi và ghi nhận sau *(v0.7 — `QĐ-29b`)* |
-| **Màn hình đi qua**           | `APV-01` · `APV-02` · `APV-03` *(mã dự kiến — UI Spec chưa có, xem ghi chú dưới hình)*            |
-| **Luồng nghiệp vụ tương ứng** | `F-08`, `F-09`, `F-27`                                                                            |
-| **Quy tắc chi phối**          | `BR-07.5` · `BR-07.7` · `BR-07.8` · `BR-07.9` · `BR-07.10` · `BR-09.4` · `BR-13.8` · `BR-13.10` · `BR-27.1` · `BR-27.2` · `BR-27.3` · `BR-27.4` |
-| **Chuỗi demo**                | **D-1** — Xin công cụ có phát sinh chi phí                                                        |
-| **Quy mô**                    | 22 nút · 23 cạnh · 4 điểm rẽ nhánh                                                                              |
+|                               |                                                                                                                                                           |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Vai trò**                   | Người duyệt chi _(mặc định CEO)_ · hoặc **người thay thế khi xung đột** với đúng Request mà Người duyệt chi là người yêu cầu/thụ hưởng                    |
+| **Ưu tiên trình bày**         | **MỨC 1 · Bắt buộc trình bày** — Góp ý của mentor: người có thẩm quyền chi quyết cuối; Tài chính báo cáo khi được hỏi và ghi nhận sau _(v0.7 — `QĐ-29b`)_ |
+| **Màn hình đi qua**           | `APV-01` · `APV-02` · `APV-03` _(mã dự kiến — UI Spec chưa có, xem ghi chú dưới hình)_                                                                    |
+| **Luồng nghiệp vụ tương ứng** | `F-08`, `F-09`, `F-27`                                                                                                                                    |
+| **Quy tắc chi phối**          | `BR-07.5` · `BR-07.7` · `BR-07.8` · `BR-07.9` · `BR-07.10` · `BR-09.4` · `BR-13.8` · `BR-13.10` · `BR-27.1` · `BR-27.2` · `BR-27.3` · `BR-27.4`           |
+| **Chuỗi demo**                | **D-1** — Xin công cụ có phát sinh chi phí                                                                                                                |
+| **Quy mô**                    | 22 nút · 23 cạnh · 4 điểm rẽ nhánh                                                                                                                        |
+
 ```mermaid
 flowchart TB
     st(["BẮT ĐẦU<br/>Có khoản chi hoặc kỳ gia hạn chờ tôi"])
@@ -3732,21 +3768,24 @@ flowchart TB
     linkStyle default stroke:#5C6B7A,stroke-width:1.5px
 ```
 
-> **Ghi chú.** *(v0.7 — `QĐ-29b`)* Người duyệt chi quyết trên **snapshot ngân sách**; *Chưa có ngân sách* hoặc Tài chính chưa trả lời vẫn cho quyết (`BR-07.9`). Nhánh `s6` *hỏi Tài chính* kết thúc ở `e5`: bước duyệt chi **vẫn chờ chính người đó** quyết khi quay lại `APV-01` — không phải ủy quyền, SLA không dừng. Không vẽ cạnh quay lui về `d3` để sơ đồ không cắt nhánh kỳ gia hạn. Người duyệt chi xem tổng hợp suất cấp theo nhánh không chi phí ở báo cáo quy trình `F-47` (`QĐ-29a`), không ở hàng đợi này. Quản lý trực tiếp cũng là Người duyệt chi thì bước quản lý và bước duyệt chi vẫn là **hai bước riêng**, nhật ký gắn cờ *cùng người* (`BR-07.8`). SaaS chưa có trong danh mục luôn tới `APV-02`, kể cả miễn phí (`BR-09.4`). Nhánh *quá hạn, không ai xử lý* của kỳ gia hạn vẫn nằm ở `UF-11` vì nó do tác vụ nền ghi nhận, không phải một thao tác của Người duyệt chi.
+> **Ghi chú.** _(v0.7 — `QĐ-29b`)_ Người duyệt chi quyết trên **snapshot ngân sách**; _Chưa có ngân sách_ hoặc Tài chính chưa trả lời vẫn cho quyết (`BR-07.9`). Nhánh `s6` _hỏi Tài chính_ kết thúc ở `e5`: bước duyệt chi **vẫn chờ chính người đó** quyết khi quay lại `APV-01` — không phải ủy quyền, SLA không dừng. Không vẽ cạnh quay lui về `d3` để sơ đồ không cắt nhánh kỳ gia hạn. Người duyệt chi xem tổng hợp suất cấp theo nhánh không chi phí ở báo cáo quy trình `F-47` (`QĐ-29a`), không ở hàng đợi này. Quản lý trực tiếp cũng là Người duyệt chi thì bước quản lý và bước duyệt chi vẫn là **hai bước riêng**, nhật ký gắn cờ _cùng người_ (`BR-07.8`). SaaS chưa có trong danh mục luôn tới `APV-02`, kể cả miễn phí (`BR-09.4`). Nhánh _quá hạn, không ai xử lý_ của kỳ gia hạn vẫn nằm ở `UF-11` vì nó do tác vụ nền ghi nhận, không phải một thao tác của Người duyệt chi.
 >
 > ⚠️ **Mã màn hình `APV-01`, `APV-02`, `APV-03` là đề xuất** — UI Spec (`Docs/Figma UI-UX/Ui-spec.md`) chưa có vai Người duyệt chi. Chốt mã khi sửa UI Spec, kiểm trùng trước khi dùng.
----
-### 11.17b. `UF-16` — IT Admin triển khai bộ thu thập, nhân viên xác nhận theo dõi *(mới ở v0.5 — `QĐ-20`)*
 
-|                               |                                                                                                   |
-| ----------------------------- | ------------------------------------------------------------------------------------------------- |
-| **Vai trò**                   | IT Admin + Employee                                                                               |
-| **Ưu tiên trình bày**         | **MỨC 2 · Trình bày nếu còn thời gian** — Mở khi thầy hỏi *"theo dõi mức sử dụng trên máy công ty có hợp pháp không"* |
-| **Màn hình đi qua**           | `ITA-16` · `EMP-05` *(mã dự kiến — UI Spec chưa có)*                                              |
-| **Luồng nghiệp vụ tương ứng** | `F-42`, `F-45`                                                                                    |
-| **Quy tắc chi phối**          | `BR-42.4` · `BR-42.5` · `BR-45.1` · `BR-45.2` · `BR-45.3` · `BR-45.4` · `BR-45.6`                  |
-| **Chuỗi demo**                | **D-2** — Từ nhật ký tới tiền tiết kiệm *(nguồn thứ hai)*                                         |
-| **Quy mô**                    | 15 nút · 15 cạnh · 2 điểm rẽ nhánh                                                                              |
+---
+
+### 11.17b. `UF-16` — IT Admin triển khai bộ thu thập, nhân viên xác nhận theo dõi _(mới ở v0.5 — `QĐ-20`)_
+
+|                               |                                                                                                                       |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| **Vai trò**                   | IT Admin + Employee                                                                                                   |
+| **Ưu tiên trình bày**         | **MỨC 2 · Trình bày nếu còn thời gian** — Mở khi thầy hỏi _"theo dõi mức sử dụng trên máy công ty có hợp pháp không"_ |
+| **Màn hình đi qua**           | `ITA-16` · `EMP-05` _(mã dự kiến — UI Spec chưa có)_                                                                  |
+| **Luồng nghiệp vụ tương ứng** | `F-42`, `F-45`                                                                                                        |
+| **Quy tắc chi phối**          | `BR-42.4` · `BR-42.5` · `BR-45.1` · `BR-45.2` · `BR-45.3` · `BR-45.4` · `BR-45.6`                                     |
+| **Chuỗi demo**                | **D-2** — Từ nhật ký tới tiền tiết kiệm _(nguồn thứ hai)_                                                             |
+| **Quy mô**                    | 15 nút · 15 cạnh · 2 điểm rẽ nhánh                                                                                    |
+
 ```mermaid
 flowchart TB
     st(["BẮT ĐẦU<br/>IT triển khai tiện ích cho một thiết bị công ty"])
@@ -3799,10 +3838,12 @@ flowchart TB
     linkStyle default stroke:#5C6B7A,stroke-width:1.5px
 ```
 
-> **Ghi chú.** Nội dung thông báo đổi ⟹ phiên bản mới, nhân viên phải xác nhận lại (`BR-42.5`). Thiết bị im lặng nhiều ngày **không** suy ra *không hoạt động* — cửa sổ bao phủ dừng ở ngày gửi cuối. Quy trình nghiệp vụ đầy đủ ở Business Workflows `WF-18`. Agent trên máy (`F-48`) chỉ đặc tả, dùng cùng cổng nhận.
+> **Ghi chú.** Nội dung thông báo đổi ⟹ phiên bản mới, nhân viên phải xác nhận lại (`BR-42.5`). Thiết bị im lặng nhiều ngày **không** suy ra _không hoạt động_ — cửa sổ bao phủ dừng ở ngày gửi cuối. Quy trình nghiệp vụ đầy đủ ở Business Workflows `WF-18`. Agent trên máy (`F-48`) chỉ đặc tả, dùng cùng cổng nhận.
 >
 > ⚠️ **Mã màn hình `ITA-16`, `EMP-05` là đề xuất** — UI Spec chưa có. Chốt khi sửa UI Spec.
+
 ---
+
 ### 11.18. Đối chiếu mã — chạy ngày 07/09/2026
 
 | Nhóm mã                                                                                       | Số lượng dùng | Kết quả                                                     |
@@ -3815,15 +3856,15 @@ flowchart TB
 
 **Bảy con số dễ vẽ sai nhất đã tra lại tại BRD v3.5:**
 
-| Nội dung trên sơ đồ                                               | Căn cứ    | Khớp |
-| ----------------------------------------------------------------- | --------- | ---- |
-| Ngưỡng 30–59 / ≥60 / ≥90 ngày; mức “theo dõi” không gửi thông báo | `FR-4.12` | ✅    |
-| Thứ tự ưu tiên ngưỡng: ứng dụng > phòng ban > tổ chức > mặc định *(📁 lịch sử 07/09 — từ v0.5 bỏ phòng ban, `QĐ-23`)* | `FR-4.13` | ✅    |
-| Hai con số tiết kiệm tách biệt, không bao giờ cộng                | `FR-4.15` | ✅    |
-| Nguồn bắt buộc khai định nghĩa “hoạt động”                        | `FR-4.16` | ✅    |
-| Miễn trừ bắt buộc có hạn, tối đa 12 tháng                         | `FR-3.10` | ✅    |
-| Quá hạn thì nhắc rồi leo cấp, **không tự duyệt** *(📁 lịch sử 07/09 — từ v0.6 escalate chỉ là thông báo, `QĐ-28d`)* | `FR-3.8`  | ✅    |
-| Người duyệt dự phòng ở gốc cây tổ chức                            | `FR-3.6`  | ✅    |
+| Nội dung trên sơ đồ                                                                                                   | Căn cứ    | Khớp |
+| --------------------------------------------------------------------------------------------------------------------- | --------- | ---- |
+| Ngưỡng 30–59 / ≥60 / ≥90 ngày; mức “theo dõi” không gửi thông báo                                                     | `FR-4.12` | ✅   |
+| Thứ tự ưu tiên ngưỡng: ứng dụng > phòng ban > tổ chức > mặc định _(📁 lịch sử 07/09 — từ v0.5 bỏ phòng ban, `QĐ-23`)_ | `FR-4.13` | ✅   |
+| Hai con số tiết kiệm tách biệt, không bao giờ cộng                                                                    | `FR-4.15` | ✅   |
+| Nguồn bắt buộc khai định nghĩa “hoạt động”                                                                            | `FR-4.16` | ✅   |
+| Miễn trừ bắt buộc có hạn, tối đa 12 tháng                                                                             | `FR-3.10` | ✅   |
+| Quá hạn thì nhắc rồi leo cấp, **không tự duyệt** _(📁 lịch sử 07/09 — từ v0.6 escalate chỉ là thông báo, `QĐ-28d`)_   | `FR-3.8`  | ✅   |
+| Người duyệt dự phòng ở gốc cây tổ chức                                                                                | `FR-3.6`  | ✅   |
 
 ### 11.19. Sáu lỗi tồn phát hiện khi đối chiếu
 
@@ -3831,30 +3872,30 @@ Xếp theo mức dễ bị hội đồng nhặt ra. **Năm trong sáu nằm ở 
 
 | #     | Ở đâu                                    | Lỗi                                                                                                                                                 | Sửa thành                                                                                  |
 | ----- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| **1** | UI Spec `NT-UI-3` và mục 11              | Dẫn `INV-08` cho *“thu hồi seat giữa kỳ không tiết kiệm được đồng nào”*. Trong BRD v3.5, **`INV-08` là “không ai duyệt yêu cầu của chính mình”**    | Dẫn **`FR-4.15`** — không có mã `INV` nào cho nội dung này                                 |
+| **1** | UI Spec `NT-UI-3` và mục 11              | Dẫn `INV-08` cho _“thu hồi seat giữa kỳ không tiết kiệm được đồng nào”_. Trong BRD v3.5, **`INV-08` là “không ai duyệt yêu cầu của chính mình”**    | Dẫn **`FR-4.15`** — không có mã `INV` nào cho nội dung này                                 |
 | **2** | UI Spec `MGR-04` và mục 11               | Dẫn `INV-11` cho hộp thoại miễn trừ bắt buộc có hạn. **`INV-11` là “nguồn phải khai định nghĩa hoạt động”**                                         | Dẫn **`INV-09`** — BRD mục 5.12.3, vòng đời `Attestation`                                  |
-| **3** | UI Spec `NT-UI-6`                        | Dẫn `INV-14` cho *“đánh dấu `is_service_account` bắt buộc ghi chú”*. **`INV-14` là “một nhân viên gắn với đúng một Cost Center tại mỗi thời điểm”** | Bỏ mã, hoặc tìm đúng mã trong BRD mục 5.12.2                                               |
-| **4** | UI Spec `EMP-02` bước 2                  | Dẫn `BR-01.2` cho *“quá 12 tháng cần xác nhận thêm”*. **`BR-01.2` là quy tắc đánh dấu dữ liệu khởi tạo**                                            | Dẫn **`BR-07.4`**                                                                          |
-| **5** | UI Spec, dòng nguồn và bốn chỗ dẫn chiếu | Ghi *“Nguồn: BRD v2.0, Domain Spec Phần 1, Phần 1b, Phần 2”*; còn dẫn *“Phần 1b mục 4.5”*, *“Phần 2 mục 5.2”*, *“Phần 2 mục 10”*                    | BRD nay là **v3.5**; bộ Domain Spec **đã gỡ bỏ**, nội dung lõi chuyển vào **BRD mục 5.12** |
-| **6** | Tên tệp Business Workflows               | Tệp tên `... v1.0.md` nhưng nội dung bên trong ghi *“Phiên bản 2.0 — thay thế v1.0”*                                                                | Đổi tên tệp thành **v2.0**                                                                 |
+| **3** | UI Spec `NT-UI-6`                        | Dẫn `INV-14` cho _“đánh dấu `is_service_account` bắt buộc ghi chú”_. **`INV-14` là “một nhân viên gắn với đúng một Cost Center tại mỗi thời điểm”** | Bỏ mã, hoặc tìm đúng mã trong BRD mục 5.12.2                                               |
+| **4** | UI Spec `EMP-02` bước 2                  | Dẫn `BR-01.2` cho _“quá 12 tháng cần xác nhận thêm”_. **`BR-01.2` là quy tắc đánh dấu dữ liệu khởi tạo**                                            | Dẫn **`BR-07.4`**                                                                          |
+| **5** | UI Spec, dòng nguồn và bốn chỗ dẫn chiếu | Ghi _“Nguồn: BRD v2.0, Domain Spec Phần 1, Phần 1b, Phần 2”_; còn dẫn _“Phần 1b mục 4.5”_, _“Phần 2 mục 5.2”_, _“Phần 2 mục 10”_                    | BRD nay là **v3.5**; bộ Domain Spec **đã gỡ bỏ**, nội dung lõi chuyển vào **BRD mục 5.12** |
+| **6** | Tên tệp Business Workflows               | Tệp tên `... v1.0.md` nhưng nội dung bên trong ghi _“Phiên bản 2.0 — thay thế v1.0”_                                                                | Đổi tên tệp thành **v2.0**                                                                 |
 
-**Hai khoản nợ cũ — ✅ CẢ HAI ĐÃ ĐÓNG** *(kiểm lại 09/09/2026)*:
+**Hai khoản nợ cũ — ✅ CẢ HAI ĐÃ ĐÓNG** _(kiểm lại 09/09/2026)_:
 
-- ~~Định nghĩa Phạm vi mục 5.2 ghi `37 / 5 / 1`~~ → **đã sửa thành `38 / 3 / 2`** ở *Định nghĩa Phạm vi* **v1.2**.
-- ~~Bảng mục 1.10 chưa ghi `F-35` theo cách phân loại mới~~ → mục **1.10** nay ghi **“MF-4 gọi `F-35` qua `WF-16`”**, và `F-35` vẫn giữ chủ sở hữu **`MF-5`**. Đây là quyết định `TR-01` chốt ngày 09/09/2026: `WF-16` sở hữu `F-35` ở tầng workflow *(Business Workflows mục 2.4)*, `MF-5` sở hữu ở tầng main flow — **hai tầng khác nhau, không mâu thuẫn**. `UF-14` vẽ `F-35` cùng `F-28`/`F-43`, khớp `WF-16`.
+- ~~Định nghĩa Phạm vi mục 5.2 ghi `37 / 5 / 1`~~ → **đã sửa thành `38 / 3 / 2`** ở _Định nghĩa Phạm vi_ **v1.2**.
+- ~~Bảng mục 1.10 chưa ghi `F-35` theo cách phân loại mới~~ → mục **1.10** nay ghi **“MF-4 gọi `F-35` qua `WF-16`”**, và `F-35` vẫn giữ chủ sở hữu **`MF-5`**. Đây là quyết định `TR-01` chốt ngày 09/09/2026: `WF-16` sở hữu `F-35` ở tầng workflow _(Business Workflows mục 2.4)_, `MF-5` sở hữu ở tầng main flow — **hai tầng khác nhau, không mâu thuẫn**. `UF-14` vẽ `F-35` cùng `F-28`/`F-43`, khớp `WF-16`.
 
 ### 11.20. Việc còn lại
 
-| #   | Việc                                                                                                           | Người     | Mốc                  |
-| --- | -------------------------------------------------------------------------------------------------------------- | --------- | -------------------- |
-| 1   | Sửa bốn mã sai trong UI Spec (`INV-08`, `INV-11`, `INV-14`, `BR-01.2`) và cập nhật dòng nguồn                  | Phú       | Trước khi dựng Figma |
-| ~~2~~ | ✅ **XONG** — con số phạm vi ở Định nghĩa Phạm vi mục 5.2 đã là `38 / 3 / 2` (v1.2)                            | Phi       | — *(đóng 09/09/2026)* |
-| ~~3~~ | ✅ **XONG** — mục 1.10 đã ghi `F-35` được `MF-4` gọi qua `WF-16`; chủ sở hữu vẫn là `MF-5` (`TR-01`)          | Phi       | — *(đóng 09/09/2026)* |
-| ~~4~~ | ✅ **ĐÃ CHỐT** — `QĐ-02`: một Employee cụ thể do Super Admin cấu hình, duyệt với tư cách vai **Manager**. Đã vẽ trên `UF-01` và `UF-04` | Nhóm      | — *(đóng 08/09/2026)* |
-| ~~6~~ | ✅ **XONG** — `WF-09` nay có nút `a4b` “Xác định người duyệt bước quản lý” + ghi chú `FR-3.6`/`QĐ-02`/`BR-13.2`/`BR-13.4`; đã xuất lại và **đã nhìn toàn trang** | Nhóm      | — *(đóng 09/09/2026)* |
-| ~~7~~ | ✅ **ĐÃ CHỐT (10/09/2026 — `QĐ-14`)** — nhóm trưởng phê duyệt `F-44` theo nội dung hiện hành tại mục 7.6. Giữ `F-44` thuộc `MF-0`, phạm vi `44` / `39 / 3 / 2` và phân loại không tạo workflow riêng; nội dung nghiệp vụ không đổi | Nhóm trưởng | — |
-| ~~8~~ | ✅ **XONG (09/09/2026)** — phép kiểm parity **Mermaid ↔ `.drawio`** nay là bước bắt buộc, **kèm bốn bước kiểm ngữ nghĩa** đi cùng: `Docs/rules/synchronization.md` mục *Kiểm ngữ nghĩa cho mỗi trang sơ đồ đã đổi*, và Business Workflows **mục 6.3b**. Lý do phải thêm phần ngữ nghĩa: lượt kiểm chéo cho thấy parity **0 khác biệt** vẫn không loại được lỗi làn/guard sai so với BRD (`WF-APP-01`, `WF-CON-01`) | Nhóm      | — *(đóng 09/09/2026)* |
-| **9** | ✅ **XONG (09/09/2026 — `WF-CON-01`)** — `UF-14` thêm quyết định `dq2` *“Đã là thành viên active đúng tài khoản?”*, bước `s5` *(ghi bằng chứng, chuyển `ProvisioningTask` chờ chấp nhận → hoàn tất)* và kết thúc `e2`; `UF-08` ghi rõ ở `sp`/`e3` rằng `UF-14` mới là nơi quyết. Đã xuất lại PNG/SVG/HTML/PDF, **đã nhìn ảnh** và **kiểm HTML bằng trình duyệt thật ở sáng và tối** | Nhóm      | — *(đóng 09/09/2026)* |
-| **10** | ✅ **XONG (09/09/2026 — `UF-RET-01`)** — mục 7.6 `F-44` tách bạch **bằng chứng discovery từ sao kê/hóa đơn** *(xóa thật ở mốc 24 tháng)* với **hồ sơ tài chính của phân hệ 5.1/5.5** *(ngoài bảng lưu giữ BRD mục 7.5, job không quét)*; ngoại lệ duy nhất là **nhật ký kiểm toán**. Đồng bộ bước 3, `BR-44.3`, `MF-0`, *Xong khi* và bảng mục 8 | Phi      | — *(đóng 09/09/2026)* |
-| 5   | Dùng 16 sơ đồ làm đầu vào Figma: mỗi nút màn hình là một frame, mỗi cạnh là một liên kết prototype             | Phú, Đăng | Sau khi có ERD       |
-| 6   | Chạy lại phép kiểm mục 11.18 mỗi lần UI Spec đổi phiên bản                                                     | Phú       | Khi UI Spec lên v0.2 |
+| #      | Việc                                                                                                                                                                                                                                                                                                                                                                                                               | Người       | Mốc                   |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------- | --------------------- |
+| 1      | Sửa bốn mã sai trong UI Spec (`INV-08`, `INV-11`, `INV-14`, `BR-01.2`) và cập nhật dòng nguồn                                                                                                                                                                                                                                                                                                                      | Phú         | Trước khi dựng Figma  |
+| ~~2~~  | ✅ **XONG** — con số phạm vi ở Định nghĩa Phạm vi mục 5.2 đã là `38 / 3 / 2` (v1.2)                                                                                                                                                                                                                                                                                                                                | Phi         | — _(đóng 09/09/2026)_ |
+| ~~3~~  | ✅ **XONG** — mục 1.10 đã ghi `F-35` được `MF-4` gọi qua `WF-16`; chủ sở hữu vẫn là `MF-5` (`TR-01`)                                                                                                                                                                                                                                                                                                               | Phi         | — _(đóng 09/09/2026)_ |
+| ~~4~~  | ✅ **ĐÃ CHỐT** — `QĐ-02`: một Employee cụ thể do Super Admin cấu hình, duyệt với tư cách vai **Manager**. Đã vẽ trên `UF-01` và `UF-04`                                                                                                                                                                                                                                                                            | Nhóm        | — _(đóng 08/09/2026)_ |
+| ~~6~~  | ✅ **XONG** — `WF-09` nay có nút `a4b` “Xác định người duyệt bước quản lý” + ghi chú `FR-3.6`/`QĐ-02`/`BR-13.2`/`BR-13.4`; đã xuất lại và **đã nhìn toàn trang**                                                                                                                                                                                                                                                   | Nhóm        | — _(đóng 09/09/2026)_ |
+| ~~7~~  | ✅ **ĐÃ CHỐT (10/09/2026 — `QĐ-14`)** — nhóm trưởng phê duyệt `F-44` theo nội dung hiện hành tại mục 7.6. Giữ `F-44` thuộc `MF-0`, phạm vi `44` / `39 / 3 / 2` và phân loại không tạo workflow riêng; nội dung nghiệp vụ không đổi                                                                                                                                                                                 | Nhóm trưởng | —                     |
+| ~~8~~  | ✅ **XONG (09/09/2026)** — phép kiểm parity **Mermaid ↔ `.drawio`** nay là bước bắt buộc, **kèm bốn bước kiểm ngữ nghĩa** đi cùng: `Docs/rules/synchronization.md` mục _Kiểm ngữ nghĩa cho mỗi trang sơ đồ đã đổi_, và Business Workflows **mục 6.3b**. Lý do phải thêm phần ngữ nghĩa: lượt kiểm chéo cho thấy parity **0 khác biệt** vẫn không loại được lỗi làn/guard sai so với BRD (`WF-APP-01`, `WF-CON-01`) | Nhóm        | — _(đóng 09/09/2026)_ |
+| **9**  | ✅ **XONG (09/09/2026 — `WF-CON-01`)** — `UF-14` thêm quyết định `dq2` _“Đã là thành viên active đúng tài khoản?”_, bước `s5` _(ghi bằng chứng, chuyển `ProvisioningTask` chờ chấp nhận → hoàn tất)_ và kết thúc `e2`; `UF-08` ghi rõ ở `sp`/`e3` rằng `UF-14` mới là nơi quyết. Đã xuất lại PNG/SVG/HTML/PDF, **đã nhìn ảnh** và **kiểm HTML bằng trình duyệt thật ở sáng và tối**                                | Nhóm        | — _(đóng 09/09/2026)_ |
+| **10** | ✅ **XONG (09/09/2026 — `UF-RET-01`)** — mục 7.6 `F-44` tách bạch **bằng chứng discovery từ sao kê/hóa đơn** _(xóa thật ở mốc 24 tháng)_ với **hồ sơ tài chính của phân hệ 5.1/5.5** _(ngoài bảng lưu giữ BRD mục 7.5, job không quét)_; ngoại lệ duy nhất là **nhật ký kiểm toán**. Đồng bộ bước 3, `BR-44.3`, `MF-0`, _Xong khi_ và bảng mục 8                                                                   | Phi         | — _(đóng 09/09/2026)_ |
+| 5      | Dùng 16 sơ đồ làm đầu vào Figma: mỗi nút màn hình là một frame, mỗi cạnh là một liên kết prototype                                                                                                                                                                                                                                                                                                                 | Phú, Đăng   | Sau khi có ERD        |
+| 6      | Chạy lại phép kiểm mục 11.18 mỗi lần UI Spec đổi phiên bản                                                                                                                                                                                                                                                                                                                                                         | Phú         | Khi UI Spec lên v0.2  |

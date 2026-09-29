@@ -7,10 +7,10 @@ the diagram and not an archive to restore from.
 
 ## Source under test
 
-| Field | Value |
-| --- | --- |
-| Source | `Diagrams/workflows-activity-diagram/drawio/WF-15.drawio` |
-| SHA-256 before fix | `6950815B06F60C63BEF56A10F66697F53AE543FC728FC9BEE1403DB605A69C0D` |
+| Field                       | Value                                                                                                                                                                                                             |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Source                      | `Diagrams/workflows-activity-diagram/drawio/WF-15.drawio`                                                                                                                                                         |
+| SHA-256 before fix          | `6950815B06F60C63BEF56A10F66697F53AE543FC728FC9BEE1403DB605A69C0D`                                                                                                                                                |
 | Expected canonical behavior | Mermaid in `workflows-activity-diagram/index.md` §3.18: `ini → t1 → a1 → d1`, then three guarded outcomes `[có mốc rõ ràng] → m2`, `[chỉ có số ngày báo trước] → a2 → m2`, `[không có dữ liệu] → a3 → flow final` |
 
 ## Pre-fix failure signature

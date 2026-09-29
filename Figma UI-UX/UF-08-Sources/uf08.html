@@ -1,31 +1,37 @@
 <!doctype html>
 <html lang="vi" data-theme="light">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>UF-08 · Hàng đợi thực thi cấp phát</title>
-  <link rel="stylesheet" href="uf08.css">
-</head>
-<body>
-  <div id="app"></div>
-  <script src="uf08-data.js"></script>
-  <script src="uf08-renderer.js"></script>
-  <script>
-    (function boot() {
-      const params = new URLSearchParams(window.location.search);
-      const theme = params.get('theme') === 'dark' ? 'dark' : 'light';
-      const screen = window.UF08_RENDERER.getScreen(window.UF08_DATA, params.get('screen') || '01');
-      document.documentElement.dataset.theme = theme;
-      document.title = `UF-08 ${theme} ${screen.id} · ${screen.title}`;
-      document.getElementById('app').innerHTML = window.UF08_RENDERER.renderScreen(screen, window.UF08_DATA);
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>UF-08 · Hàng đợi thực thi cấp phát</title>
+    <link rel="stylesheet" href="uf08.css" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="uf08-data.js"></script>
+    <script src="uf08-renderer.js"></script>
+    <script>
+      ;(function boot() {
+        const params = new URLSearchParams(window.location.search)
+        const theme = params.get('theme') === 'dark' ? 'dark' : 'light'
+        const screen = window.UF08_RENDERER.getScreen(window.UF08_DATA, params.get('screen') || '01')
+        document.documentElement.dataset.theme = theme
+        document.title = `UF-08 ${theme} ${screen.id} · ${screen.title}`
+        document.getElementById('app').innerHTML = window.UF08_RENDERER.renderScreen(screen, window.UF08_DATA)
 
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        const root = document.querySelector('.app-shell');
-        const hasOverflow = root.scrollWidth > 1440 || root.scrollHeight > 1024 || document.documentElement.scrollWidth > 1440 || document.documentElement.scrollHeight > 1024;
-        document.body.dataset.renderReady = 'true';
-        document.body.dataset.overflow = hasOverflow ? 'true' : 'false';
-      }));
-    })();
-  </script>
-</body>
+        requestAnimationFrame(() =>
+          requestAnimationFrame(() => {
+            const root = document.querySelector('.app-shell')
+            const hasOverflow =
+              root.scrollWidth > 1440 ||
+              root.scrollHeight > 1024 ||
+              document.documentElement.scrollWidth > 1440 ||
+              document.documentElement.scrollHeight > 1024
+            document.body.dataset.renderReady = 'true'
+            document.body.dataset.overflow = hasOverflow ? 'true' : 'false'
+          })
+        )
+      })()
+    </script>
+  </body>
 </html>

@@ -1,10 +1,10 @@
    <h1 align="center">ĐĂNG KÝ ĐỒ ÁN TỐT NGHIỆP</h1>
 
-Lớp:            Thời gian thực hiện: từ 01/01/2026 đến 30/04/2026
+Lớp: Thời gian thực hiện: từ 01/01/2026 đến 30/04/2026
 
-(*) Nghề nghiệp: &lt;Kỹ sư phần mềm&gt;                   Chuyên ngành: &lt;ES&gt; /   &lt;IS&gt; /   &lt;JS&gt; /
+(*) Nghề nghiệp: &lt;Kỹ sư phần mềm&gt; Chuyên ngành: &lt;ES&gt; / &lt;IS&gt; / &lt;JS&gt; /
 
-(*) Người thực hiện đăng ký:              Giảng viên /                Sinh viên
+(*) Người thực hiện đăng ký: Giảng viên / Sinh viên
 
 ## 1. Thông tin đăng ký của giảng viên hướng dẫn (nếu có)
 

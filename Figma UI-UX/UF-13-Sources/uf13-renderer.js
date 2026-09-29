@@ -4,27 +4,23 @@
  * Screen Codes: ADM-02, ADM-03, SYS-04
  */
 
-(function () {
-  'use strict';
+;(function () {
+  'use strict'
 
   function escapeHtml(str) {
-    if (!str) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+    if (!str) return ''
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
   }
 
   function renderApp(data, screenId) {
-    const screen = data.screens.find(s => s.id === screenId) || data.screens[0];
-    const ledger = data.ledgers[screen.ledgerKey] || data.ledgers.l01;
-    const isSys04 = screen.screenCode === 'SYS-04';
+    const screen = data.screens.find((s) => s.id === screenId) || data.screens[0]
+    const ledger = data.ledgers[screen.ledgerKey] || data.ledgers.l01
+    const isSys04 = screen.screenCode === 'SYS-04'
 
-    const actorName = 'Nguyễn Văn Quản';
-    const actorRole = 'Quản trị hệ thống · Super Admin';
-    const actorEmail = 'quan.nguyen@company.com';
-    const actorAvatar = 'VQ';
+    const actorName = 'Nguyễn Văn Quản'
+    const actorRole = 'Quản trị hệ thống · Super Admin'
+    const actorEmail = 'quan.nguyen@company.com'
+    const actorAvatar = 'VQ'
 
     // 1. Sidebar HTML
     const sidebarHtml = `
@@ -69,7 +65,7 @@
           </div>
         </div>
       </aside>
-    `;
+    `
 
     // 2. Top Bar HTML
     const topBarHtml = `
@@ -80,10 +76,14 @@
             <span class="breadcrumb-item">${escapeHtml(screen.breadcrumb.split('/')[0].trim())}</span>
             <span class="breadcrumb-separator">/</span>
             <span class="breadcrumb-item">${escapeHtml(screen.breadcrumb.split('/')[1]?.trim() || '')}</span>
-            ${screen.breadcrumb.split('/')[2] ? `
+            ${
+              screen.breadcrumb.split('/')[2]
+                ? `
               <span class="breadcrumb-separator">/</span>
               <span class="breadcrumb-current">${escapeHtml(screen.breadcrumb.split('/')[2].trim())}</span>
-            ` : ''}
+            `
+                : ''
+            }
           </div>
         </div>
         <div class="topbar-right">
@@ -94,30 +94,32 @@
           </span>
         </div>
       </header>
-    `;
+    `
 
     // 3. Stepper HTML
     const stepperHtml = `
       <div class="stepper-container">
         <div class="stepper">
-          ${data.stages.map((st, idx) => {
-            const isCompleted = screen.stage > st.id;
-            const isActive = screen.stage === st.id;
-            const cls = isCompleted ? 'completed' : (isActive ? 'active' : '');
-            return `
+          ${data.stages
+            .map((st, idx) => {
+              const isCompleted = screen.stage > st.id
+              const isActive = screen.stage === st.id
+              const cls = isCompleted ? 'completed' : isActive ? 'active' : ''
+              return `
               <div class="step-node ${cls}">
                 <div class="step-num">${isCompleted ? '✓' : st.id}</div>
                 <span>${escapeHtml(st.name)}</span>
               </div>
               ${idx < data.stages.length - 1 ? `<div class="step-line ${isCompleted ? 'completed' : ''}"></div>` : ''}
-            `;
-          }).join('')}
+            `
+            })
+            .join('')}
         </div>
         <div class="badge badge-info" style="margin-left: 16px;">
           Chặng ${screen.stage}/6 · Frame ${screen.id}/16
         </div>
       </div>
-    `;
+    `
 
     // 4. Metric Grid HTML
     const metricGridHtml = `
@@ -167,10 +169,10 @@
           </div>
         </div>
       </div>
-    `;
+    `
 
     // 5. Dynamic Body Content by Screen
-    let bodyContentHtml = '';
+    let bodyContentHtml = ''
 
     switch (screen.id) {
       case '01': // ADM-02 Dashboard
@@ -209,7 +211,9 @@
                   </tr>
                 </thead>
                 <tbody>
-                  ${data.thresholds.map(t => `
+                  ${data.thresholds
+                    .map(
+                      (t) => `
                     <tr>
                       <td style="font-weight: 600;">${escapeHtml(t.app)}</td>
                       <td><span class="badge badge-info">${escapeHtml(t.scope)}</span></td>
@@ -222,13 +226,15 @@
                       <td style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">${escapeHtml(t.source)}</td>
                       <td style="color: var(--muted);">${escapeHtml(t.note)}</td>
                     </tr>
-                  `).join('')}
+                  `
+                    )
+                    .join('')}
                 </tbody>
               </table>
             </div>
           </div>
-        `;
-        break;
+        `
+        break
 
       case '02': // ADM-02 Edit Threshold
         bodyContentHtml = `
@@ -252,14 +258,18 @@
                   </tr>
                 </thead>
                 <tbody>
-                  ${data.thresholds.map(t => `
+                  ${data.thresholds
+                    .map(
+                      (t) => `
                     <tr>
                       <td style="font-weight: 600;">${escapeHtml(t.app)}</td>
                       <td>${escapeHtml(t.scope)}</td>
                       <td style="font-family: 'JetBrains Mono', monospace; font-weight: 700;">${t.inactiveDays} ngày</td>
                       <td><span class="badge badge-success">Đang áp dụng</span></td>
                     </tr>
-                  `).join('')}
+                  `
+                    )
+                    .join('')}
                 </tbody>
               </table>
             </div>
@@ -293,8 +303,8 @@
               </div>
             </div>
           </div>
-        `;
-        break;
+        `
+        break
 
       case '03': // ADM-02 Resolution Matrix
         bodyContentHtml = `
@@ -367,8 +377,8 @@
               </table>
             </div>
           </div>
-        `;
-        break;
+        `
+        break
 
       case '04': // ADM-02 Simulate Operational Action (d2)
         bodyContentHtml = `
@@ -436,8 +446,8 @@
               </div>
             </div>
           </div>
-        `;
-        break;
+        `
+        break
 
       case '05': // SYS-04 CHẶN PHÂN QUYỀN
         bodyContentHtml = `
@@ -464,8 +474,8 @@
               </div>
             </div>
           </div>
-        `;
-        break;
+        `
+        break
 
       case '06': // ADM-02 Config Approver (CEO)
         bodyContentHtml = `
@@ -539,8 +549,8 @@
               </div>
             </div>
           </div>
-        `;
-        break;
+        `
+        break
 
       case '07': // ADM-02 Config Substitute (Conflict of Interest)
         bodyContentHtml = `
@@ -604,8 +614,8 @@
               </div>
             </div>
           </div>
-        `;
-        break;
+        `
+        break
 
       case '08': // ADM-02 Config Backlog Threshold
         bodyContentHtml = `
@@ -675,8 +685,8 @@
               </div>
             </div>
           </div>
-        `;
-        break;
+        `
+        break
 
       case '09': // ADM-02 Disclosure Notice Editor v1.3
         bodyContentHtml = `
@@ -718,8 +728,8 @@
               </div>
             </div>
           </div>
-        `;
-        break;
+        `
+        break
 
       case '10': // ADM-03 Policy List
         bodyContentHtml = `
@@ -747,7 +757,9 @@
                   </tr>
                 </thead>
                 <tbody>
-                  ${data.approvalPolicies.map(p => `
+                  ${data.approvalPolicies
+                    .map(
+                      (p) => `
                     <tr style="${p.code === 'POL-DES-2026' ? 'background: var(--surface-3);' : ''}">
                       <td style="font-family: 'JetBrains Mono', monospace; font-weight: 700;">${escapeHtml(p.code)}</td>
                       <td style="font-weight: 600;">${escapeHtml(p.name)}</td>
@@ -765,13 +777,15 @@
                         </button>
                       </td>
                     </tr>
-                  `).join('')}
+                  `
+                    )
+                    .join('')}
                 </tbody>
               </table>
             </div>
           </div>
-        `;
-        break;
+        `
+        break
 
       case '11': // ADM-03 Edit Policy Nodes
         bodyContentHtml = `
@@ -839,8 +853,8 @@
               </div>
             </div>
           </div>
-        `;
-        break;
+        `
+        break
 
       case '12': // ADM-03 Simulation Sandbox Case 1
         bodyContentHtml = `
@@ -905,8 +919,8 @@
               </div>
             </div>
           </div>
-        `;
-        break;
+        `
+        break
 
       case '13': // ADM-03 Sandbox Logic Flaw Detected
         bodyContentHtml = `
@@ -966,8 +980,8 @@
               </div>
             </div>
           </div>
-        `;
-        break;
+        `
+        break
 
       case '14': // ADM-03 Sandbox Fixed & Verified
         bodyContentHtml = `
@@ -1030,8 +1044,8 @@
               </div>
             </div>
           </div>
-        `;
-        break;
+        `
+        break
 
       case '15': // ADM-03 Publish Policy & Append-Only Audit Log
         bodyContentHtml = `
@@ -1055,7 +1069,9 @@
                 </div>
                 <div style="font-weight: 700; font-size: 13px; color: var(--text); margin-top: 4px;">NHẬT KÝ KIỂM TOÁN CHỈ GHI THÊM (APPEND-ONLY · BR-38.1):</div>
                 <div class="audit-list">
-                  ${data.auditStream.map(a => `
+                  ${data.auditStream
+                    .map(
+                      (a) => `
                     <div class="audit-item">
                       <div>
                         <span class="audit-id">${escapeHtml(a.id)}</span>
@@ -1070,13 +1086,15 @@
                         <div class="audit-hash" style="margin-top: 4px;">SHA256: ${escapeHtml(a.hash)}</div>
                       </div>
                     </div>
-                  `).join('')}
+                  `
+                    )
+                    .join('')}
                 </div>
               </div>
             </div>
           </div>
-        `;
-        break;
+        `
+        break
 
       case '16': // ADM-03 Effective Handoff
         bodyContentHtml = `
@@ -1125,11 +1143,11 @@
               </div>
             </div>
           </div>
-        `;
-        break;
+        `
+        break
 
       default:
-        bodyContentHtml = `<div class="workspace-card"><p>Screen ID ${screen.id} not found</p></div>`;
+        bodyContentHtml = `<div class="workspace-card"><p>Screen ID ${screen.id} not found</p></div>`
     }
 
     // Return Complete 1440x1024 Shell
@@ -1154,12 +1172,12 @@
           </div>
         </main>
       </div>
-    `;
+    `
   }
 
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { renderApp };
+    module.exports = { renderApp }
   } else {
-    window.UF13Renderer = { renderApp };
+    window.UF13Renderer = { renderApp }
   }
-})();
+})()

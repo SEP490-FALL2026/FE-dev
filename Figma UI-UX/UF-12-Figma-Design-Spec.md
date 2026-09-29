@@ -25,43 +25,43 @@ Panel phải giữ ID lần chạy `RUN-DISC-20260917-0900`, lần import cuối
 
 ## 3. Dữ liệu demo chuẩn
 
-| Thực thể | Giá trị đồng bộ |
-| --- | --- |
-| Run | `RUN-DISC-20260917-0900` · 17/09/2026 09:00 ICT · Automation Service |
-| Finding chính | `FND-2026-045` · Canva Pro · `Cần xem xét` · 7 người · 1.800.000 đ/tháng · rủi ro Cao |
-| Evidence Finance | `EVD-FIN-8891` · raw `PAYPAL*CANVA PRO 0926` → `Canva` · AI suggestion → IT xác nhận bắt buộc |
-| Evidence IdP | `EVD-IDP-4420` · `www.microsoft.com` → Microsoft 365 · catalog đã duyệt |
-| Evidence Collector | `EVD-COL-1728` · `loom.com` → Loom · 3 nhân viên xác nhận · 10–16/09/2026 · không URL |
-| Dedupe | `EVD-COL-1741` thêm vào `FND-2026-045`; last seen cập nhật, không sinh finding thứ hai |
-| Owner context | Lê Thu Hà · NV-0311 · “Nhóm Marketing dùng Canva để chuẩn hóa bộ nhận diện chiến dịch.” |
-| Báo nhầm | `FND-2026-039` · `Canva Test Sandbox` · đóng 12/09; nếu tái xuất hiện sẽ `Mở lại` |
-| Hợp thức hóa | `CAT-CANVA-01` · request mua `REQ-2026-212` · 7 Assignment ghi nguồn `Regularized from FND-2026-045` |
-| Handoff chưa duyệt | `PV-2074` chỉ được tạo dưới dạng ProvisioningTask trong UF-08 sau quyết định `Chưa duyệt` |
+| Thực thể           | Giá trị đồng bộ                                                                                      |
+| ------------------ | ---------------------------------------------------------------------------------------------------- |
+| Run                | `RUN-DISC-20260917-0900` · 17/09/2026 09:00 ICT · Automation Service                                 |
+| Finding chính      | `FND-2026-045` · Canva Pro · `Cần xem xét` · 7 người · 1.800.000 đ/tháng · rủi ro Cao                |
+| Evidence Finance   | `EVD-FIN-8891` · raw `PAYPAL*CANVA PRO 0926` → `Canva` · AI suggestion → IT xác nhận bắt buộc        |
+| Evidence IdP       | `EVD-IDP-4420` · `www.microsoft.com` → Microsoft 365 · catalog đã duyệt                              |
+| Evidence Collector | `EVD-COL-1728` · `loom.com` → Loom · 3 nhân viên xác nhận · 10–16/09/2026 · không URL                |
+| Dedupe             | `EVD-COL-1741` thêm vào `FND-2026-045`; last seen cập nhật, không sinh finding thứ hai               |
+| Owner context      | Lê Thu Hà · NV-0311 · “Nhóm Marketing dùng Canva để chuẩn hóa bộ nhận diện chiến dịch.”              |
+| Báo nhầm           | `FND-2026-039` · `Canva Test Sandbox` · đóng 12/09; nếu tái xuất hiện sẽ `Mở lại`                    |
+| Hợp thức hóa       | `CAT-CANVA-01` · request mua `REQ-2026-212` · 7 Assignment ghi nguồn `Regularized from FND-2026-045` |
+| Handoff chưa duyệt | `PV-2074` chỉ được tạo dưới dạng ProvisioningTask trong UF-08 sau quyết định `Chưa duyệt`            |
 
 ## 4. Registry 20 frame
 
-| # | Chặng | State | Nội dung bắt buộc |
-| ---: | ---: | --- | --- |
-| 01 | 1 | dashboard | Ba nguồn, 6 finding mở, không gọi finding là vi phạm |
-| 02 | 1 | source-map | Khác biệt, giới hạn và dữ liệu tối thiểu của ba nguồn |
-| 03 | 2 | finance-intake | Upload/preview sao kê `EVD-FIN-8891`, raw value còn nguyên |
-| 04 | 2 | idp-intake | Import enterprise-app `EVD-IDP-4420` |
-| 05 | 2 | collector-intake | Batch `EVD-COL-1728`, privacy guard: không URL/nội dung |
-| 06 | 3 | normalize-overview | Raw → normalized → match → catalog → finding |
-| 07 | 3 | auto-match | Exact/regex auto normalize; method quyết định confidence |
-| 08 | 3 | assisted-confirm | Fuzzy/AI low confidence, IT phải xác nhận Canva |
-| 09 | 3 | catalog-compare | Đối chiếu `VendorDictionary` với SaaS Catalog |
-| 10 | 3 | catalog-present | Microsoft 365 đã trong catalog, kết thúc không tạo finding |
-| 11 | 4 | dedupe-finding | Canva evidence thứ hai cập nhật `FND-2026-045` |
-| 12 | 4 | finding-queue | Danh sách 6 finding, risk tier và owner state |
-| 13 | 4 | finding-detail | Evidence bất biến, raw/normalized/method/confidence |
-| 14 | 4 | owner-context | Yêu cầu/nhận bối cảnh trong đúng cây quản lý trực tiếp |
-| 15 | 5 | it-decision | IT chọn Báo nhầm / Đã duyệt / Chưa duyệt, audit-required |
-| 16 | 6 | false-positive | Nhánh Báo nhầm đóng finding, hiển thị rule reopen |
-| 17 | 6 | approve-catalog | Nhánh Đã duyệt: form catalog đầy đủ, Business Owner bắt buộc |
-| 18 | 6 | approve-success | Request mua được tạo, 7 quyền chính thức, finding đã duyệt |
-| 19 | 6 | reject-handoff | Nhánh Chưa duyệt: handoff UF-08, không tự revoke |
-| 20 | 6 | audit-summary | Timeline cuối và ba kết cục không chạy đồng thời |
+|   # | Chặng | State              | Nội dung bắt buộc                                            |
+| --: | ----: | ------------------ | ------------------------------------------------------------ |
+|  01 |     1 | dashboard          | Ba nguồn, 6 finding mở, không gọi finding là vi phạm         |
+|  02 |     1 | source-map         | Khác biệt, giới hạn và dữ liệu tối thiểu của ba nguồn        |
+|  03 |     2 | finance-intake     | Upload/preview sao kê `EVD-FIN-8891`, raw value còn nguyên   |
+|  04 |     2 | idp-intake         | Import enterprise-app `EVD-IDP-4420`                         |
+|  05 |     2 | collector-intake   | Batch `EVD-COL-1728`, privacy guard: không URL/nội dung      |
+|  06 |     3 | normalize-overview | Raw → normalized → match → catalog → finding                 |
+|  07 |     3 | auto-match         | Exact/regex auto normalize; method quyết định confidence     |
+|  08 |     3 | assisted-confirm   | Fuzzy/AI low confidence, IT phải xác nhận Canva              |
+|  09 |     3 | catalog-compare    | Đối chiếu `VendorDictionary` với SaaS Catalog                |
+|  10 |     3 | catalog-present    | Microsoft 365 đã trong catalog, kết thúc không tạo finding   |
+|  11 |     4 | dedupe-finding     | Canva evidence thứ hai cập nhật `FND-2026-045`               |
+|  12 |     4 | finding-queue      | Danh sách 6 finding, risk tier và owner state                |
+|  13 |     4 | finding-detail     | Evidence bất biến, raw/normalized/method/confidence          |
+|  14 |     4 | owner-context      | Yêu cầu/nhận bối cảnh trong đúng cây quản lý trực tiếp       |
+|  15 |     5 | it-decision        | IT chọn Báo nhầm / Đã duyệt / Chưa duyệt, audit-required     |
+|  16 |     6 | false-positive     | Nhánh Báo nhầm đóng finding, hiển thị rule reopen            |
+|  17 |     6 | approve-catalog    | Nhánh Đã duyệt: form catalog đầy đủ, Business Owner bắt buộc |
+|  18 |     6 | approve-success    | Request mua được tạo, 7 quyền chính thức, finding đã duyệt   |
+|  19 |     6 | reject-handoff     | Nhánh Chưa duyệt: handoff UF-08, không tự revoke             |
+|  20 |     6 | audit-summary      | Timeline cuối và ba kết cục không chạy đồng thời             |
 
 ## 5. Tính liên kết và acceptance criteria
 

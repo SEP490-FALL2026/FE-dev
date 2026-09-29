@@ -49,43 +49,43 @@ App Shell giữ cùng ngôn ngữ thị giác với UF-07/08/09:
 
 ### 3.1. Lần chạy rule
 
-| Trường | Giá trị |
-| --- | --- |
-| Run ID | `RUN-OPT-20260917-0615` |
-| Thời điểm | `17/09/2026 · 06:15 ICT` |
-| Actor | `Automation Service` |
+| Trường      | Giá trị                           |
+| ----------- | --------------------------------- |
+| Run ID      | `RUN-OPT-20260917-0615`           |
+| Thời điểm   | `17/09/2026 · 06:15 ICT`          |
+| Actor       | `Automation Service`              |
 | Người xử lý | `IT Admin · it-admin@company.com` |
-| Lịch G1/G2 | Hằng ngày |
-| Lịch G3/G4 | Hằng tuần |
-| Snapshot | Bất biến tại thời điểm sinh |
+| Lịch G1/G2  | Hằng ngày                         |
+| Lịch G3/G4  | Hằng tuần                         |
+| Snapshot    | Bất biến tại thời điểm sinh       |
 
 ### 3.2. Tổng quan nhóm
 
-| Nhóm | Số phát hiện | Nguồn | Độ tin cậy | Hành động |
-| --- | ---: | --- | --- | --- |
-| G1 | 12 seat | Dữ liệu thuê bao nội bộ | 100% | Giảm số lượng tại kỳ gia hạn |
-| G2 | 3 seat | HRIS + Assignment nội bộ | 100% | Thu hồi ngay, không qua Manager |
-| G3 | 9 seat | Usage có cửa sổ bao phủ hợp lệ | Cao | Manager kiểm tra rồi thu hồi |
-| G4 | 14 seat | Ngày hoạt động cuối | Trung bình | Manager xác nhận |
+| Nhóm | Số phát hiện | Nguồn                          | Độ tin cậy | Hành động                       |
+| ---- | -----------: | ------------------------------ | ---------- | ------------------------------- |
+| G1   |      12 seat | Dữ liệu thuê bao nội bộ        | 100%       | Giảm số lượng tại kỳ gia hạn    |
+| G2   |       3 seat | HRIS + Assignment nội bộ       | 100%       | Thu hồi ngay, không qua Manager |
+| G3   |       9 seat | Usage có cửa sổ bao phủ hợp lệ | Cao        | Manager kiểm tra rồi thu hồi    |
+| G4   |      14 seat | Ngày hoạt động cuối            | Trung bình | Manager xác nhận                |
 
 Tổng số phát hiện có thể hiển thị là `38`, nhưng giao diện không tạo một CTA xử lý chung vì bốn nhóm có semantics khác nhau.
 
 ### 3.3. Nhánh G1
 
-| Trường | Giá trị |
-| --- | --- |
-| Subscription | `SUB-M365-E3-01` · Microsoft 365 E3 |
-| Purchased / Assigned | `120 / 108` |
-| Đề nghị giảm | `12 seat` tại kỳ gia hạn |
-| Renewal | `15/12/2026` |
-| Notice deadline | `15/11/2026` |
-| Unit cost | `500.000 đ/seat/tháng` |
-| Ước tính ban đầu | `72.000.000 đ/năm` |
-| Renewal decision | `REN-2026-041` |
-| Approval | `APV-2026-118` |
-| Finance record | `FIN-REN-2026-078` |
-| Quyết định cuối | Giảm `8 seat`, giữ buffer `4 seat` |
-| Tiết kiệm thực tế tại kỳ gia hạn | `48.000.000 đ/năm` |
+| Trường                           | Giá trị                             |
+| -------------------------------- | ----------------------------------- |
+| Subscription                     | `SUB-M365-E3-01` · Microsoft 365 E3 |
+| Purchased / Assigned             | `120 / 108`                         |
+| Đề nghị giảm                     | `12 seat` tại kỳ gia hạn            |
+| Renewal                          | `15/12/2026`                        |
+| Notice deadline                  | `15/11/2026`                        |
+| Unit cost                        | `500.000 đ/seat/tháng`              |
+| Ước tính ban đầu                 | `72.000.000 đ/năm`                  |
+| Renewal decision                 | `REN-2026-041`                      |
+| Approval                         | `APV-2026-118`                      |
+| Finance record                   | `FIN-REN-2026-078`                  |
+| Quyết định cuối                  | Giảm `8 seat`, giữ buffer `4 seat`  |
+| Tiết kiệm thực tế tại kỳ gia hạn | `48.000.000 đ/năm`                  |
 
 Frame 03–04 dùng số đề nghị 12. Frame 05–06 cho thấy Người duyệt chi chỉ duyệt giảm 8. Báo cáo cuối chỉ ghi 48 triệu/năm, không ghi 72 triệu như đã thực hiện.
 
@@ -93,21 +93,21 @@ Frame 03–04 dùng số đề nghị 12. Frame 05–06 cho thấy Người duy�
 
 Ba seat của người đã nghỉ việc:
 
-| Người dùng | Assignment | Subscription | Ứng dụng | Tác vụ UF-08 | Loại tiết kiệm |
-| --- | --- | --- | --- | --- | --- |
-| Nguyễn Hải Yến · `NV-0527` | `ASN-5114` | `SUB-SLK-BP-01` | Slack Business+ | `PV-2058` | `320.000 đ/tháng` ngay |
-| Nguyễn Hải Yến · `NV-0527` | `ASN-5115` | `SUB-GH-BIZ-01` | GitHub Business | `PV-2059` | `420.000 đ/tháng` ngay |
-| Hồ Tuấn Anh · `NV-0486` | `ASN-5107` | `SUB-NOT-ENT-01` | Notion Enterprise | `PV-2061` | Seat trống sau thu hồi; chuyển thành G1 tiềm năng, chưa ghi tiết kiệm |
+| Người dùng                 | Assignment | Subscription     | Ứng dụng          | Tác vụ UF-08 | Loại tiết kiệm                                                        |
+| -------------------------- | ---------- | ---------------- | ----------------- | ------------ | --------------------------------------------------------------------- |
+| Nguyễn Hải Yến · `NV-0527` | `ASN-5114` | `SUB-SLK-BP-01`  | Slack Business+   | `PV-2058`    | `320.000 đ/tháng` ngay                                                |
+| Nguyễn Hải Yến · `NV-0527` | `ASN-5115` | `SUB-GH-BIZ-01`  | GitHub Business   | `PV-2059`    | `420.000 đ/tháng` ngay                                                |
+| Hồ Tuấn Anh · `NV-0486`    | `ASN-5107` | `SUB-NOT-ENT-01` | Notion Enterprise | `PV-2061`    | Seat trống sau thu hồi; chuyển thành G1 tiềm năng, chưa ghi tiết kiệm |
 
 Nguồn quyết định chung: `OPT-G2-20260917-014`. Bulk confirmation yêu cầu gõ `3` và lý do `Nhân viên đã nghỉ việc · RUN-OPT-20260917-0615`.
 
 ### 3.5. Nhánh G3/G4
 
-| Recommendation | Nhóm | Người dùng | Assignment | Căn cứ snapshot | Confidence | Manager | Kết quả UF-05 |
-| --- | --- | --- | --- | --- | ---: | --- | --- |
-| `REC-2026-331` | G3 | Phạm Quang · `NV-0293` | `ASN-5098` · Figma | Chưa từng có hoạt động; coverage 120 ngày | 92% | Lê Thu Hà | Thu hồi |
-| `REC-2026-332` | G4 | Nguyễn Mai Anh · `NV-0384` | `ASN-5077` · Atlassian | Không hoạt động 94 ngày | 84% | Lê Thu Hà | Giữ |
-| `REC-2026-333` | G4 | Vũ Đức Long · `NV-0442` | `ASN-5061` · Miro | Không hoạt động 76 ngày | 78% | Nguyễn Hoàng Long | Miễn trừ tới 17/12/2026 |
+| Recommendation | Nhóm | Người dùng                 | Assignment             | Căn cứ snapshot                           | Confidence | Manager           | Kết quả UF-05           |
+| -------------- | ---- | -------------------------- | ---------------------- | ----------------------------------------- | ---------: | ----------------- | ----------------------- |
+| `REC-2026-331` | G3   | Phạm Quang · `NV-0293`     | `ASN-5098` · Figma     | Chưa từng có hoạt động; coverage 120 ngày |        92% | Lê Thu Hà         | Thu hồi                 |
+| `REC-2026-332` | G4   | Nguyễn Mai Anh · `NV-0384` | `ASN-5077` · Atlassian | Không hoạt động 94 ngày                   |        84% | Lê Thu Hà         | Giữ                     |
+| `REC-2026-333` | G4   | Vũ Đức Long · `NV-0442`    | `ASN-5061` · Miro      | Không hoạt động 76 ngày                   |        78% | Nguyễn Hoàng Long | Miễn trừ tới 17/12/2026 |
 
 Batch Manager: `MBR-2026-W38-009`, gửi `17/09/2026 · 08:30 ICT`. Quyết định Thu hồi `REC-2026-331` quay lại IT lúc `17/09/2026 · 15:42 ICT`.
 
@@ -115,35 +115,35 @@ Nhánh IT đồng ý tạo `PV-2060` cho `ASN-5098`, bàn giao `UF-08`. Nhánh I
 
 ### 3.6. Hai loại tiết kiệm cuối
 
-| Loại | Giá trị thực tế | Thành phần |
-| --- | ---: | --- |
-| Thực hiện ngay | `740.000 đ/tháng` | Slack `320.000` + GitHub `420.000` |
+| Loại                         |    Giá trị thực tế | Thành phần                           |
+| ---------------------------- | -----------------: | ------------------------------------ |
+| Thực hiện ngay               |  `740.000 đ/tháng` | Slack `320.000` + GitHub `420.000`   |
 | Tại kỳ gia hạn đã được duyệt | `48.000.000 đ/năm` | M365 giảm 8 seat theo `APV-2026-118` |
 
 Seat Notion từ `PV-2061` trở thành G1 tiềm năng sau khi thu hồi nhưng chưa có quyết định giảm thuê bao, nên `3.600.000 đ/năm` chỉ là cơ hội chưa ghi nhận. Figma `REC-2026-331` cũng chỉ được đưa vào báo cáo sau khi `PV-2060` có đủ bằng chứng. Frame 18 mô tả trạng thái trước thời điểm đó: tác vụ đã tạo, khoản tiết kiệm Figma chưa ghi nhận. Không có con số tổng quy đổi năm/tháng.
 
 ## 4. Registry 18 frame
 
-| Frame | Chặng | State | Nội dung bắt buộc |
-| --- | ---: | --- | --- |
-| 01 | 1 | `optimization-dashboard` | Bốn thẻ G1–G4, tổng 38 phát hiện, lịch chạy và hai ô tiết kiệm tách biệt |
-| 02 | 1 | `group-comparison` | So sánh nguồn, confidence, Manager gate và hành động của từng nhóm |
-| 03 | 2 | `g1-list` | 12 seat G1 theo thuê bao; không hiển thị người dùng như đối tượng quyết định |
-| 04 | 2 | `g1-renewal-detail` | `SUB-M365-E3-01`, đề nghị giảm 12, notice deadline và ước tính 72 triệu/năm |
-| 05 | 2 | `g1-approval-handoff` | Handoff `UF-15`, `REN-2026-041`; Người duyệt chi quyết định trước Finance |
-| 06 | 2 | `g1-approved-recorded` | Duyệt giảm 8, `APV-2026-118`; Finance ghi `FIN-REN-2026-078`; thực tế 48 triệu/năm |
-| 07 | 3 | `g2-list` | Ba G2, confidence 100%, banner không cần Manager |
-| 08 | 3 | `g2-bulk-confirm` | Gõ `3`, lý do chung, cảnh báo tạo tác vụ chưa nhả seat |
-| 09 | 3 | `g2-tasks-created` | `PV-2058`, `PV-2059`, `PV-2061`; handoff UF-08 |
-| 10 | 4 | `usage-list` | Tách G3/G4, ba recommendation demo, quality/source badge |
-| 11 | 4 | `usage-evidence` | Snapshot chi tiết của `REC-2026-331`, coverage, match, định nghĩa activity |
-| 12 | 4 | `manager-batch-send` | Gom batch tuần `MBR-2026-W38-009`, hai Manager, ba recommendation |
-| 13 | 4 | `manager-results` | Kết quả UF-05: Thu hồi, Giữ, Miễn trừ; chỉ Thu hồi quay lại IT |
-| 14 | 5 | `it-review` | IT xem `REC-2026-331`, chọn Đồng ý hoặc Không đồng ý |
-| 15 | 5 | `it-agree` | Nhánh A: tạo `PV-2060`, giữ Assignment tới khi đủ bằng chứng, handoff UF-08 |
-| 16 | 5 | `it-disagree-dialog` | Nhánh B từ frame 14: dialog bắt buộc lý do, chưa thay đổi seat |
-| 17 | 5 | `returned-to-manager` | Nhánh B: trả Manager xem xét, giữ snapshot và lịch sử; không tạo task |
-| 18 | 6 | `savings-summary` | Walkthrough tiếp tục nhánh A; seat G2 đã nhả, `PV-2060` đang mở, hai số tiết kiệm riêng |
+| Frame | Chặng | State                    | Nội dung bắt buộc                                                                       |
+| ----- | ----: | ------------------------ | --------------------------------------------------------------------------------------- |
+| 01    |     1 | `optimization-dashboard` | Bốn thẻ G1–G4, tổng 38 phát hiện, lịch chạy và hai ô tiết kiệm tách biệt                |
+| 02    |     1 | `group-comparison`       | So sánh nguồn, confidence, Manager gate và hành động của từng nhóm                      |
+| 03    |     2 | `g1-list`                | 12 seat G1 theo thuê bao; không hiển thị người dùng như đối tượng quyết định            |
+| 04    |     2 | `g1-renewal-detail`      | `SUB-M365-E3-01`, đề nghị giảm 12, notice deadline và ước tính 72 triệu/năm             |
+| 05    |     2 | `g1-approval-handoff`    | Handoff `UF-15`, `REN-2026-041`; Người duyệt chi quyết định trước Finance               |
+| 06    |     2 | `g1-approved-recorded`   | Duyệt giảm 8, `APV-2026-118`; Finance ghi `FIN-REN-2026-078`; thực tế 48 triệu/năm      |
+| 07    |     3 | `g2-list`                | Ba G2, confidence 100%, banner không cần Manager                                        |
+| 08    |     3 | `g2-bulk-confirm`        | Gõ `3`, lý do chung, cảnh báo tạo tác vụ chưa nhả seat                                  |
+| 09    |     3 | `g2-tasks-created`       | `PV-2058`, `PV-2059`, `PV-2061`; handoff UF-08                                          |
+| 10    |     4 | `usage-list`             | Tách G3/G4, ba recommendation demo, quality/source badge                                |
+| 11    |     4 | `usage-evidence`         | Snapshot chi tiết của `REC-2026-331`, coverage, match, định nghĩa activity              |
+| 12    |     4 | `manager-batch-send`     | Gom batch tuần `MBR-2026-W38-009`, hai Manager, ba recommendation                       |
+| 13    |     4 | `manager-results`        | Kết quả UF-05: Thu hồi, Giữ, Miễn trừ; chỉ Thu hồi quay lại IT                          |
+| 14    |     5 | `it-review`              | IT xem `REC-2026-331`, chọn Đồng ý hoặc Không đồng ý                                    |
+| 15    |     5 | `it-agree`               | Nhánh A: tạo `PV-2060`, giữ Assignment tới khi đủ bằng chứng, handoff UF-08             |
+| 16    |     5 | `it-disagree-dialog`     | Nhánh B từ frame 14: dialog bắt buộc lý do, chưa thay đổi seat                          |
+| 17    |     5 | `returned-to-manager`    | Nhánh B: trả Manager xem xét, giữ snapshot và lịch sử; không tạo task                   |
+| 18    |     6 | `savings-summary`        | Walkthrough tiếp tục nhánh A; seat G2 đã nhả, `PV-2060` đang mở, hai số tiết kiệm riêng |
 
 ## 5. Quan hệ giữa các frame
 
@@ -173,15 +173,15 @@ Panel phải hiển thị cùng thứ tự:
 
 Các mốc chính:
 
-| Mốc | G1 mở | G2 mở | Chờ Manager | Chờ IT | Task mở | Seat nhả hiện tại | Giảm đã duyệt tại renewal |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Dashboard | 12 | 3 | 23 | 0 | 0 | 0 | 0 |
-| G1 đã ghi nhận | 4 buffer | 3 | 23 | 0 | 0 | 0 | 8 |
-| G2 task đã tạo | 4 buffer | 3 | 23 | 0 | 3 | 0 | 8 |
-| Manager đã trả kết quả | 4 buffer | 3 | 0 | 1 | 3 | 0 | 8 |
-| Nhánh A tạo task | 4 buffer | 3 | 0 | 0 | 4 | 0 | 8 |
-| Nhánh B trả Manager | 4 buffer | 3 | 1 | 0 | 3 | 0 | 8 |
-| Tổng kết nhánh A | 4 buffer + 1 Notion mới | 0 | 0 | 0 | 1 | 3 | 8 |
+| Mốc                    |                   G1 mở | G2 mở | Chờ Manager | Chờ IT | Task mở | Seat nhả hiện tại | Giảm đã duyệt tại renewal |
+| ---------------------- | ----------------------: | ----: | ----------: | -----: | ------: | ----------------: | ------------------------: |
+| Dashboard              |                      12 |     3 |          23 |      0 |       0 |                 0 |                         0 |
+| G1 đã ghi nhận         |                4 buffer |     3 |          23 |      0 |       0 |                 0 |                         8 |
+| G2 task đã tạo         |                4 buffer |     3 |          23 |      0 |       3 |                 0 |                         8 |
+| Manager đã trả kết quả |                4 buffer |     3 |           0 |      1 |       3 |                 0 |                         8 |
+| Nhánh A tạo task       |                4 buffer |     3 |           0 |      0 |       4 |                 0 |                         8 |
+| Nhánh B trả Manager    |                4 buffer |     3 |           1 |      0 |       3 |                 0 |                         8 |
+| Tổng kết nhánh A       | 4 buffer + 1 Notion mới |     0 |           0 |      0 |       1 |                 3 |                         8 |
 
 `8 tại renewal` không được hiển thị như seat đã nhả ở hiện tại. Ledger UI dùng nhãn `Đã duyệt giảm tại renewal`, không gộp với `Seat đã nhả`.
 

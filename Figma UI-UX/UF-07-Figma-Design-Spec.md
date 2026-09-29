@@ -40,27 +40,27 @@ Các dialog xác nhận vẫn được xuất thành ảnh toàn màn riêng, c�
 
 ### 3.1. Phiên import
 
-| Trường | Giá trị cố định |
-| --- | --- |
-| Nguồn | Microsoft 365 |
-| File | `m365_usage_jan2025.csv` |
-| Import session | `IMP-20250114-7F3A` |
-| Thời điểm import | 14/01/2025 · 10:24 ICT |
-| Người import | IT Admin · `it-admin@company.com` |
-| Tổng định danh duy nhất | 1.248 |
-| Đã khớp trước UF-07 | 1.102 |
-| Chưa khớp khi bắt đầu | 146 |
-| Mẫu nguồn | `Microsoft 365 · Usage v3` |
-| Loại định danh | User Principal Name |
-| Coverage window | 01/01/2025–31/01/2025 |
+| Trường                  | Giá trị cố định                   |
+| ----------------------- | --------------------------------- |
+| Nguồn                   | Microsoft 365                     |
+| File                    | `m365_usage_jan2025.csv`          |
+| Import session          | `IMP-20250114-7F3A`               |
+| Thời điểm import        | 14/01/2025 · 10:24 ICT            |
+| Người import            | IT Admin · `it-admin@company.com` |
+| Tổng định danh duy nhất | 1.248                             |
+| Đã khớp trước UF-07     | 1.102                             |
+| Chưa khớp khi bắt đầu   | 146                               |
+| Mẫu nguồn               | `Microsoft 365 · Usage v3`        |
+| Loại định danh          | User Principal Name               |
+| Coverage window         | 01/01/2025–31/01/2025             |
 
 ### 3.2. Ba hồ sơ minh họa
 
-| ID | Chuỗi gốc | Chuỗi chuẩn hóa | Kết quả |
-| --- | --- | --- | --- |
-| `UQ-0184` | `Nguyen.Van_A@acmecloud.onmicrosoft.com` | `nguyen.van_a@acmecloud.onmicrosoft.com` | Khớp duy nhất với Nguyễn Văn An; 94% |
-| `UQ-0185` | `svc-marketing-automation@acmecloud.onmicrosoft.com` | Giữ nguyên | Không có ứng viên; bỏ qua có lý do |
-| `UQ-0186` | `n.tran@acmecloud.onmicrosoft.com` | Giữ nguyên | Hai ứng viên gần nhau; bị chặn |
+| ID        | Chuỗi gốc                                            | Chuỗi chuẩn hóa                          | Kết quả                              |
+| --------- | ---------------------------------------------------- | ---------------------------------------- | ------------------------------------ |
+| `UQ-0184` | `Nguyen.Van_A@acmecloud.onmicrosoft.com`             | `nguyen.van_a@acmecloud.onmicrosoft.com` | Khớp duy nhất với Nguyễn Văn An; 94% |
+| `UQ-0185` | `svc-marketing-automation@acmecloud.onmicrosoft.com` | Giữ nguyên                               | Không có ứng viên; bỏ qua có lý do   |
+| `UQ-0186` | `n.tran@acmecloud.onmicrosoft.com`                   | Giữ nguyên                               | Hai ứng viên gần nhau; bị chặn       |
 
 Ứng viên của `UQ-0184`:
 
@@ -79,30 +79,30 @@ Các dialog xác nhận vẫn được xuất thành ảnh toàn màn riêng, c�
 
 ### 3.3. Ledger số lượng
 
-| Sau hành động | Chưa khớp cần xử lý | Xung đột đang chờ | Đã xử lý trong phiên |
-| --- | ---: | ---: | ---: |
-| Mở UF-07 | 146 | 0 | 0 |
-| Khớp `UQ-0184` hoàn tất | 145 | 0 | 1 |
-| Bỏ qua `UQ-0185` hoàn tất | 144 | 0 | 2 |
-| Chặn `UQ-0186` | 144 | 1 | 2 |
+| Sau hành động             | Chưa khớp cần xử lý | Xung đột đang chờ | Đã xử lý trong phiên |
+| ------------------------- | ------------------: | ----------------: | -------------------: |
+| Mở UF-07                  |                 146 |                 0 |                    0 |
+| Khớp `UQ-0184` hoàn tất   |                 145 |                 0 |                    1 |
+| Bỏ qua `UQ-0185` hoàn tất |                 144 |                 0 |                    2 |
+| Chặn `UQ-0186`            |                 144 |                 1 |                    2 |
 
 `UQ-0186` vẫn nằm trong tổng 144 vì chưa được giải quyết. Badge `Xung đột đang chờ: 1` là một lát cắt của hàng đợi, không cộng thêm vào tổng.
 
 ## 4. Danh sách 11 frame
 
-| # | Tên frame | Trạng thái nghiệp vụ | Nội dung bắt buộc |
-| --- | --- | --- | --- |
-| 01 | Tổng quan hàng đợi | Bắt đầu, 146 chưa khớp | Metric 1.248 / 1.102 / 146; bảng hàng đợi; filter Mới/Xung đột/Đã bỏ qua; cảnh báo `BR-18.1`; chọn `UQ-0184` |
-| 02 | Xem gợi ý cho UQ-0184 | Đã chọn bản ghi | Chuỗi gốc và chuẩn hóa đặt cạnh nhau; ba ứng viên; phương pháp, confidence; candidate Nguyễn Văn An 94% đứng đầu |
-| 03 | Xác nhận khớp duy nhất | Dialog trước khi gán tay | External identifier, employee đích, 23 usage records, 1 Assignment, người xác nhận, checkbox xác nhận; CTA `Xác nhận khớp thủ công` |
-| 04 | Đang tính lại tổng hợp | Mapping đã ghi, aggregation đang chạy | Progress theo ba pha: lưu ánh xạ → gắn usage vào Assignment theo ngày sự kiện → tính lại trạng thái; không hiển thị thành công sớm |
-| 05 | Khớp thành công | `UQ-0184` hoàn tất | Queue còn 145; audit entry; 23 bản ghi đã tổng hợp; 1 Assignment được tính lại; CTA `Xử lý bản ghi tiếp theo` |
-| 06 | Không tìm được ứng viên | Mở `UQ-0185` | Search nội bộ trả 0 kết quả; chuỗi gốc/chuẩn hóa; cho tìm lại hoặc `Đánh dấu bỏ qua`; queue 145 |
-| 07 | Xác nhận bỏ qua | Dialog có trường lý do bắt buộc | Lý do `Tài khoản dịch vụ của nhà cung cấp, không thuộc nhân viên`; cảnh báo bản ghi không dùng kết luận; CTA bị khóa khi lý do trống |
-| 08 | Đã bỏ qua | `UQ-0185` hoàn tất | Queue còn 144; badge `Đã bỏ qua`; lý do, người và thời điểm xử lý; khẳng định không tạo IdentityMapping tới nhân viên |
-| 09 | Phát hiện hai ứng viên | Mở `UQ-0186` | Hai candidate card 82%/80%; nguyên nhân mơ hồ; cả nút chọn đều vô hiệu hóa; queue 144 |
-| 10 | Chặn xung đột danh tính | `BR-18.4` kích hoạt | Blocked state; giải thích không nguồn nào thắng; CTA duy nhất `Chuyển sang chờ xử lý xung đột`; không có CTA khớp |
-| 11 | Đang chờ xử lý xung đột | End state | Queue vẫn 144; xung đột đang chờ 1; audit trail; danh sách hai candidate được giữ nguyên; CTA về hàng đợi |
+| #   | Tên frame               | Trạng thái nghiệp vụ                  | Nội dung bắt buộc                                                                                                                    |
+| --- | ----------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| 01  | Tổng quan hàng đợi      | Bắt đầu, 146 chưa khớp                | Metric 1.248 / 1.102 / 146; bảng hàng đợi; filter Mới/Xung đột/Đã bỏ qua; cảnh báo `BR-18.1`; chọn `UQ-0184`                         |
+| 02  | Xem gợi ý cho UQ-0184   | Đã chọn bản ghi                       | Chuỗi gốc và chuẩn hóa đặt cạnh nhau; ba ứng viên; phương pháp, confidence; candidate Nguyễn Văn An 94% đứng đầu                     |
+| 03  | Xác nhận khớp duy nhất  | Dialog trước khi gán tay              | External identifier, employee đích, 23 usage records, 1 Assignment, người xác nhận, checkbox xác nhận; CTA `Xác nhận khớp thủ công`  |
+| 04  | Đang tính lại tổng hợp  | Mapping đã ghi, aggregation đang chạy | Progress theo ba pha: lưu ánh xạ → gắn usage vào Assignment theo ngày sự kiện → tính lại trạng thái; không hiển thị thành công sớm   |
+| 05  | Khớp thành công         | `UQ-0184` hoàn tất                    | Queue còn 145; audit entry; 23 bản ghi đã tổng hợp; 1 Assignment được tính lại; CTA `Xử lý bản ghi tiếp theo`                        |
+| 06  | Không tìm được ứng viên | Mở `UQ-0185`                          | Search nội bộ trả 0 kết quả; chuỗi gốc/chuẩn hóa; cho tìm lại hoặc `Đánh dấu bỏ qua`; queue 145                                      |
+| 07  | Xác nhận bỏ qua         | Dialog có trường lý do bắt buộc       | Lý do `Tài khoản dịch vụ của nhà cung cấp, không thuộc nhân viên`; cảnh báo bản ghi không dùng kết luận; CTA bị khóa khi lý do trống |
+| 08  | Đã bỏ qua               | `UQ-0185` hoàn tất                    | Queue còn 144; badge `Đã bỏ qua`; lý do, người và thời điểm xử lý; khẳng định không tạo IdentityMapping tới nhân viên                |
+| 09  | Phát hiện hai ứng viên  | Mở `UQ-0186`                          | Hai candidate card 82%/80%; nguyên nhân mơ hồ; cả nút chọn đều vô hiệu hóa; queue 144                                                |
+| 10  | Chặn xung đột danh tính | `BR-18.4` kích hoạt                   | Blocked state; giải thích không nguồn nào thắng; CTA duy nhất `Chuyển sang chờ xử lý xung đột`; không có CTA khớp                    |
+| 11  | Đang chờ xử lý xung đột | End state                             | Queue vẫn 144; xung đột đang chờ 1; audit trail; danh sách hai candidate được giữ nguyên; CTA về hàng đợi                            |
 
 ## 5. Hợp đồng chuyển màn
 
@@ -134,46 +134,46 @@ Quy tắc continuity:
 
 ### 6.1. Kích thước
 
-| Thuộc tính | Giá trị |
-| --- | --- |
-| Frame | 1440 × 1024 px |
-| Sidebar | 224 px |
-| Top bar | 64 px |
-| Content gutter | 24 px |
-| Queue column | 328 px |
-| Context panel | 280 px |
-| Grid | 8 px |
-| Table row | 48 px |
-| Card radius | 12 px |
-| Input/button radius | 8–10 px |
-| Font | Inter; fallback `Segoe UI`, sans-serif |
+| Thuộc tính          | Giá trị                                |
+| ------------------- | -------------------------------------- |
+| Frame               | 1440 × 1024 px                         |
+| Sidebar             | 224 px                                 |
+| Top bar             | 64 px                                  |
+| Content gutter      | 24 px                                  |
+| Queue column        | 328 px                                 |
+| Context panel       | 280 px                                 |
+| Grid                | 8 px                                   |
+| Table row           | 48 px                                  |
+| Card radius         | 12 px                                  |
+| Input/button radius | 8–10 px                                |
+| Font                | Inter; fallback `Segoe UI`, sans-serif |
 
 ### 6.2. Theme tokens
 
-| Token | Dark | Light | Vai trò |
-| --- | --- | --- | --- |
-| `color/bg/canvas` | `#07182D` | `#FFF9F2` | Nền trang |
-| `color/bg/sidebar` | `#061426` | `#FFF4E8` | Sidebar |
-| `color/bg/surface` | `#0D223A` | `#FFFFFF` | Card, panel, dialog |
-| `color/bg/subtle` | `#102943` | `#FFFAF4` | Header bảng, hover |
-| `color/border/default` | `#213D5C` | `#EFDDCA` | Border |
-| `color/text/primary` | `#F5F9FF` | `#2B241F` | Text chính |
-| `color/text/secondary` | `#91A8C2` | `#897568` | Metadata |
-| `color/action/primary` | `#2D86FF` | `#FF7417` | CTA, focus, active |
+| Token                  | Dark      | Light     | Vai trò             |
+| ---------------------- | --------- | --------- | ------------------- |
+| `color/bg/canvas`      | `#07182D` | `#FFF9F2` | Nền trang           |
+| `color/bg/sidebar`     | `#061426` | `#FFF4E8` | Sidebar             |
+| `color/bg/surface`     | `#0D223A` | `#FFFFFF` | Card, panel, dialog |
+| `color/bg/subtle`      | `#102943` | `#FFFAF4` | Header bảng, hover  |
+| `color/border/default` | `#213D5C` | `#EFDDCA` | Border              |
+| `color/text/primary`   | `#F5F9FF` | `#2B241F` | Text chính          |
+| `color/text/secondary` | `#91A8C2` | `#897568` | Metadata            |
+| `color/action/primary` | `#2D86FF` | `#FF7417` | CTA, focus, active  |
 
 Success, Warning, Danger và Info giữ ý nghĩa giống nhau giữa hai theme. Không dùng màu làm kênh duy nhất: mọi trạng thái có icon, label và mô tả.
 
 ## 7. Component inventory
 
-| Nhóm | Component |
-| --- | --- |
-| Shell | `AppShell`, `SidebarItem`, `Topbar`, `Breadcrumb`, `UserMenu` |
-| Queue | `QueueMetric`, `QueueFilter`, `IdentityQueueRow`, `QueuePagination` |
+| Nhóm     | Component                                                                   |
+| -------- | --------------------------------------------------------------------------- |
+| Shell    | `AppShell`, `SidebarItem`, `Topbar`, `Breadcrumb`, `UserMenu`               |
+| Queue    | `QueueMetric`, `QueueFilter`, `IdentityQueueRow`, `QueuePagination`         |
 | Identity | `RawNormalizedPair`, `CandidateCard`, `ConfidenceMeter`, `MatchMethodBadge` |
-| Context | `ImportContextPanel`, `SourceSummary`, `AuditTimeline` |
-| Feedback | Alert, Badge, EmptyState, BlockedState, ProgressPanel, Toast |
-| Overlay | `ConfirmManualMatchDialog`, `IgnoreIdentityDialog` |
-| Action | Primary, Secondary, Ghost, Danger, Disabled, Loading |
+| Context  | `ImportContextPanel`, `SourceSummary`, `AuditTimeline`                      |
+| Feedback | Alert, Badge, EmptyState, BlockedState, ProgressPanel, Toast                |
+| Overlay  | `ConfirmManualMatchDialog`, `IgnoreIdentityDialog`                          |
+| Action   | Primary, Secondary, Ghost, Danger, Disabled, Loading                        |
 
 ## 8. Nội dung và hành vi chi tiết
 
@@ -254,16 +254,16 @@ Không tạo storyboard ghép chung trừ khi người dùng yêu cầu riêng. 
 
 ## 12. Truy vết nguồn
 
-| Thiết kế | Nguồn |
-| --- | --- |
-| Bảng IdentityMapping lưu method, confidence, confirmer | `FR-4.5` |
-| Unmatched vào queue, không dùng kết luận | `FR-4.6`, `FR-4.10`, `BR-18.1`, `INV-12` |
-| Usage gắn Assignment tại ngày sự kiện | `FR-4.7` |
-| Giữ chuỗi gốc và chuẩn hóa | `BR-18.2`, `FR-7.6` |
-| Manual match ghi người xác nhận | `BR-18.3`, `FR-4.5` |
-| Hai nhân viên thì chặn | `BR-18.4`, `FR-7.7` |
-| Chạy lại tổng hợp sau khi khớp | `F-18` bước 4 |
-| Audit quyết định | Quy tắc chung user flow mục 0.3; `FR-8.3` |
+| Thiết kế                                               | Nguồn                                     |
+| ------------------------------------------------------ | ----------------------------------------- |
+| Bảng IdentityMapping lưu method, confidence, confirmer | `FR-4.5`                                  |
+| Unmatched vào queue, không dùng kết luận               | `FR-4.6`, `FR-4.10`, `BR-18.1`, `INV-12`  |
+| Usage gắn Assignment tại ngày sự kiện                  | `FR-4.7`                                  |
+| Giữ chuỗi gốc và chuẩn hóa                             | `BR-18.2`, `FR-7.6`                       |
+| Manual match ghi người xác nhận                        | `BR-18.3`, `FR-4.5`                       |
+| Hai nhân viên thì chặn                                 | `BR-18.4`, `FR-7.7`                       |
+| Chạy lại tổng hợp sau khi khớp                         | `F-18` bước 4                             |
+| Audit quyết định                                       | Quy tắc chung user flow mục 0.3; `FR-8.3` |
 
 ## 13. Phần không được tự suy diễn
 

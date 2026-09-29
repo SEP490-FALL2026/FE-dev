@@ -72,13 +72,13 @@ Agent không dùng để đọc nội dung công việc hoặc đánh giá năng
 - Tính hash của binary để nhận diện binary giả mạo hoặc bị thay đổi.
 - Phân loại cục bộ theo catalog:
 
-| Trạng thái | Ý nghĩa |
-| --- | --- |
-| `ALLOWED` | Phần mềm được công ty cho phép |
-| `MONITORED` | Phần mềm cần thu usage để tối ưu license |
-| `PROHIBITED` | Phần mềm bị cấm theo policy đã ban hành |
-| `UNAPPROVED` | Phần mềm chưa có trong danh mục được phê duyệt |
-| `UNTRUSTED_BINARY` | Chữ ký số/hash không khớp catalog |
+| Trạng thái           | Ý nghĩa                                                     |
+| -------------------- | ----------------------------------------------------------- |
+| `ALLOWED`            | Phần mềm được công ty cho phép                              |
+| `MONITORED`          | Phần mềm cần thu usage để tối ưu license                    |
+| `PROHIBITED`         | Phần mềm bị cấm theo policy đã ban hành                     |
+| `UNAPPROVED`         | Phần mềm chưa có trong danh mục được phê duyệt              |
+| `UNTRUSTED_BINARY`   | Chữ ký số/hash không khớp catalog                           |
 | `LICENSE_UNVERIFIED` | Có phần mềm nhưng chưa đủ bằng chứng về entitlement/license |
 
 Agent không được tự gọi một phần mềm là “phần mềm lậu”. Process name chỉ chứng minh ứng dụng có mặt hoặc đang chạy, không chứng minh tình trạng bản quyền.
@@ -128,16 +128,16 @@ Windows Service không trực tiếp đo foreground window vì service chạy �
 
 ### 2.4. Công nghệ sử dụng
 
-| Thành phần | Công nghệ đề xuất | Mục đích |
-| --- | --- | --- |
-| Agent runtime | Go | Một binary, nhẹ, ít phụ thuộc runtime |
-| Windows integration | `golang.org/x/sys/windows`, ToolHelp/PSAPI, WMI/Registry | Process, inventory và Windows API |
-| Foreground/idle | `GetForegroundWindow`, `GetWindowThreadProcessId`, `GetLastInputInfo` | Đo tương tác mà không đọc window title |
-| Binary trust | WinVerifyTrust + SHA-256 | Kiểm tra publisher/chữ ký/hash |
-| Local queue | bbolt | Lưu batch khi offline |
-| Bảo vệ credential | Windows DPAPI + ACL | Không lưu credential dạng rõ |
-| Giao tiếp server | HTTPS 443, JSON batch, `Idempotency-Key` | Bảo mật và chống gửi trùng |
-| Installer | MSI bằng WiX Toolset + code signing | Triển khai qua GPO/Intune |
+| Thành phần          | Công nghệ đề xuất                                                     | Mục đích                               |
+| ------------------- | --------------------------------------------------------------------- | -------------------------------------- |
+| Agent runtime       | Go                                                                    | Một binary, nhẹ, ít phụ thuộc runtime  |
+| Windows integration | `golang.org/x/sys/windows`, ToolHelp/PSAPI, WMI/Registry              | Process, inventory và Windows API      |
+| Foreground/idle     | `GetForegroundWindow`, `GetWindowThreadProcessId`, `GetLastInputInfo` | Đo tương tác mà không đọc window title |
+| Binary trust        | WinVerifyTrust + SHA-256                                              | Kiểm tra publisher/chữ ký/hash         |
+| Local queue         | bbolt                                                                 | Lưu batch khi offline                  |
+| Bảo vệ credential   | Windows DPAPI + ACL                                                   | Không lưu credential dạng rõ           |
+| Giao tiếp server    | HTTPS 443, JSON batch, `Idempotency-Key`                              | Bảo mật và chống gửi trùng             |
+| Installer           | MSI bằng WiX Toolset + code signing                                   | Triển khai qua GPO/Intune              |
 
 Python chỉ nên dùng cho spike Windows API, sinh fixture hoặc phân tích thử nghiệm. Không nên dùng Python làm production agent vì runtime, dependency và đóng gói trên nhiều máy phức tạp hơn Go.
 
@@ -256,17 +256,17 @@ Khi tải lớn hoặc cần cô lập secret/streaming, module `/ai/*` có th�
 
 ### 3.4. Công nghệ sử dụng
 
-| Thành phần | Công nghệ đề xuất | Mục đích |
-| --- | --- | --- |
-| Gateway runtime | NestJS/TypeScript | Khớp Backend hiện hành |
-| HTTP adapter | Fastify | Xử lý request/stream hiệu quả hơn Express mặc định |
-| Provider connection | Undici + Node streams/SSE parser | Relay JSON/SSE |
-| Metadata | PostgreSQL | Lưu usage event, daily aggregate và audit |
-| Quota/idempotency | Redis | Counter, rate limit và chống xử lý trùng |
-| Contract | OpenAPI + JSON Schema đóng | Kiểm soát request/response |
-| Secrets | Secret manager/KMS | Bảo vệ và rotate provider key |
-| Edge | Nginx/Ingress + HTTPS 443 | TLS termination và routing |
-| Observability | OpenTelemetry với redaction | Theo dõi lỗi/độ trễ mà không log content |
+| Thành phần          | Công nghệ đề xuất                | Mục đích                                           |
+| ------------------- | -------------------------------- | -------------------------------------------------- |
+| Gateway runtime     | NestJS/TypeScript                | Khớp Backend hiện hành                             |
+| HTTP adapter        | Fastify                          | Xử lý request/stream hiệu quả hơn Express mặc định |
+| Provider connection | Undici + Node streams/SSE parser | Relay JSON/SSE                                     |
+| Metadata            | PostgreSQL                       | Lưu usage event, daily aggregate và audit          |
+| Quota/idempotency   | Redis                            | Counter, rate limit và chống xử lý trùng           |
+| Contract            | OpenAPI + JSON Schema đóng       | Kiểm soát request/response                         |
+| Secrets             | Secret manager/KMS               | Bảo vệ và rotate provider key                      |
+| Edge                | Nginx/Ingress + HTTPS 443        | TLS termination và routing                         |
+| Observability       | OpenTelemetry với redaction      | Theo dõi lỗi/độ trễ mà không log content           |
 
 Không cần viết Gateway bằng Go trong MVP. NestJS đủ phù hợp để tái sử dụng authentication, RBAC, PostgreSQL và cấu trúc Backend hiện tại. Chỉ tách sang Go service nếu benchmark thực tế cho thấy NestJS không đáp ứng số lượng kết nối streaming.
 
@@ -312,12 +312,12 @@ Không cần viết Gateway bằng Go trong MVP. NestJS đủ phù hợp để t
 
 ### 3.7. Công cụ nào bắt buộc đi qua Gateway?
 
-| Khả năng của AI client | Cách xử lý |
-| --- | --- |
+| Khả năng của AI client                              | Cách xử lý                                              |
+| --------------------------------------------------- | ------------------------------------------------------- |
 | Có custom base URL hoặc managed settings chính thức | Agent cấu hình bắt buộc qua Gateway theo company policy |
-| Chỉ có workspace/vendor account và Analytics API | Không ép proxy; lấy usage từ vendor analytics |
-| Không có custom endpoint lẫn analytics chính thức | Agent chỉ ghi process evidence; token là `UNKNOWN` |
-| Chỉ có thể bắt bằng MITM, cookie hoặc OAuth cá nhân | Không hỗ trợ |
+| Chỉ có workspace/vendor account và Analytics API    | Không ép proxy; lấy usage từ vendor analytics           |
+| Không có custom endpoint lẫn analytics chính thức   | Agent chỉ ghi process evidence; token là `UNKNOWN`      |
+| Chỉ có thể bắt bằng MITM, cookie hoặc OAuth cá nhân | Không hỗ trợ                                            |
 
 Mức cưỡng chế đề xuất là:
 
@@ -343,68 +343,67 @@ SaaS-Sentry nên thực hiện `L1 + L2`. `L3` là hạ tầng mạng riêng, kh
 
 ### 4.1. Phạm vi và mục đích
 
-| Mã | Business rule |
-| --- | --- |
-| `BR-SCOPE-01` | Chỉ triển khai trên thiết bị do công ty sở hữu và quản lý; BYOD nằm ngoài phạm vi. |
-| `BR-SCOPE-02` | Mục đích chỉ gồm quản trị tài sản phần mềm, chi phí, license, policy compliance và an toàn. |
-| `BR-SCOPE-03` | Cấm dùng dữ liệu để chấm điểm năng suất hoặc tự động kỷ luật nhân viên. |
-| `BR-SCOPE-04` | Desktop Agent phải hiện diện rõ, hiển thị trạng thái, policy version và lần gửi gần nhất. |
+| Mã            | Business rule                                                                                             |
+| ------------- | --------------------------------------------------------------------------------------------------------- |
+| `BR-SCOPE-01` | Chỉ triển khai trên thiết bị do công ty sở hữu và quản lý; BYOD nằm ngoài phạm vi.                        |
+| `BR-SCOPE-02` | Mục đích chỉ gồm quản trị tài sản phần mềm, chi phí, license, policy compliance và an toàn.               |
+| `BR-SCOPE-03` | Cấm dùng dữ liệu để chấm điểm năng suất hoặc tự động kỷ luật nhân viên.                                   |
+| `BR-SCOPE-04` | Desktop Agent phải hiện diện rõ, hiển thị trạng thái, policy version và lần gửi gần nhất.                 |
 | `BR-SCOPE-05` | Thay đổi mục đích, field, retention hoặc nhóm ứng dụng phải tạo policy version mới và được phê duyệt lại. |
 
 ### 4.2. Business rules cho Desktop Agent
 
-| Mã | Business rule |
-| --- | --- |
-| `BR-END-01` | Chỉ thu product name, executable name chuẩn hóa, publisher, version, signature status, binary hash, installed/running flag, rounded active minutes và coverage. |
+| Mã          | Business rule                                                                                                                                                                  |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `BR-END-01` | Chỉ thu product name, executable name chuẩn hóa, publisher, version, signature status, binary hash, installed/running flag, rounded active minutes và coverage.                |
 | `BR-END-02` | Cấm thu browser history, URL/domain, window title, command argument, user path, file/content, prompt/code, clipboard, screenshot, keystroke, cookie, password và access token. |
-| `BR-END-03` | Ứng dụng liên lạc mặc định không thu active minutes; nếu cần inventory thì chỉ giữ installed metadata. |
-| `BR-END-04` | `UNAPPROVED` hoặc `UNKNOWN` chỉ nghĩa là chưa khớp catalog, không đồng nghĩa “phần mềm lậu” hoặc “vi phạm”. |
-| `BR-END-05` | `UNTRUSTED_BINARY` phải dựa trên signature/hash; `LICENSE_UNVERIFIED` phải đối chiếu entitlement/license. |
-| `BR-END-06` | Finding không tự kill process, uninstall, block hoặc kỷ luật; IT Admin phải review. |
-| `BR-END-07` | Heartbeat/coverage bắt buộc; thiếu heartbeat thì usage là `UNKNOWN`, không phải zero. |
-| `BR-END-08` | Device–employee binding có khoảng hiệu lực; record được ánh xạ theo thời điểm phát sinh. |
-| `BR-END-09` | Agent không cấu hình system-wide proxy, transparent redirect hoặc root certificate. |
-| `BR-END-10` | Agent chỉ sửa cấu hình AI client khi vendor có schema/custom endpoint chính thức đã được xác minh. |
+| `BR-END-03` | Ứng dụng liên lạc mặc định không thu active minutes; nếu cần inventory thì chỉ giữ installed metadata.                                                                         |
+| `BR-END-04` | `UNAPPROVED` hoặc `UNKNOWN` chỉ nghĩa là chưa khớp catalog, không đồng nghĩa “phần mềm lậu” hoặc “vi phạm”.                                                                    |
+| `BR-END-05` | `UNTRUSTED_BINARY` phải dựa trên signature/hash; `LICENSE_UNVERIFIED` phải đối chiếu entitlement/license.                                                                      |
+| `BR-END-06` | Finding không tự kill process, uninstall, block hoặc kỷ luật; IT Admin phải review.                                                                                            |
+| `BR-END-07` | Heartbeat/coverage bắt buộc; thiếu heartbeat thì usage là `UNKNOWN`, không phải zero.                                                                                          |
+| `BR-END-08` | Device–employee binding có khoảng hiệu lực; record được ánh xạ theo thời điểm phát sinh.                                                                                       |
+| `BR-END-09` | Agent không cấu hình system-wide proxy, transparent redirect hoặc root certificate.                                                                                            |
+| `BR-END-10` | Agent chỉ sửa cấu hình AI client khi vendor có schema/custom endpoint chính thức đã được xác minh.                                                                             |
 
 ### 4.3. Business rules cho AI Gateway
 
-| Mã | Business rule |
-| --- | --- |
+| Mã          | Business rule                                                                                                                               |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | `BR-AIG-01` | AI client chỉ được coi là đo token đầy đủ khi dùng company credential/workspace và request đi qua Gateway hoặc vendor analytics chính thức. |
-| `BR-AIG-02` | Provider secret không được đưa xuống thiết bị; mỗi nhân viên/thiết bị dùng credential riêng, ngắn hạn và thu hồi được. |
-| `BR-AIG-03` | Cấm consumer OAuth harvesting, browser cookie, credential-file scraping và MITM. |
-| `BR-AIG-04` | Gateway không lưu prompt, response, tool payload, source code hoặc file content. |
-| `BR-AIG-05` | Mỗi usage record bắt buộc có `usageSource` và `measurementStatus`. |
-| `BR-AIG-06` | Missing usage phải là `UNKNOWN` hoặc `PARTIAL`, không ghi zero. |
-| `BR-AIG-07` | API token cost và subscription seat cost là hai mô hình khác nhau; token ước lượng không được trình bày như hóa đơn thật. |
-| `BR-AIG-08` | Process có nhưng token không có chỉ tạo `POSSIBLE_BYPASS`; phải kiểm tra coverage/vendor trước khi kết luận. |
-| `BR-AIG-09` | Gateway lỗi dùng fail-closed cho company credential; không tự gọi thẳng provider vì sẽ phá coverage. |
-| `BR-AIG-10` | Client không hỗ trợ Gateway phải dùng vendor analytics hoặc mang trạng thái `UNKNOWN/UNSUPPORTED`; không ép qua MITM. |
-| `BR-AIG-11` | `L1 + L2` là mức đề xuất; `L3` network enforcement cần quyết định hạ tầng và pháp lý riêng. |
+| `BR-AIG-02` | Provider secret không được đưa xuống thiết bị; mỗi nhân viên/thiết bị dùng credential riêng, ngắn hạn và thu hồi được.                      |
+| `BR-AIG-03` | Cấm consumer OAuth harvesting, browser cookie, credential-file scraping và MITM.                                                            |
+| `BR-AIG-04` | Gateway không lưu prompt, response, tool payload, source code hoặc file content.                                                            |
+| `BR-AIG-05` | Mỗi usage record bắt buộc có `usageSource` và `measurementStatus`.                                                                          |
+| `BR-AIG-06` | Missing usage phải là `UNKNOWN` hoặc `PARTIAL`, không ghi zero.                                                                             |
+| `BR-AIG-07` | API token cost và subscription seat cost là hai mô hình khác nhau; token ước lượng không được trình bày như hóa đơn thật.                   |
+| `BR-AIG-08` | Process có nhưng token không có chỉ tạo `POSSIBLE_BYPASS`; phải kiểm tra coverage/vendor trước khi kết luận.                                |
+| `BR-AIG-09` | Gateway lỗi dùng fail-closed cho company credential; không tự gọi thẳng provider vì sẽ phá coverage.                                        |
+| `BR-AIG-10` | Client không hỗ trợ Gateway phải dùng vendor analytics hoặc mang trạng thái `UNKNOWN/UNSUPPORTED`; không ép qua MITM.                       |
+| `BR-AIG-11` | `L1 + L2` là mức đề xuất; `L3` network enforcement cần quyết định hạ tầng và pháp lý riêng.                                                 |
 
 ### 4.4. Business rules về đánh giá usage
 
-| Mã | Business rule |
-| --- | --- |
-| `BR-USG-01` | Phải phân biệt `VERIFIED_USAGE`, `NO_OBSERVED_USAGE`, `UNKNOWN_USAGE`, `POSSIBLE_BYPASS` và `INSUFFICIENT_COVERAGE`. |
+| Mã          | Business rule                                                                                                                        |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `BR-USG-01` | Phải phân biệt `VERIFIED_USAGE`, `NO_OBSERVED_USAGE`, `UNKNOWN_USAGE`, `POSSIBLE_BYPASS` và `INSUFFICIENT_COVERAGE`.                 |
 | `BR-USG-02` | Endpoint evidence chỉ chứng minh ứng dụng xuất hiện/được tương tác trên thiết bị, không chứng minh tài khoản hoặc giá trị công việc. |
-| `BR-USG-03` | Token evidence chứng minh mức tiêu thụ, không tự chứng minh năng suất hoặc chất lượng đầu ra. |
-| `BR-USG-04` | Recommendation tăng, giảm hoặc thu hồi gói phải có evidence date, coverage, source và confidence. |
-| `BR-USG-05` | Recommendation không tự động mua, hủy, tăng, giảm hoặc thu hồi; luôn cần người có thẩm quyền xác nhận. |
-| `BR-USG-06` | Vendor data và nội bộ là hai nguồn khác nhau; sai lệch tạo finding, không tự ghi đè dữ liệu cho khớp. |
+| `BR-USG-03` | Token evidence chứng minh mức tiêu thụ, không tự chứng minh năng suất hoặc chất lượng đầu ra.                                        |
+| `BR-USG-04` | Recommendation tăng, giảm hoặc thu hồi gói phải có evidence date, coverage, source và confidence.                                    |
+| `BR-USG-05` | Recommendation không tự động mua, hủy, tăng, giảm hoặc thu hồi; luôn cần người có thẩm quyền xác nhận.                               |
+| `BR-USG-06` | Vendor data và nội bộ là hai nguồn khác nhau; sai lệch tạo finding, không tự ghi đè dữ liệu cho khớp.                                |
 
 ### 4.5. Business rules về quyền riêng tư và quyền truy cập
 
-| Mã | Business rule |
-| --- | --- |
-| `BR-PRV-01` | Căn cứ pháp lý xử lý dữ liệu phải được ghi riêng; biên nhận “đã biết” không tự động được gọi là consent. |
-| `BR-PRV-02` | Chưa có căn cứ hợp lệ, notice receipt hoặc enrollment hiệu lực thì server từ chối dữ liệu. |
-| `BR-PRV-03` | Nhân viên được xem dữ liệu của chính mình và có quy trình yêu cầu xuất, sửa, phản đối hoặc dừng. |
-| `BR-PRV-04` | Manager chỉ xem trạng thái và bằng chứng cần cho quyết định, không xem raw process timeline hoặc nội dung AI. |
-| `BR-PRV-05` | IT Admin xem device health, app finding và rejection; Finance chỉ xem chi phí tổng hợp theo cost center. |
-| `BR-PRV-06` | Mọi truy cập dữ liệu tracking phải được RBAC ở API và ghi audit. |
-| `BR-PRV-07` | Retention phải được duyệt theo từng loại dữ liệu; khi nhân viên nghỉ việc phải xóa dữ liệu cá nhân nếu không có căn cứ hợp lệ để tiếp tục lưu. |
+| Mã          | Business rule                                                                                                                                           |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `BR-PRV-01` | Căn cứ pháp lý xử lý dữ liệu phải được ghi riêng; biên nhận “đã biết” không tự động được gọi là consent.                                                |
+| `BR-PRV-02` | Chưa có căn cứ hợp lệ, notice receipt hoặc enrollment hiệu lực thì server từ chối dữ liệu.                                                              |
+| `BR-PRV-03` | Nhân viên được xem dữ liệu của chính mình và có quy trình yêu cầu xuất, sửa, phản đối hoặc dừng.                                                        |
+| `BR-PRV-04` | Manager chỉ xem trạng thái và bằng chứng cần cho quyết định, không xem raw process timeline hoặc nội dung AI.                                           |
+| `BR-PRV-05` | IT Admin xem device health, app finding và rejection; Finance chỉ xem chi phí tổng hợp theo cost center.                                                |
+| `BR-PRV-06` | Mọi truy cập dữ liệu tracking phải được RBAC ở API và ghi audit.                                                                                        |
+| `BR-PRV-07` | Retention phải được duyệt theo từng loại dữ liệu; khi nhân viên nghỉ việc phải xóa dữ liệu cá nhân nếu không có căn cứ hợp lệ để tiếp tục lưu.          |
 | `BR-PRV-08` | Trước pilot phải có Monitoring Policy, Processing Notice, DPIA, legal-basis register, retention schedule, access matrix và incident-response procedure. |
 
 Khung pháp lý cần được người có thẩm quyền đối chiếu tối thiểu với [Luật 91/2025/QH15](https://vbpl.vn/TW/Pages/ivbpq-toanvan.aspx?ItemID=179252&Keyword=), [Nghị định 356/2025/NĐ-CP](https://vanban.chinhphu.vn/?classid=1&docid=216387&pageid=27160) và [Nghị định 330/2026/NĐ-CP](https://vanban.chinhphu.vn/?classid=1&docid=219266&pageid=27160). Đây là điều kiện governance của sản phẩm, không phải kết luận tư vấn pháp luật.
-

@@ -56,69 +56,69 @@ Dialog xác nhận vẫn được xuất thành ảnh toàn màn riêng với sc
 
 Bốn metric là các nhóm loại trừ nhau. `Chờ chấp nhận` không nằm trong `Đang chạy tự động`.
 
-| Mốc | Cần làm tay | Tự động | Chờ chấp nhận | Thất bại | Hoàn tất hôm nay | Sự kiện |
-| --- | ---: | ---: | ---: | ---: | ---: | --- |
-| Frame 01–03 | 8 | 4 | 2 | 3 | 12 | Baseline; `PV-2041` chuẩn bị và chạy connector |
-| Frame 04–05 | 8 | 3 | 3 | 3 | 12 | `PV-2041`: tự động → chờ chấp nhận |
-| Frame 06–08 | 8 | 3 | 3 | 3 | 12 | `PV-2042` đang được xử lý thủ công |
-| Frame 09–10 | 7 | 3 | 3 | 3 | 13 | `PV-2042` hoàn tất có bằng chứng |
-| Frame 11 | 7 | 4 | 3 | 2 | 13 | `PV-2037`: thất bại → đang retry tự động |
-| Frame 12 | 7 | 3 | 3 | 3 | 13 | Retry lần sáu vẫn lỗi |
-| Frame 13–15 | 8 | 3 | 3 | 2 | 13 | `PV-2037` chuyển sang làm tay; `PV-2039` vẫn chờ mua thêm suất |
-| Frame 16 | 8 | 4 | 3 | 1 | 13 | `PV-2039` được mua thêm suất và quay lại thực thi tự động |
+| Mốc         | Cần làm tay | Tự động | Chờ chấp nhận | Thất bại | Hoàn tất hôm nay | Sự kiện                                                        |
+| ----------- | ----------: | ------: | ------------: | -------: | ---------------: | -------------------------------------------------------------- |
+| Frame 01–03 |           8 |       4 |             2 |        3 |               12 | Baseline; `PV-2041` chuẩn bị và chạy connector                 |
+| Frame 04–05 |           8 |       3 |             3 |        3 |               12 | `PV-2041`: tự động → chờ chấp nhận                             |
+| Frame 06–08 |           8 |       3 |             3 |        3 |               12 | `PV-2042` đang được xử lý thủ công                             |
+| Frame 09–10 |           7 |       3 |             3 |        3 |               13 | `PV-2042` hoàn tất có bằng chứng                               |
+| Frame 11    |           7 |       4 |             3 |        2 |               13 | `PV-2037`: thất bại → đang retry tự động                       |
+| Frame 12    |           7 |       3 |             3 |        3 |               13 | Retry lần sáu vẫn lỗi                                          |
+| Frame 13–15 |           8 |       3 |             3 |        2 |               13 | `PV-2037` chuyển sang làm tay; `PV-2039` vẫn chờ mua thêm suất |
+| Frame 16    |           8 |       4 |             3 |        1 |               13 | `PV-2039` được mua thêm suất và quay lại thực thi tự động      |
 
 Mọi frame Light/Dark phải lấy dữ liệu từ cùng một object nguồn; không sao chép số liệu riêng theo theme.
 
 ### 4.2. Tác vụ chuẩn
 
-| Task | Thao tác | Ứng dụng | Đối tượng | Kênh | Trạng thái được trình bày |
-| --- | --- | --- | --- | --- | --- |
-| `PV-2041` | Cấp quyền | GitHub Business | Nguyễn Minh An · `NV-0248` | Connector | Chuẩn bị → chạy → lời mời `pending` → bàn giao UF-14 |
-| `PV-2042` | Thu hồi | Figma Professional | Trần Minh · `NV-0174` | Manual | Chưa nhận → đang xử lý → xác nhận bằng chứng → hoàn tất |
-| `PV-2037` | Cấp quyền | GitHub Business | Lê Thu Hà · `NV-0311` | Connector → Manual | Lỗi tạm thời → retry 6/6 → chuyển làm tay |
-| `PV-2038` | Cấp quyền | Figma Professional | Phạm Quang · `NV-0293` | Connector | Lỗi xác thực; không retry |
-| `PV-2039` | Cấp quyền | Slack Business+ | Đoàn Anh · `NV-0276` | Connector | Hết hạn mức → duyệt mua thêm → quay lại IT |
+| Task      | Thao tác  | Ứng dụng           | Đối tượng                  | Kênh               | Trạng thái được trình bày                               |
+| --------- | --------- | ------------------ | -------------------------- | ------------------ | ------------------------------------------------------- |
+| `PV-2041` | Cấp quyền | GitHub Business    | Nguyễn Minh An · `NV-0248` | Connector          | Chuẩn bị → chạy → lời mời `pending` → bàn giao UF-14    |
+| `PV-2042` | Thu hồi   | Figma Professional | Trần Minh · `NV-0174`      | Manual             | Chưa nhận → đang xử lý → xác nhận bằng chứng → hoàn tất |
+| `PV-2037` | Cấp quyền | GitHub Business    | Lê Thu Hà · `NV-0311`      | Connector → Manual | Lỗi tạm thời → retry 6/6 → chuyển làm tay               |
+| `PV-2038` | Cấp quyền | Figma Professional | Phạm Quang · `NV-0293`     | Connector          | Lỗi xác thực; không retry                               |
+| `PV-2039` | Cấp quyền | Slack Business+    | Đoàn Anh · `NV-0276`       | Connector          | Hết hạn mức → duyệt mua thêm → quay lại IT              |
 
 ### 4.3. Định danh nghiệp vụ dùng trong panel
 
-| Task | Nguồn quyết định | Assignment | Subscription | Correlation ID |
-| --- | --- | --- | --- | --- |
-| `PV-2041` | `REQ-2026-0917-084` | `ASN-4901` | `SUB-GH-BIZ-01` | `COR-7A91-2041` |
-| `PV-2042` | `OFF-2026-044` | `ASN-3872` | `SUB-FIG-PRO-02` | `COR-2D44-2042` |
-| `PV-2037` | `REQ-2026-0916-219` | `ASN-4894` | `SUB-GH-BIZ-01` | `COR-1C73-2037` |
+| Task      | Nguồn quyết định    | Assignment | Subscription     | Correlation ID  |
+| --------- | ------------------- | ---------- | ---------------- | --------------- |
+| `PV-2041` | `REQ-2026-0917-084` | `ASN-4901` | `SUB-GH-BIZ-01`  | `COR-7A91-2041` |
+| `PV-2042` | `OFF-2026-044`      | `ASN-3872` | `SUB-FIG-PRO-02` | `COR-2D44-2042` |
+| `PV-2037` | `REQ-2026-0916-219` | `ASN-4894` | `SUB-GH-BIZ-01`  | `COR-1C73-2037` |
 | `PV-2038` | `REQ-2026-0916-228` | `ASN-4895` | `SUB-FIG-PRO-02` | `COR-63BE-2038` |
-| `PV-2039` | `REQ-2026-0916-241` | `ASN-4897` | `SUB-SLK-BP-01` | `COR-8F20-2039` |
+| `PV-2039` | `REQ-2026-0916-241` | `ASN-4897` | `SUB-SLK-BP-01`  | `COR-8F20-2039` |
 
 ### 4.4. Ledger hạn mức cho `PV-2039`
 
-| Mốc | Nội bộ | Nhà cung cấp | Diễn giải |
-| --- | --- | --- | --- |
-| Trước duyệt | `49 / 50` | `50 / 50` | Nội bộ dự kiến còn một suất nhưng nhà cung cấp báo đã hết; tác vụ chưa hoàn tất |
-| Sau mua | `50 / 51` | `50 / 51` | Assignment đang giữ một suất; nhà cung cấp đã tăng hạn mức nhưng tài khoản chưa được cấp |
-| Sau cấp thật | `50 / 51` | `51 / 51` | Chỉ ghi mốc này khi có bằng chứng nhà cung cấp; nằm ngoài frame 16 |
+| Mốc          | Nội bộ    | Nhà cung cấp | Diễn giải                                                                                |
+| ------------ | --------- | ------------ | ---------------------------------------------------------------------------------------- |
+| Trước duyệt  | `49 / 50` | `50 / 50`    | Nội bộ dự kiến còn một suất nhưng nhà cung cấp báo đã hết; tác vụ chưa hoàn tất          |
+| Sau mua      | `50 / 51` | `50 / 51`    | Assignment đang giữ một suất; nhà cung cấp đã tăng hạn mức nhưng tài khoản chưa được cấp |
+| Sau cấp thật | `50 / 51` | `51 / 51`    | Chỉ ghi mốc này khi có bằng chứng nhà cung cấp; nằm ngoài frame 16                       |
 
 Không frame nào được hiển thị `51 / 51` như kết quả đã cấp ngay sau quyết định mua thêm.
 
 ## 5. Danh sách 16 frame
 
-| # | Tên frame | Task trọng tâm | Nội dung và trạng thái cuối |
-| --- | --- | --- | --- |
-| 01 | Tổng quan hàng đợi thực thi | Toàn hàng đợi | Bốn metric, phân bố theo ứng dụng/kênh, tác vụ cũ nhất và cảnh báo `BR-10.4`; chưa thay đổi ledger |
-| 02 | Chi tiết tác vụ tự động | `PV-2041` | Request đã đủ duyệt, Assignment đang giữ chỗ, connector GitHub sẵn sàng; CTA `Thực thi ngay` |
-| 03 | Connector đang thực thi | `PV-2041` | Attempt `1/6`, idempotency key, endpoint, thời điểm bắt đầu; hành động thay đổi bị khóa khi worker đang chạy |
-| 04 | Lời mời đã gửi — chờ chấp nhận | `PV-2041` | Phản hồi API thành công nhưng membership `pending`; ledger `Tự động 4→3`, `Chờ chấp nhận 2→3` |
-| 05 | Bàn giao đối soát | `PV-2041` | End state có kiểm soát: chưa hoàn tất, seat vẫn chiếm chỗ; CTA `Mở đối soát UF-14` và xem Audit Trail |
-| 06 | Chi tiết tác vụ thủ công | `PV-2042` | Hướng dẫn thu hồi Figma, nguồn quyết định offboarding, chưa có người nhận; CTA `Tôi đang xử lý` |
-| 07 | IT Admin đã nhận xử lý | `PV-2042` | Người nhận `IT Admin`, timestamp `17/09/2026 · 10:21 ICT`, checklist thao tác và liên kết trang quản trị nhà cung cấp |
-| 08 | Xác nhận hoàn tất thủ công | `PV-2042` | Dialog yêu cầu loại bằng chứng, mã tham chiếu, ghi chú và người xác nhận; không cho xác nhận khi thiếu bằng chứng |
-| 09 | Thu hồi thủ công hoàn tất | `PV-2042` | Có bằng chứng tài khoản đã bị xóa; seat mới về trống; ledger `Manual 8→7`, `Hoàn tất 12→13` |
-| 10 | Hàng đợi thất bại | Toàn hàng đợi | Bốn loại lỗi, thông báo tiếng Việt, mã kỹ thuật chỉ trong drawer; `PV-2037`, `PV-2038`, `PV-2039` cùng hiện |
-| 11 | Lỗi tạm thời đang retry | `PV-2037` | Attempt `3/6`, lần kế tiếp `10:36 ICT`, backoff và lịch sử phản hồi; ledger tạm thời `Failed 3→2`, `Auto 3→4` |
-| 12 | Đã hết sáu lần retry | `PV-2037` | Attempt `6/6` vẫn lỗi; tự động dừng; task quay về `Thất bại`; không còn lịch chạy kế tiếp |
-| 13 | Chuyển sang làm thủ công | `PV-2037` | Dialog xác nhận chuyển kênh trên chính task; giữ sáu attempt; ledger `Failed 3→2`, `Manual 7→8` |
-| 14 | Lỗi xác thực — không retry | `PV-2038` | Connector Figma hết hạn; CTA `Sửa kết nối`, `Chuyển làm tay`, `Đóng kèm lý do`; không có CTA retry |
-| 15 | Hết hạn mức license | `PV-2039` | Hiện snapshot nội bộ/nhà cung cấp, trạng thái chờ Người duyệt chi; Finance không phải approver và không chặn IT |
-| 16 | Đã mua thêm — trở lại thực thi | `PV-2039` | Hạn mức `51`, task quay lại tự động; Finance ghi nhận song song; ledger `Failed 2→1`, `Auto 3→4`; chưa cộng hoàn tất |
+| #   | Tên frame                      | Task trọng tâm | Nội dung và trạng thái cuối                                                                                           |
+| --- | ------------------------------ | -------------- | --------------------------------------------------------------------------------------------------------------------- |
+| 01  | Tổng quan hàng đợi thực thi    | Toàn hàng đợi  | Bốn metric, phân bố theo ứng dụng/kênh, tác vụ cũ nhất và cảnh báo `BR-10.4`; chưa thay đổi ledger                    |
+| 02  | Chi tiết tác vụ tự động        | `PV-2041`      | Request đã đủ duyệt, Assignment đang giữ chỗ, connector GitHub sẵn sàng; CTA `Thực thi ngay`                          |
+| 03  | Connector đang thực thi        | `PV-2041`      | Attempt `1/6`, idempotency key, endpoint, thời điểm bắt đầu; hành động thay đổi bị khóa khi worker đang chạy          |
+| 04  | Lời mời đã gửi — chờ chấp nhận | `PV-2041`      | Phản hồi API thành công nhưng membership `pending`; ledger `Tự động 4→3`, `Chờ chấp nhận 2→3`                         |
+| 05  | Bàn giao đối soát              | `PV-2041`      | End state có kiểm soát: chưa hoàn tất, seat vẫn chiếm chỗ; CTA `Mở đối soát UF-14` và xem Audit Trail                 |
+| 06  | Chi tiết tác vụ thủ công       | `PV-2042`      | Hướng dẫn thu hồi Figma, nguồn quyết định offboarding, chưa có người nhận; CTA `Tôi đang xử lý`                       |
+| 07  | IT Admin đã nhận xử lý         | `PV-2042`      | Người nhận `IT Admin`, timestamp `17/09/2026 · 10:21 ICT`, checklist thao tác và liên kết trang quản trị nhà cung cấp |
+| 08  | Xác nhận hoàn tất thủ công     | `PV-2042`      | Dialog yêu cầu loại bằng chứng, mã tham chiếu, ghi chú và người xác nhận; không cho xác nhận khi thiếu bằng chứng     |
+| 09  | Thu hồi thủ công hoàn tất      | `PV-2042`      | Có bằng chứng tài khoản đã bị xóa; seat mới về trống; ledger `Manual 8→7`, `Hoàn tất 12→13`                           |
+| 10  | Hàng đợi thất bại              | Toàn hàng đợi  | Bốn loại lỗi, thông báo tiếng Việt, mã kỹ thuật chỉ trong drawer; `PV-2037`, `PV-2038`, `PV-2039` cùng hiện           |
+| 11  | Lỗi tạm thời đang retry        | `PV-2037`      | Attempt `3/6`, lần kế tiếp `10:36 ICT`, backoff và lịch sử phản hồi; ledger tạm thời `Failed 3→2`, `Auto 3→4`         |
+| 12  | Đã hết sáu lần retry           | `PV-2037`      | Attempt `6/6` vẫn lỗi; tự động dừng; task quay về `Thất bại`; không còn lịch chạy kế tiếp                             |
+| 13  | Chuyển sang làm thủ công       | `PV-2037`      | Dialog xác nhận chuyển kênh trên chính task; giữ sáu attempt; ledger `Failed 3→2`, `Manual 7→8`                       |
+| 14  | Lỗi xác thực — không retry     | `PV-2038`      | Connector Figma hết hạn; CTA `Sửa kết nối`, `Chuyển làm tay`, `Đóng kèm lý do`; không có CTA retry                    |
+| 15  | Hết hạn mức license            | `PV-2039`      | Hiện snapshot nội bộ/nhà cung cấp, trạng thái chờ Người duyệt chi; Finance không phải approver và không chặn IT       |
+| 16  | Đã mua thêm — trở lại thực thi | `PV-2039`      | Hạn mức `51`, task quay lại tự động; Finance ghi nhận song song; ledger `Failed 2→1`, `Auto 3→4`; chưa cộng hoàn tất  |
 
 Mỗi frame có hai ảnh đối xứng Light/Dark với tên:
 
@@ -195,67 +195,67 @@ PV-2039 · Hết hạn mức
 
 ## 7. Trạng thái, guard và phản hồi
 
-| Tình huống | Cách trình bày | Hành động hợp lệ |
-| --- | --- | --- |
-| Worker đang chạy | Progress + khóa hành động làm thay đổi task | Xem log; không chạy trùng |
-| API thành công nhưng `pending` | Info/Warning, không dùng Success end state | Mở đối soát UF-14 |
-| Manual chưa có người nhận | Badge `Chưa nhận` | `Tôi đang xử lý` |
-| Manual thiếu bằng chứng | Inline error trong dialog | Không cho hoàn tất |
-| Lỗi tạm thời còn lượt | Retry schedule và attempt counter | Xem log; hủy lịch chỉ khi có quyết định hợp lệ |
-| Lỗi tạm thời hết lượt | Warning/Danger, không có lịch kế tiếp | Làm tay hoặc đóng kèm lý do |
-| Lỗi vĩnh viễn/xác thực | Danger + loại lỗi bằng text/icon | Sửa kết nối, làm tay hoặc đóng; không retry |
-| Hết hạn mức | Cost approval handoff | Chờ quyết định; không tự cấp vượt số lượng |
-| Mua thêm được duyệt | Activity song song Finance/IT | IT tiếp tục ngay |
-| Đóng tác vụ | Dialog yêu cầu lý do | Ghi Audit Trail; không xóa lịch sử |
+| Tình huống                     | Cách trình bày                              | Hành động hợp lệ                               |
+| ------------------------------ | ------------------------------------------- | ---------------------------------------------- |
+| Worker đang chạy               | Progress + khóa hành động làm thay đổi task | Xem log; không chạy trùng                      |
+| API thành công nhưng `pending` | Info/Warning, không dùng Success end state  | Mở đối soát UF-14                              |
+| Manual chưa có người nhận      | Badge `Chưa nhận`                           | `Tôi đang xử lý`                               |
+| Manual thiếu bằng chứng        | Inline error trong dialog                   | Không cho hoàn tất                             |
+| Lỗi tạm thời còn lượt          | Retry schedule và attempt counter           | Xem log; hủy lịch chỉ khi có quyết định hợp lệ |
+| Lỗi tạm thời hết lượt          | Warning/Danger, không có lịch kế tiếp       | Làm tay hoặc đóng kèm lý do                    |
+| Lỗi vĩnh viễn/xác thực         | Danger + loại lỗi bằng text/icon            | Sửa kết nối, làm tay hoặc đóng; không retry    |
+| Hết hạn mức                    | Cost approval handoff                       | Chờ quyết định; không tự cấp vượt số lượng     |
+| Mua thêm được duyệt            | Activity song song Finance/IT               | IT tiếp tục ngay                               |
+| Đóng tác vụ                    | Dialog yêu cầu lý do                        | Ghi Audit Trail; không xóa lịch sử             |
 
 ## 8. Visual system
 
 ### 8.1. Kích thước và mật độ
 
-| Thuộc tính | Giá trị |
-| --- | --- |
-| Frame | `1440 × 1024 px` |
-| Sidebar | `224 px` |
-| Topbar | `64 px` |
-| Content gutter | `24 px` |
-| Grid | Bội số `8 px` |
-| Queue row | `72–84 px` tùy lượng metadata |
-| Card radius | `12–16 px` |
-| Input/Button radius | `10 px` |
-| Border | `1 px` |
-| Font | Inter; fallback `Segoe UI`, sans-serif |
+| Thuộc tính          | Giá trị                                |
+| ------------------- | -------------------------------------- |
+| Frame               | `1440 × 1024 px`                       |
+| Sidebar             | `224 px`                               |
+| Topbar              | `64 px`                                |
+| Content gutter      | `24 px`                                |
+| Grid                | Bội số `8 px`                          |
+| Queue row           | `72–84 px` tùy lượng metadata          |
+| Card radius         | `12–16 px`                             |
+| Input/Button radius | `10 px`                                |
+| Border              | `1 px`                                 |
+| Font                | Inter; fallback `Segoe UI`, sans-serif |
 
 Typography dùng các cấp 12/14/16 cho body và 20/24/32 cho heading. Task ID, timestamp, attempt và số lượng seat dùng tabular numerals.
 
 ### 8.2. Semantic color tokens
 
-| Token | Dark | Light | Vai trò |
-| --- | --- | --- | --- |
-| `color/bg/canvas` | `#07182D` | `#FFF9F2` | Nền trang |
-| `color/bg/sidebar` | `#061426` | `#FFF4E8` | Sidebar |
-| `color/bg/surface` | `#0D223A` | `#FFFFFF` | Card, panel, dialog |
-| `color/bg/subtle` | `#102943` | `#FFFAF4` | Group, table header, hover |
-| `color/border/default` | `#213D5C` | `#EFDDCA` | Border trung tính |
-| `color/text/primary` | `#F5F9FF` | `#2B241F` | Nội dung chính |
-| `color/text/secondary` | `#91A8C2` | `#897568` | Metadata/helper |
+| Token                  | Dark      | Light     | Vai trò                         |
+| ---------------------- | --------- | --------- | ------------------------------- |
+| `color/bg/canvas`      | `#07182D` | `#FFF9F2` | Nền trang                       |
+| `color/bg/sidebar`     | `#061426` | `#FFF4E8` | Sidebar                         |
+| `color/bg/surface`     | `#0D223A` | `#FFFFFF` | Card, panel, dialog             |
+| `color/bg/subtle`      | `#102943` | `#FFFAF4` | Group, table header, hover      |
+| `color/border/default` | `#213D5C` | `#EFDDCA` | Border trung tính               |
+| `color/text/primary`   | `#F5F9FF` | `#2B241F` | Nội dung chính                  |
+| `color/text/secondary` | `#91A8C2` | `#897568` | Metadata/helper                 |
 | `color/action/primary` | `#2D86FF` | `#FF7417` | CTA, active nav, focus identity |
 
 Success, Warning và Danger là token ngữ nghĩa độc lập. Trạng thái luôn có icon, nhãn và mô tả; không dùng màu làm kênh duy nhất.
 
 ## 9. Component inventory
 
-| Nhóm | Component và variants |
-| --- | --- |
-| Shell | `AppShell`, `SidebarItem`, `Topbar`, `Breadcrumb`, `UserMenu` |
-| Queue | `ProvisioningMetric`, `QueueTabs`, `ProvisioningQueueRow`, `QueueFilter`, `QueuePagination` |
-| Task | `TaskDetailHeader`, `OperationBadge`, `ChannelBadge`, `AssignmentReservationBanner` |
-| Execution | `ExecutionTimeline`, `ConnectorAttempt`, `RetrySchedule`, `ManualInstructionCard` |
-| Evidence | `EvidenceCard`, `MembershipStatus`, `ProviderResponse`, `AuditTimeline` |
-| Failure | `FailureClassification`, `TechnicalDetailDrawer`, `FailureDecisionPanel` |
-| Handoff | `ReconciliationHandoff`, `ApprovalHandoff`, `ParallelActivity` |
-| Overlay | `EvidenceConfirmationDialog`, `SwitchToManualDialog`, `CloseTaskDialog` |
-| Feedback | Alert, Badge, Toast, Progress, Empty/Blocked State |
-| Action | Primary, Secondary, Ghost, Danger; Default/Hover/Focus/Disabled/Loading |
+| Nhóm      | Component và variants                                                                       |
+| --------- | ------------------------------------------------------------------------------------------- |
+| Shell     | `AppShell`, `SidebarItem`, `Topbar`, `Breadcrumb`, `UserMenu`                               |
+| Queue     | `ProvisioningMetric`, `QueueTabs`, `ProvisioningQueueRow`, `QueueFilter`, `QueuePagination` |
+| Task      | `TaskDetailHeader`, `OperationBadge`, `ChannelBadge`, `AssignmentReservationBanner`         |
+| Execution | `ExecutionTimeline`, `ConnectorAttempt`, `RetrySchedule`, `ManualInstructionCard`           |
+| Evidence  | `EvidenceCard`, `MembershipStatus`, `ProviderResponse`, `AuditTimeline`                     |
+| Failure   | `FailureClassification`, `TechnicalDetailDrawer`, `FailureDecisionPanel`                    |
+| Handoff   | `ReconciliationHandoff`, `ApprovalHandoff`, `ParallelActivity`                              |
+| Overlay   | `EvidenceConfirmationDialog`, `SwitchToManualDialog`, `CloseTaskDialog`                     |
+| Feedback  | Alert, Badge, Toast, Progress, Empty/Blocked State                                          |
+| Action    | Primary, Secondary, Ghost, Danger; Default/Hover/Focus/Disabled/Loading                     |
 
 ## 10. Nội dung bắt buộc theo vùng
 
@@ -351,23 +351,23 @@ Không tạo storyboard ghép chung. Mỗi PNG là một canvas desktop đầy �
 
 ## 14. Truy vết nguồn
 
-| Thiết kế | Nguồn |
-| --- | --- |
-| Assignment và ProvisioningTask tách vòng đời | `FR-2.5`, `ADR-07`, BRD mục 5.12.3 |
-| Hai kênh dùng chung hàng đợi | `BR-10.3`, BRD mục 6.2 |
-| Manual cần người thật xác nhận | `BR-10.1` |
-| Chống gọi trùng | `BR-10.2`, BRD mục 6.2 |
-| Seat vẫn chiếm chỗ | `BR-10.4`, `INV-01` |
-| Pending không phải hoàn tất | BRD mục 5.12.3, mục 6.3, `QĐ-03` |
-| UF-14 đối soát pending → active | User Flows `UF-14`, mục 11.17 |
-| Bốn loại lỗi | `F-12` |
-| Không retry lỗi vĩnh viễn/xác thực | `BR-12.1` |
-| Thất bại không biến mất | `BR-12.2`, `BR-12.3` |
-| Thông báo tiếng Việt, ẩn mã kỹ thuật | `BR-12.4` |
-| Báo người yêu cầu khi thất bại | `BR-12.5` |
-| Hết seat quay lại duyệt mua thêm | `FR-3.4`, bảng ngoại lệ BRD mục 5.3 |
-| Người duyệt chi quyết, Finance không chặn | `FR-3.13`, `FR-3.14`, `QĐ-29b`, `SoD-3` |
-| Audit quyết định | Quy tắc chung User Flows mục 0.3, `FR-8.3` |
+| Thiết kế                                     | Nguồn                                      |
+| -------------------------------------------- | ------------------------------------------ |
+| Assignment và ProvisioningTask tách vòng đời | `FR-2.5`, `ADR-07`, BRD mục 5.12.3         |
+| Hai kênh dùng chung hàng đợi                 | `BR-10.3`, BRD mục 6.2                     |
+| Manual cần người thật xác nhận               | `BR-10.1`                                  |
+| Chống gọi trùng                              | `BR-10.2`, BRD mục 6.2                     |
+| Seat vẫn chiếm chỗ                           | `BR-10.4`, `INV-01`                        |
+| Pending không phải hoàn tất                  | BRD mục 5.12.3, mục 6.3, `QĐ-03`           |
+| UF-14 đối soát pending → active              | User Flows `UF-14`, mục 11.17              |
+| Bốn loại lỗi                                 | `F-12`                                     |
+| Không retry lỗi vĩnh viễn/xác thực           | `BR-12.1`                                  |
+| Thất bại không biến mất                      | `BR-12.2`, `BR-12.3`                       |
+| Thông báo tiếng Việt, ẩn mã kỹ thuật         | `BR-12.4`                                  |
+| Báo người yêu cầu khi thất bại               | `BR-12.5`                                  |
+| Hết seat quay lại duyệt mua thêm             | `FR-3.4`, bảng ngoại lệ BRD mục 5.3        |
+| Người duyệt chi quyết, Finance không chặn    | `FR-3.13`, `FR-3.14`, `QĐ-29b`, `SoD-3`    |
+| Audit quyết định                             | Quy tắc chung User Flows mục 0.3, `FR-8.3` |
 
 ## 15. Phần không được tự suy diễn
 

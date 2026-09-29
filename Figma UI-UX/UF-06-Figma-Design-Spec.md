@@ -54,12 +54,12 @@ Hai điểm này cần được ghi nhận khi lần tới đồng bộ `index.m
 
 ## 3. Cấu trúc file Figma
 
-| Page | Nội dung |
-| --- | --- |
-| `00 · Foundations` | Variables, typography, spacing, elevation, iconography, component library |
-| `01 · UF-06 · Light` | 12 frame desktop và overlay ở Light mode |
-| `02 · UF-06 · Dark` | Cùng frame, tên và topology ở Dark mode |
-| `03 · Prototype Map` | Happy path, blocked path, cancel path, handoff `UF-07`/`UF-10` |
+| Page                 | Nội dung                                                                  |
+| -------------------- | ------------------------------------------------------------------------- |
+| `00 · Foundations`   | Variables, typography, spacing, elevation, iconography, component library |
+| `01 · UF-06 · Light` | 12 frame desktop và overlay ở Light mode                                  |
+| `02 · UF-06 · Dark`  | Cùng frame, tên và topology ở Dark mode                                   |
+| `03 · Prototype Map` | Happy path, blocked path, cancel path, handoff `UF-07`/`UF-10`            |
 
 Quy tắc đặt tên:
 
@@ -70,20 +70,20 @@ Quy tắc đặt tên:
 
 ## 4. Danh sách frame
 
-| # | Tên frame | Mã màn hình | Nội dung và trạng thái cuối |
-| --- | --- | --- | --- |
-| 01 | Trung tâm nguồn dữ liệu | `ITA-08` | Danh sách ứng dụng/nguồn, loại nguồn, lần import gần nhất, coverage cuối, độ mới và CTA tạo phiên import |
-| 02 | Chọn ứng dụng và mẫu nguồn | `ITA-08` | Chọn ứng dụng, template, loại định danh, múi giờ và ma trận năng lực |
-| 03 | Kiểm tra chính sách nguồn | `ITA-08` | Hiển thị cờ liên lạc và trạng thái đã thông báo; điều hướng sang blocked state, cổng `F-42` hoặc upload |
-| 04 | Cổng thông báo lần đầu | `ITA-07` · `F-42` | Đối tượng nhận, nội dung tối thiểu, thời điểm gửi; chỉ mở bước upload sau khi ghi nhận thông báo |
-| 05 | Bước 1 — Tải file | `ITA-07` | Dropzone, định dạng hỗ trợ, tên/kích thước file, trạng thái upload và mã băm |
-| 06 | Bước 2 — Phân tích | `ITA-07` | Mapping cột, định dạng ngày, múi giờ, định nghĩa hoạt động và coverage; coverage thiếu thì bắt buộc nhập tay |
-| 07 | Bước 3 — Khớp danh tính | `ITA-07` | Tổng số exact/normalized/manual/unmatched, mức tin cậy và handoff sang `UF-07` |
-| 08 | Bước 4 — Xem trước | `ITA-07` | Metric summary, giới hạn nguồn, bảng mẫu, filter lỗi và tải danh sách lỗi; chưa ghi dòng nào |
-| 09 | Xác nhận ghi dữ liệu | `ITA-07` | Tóm tắt phạm vi ảnh hưởng, cam kết gắn vào Assignment và hai hành động Hủy/Xác nhận |
-| 10 | Bước 5 — Đang ghi | `ITA-07` | Tiến độ job, số dòng xử lý, trạng thái hiện hành; không hiển thị thành công sớm |
-| 11 | Bước 6 — Hoàn tất | `ITA-07` | Số dòng đã ghi/bỏ qua/lỗi, thời điểm tính lại usage và CTA sang `UF-10` |
-| 12 | Lịch sử phiên import | `ITA-07` / `ITA-08` | Audit summary: người thao tác, file, mã băm, coverage, kết quả và correlation ID |
+| #   | Tên frame                  | Mã màn hình         | Nội dung và trạng thái cuối                                                                                  |
+| --- | -------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------ |
+| 01  | Trung tâm nguồn dữ liệu    | `ITA-08`            | Danh sách ứng dụng/nguồn, loại nguồn, lần import gần nhất, coverage cuối, độ mới và CTA tạo phiên import     |
+| 02  | Chọn ứng dụng và mẫu nguồn | `ITA-08`            | Chọn ứng dụng, template, loại định danh, múi giờ và ma trận năng lực                                         |
+| 03  | Kiểm tra chính sách nguồn  | `ITA-08`            | Hiển thị cờ liên lạc và trạng thái đã thông báo; điều hướng sang blocked state, cổng `F-42` hoặc upload      |
+| 04  | Cổng thông báo lần đầu     | `ITA-07` · `F-42`   | Đối tượng nhận, nội dung tối thiểu, thời điểm gửi; chỉ mở bước upload sau khi ghi nhận thông báo             |
+| 05  | Bước 1 — Tải file          | `ITA-07`            | Dropzone, định dạng hỗ trợ, tên/kích thước file, trạng thái upload và mã băm                                 |
+| 06  | Bước 2 — Phân tích         | `ITA-07`            | Mapping cột, định dạng ngày, múi giờ, định nghĩa hoạt động và coverage; coverage thiếu thì bắt buộc nhập tay |
+| 07  | Bước 3 — Khớp danh tính    | `ITA-07`            | Tổng số exact/normalized/manual/unmatched, mức tin cậy và handoff sang `UF-07`                               |
+| 08  | Bước 4 — Xem trước         | `ITA-07`            | Metric summary, giới hạn nguồn, bảng mẫu, filter lỗi và tải danh sách lỗi; chưa ghi dòng nào                 |
+| 09  | Xác nhận ghi dữ liệu       | `ITA-07`            | Tóm tắt phạm vi ảnh hưởng, cam kết gắn vào Assignment và hai hành động Hủy/Xác nhận                          |
+| 10  | Bước 5 — Đang ghi          | `ITA-07`            | Tiến độ job, số dòng xử lý, trạng thái hiện hành; không hiển thị thành công sớm                              |
+| 11  | Bước 6 — Hoàn tất          | `ITA-07`            | Số dòng đã ghi/bỏ qua/lỗi, thời điểm tính lại usage và CTA sang `UF-10`                                      |
+| 12  | Lịch sử phiên import       | `ITA-07` / `ITA-08` | Audit summary: người thao tác, file, mã băm, coverage, kết quả và correlation ID                             |
 
 Mỗi frame trên có Light và Dark mode với cùng tên lớp, component tree và liên kết prototype.
 
@@ -91,72 +91,72 @@ Mỗi frame trên có Light và Dark mode với cùng tên lớp, component tree
 
 ### 5.1. Overlay dùng lại
 
-| Overlay | Kích hoạt | Nội dung bắt buộc | Hành động |
-| --- | --- | --- | --- |
-| `OVL-01 · Duplicate hash` | Mã băm trùng phiên import trước | File, mã băm, người/lúc import trước, cảnh báo không chặn cứng | Hủy hoặc tiếp tục có chủ đích |
-| `OVL-02 · Commit/Cancel confirmation` | Xác nhận ghi hoặc hủy ở preview | Số dòng/quyền ảnh hưởng; nhắc hủy sẽ ghi 0 dòng | Quay lại, Hủy import hoặc Xác nhận ghi |
+| Overlay                               | Kích hoạt                       | Nội dung bắt buộc                                              | Hành động                              |
+| ------------------------------------- | ------------------------------- | -------------------------------------------------------------- | -------------------------------------- |
+| `OVL-01 · Duplicate hash`             | Mã băm trùng phiên import trước | File, mã băm, người/lúc import trước, cảnh báo không chặn cứng | Hủy hoặc tiếp tục có chủ đích          |
+| `OVL-02 · Commit/Cancel confirmation` | Xác nhận ghi hoặc hủy ở preview | Số dòng/quyền ảnh hưởng; nhắc hủy sẽ ghi 0 dòng                | Quay lại, Hủy import hoặc Xác nhận ghi |
 
 ### 5.2. Guard và phản hồi
 
-| Trường hợp | Cách trình bày | Trạng thái CTA |
-| --- | --- | --- |
-| Ứng dụng thuộc nhóm liên lạc | Blocked state toàn vùng nội dung, giải thích chế độ mặc định `ADR-10` | Chỉ cho quay lại chọn ứng dụng; không có CTA vượt guard |
-| Lần đầu nhưng chưa thông báo | Gate card với người nhận, nội dung và audit timestamp | Chưa cho sang upload |
-| File trùng | `OVL-01`, mức Warning | Cho tiếp tục có chủ đích; không tự bỏ qua hoặc ghi đè |
-| Thiếu coverage | Inline error, focus vào Date Range | Khóa “Tiếp tục” |
-| Có dòng lỗi | Metric, filter bảng và tải danh sách lỗi | Cho tiếp tục với phần hợp lệ theo `BR-17.7` |
-| Có định danh chưa khớp | Metric + message `BR-18.1` + liên kết `UF-07` | Phần hợp lệ vẫn được preview; unmatched không dùng kết luận |
-| Hủy ở preview | `OVL-02` | Kết thúc với 0 dòng được ghi |
-| Commit lỗi hệ thống | Error summary, correlation ID, không hiển thị success giả | Thử lại an toàn hoặc về lịch sử; chi tiết retry do backend quyết định |
-| Commit thành công | Success summary | CTA chính sang `UF-10`, CTA phụ về lịch sử |
+| Trường hợp                   | Cách trình bày                                                        | Trạng thái CTA                                                        |
+| ---------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Ứng dụng thuộc nhóm liên lạc | Blocked state toàn vùng nội dung, giải thích chế độ mặc định `ADR-10` | Chỉ cho quay lại chọn ứng dụng; không có CTA vượt guard               |
+| Lần đầu nhưng chưa thông báo | Gate card với người nhận, nội dung và audit timestamp                 | Chưa cho sang upload                                                  |
+| File trùng                   | `OVL-01`, mức Warning                                                 | Cho tiếp tục có chủ đích; không tự bỏ qua hoặc ghi đè                 |
+| Thiếu coverage               | Inline error, focus vào Date Range                                    | Khóa “Tiếp tục”                                                       |
+| Có dòng lỗi                  | Metric, filter bảng và tải danh sách lỗi                              | Cho tiếp tục với phần hợp lệ theo `BR-17.7`                           |
+| Có định danh chưa khớp       | Metric + message `BR-18.1` + liên kết `UF-07`                         | Phần hợp lệ vẫn được preview; unmatched không dùng kết luận           |
+| Hủy ở preview                | `OVL-02`                                                              | Kết thúc với 0 dòng được ghi                                          |
+| Commit lỗi hệ thống          | Error summary, correlation ID, không hiển thị success giả             | Thử lại an toàn hoặc về lịch sử; chi tiết retry do backend quyết định |
+| Commit thành công            | Success summary                                                       | CTA chính sang `UF-10`, CTA phụ về lịch sử                            |
 
 ## 6. Visual system
 
 ### 6.1. Kích thước và mật độ
 
-| Thuộc tính | Giá trị |
-| --- | --- |
-| Frame | 1440 × 1024 px |
-| Sidebar | 248 px |
-| Content gutter | 32 px |
-| Grid | Bội số 8 px |
-| Table row | 44 px mặc định |
-| Card radius | 12–16 px |
-| Input/Button radius | 10 px |
-| Border | 1 px |
-| Font | Inter; fallback `Segoe UI`, sans-serif |
+| Thuộc tính          | Giá trị                                |
+| ------------------- | -------------------------------------- |
+| Frame               | 1440 × 1024 px                         |
+| Sidebar             | 248 px                                 |
+| Content gutter      | 32 px                                  |
+| Grid                | Bội số 8 px                            |
+| Table row           | 44 px mặc định                         |
+| Card radius         | 12–16 px                               |
+| Input/Button radius | 10 px                                  |
+| Border              | 1 px                                   |
+| Font                | Inter; fallback `Segoe UI`, sans-serif |
 
 Typography sử dụng các cấp 12/14/16 cho body và 20/24/32 cho heading. Số liệu dùng tabular numerals.
 
 ### 6.2. Semantic color tokens
 
-| Token | Dark | Light | Vai trò |
-| --- | --- | --- | --- |
-| `color/bg/canvas` | `#07182D` | `#FFF9F2` | Nền toàn trang |
-| `color/bg/sidebar` | `#061426` | `#FFF4E8` | Sidebar |
-| `color/bg/surface` | `#0D223A` | `#FFFFFF` | Card, panel, dialog |
-| `color/bg/subtle` | `#102943` | `#FFFAF4` | Header bảng, hover, grouped section |
-| `color/border/default` | `#213D5C` | `#EFDDCA` | Border trung tính |
-| `color/text/primary` | `#F5F9FF` | `#2B241F` | Nội dung chính |
-| `color/text/secondary` | `#91A8C2` | `#897568` | Helper, metadata |
+| Token                  | Dark      | Light     | Vai trò                                |
+| ---------------------- | --------- | --------- | -------------------------------------- |
+| `color/bg/canvas`      | `#07182D` | `#FFF9F2` | Nền toàn trang                         |
+| `color/bg/sidebar`     | `#061426` | `#FFF4E8` | Sidebar                                |
+| `color/bg/surface`     | `#0D223A` | `#FFFFFF` | Card, panel, dialog                    |
+| `color/bg/subtle`      | `#102943` | `#FFFAF4` | Header bảng, hover, grouped section    |
+| `color/border/default` | `#213D5C` | `#EFDDCA` | Border trung tính                      |
+| `color/text/primary`   | `#F5F9FF` | `#2B241F` | Nội dung chính                         |
+| `color/text/secondary` | `#91A8C2` | `#897568` | Helper, metadata                       |
 | `color/action/primary` | `#2D86FF` | `#FF7417` | CTA, active navigation, focus identity |
 
 Success, Warning và Danger là token ngữ nghĩa độc lập với accent theme. Mọi trạng thái luôn đi cùng icon, nhãn và viền; không dùng màu làm kênh thông tin duy nhất.
 
 ## 7. Component inventory
 
-| Nhóm | Component và variants |
-| --- | --- |
-| Shell | `AppShell`, `SidebarItem`, `Topbar`, `Breadcrumb`, `UserMenu`, `ThemeSwitch` |
-| Wizard | `WizardStepper`: Default, Active, Complete, Error, Disabled |
-| Context | `ContextPanel`, `ContextItem`, `CapabilityTag` |
-| Form | Input, Select, Date Range, Checkbox, Field Label, Helper/Error Text |
-| Upload | `UploadDropzone`: Idle, Drag, Uploading, Parsed, Invalid |
-| Summary | `MetricCard`: Valid, Error, Duplicate, Unmatched, Affected |
-| Feedback | Alert/Badge: Info, Success, Warning, Danger; Toast; Empty/Blocked State |
-| Data | `DataTable`, Row Status, Filter Bar, Pagination, Error Detail Drawer |
-| Overlay | Dialog: Duplicate, Cancel, Commit, System Failure |
-| Action | Button: Primary, Secondary, Ghost, Danger; trạng thái Default/Hover/Focus/Disabled/Loading |
+| Nhóm     | Component và variants                                                                      |
+| -------- | ------------------------------------------------------------------------------------------ |
+| Shell    | `AppShell`, `SidebarItem`, `Topbar`, `Breadcrumb`, `UserMenu`, `ThemeSwitch`               |
+| Wizard   | `WizardStepper`: Default, Active, Complete, Error, Disabled                                |
+| Context  | `ContextPanel`, `ContextItem`, `CapabilityTag`                                             |
+| Form     | Input, Select, Date Range, Checkbox, Field Label, Helper/Error Text                        |
+| Upload   | `UploadDropzone`: Idle, Drag, Uploading, Parsed, Invalid                                   |
+| Summary  | `MetricCard`: Valid, Error, Duplicate, Unmatched, Affected                                 |
+| Feedback | Alert/Badge: Info, Success, Warning, Danger; Toast; Empty/Blocked State                    |
+| Data     | `DataTable`, Row Status, Filter Bar, Pagination, Error Detail Drawer                       |
+| Overlay  | Dialog: Duplicate, Cancel, Commit, System Failure                                          |
+| Action   | Button: Primary, Secondary, Ghost, Danger; trạng thái Default/Hover/Focus/Disabled/Loading |
 
 ## 8. Prototype contract
 
@@ -230,17 +230,17 @@ Panel ngữ cảnh giữ bốn mục cuối luôn nhìn thấy khi người dùn
 
 ## 12. Truy vết nguồn
 
-| Thiết kế | Nguồn |
-| --- | --- |
-| Sáu bước import và preview trước ghi | `FR-7.1`, `FR-7.2`, `F-17` |
-| Coverage bắt buộc | `FR-4.3`, `BR-17.1`, `INV-10` |
-| Định nghĩa hoạt động | `FR-4.16`, `BR-17.5`, `INV-11` |
-| Gắn usage vào Assignment tại thời điểm sự kiện | `FR-4.7`, `BR-17.6` |
-| Unmatched không dùng kết luận | `FR-4.6`, `FR-4.10`, `BR-18.1`, `INV-12` |
-| Communication app bị chặn mặc định | `BR-17.8`, `ADR-10` |
-| Thông báo trước khi ghi lần đầu | `FR-10.4`, `F-42`, `BR-42.2` |
-| Hủy preview ghi 0 dòng | `FR-7.2`, `F-17` |
-| Audit/import history | `FR-8.3`, `FR-7.4` |
+| Thiết kế                                       | Nguồn                                    |
+| ---------------------------------------------- | ---------------------------------------- |
+| Sáu bước import và preview trước ghi           | `FR-7.1`, `FR-7.2`, `F-17`               |
+| Coverage bắt buộc                              | `FR-4.3`, `BR-17.1`, `INV-10`            |
+| Định nghĩa hoạt động                           | `FR-4.16`, `BR-17.5`, `INV-11`           |
+| Gắn usage vào Assignment tại thời điểm sự kiện | `FR-4.7`, `BR-17.6`                      |
+| Unmatched không dùng kết luận                  | `FR-4.6`, `FR-4.10`, `BR-18.1`, `INV-12` |
+| Communication app bị chặn mặc định             | `BR-17.8`, `ADR-10`                      |
+| Thông báo trước khi ghi lần đầu                | `FR-10.4`, `F-42`, `BR-42.2`             |
+| Hủy preview ghi 0 dòng                         | `FR-7.2`, `F-17`                         |
+| Audit/import history                           | `FR-8.3`, `FR-7.4`                       |
 
 ## 13. Điểm bàn giao còn phụ thuộc
 

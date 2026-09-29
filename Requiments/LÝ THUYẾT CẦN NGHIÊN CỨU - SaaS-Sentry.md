@@ -94,13 +94,13 @@ Các nội dung chính cần nghiên cứu:
 
 Trong SaaS-Sentry, trách nhiệm được tách như sau:
 
-| Vai trò | Trách nhiệm |
-| --- | --- |
-| Employee | Nêu nhu cầu và gửi yêu cầu cấp/thay đổi/gia hạn/hoàn trả license. |
-| Manager | Xác nhận nhu cầu nghiệp vụ của nhân viên trong team. |
-| Finance | Kiểm soát và phê duyệt chi tiêu khi yêu cầu có tác động tài chính. |
-| IT Admin | Thực hiện thao tác kỹ thuật: cấp, thu hồi, đồng bộ và quản trị catalog. |
-| Super Admin | Quản trị cấu hình và phân quyền cấp hệ thống. |
+| Vai trò     | Trách nhiệm                                                             |
+| ----------- | ----------------------------------------------------------------------- |
+| Employee    | Nêu nhu cầu và gửi yêu cầu cấp/thay đổi/gia hạn/hoàn trả license.       |
+| Manager     | Xác nhận nhu cầu nghiệp vụ của nhân viên trong team.                    |
+| Finance     | Kiểm soát và phê duyệt chi tiêu khi yêu cầu có tác động tài chính.      |
+| IT Admin    | Thực hiện thao tác kỹ thuật: cấp, thu hồi, đồng bộ và quản trị catalog. |
+| Super Admin | Quản trị cấu hình và phân quyền cấp hệ thống.                           |
 
 Ví dụ, Manager không được phê duyệt yêu cầu do chính mình gửi; Finance không tự cấp tài khoản; IT Admin không tự phê duyệt chi tiêu.
 
@@ -235,12 +235,12 @@ Bên cạnh đó, cần nghiên cứu **Data Quality** để xử lý dữ liệ
 
 Những nội dung dưới đây không nên là trọng tâm MVP, nhưng có thể nghiên cứu để phát triển hoặc trình bày hướng mở rộng:
 
-| Nội dung | Chỉ nên áp dụng khi | Ứng dụng khả thi |
-| --- | --- | --- |
-| Dự báo chuỗi thời gian / hồi quy | Có tối thiểu 12 tháng dữ liệu chi tiêu và kết quả backtesting đạt ngưỡng sai số | Dự báo biến động chi phí SaaS |
-| Machine Learning | Có dữ liệu đã gán nhãn đủ lớn và có cách đánh giá chất lượng rõ ràng | Phân loại mô tả giao dịch chưa rõ vendor |
-| Retrieval-Augmented Generation (RAG) | Tài liệu hợp đồng đã được cấp quyền, có cơ chế trích dẫn nguồn | Hỏi đáp điều khoản hợp đồng |
-| Discovery từ network/CASB log | Có cơ sở pháp lý, hạ tầng và quyền xử lý dữ liệu phù hợp | Bổ sung bằng chứng phát hiện Shadow IT |
+| Nội dung                             | Chỉ nên áp dụng khi                                                             | Ứng dụng khả thi                         |
+| ------------------------------------ | ------------------------------------------------------------------------------- | ---------------------------------------- |
+| Dự báo chuỗi thời gian / hồi quy     | Có tối thiểu 12 tháng dữ liệu chi tiêu và kết quả backtesting đạt ngưỡng sai số | Dự báo biến động chi phí SaaS            |
+| Machine Learning                     | Có dữ liệu đã gán nhãn đủ lớn và có cách đánh giá chất lượng rõ ràng            | Phân loại mô tả giao dịch chưa rõ vendor |
+| Retrieval-Augmented Generation (RAG) | Tài liệu hợp đồng đã được cấp quyền, có cơ chế trích dẫn nguồn                  | Hỏi đáp điều khoản hợp đồng              |
+| Discovery từ network/CASB log        | Có cơ sở pháp lý, hạ tầng và quyền xử lý dữ liệu phù hợp                        | Bổ sung bằng chứng phát hiện Shadow IT   |
 
 Nguyên tắc của dự án là: **khi dữ liệu hoặc điều kiện kiểm chứng chưa đủ, hệ thống không đưa ra kết luận có vẻ chính xác nhưng không đáng tin cậy.**
 
@@ -270,15 +270,14 @@ Nguyên tắc của dự án là: **khi dữ liệu hoặc điều kiện kiểm
 
 ## 6. Phân biệt lý thuyết và công nghệ triển khai
 
-| Lý thuyết / nguyên tắc | Công nghệ có thể dùng để hiện thực |
-| --- | --- |
-| RBAC, OAuth 2.0, OpenID Connect | ASP.NET Core hoặc NestJS; JWT; Identity Provider |
-| Workflow và background processing | REST API; Redis; BullMQ/Hangfire/queue tương đương |
-| ERD, DDD, auditability | PostgreSQL; migration; AuditLog append-only |
-| Data Quality và import | CSV/Excel parser; validation; job queue |
-| SaaS integration, provisioning | REST API; SCIM; Microsoft Entra/Google Workspace/GitHub connector |
-| Dashboard FinOps và usage analytics | React/TypeScript; PostgreSQL; biểu đồ dashboard |
-| Bảo vệ hợp đồng, hóa đơn | MinIO/S3-compatible storage; signed URL; secret management |
+| Lý thuyết / nguyên tắc              | Công nghệ có thể dùng để hiện thực                                |
+| ----------------------------------- | ----------------------------------------------------------------- |
+| RBAC, OAuth 2.0, OpenID Connect     | ASP.NET Core hoặc NestJS; JWT; Identity Provider                  |
+| Workflow và background processing   | REST API; Redis; BullMQ/Hangfire/queue tương đương                |
+| ERD, DDD, auditability              | PostgreSQL; migration; AuditLog append-only                       |
+| Data Quality và import              | CSV/Excel parser; validation; job queue                           |
+| SaaS integration, provisioning      | REST API; SCIM; Microsoft Entra/Google Workspace/GitHub connector |
+| Dashboard FinOps và usage analytics | React/TypeScript; PostgreSQL; biểu đồ dashboard                   |
+| Bảo vệ hợp đồng, hóa đơn            | MinIO/S3-compatible storage; signed URL; secret management        |
 
 Vì vậy, trong báo cáo nên trình bày **lý thuyết trước**, sau đó mới mô tả **công nghệ được chọn để hiện thực lý thuyết đó**.
-

@@ -1,39 +1,41 @@
 <!doctype html>
 <html lang="vi" data-theme="light">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>UF-13 · Super Admin sửa cấu hình và luồng phê duyệt</title>
-  <link rel="stylesheet" href="uf13.css">
-</head>
-<body>
-  <div id="app"></div>
-  <script src="uf13-data.js"></script>
-  <script src="uf13-renderer.js"></script>
-  <script>
-    (function boot() {
-      const params = new URLSearchParams(window.location.search);
-      const theme = params.get('theme') === 'dark' ? 'dark' : 'light';
-      const screenId = params.get('screen') || '01';
-      const data = window.UF13Data.createUF13Data();
-      const screen = data.screens.find(s => s.id === screenId) || data.screens[0];
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>UF-13 · Super Admin sửa cấu hình và luồng phê duyệt</title>
+    <link rel="stylesheet" href="uf13.css" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="uf13-data.js"></script>
+    <script src="uf13-renderer.js"></script>
+    <script>
+      ;(function boot() {
+        const params = new URLSearchParams(window.location.search)
+        const theme = params.get('theme') === 'dark' ? 'dark' : 'light'
+        const screenId = params.get('screen') || '01'
+        const data = window.UF13Data.createUF13Data()
+        const screen = data.screens.find((s) => s.id === screenId) || data.screens[0]
 
-      document.documentElement.dataset.theme = theme;
-      document.title = `UF-13 ${theme.toUpperCase()} ${screen.id} · ${screen.title}`;
-      document.getElementById('app').innerHTML = window.UF13Renderer.renderApp(data, screen.id);
+        document.documentElement.dataset.theme = theme
+        document.title = `UF-13 ${theme.toUpperCase()} ${screen.id} · ${screen.title}`
+        document.getElementById('app').innerHTML = window.UF13Renderer.renderApp(data, screen.id)
 
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        const root = document.querySelector('.app-shell');
-        const hasOverflow = root && (
-          root.scrollWidth > 1440 ||
-          root.scrollHeight > 1024 ||
-          document.documentElement.scrollWidth > 1440 ||
-          document.documentElement.scrollHeight > 1024
-        );
-        document.body.dataset.renderReady = 'true';
-        document.body.dataset.overflow = hasOverflow ? 'true' : 'false';
-      }));
-    })();
-  </script>
-</body>
+        requestAnimationFrame(() =>
+          requestAnimationFrame(() => {
+            const root = document.querySelector('.app-shell')
+            const hasOverflow =
+              root &&
+              (root.scrollWidth > 1440 ||
+                root.scrollHeight > 1024 ||
+                document.documentElement.scrollWidth > 1440 ||
+                document.documentElement.scrollHeight > 1024)
+            document.body.dataset.renderReady = 'true'
+            document.body.dataset.overflow = hasOverflow ? 'true' : 'false'
+          })
+        )
+      })()
+    </script>
+  </body>
 </html>

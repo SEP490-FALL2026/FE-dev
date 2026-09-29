@@ -39,38 +39,41 @@ Thiết kế bộ giao diện Figma hoàn chỉnh cho **Super Admin (QT - Quản
 ## 2. Chuẩn Thiết Kế Hệ Thống & Bảng Màu
 
 ### 2.1. Light Theme (`ThemeLightExample.jpg`)
+
 - Canvas nền (`--bg`): `#fff9f2` (warm cream)
 - Sidebar (`--sidebar`): `#fff4e8`
 - Surface / Cards (`--surface`): `#ffffff` (viền `#efddca`, bo góc `8px`–`12px`)
 - Accent Brand Color (`--primary`): `#ff7417` (warm energetic SaaS orange)
 - Chữ chính (`--text`): `#2b241f`, Chữ phụ (`--muted`): `#897568`
 - Badge trạng thái:
-  * Info: `#237df0` / soft: `#eaf4ff`
-  * Success: `#16875a` / soft: `#eaf8f1`
-  * Warning: `#b86a00` / soft: `#fff3d8`
-  * Danger: `#d84040` / soft: `#fff0ef`
-  * Manual: `#8757c7` / soft: `#f3ecff`
+  - Info: `#237df0` / soft: `#eaf4ff`
+  - Success: `#16875a` / soft: `#eaf8f1`
+  - Warning: `#b86a00` / soft: `#fff3d8`
+  - Danger: `#d84040` / soft: `#fff0ef`
+  - Manual: `#8757c7` / soft: `#f3ecff`
 
 ### 2.2. Dark Theme (`ThemeDarkExample.jpg`)
+
 - Canvas nền (`--bg`): `#07182d` (deep rich navy)
 - Sidebar (`--sidebar`): `#061426`
 - Surface / Cards (`--surface`): `#0d223a` (viền `#213d5c`, bo góc `8px`–`12px`)
 - Accent Brand Color (`--primary`): `#2d86ff` (vibrant electric blue)
 - Chữ chính (`--text`): `#f5f9ff`, Chữ phụ (`--muted`): `#91a8c2`
 - Badge trạng thái:
-  * Info: `#4d9cff` / soft: `#123b69`
-  * Success: `#43d59a` / soft: `#123e38`
-  * Warning: `#ffb53f` / soft: `#4b3716`
-  * Danger: `#ff6d72` / soft: `#4b222b`
-  * Manual: `#b78aff` / soft: `#342954`
+  - Info: `#4d9cff` / soft: `#123b69`
+  - Success: `#43d59a` / soft: `#123e38`
+  - Warning: `#ffb53f` / soft: `#4b3716`
+  - Danger: `#ff6d72` / soft: `#4b222b`
+  - Manual: `#b78aff` / soft: `#342954`
 
 ---
 
 ## 3. Kiến Trúc Bố Cục & Sổ Dữ Liệu Đồng Bộ
 
 ### 3.1. Bố cục Artboard (Desktop 1440 × 1024)
+
 1. **Sidebar cố định bên trái (240px):**
-   - Logo SaaS-Sentry, menu điều hướng (*Tổng quan hệ thống, Cấu hình phạm vi & Ngưỡng [Active], Luồng phê duyệt [Active], Vai trò & Chính sách, Nhật ký kiểm toán, Cảnh báo bảo mật*).
+   - Logo SaaS-Sentry, menu điều hướng (_Tổng quan hệ thống, Cấu hình phạm vi & Ngưỡng [Active], Luồng phê duyệt [Active], Vai trò & Chính sách, Nhật ký kiểm toán, Cảnh báo bảo mật_).
    - Thẻ tài khoản: Luôn hiển thị vai trò **Super Admin** `Nguyễn Văn Quản · Quản trị hệ thống (quan.nguyen@company.com)`.
 2. **Top Bar (Cao 60px):** Thanh tìm kiếm, thẻ mã màn hình (`ADM-02` / `ADM-03` / `SYS-04`), breadcrumb, badge thông tin quyền hạn `Super Admin (SoD-1 Active)`.
 3. **Stepper 6 Chặng ngang (Stage Indicator):**
@@ -81,27 +84,27 @@ Thiết kế bộ giao diện Figma hoàn chỉnh cho **Super Admin (QT - Quản
 
 ### 3.2. Sổ Dữ Liệu Chuẩn Xuyên Suốt (Synchronized State Ledger)
 
-| Sau Frame | Số chính sách (`activePolicies`) | Phiên bản chính sách Figma (`policyVersion`) | Phiên bản thông báo (`noticeVersion`) | Dòng Audit Log (`auditLogCount`) | Yêu cầu đang chạy (`inFlightRequests`) | Diễn giải sự kiện nghiệp vụ |
-|:---:|:---:|:---:|:---:|:---:|:---:|---|
-| **01** | 12 | v2.1 | v1.2 | 842 | 5 | **Baseline ban đầu**: 12 chính sách, chính sách Figma v2.1, thông báo v1.2, 842 logs, 5 yêu cầu đang chạy. |
-| **02** | 12 | v2.1 | v1.2 | 842 | 5 | Super Admin cấu hình ngưỡng lãng phí đa tầng (`a1` · `BR-20.1`): Figma 30 ngày, tổ chức 60 ngày. |
-| **03** | 12 | v2.1 | v1.2 | 842 | 5 | Hệ thống phân giải và hiển thị ma trận ưu tiên ghi đè (`s1`): Figma dùng ngưỡng riêng ghi đè tổ chức. |
-| **04** | 12 | v2.1 | v1.2 | 842 | 5 | Giả định Super Admin cố tình can thiệp gán suất hoặc duyệt yêu cầu tác nghiệp (`d2`). |
-| **05** | 12 | v2.1 | v1.2 | **843** | 5 | **SYS-04 CHẶN PHÂN QUYỀN (`b1` ➔ `e1` · `BR-37.1` · `SoD-1`)**: Ghi log vi phạm SoD (842 ➔ 843). Thao tác bị từ chối. |
-| **06** | 12 | v2.1 | v1.2 | 843 | 5 | Cấu hình Người duyệt chi: chọn `Phạm Hoàng Nam (CEO)` (`a5` · `FR-3.13`). |
-| **07** | 12 | v2.1 | v1.2 | 843 | 5 | Cấu hình Người thay thế khi xung đột lợi ích: chọn `Vũ Đình Khoa (COO)` (`a5` · `BR-13.10`). |
-| **08** | 12 | v2.1 | v1.2 | 843 | 5 | Cấu hình ngưỡng backlog cảnh báo: > 3 ngày hoặc > 8 yêu cầu (`a5` · `FR-3.8`). |
-| **09** | 12 | v2.1 | **v1.3** | **844** | 5 | Cập nhật nội dung thông báo minh bạch ⟹ nâng phiên bản `v1.2` ➔ `v1.3` (`s5` · `BR-42.5`). Log tăng 843 ➔ 844. |
-| **10** | 12 | v2.1 | v1.3 | 844 | 5 | Mở phân hệ `ADM-03`, chọn biên tập chính sách `POL-DES-2026` (Figma Enterprise). |
-| **11** | 12 | v2.1 | v1.3 | 844 | 5 | Soạn thảo điều kiện và chuỗi bước duyệt mới: Bước 1 (QL) ➔ Bước 2 (Người duyệt chi DC) (`a2`). |
-| **12** | 12 | v2.1 | v1.3 | 844 | 5 | Khối xem thử (Simulation Sandbox): Giả lập yêu cầu Figma 12.000.000 VNĐ (`a3`). |
-| **13** | 12 | v2.1 | v1.3 | 844 | 5 | Phát hiện chuỗi bước chưa đúng ý (`d3=chưa đúng` ➔ `a4`): Thiếu nhánh cấp từ kho sẵn có 0 VNĐ. |
-| **14** | 12 | v2.1 | v1.3 | 844 | 5 | Sửa chuỗi bước: Cấp từ kho 0 VNĐ bỏ qua duyệt chi (`QĐ-29a`). Chạy lại mô phỏng thành công (`d3=đúng`). |
-| **15** | **13** | **v2.2** | v1.3 | **845** | 5 | Lưu áp dụng chính sách mới: Phiên bản lên `v2.2`. Ghi Audit log append-only (`s3` · `BR-38.1`). Log tăng 844 ➔ 845. |
-| **16** | 13 | v2.2 | v1.3 | 845 | 5 | Hiệu lực chính sách (`s4` ➔ `e2` · `BR-37.2`): 5 yêu cầu đang chạy giữ chính sách cũ, yêu cầu mới áp dụng v2.2. |
+| Sau Frame | Số chính sách (`activePolicies`) | Phiên bản chính sách Figma (`policyVersion`) | Phiên bản thông báo (`noticeVersion`) | Dòng Audit Log (`auditLogCount`) | Yêu cầu đang chạy (`inFlightRequests`) | Diễn giải sự kiện nghiệp vụ                                                                                           |
+| :-------: | :------------------------------: | :------------------------------------------: | :-----------------------------------: | :------------------------------: | :------------------------------------: | --------------------------------------------------------------------------------------------------------------------- |
+|  **01**   |                12                |                     v2.1                     |                 v1.2                  |               842                |                   5                    | **Baseline ban đầu**: 12 chính sách, chính sách Figma v2.1, thông báo v1.2, 842 logs, 5 yêu cầu đang chạy.            |
+|  **02**   |                12                |                     v2.1                     |                 v1.2                  |               842                |                   5                    | Super Admin cấu hình ngưỡng lãng phí đa tầng (`a1` · `BR-20.1`): Figma 30 ngày, tổ chức 60 ngày.                      |
+|  **03**   |                12                |                     v2.1                     |                 v1.2                  |               842                |                   5                    | Hệ thống phân giải và hiển thị ma trận ưu tiên ghi đè (`s1`): Figma dùng ngưỡng riêng ghi đè tổ chức.                 |
+|  **04**   |                12                |                     v2.1                     |                 v1.2                  |               842                |                   5                    | Giả định Super Admin cố tình can thiệp gán suất hoặc duyệt yêu cầu tác nghiệp (`d2`).                                 |
+|  **05**   |                12                |                     v2.1                     |                 v1.2                  |             **843**              |                   5                    | **SYS-04 CHẶN PHÂN QUYỀN (`b1` ➔ `e1` · `BR-37.1` · `SoD-1`)**: Ghi log vi phạm SoD (842 ➔ 843). Thao tác bị từ chối. |
+|  **06**   |                12                |                     v2.1                     |                 v1.2                  |               843                |                   5                    | Cấu hình Người duyệt chi: chọn `Phạm Hoàng Nam (CEO)` (`a5` · `FR-3.13`).                                             |
+|  **07**   |                12                |                     v2.1                     |                 v1.2                  |               843                |                   5                    | Cấu hình Người thay thế khi xung đột lợi ích: chọn `Vũ Đình Khoa (COO)` (`a5` · `BR-13.10`).                          |
+|  **08**   |                12                |                     v2.1                     |                 v1.2                  |               843                |                   5                    | Cấu hình ngưỡng backlog cảnh báo: > 3 ngày hoặc > 8 yêu cầu (`a5` · `FR-3.8`).                                        |
+|  **09**   |                12                |                     v2.1                     |               **v1.3**                |             **844**              |                   5                    | Cập nhật nội dung thông báo minh bạch ⟹ nâng phiên bản `v1.2` ➔ `v1.3` (`s5` · `BR-42.5`). Log tăng 843 ➔ 844.        |
+|  **10**   |                12                |                     v2.1                     |                 v1.3                  |               844                |                   5                    | Mở phân hệ `ADM-03`, chọn biên tập chính sách `POL-DES-2026` (Figma Enterprise).                                      |
+|  **11**   |                12                |                     v2.1                     |                 v1.3                  |               844                |                   5                    | Soạn thảo điều kiện và chuỗi bước duyệt mới: Bước 1 (QL) ➔ Bước 2 (Người duyệt chi DC) (`a2`).                        |
+|  **12**   |                12                |                     v2.1                     |                 v1.3                  |               844                |                   5                    | Khối xem thử (Simulation Sandbox): Giả lập yêu cầu Figma 12.000.000 VNĐ (`a3`).                                       |
+|  **13**   |                12                |                     v2.1                     |                 v1.3                  |               844                |                   5                    | Phát hiện chuỗi bước chưa đúng ý (`d3=chưa đúng` ➔ `a4`): Thiếu nhánh cấp từ kho sẵn có 0 VNĐ.                        |
+|  **14**   |                12                |                     v2.1                     |                 v1.3                  |               844                |                   5                    | Sửa chuỗi bước: Cấp từ kho 0 VNĐ bỏ qua duyệt chi (`QĐ-29a`). Chạy lại mô phỏng thành công (`d3=đúng`).               |
+|  **15**   |              **13**              |                   **v2.2**                   |                 v1.3                  |             **845**              |                   5                    | Lưu áp dụng chính sách mới: Phiên bản lên `v2.2`. Ghi Audit log append-only (`s3` · `BR-38.1`). Log tăng 844 ➔ 845.   |
+|  **16**   |                13                |                     v2.2                     |                 v1.3                  |               845                |                   5                    | Hiệu lực chính sách (`s4` ➔ `e2` · `BR-37.2`): 5 yêu cầu đang chạy giữ chính sách cũ, yêu cầu mới áp dụng v2.2.       |
 
 ---
 
 ## 4. Danh Sách 16 Màn Hình Chi Tiết
 
-*(Mỗi màn hình được định nghĩa đầy đủ theo chuẩn 1440 × 1024, hỗ trợ Light và Dark theme đồng bộ 100%)*
+_(Mỗi màn hình được định nghĩa đầy đủ theo chuẩn 1440 × 1024, hỗ trợ Light và Dark theme đồng bộ 100%)_

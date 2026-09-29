@@ -28,28 +28,30 @@
 
 ## File Map
 
-| File | Responsibility |
-| --- | --- |
-| `Figma UI-UX/UF-10-Sources/uf10-data.js` | Frozen canonical run, G1/G2/G3/G4 entities, ledgers, stages and screen registry |
-| `Figma UI-UX/UF-10-Sources/uf10-data.test.js` | Registry, branch, savings, handoff and immutability assertions |
-| `Figma UI-UX/UF-10-Sources/uf10-renderer.js` | Pure app shell, components and 18 state bodies |
-| `Figma UI-UX/UF-10-Sources/uf10-renderer.test.js` | Markup metadata, guard text and branch parity assertions |
-| `Figma UI-UX/UF-10-Sources/uf10.css` | Fixed canvas and semantic Light/Dark tokens |
-| `Figma UI-UX/UF-10-Sources/uf10.html` | Query boot, readiness and overflow markers |
-| `Figma UI-UX/UF-10-Sources/capture-uf10.ps1` | Safe 36-artboard Chrome capture |
-| `Figma UI-UX/UF-10-Sources/verify-uf10-assets.ps1` | Node tests plus filename/dimension verification |
-| `Figma UI-UX/UF-10-FullFrames/Light/*.png` | 18 Light artboards |
-| `Figma UI-UX/UF-10-FullFrames/Dark/*.png` | 18 Dark artboards |
+| File                                               | Responsibility                                                                  |
+| -------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `Figma UI-UX/UF-10-Sources/uf10-data.js`           | Frozen canonical run, G1/G2/G3/G4 entities, ledgers, stages and screen registry |
+| `Figma UI-UX/UF-10-Sources/uf10-data.test.js`      | Registry, branch, savings, handoff and immutability assertions                  |
+| `Figma UI-UX/UF-10-Sources/uf10-renderer.js`       | Pure app shell, components and 18 state bodies                                  |
+| `Figma UI-UX/UF-10-Sources/uf10-renderer.test.js`  | Markup metadata, guard text and branch parity assertions                        |
+| `Figma UI-UX/UF-10-Sources/uf10.css`               | Fixed canvas and semantic Light/Dark tokens                                     |
+| `Figma UI-UX/UF-10-Sources/uf10.html`              | Query boot, readiness and overflow markers                                      |
+| `Figma UI-UX/UF-10-Sources/capture-uf10.ps1`       | Safe 36-artboard Chrome capture                                                 |
+| `Figma UI-UX/UF-10-Sources/verify-uf10-assets.ps1` | Node tests plus filename/dimension verification                                 |
+| `Figma UI-UX/UF-10-FullFrames/Light/*.png`         | 18 Light artboards                                                              |
+| `Figma UI-UX/UF-10-FullFrames/Dark/*.png`          | 18 Dark artboards                                                               |
 
 ---
 
 ### Task 1: Canonical branch model
 
 **Files:**
+
 - Create: `Figma UI-UX/UF-10-Sources/uf10-data.test.js`
 - Create: `Figma UI-UX/UF-10-Sources/uf10-data.js`
 
 **Interfaces:**
+
 - Produces `globalThis.UF10Data.createUF10Data(): Readonly<UF10Data>` and Node export `{ createUF10Data }`.
 - `UF10Data` contains `actor`, `run`, `stages`, `groups`, `g1`, `g2`, `usageRecommendations`, `branches`, `savings`, `ledgers`, `screens`, `audit`.
 - Every screen contains `{ id, stage, totalStages, title, subtitle, state, ledgerKey, activeNav, branch }`.
@@ -68,9 +70,17 @@
   Encode exact values from spec sections 3–6. Ledger keys must expose:
 
   ```js
-  { g1Open, g2Open, managerPending, itReview, tasksOpen,
-    seatsReleased, renewalReductionApproved, immediateSaving,
-    renewalSaving }
+  {
+    ;(g1Open,
+      g2Open,
+      managerPending,
+      itReview,
+      tasksOpen,
+      seatsReleased,
+      renewalReductionApproved,
+      immediateSaving,
+      renewalSaving)
+  }
   ```
 
 - [x] **Step 4: Add guarded branch assertions**
@@ -84,12 +94,14 @@
 ### Task 2: Renderer and theme system
 
 **Files:**
+
 - Create: `Figma UI-UX/UF-10-Sources/uf10-renderer.test.js`
 - Create: `Figma UI-UX/UF-10-Sources/uf10-renderer.js`
 - Create: `Figma UI-UX/UF-10-Sources/uf10.css`
 - Create: `Figma UI-UX/UF-10-Sources/uf10.html`
 
 **Interfaces:**
+
 - Consumes `createUF10Data()`.
 - Produces `globalThis.UF10Renderer.renderApp(data, screenId): string` and Node export `{ renderApp }`.
 - Root markup exposes `data-screen`, `data-stage`, `data-total-stages` and all numeric ledger fields.
@@ -136,11 +148,13 @@
 ### Task 3: Capture and asset verification
 
 **Files:**
+
 - Create: `Figma UI-UX/UF-10-Sources/capture-uf10.ps1`
 - Create: `Figma UI-UX/UF-10-Sources/verify-uf10-assets.ps1`
 - Create outputs under `Figma UI-UX/UF-10-FullFrames/{Light,Dark}`.
 
 **Interfaces:**
+
 - Capture accepts `-RootPath`, optional `-Resume`, optional `[ValidateRange(1,18)] -Screens`.
 - Produces `UF-10-{Light|Dark}-{01..18}.png`.
 
@@ -169,6 +183,7 @@
 ### Task 4: Visual QA and handoff
 
 **Files:**
+
 - Modify as defects require: `Figma UI-UX/UF-10-Sources/uf10-renderer.js`, `uf10.css`, `uf10-data.js`
 - Modify: `Figma UI-UX/UF-10-Figma-Design-Spec.md`
 - Modify: `Figma UI-UX/UF-10-Implementation-Plan.md`

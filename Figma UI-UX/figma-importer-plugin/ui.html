@@ -1,559 +1,572 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
-<head>
-  <meta charset="UTF-8">
-  <title>SaaS-Sentry UI Importer</title>
-  <style>
-    :root {
-      --bg: #1e1e1e;
-      --card-bg: #282828;
-      --text: #ffffff;
-      --text-muted: #aaaaaa;
-      --primary: #0d99ff;
-      --primary-hover: #007be5;
-      --success: #14ae5c;
-      --warning: #ffaa00;
-      --border: #383838;
-      --danger: #f24822;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <title>SaaS-Sentry UI Importer</title>
+    <style>
+      :root {
+        --bg: #1e1e1e;
+        --card-bg: #282828;
+        --text: #ffffff;
+        --text-muted: #aaaaaa;
+        --primary: #0d99ff;
+        --primary-hover: #007be5;
+        --success: #14ae5c;
+        --warning: #ffaa00;
+        --border: #383838;
+        --danger: #f24822;
+      }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
 
-    body {
-      font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      font-size: 12px;
-      line-height: 1.4;
-      padding: 14px;
-      user-select: none;
-    }
+      body {
+        font-family:
+          Inter,
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          Roboto,
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        font-size: 12px;
+        line-height: 1.4;
+        padding: 14px;
+        user-select: none;
+      }
 
-    .header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 12px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid var(--border);
-    }
+      .header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border);
+      }
 
-    .logo {
-      width: 28px;
-      height: 28px;
-      background: linear-gradient(135deg, #0d99ff, #7b61ff);
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 14px;
-    }
+      .logo {
+        width: 28px;
+        height: 28px;
+        background: linear-gradient(135deg, #0d99ff, #7b61ff);
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 14px;
+      }
 
-    .title-wrap h1 {
-      font-size: 13px;
-      font-weight: 600;
-      color: #fff;
-    }
+      .title-wrap h1 {
+        font-size: 13px;
+        font-weight: 600;
+        color: #fff;
+      }
 
-    .title-wrap p {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
+      .title-wrap p {
+        font-size: 11px;
+        color: var(--text-muted);
+      }
 
-    .tabs {
-      display: flex;
-      background: #141414;
-      border-radius: 6px;
-      padding: 2px;
-      margin-bottom: 12px;
-    }
+      .tabs {
+        display: flex;
+        background: #141414;
+        border-radius: 6px;
+        padding: 2px;
+        margin-bottom: 12px;
+      }
 
-    .tab {
-      flex: 1;
-      text-align: center;
-      padding: 6px 8px;
-      font-size: 11px;
-      font-weight: 500;
-      cursor: pointer;
-      border-radius: 4px;
-      color: var(--text-muted);
-      transition: all 0.15s ease;
-    }
+      .tab {
+        flex: 1;
+        text-align: center;
+        padding: 6px 8px;
+        font-size: 11px;
+        font-weight: 500;
+        cursor: pointer;
+        border-radius: 4px;
+        color: var(--text-muted);
+        transition: all 0.15s ease;
+      }
 
-    .tab.active {
-      background: var(--card-bg);
-      color: #fff;
-    }
+      .tab.active {
+        background: var(--card-bg);
+        color: #fff;
+      }
 
-    .tab-content {
-      display: none;
-    }
+      .tab-content {
+        display: none;
+      }
 
-    .tab-content.active {
-      display: block;
-    }
+      .tab-content.active {
+        display: block;
+      }
 
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 12px;
-      margin-bottom: 12px;
-    }
+      .card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 12px;
+        margin-bottom: 12px;
+      }
 
-    .form-group {
-      margin-bottom: 10px;
-    }
+      .form-group {
+        margin-bottom: 10px;
+      }
 
-    .form-group:last-child {
-      margin-bottom: 0;
-    }
+      .form-group:last-child {
+        margin-bottom: 0;
+      }
 
-    label {
-      display: block;
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--text-muted);
-      margin-bottom: 4px;
-    }
+      label {
+        display: block;
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--text-muted);
+        margin-bottom: 4px;
+      }
 
-    select, input[type="text"] {
-      width: 100%;
-      background: #1e1e1e;
-      border: 1px solid var(--border);
-      color: #fff;
-      padding: 7px 9px;
-      border-radius: 4px;
-      font-size: 11px;
-      outline: none;
-    }
+      select,
+      input[type='text'] {
+        width: 100%;
+        background: #1e1e1e;
+        border: 1px solid var(--border);
+        color: #fff;
+        padding: 7px 9px;
+        border-radius: 4px;
+        font-size: 11px;
+        outline: none;
+      }
 
-    select:focus, input[type="text"]:focus {
-      border-color: var(--primary);
-    }
+      select:focus,
+      input[type='text']:focus {
+        border-color: var(--primary);
+      }
 
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 11px;
-      padding: 3px 8px;
-      border-radius: 4px;
-      background: #141414;
-      border: 1px solid var(--border);
-      margin-top: 6px;
-    }
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        padding: 3px 8px;
+        border-radius: 4px;
+        background: #141414;
+        border: 1px solid var(--border);
+        margin-top: 6px;
+      }
 
-    .status-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--text-muted);
-    }
+      .status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--text-muted);
+      }
 
-    .status-badge.connected .status-dot {
-      background: var(--success);
-      box-shadow: 0 0 6px var(--success);
-    }
+      .status-badge.connected .status-dot {
+        background: var(--success);
+        box-shadow: 0 0 6px var(--success);
+      }
 
-    .status-badge.error .status-dot {
-      background: var(--danger);
-    }
+      .status-badge.error .status-dot {
+        background: var(--danger);
+      }
 
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      padding: 9px 12px;
-      font-size: 12px;
-      font-weight: 600;
-      border-radius: 6px;
-      cursor: pointer;
-      border: none;
-      transition: background 0.15s ease;
-      gap: 6px;
-    }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 9px 12px;
+        font-size: 12px;
+        font-weight: 600;
+        border-radius: 6px;
+        cursor: pointer;
+        border: none;
+        transition: background 0.15s ease;
+        gap: 6px;
+      }
 
-    .btn-primary {
-      background: var(--primary);
-      color: #fff;
-    }
+      .btn-primary {
+        background: var(--primary);
+        color: #fff;
+      }
 
-    .btn-primary:hover {
-      background: var(--primary-hover);
-    }
+      .btn-primary:hover {
+        background: var(--primary-hover);
+      }
 
-    .btn-primary:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
+      .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
 
-    .btn-secondary {
-      background: #333333;
-      color: #fff;
-      margin-top: 6px;
-    }
+      .btn-secondary {
+        background: #333333;
+        color: #fff;
+        margin-top: 6px;
+      }
 
-    .btn-secondary:hover {
-      background: #444444;
-    }
+      .btn-secondary:hover {
+        background: #444444;
+      }
 
-    .progress-wrap {
-      margin-top: 10px;
-      display: none;
-    }
+      .progress-wrap {
+        margin-top: 10px;
+        display: none;
+      }
 
-    .progress-bar-bg {
-      width: 100%;
-      height: 6px;
-      background: #141414;
-      border-radius: 3px;
-      overflow: hidden;
-      margin-bottom: 6px;
-    }
+      .progress-bar-bg {
+        width: 100%;
+        height: 6px;
+        background: #141414;
+        border-radius: 3px;
+        overflow: hidden;
+        margin-bottom: 6px;
+      }
 
-    .progress-bar-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #0d99ff, #14ae5c);
-      transition: width 0.15s ease;
-    }
+      .progress-bar-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #0d99ff, #14ae5c);
+        transition: width 0.15s ease;
+      }
 
-    .progress-text {
-      font-size: 11px;
-      color: var(--text-muted);
-      text-align: center;
-    }
+      .progress-text {
+        font-size: 11px;
+        color: var(--text-muted);
+        text-align: center;
+      }
 
-    .dropzone {
-      border: 2px dashed var(--border);
-      border-radius: 6px;
-      padding: 24px 12px;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color 0.15s ease;
-      background: #222222;
-    }
+      .dropzone {
+        border: 2px dashed var(--border);
+        border-radius: 6px;
+        padding: 24px 12px;
+        text-align: center;
+        cursor: pointer;
+        transition: border-color 0.15s ease;
+        background: #222222;
+      }
 
-    .dropzone:hover, .dropzone.dragover {
-      border-color: var(--primary);
-    }
+      .dropzone:hover,
+      .dropzone.dragover {
+        border-color: var(--primary);
+      }
 
-    .dropzone-icon {
-      font-size: 24px;
-      margin-bottom: 6px;
-    }
+      .dropzone-icon {
+        font-size: 24px;
+        margin-bottom: 6px;
+      }
 
-    .dropzone p {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
+      .dropzone p {
+        font-size: 11px;
+        color: var(--text-muted);
+      }
 
-    .summary-info {
-      font-size: 11px;
-      color: #bbb;
-      line-height: 1.5;
-      background: #181818;
-      border-radius: 4px;
-      padding: 8px;
-      margin-top: 8px;
-    }
+      .summary-info {
+        font-size: 11px;
+        color: #bbb;
+        line-height: 1.5;
+        background: #181818;
+        border-radius: 4px;
+        padding: 8px;
+        margin-top: 8px;
+      }
 
-    .file-counter {
-      margin-top: 8px;
-      font-size: 11px;
-      color: var(--success);
-      font-weight: 500;
-      text-align: center;
-    }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <div class="logo">SS</div>
-    <div class="title-wrap">
-      <h1>SaaS-Sentry UI Importer</h1>
-      <p>Tự động dựng UF-07, 08, 09, 10 (Light & Dark)</p>
+      .file-counter {
+        margin-top: 8px;
+        font-size: 11px;
+        color: var(--success);
+        font-weight: 500;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div class="logo">SS</div>
+      <div class="title-wrap">
+        <h1>SaaS-Sentry UI Importer</h1>
+        <p>Tự động dựng UF-07, 08, 09, 10 (Light & Dark)</p>
+      </div>
     </div>
-  </div>
 
-  <div class="tabs">
-    <div class="tab active" data-tab="tab-auto">1-Click Local Server</div>
-    <div class="tab" data-tab="tab-manual">Chọn / Kéo thả File</div>
-  </div>
+    <div class="tabs">
+      <div class="tab active" data-tab="tab-auto">1-Click Local Server</div>
+      <div class="tab" data-tab="tab-manual">Chọn / Kéo thả File</div>
+    </div>
 
-  <!-- TAB 1: 1-CLICK AUTO IMPORT QUA LOCAL SERVER -->
-  <div id="tab-auto" class="tab-content active">
-    <div class="card">
-      <div class="form-group">
-        <label for="server-url">Địa chỉ Local Server</label>
-        <input type="text" id="server-url" value="http://localhost:3840">
-        <div id="connection-status" class="status-badge">
-          <span class="status-dot"></span>
-          <span id="status-label">Đang kiểm tra kết nối...</span>
+    <!-- TAB 1: 1-CLICK AUTO IMPORT QUA LOCAL SERVER -->
+    <div id="tab-auto" class="tab-content active">
+      <div class="card">
+        <div class="form-group">
+          <label for="server-url">Địa chỉ Local Server</label>
+          <input type="text" id="server-url" value="http://localhost:3840" />
+          <div id="connection-status" class="status-badge">
+            <span class="status-dot"></span>
+            <span id="status-label">Đang kiểm tra kết nối...</span>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 10px">
+          <label for="flow-select">Chọn User Flow</label>
+          <select id="flow-select">
+            <option value="ALL">Tất cả 4 Flow (122 frames: UF-07, 08, 09, 10)</option>
+            <option value="UF-07">UF-07 · Chưa khớp danh tính (22 frames)</option>
+            <option value="UF-08">UF-08 · Cấp phát & Thu hồi (32 frames)</option>
+            <option value="UF-09">UF-09 · Nhân viên nghỉ việc (32 frames)</option>
+            <option value="UF-10">UF-10 · Bảng tối ưu license (36 frames)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="theme-select">Giao diện (Theme)</label>
+          <select id="theme-select">
+            <option value="BOTH">Cả 2 Theme (Light & Dark song song)</option>
+            <option value="Light">Chỉ Light Theme</option>
+            <option value="Dark">Chỉ Dark Theme</option>
+          </select>
+        </div>
+
+        <div class="summary-info" id="plan-summary">
+          📦 Sẵn sàng import <strong>122 frames</strong> (1440 × 1024), xếp thành 4 Section lớn với 2 hàng Light và Dark
+          đối chiếu song song.
         </div>
       </div>
 
-      <div class="form-group" style="margin-top: 10px;">
-        <label for="flow-select">Chọn User Flow</label>
-        <select id="flow-select">
-          <option value="ALL">Tất cả 4 Flow (122 frames: UF-07, 08, 09, 10)</option>
-          <option value="UF-07">UF-07 · Chưa khớp danh tính (22 frames)</option>
-          <option value="UF-08">UF-08 · Cấp phát & Thu hồi (32 frames)</option>
-          <option value="UF-09">UF-09 · Nhân viên nghỉ việc (32 frames)</option>
-          <option value="UF-10">UF-10 · Bảng tối ưu license (36 frames)</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="theme-select">Giao diện (Theme)</label>
-        <select id="theme-select">
-          <option value="BOTH">Cả 2 Theme (Light & Dark song song)</option>
-          <option value="Light">Chỉ Light Theme</option>
-          <option value="Dark">Chỉ Dark Theme</option>
-        </select>
-      </div>
-
-      <div class="summary-info" id="plan-summary">
-        📦 Sẵn sàng import <strong>122 frames</strong> (1440 × 1024), xếp thành 4 Section lớn với 2 hàng Light và Dark đối chiếu song song.
-      </div>
+      <button class="btn btn-primary" id="btn-start-auto" disabled>🚀 Bắt đầu Import lên Figma</button>
     </div>
 
-    <button class="btn btn-primary" id="btn-start-auto" disabled>
-      🚀 Bắt đầu Import lên Figma
-    </button>
-  </div>
+    <!-- TAB 2: MANUAL DRAG & DROP / FILE PICKER -->
+    <div id="tab-manual" class="tab-content">
+      <div class="card">
+        <div class="dropzone" id="dropzone">
+          <div class="dropzone-icon">📁</div>
+          <strong>Kéo thả các file PNG vào đây</strong>
+          <p>Hoặc bấm để chọn tệp từ các folder UF-xx-FullFrames</p>
+          <input type="file" id="file-input" multiple accept="image/png" style="display: none" />
+        </div>
+        <div id="file-counter" class="file-counter" style="display: none"></div>
+        <div class="summary-info" style="margin-top: 10px">
+          💡 Plugin sẽ tự nhận diện tên file dạng <code>UF-08-Light-01.png</code> để phân loại vào đúng Flow, đúng
+          Theme, đúng vị trí và gán tiêu đề tiếng Việt chuẩn.
+        </div>
+      </div>
 
-  <!-- TAB 2: MANUAL DRAG & DROP / FILE PICKER -->
-  <div id="tab-manual" class="tab-content">
-    <div class="card">
-      <div class="dropzone" id="dropzone">
-        <div class="dropzone-icon">📁</div>
-        <strong>Kéo thả các file PNG vào đây</strong>
-        <p>Hoặc bấm để chọn tệp từ các folder UF-xx-FullFrames</p>
-        <input type="file" id="file-input" multiple accept="image/png" style="display: none;">
-      </div>
-      <div id="file-counter" class="file-counter" style="display: none;"></div>
-      <div class="summary-info" style="margin-top: 10px;">
-        💡 Plugin sẽ tự nhận diện tên file dạng <code>UF-08-Light-01.png</code> để phân loại vào đúng Flow, đúng Theme, đúng vị trí và gán tiêu đề tiếng Việt chuẩn.
-      </div>
+      <button class="btn btn-primary" id="btn-start-manual" disabled>🚀 Import các file đã chọn lên Figma</button>
     </div>
 
-    <button class="btn btn-primary" id="btn-start-manual" disabled>
-      🚀 Import các file đã chọn lên Figma
-    </button>
-  </div>
-
-  <!-- PROGRESS BAR -->
-  <div class="progress-wrap" id="progress-wrap">
-    <div class="progress-bar-bg">
-      <div class="progress-bar-fill" id="progress-fill"></div>
+    <!-- PROGRESS BAR -->
+    <div class="progress-wrap" id="progress-wrap">
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progress-fill"></div>
+      </div>
+      <div class="progress-text" id="progress-text">Đang chuẩn bị...</div>
     </div>
-    <div class="progress-text" id="progress-text">Đang chuẩn bị...</div>
-  </div>
 
-  <script>
-    // Tab switching
-    document.querySelectorAll('.tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        tab.classList.add('active');
-        document.getElementById(tab.dataset.tab).classList.add('active');
-      });
-    });
+    <script>
+      // Tab switching
+      document.querySelectorAll('.tab').forEach((tab) => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'))
+          document.querySelectorAll('.tab-content').forEach((c) => c.classList.remove('active'))
+          tab.classList.add('active')
+          document.getElementById(tab.dataset.tab).classList.add('active')
+        })
+      })
 
-    let manifestData = null;
-    const serverUrlInput = document.getElementById('server-url');
-    const statusBadge = document.getElementById('connection-status');
-    const statusLabel = document.getElementById('status-label');
-    const btnStartAuto = document.getElementById('btn-start-auto');
-    const flowSelect = document.getElementById('flow-select');
-    const themeSelect = document.getElementById('theme-select');
-    const planSummary = document.getElementById('plan-summary');
-    const progressWrap = document.getElementById('progress-wrap');
-    const progressFill = document.getElementById('progress-fill');
-    const progressText = document.getElementById('progress-text');
+      let manifestData = null
+      const serverUrlInput = document.getElementById('server-url')
+      const statusBadge = document.getElementById('connection-status')
+      const statusLabel = document.getElementById('status-label')
+      const btnStartAuto = document.getElementById('btn-start-auto')
+      const flowSelect = document.getElementById('flow-select')
+      const themeSelect = document.getElementById('theme-select')
+      const planSummary = document.getElementById('plan-summary')
+      const progressWrap = document.getElementById('progress-wrap')
+      const progressFill = document.getElementById('progress-fill')
+      const progressText = document.getElementById('progress-text')
 
-    // Check server connection
-    async function checkServer() {
-      const url = serverUrlInput.value.trim().replace(/\/$/, '');
-      statusBadge.className = 'status-badge';
-      statusLabel.textContent = 'Đang kiểm tra kết nối...';
-      btnStartAuto.disabled = true;
-
-      try {
-        const res = await fetch(`${url}/manifest`, { cache: 'no-store' });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        manifestData = await res.json();
-
-        statusBadge.className = 'status-badge connected';
-        statusLabel.textContent = `🟢 Đã kết nối Local Server (${manifestData.totalFrames} frames)`;
-        btnStartAuto.disabled = false;
-        updateSummary();
-      } catch (err) {
-        statusBadge.className = 'status-badge error';
-        statusLabel.textContent = '🔴 Không thể kết nối. Hãy chạy: node server.js';
-        btnStartAuto.disabled = true;
-      }
-    }
-
-    serverUrlInput.addEventListener('change', checkServer);
-    flowSelect.addEventListener('change', updateSummary);
-    themeSelect.addEventListener('change', updateSummary);
-
-    function getSelectedFrames() {
-      if (!manifestData || !manifestData.frames) return [];
-      const flow = flowSelect.value;
-      const theme = themeSelect.value;
-
-      return manifestData.frames.filter(f => {
-        if (flow !== 'ALL' && f.flow !== flow) return false;
-        if (theme !== 'BOTH' && f.theme !== theme) return false;
-        return true;
-      });
-    }
-
-    function updateSummary() {
-      const frames = getSelectedFrames();
-      planSummary.innerHTML = `📦 Sẵn sàng import <strong>${frames.length} frames</strong> (1440 × 1024), sắp xếp chuẩn theo Flow và Theme song song.`;
-    }
-
-    // Auto Import Flow
-    btnStartAuto.addEventListener('click', async () => {
-      const framesToImport = getSelectedFrames();
-      if (framesToImport.length === 0) {
-        alert('Không tìm thấy frame nào phù hợp bộ lọc.');
-        return;
-      }
-
-      btnStartAuto.disabled = true;
-      progressWrap.style.display = 'block';
-      const baseUrl = serverUrlInput.value.trim().replace(/\/$/, '');
-      const loadedItems = [];
-
-      for (let i = 0; i < framesToImport.length; i++) {
-        const item = framesToImport[i];
-        const pct = Math.round(((i + 1) / framesToImport.length) * 100);
-        progressFill.style.width = pct + '%';
-        progressText.textContent = `Đang tải ${item.fileName} (${i + 1}/${framesToImport.length})...`;
+      // Check server connection
+      async function checkServer() {
+        const url = serverUrlInput.value.trim().replace(/\/$/, '')
+        statusBadge.className = 'status-badge'
+        statusLabel.textContent = 'Đang kiểm tra kết nối...'
+        btnStartAuto.disabled = true
 
         try {
-          const imgRes = await fetch(`${baseUrl}${item.url}`);
-          const buffer = await imgRes.arrayBuffer();
+          const res = await fetch(`${url}/manifest`, { cache: 'no-store' })
+          if (!res.ok) throw new Error('HTTP ' + res.status)
+          manifestData = await res.json()
+
+          statusBadge.className = 'status-badge connected'
+          statusLabel.textContent = `🟢 Đã kết nối Local Server (${manifestData.totalFrames} frames)`
+          btnStartAuto.disabled = false
+          updateSummary()
+        } catch (err) {
+          statusBadge.className = 'status-badge error'
+          statusLabel.textContent = '🔴 Không thể kết nối. Hãy chạy: node server.js'
+          btnStartAuto.disabled = true
+        }
+      }
+
+      serverUrlInput.addEventListener('change', checkServer)
+      flowSelect.addEventListener('change', updateSummary)
+      themeSelect.addEventListener('change', updateSummary)
+
+      function getSelectedFrames() {
+        if (!manifestData || !manifestData.frames) return []
+        const flow = flowSelect.value
+        const theme = themeSelect.value
+
+        return manifestData.frames.filter((f) => {
+          if (flow !== 'ALL' && f.flow !== flow) return false
+          if (theme !== 'BOTH' && f.theme !== theme) return false
+          return true
+        })
+      }
+
+      function updateSummary() {
+        const frames = getSelectedFrames()
+        planSummary.innerHTML = `📦 Sẵn sàng import <strong>${frames.length} frames</strong> (1440 × 1024), sắp xếp chuẩn theo Flow và Theme song song.`
+      }
+
+      // Auto Import Flow
+      btnStartAuto.addEventListener('click', async () => {
+        const framesToImport = getSelectedFrames()
+        if (framesToImport.length === 0) {
+          alert('Không tìm thấy frame nào phù hợp bộ lọc.')
+          return
+        }
+
+        btnStartAuto.disabled = true
+        progressWrap.style.display = 'block'
+        const baseUrl = serverUrlInput.value.trim().replace(/\/$/, '')
+        const loadedItems = []
+
+        for (let i = 0; i < framesToImport.length; i++) {
+          const item = framesToImport[i]
+          const pct = Math.round(((i + 1) / framesToImport.length) * 100)
+          progressFill.style.width = pct + '%'
+          progressText.textContent = `Đang tải ${item.fileName} (${i + 1}/${framesToImport.length})...`
+
+          try {
+            const imgRes = await fetch(`${baseUrl}${item.url}`)
+            const buffer = await imgRes.arrayBuffer()
+            loadedItems.push({
+              flow: item.flow,
+              flowTitle: item.flowTitle,
+              theme: item.theme,
+              screenId: item.screenId,
+              title: item.title,
+              subtitle: item.subtitle,
+              fileName: item.fileName,
+              bytes: Array.from(new Uint8Array(buffer))
+            })
+          } catch (e) {
+            console.error('Fetch error:', item.fileName, e)
+          }
+        }
+
+        progressText.textContent = `Đang tạo ${loadedItems.length} frames lên canvas Figma...`
+        parent.postMessage(
+          {
+            pluginMessage: {
+              type: 'IMPORT_FRAMES',
+              data: loadedItems
+            }
+          },
+          '*'
+        )
+      })
+
+      // Manual File Dropzone
+      const dropzone = document.getElementById('dropzone')
+      const fileInput = document.getElementById('file-input')
+      const fileCounter = document.getElementById('file-counter')
+      const btnStartManual = document.getElementById('btn-start-manual')
+      let manualFiles = []
+
+      dropzone.addEventListener('click', () => fileInput.click())
+      dropzone.addEventListener('dragover', (e) => {
+        e.preventDefault()
+        dropzone.classList.add('dragover')
+      })
+      dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'))
+      dropzone.addEventListener('drop', (e) => {
+        e.preventDefault()
+        dropzone.classList.remove('dragover')
+        handleSelectedFiles(e.dataTransfer.files)
+      })
+      fileInput.addEventListener('change', (e) => handleSelectedFiles(e.target.files))
+
+      function handleSelectedFiles(fileList) {
+        manualFiles = Array.from(fileList).filter((f) => f.name.endsWith('.png'))
+        if (manualFiles.length > 0) {
+          fileCounter.style.display = 'block'
+          fileCounter.textContent = `✅ Đã chọn ${manualFiles.length} file PNG.`
+          btnStartManual.disabled = false
+        } else {
+          fileCounter.style.display = 'none'
+          btnStartManual.disabled = true
+        }
+      }
+
+      btnStartManual.addEventListener('click', async () => {
+        if (manualFiles.length === 0) return
+        btnStartManual.disabled = true
+        progressWrap.style.display = 'block'
+
+        const loadedItems = []
+        for (let i = 0; i < manualFiles.length; i++) {
+          const file = manualFiles[i]
+          const pct = Math.round(((i + 1) / manualFiles.length) * 100)
+          progressFill.style.width = pct + '%'
+          progressText.textContent = `Đang đọc ${file.name} (${i + 1}/${manualFiles.length})...`
+
+          // Parse filename: e.g. UF-08-Light-01.png
+          const match = file.name.match(/^(UF-\d+)-(Light|Dark)-(\d+)\.png$/i)
+          const flow = match ? match[1].toUpperCase() : 'UF-08'
+          const theme = match ? (match[2].toLowerCase() === 'light' ? 'Light' : 'Dark') : 'Light'
+          const screenId = match ? match[3] : String(i + 1).padStart(2, '0')
+
+          const buffer = await file.arrayBuffer()
           loadedItems.push({
-            flow: item.flow,
-            flowTitle: item.flowTitle,
-            theme: item.theme,
-            screenId: item.screenId,
-            title: item.title,
-            subtitle: item.subtitle,
-            fileName: item.fileName,
-            bytes: Array.from(new Uint8Array(buffer)),
-          });
-        } catch (e) {
-          console.error('Fetch error:', item.fileName, e);
+            flow,
+            flowTitle: `${flow} · User Flow`,
+            theme,
+            screenId,
+            title: `Màn hình ${screenId}`,
+            fileName: file.name,
+            bytes: Array.from(new Uint8Array(buffer))
+          })
+        }
+
+        progressText.textContent = `Đang tạo ${loadedItems.length} frames lên Figma...`
+        parent.postMessage(
+          {
+            pluginMessage: {
+              type: 'IMPORT_FRAMES',
+              data: loadedItems
+            }
+          },
+          '*'
+        )
+      })
+
+      // Listen for completion message from code.js
+      window.onmessage = (event) => {
+        const msg = event.data.pluginMessage
+        if (msg && msg.type === 'IMPORT_COMPLETE') {
+          progressText.textContent = `🎉 Hoàn tất! Đã tạo xong ${msg.count} frames.`
+          btnStartAuto.disabled = false
+          btnStartManual.disabled = false
         }
       }
 
-      progressText.textContent = `Đang tạo ${loadedItems.length} frames lên canvas Figma...`;
-      parent.postMessage({
-        pluginMessage: {
-          type: 'IMPORT_FRAMES',
-          data: loadedItems,
-        }
-      }, '*');
-    });
-
-    // Manual File Dropzone
-    const dropzone = document.getElementById('dropzone');
-    const fileInput = document.getElementById('file-input');
-    const fileCounter = document.getElementById('file-counter');
-    const btnStartManual = document.getElementById('btn-start-manual');
-    let manualFiles = [];
-
-    dropzone.addEventListener('click', () => fileInput.click());
-    dropzone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropzone.classList.add('dragover');
-    });
-    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
-    dropzone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropzone.classList.remove('dragover');
-      handleSelectedFiles(e.dataTransfer.files);
-    });
-    fileInput.addEventListener('change', (e) => handleSelectedFiles(e.target.files));
-
-    function handleSelectedFiles(fileList) {
-      manualFiles = Array.from(fileList).filter(f => f.name.endsWith('.png'));
-      if (manualFiles.length > 0) {
-        fileCounter.style.display = 'block';
-        fileCounter.textContent = `✅ Đã chọn ${manualFiles.length} file PNG.`;
-        btnStartManual.disabled = false;
-      } else {
-        fileCounter.style.display = 'none';
-        btnStartManual.disabled = true;
-      }
-    }
-
-    btnStartManual.addEventListener('click', async () => {
-      if (manualFiles.length === 0) return;
-      btnStartManual.disabled = true;
-      progressWrap.style.display = 'block';
-
-      const loadedItems = [];
-      for (let i = 0; i < manualFiles.length; i++) {
-        const file = manualFiles[i];
-        const pct = Math.round(((i + 1) / manualFiles.length) * 100);
-        progressFill.style.width = pct + '%';
-        progressText.textContent = `Đang đọc ${file.name} (${i + 1}/${manualFiles.length})...`;
-
-        // Parse filename: e.g. UF-08-Light-01.png
-        const match = file.name.match(/^(UF-\d+)-(Light|Dark)-(\d+)\.png$/i);
-        const flow = match ? match[1].toUpperCase() : 'UF-08';
-        const theme = match ? (match[2].toLowerCase() === 'light' ? 'Light' : 'Dark') : 'Light';
-        const screenId = match ? match[3] : String(i + 1).padStart(2, '0');
-
-        const buffer = await file.arrayBuffer();
-        loadedItems.push({
-          flow,
-          flowTitle: `${flow} · User Flow`,
-          theme,
-          screenId,
-          title: `Màn hình ${screenId}`,
-          fileName: file.name,
-          bytes: Array.from(new Uint8Array(buffer)),
-        });
-      }
-
-      progressText.textContent = `Đang tạo ${loadedItems.length} frames lên Figma...`;
-      parent.postMessage({
-        pluginMessage: {
-          type: 'IMPORT_FRAMES',
-          data: loadedItems,
-        }
-      }, '*');
-    });
-
-    // Listen for completion message from code.js
-    window.onmessage = (event) => {
-      const msg = event.data.pluginMessage;
-      if (msg && msg.type === 'IMPORT_COMPLETE') {
-        progressText.textContent = `🎉 Hoàn tất! Đã tạo xong ${msg.count} frames.`;
-        btnStartAuto.disabled = false;
-        btnStartManual.disabled = false;
-      }
-    };
-
-    // Auto check server on load
-    checkServer();
-  </script>
-</body>
+      // Auto check server on load
+      checkServer()
+    </script>
+  </body>
 </html>

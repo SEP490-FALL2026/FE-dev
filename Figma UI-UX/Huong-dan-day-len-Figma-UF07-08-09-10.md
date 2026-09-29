@@ -2,11 +2,12 @@
 
 > **Dành cho:** Nhóm dự án Capstone SaaS-Sentry  
 > **Phạm vi tài sản:** 122 ảnh raster FullFrame chuẩn Desktop **1440 × 1024** px thuộc 4 User Flow quản trị trọng tâm:
+>
 > - **UF-07:** IT Admin xử lý hàng đợi chưa khớp danh tính (11 Light + 11 Dark = **22 frames**)
 > - **UF-08:** IT Admin xử lý hàng đợi cấp phát và thu hồi (16 Light + 16 Dark = **32 frames**)
 > - **UF-09:** IT Admin xử lý nhân viên nghỉ việc (16 Light + 16 Dark = **32 frames**)
 > - **UF-10:** IT Admin xử lý bảng tối ưu license (18 Light + 18 Dark = **36 frames**)
-> **Tổng cộng:** **122 frames độc lập** phủ trọn vẹn cả 2 theme **Light Theme** và **Dark Theme**.
+>   **Tổng cộng:** **122 frames độc lập** phủ trọn vẹn cả 2 theme **Light Theme** và **Dark Theme**.
 
 ---
 
@@ -14,11 +15,11 @@
 
 Bạn có thể lựa chọn 1 trong 3 phương thức dưới đây tùy theo nhu cầu làm storyboard hay dựng component vector:
 
-| Phương thức | Tốc độ | Kết quả trên Figma | Khi nào nên dùng? |
-| :--- | :---: | :--- | :--- |
-| **Cách 1: Figma Importer Plugin (Khuyên dùng)** | **~30 giây** | Tự động tạo 4 Section, xếp 2 hàng Light/Dark song song, gán đúng tên frame tiếng Việt chuẩn | **Bàn giao đồ án, báo cáo hội đồng, làm Storyboard & Prototype review** |
-| **Cách 2: Kéo thả thủ công từ Windows Explorer** | **~3–5 phút** | 122 ảnh trên Canvas, tự gom nhóm bằng tay | Khi không muốn chạy Node.js hoặc chỉ muốn đưa lẻ vài màn hình |
-| **Cách 3: Vector hóa qua plugin "html.to.design"** | **Từng frame** | Vector component, editable text, auto layout | Khi cần chỉnh sửa chi tiết text, nút bấm hoặc trích xuất Design System |
+| Phương thức                                        |     Tốc độ     | Kết quả trên Figma                                                                          | Khi nào nên dùng?                                                       |
+| :------------------------------------------------- | :------------: | :------------------------------------------------------------------------------------------ | :---------------------------------------------------------------------- |
+| **Cách 1: Figma Importer Plugin (Khuyên dùng)**    |  **~30 giây**  | Tự động tạo 4 Section, xếp 2 hàng Light/Dark song song, gán đúng tên frame tiếng Việt chuẩn | **Bàn giao đồ án, báo cáo hội đồng, làm Storyboard & Prototype review** |
+| **Cách 2: Kéo thả thủ công từ Windows Explorer**   | **~3–5 phút**  | 122 ảnh trên Canvas, tự gom nhóm bằng tay                                                   | Khi không muốn chạy Node.js hoặc chỉ muốn đưa lẻ vài màn hình           |
+| **Cách 3: Vector hóa qua plugin "html.to.design"** | **Từng frame** | Vector component, editable text, auto layout                                                | Khi cần chỉnh sửa chi tiết text, nút bấm hoặc trích xuất Design System  |
 
 ---
 
@@ -28,7 +29,9 @@ Nhóm đã đóng gói sẵn bộ công cụ **SaaS-Sentry Figma Importer Plugin
 📁 `docs/Figma UI-UX/figma-importer-plugin/`
 
 ### Bước 1: Khởi động Local Server cấp phát ảnh & metadata
+
 Trong thư mục `docs/Figma UI-UX/figma-importer-plugin/`:
+
 - **Trên Windows:** Click đúp chuột vào file [`start-importer.bat`](figma-importer-plugin/start-importer.bat).
 - **Hoặc chạy qua Terminal / PowerShell:**
   ```powershell
@@ -38,12 +41,14 @@ Trong thư mục `docs/Figma UI-UX/figma-importer-plugin/`:
 - Terminal sẽ thông báo: `SaaS-Sentry Figma Importer Server đang chạy tại http://localhost:3840` (giữ nguyên cửa sổ này).
 
 ### Bước 2: Nạp Plugin vào Figma
+
 1. Mở ứng dụng **Figma** (Desktop App hoặc Web Figma trên trình duyệt).
 2. Tạo một file thiết kế mới (hoặc mở file dự án của bạn).
 3. Nhấp vào **Menu Figma** (biểu tượng logo Figma ở góc trên bên trái) ➔ chọn **Plugins** ➔ **Development** ➔ **Import plugin from manifest...**.
 4. Chọn file [`manifest.json`](figma-importer-plugin/manifest.json) trong thư mục `docs/Figma UI-UX/figma-importer-plugin/`.
 
 ### Bước 3: Tiến hành Import tự động
+
 1. Bấm phím tắt `Shift + I` ➔ chọn tab **Plugins** ➔ chọn **SaaS-Sentry UI Importer (UF-07 to 10)** vừa thêm.
 2. Cửa sổ plugin mở ra:
    - Plugin tự động kiểm tra và báo: `🟢 Đã kết nối Local Server (122 frames)`.
@@ -61,6 +66,7 @@ Trong thư mục `docs/Figma UI-UX/figma-importer-plugin/`:
 ## 📂 CÁCH 2: KÉO THẢ THỦ CÔNG TỪ WINDOWS EXPLORER VÀO FIGMA
 
 Nếu bạn không muốn chạy Node.js:
+
 1. Trong Figma, tạo 4 **Section** (phím tắt `Shift + S`) đặt tên:
    - `UF-07 · Hàng đợi chưa khớp danh tính`
    - `UF-08 · Hàng đợi cấp phát và thu hồi`
@@ -132,6 +138,7 @@ Vì trong các folder `UF-07-Sources` đến `UF-10-Sources`, chúng ta đã có
 ## 📋 Danh mục 122 Màn hình & Tên Frame chuẩn
 
 ### 1. UF-07: Hàng đợi chưa khớp danh tính (11 frames × 2 theme = 22)
+
 - `01`: Hàng đợi chưa khớp danh tính
 - `02`: Xem gợi ý khớp danh tính
 - `03`: Xác nhận khớp thủ công
@@ -145,6 +152,7 @@ Vì trong các folder `UF-07-Sources` đến `UF-10-Sources`, chúng ta đã có
 - `11`: Đang chờ xử lý xung đột
 
 ### 2. UF-08: Hàng đợi cấp phát và thu hồi (16 frames × 2 theme = 32)
+
 - `01`: Hàng đợi thực thi cấp phát
 - `02`: Tác vụ tự động sẵn sàng
 - `03`: Connector đang thực thi
@@ -163,6 +171,7 @@ Vì trong các folder `UF-07-Sources` đến `UF-10-Sources`, chúng ta đã có
 - `16`: Đã mua thêm — trở lại thực thi
 
 ### 3. UF-09: Xử lý nhân viên nghỉ việc (16 frames × 2 theme = 32)
+
 - `01`: Nhân sự sắp nghỉ việc
 - `02`: Tác động khi Trần Minh nghỉ việc
 - `03`: Thiết lập ngày làm việc cuối
@@ -181,6 +190,7 @@ Vì trong các folder `UF-07-Sources` đến `UF-10-Sources`, chúng ta đã có
 - `16`: Đã xóa dữ liệu theo lịch
 
 ### 4. UF-10: Bảng tối ưu license (18 frames × 2 theme = 36)
+
 - `01`: Bảng tối ưu license
 - `02`: Vì sao G1–G4 không được trộn?
 - `03`: G1 · Seat mua nhưng chưa gán

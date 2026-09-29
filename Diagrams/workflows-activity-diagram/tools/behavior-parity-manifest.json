@@ -238,12 +238,7 @@
       "detachedSideFlows": [
         {
           "id": "finance-inquiry",
-          "chain": [
-            "ini2",
-            "s1",
-            "a7",
-            "ff2"
-          ],
+          "chain": ["ini2", "s1", "a7", "ff2"],
           "informationEdge": {
             "source": "a7",
             "target": "d4"
@@ -417,12 +412,7 @@
       "detachedSideFlows": [
         {
           "id": "finance-inquiry",
-          "chain": [
-            "ini2",
-            "s1",
-            "a6b",
-            "ff2"
-          ],
+          "chain": ["ini2", "s1", "a6b", "ff2"],
           "informationEdge": {
             "source": "a6b",
             "target": "d4"
@@ -653,12 +643,7 @@
       "detachedSideFlows": [
         {
           "id": "finance-inquiry",
-          "chain": [
-            "ini2",
-            "s1",
-            "a6",
-            "ff2"
-          ],
+          "chain": ["ini2", "s1", "a6", "ff2"],
           "informationEdge": {
             "source": "a6",
             "target": "d2"
@@ -835,9 +820,7 @@
           "kind": "activityFinal"
         }
       ],
-      "allowedPresentationExceptions": [
-        "Fork/join bars carry no guard."
-      ]
+      "allowedPresentationExceptions": ["Fork/join bars carry no guard."]
     },
     {
       "id": "WF-17",
@@ -894,9 +877,7 @@
           "kind": "activityFinal"
         }
       ],
-      "allowedPresentationExceptions": [
-        "Dashed note connectors are excluded from control-flow comparison."
-      ]
+      "allowedPresentationExceptions": ["Dashed note connectors are excluded from control-flow comparison."]
     },
     {
       "id": "WF-18",

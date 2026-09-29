@@ -4,8 +4,8 @@
  * Source of truth: BRD v3.11 (F-37, F-38, F-42, BR-20.1, BR-37.1, BR-37.2, BR-38.1, BR-42.5, BR-13.9, BR-13.10, SoD-1)
  */
 
-(function () {
-  'use strict';
+;(function () {
+  'use strict'
 
   function createUF13Data() {
     const stages = [
@@ -15,26 +15,116 @@
       { id: 4, name: 'Biên tập luồng duyệt', code: 'POLICY_EDITOR' },
       { id: 5, name: 'Khối xem thử Sandbox', code: 'SIMULATION_SANDBOX' },
       { id: 6, name: 'Áp dụng & Audit Log', code: 'APPLY_AUDIT_LOG' }
-    ];
+    ]
 
     const ledgers = {
-      l01: { activePolicies: 12, policyVersion: 'v2.1', noticeVersion: 'v1.2', auditLogCount: 842, inFlightRequests: 5 },
-      l02: { activePolicies: 12, policyVersion: 'v2.1', noticeVersion: 'v1.2', auditLogCount: 842, inFlightRequests: 5 },
-      l03: { activePolicies: 12, policyVersion: 'v2.1', noticeVersion: 'v1.2', auditLogCount: 842, inFlightRequests: 5 },
-      l04: { activePolicies: 12, policyVersion: 'v2.1', noticeVersion: 'v1.2', auditLogCount: 842, inFlightRequests: 5 },
-      l05: { activePolicies: 12, policyVersion: 'v2.1', noticeVersion: 'v1.2', auditLogCount: 843, inFlightRequests: 5 },
-      l06: { activePolicies: 12, policyVersion: 'v2.1', noticeVersion: 'v1.2', auditLogCount: 843, inFlightRequests: 5 },
-      l07: { activePolicies: 12, policyVersion: 'v2.1', noticeVersion: 'v1.2', auditLogCount: 843, inFlightRequests: 5 },
-      l08: { activePolicies: 12, policyVersion: 'v2.1', noticeVersion: 'v1.2', auditLogCount: 843, inFlightRequests: 5 },
-      l09: { activePolicies: 12, policyVersion: 'v2.1', noticeVersion: 'v1.3', auditLogCount: 844, inFlightRequests: 5 },
-      l10: { activePolicies: 12, policyVersion: 'v2.1', noticeVersion: 'v1.3', auditLogCount: 844, inFlightRequests: 5 },
-      l11: { activePolicies: 12, policyVersion: 'v2.1', noticeVersion: 'v1.3', auditLogCount: 844, inFlightRequests: 5 },
-      l12: { activePolicies: 12, policyVersion: 'v2.1', noticeVersion: 'v1.3', auditLogCount: 844, inFlightRequests: 5 },
-      l13: { activePolicies: 12, policyVersion: 'v2.1', noticeVersion: 'v1.3', auditLogCount: 844, inFlightRequests: 5 },
-      l14: { activePolicies: 12, policyVersion: 'v2.1', noticeVersion: 'v1.3', auditLogCount: 844, inFlightRequests: 5 },
-      l15: { activePolicies: 13, policyVersion: 'v2.2', noticeVersion: 'v1.3', auditLogCount: 845, inFlightRequests: 5 },
+      l01: {
+        activePolicies: 12,
+        policyVersion: 'v2.1',
+        noticeVersion: 'v1.2',
+        auditLogCount: 842,
+        inFlightRequests: 5
+      },
+      l02: {
+        activePolicies: 12,
+        policyVersion: 'v2.1',
+        noticeVersion: 'v1.2',
+        auditLogCount: 842,
+        inFlightRequests: 5
+      },
+      l03: {
+        activePolicies: 12,
+        policyVersion: 'v2.1',
+        noticeVersion: 'v1.2',
+        auditLogCount: 842,
+        inFlightRequests: 5
+      },
+      l04: {
+        activePolicies: 12,
+        policyVersion: 'v2.1',
+        noticeVersion: 'v1.2',
+        auditLogCount: 842,
+        inFlightRequests: 5
+      },
+      l05: {
+        activePolicies: 12,
+        policyVersion: 'v2.1',
+        noticeVersion: 'v1.2',
+        auditLogCount: 843,
+        inFlightRequests: 5
+      },
+      l06: {
+        activePolicies: 12,
+        policyVersion: 'v2.1',
+        noticeVersion: 'v1.2',
+        auditLogCount: 843,
+        inFlightRequests: 5
+      },
+      l07: {
+        activePolicies: 12,
+        policyVersion: 'v2.1',
+        noticeVersion: 'v1.2',
+        auditLogCount: 843,
+        inFlightRequests: 5
+      },
+      l08: {
+        activePolicies: 12,
+        policyVersion: 'v2.1',
+        noticeVersion: 'v1.2',
+        auditLogCount: 843,
+        inFlightRequests: 5
+      },
+      l09: {
+        activePolicies: 12,
+        policyVersion: 'v2.1',
+        noticeVersion: 'v1.3',
+        auditLogCount: 844,
+        inFlightRequests: 5
+      },
+      l10: {
+        activePolicies: 12,
+        policyVersion: 'v2.1',
+        noticeVersion: 'v1.3',
+        auditLogCount: 844,
+        inFlightRequests: 5
+      },
+      l11: {
+        activePolicies: 12,
+        policyVersion: 'v2.1',
+        noticeVersion: 'v1.3',
+        auditLogCount: 844,
+        inFlightRequests: 5
+      },
+      l12: {
+        activePolicies: 12,
+        policyVersion: 'v2.1',
+        noticeVersion: 'v1.3',
+        auditLogCount: 844,
+        inFlightRequests: 5
+      },
+      l13: {
+        activePolicies: 12,
+        policyVersion: 'v2.1',
+        noticeVersion: 'v1.3',
+        auditLogCount: 844,
+        inFlightRequests: 5
+      },
+      l14: {
+        activePolicies: 12,
+        policyVersion: 'v2.1',
+        noticeVersion: 'v1.3',
+        auditLogCount: 844,
+        inFlightRequests: 5
+      },
+      l15: {
+        activePolicies: 13,
+        policyVersion: 'v2.2',
+        noticeVersion: 'v1.3',
+        auditLogCount: 845,
+        inFlightRequests: 5
+      },
       l16: { activePolicies: 13, policyVersion: 'v2.2', noticeVersion: 'v1.3', auditLogCount: 845, inFlightRequests: 5 }
-    };
+    }
 
     const screens = [
       {
@@ -213,29 +303,124 @@
         role: 'Super Admin',
         breadcrumb: 'Luồng phê duyệt / Tổng kết chính sách / Hoàn tất flow UF-13'
       }
-    ];
+    ]
 
     const thresholds = [
-      { app: 'Figma Enterprise', scope: 'Ứng dụng riêng', inactiveDays: 30, override: true, source: 'POL-APP-FIGMA', note: 'Ghi đè mức tổ chức (30 < 60 ngày)' },
-      { app: 'GitHub Enterprise', scope: 'Ứng dụng riêng', inactiveDays: 45, override: true, source: 'POL-APP-GITHUB', note: 'Ghi đè mức tổ chức (45 < 60 ngày)' },
-      { app: 'Toàn tổ chức', scope: 'Cấp công ty', inactiveDays: 60, override: false, source: 'POL-ORG-DEFAULT', note: 'Áp dụng cho toàn bộ SaaS không có ngưỡng riêng' },
-      { app: 'Mặc định hệ thống', scope: 'Mặc định lõi', inactiveDays: 90, override: false, source: 'SYSTEM_CORE', note: 'Fallback cơ sở khi chưa cấu hình tổ chức' }
-    ];
+      {
+        app: 'Figma Enterprise',
+        scope: 'Ứng dụng riêng',
+        inactiveDays: 30,
+        override: true,
+        source: 'POL-APP-FIGMA',
+        note: 'Ghi đè mức tổ chức (30 < 60 ngày)'
+      },
+      {
+        app: 'GitHub Enterprise',
+        scope: 'Ứng dụng riêng',
+        inactiveDays: 45,
+        override: true,
+        source: 'POL-APP-GITHUB',
+        note: 'Ghi đè mức tổ chức (45 < 60 ngày)'
+      },
+      {
+        app: 'Toàn tổ chức',
+        scope: 'Cấp công ty',
+        inactiveDays: 60,
+        override: false,
+        source: 'POL-ORG-DEFAULT',
+        note: 'Áp dụng cho toàn bộ SaaS không có ngưỡng riêng'
+      },
+      {
+        app: 'Mặc định hệ thống',
+        scope: 'Mặc định lõi',
+        inactiveDays: 90,
+        override: false,
+        source: 'SYSTEM_CORE',
+        note: 'Fallback cơ sở khi chưa cấu hình tổ chức'
+      }
+    ]
 
     const approvalPolicies = [
-      { code: 'POL-DES-2026', name: 'Phần mềm Thiết kế (Figma Enterprise)', app: 'Figma Enterprise', category: 'Thiết kế', steps: 'QL ➔ DC (Snapshot ngân sách)', status: 'Đang sửa đổi (v2.1 ➔ v2.2)' },
-      { code: 'POL-DEV-2026', name: 'Nền tảng Phát triển (GitHub Enterprise)', app: 'GitHub Enterprise', category: 'Lập trình', steps: 'QL ➔ DC', status: 'Kích hoạt (v1.8)' },
-      { code: 'POL-PM-2026', name: 'Quản lý Dự án (Jira Software)', app: 'Jira Software', category: 'Dự án', steps: 'QL ➔ IT Cấp phát', status: 'Kích hoạt (v2.0)' },
-      { code: 'POL-DOC-2026', name: 'Tài liệu Tri thức (Notion Enterprise)', app: 'Notion Enterprise', category: 'Tri thức', steps: 'QL', status: 'Kích hoạt (v1.5)' },
-      { code: 'POL-SEC-2026', name: 'Bảo mật Mã nguồn (Snyk Security)', app: 'Snyk Security', category: 'An toàn thông tin', steps: 'QL ➔ DC', status: 'Kích hoạt (v1.2)' }
-    ];
+      {
+        code: 'POL-DES-2026',
+        name: 'Phần mềm Thiết kế (Figma Enterprise)',
+        app: 'Figma Enterprise',
+        category: 'Thiết kế',
+        steps: 'QL ➔ DC (Snapshot ngân sách)',
+        status: 'Đang sửa đổi (v2.1 ➔ v2.2)'
+      },
+      {
+        code: 'POL-DEV-2026',
+        name: 'Nền tảng Phát triển (GitHub Enterprise)',
+        app: 'GitHub Enterprise',
+        category: 'Lập trình',
+        steps: 'QL ➔ DC',
+        status: 'Kích hoạt (v1.8)'
+      },
+      {
+        code: 'POL-PM-2026',
+        name: 'Quản lý Dự án (Jira Software)',
+        app: 'Jira Software',
+        category: 'Dự án',
+        steps: 'QL ➔ IT Cấp phát',
+        status: 'Kích hoạt (v2.0)'
+      },
+      {
+        code: 'POL-DOC-2026',
+        name: 'Tài liệu Tri thức (Notion Enterprise)',
+        app: 'Notion Enterprise',
+        category: 'Tri thức',
+        steps: 'QL',
+        status: 'Kích hoạt (v1.5)'
+      },
+      {
+        code: 'POL-SEC-2026',
+        name: 'Bảo mật Mã nguồn (Snyk Security)',
+        app: 'Snyk Security',
+        category: 'An toàn thông tin',
+        steps: 'QL ➔ DC',
+        status: 'Kích hoạt (v1.2)'
+      }
+    ]
 
     const auditStream = [
-      { id: 'AUD-2026-9939', time: '17/09/2026 19:40:12', user: 'quan.nguyen (Super Admin)', action: 'UPDATE_THRESHOLD', target: 'Figma Inactivity -> 30d', status: 'APPENDED', hash: '8f4a...e12b' },
-      { id: 'AUD-2026-9940', time: '17/09/2026 19:45:05', user: 'quan.nguyen (Super Admin)', action: 'SOD_BLOCKED', target: 'Attempted Assign License to NV-0255 (SYS-04)', status: 'DENIED & LOGGED', hash: '3c19...99a4' },
-      { id: 'AUD-2026-9941', time: '17/09/2026 19:58:30', user: 'quan.nguyen (Super Admin)', action: 'UPDATE_DISCLOSURE_NOTICE', target: 'Notice v1.2 -> v1.3 (Law 91/2025 compliance)', status: 'APPENDED', hash: '5e87...a0df' },
-      { id: 'AUD-2026-9942', time: '17/09/2026 20:01:14', user: 'quan.nguyen (Super Admin)', action: 'PUBLISH_APPROVAL_POLICY', target: 'POL-DES-2026 v2.2 (Added 0 VND fast-track)', status: 'APPENDED', hash: '7b22...41cc' }
-    ];
+      {
+        id: 'AUD-2026-9939',
+        time: '17/09/2026 19:40:12',
+        user: 'quan.nguyen (Super Admin)',
+        action: 'UPDATE_THRESHOLD',
+        target: 'Figma Inactivity -> 30d',
+        status: 'APPENDED',
+        hash: '8f4a...e12b'
+      },
+      {
+        id: 'AUD-2026-9940',
+        time: '17/09/2026 19:45:05',
+        user: 'quan.nguyen (Super Admin)',
+        action: 'SOD_BLOCKED',
+        target: 'Attempted Assign License to NV-0255 (SYS-04)',
+        status: 'DENIED & LOGGED',
+        hash: '3c19...99a4'
+      },
+      {
+        id: 'AUD-2026-9941',
+        time: '17/09/2026 19:58:30',
+        user: 'quan.nguyen (Super Admin)',
+        action: 'UPDATE_DISCLOSURE_NOTICE',
+        target: 'Notice v1.2 -> v1.3 (Law 91/2025 compliance)',
+        status: 'APPENDED',
+        hash: '5e87...a0df'
+      },
+      {
+        id: 'AUD-2026-9942',
+        time: '17/09/2026 20:01:14',
+        user: 'quan.nguyen (Super Admin)',
+        action: 'PUBLISH_APPROVAL_POLICY',
+        target: 'POL-DES-2026 v2.2 (Added 0 VND fast-track)',
+        status: 'APPENDED',
+        hash: '7b22...41cc'
+      }
+    ]
 
     return {
       stages,
@@ -244,12 +429,12 @@
       thresholds,
       approvalPolicies,
       auditStream
-    };
+    }
   }
 
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { createUF13Data };
+    module.exports = { createUF13Data }
   } else {
-    window.UF13Data = { createUF13Data };
+    window.UF13Data = { createUF13Data }
   }
-})();
+})()

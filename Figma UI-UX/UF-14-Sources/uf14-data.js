@@ -4,8 +4,8 @@
  * Source of truth: BRD v3.11 (BR-28, BR-35, BR-43, QĐ-03)
  */
 
-(function () {
-  'use strict';
+;(function () {
+  'use strict'
 
   function createUF14Data() {
     const stages = [
@@ -15,7 +15,7 @@
       { id: 4, name: 'Đối soát hóa đơn', code: 'INVOICE_RECON' },
       { id: 5, name: 'Lệch Shadow Access', code: 'SHADOW_ACCESS' },
       { id: 6, name: 'Sổ nhật ký kiểm toán', code: 'AUDIT_LEDGER' }
-    ];
+    ]
 
     const ledgers = {
       l01: { openMember: 3, openInvoice: 1, pendingAcceptance: 2, resolvedToday: 4 },
@@ -34,7 +34,7 @@
       l14: { openMember: 2, openInvoice: 0, pendingAcceptance: 1, resolvedToday: 7 },
       l15: { openMember: 2, openInvoice: 0, pendingAcceptance: 1, resolvedToday: 7 },
       l16: { openMember: 1, openInvoice: 0, pendingAcceptance: 1, resolvedToday: 8 }
-    };
+    }
 
     const screens = [
       {
@@ -208,12 +208,13 @@
         totalStages: 6,
         screenCode: 'ITA-11',
         title: 'Sổ nhật ký kiểm toán & Hoàn tất đối soát',
-        subtitle: 'BR-43.2 & BR-43.3: 100% sai lệch có người thật quyết định, không có bản ghi nào tự đóng theo thời gian',
+        subtitle:
+          'BR-43.2 & BR-43.3: 100% sai lệch có người thật quyết định, không có bản ghi nào tự đóng theo thời gian',
         ledgerKey: 'l16',
         role: 'IT Admin + Finance + Auditor',
         breadcrumb: 'Đối soát dữ liệu / Sổ nhật ký kiểm toán toàn diện'
       }
-    ];
+    ]
 
     const entities = {
       session: {
@@ -286,7 +287,8 @@
         subscriptionId: 'SUB-CNV-01',
         name: 'Canva Team',
         status: 'MANUAL_NO_API',
-        notice: 'Ứng dụng chưa cấu hình API Connector tự động (chế độ quản lý thủ công). SaaS-Sentry TUYỆT ĐỐI KHÔNG sinh sai lệch giả khi chưa có dữ liệu API (BR-28.1).'
+        notice:
+          'Ứng dụng chưa cấu hình API Connector tự động (chế độ quản lý thủ công). SaaS-Sentry TUYỆT ĐỐI KHÔNG sinh sai lệch giả khi chưa có dữ liệu API (BR-28.1).'
       },
       auditMasterList: [
         {
@@ -326,22 +328,22 @@
           time: '17/09/2026 14:32'
         }
       ]
-    };
+    }
 
     return Object.freeze({
       stages,
       ledgers,
       screens,
       entities
-    });
+    })
   }
 
-  const moduleExports = { createUF14Data };
+  const moduleExports = { createUF14Data }
 
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = moduleExports;
+    module.exports = moduleExports
   }
   if (typeof globalThis !== 'undefined') {
-    globalThis.UF14Data = moduleExports;
+    globalThis.UF14Data = moduleExports
   }
-})();
+})()

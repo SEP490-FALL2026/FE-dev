@@ -180,9 +180,8 @@ SaaS-Sentry cần thiết vì SaaS đang trở thành một khoản chi phí và
 
 ## 10. Danh mục nguồn tham khảo
 
-1. Zylo. (2025, January 16). *2025 SaaS Management Index Reveals First Increase in Average SaaS Spend in Three Years*. https://zylo.com/news/2025-saas-management-index
-2. BetterCloud. (2025, April 30). *2025 State of SaaS Trends*. https://www.bettercloud.com/monitor/2025-state-of-saas-trends/
-3. BetterCloud. (2025). *State of SaaS 2025 — Biggest Takeaways*. https://pages.bettercloud.com/rs/719-KZY-706/images/BetterCloud-State-of-SaaS-2025.pdf
-4. Microsoft Learn. *Discover applications and Shadow IT*. https://learn.microsoft.com/en-us/entra/global-secure-access/tutorial-internet-access-application-discovery
-5. Thủ tướng Chính phủ. (2025). *Quyết định số 1121/QĐ-TTg: Phê duyệt Chương trình hành động quốc gia phát triển và chuyển đổi sang sử dụng nền tảng điện toán đám mây giai đoạn 2025–2030*. https://vanban.chinhphu.vn/?classid=0&docid=213903&pageid=27160
-
+1. Zylo. (2025, January 16). _2025 SaaS Management Index Reveals First Increase in Average SaaS Spend in Three Years_. https://zylo.com/news/2025-saas-management-index
+2. BetterCloud. (2025, April 30). _2025 State of SaaS Trends_. https://www.bettercloud.com/monitor/2025-state-of-saas-trends/
+3. BetterCloud. (2025). _State of SaaS 2025 — Biggest Takeaways_. https://pages.bettercloud.com/rs/719-KZY-706/images/BetterCloud-State-of-SaaS-2025.pdf
+4. Microsoft Learn. _Discover applications and Shadow IT_. https://learn.microsoft.com/en-us/entra/global-secure-access/tutorial-internet-access-application-discovery
+5. Thủ tướng Chính phủ. (2025). _Quyết định số 1121/QĐ-TTg: Phê duyệt Chương trình hành động quốc gia phát triển và chuyển đổi sang sử dụng nền tảng điện toán đám mây giai đoạn 2025–2030_. https://vanban.chinhphu.vn/?classid=0&docid=213903&pageid=27160

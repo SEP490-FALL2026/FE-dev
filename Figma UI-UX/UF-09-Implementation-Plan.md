@@ -25,29 +25,31 @@
 
 ## File Map
 
-| File | Responsibility |
-| --- | --- |
-| `Figma UI-UX/UF-09-Sources/uf09-data.js` | Frozen canonical entities, ledgers, steps, screens and action guards |
-| `Figma UI-UX/UF-09-Sources/uf09-data.test.js` | Registry, continuity, ledger and permission assertions |
-| `Figma UI-UX/UF-09-Sources/uf09-renderer.js` | Pure SVG/icon helpers plus App Shell and per-state HTML renderer |
-| `Figma UI-UX/UF-09-Sources/uf09-renderer.test.js` | Structural HTML, guard, metadata and parity assertions |
-| `Figma UI-UX/UF-09-Sources/uf09.css` | Fixed canvas, responsive-free desktop layout and semantic theme tokens |
-| `Figma UI-UX/UF-09-Sources/uf09.html` | Query parsing, render boot, overflow preflight and readiness markers |
-| `Figma UI-UX/UF-09-Sources/capture-uf09.ps1` | Safe headless Chrome export to the UF-09 output tree |
-| `Figma UI-UX/UF-09-Sources/verify-uf09-assets.ps1` | Node tests plus exact PNG set and dimension verification |
-| `Figma UI-UX/UF-09-FullFrames/Light/*.png` | 16 Light artboards |
-| `Figma UI-UX/UF-09-FullFrames/Dark/*.png` | 16 Dark artboards |
-| `Figma UI-UX/UF-09-Figma-Design-Spec.md` | Final status, source paths and reproducible commands |
+| File                                               | Responsibility                                                         |
+| -------------------------------------------------- | ---------------------------------------------------------------------- |
+| `Figma UI-UX/UF-09-Sources/uf09-data.js`           | Frozen canonical entities, ledgers, steps, screens and action guards   |
+| `Figma UI-UX/UF-09-Sources/uf09-data.test.js`      | Registry, continuity, ledger and permission assertions                 |
+| `Figma UI-UX/UF-09-Sources/uf09-renderer.js`       | Pure SVG/icon helpers plus App Shell and per-state HTML renderer       |
+| `Figma UI-UX/UF-09-Sources/uf09-renderer.test.js`  | Structural HTML, guard, metadata and parity assertions                 |
+| `Figma UI-UX/UF-09-Sources/uf09.css`               | Fixed canvas, responsive-free desktop layout and semantic theme tokens |
+| `Figma UI-UX/UF-09-Sources/uf09.html`              | Query parsing, render boot, overflow preflight and readiness markers   |
+| `Figma UI-UX/UF-09-Sources/capture-uf09.ps1`       | Safe headless Chrome export to the UF-09 output tree                   |
+| `Figma UI-UX/UF-09-Sources/verify-uf09-assets.ps1` | Node tests plus exact PNG set and dimension verification               |
+| `Figma UI-UX/UF-09-FullFrames/Light/*.png`         | 16 Light artboards                                                     |
+| `Figma UI-UX/UF-09-FullFrames/Dark/*.png`          | 16 Dark artboards                                                      |
+| `Figma UI-UX/UF-09-Figma-Design-Spec.md`           | Final status, source paths and reproducible commands                   |
 
 ---
 
 ### Task 1: Canonical data model and failing behavioral tests
 
 **Files:**
+
 - Create: `Figma UI-UX/UF-09-Sources/uf09-data.test.js`
 - Create: `Figma UI-UX/UF-09-Sources/uf09-data.js`
 
 **Interfaces:**
+
 - Produces: `globalThis.UF09Data.createUF09Data(): Readonly<UF09Data>` in browser and `module.exports = { createUF09Data }` in Node.
 - `UF09Data` contains `actor`, `employee`, `offboarding`, `successions`, `device`, `assignments`, `steps`, `ledgers`, `screens`, `savings`.
 - Every screen has `{ id, step, title, subtitle, state, ledgerKey, activeNav, actions }`.
@@ -66,19 +68,20 @@
   Define the exact demo values from spec sections 4–6. Ledgers must expose numeric keys:
 
   ```js
-  { seatAttached, successionBlockers, handoverBlockers,
-    g2Open, tasksOpen, seatReleased, usageDetail }
+  {
+    ;(seatAttached, successionBlockers, handoverBlockers, g2Open, tasksOpen, seatReleased, usageDetail)
+  }
   ```
 
   Screen guards must include:
 
   ```js
-  frame06.actions = ['remind-manager'];
-  frame10.typedCountRequired = 5;
-  frame10.reasonRequired = true;
-  frame11.provisioningCreated = true;
-  frame13.openTaskId = 'PV-2042';
-  frame16.deletionCompleted = true;
+  frame06.actions = ['remind-manager']
+  frame10.typedCountRequired = 5
+  frame10.reasonRequired = true
+  frame11.provisioningCreated = true
+  frame13.openTaskId = 'PV-2042'
+  frame16.deletionCompleted = true
   ```
 
 - [x] **Step 4: Extend the test with negative permission assertions**
@@ -97,12 +100,14 @@
 ### Task 2: Pure renderer, App Shell and theme system
 
 **Files:**
+
 - Create: `Figma UI-UX/UF-09-Sources/uf09-renderer.test.js`
 - Create: `Figma UI-UX/UF-09-Sources/uf09-renderer.js`
 - Create: `Figma UI-UX/UF-09-Sources/uf09.css`
 - Create: `Figma UI-UX/UF-09-Sources/uf09.html`
 
 **Interfaces:**
+
 - Consumes: `createUF09Data()` from Task 1.
 - Produces: `globalThis.UF09Renderer.renderApp(data, screenId): string` and Node export `{ renderApp }`.
 - Root markup exposes `data-screen`, `data-step`, `data-total-steps`, all seven ledger values, `data-render-ready` and `data-overflow`.
@@ -141,8 +146,8 @@
     'evidence-insufficient': renderEvidenceInsufficient,
     'evidence-complete': renderEvidenceComplete,
     'deletion-scheduled': renderDeletionScheduled,
-    'deletion-complete': renderDeletionComplete,
-  };
+    'deletion-complete': renderDeletionComplete
+  }
   ```
 
 - [x] **Step 5: Implement fixed 1440 × 1024 CSS**
@@ -175,11 +180,13 @@
 ### Task 3: Capture and verification pipeline
 
 **Files:**
+
 - Create: `Figma UI-UX/UF-09-Sources/capture-uf09.ps1`
 - Create: `Figma UI-UX/UF-09-Sources/verify-uf09-assets.ps1`
 - Create directories: `Figma UI-UX/UF-09-FullFrames/Light/`, `Figma UI-UX/UF-09-FullFrames/Dark/`
 
 **Interfaces:**
+
 - Consumes: `uf09.html` routes from Task 2.
 - Produces: `UF-09-{Light|Dark}-{01..16}.png`.
 - Capture parameters: `-RootPath`, optional `-Resume`, optional `[ValidateRange(1,16)] -Screens`.
@@ -226,12 +233,14 @@
 ### Task 4: Visual validation and handoff documentation
 
 **Files:**
+
 - Modify: `Figma UI-UX/UF-09-Sources/uf09.css`
 - Modify if a state defect is found: `Figma UI-UX/UF-09-Sources/uf09-renderer.js`
 - Modify if canonical content is wrong: `Figma UI-UX/UF-09-Sources/uf09-data.js`
 - Modify: `Figma UI-UX/UF-09-Figma-Design-Spec.md`
 
 **Interfaces:**
+
 - Consumes: all 32 generated PNGs.
 - Produces: visually reviewed assets plus reproducible commands and truthful completion status in the spec.
 

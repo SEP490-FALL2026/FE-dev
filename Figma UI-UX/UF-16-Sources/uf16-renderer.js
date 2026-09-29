@@ -3,27 +3,23 @@
  * IT Admin deploys browser collector, employee confirms tracking disclosure
  */
 
-(function () {
-  'use strict';
+;(function () {
+  'use strict'
 
   function escapeHtml(str) {
-    if (!str) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+    if (!str) return ''
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
   }
 
   function renderApp(data, screenId) {
-    const screen = data.screens.find(s => s.id === screenId) || data.screens[0];
-    const ledger = data.ledgers[screen.ledgerKey] || data.ledgers.l01;
-    const isEmployee = screen.screenCode === 'EMP-05';
+    const screen = data.screens.find((s) => s.id === screenId) || data.screens[0]
+    const ledger = data.ledgers[screen.ledgerKey] || data.ledgers.l01
+    const isEmployee = screen.screenCode === 'EMP-05'
 
-    const actorName = isEmployee ? 'Lê Hoàng Long' : 'Trần Quốc Bảo';
-    const actorRole = isEmployee ? 'Kỹ sư phần mềm · NV-0255' : 'IT Security Lead · IT Admin';
-    const actorEmail = isEmployee ? 'long.le@company.com' : 'it-admin@company.com';
-    const actorAvatar = isEmployee ? 'HL' : 'QB';
+    const actorName = isEmployee ? 'Lê Hoàng Long' : 'Trần Quốc Bảo'
+    const actorRole = isEmployee ? 'Kỹ sư phần mềm · NV-0255' : 'IT Security Lead · IT Admin'
+    const actorEmail = isEmployee ? 'long.le@company.com' : 'it-admin@company.com'
+    const actorAvatar = isEmployee ? 'HL' : 'QB'
 
     // 1. Sidebar HTML
     const sidebarHtml = `
@@ -34,7 +30,9 @@
           <span class="brand-badge">${isEmployee ? 'PORTAL' : 'PRO'}</span>
         </div>
         <div class="nav-section">
-          ${isEmployee ? `
+          ${
+            isEmployee
+              ? `
             <div class="nav-label">Cổng nhân viên</div>
             <a class="nav-item">
               <span class="nav-icon">🏠</span>
@@ -56,7 +54,8 @@
               <span class="nav-icon">🛡️</span>
               <span>Quyền dữ liệu cá nhân</span>
             </a>
-          ` : `
+          `
+              : `
             <div class="nav-label">Quản trị SaaS</div>
             <a class="nav-item">
               <span class="nav-icon">📊</span>
@@ -91,7 +90,8 @@
               <span class="nav-icon">⚙️</span>
               <span>Chính sách Allowlist</span>
             </a>
-          `}
+          `
+          }
         </div>
         <div class="user-profile">
           <div class="avatar">${actorAvatar}</div>
@@ -101,7 +101,7 @@
           </div>
         </div>
       </aside>
-    `;
+    `
 
     // 2. Topbar HTML
     const topbarHtml = `
@@ -125,27 +125,29 @@
           </div>
         </div>
       </header>
-    `;
+    `
 
     // 3. Stepper Bar HTML
     const stepperHtml = `
       <div class="stepper-bar">
-        ${data.stages.map((st, idx) => {
-          const isCompleted = screen.stage > st.id;
-          const isCurrent = screen.stage === st.id;
-          const stateClass = isCompleted ? 'completed' : isCurrent ? 'current' : '';
-          const symbol = isCompleted ? '✓' : st.id;
-          const divider = idx < data.stages.length - 1 ? '<div class="step-divider"></div>' : '';
-          return `
+        ${data.stages
+          .map((st, idx) => {
+            const isCompleted = screen.stage > st.id
+            const isCurrent = screen.stage === st.id
+            const stateClass = isCompleted ? 'completed' : isCurrent ? 'current' : ''
+            const symbol = isCompleted ? '✓' : st.id
+            const divider = idx < data.stages.length - 1 ? '<div class="step-divider"></div>' : ''
+            return `
             <div class="stepper-item ${stateClass}">
               <div class="step-circle">${symbol}</div>
               <span>${escapeHtml(st.name)}</span>
             </div>
             ${divider}
-          `;
-        }).join('')}
+          `
+          })
+          .join('')}
       </div>
-    `;
+    `
 
     // 4. Metric Grid HTML
     const metricsGridHtml = `
@@ -179,10 +181,10 @@
           </div>
         </div>
       </div>
-    `;
+    `
 
     // 5. Screen Body Generator
-    let bodyHtml = '';
+    let bodyHtml = ''
 
     if (screen.id === '01') {
       bodyHtml = `
@@ -246,7 +248,7 @@
             </tbody>
           </table>
         </div>
-      `;
+      `
     } else if (screen.id === '02') {
       bodyHtml = `
         <div class="card-panel">
@@ -301,7 +303,7 @@
             </div>
           </div>
         </div>
-      `;
+      `
     } else if (screen.id === '03') {
       bodyHtml = `
         <div class="alert-banner info">
@@ -392,7 +394,7 @@
             </table>
           </div>
         </div>
-      `;
+      `
     } else if (screen.id === '04') {
       bodyHtml = `
         <div class="alert-banner success">
@@ -442,7 +444,7 @@
             </div>
           </div>
         </div>
-      `;
+      `
     } else if (screen.id === '05') {
       bodyHtml = `
         <div class="alert-banner warning">
@@ -490,7 +492,7 @@
             </tbody>
           </table>
         </div>
-      `;
+      `
     } else if (screen.id === '06') {
       bodyHtml = `
         <div class="alert-banner info">
@@ -535,7 +537,7 @@
           <button class="btn btn-secondary btn-sm">Xem quy trình yêu cầu dừng (F-40)</button>
           <button class="btn btn-primary">Tiến hành Xác nhận đã đọc ➔</button>
         </div>
-      `;
+      `
     } else if (screen.id === '07') {
       bodyHtml = `
         <div class="card-panel">
@@ -574,7 +576,7 @@
             </div>
           </div>
         </div>
-      `;
+      `
     } else if (screen.id === '08') {
       bodyHtml = `
         <div class="alert-banner danger">
@@ -624,7 +626,7 @@
             </div>
           </div>
         </div>
-      `;
+      `
     } else if (screen.id === '09') {
       bodyHtml = `
         <div class="alert-banner success">
@@ -656,7 +658,7 @@
             <button class="btn btn-primary">Xác nhận hoàn tất & Mở cổng Gateway ➔</button>
           </div>
         </div>
-      `;
+      `
     } else if (screen.id === '10') {
       bodyHtml = `
         <div class="alert-banner success">
@@ -701,7 +703,7 @@
             </div>
           </div>
         </div>
-      `;
+      `
     } else if (screen.id === '11') {
       bodyHtml = `
         <div class="alert-banner info">
@@ -727,7 +729,7 @@
             <span>Payload hoàn toàn sạch: Không chứa path, query, phím gõ, hay bất kỳ dữ liệu nhạy cảm nào (BR-45.3).</span>
           </div>
         </div>
-      `;
+      `
     } else if (screen.id === '12') {
       bodyHtml = `
         <div class="alert-banner danger">
@@ -757,7 +759,7 @@
             <span class="detail-value">Bản ghi bị từ chối tăng: 3 ➔ 4 (+1)</span>
           </div>
         </div>
-      `;
+      `
     } else if (screen.id === '13') {
       bodyHtml = `
         <div class="alert-banner success">
@@ -797,7 +799,7 @@
             </div>
           </div>
         </div>
-      `;
+      `
     } else if (screen.id === '14') {
       bodyHtml = `
         <div class="alert-banner success">
@@ -844,7 +846,7 @@
             </div>
           </div>
         </div>
-      `;
+      `
     } else if (screen.id === '15') {
       bodyHtml = `
         <div class="alert-banner warning">
@@ -900,7 +902,7 @@
             </tbody>
           </table>
         </div>
-      `;
+      `
     } else if (screen.id === '16') {
       bodyHtml = `
         <div class="alert-banner success">
@@ -946,7 +948,7 @@
             </div>
           </div>
         </div>
-      `;
+      `
     }
 
     // Wrap everything in app shell
@@ -981,15 +983,15 @@
           </main>
         </div>
       </div>
-    `.trim();
+    `.trim()
   }
 
-  const moduleExports = { renderApp };
+  const moduleExports = { renderApp }
 
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = moduleExports;
+    module.exports = moduleExports
   }
   if (typeof globalThis !== 'undefined') {
-    globalThis.UF16Renderer = moduleExports;
+    globalThis.UF16Renderer = moduleExports
   }
-})();
+})()

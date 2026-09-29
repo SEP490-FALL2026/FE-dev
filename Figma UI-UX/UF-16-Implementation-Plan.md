@@ -10,15 +10,15 @@
 
 ## File Map
 
-| File | Responsibility |
-| --- | --- |
-| `Figma UI-UX/UF-16-Sources/uf16-data.js` | Canonical devices, allowlists, disclosure text, ledger states, 16-screen registry |
-| `Figma UI-UX/UF-16-Sources/uf16-data.test.js` | Node test verifying screens, stages, ledger consistency, business rules |
-| `Figma UI-UX/UF-16-Sources/uf16-renderer.js` | DOM generator for 16 screens, headers, sidebars, metrics, modals |
-| `Figma UI-UX/UF-16-Sources/uf16-renderer.test.js` | Node test verifying DOM structure, data attributes, guard statements |
-| `Figma UI-UX/UF-16-Sources/uf16.css` | Light and Dark tokens, typography, layout, cards, badges |
-| `Figma UI-UX/UF-16-Sources/uf16.html` | Browser harness reading query params `?theme=light&screen=01` |
-| `Figma UI-UX/UF-16-Sources/capture-uf16.ps1` | Headless Chrome screenshot automation script |
-| `Figma UI-UX/UF-16-Sources/verify-uf16-assets.ps1` | Asset verification for 32 PNG files at 1440 × 1024 |
-| `Figma UI-UX/UF-16-FullFrames/Light/*.png` | 16 Light artboard PNGs |
-| `Figma UI-UX/UF-16-FullFrames/Dark/*.png` | 16 Dark artboard PNGs |
+| File                                               | Responsibility                                                                    |
+| -------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `Figma UI-UX/UF-16-Sources/uf16-data.js`           | Canonical devices, allowlists, disclosure text, ledger states, 16-screen registry |
+| `Figma UI-UX/UF-16-Sources/uf16-data.test.js`      | Node test verifying screens, stages, ledger consistency, business rules           |
+| `Figma UI-UX/UF-16-Sources/uf16-renderer.js`       | DOM generator for 16 screens, headers, sidebars, metrics, modals                  |
+| `Figma UI-UX/UF-16-Sources/uf16-renderer.test.js`  | Node test verifying DOM structure, data attributes, guard statements              |
+| `Figma UI-UX/UF-16-Sources/uf16.css`               | Light and Dark tokens, typography, layout, cards, badges                          |
+| `Figma UI-UX/UF-16-Sources/uf16.html`              | Browser harness reading query params `?theme=light&screen=01`                     |
+| `Figma UI-UX/UF-16-Sources/capture-uf16.ps1`       | Headless Chrome screenshot automation script                                      |
+| `Figma UI-UX/UF-16-Sources/verify-uf16-assets.ps1` | Asset verification for 32 PNG files at 1440 × 1024                                |
+| `Figma UI-UX/UF-16-FullFrames/Light/*.png`         | 16 Light artboard PNGs                                                            |
+| `Figma UI-UX/UF-16-FullFrames/Dark/*.png`          | 16 Dark artboard PNGs                                                             |

@@ -4,8 +4,8 @@
  * Source of truth: BRD v3.11 (F-42, F-45, BR-42, BR-45, ADR-10, ADR-13, Luật 91/2025)
  */
 
-(function () {
-  'use strict';
+;(function () {
+  'use strict'
 
   function createUF16Data() {
     const stages = [
@@ -15,7 +15,7 @@
       { id: 4, name: 'Xác nhận chủ động', code: 'ACTIVE_CONFIRMATION' },
       { id: 5, name: 'Cổng nhận & Dữ liệu', code: 'INGESTION_DATA' },
       { id: 6, name: 'Bảng giám sát bộ thu thập', code: 'MONITORING_HEALTH' }
-    ];
+    ]
 
     const ledgers = {
       l01: { registeredDevices: 24, confirmedDevices: 18, pendingConfirmation: 6, rejectedRecords: 3 },
@@ -34,7 +34,7 @@
       l14: { registeredDevices: 25, confirmedDevices: 19, pendingConfirmation: 6, rejectedRecords: 4 },
       l15: { registeredDevices: 25, confirmedDevices: 19, pendingConfirmation: 6, rejectedRecords: 4 },
       l16: { registeredDevices: 25, confirmedDevices: 19, pendingConfirmation: 6, rejectedRecords: 4 }
-    };
+    }
 
     const screens = [
       {
@@ -213,7 +213,7 @@
         role: 'IT Admin + Auditor',
         breadcrumb: 'Bộ thu thập & Thiết bị / Bàn giao UF-10'
       }
-    ];
+    ]
 
     const entities = {
       device: {
@@ -230,14 +230,39 @@
       allowlist: [
         { domain: 'github.com', app: 'GitHub Business Enterprise', status: 'ALLOWED', category: 'Dev Tools' },
         { domain: 'figma.com', app: 'Figma Professional', status: 'ALLOWED', category: 'Design Tools' },
-        { domain: 'atlassian.net', app: 'Jira Software & Confluence', status: 'ALLOWED', category: 'Project Management' },
+        {
+          domain: 'atlassian.net',
+          app: 'Jira Software & Confluence',
+          status: 'ALLOWED',
+          category: 'Project Management'
+        },
         { domain: 'notion.so', app: 'Notion Team Workspace', status: 'ALLOWED', category: 'Knowledge Base' }
       ],
       exclusionList: [
-        { domain: 'slack.com', app: 'Slack Business+', reason: 'Ứng dụng liên lạc nội bộ (Cờ Communication · ADR-10)', status: 'EXCLUDED' },
-        { domain: 'teams.microsoft.com', app: 'Microsoft Teams', reason: 'Ứng dụng liên lạc & họp trực tuyến (ADR-10)', status: 'EXCLUDED' },
-        { domain: 'zoom.us', app: 'Zoom Workplace Pro', reason: 'Ứng dụng thoại & video họp (ADR-10)', status: 'EXCLUDED' },
-        { domain: 'mail.google.com', app: 'Google Workspace Gmail', reason: 'Thư điện tử cá nhân & nội bộ (ADR-10)', status: 'EXCLUDED' }
+        {
+          domain: 'slack.com',
+          app: 'Slack Business+',
+          reason: 'Ứng dụng liên lạc nội bộ (Cờ Communication · ADR-10)',
+          status: 'EXCLUDED'
+        },
+        {
+          domain: 'teams.microsoft.com',
+          app: 'Microsoft Teams',
+          reason: 'Ứng dụng liên lạc & họp trực tuyến (ADR-10)',
+          status: 'EXCLUDED'
+        },
+        {
+          domain: 'zoom.us',
+          app: 'Zoom Workplace Pro',
+          reason: 'Ứng dụng thoại & video họp (ADR-10)',
+          status: 'EXCLUDED'
+        },
+        {
+          domain: 'mail.google.com',
+          app: 'Google Workspace Gmail',
+          reason: 'Thư điện tử cá nhân & nội bộ (ADR-10)',
+          status: 'EXCLUDED'
+        }
       ],
       noticeVersion: 'v1.2 (Cập nhật 15/09/2026 theo Điều 25 Luật 91/2025)',
       gateway: {
@@ -250,22 +275,22 @@
           active_minutes: 85
         }
       }
-    };
+    }
 
     return Object.freeze({
       stages,
       ledgers,
       screens,
       entities
-    });
+    })
   }
 
-  const moduleExports = { createUF16Data };
+  const moduleExports = { createUF16Data }
 
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = moduleExports;
+    module.exports = moduleExports
   }
   if (typeof globalThis !== 'undefined') {
-    globalThis.UF16Data = moduleExports;
+    globalThis.UF16Data = moduleExports
   }
-})();
+})()
