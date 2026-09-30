@@ -1,7 +1,6 @@
 export const landing = {
   actions: {
-    login: 'Login',
-    register: 'Register'
+    login: 'Login'
   },
   audience: 'One shared operational picture for IT, Finance, managers, and spending approvers.',
   description:
@@ -16,11 +15,13 @@ export const landing = {
   metaDescription: 'Unify software spend, access, and usage evidence for better SaaS decisions.',
   navigation: 'Primary navigation',
   title: 'Turn scattered SaaS data into confident SaaS decisions.',
+  titleAccent: 'confident SaaS decisions.',
+  titleLead: 'Turn scattered SaaS data into',
   visual: {
     availableSeats: 'Seats available',
-    controlCenter: 'Decision control',
+    controlCenter: 'Evidence, connected',
     evidenceReady: 'Evidence ready',
     renewalAttention: 'Renewal attention',
-    systemOnline: 'Governance signals connected'
+    systemOnline: 'Ready for human decision'
   }
 } as const

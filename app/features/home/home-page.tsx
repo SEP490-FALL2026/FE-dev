@@ -1,5 +1,7 @@
-import { ArrowUpRight, Braces, UsersRound } from 'lucide-react'
+import { Layers3, UsersRound } from 'lucide-react'
+import { motion, useReducedMotion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
 
 import { LanguageSwitch } from '~/shared/ui/language-switch'
 import { ThemeSwitch } from '~/shared/ui/theme-switch'
@@ -10,63 +12,77 @@ const lifecycleKeys = ['purchased', 'assigned', 'used', 'needed'] as const
 
 export function HomePage() {
   const { t: tCommon } = useTranslation('common')
-  const { t } = useTranslation('landing')
+  const { i18n, t } = useTranslation('landing')
+  const shouldReduceMotion = useReducedMotion()
+  const language = i18n.resolvedLanguage ?? 'vi'
 
   return (
     <div className='relative min-h-screen overflow-hidden bg-background'>
       <div
         aria-hidden='true'
-        className='pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,var(--theme-border)_1px,transparent_1px),linear-gradient(to_bottom,var(--theme-border)_1px,transparent_1px)] bg-[size:72px_72px] opacity-[0.22] [mask-image:radial-gradient(ellipse_at_center,black,transparent_78%)]'
+        className='pointer-events-none absolute -top-36 -left-28 size-[34rem] rounded-[42%_58%_67%_33%/46%_36%_64%_54%] bg-primary-soft opacity-70 blur-3xl'
       />
       <div
         aria-hidden='true'
-        className='pointer-events-none absolute -top-32 -left-36 size-[32rem] rounded-full bg-primary-soft opacity-65 blur-3xl'
+        className='pointer-events-none absolute right-[-11rem] bottom-[-15rem] size-[38rem] rounded-[57%_43%_36%_64%/49%_62%_38%_51%] bg-primary-soft opacity-55 blur-3xl'
       />
       <div
         aria-hidden='true'
-        className='pointer-events-none absolute right-[-12rem] bottom-[-16rem] size-[38rem] rounded-full bg-primary-soft opacity-50 blur-3xl'
+        className='pointer-events-none absolute top-[18%] left-[5%] size-24 rotate-12 rounded-[2rem] border border-primary/15 bg-surface/45 backdrop-blur-xl'
       />
 
-      <header className='relative z-50 mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-5 sm:px-8 lg:px-10 lg:py-7'>
+      <header className='relative z-50 flex w-full flex-wrap items-center justify-between gap-4 border-b border-border/55 bg-background/70 px-5 py-5 backdrop-blur-xl'>
         <div className='flex items-center gap-3'>
-          <span className='grid size-10 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-[0_10px_30px_var(--theme-primary-soft)]'>
-            <Braces aria-hidden='true' className='size-5' strokeWidth={2.2} />
+          <span className='relative grid size-10 place-items-center overflow-hidden rounded-[0.9rem] bg-primary text-primary-foreground shadow-[0_10px_30px_var(--theme-primary-soft)]'>
+            <span
+              aria-hidden='true'
+              className='absolute -top-2 -right-2 size-5 rounded-full bg-primary-foreground/20'
+            />
+            <Layers3 aria-hidden='true' className='size-5' strokeWidth={2.1} />
           </span>
           <span className='text-lg font-bold tracking-[-0.02em] text-foreground'>{tCommon('brand')}</span>
         </div>
 
-        <nav aria-label={t('navigation')} className='flex flex-wrap items-center justify-end gap-2 sm:gap-2.5'>
+        <nav
+          aria-label={t('navigation')}
+          className='flex w-full flex-nowrap items-center justify-start gap-2 sm:w-auto sm:justify-end'
+        >
           <ThemeSwitch />
           <LanguageSwitch />
-          <button
-            className='inline-flex h-10 items-center justify-center rounded-full border border-border bg-surface/80 px-4 text-sm font-semibold text-foreground backdrop-blur transition hover:border-primary hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
-            type='button'
+          <Link
+            className='inline-flex h-10 w-[5.75rem] shrink-0 items-center justify-center rounded-full border border-border bg-surface/80 text-sm font-semibold text-foreground backdrop-blur transition-colors hover:border-primary hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
+            to='/login'
           >
             {t('actions.login')}
-          </button>
-          <button
-            className='group inline-flex h-10 items-center justify-center gap-1.5 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-[0_10px_30px_var(--theme-primary-soft)] transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
-            type='button'
-          >
-            {t('actions.register')}
-            <ArrowUpRight
-              aria-hidden='true'
-              className='size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5'
-            />
-          </button>
+          </Link>
         </nav>
       </header>
 
       <main className='relative z-10 mx-auto flex w-full max-w-7xl items-center px-5 pt-6 pb-14 sm:px-8 sm:pt-10 lg:min-h-[calc(100vh-108px)] lg:px-10 lg:pt-0 lg:pb-16'>
-        <section className='grid min-w-0 w-full grid-cols-[minmax(0,1fr)] items-center gap-12 lg:grid-cols-[minmax(0,0.94fr)_minmax(0,1.06fr)] lg:gap-10 xl:gap-20'>
-          <div className='mx-auto min-w-0 w-full max-w-full text-center sm:max-w-2xl lg:mx-0 lg:text-left'>
+        <section className='grid min-w-0 w-full max-w-[calc(100vw-2.5rem)] grid-cols-[minmax(0,1fr)] items-center gap-12 sm:max-w-none lg:grid-cols-[minmax(0,0.94fr)_minmax(0,1.06fr)] lg:gap-10 xl:gap-20'>
+          <motion.div
+            animate={{ opacity: 1, y: 0 }}
+            className='mx-auto min-w-0 w-full max-w-full text-center sm:max-w-2xl lg:mx-0 lg:text-left'
+            initial={shouldReduceMotion ? false : { opacity: 0.45, y: 5 }}
+            key={language}
+            transition={{ duration: 0.22, ease: 'easeOut' }}
+          >
             <div className='inline-flex max-w-full items-center gap-2 rounded-full border border-primary/30 bg-primary-soft px-3.5 py-2 text-xs font-semibold tracking-[0.12em] whitespace-normal text-primary uppercase'>
               <span className='size-1.5 rounded-full bg-primary shadow-[0_0_12px_var(--theme-primary)]' />
-              <span>{t('eyebrow')}</span>
+              <span className='min-w-0'>{t('eyebrow')}</span>
             </div>
 
-            <h1 className='mt-6 text-4xl leading-[1.08] font-bold tracking-[-0.045em] text-balance text-foreground sm:text-5xl xl:text-[4.35rem]'>
-              {t('title')}
+            <h1
+              aria-label={t('title')}
+              className='mt-6 text-4xl leading-[1.08] font-bold tracking-[-0.045em] text-balance text-foreground sm:text-5xl xl:text-[4.35rem]'
+            >
+              <span aria-hidden='true' className='block'>
+                {t('titleLead')}
+              </span>
+              <span aria-hidden='true' className='relative mt-1 inline-block text-primary'>
+                <span className='relative z-10'>{t('titleAccent')}</span>
+                <span className='absolute right-0 bottom-[0.04em] left-0 h-[0.16em] -rotate-1 rounded-full bg-primary-soft' />
+              </span>
             </h1>
             <p className='mx-auto mt-6 max-w-xl text-base leading-7 text-pretty text-muted-foreground sm:text-lg sm:leading-8 lg:mx-0'>
               {t('description')}
@@ -79,10 +95,10 @@ export function HomePage() {
               <p className='max-w-lg text-sm leading-6 text-muted-foreground'>{t('audience')}</p>
             </div>
 
-            <div className='mt-8 grid grid-cols-2 gap-2.5 sm:flex sm:flex-wrap sm:justify-center lg:justify-start'>
+            <div className='mt-8 grid grid-cols-2 gap-2.5 sm:grid-cols-4'>
               {lifecycleKeys.map((key, index) => (
                 <div
-                  className='flex items-center gap-2 rounded-xl border border-border bg-surface/75 px-3 py-2.5 text-sm font-semibold text-foreground backdrop-blur'
+                  className='flex min-w-0 items-center gap-2 rounded-xl border border-border bg-surface/75 px-3 py-2.5 text-sm font-semibold text-foreground backdrop-blur'
                   key={key}
                 >
                   <span className='grid size-5 place-items-center rounded-md bg-primary-soft text-[0.65rem] font-bold text-primary'>
@@ -92,7 +108,7 @@ export function HomePage() {
                 </div>
               ))}
             </div>
-          </div>
+          </motion.div>
 
           <LandingVisual />
         </section>
