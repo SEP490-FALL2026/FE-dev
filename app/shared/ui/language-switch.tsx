@@ -11,7 +11,7 @@ export function LanguageSwitch() {
   return (
     <div
       aria-label={t('language.selector')}
-      className='flex h-10 w-[4.75rem] shrink-0 items-center rounded-full border border-border bg-surface/80 p-1 backdrop-blur'
+      className='flex h-10 items-center rounded-full border border-border bg-surface/80 p-1 backdrop-blur'
       role='group'
     >
       {languages.map((language) => {
@@ -22,7 +22,7 @@ export function LanguageSwitch() {
           <button
             aria-label={t('language.switchTo', { language: languageName })}
             aria-pressed={isCurrent}
-            className='w-1/2 rounded-full py-1.5 text-center text-xs font-semibold text-muted-foreground transition-colors hover:text-primary aria-pressed:bg-primary-soft aria-pressed:text-primary'
+            className='rounded-full px-2.5 py-1.5 text-xs font-semibold text-muted-foreground transition hover:text-primary aria-pressed:bg-primary-soft aria-pressed:text-primary'
             key={language}
             onClick={() => void setAppLanguage(language)}
             type='button'
