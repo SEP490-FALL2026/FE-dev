@@ -1,10 +1,10 @@
 import 'i18next'
 
-import type { resources } from './resources'
+import type { defaultNS, resources } from './resources'
 
 declare module 'i18next' {
   interface CustomTypeOptions {
-    defaultNS: 'translation'
-    resources: (typeof resources)['vi']['translation']
+    defaultNS: typeof defaultNS
+    resources: (typeof resources)['vi']
   }
 }
