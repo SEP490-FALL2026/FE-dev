@@ -1,5 +1,16 @@
 {
   "include": ["**/*", "**/.server/**/*", "**/.client/**/*", ".react-router/types/**/*"],
+  "exclude": [
+    "node_modules",
+    "build",
+    "coverage",
+    "Figma UI-UX",
+    "Requiments",
+    "Diagrams",
+    "docs",
+    "openapi",
+    "public"
+  ],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "forceConsistentCasingInFileNames": true,

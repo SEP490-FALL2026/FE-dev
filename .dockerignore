@@ -1,4 +1,43 @@
+# ── Build artifacts ──
 .react-router
 build
 node_modules
-README.md
+coverage
+
+# ── Non-code assets (docs, design, config) ──
+Figma UI-UX
+Requiments
+Diagrams
+docs
+*.md
+*.docx
+*.pptx
+*.xlsx
+
+# ── Editor / tool config ──
+.agents
+.claude
+.cursor
+.github
+.vscode
+.vercel
+.editorconfig
+.prettierrc
+.prettierignore
+.windsurfrules
+.gitattributes
+eslint-rules
+eslint.config.js
+rules
+
+# ── Dev-only files ──
+test
+scripts
+openapi
+orval.config.ts
+vitest.config.ts
+pnpm-workspace.yaml
+*.test.ts
+*.test.tsx
+*.test.mjs
+*.test.cjs
