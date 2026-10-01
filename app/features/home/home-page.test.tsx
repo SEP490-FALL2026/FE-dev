@@ -7,6 +7,7 @@ import { setAppLanguage } from '~/shared/i18n/i18n'
 
 import { HomePage } from './home-page'
 
+<<<<<<< HEAD
 function renderHomePage() {
   return render(
     <MemoryRouter>
@@ -16,6 +17,8 @@ function renderHomePage() {
     </MemoryRouter>
   )
 }
+=======
+>>>>>>> main
 
 describe('HomePage', () => {
   beforeEach(async () => {
