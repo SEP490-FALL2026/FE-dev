@@ -1,0 +1,220 @@
+{
+  "generatedAt": "2026-09-18T15:12:00.002403+07:00",
+  "checker": {
+    "path": "D:\\FPT\\FALL2026\\Docs\\Diagrams\\workflows-activity-diagram\\tools\\verify-artifacts.py",
+    "sha256": "a015ac8c4f03a895b498326599b389a90d45e1e0a3c0f618e20892cf2800f21c"
+  },
+  "pillow": "12.1.1",
+  "png": {
+    "expected": 22,
+    "found": 22,
+    "passed": 22,
+    "results": [
+      {
+        "page": "WF-01",
+        "bytes": 427042,
+        "width": 2236,
+        "height": 2745,
+        "sha256": "162ef25f6634ab0bb7e43f44601b61781b31e43420a325a32f72f14805acf916",
+        "ok": true,
+        "problems": []
+      },
+      {
+        "page": "WF-02",
+        "bytes": 487890,
+        "width": 1772,
+        "height": 3533,
+        "sha256": "34c9d69bd028a6936ada7678fc4d61274b8ac61c4077123e051561604c9bd3b6",
+        "ok": true,
+        "problems": []
+      },
+      {
+        "page": "WF-03",
+        "bytes": 437694,
+        "width": 3056,
+        "height": 2077,
+        "sha256": "dfb9d5e9e0e8d7638a51f665a699c4166c149f5f4240234fe85467025d5f2306",
+        "ok": true,
+        "problems": []
+      },
+      {
+        "page": "WF-04",
+        "bytes": 428136,
+        "width": 2236,
+        "height": 3139,
+        "sha256": "3c84c7606527cc3923287ed0b87ad02b3d8ace8674b29d0adb38bfb317dbf64e",
+        "ok": true,
+        "problems": []
+      },
+      {
+        "page": "WF-05",
+        "bytes": 461674,
+        "width": 3092,
+        "height": 2615,
+        "sha256": "bdf2966c294af45fec59ad1491f905889c31070bc9d24f87b32be7d1b82dbaaf",
+        "ok": true,
+        "problems": []
+      },
+      {
+        "page": "WF-06",
+        "bytes": 391633,
+        "width": 1772,
+        "height": 2885,
+        "sha256": "1d13ded06442739f3420019a3c4ce75c2c9970bbc173bc38e81735b9b1b3f817",
+        "ok": true,
+        "problems": []
+      },
+      {
+        "page": "WF-07",
+        "bytes": 537068,
+        "width": 2336,
+        "height": 3053,
+        "sha256": "4197f222159a943301ab952d8ca29808870ddcf8dc4e088fe841576e288fbfa7",
+        "ok": true,
+        "problems": []
+      },
+      {
+        "page": "WF-08",
+        "bytes": 516265,
+        "width": 2532,
+        "height": 3099,
+        "sha256": "a14634e820840c24fddbb68fdb921ad591923cc687ce99674d6ffb35bc886048",
+        "ok": true,
+        "problems": []
+      },
+      {
+        "page": "WF-09",
+        "bytes": 1486590,
+        "width": 4617,
+        "height": 4481,
+        "sha256": "beb0f52ce57e866e9d478524abc6f31f445bf4a2e36d9793ad05b38ac4dc195b",
+        "ok": true,
+        "problems": []
+      },
+      {
+        "page": "WF-09a",
+        "bytes": 835040,
+        "width": 4313,
+        "height": 3137,
+        "sha256": "ba2e849d9b462ca6dae903f7037e56c577689a15e2c39091933302c0a650a830",
+        "ok": true,
+        "problems": []
+      },
+      {
+        "page": "WF-10",
+        "bytes": 952516,
+        "width": 4113,
+        "height": 3533,
+        "sha256": "52dbba9e544994aa5037f68324908a0826f6b7be729c245e27ffff9e0433e3f2",
+        "ok": true,
+        "problems": []
+      },
+      {
+        "page": "WF-11",
+        "bytes": 464483,
+        "width": 2916,
+        "height": 1965,
+        "sha256": "ca2d3c7979da2eab76f4ba9781814a574e1fc56d3759acaddba1afc6ab346b0d",
+        "ok": true,
+        "problems": []
+      },
+      {
+        "page": "WF-12",
+        "bytes": 527358,
+        "width": 2340,
+        "height": 3393,
+        "sha256": "4d3dcc64aef7bbc1607bc8216c267c9819e4c3291e80a834d4836cb8f62d64b8",
+        "ok": true,
+        "problems": []
+      },
+      {
+        "page": "WF-12a",
+        "bytes": 433634,
+        "width": 1772,
+        "height": 2697,
+        "sha256": "b92ea629259c0b5a4958647d3f3b5daa3bfe686e2e36d45fc9d10dc5cf6b53c1",
+        "ok": true,
+        "problems": []
+      },
+      {
+        "page": "WF-13",
+        "bytes": 701932,
+        "width": 2664,
+        "height": 4089,
+        "sha256": "7960f182e9ef009cb8cb4cb2a90255c7a91f9180a160b9b0c743944990c152dc",
+        "ok": true,
+        "problems": []
+      },
+      {
+        "page": "WF-13a",
+        "bytes": 515067,
+        "width": 1516,
+        "height": 3131,
+        "sha256": "3c3502be711b3185f8e4dccc367efb69b1956d0e0d4c65fb4993d7919cef8810",
+        "ok": true,
+        "problems": []
+      },
+      {
+        "page": "WF-14",
+        "bytes": 332065,
+        "width": 2236,
+        "height": 2307,
+        "sha256": "2b0303c5868efc305da82bec6720552a68cc95f589ee0dae4c6c42c1ae94c55b",
+        "ok": true,
+        "problems": []
+      },
+      {
+        "page": "WF-15",
+        "bytes": 1019392,
+        "width": 4097,
+        "height": 3579,
+        "sha256": "3ed0a76c1a286d943e12000f41868fe9368edeb727d13c2457b132b47c4a243c",
+        "ok": true,
+        "problems": []
+      },
+      {
+        "page": "WF-16",
+        "bytes": 977399,
+        "width": 4437,
+        "height": 3673,
+        "sha256": "8abc1e5fe4ee88e69b6871726d11729295b10edeb07268012287146ef24ae46f",
+        "ok": true,
+        "problems": []
+      },
+      {
+        "page": "WF-17",
+        "bytes": 762875,
+        "width": 3357,
+        "height": 3299,
+        "sha256": "6dd7b59e102acc001892058657c634aec70e89ff6edd5285f0273747660fd03a",
+        "ok": true,
+        "problems": []
+      },
+      {
+        "page": "WF-17a",
+        "bytes": 402863,
+        "width": 3056,
+        "height": 1895,
+        "sha256": "35a3435b413cd2bac537523d0b922612f55ca9d8594b5c0fc4745845054c16e8",
+        "ok": true,
+        "problems": []
+      },
+      {
+        "page": "WF-18",
+        "bytes": 800803,
+        "width": 2773,
+        "height": 3417,
+        "sha256": "ee1a1cff3301bf91564b13c9db1d436614f0ab3b05e41c4b55a100c171894a69",
+        "ok": true,
+        "problems": []
+      }
+    ]
+  },
+  "manifest": {
+    "entries": 45,
+    "matched": 45,
+    "path": "D:\\FPT\\FALL2026\\Docs\\Diagrams\\workflows-activity-diagram\\artifact-manifest.json"
+  },
+  "status": "pass",
+  "errors": []
+}

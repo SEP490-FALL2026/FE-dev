@@ -1,7 +1,6 @@
 export const landing = {
   actions: {
-    login: 'Đăng nhập',
-    register: 'Đăng ký'
+    login: 'Đăng nhập'
   },
   audience: 'Một bức tranh vận hành thống nhất cho IT, Tài chính, quản lý và Người duyệt chi.',
   description:
@@ -16,11 +15,13 @@ export const landing = {
   metaDescription: 'Hợp nhất chi phí, quyền truy cập và bằng chứng sử dụng để ra quyết định SaaS tốt hơn.',
   navigation: 'Điều hướng chính',
   title: 'Biến dữ liệu rời rạc thành quyết định SaaS có căn cứ.',
+  titleAccent: 'quyết định SaaS có căn cứ.',
+  titleLead: 'Biến dữ liệu rời rạc thành',
   visual: {
     availableSeats: 'Seat còn trống',
-    controlCenter: 'Trung tâm quyết định',
+    controlCenter: 'Kết nối bằng chứng',
     evidenceReady: 'Bằng chứng sẵn sàng',
     renewalAttention: 'Cần chú ý gia hạn',
-    systemOnline: 'Tín hiệu quản trị đã kết nối'
+    systemOnline: 'Sẵn sàng để con người quyết định'
   }
 } as const

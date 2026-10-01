@@ -9,9 +9,3 @@
 /build/
 /coverage/
 /.vercel/
-
-# Documentation & design assets (not part of the build)
-docs/
-Diagrams/
-Figma UI-UX/
-Requiments/
