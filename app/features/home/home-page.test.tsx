@@ -1,5 +1,4 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
-import { MemoryRouter } from 'react-router'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 import { AppProviders } from '~/providers/app-providers'
@@ -7,18 +6,6 @@ import { setAppLanguage } from '~/shared/i18n/i18n'
 
 import { HomePage } from './home-page'
 
-<<<<<<< HEAD
-function renderHomePage() {
-  return render(
-    <MemoryRouter>
-      <AppProviders>
-        <HomePage />
-      </AppProviders>
-    </MemoryRouter>
-  )
-}
-=======
->>>>>>> main
 
 describe('HomePage', () => {
   beforeEach(async () => {
