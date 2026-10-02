@@ -353,6 +353,10 @@ export const dashboard = {
       recentSoftware: {
         title: 'Phần mềm được cấp',
         viewAll: 'Xem tất cả ({{count}})',
+        paginationLabel: 'Các trang phần mềm được cấp',
+        pageStatus: 'Trang {{page}} / {{total}}',
+        previousPage: 'Trước',
+        nextPage: 'Tiếp',
         colSoftware: 'Phần mềm',
         colPlan: 'Gói',
         colStatus: 'Trạng thái',

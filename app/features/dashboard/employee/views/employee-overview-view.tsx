@@ -3,6 +3,7 @@ import {
   ArrowRightLeft,
   CalendarPlus,
   CalendarX,
+  ChevronLeft,
   ChevronRight,
   Clock,
   Laptop,
@@ -12,6 +13,7 @@ import {
   Sparkles,
   Zap
 } from 'lucide-react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { catalogSoftwareList, employeeSoftwareItems, employeeSummaryCards } from '../employee-data'
@@ -24,8 +26,16 @@ interface EmployeeOverviewViewProps {
   onSelectTab: (tab: EmployeeTabKey, params?: Record<string, string>) => void
 }
 
+const ASSIGNED_SOFTWARE_PAGE_SIZE = 4
+
 export function EmployeeOverviewView({ displayName, onSelectTab }: EmployeeOverviewViewProps) {
   const { t } = useTranslation('dashboard')
+  const [softwarePage, setSoftwarePage] = useState(1)
+  const softwarePageCount = Math.ceil(employeeSoftwareItems.length / ASSIGNED_SOFTWARE_PAGE_SIZE)
+  const visibleSoftware = employeeSoftwareItems.slice(
+    (softwarePage - 1) * ASSIGNED_SOFTWARE_PAGE_SIZE,
+    softwarePage * ASSIGNED_SOFTWARE_PAGE_SIZE
+  )
 
   const cardIcons = {
     0: Laptop,
@@ -154,7 +164,7 @@ export function EmployeeOverviewView({ displayName, onSelectTab }: EmployeeOverv
                   </tr>
                 </thead>
                 <tbody className='divide-y divide-border/60'>
-                  {employeeSoftwareItems.slice(0, 4).map((item) => (
+                  {visibleSoftware.map((item) => (
                     <tr className='group transition hover:bg-surface-subtle/50' key={item.id}>
                       <td className='py-3 pr-4'>
                         <div className='flex items-center gap-3'>
@@ -205,6 +215,39 @@ export function EmployeeOverviewView({ displayName, onSelectTab }: EmployeeOverv
                 </tbody>
               </table>
             </div>
+            {softwarePageCount > 1 && (
+              <nav
+                aria-label={t('employee.overview.recentSoftware.paginationLabel')}
+                className='mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4'
+              >
+                <span className='text-xs text-muted-foreground'>
+                  {t('employee.overview.recentSoftware.pageStatus', {
+                    page: softwarePage,
+                    total: softwarePageCount
+                  })}
+                </span>
+                <div className='flex items-center gap-2'>
+                  <button
+                    className='inline-flex items-center gap-1 rounded-lg border border-border px-2.5 py-1.5 text-xs font-semibold text-foreground transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40'
+                    disabled={softwarePage === 1}
+                    onClick={() => setSoftwarePage((page) => page - 1)}
+                    type='button'
+                  >
+                    <ChevronLeft aria-hidden='true' className='size-3.5' />
+                    {t('employee.overview.recentSoftware.previousPage')}
+                  </button>
+                  <button
+                    className='inline-flex items-center gap-1 rounded-lg border border-border px-2.5 py-1.5 text-xs font-semibold text-foreground transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40'
+                    disabled={softwarePage === softwarePageCount}
+                    onClick={() => setSoftwarePage((page) => page + 1)}
+                    type='button'
+                  >
+                    {t('employee.overview.recentSoftware.nextPage')}
+                    <ChevronRight aria-hidden='true' className='size-3.5' />
+                  </button>
+                </div>
+              </nav>
+            )}
           </div>
 
           {/* Recommended Software Catalog */}

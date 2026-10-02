@@ -350,6 +350,10 @@ export const dashboard = {
       recentSoftware: {
         title: 'Assigned Software',
         viewAll: 'View all ({{count}})',
+        paginationLabel: 'Assigned software pages',
+        pageStatus: 'Page {{page}} of {{total}}',
+        previousPage: 'Previous',
+        nextPage: 'Next',
         colSoftware: 'Software',
         colPlan: 'Plan',
         colStatus: 'Status',
