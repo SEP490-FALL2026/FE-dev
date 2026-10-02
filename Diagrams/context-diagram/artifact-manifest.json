@@ -1,0 +1,141 @@
+{
+    "schemaVersion": 1,
+    "artifact": "SaaS-Sentry Context Diagram (DFD mức 0)",
+    "documentVersion": "2.3",
+    "generatedAt": "2026-09-15T22:01:04+07:00",
+    "pathBase": "Docs/Diagrams/context-diagram/",
+    "rehashedAt": "2026-09-16T00:00:00+07:00",
+    "note": "v2.3 (15/09/2026, QĐ-29b): L69 (hệ thống → E3) và L70 (E11 → hệ thống) thêm; source regenerated from index.md and PNG re-exported. Manifest không hash chính nó. Rehash 16/09/2026 (QĐ30-C04): chỉ cập nhật SHA-256 của index.md sau khi phần chữ của index.md đổi; chạy lại tools/generate-context-diagram.py cho ra .drawio BYTE-IDENTICAL (11 tác nhân, 67 luồng), nên .drawio và .png giữ nguyên, không tái xuất.",
+    "pipeline": {
+        "generate": {
+            "command": "python tools/generate-context-diagram.py",
+            "workingDirectory": "Docs/Diagrams/context-diagram",
+            "tool": "Python 3.13.2",
+            "reproducedSourceSha256": "a0e3fb40c8bca6811616cc3162ad6d28b5c097f9ef60d579e94339e362509439"
+        },
+        "export": {
+            "command": "drawio -x -f png -s 1 -o SaaS-Sentry-Context-Diagram.png SaaS-Sentry-Context-Diagram.drawio",
+            "renderer": "draw.io Desktop",
+            "rendererVersion": "29.3.0",
+            "exportedAt": "2026-09-15T22:01:04+07:00"
+        }
+    },
+    "files": [
+        {
+            "role": "table-source",
+            "path": "index.md",
+            "sha256": "22efc1d0733ad125bf31803f668d41d71d3bfb643fbd674de33a21017b5aeecb"
+        },
+        {
+            "role": "drawio-source",
+            "path": "SaaS-Sentry-Context-Diagram.drawio",
+            "sha256": "a0e3fb40c8bca6811616cc3162ad6d28b5c097f9ef60d579e94339e362509439"
+        },
+        {
+            "role": "png-export",
+            "path": "SaaS-Sentry-Context-Diagram.png",
+            "sha256": "ccee81ef42d0e2dd4c58675a77518950b3c8acce01a2becbedc7c34747d9a4ca",
+            "width": 1844,
+            "height": 1895,
+            "exportedFrom": "SaaS-Sentry-Context-Diagram.drawio"
+        }
+    ],
+    "counts": {
+        "actors": 11,
+        "dataFlows": 67
+    },
+    "actors": [
+        "E1",
+        "E2",
+        "E3",
+        "E4",
+        "E5",
+        "E6",
+        "E7",
+        "E8",
+        "E9",
+        "E10",
+        "E11"
+    ],
+    "dataFlows": [
+        "L01",
+        "L02",
+        "L03",
+        "L04",
+        "L05",
+        "L06",
+        "L07",
+        "L08",
+        "L09",
+        "L10",
+        "L11",
+        "L13",
+        "L14",
+        "L15",
+        "L16",
+        "L19",
+        "L20",
+        "L21",
+        "L22",
+        "L23",
+        "L24",
+        "L25",
+        "L26",
+        "L27",
+        "L28",
+        "L29",
+        "L30",
+        "L31",
+        "L32",
+        "L33",
+        "L34",
+        "L35",
+        "L36",
+        "L37",
+        "L38",
+        "L39",
+        "L40",
+        "L41",
+        "L42",
+        "L43",
+        "L44",
+        "L45",
+        "L46",
+        "L47",
+        "L48",
+        "L49",
+        "L50",
+        "L51",
+        "L52",
+        "L53",
+        "L54",
+        "L55",
+        "L56",
+        "L57",
+        "L58",
+        "L59",
+        "L60",
+        "L61",
+        "L62",
+        "L63",
+        "L64",
+        "L65",
+        "L66",
+        "L67",
+        "L68",
+        "L69",
+        "L70"
+    ],
+    "retiredFlowCodes": [
+        "L12",
+        "L17",
+        "L18"
+    ],
+    "historicalArtifactsNotCovered": [
+        "SaaS-Sentry-Context-Diagram.v2.0.drawio",
+        "d1 - old.png",
+        "d2 - old.png",
+        "preview.png",
+        "Untitled Diagram.drawio"
+    ]
+}

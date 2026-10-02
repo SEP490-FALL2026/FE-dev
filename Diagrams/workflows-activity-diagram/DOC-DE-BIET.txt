@@ -1,0 +1,32 @@
+SaaS-Sentry — Activity Diagrams  v2.3
+
+drawio/    22 file .drawio rời, mỗi workflow một file. Mở bằng app.diagrams.net
+           hoặc phần mở rộng Draw.io Integration trong VS Code.
+png/       22 ảnh PNG xuất bằng chính draw.io (drawio --export -f png -s 2).
+           Chèn thẳng vào slide và báo cáo.
+SaaS-Sentry-Activity-Diagrams.drawio
+           File gộp 22 trang. Chuyển trang bằng thanh tab dưới đáy cửa sổ.
+
+Hiện vật bàn giao hiện hành được tạo từ 22 nguồn trong drawio/, không lấy từ ZIP
+lịch sử. Chạy lại từ thư mục này bằng:
+
+    powershell -ExecutionPolicy Bypass -File .\tools\export-workflows.ps1
+
+Lệnh tạo lại png/ và SaaS-Sentry-Activity-Diagrams.drawio theo kiểu all-or-nothing;
+artifact-manifest.json lưu đường dẫn, SHA-256, lệnh export và phiên bản draw.io của
+lần chạy. ZIP chỉ là hiện vật lịch sử, không phải nguồn để khôi phục hay xuất lại.
+
+Gate parity hành vi (Mermaid ↔ draw.io) chạy bằng:
+
+    powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check-workflow-parity.ps1
+
+Manifest hiện có bao phủ hành vi trọng yếu của WF-07, WF-09, WF-10, WF-15, WF-16, WF-17 và WF-18; checker đồng thời
+quét 22 nguồn tìm cell trùng ngữ nghĩa. Kết quả JSON là evidence cấu trúc, không thay
+thế đối chiếu nguồn nghiệp vụ, walkthrough ngoại lệ hoặc xem hình sau render.
+
+Mô tả đầy đủ, bảng truy vết và kịch bản trình bày nằm ở
+index.md (Business Workflows & Activity Diagrams v2.3).
+
+Nhãn hiển thị trên 22 trang (Mermaid, drawio rời, file gộp) đã dịch sang tiếng Anh
+cho buổi trình bày 18/09/2026 — không đổi topology/nghiệp vụ. Chi tiết ở
+Docs/Reviews/current-review.md.
