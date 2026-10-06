@@ -3,7 +3,9 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { MOCK_TEAM_SOFTWARE } from '../manager-data'
+import { ManagerIdentityMark } from '../manager-identity-mark'
 import type { ManagerTabKey } from '../manager-nav'
+import { ManagerSummaryStrip } from '../manager-summary-strip'
 
 interface ManagerTeamSoftwareViewProps {
   formatCurrency: (value: number) => string
@@ -11,7 +13,8 @@ interface ManagerTeamSoftwareViewProps {
 }
 
 export function ManagerTeamSoftwareView({ formatCurrency, onSelectTab }: ManagerTeamSoftwareViewProps) {
-  const { t } = useTranslation('dashboard')
+  const { i18n, t } = useTranslation('dashboard')
+  const formatCount = new Intl.NumberFormat(i18n.resolvedLanguage ?? 'vi').format
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL')
 
@@ -27,6 +30,8 @@ export function ManagerTeamSoftwareView({ formatCurrency, onSelectTab }: Manager
   })
 
   const categories = Array.from(new Set(MOCK_TEAM_SOFTWARE.map((s) => s.category)))
+  const totalSeats = MOCK_TEAM_SOFTWARE.reduce((count, item) => count + item.totalSeats, 0)
+  const monthlyCost = MOCK_TEAM_SOFTWARE.reduce((cost, item) => cost + item.monthlyCost, 0)
 
   return (
     <div className='space-y-6'>
@@ -40,6 +45,14 @@ export function ManagerTeamSoftwareView({ formatCurrency, onSelectTab }: Manager
         </div>
       </div>
 
+      <ManagerSummaryStrip
+        metrics={[
+          { label: t('manager.software.metricProducts'), value: formatCount(MOCK_TEAM_SOFTWARE.length) },
+          { label: t('manager.software.metricSeats'), value: formatCount(totalSeats) },
+          { label: t('manager.software.metricMonthly'), value: formatCurrency(monthlyCost) }
+        ]}
+      />
+
       {/* Main Table Card */}
       <div className='rounded-2xl border border-border bg-surface p-5 shadow-sm space-y-4'>
         {/* Search & Categories */}
@@ -47,6 +60,7 @@ export function ManagerTeamSoftwareView({ formatCurrency, onSelectTab }: Manager
           <div className='relative flex-1 max-w-md'>
             <Search className='absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground' />
             <input
+              aria-label={t('manager.software.searchPlaceholder')}
               className='h-10 w-full rounded-xl border border-border bg-background pl-10 pr-4 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder={t('manager.software.searchPlaceholder')}
@@ -57,6 +71,7 @@ export function ManagerTeamSoftwareView({ formatCurrency, onSelectTab }: Manager
 
           <div className='flex flex-wrap items-center gap-1.5'>
             <button
+              aria-pressed={selectedCategory === 'ALL'}
               className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
                 selectedCategory === 'ALL'
                   ? 'bg-primary text-primary-foreground shadow-xs'
@@ -69,6 +84,7 @@ export function ManagerTeamSoftwareView({ formatCurrency, onSelectTab }: Manager
             </button>
             {categories.map((cat) => (
               <button
+                aria-pressed={selectedCategory === cat}
                 key={cat}
                 className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
                   selectedCategory === cat
@@ -87,6 +103,7 @@ export function ManagerTeamSoftwareView({ formatCurrency, onSelectTab }: Manager
         {/* Software Table */}
         <div className='overflow-x-auto'>
           <table className='w-full text-left text-xs'>
+            <caption className='sr-only'>{t('manager.software.title')}</caption>
             <thead>
               <tr className='border-b border-border text-muted-foreground'>
                 <th className='py-3 px-4 font-semibold'>{t('manager.software.colName')}</th>
@@ -111,9 +128,7 @@ export function ManagerTeamSoftwareView({ formatCurrency, onSelectTab }: Manager
                   <tr key={item.id} className='transition hover:bg-surface-subtle/50'>
                     <td className='py-3.5 px-4'>
                       <div className='flex items-center gap-3'>
-                        <span className='flex size-9 shrink-0 items-center justify-center rounded-xl border border-border bg-background text-base'>
-                          {item.logo}
-                        </span>
+                        <ManagerIdentityMark name={item.name} />
                         <div>
                           <p className='font-bold text-foreground'>{item.name}</p>
                           <p className='text-[11px] text-muted-foreground'>{item.vendor}</p>

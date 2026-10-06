@@ -109,7 +109,7 @@ describe('DashboardPage', () => {
     expect(myTeamBtn).not.toHaveClass('bg-primary')
     fireEvent.click(myTeamBtn)
     expect(myTeamBtn).toHaveClass('bg-primary')
-    expect(screen.getByText('Thành viên trong nhóm')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Thành viên trong nhóm' })).toBeInTheDocument()
 
     // Click "Phần mềm của nhóm"
     const teamSoftBtn = within(nav).getByRole('button', { name: /Phần mềm của nhóm/i })
@@ -117,23 +117,60 @@ describe('DashboardPage', () => {
     fireEvent.click(teamSoftBtn)
     expect(teamSoftBtn).toHaveClass('bg-primary')
     expect(myTeamBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByText('Phần mềm phòng ban sử dụng')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Phần mềm phòng ban sử dụng' })).toBeInTheDocument()
 
     // Click "Yêu cầu phê duyệt"
     const teamRequestsBtn = within(nav).getByRole('button', { name: /Yêu cầu phê duyệt/i })
     fireEvent.click(teamRequestsBtn)
     expect(teamRequestsBtn).toHaveClass('bg-primary')
     expect(teamSoftBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByText('Yêu cầu phần mềm của nhóm')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Yêu cầu phần mềm của nhóm' })).toBeInTheDocument()
 
     // Click "Rà soát tài khoản lãng phí"
     const ghostSeatBtn = within(nav).getByRole('button', { name: /Rà soát tài khoản lãng phí/i })
     fireEvent.click(ghostSeatBtn)
     expect(ghostSeatBtn).toHaveClass('bg-primary')
     expect(teamRequestsBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByText('Rà soát tài khoản lãng phí (Ghost Seats)')).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Rà soát tài khoản lãng phí (Ghost Seats)' })
+    ).toBeInTheDocument()
 
     view.unmount()
+  })
+
+  it('keeps Manager filters and access-review progress available to assistive technology', () => {
+    renderDashboard('manager')
+    const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
+
+    fireEvent.click(within(nav).getByRole('button', { name: /Nhân viên của tôi/i }))
+    const onLeave = screen.getByRole('button', { name: 'Nghỉ phép' })
+    fireEvent.click(onLeave)
+    expect(onLeave).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('table', { name: 'Thành viên trong nhóm' })).toBeInTheDocument()
+
+    fireEvent.click(within(nav).getByRole('button', { name: /Đợt tái chứng nhận quyền/i }))
+    const progress = screen.getByRole('progressbar', { name: 'Tiến độ hoàn thành chiến dịch' })
+    expect(progress).toHaveAttribute('aria-valuenow', '3')
+    const pendingRow = screen.getByText('AutoCAD').closest('tr')
+    expect(pendingRow).not.toBeNull()
+    fireEvent.click(within(pendingRow!).getByRole('button', { name: 'Duy trì' }))
+    expect(progress).toHaveAttribute('aria-valuenow', '4')
+  })
+
+  it('confirms a Manager bulk ghost-seat decision before changing the preview', () => {
+    renderDashboard('manager')
+    const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
+    fireEvent.click(within(nav).getByRole('button', { name: /Rà soát tài khoản lãng phí/i }))
+
+    fireEvent.click(screen.getByRole('button', { name: 'Đánh dấu thu hồi G3' }))
+    const dialog = screen.getByRole('dialog', { name: 'Xác nhận rà soát hàng loạt' })
+    expect(dialog).toHaveTextContent('chưa gửi đến IT Admin')
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Hủy' }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Đánh dấu thu hồi G3' }))
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Đánh dấu thu hồi G3' }))
+    expect(screen.getByRole('status')).toHaveTextContent('trong bản xem trước')
   })
 
   it('renders the employee dashboard shell', () => {

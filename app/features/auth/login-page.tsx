@@ -1,9 +1,10 @@
-import { ArrowLeft, Eye, EyeOff, Layers3, ShieldCheck } from 'lucide-react'
+import { ArrowLeft, Eye, EyeOff, ShieldCheck } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
 
 import { useDocumentTitle } from '~/shared/lib/use-document-title'
+import { BrandMark } from '~/shared/ui/brand-mark'
 import { LanguageSwitch } from '~/shared/ui/language-switch'
 import { ThemeSwitch } from '~/shared/ui/theme-switch'
 
@@ -73,7 +74,7 @@ export function LoginPage() {
             <div className='relative'>
               <div className='flex items-center gap-3'>
                 <span className='grid size-11 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-[0_12px_32px_var(--theme-primary-soft)]'>
-                  <Layers3 aria-hidden='true' className='size-5' />
+                  <BrandMark className='size-6' />
                 </span>
                 <span className='text-lg font-bold tracking-[-0.02em]'>{tCommon('brand')}</span>
               </div>

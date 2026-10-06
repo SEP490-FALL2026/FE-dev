@@ -8,7 +8,6 @@ import {
   CircleDollarSign,
   FileChartColumn,
   Grid2X2,
-  Layers3,
   Lightbulb,
   LogOut,
   Menu,
@@ -31,6 +30,7 @@ import { Link, useSearchParams } from 'react-router'
 
 import type { UserRole } from '~/entities/user-role/user-role'
 import { useDocumentTitle } from '~/shared/lib/use-document-title'
+import { BrandMark } from '~/shared/ui/brand-mark'
 import { LanguageSwitch } from '~/shared/ui/language-switch'
 import { ThemeSwitch } from '~/shared/ui/theme-switch'
 
@@ -95,6 +95,7 @@ import { ManagerOverviewView } from './manager/views/manager-overview-view'
 import { ManagerRequestApprovalView } from './manager/views/manager-request-approval-view'
 import { ManagerTeamRequestsView } from './manager/views/manager-team-requests-view'
 import { ManagerTeamSoftwareView } from './manager/views/manager-team-software-view'
+import './manager/manager-workspace.css'
 
 const navigationItems = [
   { icon: Grid2X2, key: 'overview' },
@@ -291,7 +292,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
           <div className='flex items-center gap-3'>
             <span className='relative grid size-11 place-items-center overflow-hidden rounded-2xl bg-primary text-primary-foreground shadow-[0_10px_28px_var(--theme-primary-soft)]'>
               <span aria-hidden='true' className='absolute -top-2 -right-2 size-5 rounded-full bg-white/20' />
-              <Layers3 aria-hidden='true' className='size-5' />
+              <BrandMark className='size-6' />
             </span>
             <div>
               <p className='font-bold tracking-[-0.02em]'>{tCommon('brand')}</p>
@@ -654,7 +655,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
 
         <motion.main
           animate={{ opacity: 1, y: 0 }}
-          className='mx-auto max-w-[100rem] p-4 sm:p-6 lg:p-8'
+          className={`mx-auto max-w-[100rem] p-4 sm:p-6 lg:p-8 ${isManager ? 'manager-workspace' : ''}`}
           initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
           key={isItAdmin ? activeTab : isEmployee ? activeEmployeeTab : 'general'}
           transition={{ duration: 0.25, ease: 'easeOut' }}
@@ -783,7 +784,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
                 onSelectTab={handleSelectManagerTab}
               />
             ) : (
-              <ManagerAccessReviewView onSelectTab={handleSelectManagerTab} />
+              <ManagerAccessReviewView />
             )
           ) : isApprover ? (
             activeApprovalTab === 'overview' ? (

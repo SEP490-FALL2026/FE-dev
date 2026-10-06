@@ -30,9 +30,6 @@ export function ManagerCreateEmployeeRequestView({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitted(true)
-    setTimeout(() => {
-      onSelectTab('team-requests')
-    }, 2000)
   }
 
   return (
@@ -40,6 +37,7 @@ export function ManagerCreateEmployeeRequestView({
       {/* Header */}
       <div className='flex items-center gap-3'>
         <button
+          aria-label={t('manager.createRequest.backToTeam')}
           className='inline-flex items-center justify-center rounded-xl border border-border bg-surface p-2 text-muted-foreground transition hover:bg-surface-subtle hover:text-foreground'
           onClick={() => onSelectTab('my-team')}
           type='button'
@@ -55,7 +53,10 @@ export function ManagerCreateEmployeeRequestView({
       </div>
 
       {submitted ? (
-        <div className='rounded-2xl border border-success/30 bg-success/10 p-8 text-center space-y-3 shadow-sm'>
+        <div
+          role='status'
+          className='rounded-2xl border border-success/30 bg-success/10 p-8 text-center space-y-3 shadow-sm'
+        >
           <CheckCircle2 className='size-12 text-success mx-auto' />
           <h2 className='text-base font-bold text-foreground'>{t('manager.createRequest.successTitle')}</h2>
           <p className='text-xs text-muted-foreground max-w-md mx-auto'>
@@ -64,15 +65,32 @@ export function ManagerCreateEmployeeRequestView({
               software: selectedSoftware.name
             })}
           </p>
+          <div className='flex flex-wrap justify-center gap-2 pt-3'>
+            <button
+              className='rounded-xl border border-border bg-surface px-4 py-2 font-semibold text-foreground hover:bg-surface-subtle'
+              onClick={() => setSubmitted(false)}
+              type='button'
+            >
+              {t('manager.createRequest.editPreviewBtn')}
+            </button>
+            <button
+              className='rounded-xl bg-primary px-4 py-2 font-bold text-primary-foreground hover:bg-primary/90'
+              onClick={() => onSelectTab('team-requests')}
+              type='button'
+            >
+              {t('manager.createRequest.backToRequestsBtn')}
+            </button>
+          </div>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className='rounded-2xl border border-border bg-surface p-6 shadow-sm space-y-6'>
           {/* Member Selection */}
           <div className='space-y-2'>
-            <label className='block text-xs font-bold text-foreground'>
+            <label className='block text-xs font-bold text-foreground' htmlFor='manager-request-member'>
               {t('manager.createRequest.labelEmployee')}
             </label>
             <select
+              id='manager-request-member'
               className='h-10 w-full rounded-xl border border-border bg-background px-3 text-xs text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
               onChange={(e) => setSelectedMemberId(e.target.value)}
               value={selectedMemberId}
@@ -87,10 +105,11 @@ export function ManagerCreateEmployeeRequestView({
 
           {/* Software Selection */}
           <div className='space-y-2'>
-            <label className='block text-xs font-bold text-foreground'>
+            <label className='block text-xs font-bold text-foreground' htmlFor='manager-request-software'>
               {t('manager.createRequest.labelSoftware')}
             </label>
             <select
+              id='manager-request-software'
               className='h-10 w-full rounded-xl border border-border bg-background px-3 text-xs text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
               onChange={(e) => setSelectedSoftwareId(e.target.value)}
               value={selectedSoftwareId}
@@ -123,14 +142,17 @@ export function ManagerCreateEmployeeRequestView({
 
           {/* Urgency */}
           <div className='space-y-2'>
-            <label className='block text-xs font-bold text-foreground'>{t('manager.createRequest.labelUrgency')}</label>
-            <div className='grid grid-cols-3 gap-2'>
+            <p className='block text-xs font-bold text-foreground' id='manager-request-urgency-label'>
+              {t('manager.createRequest.labelUrgency')}
+            </p>
+            <div aria-labelledby='manager-request-urgency-label' className='grid grid-cols-3 gap-2' role='group'>
               {[
                 { id: 'LOW' as const, label: t('manager.requests.urgencyLow') },
                 { id: 'MEDIUM' as const, label: t('manager.requests.urgencyMedium') },
                 { id: 'HIGH' as const, label: t('manager.requests.urgencyHigh') }
               ].map((opt) => (
                 <button
+                  aria-pressed={urgency === opt.id}
                   key={opt.id}
                   className={`rounded-xl border py-2.5 text-xs font-bold transition ${
                     urgency === opt.id
@@ -148,10 +170,11 @@ export function ManagerCreateEmployeeRequestView({
 
           {/* Justification */}
           <div className='space-y-2'>
-            <label className='block text-xs font-bold text-foreground'>
+            <label className='block text-xs font-bold text-foreground' htmlFor='manager-request-justification'>
               {t('manager.createRequest.labelJustification')}
             </label>
             <textarea
+              id='manager-request-justification'
               className='w-full rounded-xl border border-border bg-background p-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
               onChange={(e) => setJustification(e.target.value)}
               placeholder={t('manager.createRequest.justificationPlaceholder')}

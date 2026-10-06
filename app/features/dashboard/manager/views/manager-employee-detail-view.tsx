@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { MOCK_TEAM_MEMBERS } from '../manager-data'
+import { ManagerIdentityMark } from '../manager-identity-mark'
 import type { ManagerTabKey } from '../manager-nav'
 
 interface ManagerEmployeeDetailViewProps {
@@ -35,6 +36,7 @@ export function ManagerEmployeeDetailView({
       <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
         <div className='flex items-center gap-3'>
           <button
+            aria-label={t('manager.employeeDetail.backToTeam')}
             className='inline-flex items-center justify-center rounded-xl border border-border bg-surface p-2 text-muted-foreground transition hover:bg-surface-subtle hover:text-foreground'
             onClick={() => onSelectTab('my-team')}
             type='button'
@@ -64,7 +66,10 @@ export function ManagerEmployeeDetailView({
       </div>
 
       {successMsg && (
-        <div className='flex items-center gap-2 rounded-xl border border-success/30 bg-success/10 p-3 text-xs font-medium text-success'>
+        <div
+          role='status'
+          className='flex items-center gap-2 rounded-xl border border-success/30 bg-success/10 p-3 text-xs font-medium text-success'
+        >
           <ShieldCheck className='size-4 shrink-0' />
           <span>{successMsg}</span>
         </div>
@@ -74,9 +79,7 @@ export function ManagerEmployeeDetailView({
       <div className='grid grid-cols-1 gap-6 lg:grid-cols-3'>
         <div className='rounded-2xl border border-border bg-surface p-5 shadow-sm space-y-4'>
           <div className='flex items-center gap-3 border-b border-border pb-4'>
-            <span className='flex size-14 shrink-0 items-center justify-center rounded-2xl border border-border bg-background text-2xl'>
-              {member.avatar}
-            </span>
+            <ManagerIdentityMark className='size-14 rounded-2xl text-base' name={member.name} person />
             <div className='min-w-0'>
               <h2 className='truncate font-bold text-base text-foreground'>{member.name}</h2>
               <p className='truncate text-xs text-muted-foreground'>{member.jobTitle}</p>
@@ -193,9 +196,7 @@ export function ManagerEmployeeDetailView({
                 <tr key={item.id} className='transition hover:bg-surface-subtle/50'>
                   <td className='py-3 px-4'>
                     <div className='flex items-center gap-2.5'>
-                      <span className='flex size-8 shrink-0 items-center justify-center rounded-lg border border-border bg-background text-base'>
-                        {item.logo}
-                      </span>
+                      <ManagerIdentityMark className='size-8 rounded-lg' name={item.name} />
                       <span className='font-bold text-foreground'>{item.name}</span>
                     </div>
                   </td>

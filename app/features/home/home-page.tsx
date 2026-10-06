@@ -1,9 +1,10 @@
-import { Layers3, UsersRound } from 'lucide-react'
+import { UsersRound } from 'lucide-react'
 import { motion, useReducedMotion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
 import { LanguageSwitch } from '~/shared/ui/language-switch'
+import { BrandMark } from '~/shared/ui/brand-mark'
 import { ThemeSwitch } from '~/shared/ui/theme-switch'
 
 import { LandingVisual } from './landing-visual'
@@ -38,7 +39,7 @@ export function HomePage() {
               aria-hidden='true'
               className='absolute -top-2 -right-2 size-5 rounded-full bg-primary-foreground/20'
             />
-            <Layers3 aria-hidden='true' className='size-5' strokeWidth={2.1} />
+            <BrandMark className='size-6' />
           </span>
           <span className='text-lg font-bold tracking-[-0.02em] text-foreground'>{tCommon('brand')}</span>
         </div>
