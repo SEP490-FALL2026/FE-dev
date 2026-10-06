@@ -2,29 +2,6 @@
 
 @theme inline {
   --font-sans:
-<<<<<<< HEAD
-    'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
-    'Noto Color Emoji';
-
-  /* SaaS-Sentry warm palette */
-  --color-brand-50: #fef5ed;
-  --color-brand-100: #fce4d2;
-  --color-brand-200: #fcb978;
-  --color-brand-500: #fc7523;
-  --color-brand-600: #e85d16;
-  --color-brand-bg: #fefbf7;
-
-  --color-neutral-50: #fefbf7;
-  --color-neutral-100: #fef5ed;
-  --color-neutral-200: #ede7e2;
-  --color-neutral-500: #4d4745;
-  --color-neutral-900: #121211;
-
-  --color-success: #3db87f;
-  --color-success-bg: #e8f8f0;
-  --color-danger: #ef6b5b;
-  --color-danger-bg: #fdeceb;
-=======
     ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   --color-background: var(--theme-background);
   --color-sidebar: var(--theme-sidebar);
@@ -37,6 +14,12 @@
   --color-primary-hover: var(--theme-primary-hover);
   --color-primary-foreground: var(--theme-primary-foreground);
   --color-primary-soft: var(--theme-primary-soft);
+  --color-primary-action: var(--theme-primary-action);
+  --color-primary-ink: var(--theme-primary-ink);
+  --color-success-ink: var(--theme-success-ink);
+  --color-warning-ink: var(--theme-warning-ink);
+  --color-danger-ink: var(--theme-danger-ink);
+  --color-info-ink: var(--theme-info-ink);
   --color-success: var(--theme-success);
   --color-warning: var(--theme-warning);
   --color-danger: var(--theme-danger);
@@ -57,6 +40,12 @@
   --theme-primary-hover: #f06018;
   --theme-primary-foreground: #ffffff;
   --theme-primary-soft: #ffe0c0;
+  --theme-primary-action: var(--theme-primary);
+  --theme-primary-ink: #a33700;
+  --theme-success-ink: #146b4a;
+  --theme-warning-ink: #7a4500;
+  --theme-danger-ink: #b12a22;
+  --theme-info-ink: #145b99;
   --theme-success: #40b880;
   --theme-warning: #ffc070;
   --theme-danger: #e84840;
@@ -76,20 +65,21 @@
   --theme-primary-hover: #4098ff;
   --theme-primary-foreground: #ffffff;
   --theme-primary-soft: #103870;
+  --theme-primary-action: var(--theme-primary);
+  --theme-primary-ink: #6cb2ff;
+  --theme-success-ink: #10b8c0;
+  --theme-warning-ink: #f0a830;
+  --theme-danger-ink: #f04850;
+  --theme-info-ink: #6cb2ff;
   --theme-success: #10b8c0;
   --theme-warning: #f0a830;
   --theme-danger: #f04850;
   --theme-info: #2888ff;
->>>>>>> 0264d1f334206bf5700d79a1682547c398358f73
 }
 
 html,
 body {
-<<<<<<< HEAD
-  @apply min-h-full bg-neutral-100 text-neutral-900 antialiased;
-=======
   @apply min-h-full bg-background text-foreground antialiased;
->>>>>>> 0264d1f334206bf5700d79a1682547c398358f73
 }
 
 body {

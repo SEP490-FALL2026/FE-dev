@@ -1,7 +1,9 @@
-import { ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
+import { EmployeePreviewNotice } from '../employee-preview-notice'
 import type { EmployeeTabKey } from '../employee-nav'
+import { EmployeeRequestStepper } from '../employee-request-stepper'
 
 interface EmployeeReviewRequestViewProps {
   onSelectTab: (tab: EmployeeTabKey, params?: Record<string, string>) => void
@@ -11,29 +13,54 @@ interface EmployeeReviewRequestViewProps {
 export function EmployeeReviewRequestView({ onSelectTab, requestParams = {} }: EmployeeReviewRequestViewProps) {
   const { t } = useTranslation('dashboard')
 
-  const softwareName = requestParams.softwareName || 'Figma'
-  const plan = requestParams.plan || 'Professional / Enterprise'
-  const reason =
-    requestParams.reason || requestParams.note || 'Nhu cầu thiết kế UI/UX và cộng tác dự án với bộ phận Frontend.'
-  const project = requestParams.project || 'Dự án Alpha Portal'
+  const hasDraft = Boolean(requestParams.type && requestParams.softwareName)
+  const softwareName = requestParams.softwareName || t('employee.reviewRequest.notProvided')
+  const plan = requestParams.plan || t('employee.reviewRequest.notProvided')
+  const reason = requestParams.reason || requestParams.note || t('employee.reviewRequest.notProvided')
+  const project = requestParams.project || t('employee.reviewRequest.notProvided')
   const requestType = requestParams.type || 'newSoftware'
+  const duration =
+    requestParams.duration === '1month'
+      ? t('employee.temporaryRenewal.duration1Month')
+      : requestParams.duration === '3months'
+        ? t('employee.temporaryRenewal.duration3Months')
+        : requestParams.duration === '6months'
+          ? t('employee.temporaryRenewal.duration6Months')
+          : t('employee.reviewRequest.notProvided')
+  const returnReason =
+    requestParams.reasonCategory === 'projectEnded'
+      ? t('employee.returnLicense.reasonProjectEnded')
+      : requestParams.reasonCategory === 'alternative'
+        ? t('employee.returnLicense.reasonAlternative')
+        : requestParams.reasonCategory === 'rarelyUsed'
+          ? t('employee.returnLicense.reasonRarelyUsed')
+          : t('employee.reviewRequest.notProvided')
 
   const handleBack = () => {
+    const draft = Object.fromEntries(Object.entries(requestParams).filter(([key]) => key !== 'tab'))
     if (requestType === 'renewal') {
-      onSelectTab('temporary-renewal')
+      onSelectTab('temporary-renewal', draft)
     } else if (requestType === 'returnLicense') {
-      onSelectTab('return-license')
+      onSelectTab('return-license', draft)
     } else {
-      onSelectTab('request-new-software')
+      onSelectTab('request-new-software', draft)
     }
   }
 
-  const handleSubmit = () => {
-    onSelectTab('submission-success', {
-      id: 'REQ-1027',
-      softwareName,
-      type: requestType
-    })
+  if (!hasDraft) {
+    return (
+      <div className='mx-auto max-w-3xl rounded-2xl border border-border bg-surface p-6 sm:p-8'>
+        <h1 className='text-2xl font-bold text-foreground'>{t('employee.reviewRequest.missingDraftTitle')}</h1>
+        <p className='mt-2 text-sm text-muted-foreground'>{t('employee.reviewRequest.missingDraftDescription')}</p>
+        <button
+          className='mt-5 min-h-11 rounded-xl bg-primary-action px-4 text-sm font-bold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action'
+          onClick={() => onSelectTab('create-request')}
+          type='button'
+        >
+          {t('employee.requestNewSoftware.backToSelection')}
+        </button>
+      </div>
+    )
   }
 
   return (
@@ -52,29 +79,18 @@ export function EmployeeReviewRequestView({ onSelectTab, requestParams = {} }: E
         <p className='mt-1 text-sm text-muted-foreground'>{t('employee.reviewRequest.subtitle')}</p>
       </div>
 
-      {/* Stepper */}
-      <div className='flex items-center justify-between rounded-2xl border border-border bg-surface p-4 shadow-sm'>
-        <div className='flex items-center gap-3 opacity-60'>
-          <span className='grid size-7 place-items-center rounded-full bg-success text-xs font-bold text-white'>
-            <CheckCircle2 aria-hidden='true' className='size-4' />
-          </span>
-          <span className='text-xs font-medium text-foreground'>{t('employee.requestNewSoftware.step1')}</span>
-        </div>
-        <div className='h-0.5 w-16 bg-primary' />
-        <div className='flex items-center gap-3'>
-          <span className='grid size-7 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground'>
-            {2}
-          </span>
-          <span className='text-xs font-bold text-foreground'>{t('employee.requestNewSoftware.step2')}</span>
-        </div>
-        <div className='h-0.5 w-16 bg-border' />
-        <div className='flex items-center gap-3 opacity-50'>
-          <span className='grid size-7 place-items-center rounded-full border border-border text-xs font-bold text-muted-foreground'>
-            {3}
-          </span>
-          <span className='text-xs font-medium text-muted-foreground'>{t('employee.requestNewSoftware.step3')}</span>
-        </div>
-      </div>
+      <EmployeePreviewNotice>{t('employee.preview.request')}</EmployeePreviewNotice>
+
+      <EmployeeRequestStepper
+        currentStep={2}
+        firstStepLabel={t(
+          requestType === 'renewal'
+            ? 'employee.temporaryRenewal.step1'
+            : requestType === 'returnLicense'
+              ? 'employee.returnLicense.step1'
+              : 'employee.requestNewSoftware.step1'
+        )}
+      />
 
       {/* Grid: 7 cols Left, 5 cols Right */}
       <div className='grid gap-6 lg:grid-cols-12'>
@@ -83,21 +99,43 @@ export function EmployeeReviewRequestView({ onSelectTab, requestParams = {} }: E
           <div className='rounded-2xl border border-border bg-surface p-6 shadow-sm space-y-4'>
             <h2 className='text-sm font-bold text-foreground'>{t('employee.reviewRequest.summaryTitle')}</h2>
 
-            <div className='divide-y divide-border/70 text-xs'>
-              <div className='flex items-center justify-between py-2.5'>
+            <div className='divide-y divide-border/70 text-sm'>
+              <div className='flex flex-wrap items-start justify-between gap-x-4 gap-y-1 py-2.5'>
                 <span className='text-muted-foreground'>{t('employee.requestDetail.software')}</span>
                 <span className='font-bold text-foreground'>{softwareName}</span>
               </div>
-              <div className='flex items-center justify-between py-2.5'>
-                <span className='text-muted-foreground'>{t('employee.requestDetail.plan')}</span>
-                <span className='font-medium text-foreground'>{plan}</span>
-              </div>
-              <div className='flex items-center justify-between py-2.5'>
-                <span className='text-muted-foreground'>{t('employee.requestDetail.project')}</span>
-                <span className='font-medium text-foreground'>{project}</span>
-              </div>
+              {(requestType === 'newSoftware' || requestType === 'changePlan') && (
+                <>
+                  <div className='flex flex-wrap items-start justify-between gap-x-4 gap-y-1 py-2.5'>
+                    <span className='text-muted-foreground'>{t('employee.requestDetail.plan')}</span>
+                    <span className='font-medium text-foreground'>{plan}</span>
+                  </div>
+                  <div className='flex flex-wrap items-start justify-between gap-x-4 gap-y-1 py-2.5'>
+                    <span className='text-muted-foreground'>{t('employee.requestDetail.project')}</span>
+                    <span className='font-medium text-foreground'>{project}</span>
+                  </div>
+                </>
+              )}
+              {requestType === 'renewal' && (
+                <div className='flex flex-wrap items-start justify-between gap-x-4 gap-y-1 py-2.5'>
+                  <span className='text-muted-foreground'>{t('employee.temporaryRenewal.fieldDuration')}</span>
+                  <span className='font-medium text-foreground'>{duration}</span>
+                </div>
+              )}
+              {requestType === 'returnLicense' && (
+                <div className='flex flex-wrap items-start justify-between gap-x-4 gap-y-1 py-2.5'>
+                  <span className='text-muted-foreground'>{t('employee.returnLicense.fieldReason')}</span>
+                  <span className='font-medium text-foreground'>{returnReason}</span>
+                </div>
+              )}
               <div className='py-2.5'>
-                <span className='text-muted-foreground'>{t('employee.requestDetail.reason')}</span>
+                <span className='text-muted-foreground'>
+                  {t(
+                    requestType === 'returnLicense'
+                      ? 'employee.returnLicense.additionalNotes'
+                      : 'employee.requestDetail.reason'
+                  )}
+                </span>
                 <p className='mt-1 rounded-xl border border-border/70 bg-surface-subtle/50 p-3 text-foreground'>
                   {reason}
                 </p>
@@ -113,8 +151,8 @@ export function EmployeeReviewRequestView({ onSelectTab, requestParams = {} }: E
                 {t('employee.reviewRequest.actBack')}
               </button>
               <button
-                className='inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-xs font-bold text-primary-foreground shadow-sm transition hover:bg-primary/90'
-                onClick={handleSubmit}
+                className='inline-flex min-h-11 items-center gap-2 rounded-xl border border-border bg-surface-subtle px-6 py-2.5 text-sm font-bold text-muted-foreground disabled:cursor-not-allowed'
+                disabled
                 type='button'
               >
                 <span>{t('employee.reviewRequest.actSubmit')}</span>

@@ -298,6 +298,14 @@ export const dashboard = {
     }
   },
   employee: {
+    preview: {
+      title: 'Dữ liệu minh họa',
+      request: 'Bạn có thể xem lại thông tin, nhưng chưa thể gửi yêu cầu vì quy trình backend chưa được kết nối.',
+      export:
+        'Dữ liệu cá nhân và lịch sử xuất bên dưới chỉ là ví dụ. Chức năng xuất dữ liệu sẽ khả dụng sau khi kết nối backend.',
+      usage: 'Các chỉ số sử dụng bên dưới là dữ liệu minh họa, chưa phải nhật ký của tài khoản bạn.',
+      profile: 'Thông tin hồ sơ bên dưới là dữ liệu minh họa, chưa được đồng bộ từ tài khoản của bạn.'
+    },
     nav: {
       overview: 'Tổng quan',
       mySoftware: 'Phần mềm của tôi',
@@ -390,11 +398,17 @@ export const dashboard = {
       statusExpiringDays: 'Sắp hết hạn ({{days}} ngày)',
       statusPending: 'Chờ duyệt',
       statusReturned: 'Đã hoàn trả',
-      noExpiration: 'Không thời hạn'
+      noExpiration: 'Không thời hạn',
+      resultsCount: '{{count}} phần mềm phù hợp',
+      emptyTitle: 'Không tìm thấy phần mềm',
+      emptyDescription: 'Thử từ khóa khác hoặc xóa bộ lọc để xem lại phần mềm được cấp.',
+      clearFilters: 'Xóa bộ lọc'
     },
     softwareDetail: {
       breadcrumb: 'Chi tiết phần mềm',
       backToList: 'Quay lại danh sách',
+      notFoundTitle: 'Không tìm thấy phần mềm',
+      notFoundDescription: 'Phần mềm này không có trong danh sách bản quyền được cấp.',
       assignedDate: 'Ngày được cấp',
       licenseKey: 'Mã bản quyền / License Key',
       copySuccess: 'Đã sao chép license key',
@@ -407,9 +421,9 @@ export const dashboard = {
       actRenew: 'Gia hạn tạm thời',
       actUpgrade: 'Đổi gói cao hơn',
       actReportIssue: 'Báo lỗi tài khoản',
-      supportDesc:
-        'Gặp sự cố đăng nhập hoặc license hết hạn bất ngờ? Báo cho IT Admin để được giải quyết trong vòng 2h.',
-      actSubmitTicket: 'Gửi ticket hỗ trợ'
+      supportDesc: 'Gặp sự cố đăng nhập hoặc license hết hạn bất ngờ? Hãy liên hệ IT Admin.',
+      actSubmitTicket: 'Gửi ticket hỗ trợ',
+      supportUnavailable: 'Chức năng gửi ticket sẽ có khi hệ thống hỗ trợ được kết nối.'
     },
     myRequests: {
       title: 'Danh sách yêu cầu của tôi',
@@ -435,11 +449,17 @@ export const dashboard = {
       statusApproved: 'Đã duyệt',
       statusCompleted: 'Hoàn tất',
       statusRejected: 'Từ chối',
-      statusCancelled: 'Đã hủy'
+      statusCancelled: 'Đã hủy',
+      resultsCount: '{{count}} yêu cầu phù hợp',
+      emptyTitle: 'Không tìm thấy yêu cầu',
+      emptyDescription: 'Thử từ khóa khác hoặc xóa bộ lọc để xem lại các yêu cầu.',
+      clearFilters: 'Xóa bộ lọc'
     },
     requestDetail: {
       breadcrumb: 'Chi tiết yêu cầu',
       backToList: 'Quay lại danh sách yêu cầu',
+      notFoundTitle: 'Không tìm thấy yêu cầu',
+      notFoundDescription: 'Mã yêu cầu này không có trong danh sách của bạn.',
       requestId: 'Mã yêu cầu: {{id}}',
       progressTitle: 'Quy trình phê duyệt',
       infoTitle: 'Nội dung yêu cầu',
@@ -481,9 +501,12 @@ export const dashboard = {
       subtitle: 'Bước 1: Chọn phần mềm và cung cấp lý do nghiệp vụ (UF-03 · Bước 1)',
       backToSelection: 'Quay lại chọn loại yêu cầu',
       step1: 'Chọn phần mềm',
+      progressLabel: 'Tiến trình tạo yêu cầu',
       step2: 'Xem lại',
       step3: 'Hoàn tất',
       catalogTitle: 'Danh mục phần mềm khả dụng',
+      emptyCatalog: 'Không tìm thấy phần mềm phù hợp. Hãy thử từ khóa khác.',
+      completeFields: 'Vui lòng điền gói bản quyền, dự án và lý do trước khi tiếp tục.',
       searchPlaceholder: 'Tìm kiếm phần mềm...',
       detailsTitle: 'Thông tin đăng ký',
       fieldSoftware: 'Phần mềm được chọn',
@@ -505,6 +528,7 @@ export const dashboard = {
       duration3Months: '3 Tháng',
       duration6Months: '6 Tháng',
       fieldReason: 'Lý do cần gia hạn',
+      reasonRequired: 'Vui lòng nhập lý do gia hạn trước khi tiếp tục.',
       optionLabel: '{{name}} ({{plan}}) - Hết hạn: {{date}}',
       actCancel: 'Hủy',
       actContinue: 'Tiếp tục xem lại'
@@ -526,7 +550,10 @@ export const dashboard = {
     },
     reviewRequest: {
       title: 'Kiểm tra & Xác nhận yêu cầu',
-      subtitle: 'Bước 2: Rà soát lại toàn bộ thông tin trước khi gửi phê duyệt (UF-03 · Bước 2)',
+      missingDraftTitle: 'Chưa có yêu cầu để xem lại',
+      missingDraftDescription: 'Hãy chọn loại yêu cầu và điền thông tin trước khi xem lại.',
+      notProvided: 'Chưa cung cấp',
+      subtitle: 'Bước 2: Xem trước thông tin yêu cầu (UF-03 · Bước 2)',
       summaryTitle: 'Tóm tắt yêu cầu',
       detailsTitle: 'Chi tiết đăng ký',
       approvalFlowTitle: 'Tiến trình phê duyệt dự kiến',
@@ -537,13 +564,17 @@ export const dashboard = {
       flowStep3Title: '3. Hoàn tất & Kích hoạt',
       flowStep3Desc: 'Gửi thông tin đăng nhập qua email',
       actBack: 'Quay lại chỉnh sửa',
-      actSubmit: 'Gửi yêu cầu phê duyệt'
+      actSubmit: 'Gửi yêu cầu (chưa khả dụng)'
     },
     submissionSuccess: {
+      previewTitle: 'Bản xem trước quy trình',
+      previewSubtitle:
+        'Chưa có yêu cầu nào được gửi hoặc cấp mã. Đây là minh họa các bước sau khi chức năng gửi yêu cầu được kết nối.',
+      previewTimelineTitle: 'Các bước dự kiến',
       title: 'Yêu cầu đã được gửi thành công!',
       subtitle: 'Mã số yêu cầu: {{id}}. Thông báo đã được gửi tới Quản lý trực tiếp để phê duyệt.',
       timelineTitle: 'Tiến trình tiếp theo',
-      stepManager: '1. Quản lý trực tiếp xem xét và phê duyệt (Dự kiến trong 24h)',
+      stepManager: '1. Quản lý trực tiếp xem xét và phê duyệt',
       stepItAdmin: '2. IT Admin tiến hành cấp tài khoản hoặc phân bổ license',
       stepNotification: '3. Bạn nhận email xác nhận kèm thông tin đăng nhập',
       actViewRequests: 'Xem danh sách yêu cầu',
@@ -577,25 +608,32 @@ export const dashboard = {
     },
     dataExport: {
       title: 'Xuất dữ liệu cá nhân',
-      subtitle: 'Tải về toàn bộ lịch sử sử dụng phần mềm và yêu cầu bản quyền của bạn (GDPR / Privacy Compliance)',
+      subtitle: 'Xem các định dạng dự kiến để xuất dữ liệu cá nhân khi hệ thống được kết nối.',
       backToProfile: 'Quay lại hồ sơ',
       formatCsv: 'Định dạng CSV',
       formatCsvDesc: 'Bảng dữ liệu raw tổng hợp thời gian sử dụng, bản quyền và trạng thái phê duyệt.',
       formatJson: 'Định dạng JSON',
-      formatJsonDesc: 'Cấu trúc JSON đầy đủ thuộc tính tuân thủ tiêu chuẩn GDPR Data Portability.',
+      formatJsonDesc: 'Dữ liệu có cấu trúc để sử dụng với các công cụ khác.',
       formatPdf: 'Báo cáo PDF',
-      formatPdfDesc: 'Báo cáo định dạng tài liệu có thể in ấn kèm dấu xác thực của hệ thống.',
+      formatPdfDesc: 'Bản tóm tắt có thể in khi tính năng xuất dữ liệu được hỗ trợ.',
       downloaded: 'Đã tải về',
       downloadCsv: 'Tải CSV',
       downloadJson: 'Tải JSON',
       downloadPdf: 'Tải PDF',
       actDownload: 'Tạo bản sao lưu và tải xuống',
       recentExports: 'Lịch sử các lần xuất dữ liệu',
+      emptyHistory: 'Chưa có bản xuất dữ liệu nào được xác nhận.',
       statusSuccess: 'Thành công'
     },
     dataUsage: {
+      categories: {
+        design: 'Thiết kế',
+        development: 'Phát triển',
+        productivity: 'Năng suất',
+        communication: 'Liên lạc'
+      },
       title: 'Nhật ký thu thập & Minh bạch dữ liệu',
-      subtitle: 'Chi tiết các chỉ số sử dụng phần mềm được ghi nhận trên máy công ty (UF-16 Employee View)',
+      subtitle: 'Bản xem trước các loại chỉ số sử dụng phần mềm mà nhân viên có thể kiểm tra (UF-16).',
       backToProfile: 'Quay lại hồ sơ',
       metricMonitored: 'Ứng dụng trong danh mục',
       metricExcluded: 'Ứng dụng liên lạc bị loại trừ',

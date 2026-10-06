@@ -53,7 +53,7 @@ export function EmployeeOverviewView({ displayName, onSelectTab }: EmployeeOverv
     },
     {
       subtitle: t('employee.overview.cards.pendingRequests.subtitle'),
-      title: t('employee.overview.cards.pendingRequests.subtitle')
+      title: t('employee.overview.cards.pendingRequests.title')
     },
     {
       subtitle: t('employee.overview.cards.expiringSoon.subtitle'),
@@ -81,7 +81,7 @@ export function EmployeeOverviewView({ displayName, onSelectTab }: EmployeeOverv
         </div>
 
         <button
-          className='inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-primary-foreground shadow-sm transition hover:bg-primary/90'
+          className='inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary-action px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action'
           onClick={() => onSelectTab('create-request')}
           type='button'
         >
@@ -141,7 +141,7 @@ export function EmployeeOverviewView({ displayName, onSelectTab }: EmployeeOverv
                 </p>
               </div>
               <button
-                className='inline-flex items-center gap-1.5 text-xs font-bold text-primary transition hover:underline'
+                className='inline-flex min-h-11 items-center gap-1.5 text-sm font-bold text-primary-ink transition hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action'
                 onClick={() => onSelectTab('my-software')}
                 type='button'
               >
@@ -150,8 +150,40 @@ export function EmployeeOverviewView({ displayName, onSelectTab }: EmployeeOverv
               </button>
             </div>
 
-            <div className='divide-y divide-border overflow-x-auto'>
-              <table className='w-full text-left text-xs'>
+            <div className='divide-y divide-border xl:hidden'>
+              {visibleSoftware.map((item) => (
+                <article
+                  className='flex flex-wrap items-center gap-3 border-b border-border py-4 last:border-0'
+                  key={item.id}
+                >
+                  <img
+                    alt=''
+                    className='size-10 shrink-0 rounded-lg border border-border bg-surface object-contain p-1'
+                    src={item.logoUrl}
+                  />
+                  <div className='min-w-0 flex-1'>
+                    <h3 className='truncate text-sm font-bold text-foreground'>{item.name}</h3>
+                    <p className='text-sm text-muted-foreground'>
+                      {item.plan} · {item.usage}%
+                    </p>
+                    <p className='text-sm text-foreground'>
+                      {item.status === 'active'
+                        ? t('employee.mySoftware.statusActive')
+                        : t('employee.mySoftware.statusExpiring')}
+                    </p>
+                  </div>
+                  <button
+                    className='inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-border px-3 text-sm font-semibold text-foreground hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:w-auto'
+                    onClick={() => onSelectTab('software-detail', { id: item.id })}
+                    type='button'
+                  >
+                    {t('employee.mySoftware.actViewDetails')}
+                  </button>
+                </article>
+              ))}
+            </div>
+            <div className='hidden divide-y divide-border overflow-x-auto xl:block'>
+              <table className='w-full text-left text-sm'>
                 <thead>
                   <tr className='text-muted-foreground'>
                     <th className='py-3 pr-4 font-semibold'>{t('employee.overview.recentSoftware.colSoftware')}</th>
@@ -203,7 +235,7 @@ export function EmployeeOverviewView({ displayName, onSelectTab }: EmployeeOverv
                       </td>
                       <td className='py-3 pl-4 text-right'>
                         <button
-                          className='rounded-lg border border-border px-2.5 py-1 text-[0.7rem] font-semibold text-muted-foreground transition hover:border-primary hover:text-primary'
+                          className='min-h-10 rounded-lg border border-border px-3 py-1 text-sm font-semibold text-foreground transition hover:border-primary hover:bg-primary-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
                           onClick={() => onSelectTab('software-detail', { id: item.id })}
                           type='button'
                         >
@@ -228,7 +260,7 @@ export function EmployeeOverviewView({ displayName, onSelectTab }: EmployeeOverv
                 </span>
                 <div className='flex items-center gap-2'>
                   <button
-                    className='inline-flex items-center gap-1 rounded-lg border border-border px-2.5 py-1.5 text-xs font-semibold text-foreground transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40'
+                    className='inline-flex min-h-11 items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action disabled:cursor-not-allowed disabled:opacity-40'
                     disabled={softwarePage === 1}
                     onClick={() => setSoftwarePage((page) => page - 1)}
                     type='button'
@@ -237,7 +269,7 @@ export function EmployeeOverviewView({ displayName, onSelectTab }: EmployeeOverv
                     {t('employee.overview.recentSoftware.previousPage')}
                   </button>
                   <button
-                    className='inline-flex items-center gap-1 rounded-lg border border-border px-2.5 py-1.5 text-xs font-semibold text-foreground transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40'
+                    className='inline-flex min-h-11 items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action disabled:cursor-not-allowed disabled:opacity-40'
                     disabled={softwarePage === softwarePageCount}
                     onClick={() => setSoftwarePage((page) => page + 1)}
                     type='button'
@@ -280,7 +312,7 @@ export function EmployeeOverviewView({ displayName, onSelectTab }: EmployeeOverv
                     </div>
                   </div>
                   <button
-                    className='rounded-lg bg-surface border border-border px-2.5 py-1 text-xs font-semibold text-foreground transition hover:bg-primary hover:text-primary-foreground hover:border-primary'
+                    className='min-h-11 rounded-lg border border-border bg-surface px-3 text-sm font-semibold text-foreground transition hover:border-primary hover:bg-primary-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action'
                     onClick={() => onSelectTab('request-new-software', { softwareId: sw.id })}
                     type='button'
                   >
@@ -302,7 +334,7 @@ export function EmployeeOverviewView({ displayName, onSelectTab }: EmployeeOverv
             </div>
             <div className='space-y-2'>
               <button
-                className='flex w-full items-center justify-between rounded-xl bg-primary px-3.5 py-2.5 text-left text-xs font-bold text-primary-foreground shadow-sm transition hover:bg-primary/90'
+                className='flex min-h-11 w-full items-center justify-between rounded-xl bg-primary-action px-3.5 py-2.5 text-left text-sm font-bold text-white shadow-sm transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action'
                 onClick={() => onSelectTab('request-new-software')}
                 type='button'
               >
@@ -314,7 +346,7 @@ export function EmployeeOverviewView({ displayName, onSelectTab }: EmployeeOverv
               </button>
 
               <button
-                className='flex w-full items-center justify-between rounded-xl border border-border bg-surface px-3.5 py-2.5 text-left text-xs font-semibold text-foreground transition hover:bg-surface-subtle'
+                className='flex min-h-11 w-full items-center justify-between rounded-xl border border-border bg-surface px-3.5 py-2.5 text-left text-sm font-semibold text-foreground transition hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action'
                 onClick={() => onSelectTab('create-request')}
                 type='button'
               >
@@ -326,7 +358,7 @@ export function EmployeeOverviewView({ displayName, onSelectTab }: EmployeeOverv
               </button>
 
               <button
-                className='flex w-full items-center justify-between rounded-xl border border-border bg-surface px-3.5 py-2.5 text-left text-xs font-semibold text-foreground transition hover:bg-surface-subtle'
+                className='flex min-h-11 w-full items-center justify-between rounded-xl border border-border bg-surface px-3.5 py-2.5 text-left text-sm font-semibold text-foreground transition hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action'
                 onClick={() => onSelectTab('temporary-renewal')}
                 type='button'
               >
@@ -338,7 +370,7 @@ export function EmployeeOverviewView({ displayName, onSelectTab }: EmployeeOverv
               </button>
 
               <button
-                className='flex w-full items-center justify-between rounded-xl border border-border bg-surface px-3.5 py-2.5 text-left text-xs font-semibold text-foreground transition hover:bg-surface-subtle'
+                className='flex min-h-11 w-full items-center justify-between rounded-xl border border-border bg-surface px-3.5 py-2.5 text-left text-sm font-semibold text-foreground transition hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action'
                 onClick={() => onSelectTab('return-license')}
                 type='button'
               >
@@ -379,7 +411,7 @@ export function EmployeeOverviewView({ displayName, onSelectTab }: EmployeeOverv
                     </div>
                   </div>
                   <button
-                    className='rounded-lg bg-warning/15 px-2.5 py-1 text-xs font-bold text-warning transition hover:bg-warning hover:text-white'
+                    className='min-h-11 rounded-lg bg-warning/15 px-3 text-sm font-bold text-warning-ink transition hover:bg-warning/25 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-warning-ink'
                     onClick={() => onSelectTab('temporary-renewal', { softwareId: exp.id })}
                     type='button'
                   >
@@ -442,7 +474,7 @@ export function EmployeeOverviewView({ displayName, onSelectTab }: EmployeeOverv
                 <p className='text-xs font-bold text-foreground'>{t('employee.overview.tips.title')}</p>
                 <p className='mt-1 text-[0.72rem] text-muted-foreground'>{t('employee.overview.tips.description')}</p>
                 <button
-                  className='mt-2 inline-flex items-center gap-1 text-[0.72rem] font-bold text-primary transition hover:underline'
+                  className='mt-2 inline-flex min-h-11 items-center gap-1 text-sm font-bold text-primary-ink transition hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action'
                   onClick={() => onSelectTab('return-license')}
                   type='button'
                 >

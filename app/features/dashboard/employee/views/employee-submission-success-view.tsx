@@ -1,37 +1,34 @@
-import { CheckCircle2, FileText, Home } from 'lucide-react'
+import { FileText, Home, Info } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
+import { EmployeePreviewNotice } from '../employee-preview-notice'
 import type { EmployeeTabKey } from '../employee-nav'
 
 interface EmployeeSubmissionSuccessViewProps {
   onSelectTab: (tab: EmployeeTabKey, params?: Record<string, string>) => void
-  requestId?: string
 }
 
-export function EmployeeSubmissionSuccessView({
-  onSelectTab,
-  requestId = 'REQ-1027'
-}: EmployeeSubmissionSuccessViewProps) {
+export function EmployeeSubmissionSuccessView({ onSelectTab }: EmployeeSubmissionSuccessViewProps) {
   const { t } = useTranslation('dashboard')
 
   return (
     <div className='mx-auto max-w-3xl space-y-8 py-6'>
-      {/* Success Hero Box */}
-      <div className='rounded-3xl border border-success/30 bg-surface p-8 text-center shadow-sm'>
-        <span className='mx-auto grid size-16 place-items-center rounded-2xl bg-success text-white shadow-md'>
-          <CheckCircle2 aria-hidden='true' className='size-8' />
+      <EmployeePreviewNotice>{t('employee.preview.request')}</EmployeePreviewNotice>
+      <div className='rounded-3xl border border-border bg-surface p-6 text-center shadow-sm sm:p-8'>
+        <span className='mx-auto grid size-16 place-items-center rounded-2xl bg-primary-soft text-primary-ink'>
+          <Info aria-hidden='true' className='size-8' />
         </span>
         <h1 className='mt-5 text-2xl font-bold tracking-tight text-foreground'>
-          {t('employee.submissionSuccess.title')}
+          {t('employee.submissionSuccess.previewTitle')}
         </h1>
         <p className='mt-2 text-sm text-muted-foreground leading-relaxed'>
-          {t('employee.submissionSuccess.subtitle', { id: requestId })}
+          {t('employee.submissionSuccess.previewSubtitle')}
         </p>
 
         {/* Action Buttons */}
         <div className='mt-8 flex flex-wrap items-center justify-center gap-3'>
           <button
-            className='inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground shadow-sm transition hover:bg-primary/90'
+            className='inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary-action px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action'
             onClick={() => onSelectTab('my-requests')}
             type='button'
           >
@@ -39,7 +36,7 @@ export function EmployeeSubmissionSuccessView({
             <span>{t('employee.submissionSuccess.actViewRequests')}</span>
           </button>
           <button
-            className='inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-5 py-2.5 text-xs font-bold text-foreground transition hover:bg-surface-subtle'
+            className='inline-flex min-h-11 items-center gap-2 rounded-xl border border-border bg-surface px-5 py-2.5 text-sm font-bold text-foreground transition hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action'
             onClick={() => onSelectTab('overview')}
             type='button'
           >
@@ -51,7 +48,7 @@ export function EmployeeSubmissionSuccessView({
 
       {/* Next Steps Card */}
       <div className='rounded-2xl border border-border bg-surface p-6 shadow-sm'>
-        <h2 className='text-sm font-bold text-foreground'>{t('employee.submissionSuccess.timelineTitle')}</h2>
+        <h2 className='text-base font-bold text-foreground'>{t('employee.submissionSuccess.previewTimelineTitle')}</h2>
         <div className='mt-4 space-y-3 text-xs text-muted-foreground'>
           <div className='flex items-start gap-3 rounded-xl border border-border/70 bg-surface-subtle/50 p-3.5'>
             <span className='grid size-6 shrink-0 place-items-center rounded-full bg-primary-soft text-primary font-bold text-[0.7rem]'>

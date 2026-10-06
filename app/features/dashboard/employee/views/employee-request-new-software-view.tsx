@@ -4,22 +4,27 @@ import { useTranslation } from 'react-i18next'
 
 import { catalogSoftwareList } from '../employee-data'
 import type { EmployeeTabKey } from '../employee-nav'
+import { EmployeeRequestStepper } from '../employee-request-stepper'
 
 interface EmployeeRequestNewSoftwareViewProps {
   onSelectTab: (tab: EmployeeTabKey, params?: Record<string, string>) => void
+  initialParams?: Record<string, string>
   preselectedSoftwareId?: string
+  requestType?: 'newSoftware' | 'changePlan'
 }
 
 export function EmployeeRequestNewSoftwareView({
   onSelectTab,
-  preselectedSoftwareId = 'figma'
+  initialParams = {},
+  preselectedSoftwareId = 'figma',
+  requestType = 'newSoftware'
 }: EmployeeRequestNewSoftwareViewProps) {
   const { t } = useTranslation('dashboard')
-  const [selectedSoftwareId, setSelectedSoftwareId] = useState(preselectedSoftwareId)
+  const [selectedSoftwareId, setSelectedSoftwareId] = useState(initialParams.softwareId || preselectedSoftwareId)
   const [search, setSearch] = useState('')
-  const [plan, setPlan] = useState('Professional / Enterprise')
-  const [reason, setReason] = useState('Cần công cụ để thực hiện dự án mới và cộng tác trong team.')
-  const [project, setProject] = useState('Dự án Alpha Portal (Q4/2026)')
+  const [plan, setPlan] = useState(initialParams.plan || '')
+  const [reason, setReason] = useState(initialParams.reason || '')
+  const [project, setProject] = useState(initialParams.project || '')
 
   const filteredCatalog = catalogSoftwareList.filter(
     (sw) =>
@@ -27,15 +32,17 @@ export function EmployeeRequestNewSoftwareView({
   )
 
   const selectedSoftware = catalogSoftwareList.find((sw) => sw.id === selectedSoftwareId) || catalogSoftwareList[0]
+  const canContinue = plan.trim().length > 0 && project.trim().length > 0 && reason.trim().length > 0
 
   const handleContinue = () => {
+    if (!canContinue) return
     onSelectTab('review-request', {
       plan,
       project,
       reason,
       softwareId: selectedSoftware.id,
       softwareName: selectedSoftware.name,
-      type: 'newSoftware'
+      type: requestType
     })
   }
 
@@ -51,33 +58,17 @@ export function EmployeeRequestNewSoftwareView({
           <ArrowLeft aria-hidden='true' className='size-4' />
           <span>{t('employee.requestNewSoftware.backToSelection')}</span>
         </button>
-        <h1 className='mt-2 text-2xl font-bold tracking-tight sm:text-3xl'>{t('employee.requestNewSoftware.title')}</h1>
+        <h1 className='mt-2 text-2xl font-bold tracking-tight sm:text-3xl'>
+          {t(
+            requestType === 'changePlan'
+              ? 'employee.createRequest.changePlanTitle'
+              : 'employee.requestNewSoftware.title'
+          )}
+        </h1>
         <p className='mt-1 text-sm text-muted-foreground'>{t('employee.requestNewSoftware.subtitle')}</p>
       </div>
 
-      {/* Stepper Indicator */}
-      <div className='flex items-center justify-between rounded-2xl border border-border bg-surface p-4 shadow-sm'>
-        <div className='flex items-center gap-3'>
-          <span className='grid size-7 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground'>
-            {1}
-          </span>
-          <span className='text-xs font-bold text-foreground'>{t('employee.requestNewSoftware.step1')}</span>
-        </div>
-        <div className='h-0.5 w-16 bg-border' />
-        <div className='flex items-center gap-3 opacity-50'>
-          <span className='grid size-7 place-items-center rounded-full border border-border text-xs font-bold text-muted-foreground'>
-            {2}
-          </span>
-          <span className='text-xs font-medium text-muted-foreground'>{t('employee.requestNewSoftware.step2')}</span>
-        </div>
-        <div className='h-0.5 w-16 bg-border' />
-        <div className='flex items-center gap-3 opacity-50'>
-          <span className='grid size-7 place-items-center rounded-full border border-border text-xs font-bold text-muted-foreground'>
-            {3}
-          </span>
-          <span className='text-xs font-medium text-muted-foreground'>{t('employee.requestNewSoftware.step3')}</span>
-        </div>
-      </div>
+      <EmployeeRequestStepper currentStep={1} firstStepLabel={t('employee.requestNewSoftware.step1')} />
 
       {/* 2-Column Grid */}
       <div className='grid gap-6 lg:grid-cols-12'>
@@ -95,7 +86,7 @@ export function EmployeeRequestNewSoftwareView({
               />
               <input
                 aria-label={t('employee.requestNewSoftware.searchPlaceholder')}
-                className='h-9 w-full rounded-xl border border-border bg-background pr-3 pl-9 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
+                className='h-11 w-full rounded-xl border border-border bg-background pr-3 pl-9 text-base text-foreground placeholder:text-muted-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action sm:text-sm'
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={t('employee.requestNewSoftware.searchPlaceholder')}
                 type='search'
@@ -108,6 +99,7 @@ export function EmployeeRequestNewSoftwareView({
                 const isSelected = sw.id === selectedSoftwareId
                 return (
                   <button
+                    aria-pressed={isSelected}
                     className={`flex w-full items-center justify-between rounded-xl border p-3 text-left transition ${
                       isSelected
                         ? 'border-primary bg-primary-soft/50 shadow-xs'
@@ -136,6 +128,11 @@ export function EmployeeRequestNewSoftwareView({
                   </button>
                 )
               })}
+              {filteredCatalog.length === 0 && (
+                <p className='rounded-xl border border-border bg-surface-subtle p-4 text-sm text-muted-foreground'>
+                  {t('employee.requestNewSoftware.emptyCatalog')}
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -146,9 +143,9 @@ export function EmployeeRequestNewSoftwareView({
             <h2 className='text-sm font-bold text-foreground'>{t('employee.requestNewSoftware.detailsTitle')}</h2>
 
             <div>
-              <label className='block text-xs font-semibold text-muted-foreground mb-1.5'>
+              <p className='mb-1.5 text-sm font-semibold text-muted-foreground'>
                 {t('employee.requestNewSoftware.fieldSoftware')}
-              </label>
+              </p>
               <div className='flex items-center gap-3 rounded-xl border border-border bg-surface-subtle/50 p-3'>
                 <img
                   alt={selectedSoftware.name}
@@ -163,38 +160,48 @@ export function EmployeeRequestNewSoftwareView({
             </div>
 
             <div>
-              <label className='block text-xs font-semibold text-muted-foreground mb-1.5'>
+              <label className='mb-1.5 block text-sm font-semibold text-foreground' htmlFor='employee-request-plan'>
                 {t('employee.requestNewSoftware.fieldPlan')}
               </label>
               <input
-                className='h-10 w-full rounded-xl border border-border bg-background px-3 text-xs text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
+                className='h-11 w-full rounded-xl border border-border bg-background px-3 text-base text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action sm:text-sm'
+                id='employee-request-plan'
                 onChange={(e) => setPlan(e.target.value)}
                 value={plan}
               />
             </div>
 
             <div>
-              <label className='block text-xs font-semibold text-muted-foreground mb-1.5'>
+              <label className='mb-1.5 block text-sm font-semibold text-foreground' htmlFor='employee-request-project'>
                 {t('employee.requestNewSoftware.fieldProject')}
               </label>
               <input
-                className='h-10 w-full rounded-xl border border-border bg-background px-3 text-xs text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
+                className='h-11 w-full rounded-xl border border-border bg-background px-3 text-base text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action sm:text-sm'
+                id='employee-request-project'
                 onChange={(e) => setProject(e.target.value)}
                 value={project}
               />
             </div>
 
             <div>
-              <label className='block text-xs font-semibold text-muted-foreground mb-1.5'>
+              <label className='mb-1.5 block text-sm font-semibold text-foreground' htmlFor='employee-request-reason'>
                 {t('employee.requestNewSoftware.fieldReason')}
               </label>
               <textarea
-                className='w-full rounded-xl border border-border bg-background p-3 text-xs text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
+                className='w-full rounded-xl border border-border bg-background p-3 text-base text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action sm:text-sm'
+                id='employee-request-reason'
                 onChange={(e) => setReason(e.target.value)}
+                placeholder={t('employee.requestNewSoftware.fieldReasonPlaceholder')}
                 rows={3}
                 value={reason}
               />
             </div>
+
+            {!canContinue && (
+              <p className='text-sm text-danger-ink' role='status'>
+                {t('employee.requestNewSoftware.completeFields')}
+              </p>
+            )}
 
             <div className='flex items-center justify-between pt-2'>
               <button
@@ -205,7 +212,8 @@ export function EmployeeRequestNewSoftwareView({
                 {t('employee.requestNewSoftware.actCancel')}
               </button>
               <button
-                className='inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2 text-xs font-bold text-primary-foreground shadow-sm transition hover:bg-primary/90'
+                className='inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary-action px-5 py-2 text-sm font-bold text-white transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action disabled:cursor-not-allowed disabled:opacity-50'
+                disabled={!canContinue}
                 onClick={handleContinue}
                 type='button'
               >

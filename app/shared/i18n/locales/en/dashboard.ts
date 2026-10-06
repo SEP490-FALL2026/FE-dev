@@ -299,6 +299,14 @@ export const dashboard = {
     }
   },
   employee: {
+    preview: {
+      title: 'Sample data',
+      request: 'You can review the details, but requests cannot be submitted until the backend workflow is connected.',
+      export:
+        'The personal data and export history below are examples. Export will be available after backend integration.',
+      usage: 'The usage figures below are examples, not your account activity log.',
+      profile: 'The profile details below are examples and are not synced from your account.'
+    },
     nav: {
       overview: 'Overview',
       mySoftware: 'My Software',
@@ -387,11 +395,17 @@ export const dashboard = {
       statusExpiringDays: 'Expiring ({{days}}d)',
       statusPending: 'Pending',
       statusReturned: 'Returned',
-      noExpiration: 'No Expiration'
+      noExpiration: 'No Expiration',
+      resultsCount: '{{count}} matching software licenses',
+      emptyTitle: 'No software found',
+      emptyDescription: 'Try another search term or clear the filters to see your assigned software.',
+      clearFilters: 'Clear filters'
     },
     softwareDetail: {
       breadcrumb: 'Software Details',
       backToList: 'Back to My Software',
+      notFoundTitle: 'Software not found',
+      notFoundDescription: 'This software is not in your assigned licenses.',
       assignedDate: 'Assigned Date',
       licenseKey: 'License Key / Identifier',
       copySuccess: 'License key copied to clipboard',
@@ -404,9 +418,9 @@ export const dashboard = {
       actRenew: 'Temporary Renewal',
       actUpgrade: 'Upgrade Plan',
       actReportIssue: 'Report Access Issue',
-      supportDesc:
-        'Experiencing sign-in issues or unexpected license expiration? Alert IT Admin for resolution within 2 hours.',
-      actSubmitTicket: 'Submit Support Ticket'
+      supportDesc: 'Experiencing sign-in issues or unexpected license expiration? Contact your IT Admin.',
+      actSubmitTicket: 'Submit Support Ticket',
+      supportUnavailable: 'Support tickets will be available when the support service is connected.'
     },
     myRequests: {
       title: 'My Service Requests',
@@ -432,11 +446,17 @@ export const dashboard = {
       statusApproved: 'Approved',
       statusCompleted: 'Completed',
       statusRejected: 'Rejected',
-      statusCancelled: 'Cancelled'
+      statusCancelled: 'Cancelled',
+      resultsCount: '{{count}} matching requests',
+      emptyTitle: 'No requests found',
+      emptyDescription: 'Try another search term or clear the filters to see your requests.',
+      clearFilters: 'Clear filters'
     },
     requestDetail: {
       breadcrumb: 'Request Details',
       backToList: 'Back to Requests',
+      notFoundTitle: 'Request not found',
+      notFoundDescription: 'This request ID is not in your list.',
       requestId: 'Request: {{id}}',
       progressTitle: 'Approval Workflow',
       infoTitle: 'Request Information',
@@ -477,9 +497,12 @@ export const dashboard = {
       subtitle: 'Step 1: Choose software and specify business rationale (UF-03 · Step 1)',
       backToSelection: 'Back to Request Categories',
       step1: 'Select Software',
+      progressLabel: 'Request progress',
       step2: 'Review',
       step3: 'Complete',
       catalogTitle: 'Available SaaS Catalog',
+      emptyCatalog: 'No software matched your search. Try another term.',
+      completeFields: 'Enter the plan, project, and reason before continuing.',
       searchPlaceholder: 'Search available software...',
       detailsTitle: 'Request Details',
       fieldSoftware: 'Selected Application',
@@ -501,6 +524,7 @@ export const dashboard = {
       duration3Months: '3 Months',
       duration6Months: '6 Months',
       fieldReason: 'Renewal Justification',
+      reasonRequired: 'Enter a renewal reason before continuing.',
       optionLabel: '{{name}} ({{plan}}) - Expiring: {{date}}',
       actCancel: 'Cancel',
       actContinue: 'Continue to Review'
@@ -522,7 +546,10 @@ export const dashboard = {
     },
     reviewRequest: {
       title: 'Review & Confirm Request',
-      subtitle: 'Step 2: Confirm all parameters prior to submission (UF-03 · Step 2)',
+      missingDraftTitle: 'No request to review',
+      missingDraftDescription: 'Choose a request type and enter the details before reviewing.',
+      notProvided: 'Not provided',
+      subtitle: 'Step 2: Preview your request details (UF-03 · Step 2)',
       summaryTitle: 'Request Summary',
       detailsTitle: 'Submission Details',
       approvalFlowTitle: 'Anticipated Approval Path',
@@ -533,13 +560,16 @@ export const dashboard = {
       flowStep3Title: '3. Completed & Activated',
       flowStep3Desc: 'Credentials sent via email',
       actBack: 'Back to Edit',
-      actSubmit: 'Submit Request'
+      actSubmit: 'Submit request (unavailable)'
     },
     submissionSuccess: {
+      previewTitle: 'Workflow preview',
+      previewSubtitle: 'No request was submitted or assigned an ID. These steps illustrate the future submission flow.',
+      previewTimelineTitle: 'Expected steps',
       title: 'Request Submitted Successfully!',
       subtitle: 'Reference code: {{id}}. Your submission has been routed to your direct manager for review.',
       timelineTitle: 'Next Steps',
-      stepManager: '1. Line Manager evaluation and budget clearance (typically within 24h)',
+      stepManager: '1. Line Manager evaluation and budget clearance',
       stepItAdmin: '2. IT Admin account creation and license allocation',
       stepNotification: '3. Automated welcome email delivered with login credentials',
       actViewRequests: 'View My Requests',
@@ -573,26 +603,32 @@ export const dashboard = {
     },
     dataExport: {
       title: 'Export Personal Telemetry',
-      subtitle:
-        'Download your full software assignment and license interaction records (GDPR / Transparency Compliance)',
+      subtitle: 'Preview the formats planned for personal data export once the system is connected.',
       backToProfile: 'Back to Profile',
       formatCsv: 'CSV Format',
       formatCsvDesc: 'Raw telemetry dataset aggregating usage durations, license allocations, and approval states.',
       formatJson: 'JSON Data',
-      formatJsonDesc: 'Complete JSON attribute structure complying with GDPR Data Portability standards.',
+      formatJsonDesc: 'Structured data for use with other tools.',
       formatPdf: 'PDF Summary',
-      formatPdfDesc: 'Printable executive summary report bearing certified system authenticity stamps.',
+      formatPdfDesc: 'A printable summary once data export is supported.',
       downloaded: 'Downloaded',
       downloadCsv: 'Download CSV',
       downloadJson: 'Download JSON',
       downloadPdf: 'Download PDF',
       actDownload: 'Generate Archive & Download',
       recentExports: 'Export History',
+      emptyHistory: 'No confirmed data exports are available yet.',
       statusSuccess: 'Success'
     },
     dataUsage: {
+      categories: {
+        design: 'Design',
+        development: 'Development',
+        productivity: 'Productivity',
+        communication: 'Communication'
+      },
       title: 'Telemetry Inspection & Transparency',
-      subtitle: 'Inspect all endpoint metrics recorded on company devices (UF-16 Employee View)',
+      subtitle: 'Preview the types of software usage metrics employees will be able to inspect (UF-16).',
       backToProfile: 'Back to Profile',
       metricMonitored: 'Catalog Applications',
       metricExcluded: 'Excluded Communication Apps',

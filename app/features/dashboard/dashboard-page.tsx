@@ -581,22 +581,10 @@ export function DashboardPage({ role }: { role: UserRole }) {
           )}
         </nav>
 
-        <div className='space-y-3 p-4'>
-          <div className='rounded-2xl border border-primary/20 bg-primary-soft/65 p-4 text-center'>
-            <span className='mx-auto grid size-11 place-items-center rounded-2xl bg-primary text-primary-foreground'>
-              <WalletCards aria-hidden='true' className='size-5' />
-            </span>
-            <p className='mt-3 text-xs font-semibold text-muted-foreground'>{t('savings.title')}</p>
-            <p className='mt-1 text-lg font-bold text-primary'>{formatCurrency(245_800_000)}</p>
-            <p className='mt-1 text-xs text-muted-foreground'>{t('savings.period')}</p>
-            <button className='mt-3 text-xs font-bold text-primary hover:underline' type='button'>
-              {t('savings.action')}
-            </button>
-          </div>
-          <div className='flex items-center justify-between rounded-xl border border-border bg-surface px-3 py-2'>
-            <ThemeSwitch />
+        <div className='p-4'>
+          <div className='rounded-xl border border-border bg-surface px-3 py-2'>
             <Link
-              className='inline-flex h-10 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-muted-foreground transition hover:bg-primary-soft hover:text-primary'
+              className='flex h-10 w-full items-center gap-2 rounded-lg px-3 text-sm font-semibold text-muted-foreground transition hover:bg-primary-soft hover:text-primary'
               to='/login'
             >
               <LogOut aria-hidden='true' className='size-4' />
@@ -637,6 +625,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
               />
             </div>
 
+            <ThemeSwitch />
             <LanguageSwitch />
             <button
               aria-label={t('header.notifications')}
@@ -723,16 +712,20 @@ export function DashboardPage({ role }: { role: UserRole }) {
               <EmployeeCreateRequestView onSelectTab={handleSelectEmployeeTab} />
             ) : activeEmployeeTab === 'request-new-software' ? (
               <EmployeeRequestNewSoftwareView
+                initialParams={Object.fromEntries(searchParams.entries())}
                 onSelectTab={handleSelectEmployeeTab}
                 preselectedSoftwareId={searchParams.get('softwareId') || 'figma'}
+                requestType={searchParams.get('type') === 'changePlan' ? 'changePlan' : 'newSoftware'}
               />
             ) : activeEmployeeTab === 'temporary-renewal' ? (
               <EmployeeTemporaryRenewalView
+                initialParams={Object.fromEntries(searchParams.entries())}
                 onSelectTab={handleSelectEmployeeTab}
                 softwareId={searchParams.get('softwareId') || undefined}
               />
             ) : activeEmployeeTab === 'return-license' ? (
               <EmployeeReturnLicenseView
+                initialParams={Object.fromEntries(searchParams.entries())}
                 onSelectTab={handleSelectEmployeeTab}
                 softwareId={searchParams.get('softwareId') || undefined}
               />
@@ -742,10 +735,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
                 requestParams={Object.fromEntries(searchParams.entries())}
               />
             ) : activeEmployeeTab === 'submission-success' ? (
-              <EmployeeSubmissionSuccessView
-                onSelectTab={handleSelectEmployeeTab}
-                requestId={searchParams.get('id') || 'REQ-1027'}
-              />
+              <EmployeeSubmissionSuccessView onSelectTab={handleSelectEmployeeTab} />
             ) : activeEmployeeTab === 'profile' ? (
               <EmployeeProfileView onSelectTab={handleSelectEmployeeTab} />
             ) : activeEmployeeTab === 'data-export' ? (
