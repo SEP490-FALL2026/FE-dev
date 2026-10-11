@@ -2,18 +2,27 @@ import { useTranslation } from 'react-i18next'
 
 export function EmployeeRequestStepper({
   currentStep,
-  firstStepLabel
+  firstStepLabel,
+  fourStep = false
 }: {
-  currentStep: 1 | 2
+  currentStep: 1 | 2 | 3 | 4
   firstStepLabel: string
+  fourStep?: boolean
 }) {
   const { t } = useTranslation('dashboard')
-  const steps = [firstStepLabel, t('employee.requestNewSoftware.step2'), t('employee.requestNewSoftware.step3')]
+  const steps = fourStep
+    ? [
+        firstStepLabel,
+        t('employee.requestNewSoftware.stepRegistration'),
+        t('employee.requestNewSoftware.step2'),
+        t('employee.requestNewSoftware.step3')
+      ]
+    : [firstStepLabel, t('employee.requestNewSoftware.step2'), t('employee.requestNewSoftware.step3')]
 
   return (
     <ol
       aria-label={t('employee.requestNewSoftware.progressLabel')}
-      className='grid grid-cols-3 gap-2 rounded-2xl border border-border bg-surface p-3 shadow-sm sm:gap-4 sm:p-4'
+      className={`grid gap-2 rounded-2xl border border-border bg-surface p-3 shadow-sm sm:gap-4 sm:p-4 ${fourStep ? 'grid-cols-4' : 'grid-cols-3'}`}
     >
       {steps.map((label, index) => {
         const step = index + 1

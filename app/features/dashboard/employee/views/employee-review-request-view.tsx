@@ -43,7 +43,7 @@ export function EmployeeReviewRequestView({ onSelectTab, requestParams = {} }: E
     } else if (requestType === 'returnLicense') {
       onSelectTab('return-license', draft)
     } else {
-      onSelectTab('request-new-software', draft)
+      onSelectTab('request-software-details', draft)
     }
   }
 
@@ -76,13 +76,20 @@ export function EmployeeReviewRequestView({ onSelectTab, requestParams = {} }: E
           <span>{t('employee.reviewRequest.actBack')}</span>
         </button>
         <h1 className='mt-2 text-2xl font-bold tracking-tight sm:text-3xl'>{t('employee.reviewRequest.title')}</h1>
-        <p className='mt-1 text-sm text-muted-foreground'>{t('employee.reviewRequest.subtitle')}</p>
+        <p className='mt-1 text-sm text-muted-foreground'>
+          {t(
+            requestType === 'newSoftware' || requestType === 'changePlan'
+              ? 'employee.reviewRequest.subtitleFourStep'
+              : 'employee.reviewRequest.subtitle'
+          )}
+        </p>
       </div>
 
       <EmployeePreviewNotice>{t('employee.preview.request')}</EmployeePreviewNotice>
 
       <EmployeeRequestStepper
-        currentStep={2}
+        currentStep={requestType === 'newSoftware' || requestType === 'changePlan' ? 3 : 2}
+        fourStep={requestType === 'newSoftware' || requestType === 'changePlan'}
         firstStepLabel={t(
           requestType === 'renewal'
             ? 'employee.temporaryRenewal.step1'
@@ -109,6 +116,16 @@ export function EmployeeReviewRequestView({ onSelectTab, requestParams = {} }: E
                   <div className='flex flex-wrap items-start justify-between gap-x-4 gap-y-1 py-2.5'>
                     <span className='text-muted-foreground'>{t('employee.requestDetail.plan')}</span>
                     <span className='font-medium text-foreground'>{plan}</span>
+                  </div>
+                  <div className='flex flex-wrap items-start justify-between gap-x-4 gap-y-1 py-2.5'>
+                    <span className='text-muted-foreground'>{t('employee.requestNewSoftware.fieldUsageMode')}</span>
+                    <span className='font-medium text-foreground'>
+                      {requestParams.usageMode === 'personal'
+                        ? t('employee.requestNewSoftware.usagePersonal')
+                        : requestParams.usageMode === 'team'
+                          ? t('employee.requestNewSoftware.usageTeam')
+                          : t('employee.reviewRequest.notProvided')}
+                    </span>
                   </div>
                   <div className='flex flex-wrap items-start justify-between gap-x-4 gap-y-1 py-2.5'>
                     <span className='text-muted-foreground'>{t('employee.requestDetail.project')}</span>

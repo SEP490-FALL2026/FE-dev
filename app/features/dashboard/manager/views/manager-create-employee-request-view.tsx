@@ -4,32 +4,76 @@ import { useTranslation } from 'react-i18next'
 
 import { MOCK_TEAM_MEMBERS, MOCK_TEAM_SOFTWARE } from '../manager-data'
 import type { ManagerTabKey } from '../manager-nav'
+import type { ManagerPreviewRequestInput } from '../manager-preview-request'
 
 interface ManagerCreateEmployeeRequestViewProps {
   employeeId?: string
   formatCurrency?: (value: number) => string
   onSelectTab: (tab: ManagerTabKey, params?: Record<string, string>) => void
+  onSavePreview: (request: ManagerPreviewRequestInput) => void
+  scope?: 'team' | 'individual'
 }
 
 export function ManagerCreateEmployeeRequestView({
   employeeId,
   formatCurrency,
-  onSelectTab
+  onSelectTab,
+  onSavePreview,
+  scope = 'individual'
 }: ManagerCreateEmployeeRequestViewProps) {
-  const { t } = useTranslation('dashboard')
+  const { i18n, t } = useTranslation('dashboard')
 
   const [selectedMemberId, setSelectedMemberId] = useState(employeeId || MOCK_TEAM_MEMBERS[0].id)
+  const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([])
   const [selectedSoftwareId, setSelectedSoftwareId] = useState(MOCK_TEAM_SOFTWARE[0].id)
+  const [desiredPlan, setDesiredPlan] = useState('')
+  const [usageStartDate, setUsageStartDate] = useState('')
+  const [usageEndDate, setUsageEndDate] = useState('')
   const [justification, setJustification] = useState('')
   const [urgency, setUrgency] = useState<'LOW' | 'MEDIUM' | 'HIGH'>('MEDIUM')
   const [submitted, setSubmitted] = useState(false)
 
   const selectedMember = MOCK_TEAM_MEMBERS.find((m) => m.id === selectedMemberId) || MOCK_TEAM_MEMBERS[0]
   const selectedSoftware = MOCK_TEAM_SOFTWARE.find((s) => s.id === selectedSoftwareId) || MOCK_TEAM_SOFTWARE[0]
+  const selectedTeamMembers = MOCK_TEAM_MEMBERS.filter((member) => selectedMemberIds.includes(member.id))
+  const teamMemberNames = new Intl.ListFormat(i18n.resolvedLanguage === 'en' ? 'en-US' : 'vi-VN').format(
+    selectedTeamMembers.map((member) => member.name)
+  )
+  const dateLocale = i18n.resolvedLanguage === 'en' ? 'en-US' : 'vi-VN'
+  const formatUsageDate = (date: string) =>
+    new Intl.DateTimeFormat(dateLocale, { day: 'numeric', month: 'numeric', year: 'numeric', timeZone: 'UTC' }).format(
+      new Date(`${date}T00:00:00Z`)
+    )
+  const invalidUsageRange = Boolean(usageStartDate && usageEndDate && usageEndDate < usageStartDate)
+  const canPreview =
+    (scope === 'individual' || selectedTeamMembers.length > 0) &&
+    desiredPlan.trim().length > 0 &&
+    Boolean(usageStartDate && usageEndDate) &&
+    !invalidUsageRange
+
+  const toggleTeamMember = (id: string) => {
+    setSelectedMemberIds((current) =>
+      current.includes(id) ? current.filter((memberId) => memberId !== id) : [...current, id]
+    )
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    if (!canPreview) return
     setSubmitted(true)
+  }
+
+  const handleSavePreview = () => {
+    onSavePreview({
+      scope,
+      recipientNames: scope === 'team' ? selectedTeamMembers.map((member) => member.name) : [selectedMember.name],
+      softwareName: selectedSoftware.name,
+      desiredPlan: desiredPlan.trim(),
+      usageStartDate,
+      usageEndDate,
+      urgency,
+      justification: justification.trim()
+    })
   }
 
   return (
@@ -46,7 +90,7 @@ export function ManagerCreateEmployeeRequestView({
         </button>
         <div>
           <h1 className='text-2xl font-bold tracking-tight text-foreground sm:text-3xl'>
-            {t('manager.createRequest.title')}
+            {t(scope === 'team' ? 'manager.createRequest.teamTitle' : 'manager.createRequest.title')}
           </h1>
           <p className='mt-0.5 text-xs text-muted-foreground'>{t('manager.createRequest.subtitle')}</p>
         </div>
@@ -59,12 +103,26 @@ export function ManagerCreateEmployeeRequestView({
         >
           <CheckCircle2 className='size-12 text-success mx-auto' />
           <h2 className='text-base font-bold text-foreground'>{t('manager.createRequest.successTitle')}</h2>
-          <p className='text-xs text-muted-foreground max-w-md mx-auto'>
-            {t('manager.createRequest.successDesc', {
-              employee: selectedMember.name,
-              software: selectedSoftware.name
-            })}
+          <p className='text-xs text-muted-foreground max-w-md mx-auto'>{t('manager.createRequest.successDesc')}</p>
+          <p className='text-sm font-semibold text-foreground'>
+            {scope === 'team' ? teamMemberNames : selectedMember.name}
           </p>
+          <dl className='mx-auto max-w-md space-y-2 rounded-xl border border-border bg-surface p-4 text-left text-sm'>
+            <div className='flex justify-between gap-4'>
+              <dt className='text-muted-foreground'>{t('manager.createRequest.labelSoftware')}</dt>
+              <dd className='font-medium text-foreground'>{selectedSoftware.name}</dd>
+            </div>
+            <div className='flex justify-between gap-4'>
+              <dt className='text-muted-foreground'>{t('manager.createRequest.labelDesiredPlan')}</dt>
+              <dd className='font-medium text-foreground'>{desiredPlan.trim()}</dd>
+            </div>
+            <div className='flex justify-between gap-4'>
+              <dt className='text-muted-foreground'>{t('manager.createRequest.labelUsageDuration')}</dt>
+              <dd className='font-medium text-foreground'>
+                {formatUsageDate(usageStartDate)} – {formatUsageDate(usageEndDate)}
+              </dd>
+            </div>
+          </dl>
           <div className='flex flex-wrap justify-center gap-2 pt-3'>
             <button
               className='rounded-xl border border-border bg-surface px-4 py-2 font-semibold text-foreground hover:bg-surface-subtle'
@@ -75,33 +133,63 @@ export function ManagerCreateEmployeeRequestView({
             </button>
             <button
               className='rounded-xl bg-primary px-4 py-2 font-bold text-primary-foreground hover:bg-primary/90'
-              onClick={() => onSelectTab('team-requests')}
+              onClick={handleSavePreview}
               type='button'
             >
-              {t('manager.createRequest.backToRequestsBtn')}
+              {t('manager.createRequest.savePreviewBtn')}
             </button>
           </div>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className='rounded-2xl border border-border bg-surface p-6 shadow-sm space-y-6'>
-          {/* Member Selection */}
-          <div className='space-y-2'>
-            <label className='block text-xs font-bold text-foreground' htmlFor='manager-request-member'>
-              {t('manager.createRequest.labelEmployee')}
-            </label>
-            <select
-              id='manager-request-member'
-              className='h-10 w-full rounded-xl border border-border bg-background px-3 text-xs text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
-              onChange={(e) => setSelectedMemberId(e.target.value)}
-              value={selectedMemberId}
-            >
-              {MOCK_TEAM_MEMBERS.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.name} ({m.code}) - {m.jobTitle}
-                </option>
-              ))}
-            </select>
-          </div>
+          {scope === 'team' ? (
+            <fieldset className='space-y-2'>
+              <legend className='text-xs font-bold text-foreground'>
+                {t('manager.createRequest.labelTeamMembers')}
+              </legend>
+              <div className='max-h-56 space-y-1 overflow-y-auto rounded-xl border border-border bg-background p-2'>
+                {MOCK_TEAM_MEMBERS.map((member) => (
+                  <label
+                    className='flex min-h-10 cursor-pointer items-center gap-3 rounded-lg px-3 text-xs text-foreground hover:bg-surface-subtle'
+                    key={member.id}
+                  >
+                    <input
+                      checked={selectedMemberIds.includes(member.id)}
+                      className='accent-primary-action'
+                      onChange={() => toggleTeamMember(member.id)}
+                      type='checkbox'
+                    />
+                    <span>
+                      {member.name} ({member.code})
+                    </span>
+                  </label>
+                ))}
+              </div>
+              {selectedTeamMembers.length === 0 && (
+                <p className='text-xs text-danger-ink' role='status'>
+                  {t('manager.createRequest.teamSelectionRequired')}
+                </p>
+              )}
+            </fieldset>
+          ) : (
+            <div className='space-y-2'>
+              <label className='block text-xs font-bold text-foreground' htmlFor='manager-request-member'>
+                {t('manager.createRequest.labelEmployee')}
+              </label>
+              <select
+                id='manager-request-member'
+                className='h-10 w-full rounded-xl border border-border bg-background px-3 text-xs text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
+                onChange={(e) => setSelectedMemberId(e.target.value)}
+                value={selectedMemberId}
+              >
+                {MOCK_TEAM_MEMBERS.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.name} ({m.code}) - {m.jobTitle}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* Software Selection */}
           <div className='space-y-2'>
@@ -122,19 +210,92 @@ export function ManagerCreateEmployeeRequestView({
             </select>
           </div>
 
+          <div className='space-y-2'>
+            <label className='block text-xs font-bold text-foreground' htmlFor='manager-request-plan'>
+              {t('manager.createRequest.labelDesiredPlan')}
+            </label>
+            <input
+              className='h-10 w-full rounded-xl border border-border bg-background px-3 text-xs text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
+              id='manager-request-plan'
+              onChange={(event) => setDesiredPlan(event.target.value)}
+              required
+              type='text'
+              value={desiredPlan}
+            />
+            {!desiredPlan.trim() && (
+              <p className='text-xs text-danger-ink' role='status'>
+                {t('manager.createRequest.planRequired')}
+              </p>
+            )}
+          </div>
+
+          <fieldset className='space-y-2'>
+            <legend className='text-xs font-bold text-foreground'>
+              {t('manager.createRequest.labelUsageDuration')}
+            </legend>
+            <div className='grid gap-3 sm:grid-cols-2'>
+              <div className='space-y-2'>
+                <label className='block text-xs text-muted-foreground' htmlFor='manager-request-start-date'>
+                  {t('manager.createRequest.labelUsageStartDate')}
+                </label>
+                <input
+                  className='h-10 w-full rounded-xl border border-border bg-background px-3 text-xs text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
+                  id='manager-request-start-date'
+                  onChange={(event) => setUsageStartDate(event.target.value)}
+                  required
+                  type='date'
+                  value={usageStartDate}
+                />
+              </div>
+              <div className='space-y-2'>
+                <label className='block text-xs text-muted-foreground' htmlFor='manager-request-end-date'>
+                  {t('manager.createRequest.labelUsageEndDate')}
+                </label>
+                <input
+                  aria-describedby={invalidUsageRange ? 'manager-request-date-error' : undefined}
+                  aria-invalid={invalidUsageRange}
+                  className='h-10 w-full rounded-xl border border-border bg-background px-3 text-xs text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
+                  id='manager-request-end-date'
+                  min={usageStartDate || undefined}
+                  onChange={(event) => setUsageEndDate(event.target.value)}
+                  required
+                  type='date'
+                  value={usageEndDate}
+                />
+              </div>
+            </div>
+            {invalidUsageRange ? (
+              <p className='text-xs text-danger-ink' id='manager-request-date-error' role='alert'>
+                {t('manager.createRequest.usageDateOrderInvalid')}
+              </p>
+            ) : (
+              (!usageStartDate || !usageEndDate) && (
+                <p className='text-xs text-danger-ink' role='status'>
+                  {t('manager.createRequest.usageDatesRequired')}
+                </p>
+              )
+            )}
+          </fieldset>
+
           {/* Cost Center info */}
           <div className='rounded-xl border border-border bg-surface-subtle/50 p-4 text-xs space-y-1'>
-            <div className='flex justify-between'>
-              <span className='text-muted-foreground'>{t('manager.createRequest.costCenterLabel')}:</span>
-              <span className='font-mono font-bold text-foreground'>{selectedMember.costCenter}</span>
-            </div>
-            <div className='flex justify-between'>
-              <span className='text-muted-foreground'>{t('manager.createRequest.deptLabel')}:</span>
-              <span className='font-medium text-foreground'>{selectedMember.department}</span>
-            </div>
+            {scope === 'individual' && (
+              <>
+                <div className='flex justify-between'>
+                  <span className='text-muted-foreground'>{t('manager.createRequest.costCenterLabel')}:</span>
+                  <span className='font-mono font-bold text-foreground'>{selectedMember.costCenter}</span>
+                </div>
+                <div className='flex justify-between'>
+                  <span className='text-muted-foreground'>{t('manager.createRequest.deptLabel')}:</span>
+                  <span className='font-medium text-foreground'>{selectedMember.department}</span>
+                </div>
+              </>
+            )}
             {formatCurrency && (
               <div className='flex justify-between'>
-                <span className='text-muted-foreground'>{t('manager.software.colMonthlyCost')}:</span>
+                <span className='text-muted-foreground'>
+                  {t(scope === 'team' ? 'manager.createRequest.costPerSeatLabel' : 'manager.software.colMonthlyCost')}:
+                </span>
                 <span className='font-bold text-foreground'>{formatCurrency(selectedSoftware.monthlyCost)}</span>
               </div>
             )}
@@ -194,7 +355,8 @@ export function ManagerCreateEmployeeRequestView({
               {t('manager.createRequest.cancelBtn')}
             </button>
             <button
-              className='rounded-xl bg-primary px-5 py-2 text-xs font-bold text-primary-foreground shadow-sm transition hover:bg-primary/90'
+              className='rounded-xl bg-primary px-5 py-2 text-xs font-bold text-primary-foreground shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50'
+              disabled={!canPreview}
               type='submit'
             >
               {t('manager.createRequest.submitBtn')}

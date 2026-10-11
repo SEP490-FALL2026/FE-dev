@@ -8,6 +8,7 @@ export const EMPLOYEE_TAB_KEYS = [
   'request-detail',
   'create-request',
   'request-new-software',
+  'request-software-details',
   'temporary-renewal',
   'return-license',
   'review-request',
@@ -81,6 +82,7 @@ export function getParentEmployeeMenuKey(tabKey: EmployeeTabKey): string {
   if (
     tabKey === 'create-request' ||
     tabKey === 'request-new-software' ||
+    tabKey === 'request-software-details' ||
     tabKey === 'temporary-renewal' ||
     tabKey === 'return-license' ||
     tabKey === 'review-request' ||

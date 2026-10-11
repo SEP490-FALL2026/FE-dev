@@ -32,7 +32,30 @@ and all decisions that affect money or access.
 
 ## Key decisions
 
+### Employee software request preview
+
+The employee software request preview now uses separate catalog selection and
+registration screens. The `request-new-software` tab selects a catalog item and
+`request-software-details` collects the plan, individual or shared-team usage type,
+project, reason, and a name when
+"Other software" is selected. URL parameters carry the draft through the review
+screen and back navigation. This request type shows four steps; renewal and return
+requests retain their three-step previews. Submission remains unavailable until a
+backend contract and authorization flow are connected.
+
 ### Manager request creation preview
+
+In the dashboard Manager shell, the create-request sidebar item expands to team
+and individual choices. Both open the existing `create-employee-request` preview
+tab with `scope=team|individual` in the URL. Individual mode keeps the single
+employee selector; team mode lets the manager choose multiple members from the
+available sample list. Both modes collect a free-text desired license plan and
+a usage date range using native date inputs. The end date must be on or after the
+start date. The Manager sidebar's `my-requests` tab shows previews explicitly
+saved from either mode in the current dashboard session. These records are local
+component state, are lost on reload, and are labeled as unsubmitted previews;
+they are not authoritative requests. Neither mode creates or authorizes backend
+requests. Other entry points without `scope` retain individual mode.
 
 `/manager/create-request` renders the first employee-selection screen of the
 Manager create-employee-request feature. The sidebar, My Team and Employee Detail

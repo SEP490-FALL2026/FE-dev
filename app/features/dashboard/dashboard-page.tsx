@@ -61,6 +61,7 @@ import { EmployeeOverviewView } from './employee/views/employee-overview-view'
 import { EmployeeProfileView } from './employee/views/employee-profile-view'
 import { EmployeeRequestDetailView } from './employee/views/employee-request-detail-view'
 import { EmployeeRequestNewSoftwareView } from './employee/views/employee-request-new-software-view'
+import { EmployeeRequestSoftwareDetailsView } from './employee/views/employee-request-software-details-view'
 import { EmployeeReturnLicenseView } from './employee/views/employee-return-license-view'
 import { EmployeeReviewRequestView } from './employee/views/employee-review-request-view'
 import { EmployeeSoftwareDetailView } from './employee/views/employee-software-detail-view'
@@ -91,10 +92,12 @@ import { ManagerEmployeeDetailView } from './manager/views/manager-employee-deta
 import { ManagerGhostSeatDetailView } from './manager/views/manager-ghost-seat-detail-view'
 import { ManagerGhostSeatReviewView } from './manager/views/manager-ghost-seat-review-view'
 import { ManagerMyTeamView } from './manager/views/manager-my-team-view'
+import { ManagerMyRequestsView } from './manager/views/manager-my-requests-view'
 import { ManagerOverviewView } from './manager/views/manager-overview-view'
 import { ManagerRequestApprovalView } from './manager/views/manager-request-approval-view'
 import { ManagerTeamRequestsView } from './manager/views/manager-team-requests-view'
 import { ManagerTeamSoftwareView } from './manager/views/manager-team-software-view'
+import type { ManagerPreviewRequest, ManagerPreviewRequestInput } from './manager/manager-preview-request'
 import './manager/manager-workspace.css'
 
 const navigationItems = [
@@ -151,6 +154,9 @@ export function DashboardPage({ role }: { role: UserRole }) {
 
   const activeManagerTab: ManagerTabKey = isManager && isValidManagerTab(tabParam) ? tabParam : 'overview'
   const activeManagerParent = isManager ? getParentManagerMenuKey(activeManagerTab) : 'overview'
+  const managerRequestScope = searchParams.get('scope') === 'team' ? 'team' : 'individual'
+  const [managerCreateMenuOpen, setManagerCreateMenuOpen] = useState(activeManagerTab === 'create-employee-request')
+  const [managerPreviewRequests, setManagerPreviewRequests] = useState<ManagerPreviewRequest[]>([])
 
   const activeApprovalTab: ApprovalTabKey = isApprover && isValidApprovalTab(tabParam) ? tabParam : 'overview'
   const activeApprovalParent = isApprover ? getParentApprovalMenuKey(activeApprovalTab) : 'overview'
@@ -195,6 +201,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
   }
 
   const handleSelectManagerTab = (tab: ManagerTabKey, extraParams?: Record<string, string>) => {
+    if (tab === 'create-employee-request') setManagerCreateMenuOpen(true)
     const nextParams = new URLSearchParams()
     if (tab !== 'overview') {
       nextParams.set('tab', tab)
@@ -204,6 +211,15 @@ export function DashboardPage({ role }: { role: UserRole }) {
     }
     setSearchParams(nextParams)
     setMobileNavigationOpen(false)
+  }
+
+  const handleSaveManagerPreview = (request: ManagerPreviewRequestInput) => {
+    const createdAt = new Date().toISOString()
+    setManagerPreviewRequests((current) => [
+      { ...request, id: `preview-${Date.now()}-${current.length}`, createdAt },
+      ...current
+    ])
+    handleSelectManagerTab('my-requests')
   }
 
   const handleSelectApprovalTab = (tab: ApprovalTabKey, extraParams?: Record<string, string>) => {
@@ -457,19 +473,41 @@ export function DashboardPage({ role }: { role: UserRole }) {
                 return (
                   <li key={item.key}>
                     <button
-                      aria-current={isCurrent ? 'page' : undefined}
+                      aria-current={
+                        isCurrent && (item.key !== 'create-employee-request' || !managerCreateMenuOpen)
+                          ? 'page'
+                          : undefined
+                      }
                       className={`flex w-full items-center justify-between rounded-xl px-3.5 py-3 text-left text-sm font-semibold transition ${
                         isCurrent
                           ? 'bg-primary text-primary-foreground shadow-[0_10px_25px_var(--theme-primary-soft)]'
                           : 'text-muted-foreground hover:bg-surface hover:text-foreground'
                       }`}
-                      onClick={() => handleSelectManagerTab(item.key)}
+                      onClick={() => {
+                        if (item.key === 'create-employee-request') {
+                          setManagerCreateMenuOpen((open) => !open)
+                        } else {
+                          handleSelectManagerTab(item.key)
+                        }
+                      }}
+                      aria-expanded={item.key === 'create-employee-request' ? managerCreateMenuOpen : undefined}
+                      aria-controls={
+                        item.key === 'create-employee-request' && managerCreateMenuOpen
+                          ? 'manager-create-request-options'
+                          : undefined
+                      }
                       type='button'
                     >
                       <div className='flex items-center gap-3'>
                         <Icon aria-hidden='true' className='size-[1.125rem] shrink-0' />
                         <span>{t(`manager.nav.${item.translationKey}`)}</span>
                       </div>
+                      {item.key === 'create-employee-request' && (
+                        <ChevronDown
+                          aria-hidden='true'
+                          className={`size-4 transition-transform ${managerCreateMenuOpen ? 'rotate-180' : ''}`}
+                        />
+                      )}
                       {item.badge !== undefined && (
                         <span
                           className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[0.65rem] font-bold ${
@@ -480,6 +518,26 @@ export function DashboardPage({ role }: { role: UserRole }) {
                         </span>
                       )}
                     </button>
+                    {item.key === 'create-employee-request' && managerCreateMenuOpen && (
+                      <ul className='mt-1 space-y-1 pl-8' id='manager-create-request-options'>
+                        {(['team', 'individual'] as const).map((scope) => (
+                          <li key={scope}>
+                            <button
+                              aria-current={isCurrent && managerRequestScope === scope ? 'page' : undefined}
+                              className={`min-h-10 w-full rounded-lg px-3 text-left text-sm transition ${
+                                isCurrent && managerRequestScope === scope
+                                  ? 'bg-primary-soft font-semibold text-primary-ink'
+                                  : 'text-muted-foreground hover:bg-surface hover:text-foreground'
+                              }`}
+                              onClick={() => handleSelectManagerTab('create-employee-request', { scope })}
+                              type='button'
+                            >
+                              {t(scope === 'team' ? 'manager.nav.requestForTeam' : 'manager.nav.requestForIndividual')}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </li>
                 )
               })}
@@ -715,8 +773,13 @@ export function DashboardPage({ role }: { role: UserRole }) {
               <EmployeeRequestNewSoftwareView
                 initialParams={Object.fromEntries(searchParams.entries())}
                 onSelectTab={handleSelectEmployeeTab}
-                preselectedSoftwareId={searchParams.get('softwareId') || 'figma'}
+                preselectedSoftwareId={searchParams.get('softwareId') || undefined}
                 requestType={searchParams.get('type') === 'changePlan' ? 'changePlan' : 'newSoftware'}
+              />
+            ) : activeEmployeeTab === 'request-software-details' ? (
+              <EmployeeRequestSoftwareDetailsView
+                initialParams={Object.fromEntries(searchParams.entries())}
+                onSelectTab={handleSelectEmployeeTab}
               />
             ) : activeEmployeeTab === 'temporary-renewal' ? (
               <EmployeeTemporaryRenewalView
@@ -763,6 +826,12 @@ export function DashboardPage({ role }: { role: UserRole }) {
               <ManagerTeamSoftwareView formatCurrency={formatCurrency} onSelectTab={handleSelectManagerTab} />
             ) : activeManagerTab === 'team-requests' ? (
               <ManagerTeamRequestsView formatCurrency={formatCurrency} onSelectTab={handleSelectManagerTab} />
+            ) : activeManagerTab === 'my-requests' ? (
+              <ManagerMyRequestsView
+                managerName={profile.displayName}
+                onSelectTab={handleSelectManagerTab}
+                requests={managerPreviewRequests}
+              />
             ) : activeManagerTab === 'request-approval' ? (
               <ManagerRequestApprovalView
                 formatCurrency={formatCurrency}
@@ -773,7 +842,10 @@ export function DashboardPage({ role }: { role: UserRole }) {
               <ManagerCreateEmployeeRequestView
                 employeeId={searchParams.get('employeeId') || undefined}
                 formatCurrency={formatCurrency}
+                key={managerRequestScope}
                 onSelectTab={handleSelectManagerTab}
+                onSavePreview={handleSaveManagerPreview}
+                scope={managerRequestScope}
               />
             ) : activeManagerTab === 'ghost-seat-review' ? (
               <ManagerGhostSeatReviewView formatCurrency={formatCurrency} onSelectTab={handleSelectManagerTab} />
