@@ -1,0 +1,632 @@
+{
+  "id": "FDD",
+  "version": "3.2",
+  "date": "09/10/2026",
+  "system": "SaaS-Sentry\nSoftware License Management\n& Optimization System",
+  "features": [
+    {
+      "n": 1,
+      "name": "Organization & Department Management",
+      "vi": "Tổ chức Công ty → Phòng ban → Chức vụ → Nhân sự (QĐ-52a)",
+      "flows": "SF-1, MF-7",
+      "leaves": [
+        [
+          "Department Profiles",
+          "Mã, tên, chức năng, trưởng phòng, Cost Center Unit, IT Admin phụ trách, dự án chỉ để mô tả; danh sách công cụ đang dùng là giá trị tổng hợp",
+          "FR-3.1, FR-3.17, QĐ-52a",
+          "WF-01"
+        ],
+        [
+          "Department Head Assignment",
+          "Mỗi phòng đúng một trưởng phòng có hiệu lực, mỗi người làm trưởng tối đa một phòng; vai Manager suy ra",
+          "FR-3.1, INV-19, QĐ-58a",
+          "WF-01, WF-07"
+        ],
+        [
+          "Employee & Position Records",
+          "Nhân viên thuộc đúng một phòng, có chức vụ, lịch sử hiệu lực theo thời gian; kiêm nhiệm không ghi phòng thứ hai",
+          "FR-2.1, FR-2.2, INV-20, QĐ-52b",
+          "WF-01, WF-05"
+        ],
+        [
+          "Cost Center Catalog",
+          "Hai loại Unit (1–1 với phòng) và Company; Finance tạo, sửa, ngừng dùng",
+          "FR-3.1, OI-04, QĐ-52b",
+          "WF-01, WF-20"
+        ],
+        [
+          "Standard Toolset by Position",
+          "Bộ công cụ chuẩn theo phòng × chức vụ; IT cấu hình theo đề xuất trưởng phòng hoặc chủ động, thông báo trưởng phòng",
+          "FR-3.18, QĐ-52e, QĐ-58c",
+          "WF-01, WF-04, MF-7"
+        ]
+      ]
+    },
+    {
+      "n": 2,
+      "name": "Software Catalog & Vendor Terms",
+      "vi": "Danh mục ba loại đối tượng quản lý và điều khoản theo gói",
+      "flows": "SF-1, MF-2, MF-4",
+      "leaves": [
+        [
+          "Catalog Entries",
+          "SaaS trả phí, phần mềm có bản quyền, phần mềm nội bộ; nhóm chức năng, mức nhạy cảm; không nhận phần mềm miễn phí bên ngoài",
+          "FR-1.1, QĐ-49a, QĐ-49h",
+          "WF-02"
+        ],
+        [
+          "Business Owner Assignment",
+          "Mỗi mục có một Business Owner đang làm việc; người nghỉ được giữ kèm cờ cần thay thế",
+          "FR-1.7, BRD 4.4, OI-05c",
+          "WF-02, WF-07"
+        ],
+        [
+          "Plans & Pricing Models",
+          "Gói với mô hình giá per_seat, flat_rate, concurrent, consumption, per_host",
+          "FR-1.2, ADR-02",
+          "WF-02"
+        ],
+        [
+          "Provisioning Type & Control Level",
+          "Kiểu cấp K1–K5, mức kiểm soát mặc định và lưu ý trước khi thu hồi là thuộc tính của gói",
+          "FR-1.9, QĐ-54a",
+          "WF-02, WF-10"
+        ],
+        [
+          "Vendor Terms Checklist",
+          "Liên kết điều khoản, ngày rà soát, checklist sáu điểm; cảnh báo tới hạn rà soát và vi phạm",
+          "FR-1.10, QĐ-54e",
+          "WF-02, WF-15"
+        ],
+        [
+          "Communication-Service Flag",
+          "Cờ ứng dụng liên lạc: mặc định không thu dữ liệu hoạt động",
+          "FR-1.8, ADR-10",
+          "WF-02, WF-12"
+        ]
+      ]
+    },
+    {
+      "n": 3,
+      "name": "Contracts, Subscriptions & Renewals",
+      "vi": "Hợp đồng, thuê bao/khoản mua và vòng đời gia hạn",
+      "flows": "MF-4",
+      "leaves": [
+        [
+          "Contracts & Subscriptions",
+          "Hợp đồng, thuê bao (số seat, đơn giá, chu kỳ, hạn chót báo hủy, tự gia hạn); license vĩnh viễn không có kỳ gia hạn",
+          "FR-1.3, ADR-06, QĐ-49c",
+          "WF-02"
+        ],
+        [
+          "Purchase Documents",
+          "Báo giá, hợp đồng, hóa đơn, chứng từ thuế; mở bằng signed URL theo vai",
+          "FR-1.5, BM-05, OI-08a",
+          "WF-02, WF-16"
+        ],
+        [
+          "Cancellation-Deadline Alerts",
+          "Cảnh báo T−15/T−7 tính từ hạn chót báo hủy; thiếu dữ liệu thì cảnh báo chất lượng",
+          "FR-1.4, OI-09a",
+          "MF-4, WF-15"
+        ],
+        [
+          "Renewal Proposal & Decision",
+          "IT lập đề xuất kèm sử dụng và điều khoản; Người duyệt chi quyết gia hạn, giảm số lượng hoặc hủy",
+          "FR-3.13, FR-4.15",
+          "MF-4, WF-15"
+        ]
+      ]
+    },
+    {
+      "n": 4,
+      "name": "Access Requests & Approvals",
+      "vi": "Yêu cầu, định tuyến và phê duyệt có phân tách trách nhiệm",
+      "flows": "MF-2",
+      "leaves": [
+        [
+          "Access Request Form",
+          "Phiếu yêu cầu: bộ chuẩn hiện trước, ngoài bộ chuẩn phải có lý do",
+          "FR-3.2, FR-3.18, BM-01",
+          "MF-2, WF-09"
+        ],
+        [
+          "Group & On-Behalf Requests",
+          "Trưởng phòng tạo thay khi onboarding hoặc gửi yêu cầu theo nhóm cho gói team",
+          "FR-3.2, FR-2.11, QĐ-54d",
+          "WF-04"
+        ],
+        [
+          "Need-Approver Routing",
+          "Trưởng phòng duyệt nhu cầu; trưởng phòng tự gửi ⟹ Người duyệt chi; thiếu trưởng phòng ⟹ approver dự phòng",
+          "FR-3.3, FR-3.6, QĐ-52c",
+          "MF-2, WF-09"
+        ],
+        [
+          "New Software Assessment",
+          "IT đánh giá và cổng mức kiểm soát; đóng yêu cầu công cụ miễn phí; đăng ký phần mềm nội bộ",
+          "FR-3.19, BM-02, QĐ-53c, QĐ-49h, QĐ-50a",
+          "MF-2, WF-10"
+        ],
+        [
+          "Spending Decision on Snapshot",
+          "Người duyệt chi quyết trên snapshot chi phí thực chịu, tùy chọn hỏi Finance",
+          "FR-3.13, FR-3.14, QĐ-60a",
+          "MF-2, WF-09"
+        ],
+        [
+          "Conflict-of-Interest Substitute",
+          "Người thay thế cấu hình trước khi Người duyệt chi là người yêu cầu/thụ hưởng",
+          "FR-3.15, QĐ-28c",
+          "WF-09"
+        ],
+        [
+          "SLA Reminders & Bottleneck Alerts",
+          "SLA từng bước, nhắc và báo cấp trên; không ủy quyền; chờ có kiểm soát khi hết người duyệt",
+          "FR-3.5, FR-3.8, FR-3.12, FR-3.16",
+          "WF-09"
+        ],
+        [
+          "Return & Extension Requests",
+          "Hoàn trả quyền (BM-03) và gia hạn quyền có thời hạn",
+          "FR-3.2, FR-2.8, BM-03",
+          "WF-11"
+        ]
+      ]
+    },
+    {
+      "n": 5,
+      "name": "License Provisioning & Assignment",
+      "vi": "Ghi nhận quyền và thực thi cấp/thu hồi phía nhà cung cấp",
+      "flows": "MF-2, MF-7, MF-5, MF-4",
+      "leaves": [
+        [
+          "Seat Assignment & Capacity Check",
+          "Assignment không vượt số đã mua, không chồng lấn; seat trống là giá trị tính ra",
+          "FR-2.3, FR-2.7, ADR-02, INV-01",
+          "WF-09a"
+        ],
+        [
+          "Provisioning Tasks by Plan Type",
+          "Tác vụ cấp qua connector hoặc thủ công; trạng thái chờ chấp nhận lời mời, thất bại, thử lại",
+          "FR-2.5, BRD 6.2, ADR-07",
+          "WF-09a"
+        ],
+        [
+          "License Key Pool",
+          "Kho khóa K4 mã hóa, che bớt, mỗi lần xem ghi audit; khóa về kho nếu điều khoản cho chuyển máy",
+          "FR-2.10, QĐ-54b",
+          "WF-02, WF-09a"
+        ],
+        [
+          "Shared Accounts & Team Plans",
+          "Tài khoản dùng chung chỉ khi điều khoản cho phép, có người chịu trách nhiệm; không lưu mật khẩu",
+          "FR-2.11, QĐ-54d",
+          "WF-09a, WF-07"
+        ],
+        [
+          "Company-Account Rule",
+          "Chỉ cấp vào tài khoản email công ty; owner workspace luôn là tài khoản IT",
+          "FR-2.9, QĐ-54c",
+          "WF-09a"
+        ],
+        [
+          "Access Reclaim",
+          "Thu hồi quyền, seat về kho; thu hồi không tự ghi nhận tiết kiệm",
+          "FR-2.4, FR-4.15",
+          "WF-09a"
+        ],
+        [
+          "Vendor Account Reconciliation",
+          "Đối soát hằng ngày với nhà cung cấp có connector; ghi sai lệch hai chiều",
+          "FR-2.6, FR-4.8, OI-14h",
+          "WF-16"
+        ]
+      ]
+    },
+    {
+      "n": 6,
+      "name": "Workforce Change Handling",
+      "vi": "Điều chuyển, nghỉ việc và các biến động nhân sự khác",
+      "flows": "MF-7, MF-5, SF-3",
+      "leaves": [
+        [
+          "Department Transfer & Tool Review",
+          "Ghi điều chuyển có ngày hiệu lực; công cụ ngoài bộ chuẩn do trưởng phòng mới rà trong 5 ngày làm việc",
+          "FR-2.2, FR-3.8, QĐ-50b, QĐ-56a",
+          "MF-7, WF-05"
+        ],
+        [
+          "Offboarding Handover",
+          "Bàn giao dữ liệu trước khi thu hồi, checklist thu hồi, không kế nhiệm license",
+          "FR-2.12, BM-04, BM-08, QĐ-56b",
+          "MF-5, WF-07"
+        ],
+        [
+          "Shared-Account Responsibility Handover",
+          "Người chịu trách nhiệm tài khoản dùng chung được thay trước ngày hiệu lực/đóng hồ sơ",
+          "FR-2.12, QĐ-56c, QĐ-58d",
+          "WF-05, WF-07"
+        ],
+        [
+          "Extended Leave Status",
+          "IT cập nhật nghỉ dài; loại khỏi đánh giá ghost seat",
+          "FR-4.9, OQ-04",
+          "WF-06"
+        ],
+        [
+          "Fixed-Term Access Expiry",
+          "Nhắc trước 7 ngày cho nhà thầu, thực tập sinh; quá hạn vào hàng đợi",
+          "FR-2.8, INV-07",
+          "WF-08"
+        ],
+        [
+          "Leaver Account Blocking",
+          "Tài khoản của người đã nghỉ việc bị chặn ngay",
+          "FR-8.9, QĐ-41a",
+          "WF-07"
+        ]
+      ]
+    },
+    {
+      "n": 7,
+      "name": "Usage Evidence & Waste Optimization",
+      "vi": "Bằng chứng sử dụng và phát hiện ghost seat có kiểm soát",
+      "flows": "SF-4",
+      "leaves": [
+        [
+          "Usage Source Templates",
+          "Mẫu cấu hình nguồn, định nghĩa hoạt động, cửa sổ bao phủ, ma trận năng lực",
+          "FR-4.1→4.4, FR-4.16, INV-10, INV-11",
+          "WF-12"
+        ],
+        [
+          "Identity Matching Queue",
+          "Khớp định danh nhà cung cấp về nhân viên; chưa khớp không dùng để kết luận",
+          "FR-4.5→4.8, INV-12",
+          "WF-12a"
+        ],
+        [
+          "Exclusion Gates & Waste Detection",
+          "Tám cổng loại trừ rồi rule G1–G4; G5 ngoài phạm vi",
+          "FR-4.9→4.12b, G1–G4, BRD 5.4.1",
+          "WF-13, WF-13a"
+        ],
+        [
+          "Evidence & Confidence",
+          "Khuyến nghị kèm căn cứ và mức tin cậy Cao/Trung bình/Thấp",
+          "FR-4.14, FR-4.14a, QĐ-35b",
+          "WF-13"
+        ],
+        [
+          "Department Head Attestation",
+          "Trưởng phòng chọn Keep/Reclaim/Exempt có lý do; Exempt có hạn tối đa 12 tháng",
+          "FR-3.10, INV-09, OI-02",
+          "WF-13"
+        ],
+        [
+          "Savings Estimation",
+          "Hai con số tiết kiệm tách riêng: ngay và tại kỳ gia hạn",
+          "FR-4.15",
+          "WF-13, MF-4"
+        ],
+        [
+          "Periodic Access Review",
+          "Rà soát quyền định kỳ — chỉ đặc tả thiết kế",
+          "FR-3.10, F-24",
+          "WF-14"
+        ]
+      ]
+    },
+    {
+      "n": 8,
+      "name": "Company Devices & Monitoring",
+      "vi": "Thiết bị công ty và xác nhận chính sách theo dõi",
+      "flows": "SF-4",
+      "leaves": [
+        [
+          "Company Device Registry",
+          "Mã tài sản, hệ điều hành, tên máy, người giữ, hiệu lực; không lưu IP, không đăng ký máy cá nhân",
+          "FR-4.21, QĐ-57b",
+          "WF-18"
+        ],
+        [
+          "Monitoring Acknowledgment",
+          "Ký xác nhận đã biết rõ khi nhận máy và xác nhận trong hệ thống trước khi nhận dữ liệu",
+          "FR-4.18, FR-4.21, BM-06, INV-17",
+          "WF-18"
+        ],
+        [
+          "Filtered Usage Intake",
+          "Chỉ nhận dữ liệu đã lọc tại nguồn từ thiết bị đã xác nhận; loại bộ thu thập chốt ở giai đoạn Tools",
+          "ADR-13, FR-4.14a, QĐ-59a",
+          "WF-18"
+        ]
+      ]
+    },
+    {
+      "n": 9,
+      "name": "Budget, Spend & Cost Allocation",
+      "vi": "Ngân sách, thực chi, khoản cam kết và phân bổ chi phí",
+      "flows": "MF-8",
+      "leaves": [
+        [
+          "Budgets per Cost Center",
+          "Ngân sách theo Cost Center và kỳ (mặc định quý)",
+          "FR-5.1, OI-11b",
+          "WF-20"
+        ],
+        [
+          "Budget Commitments",
+          "Khoản cam kết sau duyệt chi, gắn ngược khi ngân sách ra đời; còn lại được phép âm",
+          "FR-5.8, FR-5.8a, INV-16, INV-18",
+          "MF-2, WF-20"
+        ],
+        [
+          "Invoice Recording with Tax Lines",
+          "Hóa đơn ghi từng dòng thuế theo chứng từ, cờ được khấu trừ; đối chiếu với sao kê",
+          "FR-5.4, FR-5.13, QĐ-34b",
+          "MF-8, WF-16"
+        ],
+        [
+          "Vendor Tax Profiles",
+          "T1 trong nước, T2 nước ngoài doanh nghiệp nộp thay, T3 thuế đã thu; chỉ ghi nhận",
+          "FR-5.13, QĐ-60b",
+          "WF-16"
+        ],
+        [
+          "Cost Allocation",
+          "Theo seat và ngày hiệu lực, chia theo ngày khi điều chuyển, gói dùng chung theo tỷ lệ, nội bộ một Cost Center",
+          "FR-5.2, FR-5.3, QĐ-49g, QĐ-55b",
+          "MF-8, WF-19"
+        ],
+        [
+          "Budget vs Actual on Borne Cost",
+          "Ngân sách · thực chi · cam kết · còn lại trên chi phí thực chịu; dòng Chưa phân bổ Cost Center",
+          "FR-5.1, FR-5.13, QĐ-50c, QĐ-60a",
+          "MF-8, WF-19"
+        ],
+        [
+          "Exchange Rates",
+          "Tiền tệ gốc, tỷ giá, ngày tỷ giá, giá trị quy đổi",
+          "FR-1.6, FR-5.6, ADR-03",
+          "WF-19"
+        ],
+        [
+          "Three-Layer Cost Forecast",
+          "L1 cam kết, L3 kịch bản; L2 chỉ đặc tả",
+          "FR-5.5, FR-5.7, QĐ-25",
+          "WF-19"
+        ]
+      ]
+    },
+    {
+      "n": 10,
+      "name": "Spend Reconciliation & Discovery",
+      "vi": "Đối soát chi phí phần mềm — tính năng bổ sung (QĐ-33a)",
+      "flows": "MF-8",
+      "leaves": [
+        [
+          "Statement CSV Import",
+          "Mẫu CSV chuẩn hoặc theo ngân hàng; từ chối tệp không đúng mã hóa/định dạng",
+          "FR-6.3, QĐ-31a",
+          "WF-17"
+        ],
+        [
+          "Vendor Normalization & Confidence",
+          "Từ điển nhà cung cấp, khớp chính xác/mẫu/mờ; ca mơ hồ vào hàng đợi review",
+          "FR-6.2, FR-6.5, QĐ-38",
+          "WF-17a"
+        ],
+        [
+          "Per-Charge Reconciliation",
+          "Mỗi khoản chi so với căn cứ phê duyệt; ngoại lệ là cần kiểm tra, không phải vi phạm",
+          "FR-6.4, QĐ-33b",
+          "WF-17"
+        ],
+        [
+          "Finding Queue & Risk Tiers",
+          "Một bản ghi đang mở mỗi nhà cung cấp; phân tầng rủi ro là mức ưu tiên xem xét",
+          "FR-6.6→6.8, INV-13",
+          "WF-17"
+        ],
+        [
+          "Legitimization Decision",
+          "Người duyệt chi quyết báo nhầm / không duyệt / hợp thức hóa; IT thực thi",
+          "FR-6.9, FR-3.4c-1, BM-07",
+          "WF-17"
+        ]
+      ]
+    },
+    {
+      "n": 11,
+      "name": "Reports, Dashboards & Alerts",
+      "vi": "Dashboard theo vai, danh mục cảnh báo và năm nhóm báo cáo",
+      "flows": "MF-8, MF-4",
+      "leaves": [
+        [
+          "Role Dashboards",
+          "Một trang tổng quan cho mỗi vai theo đúng phạm vi xem",
+          "FR-5.14, QĐ-57a",
+          "UF"
+        ],
+        [
+          "Alert Catalog",
+          "Một danh mục cảnh báo: cảnh báo gì, gửi ai, khi nào; kênh trong ứng dụng, thư điện tử có giới hạn",
+          "FR-5.14, FR-3.11, OI-09b",
+          "UF"
+        ],
+        [
+          "Five KPIs",
+          "KPI-1 → KPI-5 kèm kỳ tính và thời điểm cập nhật",
+          "FR-0.1→0.4",
+          "WF-19"
+        ],
+        [
+          "Savings Report",
+          "Hai con số tiết kiệm không bao giờ cộng lại",
+          "FR-5.9",
+          "WF-19"
+        ],
+        [
+          "Usage Efficiency Report",
+          "KPI-3, độ bao phủ bằng chứng, G1–G4 theo ứng dụng và phòng",
+          "FR-5.10, FR-5.10a",
+          "WF-13"
+        ],
+        [
+          "Process Performance Report",
+          "KPI-2 theo từng bước, quá SLA, bảng nghẽn, seat nhánh (a)",
+          "FR-5.11, QĐ-29a",
+          "WF-09"
+        ],
+        [
+          "Data Quality Report",
+          "KPI-5, KPI-1, độ mới nguồn, sai lệch mở, trạng thái bộ thu thập",
+          "FR-5.12, FR-0.4",
+          "WF-12"
+        ]
+      ]
+    },
+    {
+      "n": 12,
+      "name": "Data Import & Initial Setup",
+      "vi": "Khung import chung và khởi tạo năm bước",
+      "flows": "SF-1",
+      "leaves": [
+        [
+          "Six-Step Import with Preview",
+          "Tải lên → phân tích → ánh xạ → xem trước bắt buộc → ghi nhận → tổng hợp; lỗi theo dòng, chống import trùng",
+          "FR-7.1→7.4",
+          "WF-01, WF-12"
+        ],
+        [
+          "Time-Zone & Email Normalization",
+          "Chuẩn hóa múi giờ tổ chức và email nhất quán",
+          "FR-7.5, FR-7.6",
+          "WF-12a"
+        ],
+        [
+          "Source Conflict Records",
+          "Không nguồn nào tự ghi đè nguồn kia; mâu thuẫn thành bản ghi cần xử lý",
+          "FR-7.7",
+          "WF-16"
+        ],
+        [
+          "Five-Step Setup Checklist",
+          "Phòng ban và nhân sự → danh mục → hợp đồng/thuê bao → hiện trạng seat → usage; file mẫu",
+          "FR-9.1→9.7",
+          "WF-01"
+        ]
+      ]
+    },
+    {
+      "n": 13,
+      "name": "Personal Data Rights",
+      "vi": "Quyền của chủ thể dữ liệu",
+      "flows": "SF-2",
+      "leaves": [
+        [
+          "View Own Data",
+          "Nhân viên xem seat, yêu cầu, dữ liệu sử dụng, thiết bị và xác nhận của chính mình",
+          "FR-10.1",
+          "UF-03"
+        ],
+        [
+          "Export Own Data",
+          "Xuất dữ liệu cá nhân ra tệp, ghi thời điểm tiếp nhận và hoàn tất",
+          "FR-10.2",
+          "UF-03"
+        ],
+        [
+          "Correction Requests",
+          "Yêu cầu sửa dữ liệu cá nhân sai; không sửa usage gốc hay Audit Trail",
+          "FR-10.7, OI-13",
+          "UF-03"
+        ],
+        [
+          "Stop-Collection Requests",
+          "Yêu cầu dừng thu thập, xử lý trong 2 ngày làm việc",
+          "FR-10.5, OI-01a",
+          "UF-03, WF-18"
+        ],
+        [
+          "Tracking Notices",
+          "Thông báo trước khi theo dõi cho mọi ứng dụng",
+          "FR-10.4, QĐ-01",
+          "WF-12, WF-18"
+        ],
+        [
+          "Retention-Based Deletion",
+          "Xóa dữ liệu hoạt động quá hạn; 30 ngày sau ngày làm việc cuối với người đã nghỉ",
+          "FR-10.3, FR-10.6",
+          "WF-07"
+        ]
+      ]
+    },
+    {
+      "n": 14,
+      "name": "System Administration & Audit",
+      "vi": "Tài khoản, vai trò, cấu hình và nhật ký kiểm toán",
+      "flows": "SF-2",
+      "leaves": [
+        [
+          "Accounts & Invitations",
+          "Tài khoản tạo từ hồ sơ nhân viên, kích hoạt qua lời mời một lần; người dùng tự đặt mật khẩu",
+          "FR-8.6, FR-8.11, QĐ-46",
+          "WF-03, UF-17"
+        ],
+        [
+          "Role Assignment",
+          "Gán/thu hồi vai; Super Admin không kiêm vai nghiệp vụ; không tự thay đổi tài khoản của mình",
+          "FR-8.1, FR-8.7, FR-8.8",
+          "WF-03"
+        ],
+        [
+          "Super Admin Transfer",
+          "Một Super Admin; đổi người chỉ qua chuyển giao",
+          "FR-8.10, QĐ-44",
+          "WF-03"
+        ],
+        [
+          "Approver & Threshold Settings",
+          "Người duyệt chi, người thay thế, approver dự phòng, SLA, ngưỡng, lưu giữ",
+          "FR-8.2",
+          "WF-03"
+        ],
+        [
+          "Append-Only Audit Trail",
+          "Nhật ký chỉ ghi thêm; chỉ Super Admin tra cứu",
+          "FR-8.3, INV-05, OI-08c",
+          "WF-03"
+        ],
+        [
+          "Background Job Monitor",
+          "Lần chạy, kết quả, số bản ghi, lỗi của tác vụ nền",
+          "FR-8.4",
+          "WF-03"
+        ]
+      ]
+    },
+    {
+      "n": 15,
+      "name": "AI Assistance",
+      "vi": "AI chỉ hỗ trợ; quy trình chạy đủ khi AI tắt (QĐ-49e)",
+      "flows": "MF-2, MF-8",
+      "leaves": [
+        [
+          "Pending-Request Summary",
+          "Tóm tắt các yêu cầu đang chờ chính trưởng phòng duyệt, mỗi dòng dẫn tới yêu cầu nguồn",
+          "QĐ-49e(1), BRD 6.4",
+          "MF-2"
+        ],
+        [
+          "Cost Report Narrative Draft",
+          "Bản nháp diễn giải báo cáo chi phí từ số liệu backend; Finance xem và sửa",
+          "QĐ-49e(2), BRD 6.4",
+          "MF-8"
+        ]
+      ]
+    }
+  ]
+}

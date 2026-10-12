@@ -1,0 +1,413 @@
+{
+  "id": "WF-04",
+  "kind": "activity",
+  "version": "3.1",
+  "date": "09/10/2026",
+  "title": "WF-04 · New Employee Onboarding",
+  "out": "workflows-activity-diagram/WF-04-new-employee-onboarding",
+  "lanes": [
+    {
+      "id": "IT",
+      "label": "IT Admin"
+    },
+    {
+      "id": "SYS",
+      "label": "SaaS-Sentry"
+    },
+    {
+      "id": "DH",
+      "label": "Department Head",
+      "slots": 2
+    }
+  ],
+  "nodes": [
+    {
+      "id": "st",
+      "type": "start",
+      "lane": "IT",
+      "row": 0
+    },
+    {
+      "id": "m_imp",
+      "type": "merge",
+      "lane": "IT",
+      "row": 1
+    },
+    {
+      "id": "a_rec",
+      "type": "action",
+      "lane": "IT",
+      "row": 2,
+      "label": "Import or Record New Hire with Department and Position",
+      "vi": "Nhân viên mới đến từ file nhân sự (import) hoặc do IT Admin ghi tay: mã nhân viên, họ tên, email công việc thuộc tên miền công ty, trạng thái, ngày vào; **phòng ban và chức vụ là trường bắt buộc**. Nhà thầu/thực tập sinh vẫn là Employee thuộc phòng họ làm việc.",
+      "rules": [
+        "FR-2.1",
+        "FR-9.7",
+        "FR-2.9",
+        "BRD 4.5",
+        "QĐ-52a"
+      ]
+    },
+    {
+      "id": "d_valid",
+      "type": "decision",
+      "lane": "SYS",
+      "row": 3,
+      "label": "Department and Position Valid?",
+      "vi": "Ở bước xem trước của khung import, bản ghi thiếu phòng ban/chức vụ hoặc mang mã phòng chưa có bị từ chối theo dòng, kèm thông báo đúng dòng và cột; hệ thống không tạo nhân viên không có phòng và không tự tạo phòng.",
+      "rules": [
+        "FR-9.7",
+        "FR-7.1",
+        "INV-20"
+      ]
+    },
+    {
+      "id": "a_fix",
+      "type": "action",
+      "lane": "IT",
+      "row": 4,
+      "label": "Correct HR Data and Resubmit",
+      "vi": "IT Admin sửa dữ liệu nhân sự (hoặc tạo phòng/Cost Center trước theo đúng quy trình — Cost Center do Finance quản lý) rồi gửi lại.",
+      "rules": [
+        "FR-9.7",
+        "FR-3.1",
+        "OI-04"
+      ]
+    },
+    {
+      "id": "s_org",
+      "type": "action",
+      "lane": "SYS",
+      "row": 5,
+      "label": "Open Department Period from Start Date",
+      "vi": "Hệ thống tạo quan hệ nhân viên–phòng có hiệu lực từ ngày vào (không ghi đè lịch sử); Cost Center của nhân viên suy ra từ Cost Center `Unit` của phòng; nhân viên thuộc đúng một phòng.",
+      "rules": [
+        "FR-2.2",
+        "ADR-04",
+        "INV-20",
+        "QĐ-52b"
+      ]
+    },
+    {
+      "id": "d_head",
+      "type": "decision",
+      "lane": "DH",
+      "row": 6,
+      "label": "Head Requests Tools for New Hire?",
+      "vi": "Trưởng phòng **có thể** tạo yêu cầu thay cho người mới; nếu không, người mới tự gửi yêu cầu sau khi có tài khoản (MF-2).",
+      "rules": [
+        "FR-3.2",
+        "FR-3.18"
+      ]
+    },
+    {
+      "id": "end_self",
+      "type": "end",
+      "lane": "DH",
+      "slot": 1,
+      "row": 7,
+      "vi": "Người mới tự gửi yêu cầu theo MF-2 khi cần."
+    },
+    {
+      "id": "s_kit",
+      "type": "action",
+      "lane": "SYS",
+      "row": 7,
+      "label": "Show Standard Toolset (Department x Position)",
+      "vi": "Hệ thống hiện trước bộ công cụ chuẩn của cặp (phòng, chức vụ) do IT Admin cấu hình. Bộ chuẩn không tự cấp quyền — mọi quyền vẫn đi qua FR-3.4. Không dùng AI để gợi ý.",
+      "rules": [
+        "FR-3.18",
+        "QĐ-52e",
+        "QĐ-58c"
+      ]
+    },
+    {
+      "id": "a_pick",
+      "type": "action",
+      "lane": "DH",
+      "row": 8,
+      "label": "Pick Tools; Give Reason for Extras",
+      "vi": "Trưởng phòng chọn công cụ trong bộ chuẩn; công cụ ngoài bộ chuẩn bắt buộc có lý do và được gắn cờ. Với nhà thầu/thực tập sinh, yêu cầu phải có ngày kết thúc dự kiến.",
+      "rules": [
+        "FR-3.18",
+        "FR-2.8",
+        "INV-07",
+        "BM-01"
+      ]
+    },
+    {
+      "id": "d_kind",
+      "type": "decision",
+      "lane": "DH",
+      "row": 9,
+      "label": "Team Plan for Several People?",
+      "vi": "Tài khoản cá nhân cho người mới, hay gói team cấp cho nhiều người cùng lúc (ví dụ cả nhóm mới vào).",
+      "rules": [
+        "FR-2.11",
+        "QĐ-54d"
+      ]
+    },
+    {
+      "id": "a_onb",
+      "type": "action",
+      "lane": "DH",
+      "row": 10,
+      "label": "Create On-Behalf Request per Tool (BM-01)",
+      "vi": "Trưởng phòng tạo yêu cầu thay người mới; người yêu cầu và người thụ hưởng là hai trường riêng. Mỗi phiếu BM-01 ghi phần mềm/gói, lý do, thời hạn cần dùng. Gói cấm chia sẻ tài khoản thì không xin được kiểu dùng chung — yêu cầu bị từ chối ở bước đánh giá của IT (FR-2.11); chuyển sang cấp cá nhân là yêu cầu mới, định tuyến lại theo FR-3.4.",
+      "rules": [
+        "FR-3.2",
+        "BM-01",
+        "SoD-4"
+      ]
+    },
+    {
+      "id": "a_grp",
+      "type": "action",
+      "lane": "DH",
+      "slot": 1,
+      "row": 10,
+      "label": "Submit Group Request with Member List",
+      "vi": "Một yêu cầu theo nhóm kèm danh sách người cho gói team; hệ thống tạo **một Assignment cho mỗi người** khi được cấp. Khác tài khoản dùng chung (một bộ đăng nhập cho nhiều người). Chỉ thành viên phòng của trưởng phòng (BRD 4.3, FR-3.2). Gói cấm chia sẻ tài khoản thì không xin được kiểu dùng chung — yêu cầu bị từ chối ở bước đánh giá của IT (FR-2.11); chuyển sang cấp cá nhân là yêu cầu mới, định tuyến lại theo FR-3.4.",
+      "rules": [
+        "FR-2.11",
+        "FR-3.2",
+        "BM-01",
+        "QĐ-54d"
+      ]
+    },
+    {
+      "id": "m_req",
+      "type": "merge",
+      "lane": "DH",
+      "row": 11
+    },
+    {
+      "id": "c_req",
+      "type": "call",
+      "lane": "SYS",
+      "row": 12,
+      "label": "Route, Approve and Provision Each Request",
+      "ref": "WF-09",
+      "vi": "Mỗi yêu cầu đi định tuyến và cấp phát thông thường theo nhánh (a)/(b)/(c). Trưởng phòng là người vốn duyệt nhu cầu của nhân viên phòng mình, nên yêu cầu trưởng phòng tạo thay được ghi nhận là **bước nhu cầu đã xác nhận** (người tạo, người thụ hưởng, thời điểm) rồi đi tiếp nhánh (a)/(b)/(c). Phần mà chính trưởng phòng là người thụ hưởng ⟹ bước nhu cầu theo QĐ-52c (Người duyệt chi; trưởng phòng là Người duyệt chi ⟹ approver dự phòng) — không thể tự duyệt qua việc đổi tên người yêu cầu (QĐ-62a, SoD-4).",
+      "rules": [
+        "FR-3.3",
+        "FR-3.4",
+        "MF-2",
+        "QĐ-62a",
+        "SoD-4"
+      ]
+    },
+    {
+      "id": "end_req",
+      "type": "end",
+      "lane": "SYS",
+      "row": 13,
+      "vi": "Các yêu cầu cho người mới đã có kết quả theo WF-09."
+    }
+  ],
+  "edges": [
+    {
+      "from": "st",
+      "to": "m_imp"
+    },
+    {
+      "from": "m_imp",
+      "to": "a_rec"
+    },
+    {
+      "from": "a_rec",
+      "to": "d_valid"
+    },
+    {
+      "from": "d_valid",
+      "to": "a_fix",
+      "guard": "missing or unknown",
+      "vi": "Thiếu phòng ban/chức vụ hoặc mã phòng chưa có",
+      "result": "Từ chối dòng, IT sửa dữ liệu"
+    },
+    {
+      "from": "d_valid",
+      "to": "s_org",
+      "guard": "valid",
+      "vi": "Đủ phòng ban và chức vụ hợp lệ",
+      "result": "Tạo nhân viên và kỳ tổ chức"
+    },
+    {
+      "from": "a_fix",
+      "to": "m_imp"
+    },
+    {
+      "from": "s_org",
+      "to": "d_head"
+    },
+    {
+      "from": "d_head",
+      "to": "end_self",
+      "guard": "no",
+      "vi": "Trưởng phòng không tạo yêu cầu thay",
+      "result": "Người mới tự gửi yêu cầu sau"
+    },
+    {
+      "from": "d_head",
+      "to": "s_kit",
+      "guard": "yes",
+      "vi": "Trưởng phòng tạo yêu cầu cho người mới",
+      "result": "Hiện bộ công cụ chuẩn"
+    },
+    {
+      "from": "s_kit",
+      "to": "a_pick"
+    },
+    {
+      "from": "a_pick",
+      "to": "d_kind"
+    },
+    {
+      "from": "d_kind",
+      "to": "a_onb",
+      "guard": "individual",
+      "vi": "Tài khoản cá nhân cho người mới",
+      "result": "Yêu cầu thay theo từng công cụ"
+    },
+    {
+      "from": "d_kind",
+      "to": "a_grp",
+      "guard": "team plan",
+      "vi": "Gói team cho nhiều người",
+      "result": "Yêu cầu theo nhóm"
+    },
+    {
+      "from": "a_onb",
+      "to": "m_req"
+    },
+    {
+      "from": "a_grp",
+      "to": "m_req"
+    },
+    {
+      "from": "m_req",
+      "to": "c_req"
+    },
+    {
+      "from": "c_req",
+      "to": "end_req"
+    }
+  ],
+  "doc": {
+    "level": "Workflow hỗ trợ của MF-2 — điểm vào cho nhân viên mới",
+    "status": "Vẽ lại theo mô hình phòng ban (QĐ-52) và BRD v3.30 (đồng bộ QĐ-61/QĐ-62) (FR-2.1, FR-2.2, FR-2.11, FR-3.2, FR-3.18, FR-9.7); chờ Owner/GVHD review",
+    "purpose": "Mô tả cách một **nhân viên mới** vào hệ thống với đúng phòng ban và chức vụ, rồi được trưởng phòng xin sẵn bộ công cụ chuẩn của vị trí đó. Bộ công cụ chuẩn chỉ giúp xin nhanh và đồng nhất; mọi quyền vẫn đi qua phê duyệt thông thường, không có đường cấp tự động.",
+    "scope": "Ghi/import nhân viên mới bắt buộc phòng ban và chức vụ; từ chối bản ghi thiếu phòng; mở kỳ quan hệ nhân viên–phòng từ ngày vào; trưởng phòng (tùy chọn) tạo yêu cầu thay theo bộ công cụ chuẩn phòng × chức vụ hoặc yêu cầu theo nhóm cho gói team; mỗi yêu cầu đi WF-09.",
+    "excluded": "Định tuyến, phê duyệt và cấp phát từng yêu cầu (→ WF-09, WF-09a); cấu hình bộ công cụ chuẩn (→ WF-02/WF-03); khởi tạo dữ liệu tổ chức lần đầu (→ WF-01); tạo tài khoản email công ty phía Google Workspace/Microsoft 365 (ngoài hệ thống, mô phỏng trong demo). Không có AI ở workflow này.",
+    "lanes_vi": {
+      "IT": [
+        "IT Admin phụ trách phòng",
+        "Import/ghi nhân viên mới, sửa dữ liệu bị từ chối"
+      ],
+      "SYS": [
+        "SaaS-Sentry",
+        "Kiểm phòng ban/chức vụ, mở kỳ tổ chức, hiện bộ công cụ chuẩn, chuyển yêu cầu sang WF-09"
+      ],
+      "DH": [
+        "Trưởng phòng của phòng người mới (vai Manager suy ra)",
+        "Chọn công cụ, tạo yêu cầu thay hoặc yêu cầu theo nhóm"
+      ]
+    },
+    "trigger": "Doanh nghiệp tuyển một người mới (nhân viên chính thức, nhà thầu, freelancer hoặc thực tập sinh); IT Admin import file nhân sự hoặc ghi tay.",
+    "pre": "Phòng ban đã có, kèm trưởng phòng, Cost Center `Unit` và IT Admin phụ trách (WF-01); bộ công cụ chuẩn của phòng × chức vụ đã cấu hình (nếu chưa, trưởng phòng chọn ngoài bộ chuẩn kèm lý do); người mới có email công việc thuộc tên miền công ty.",
+    "post": "Người mới thuộc đúng một phòng từ ngày vào, Cost Center suy ra từ phòng; các yêu cầu công cụ cho người mới (nếu có) đã qua WF-09 với kết quả được ghi; hoặc người mới sẽ tự xin công cụ sau.",
+    "reading": "Đọc từ trên xuống. Vòng lặp ở đầu là việc sửa dữ liệu nhân sự bị từ chối. Từ hình thoi *Head Requests Tools for New Hire?* trở xuống là phần của trưởng phòng; nhánh *no* không phải lỗi — người mới vẫn tự xin công cụ qua MF-2.",
+    "sources": [
+      [
+        "FR-2.1, FR-9.7",
+        "Danh sách nhân viên; phòng ban và chức vụ bắt buộc trong file nhân sự, thiếu thì bị từ chối"
+      ],
+      [
+        "FR-2.2, ADR-04, INV-20",
+        "Quan hệ nhân viên–phòng có hiệu lực theo thời gian; đúng một phòng"
+      ],
+      [
+        "FR-3.1, QĐ-52a, QĐ-52b",
+        "Công ty → Phòng ban → Chức vụ → Nhân sự; Cost Center Unit 1–1 với phòng"
+      ],
+      [
+        "FR-3.2, FR-3.18, QĐ-52e, QĐ-58c",
+        "Trưởng phòng tạo yêu cầu thay khi onboarding theo bộ công cụ chuẩn; ngoài bộ chuẩn phải có lý do"
+      ],
+      [
+        "FR-2.11, QĐ-54d",
+        "Yêu cầu theo nhóm cho gói team — mỗi người một Assignment"
+      ],
+      [
+        "FR-2.8, INV-07",
+        "Nhà thầu/thực tập sinh bắt buộc có ngày kết thúc dự kiến"
+      ],
+      [
+        "FR-2.9, QĐ-54c",
+        "Chỉ cấp quyền trả phí trên tài khoản công ty"
+      ],
+      [
+        "BRD 4.6",
+        "Ma trận trách nhiệm dòng nhánh (a): trưởng phòng tạo thay khi onboarding hoặc gửi yêu cầu theo nhóm"
+      ]
+    ],
+    "happy": [
+      "st",
+      "m_imp",
+      "a_rec",
+      "d_valid",
+      "s_org",
+      "d_head",
+      "s_kit",
+      "a_pick",
+      "d_kind",
+      "a_onb",
+      "m_req",
+      "c_req",
+      "end_req"
+    ],
+    "alternates": [
+      {
+        "title": "Gói team cho nhiều người",
+        "path": [
+          "d_kind",
+          "a_grp",
+          "m_req",
+          "c_req"
+        ],
+        "note": "Một yêu cầu theo nhóm, mỗi người một Assignment."
+      },
+      {
+        "title": "Trưởng phòng không tạo yêu cầu thay",
+        "path": [
+          "d_head",
+          "end_self"
+        ],
+        "note": "Người mới tự gửi yêu cầu theo MF-2."
+      }
+    ],
+    "unhappy": [
+      {
+        "title": "Bản ghi nhân sự thiếu phòng ban/chức vụ",
+        "path": [
+          "d_valid",
+          "a_fix",
+          "m_imp",
+          "a_rec"
+        ],
+        "note": "Từ chối theo dòng; không tạo nhân viên không có phòng."
+      }
+    ],
+    "relations": [
+      "Cấp trên: `MF-2` (điểm vào onboarding); nền: `WF-01` (khởi tạo tổ chức), `WF-02` (danh mục, gói, bộ công cụ chuẩn)",
+      "`WF-09` — mỗi yêu cầu đi định tuyến và phê duyệt thông thường",
+      "`WF-08` — quyền của nhà thầu/thực tập sinh hết hạn",
+      "User flow: `UF-21` (trưởng phòng xin công cụ cho người mới hoặc cho nhóm)"
+    ],
+    "open": [
+      "(ĐÃ CHỐT · DOI-20, QĐ-62a) Yêu cầu trưởng phòng tạo thay nhân viên phòng mình = bước nhu cầu đã xác nhận; phần trưởng phòng là người thụ hưởng theo QĐ-52c.",
+      "(LIMIT · DOI-30) Không có cảnh báo *có nhân viên mới trong phòng* cho trưởng phòng (FR-5.14) — trưởng phòng tự chủ động.",
+      "(LIMIT · DOI-04, RB-4, QĐ-54c) Tạo tài khoản email công ty ở hệ thống của doanh nghiệp nằm ngoài hệ thống và được mô phỏng trong demo."
+    ]
+  }
+}

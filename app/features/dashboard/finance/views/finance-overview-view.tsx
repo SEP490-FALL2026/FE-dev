@@ -1,7 +1,19 @@
-import { DollarSign, Layers, TrendingUp, Wallet } from 'lucide-react'
+import { BookCheck, ClipboardList, Clock, MessageSquareText, TriangleAlert, Wallet } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { financeCostCenters, financeMetrics, financeTopVendors } from '../finance-data'
+import { RemainingValue, getRemaining } from '../../budget-figures'
+import { PageHeader, Panel, PanelTitle, Pill, StatTile, useDashboardFormat } from '../../dashboard-ui'
+import {
+  budgetQuestions,
+  chargeExceptions,
+  closingPeriod,
+  commitmentsToRecord,
+  costCenters,
+  currentBudgetLines,
+  currentPeriod,
+  financeDataAsOf,
+  heldRemainders
+} from '../finance-data'
 import type { FinanceTabKey } from '../finance-nav'
 
 interface FinanceOverviewViewProps {
@@ -11,175 +23,141 @@ interface FinanceOverviewViewProps {
 
 export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOverviewViewProps) {
   const { t } = useTranslation('dashboard')
+  const { formatDateTime } = useDashboardFormat()
+
+  const openQuestions = budgetQuestions.filter((question) => question.status === 'OPEN')
+  const overdueRecordings = commitmentsToRecord.filter((item) => item.recordingDueAt <= financeDataAsOf)
+  const withoutBudget = currentBudgetLines.filter((line) => line.budget === null)
+  const openExceptions = chargeExceptions.filter((item) => item.status === 'CHECKING')
+  const remaindersToReview = heldRemainders.filter((item) => !item.moreInvoicesExpected)
+
+  const totals = currentBudgetLines.reduce(
+    (sum, line) => ({
+      actual: sum.actual + line.actual,
+      budget: sum.budget + (line.budget ?? 0),
+      held: sum.held + line.held
+    }),
+    { actual: 0, budget: 0, held: 0 }
+  )
+
+  const costCenterName = (code: string) => costCenters.find((cc) => cc.code === code)?.name ?? code
 
   return (
     <div className='space-y-6'>
-      {/* Header */}
-      <div>
-        <h1 className='text-2xl font-bold tracking-tight text-foreground sm:text-3xl'>
-          {t('finance.dashboard.title')}
-        </h1>
-        <p className='mt-1 text-sm text-muted-foreground'>{t('finance.dashboard.subtitle')}</p>
-      </div>
+      <PageHeader
+        code='UF-11 · FIN-01'
+        subtitle={t('finance.overview.subtitle', { period: currentPeriod })}
+        title={t('finance.overview.title')}
+      />
 
-      {/* Top 4 Executive Metric Cards */}
-      <section aria-label={t('metrics.regionLabel')} className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4'>
-        <div className='rounded-2xl border border-border bg-surface p-5 shadow-sm transition-all hover:border-primary/40'>
-          <div className='flex items-center justify-between'>
-            <span className='text-xs font-semibold uppercase tracking-wider text-muted-foreground'>
-              {t('finance.dashboard.metrics.arr')}
-            </span>
-            <div className='rounded-lg bg-primary-soft p-2 text-primary'>
-              <DollarSign className='size-5' />
-            </div>
-          </div>
-          <p className='mt-3 text-2xl font-extrabold text-foreground'>{formatCurrency(financeMetrics.arr)}</p>
-          <div className='mt-1 flex items-center gap-1 text-xs text-success font-medium'>
-            <TrendingUp className='size-3.5' />
-            <span>{t('finance.dashboard.yoyComparison')}</span>
-          </div>
-        </div>
-
-        <div className='rounded-2xl border border-border bg-surface p-5 shadow-sm transition-all hover:border-primary/40'>
-          <div className='flex items-center justify-between'>
-            <span className='text-xs font-semibold uppercase tracking-wider text-muted-foreground'>
-              {t('finance.dashboard.metrics.mrr')}
-            </span>
-            <div className='rounded-lg bg-info/10 p-2 text-info'>
-              <Wallet className='size-5' />
-            </div>
-          </div>
-          <p className='mt-3 text-2xl font-extrabold text-foreground'>{formatCurrency(financeMetrics.mrr)}</p>
-          <p className='mt-1 text-xs text-muted-foreground'>{t('finance.dashboard.mrrNote')}</p>
-        </div>
-
-        <div className='rounded-2xl border border-border bg-surface p-5 shadow-sm transition-all hover:border-primary/40'>
-          <div className='flex items-center justify-between'>
-            <span className='text-xs font-semibold uppercase tracking-wider text-muted-foreground'>
-              {t('finance.dashboard.metrics.activeSubscriptions')}
-            </span>
-            <div className='rounded-lg bg-warning/10 p-2 text-warning'>
-              <Layers className='size-5' />
-            </div>
-          </div>
-          <p className='mt-3 text-2xl font-extrabold text-foreground'>{financeMetrics.activeSubscriptions}</p>
-          <button
-            className='mt-1 text-xs font-bold text-primary hover:underline'
-            onClick={() => onSelectTab('software-directory')}
-            type='button'
-          >
-            {t('finance.nav.softwareDirectory')}
-          </button>
-        </div>
-
-        <div className='rounded-2xl border border-border bg-surface p-5 shadow-sm transition-all hover:border-primary/40'>
-          <div className='flex items-center justify-between'>
-            <span className='text-xs font-semibold uppercase tracking-wider text-muted-foreground'>
-              {t('finance.dashboard.metrics.realizedSavings')}
-            </span>
-            <div className='rounded-lg bg-success/10 p-2 text-success'>
-              <DollarSign className='size-5' />
-            </div>
-          </div>
-          <p className='mt-3 text-2xl font-extrabold text-foreground'>
-            {formatCurrency(financeMetrics.realizedSavings)}
-          </p>
-          <button
-            className='mt-1 text-xs font-bold text-success hover:underline'
-            onClick={() => onSelectTab('renewal-schedule')}
-            type='button'
-          >
-            {t('finance.nav.renewalSchedule')}
-          </button>
-        </div>
+      <section aria-label={t('finance.overview.workRegion')} className='grid gap-4 sm:grid-cols-2 xl:grid-cols-5'>
+        <StatTile
+          action={t('finance.overview.openAction')}
+          hint={t('finance.overview.questionsHint')}
+          icon={MessageSquareText}
+          label={t('finance.overview.openQuestions')}
+          onClick={() => onSelectTab('budget-questions')}
+          tone='info'
+          value={String(openQuestions.length)}
+        />
+        <StatTile
+          action={t('finance.overview.openAction')}
+          hint={t('finance.overview.recordingHint', { count: overdueRecordings.length })}
+          icon={BookCheck}
+          label={t('finance.overview.commitmentsToRecord')}
+          onClick={() => onSelectTab('commitments')}
+          tone={overdueRecordings.length > 0 ? 'warning' : 'primary'}
+          value={String(commitmentsToRecord.length)}
+        />
+        <StatTile
+          action={t('finance.overview.openAction')}
+          hint={withoutBudget.map((line) => line.costCenter).join(', ')}
+          icon={Wallet}
+          label={t('finance.overview.withoutBudget')}
+          onClick={() => onSelectTab('budgets')}
+          tone='warning'
+          value={String(withoutBudget.length)}
+        />
+        <StatTile
+          action={t('finance.overview.openAction')}
+          hint={t('finance.overview.exceptionsHint')}
+          icon={TriangleAlert}
+          label={t('finance.overview.openExceptions')}
+          onClick={() => onSelectTab('charge-exceptions')}
+          tone='danger'
+          value={String(openExceptions.length)}
+        />
+        <StatTile
+          action={t('finance.overview.openAction')}
+          hint={t('finance.overview.closeHint', { count: remaindersToReview.length })}
+          icon={ClipboardList}
+          label={t('finance.overview.periodClose', { period: closingPeriod })}
+          onClick={() => onSelectTab('period-close')}
+          tone='neutral'
+          value={t('finance.overview.closeStatus')}
+        />
       </section>
 
-      {/* Grid: Cost Centers Budget & Top Vendors */}
-      <div className='grid gap-6 lg:grid-cols-12'>
-        {/* Left: Cost Center Budget Health */}
-        <div className='space-y-4 lg:col-span-8'>
-          <div className='rounded-2xl border border-border bg-surface p-5 shadow-sm'>
-            <div className='flex items-center justify-between'>
-              <div>
-                <h2 className='text-sm font-bold text-foreground'>{t('finance.dashboard.costCentersTitle')}</h2>
-                <p className='text-xs text-muted-foreground'>{t('approvals.dashboard.costCenters.subtitle')}</p>
-              </div>
-              <button
-                className='text-xs font-bold text-primary hover:underline'
-                onClick={() => onSelectTab('budget-snapshot')}
-                type='button'
-              >
-                {t('finance.nav.budgetSnapshot')}
-              </button>
-            </div>
+      <Panel>
+        <PanelTitle
+          action={
+            <span className='flex items-center gap-1.5 text-[0.7rem] text-muted-foreground'>
+              <Clock aria-hidden='true' className='size-3.5' />
+              {t('budget.asOf', { time: formatDateTime(financeDataAsOf) })}
+            </span>
+          }
+          hint={t('finance.overview.budgetTableHint')}
+          title={t('finance.overview.budgetTableTitle', { period: currentPeriod })}
+        />
 
-            <div className='mt-4 overflow-x-auto'>
-              <table className='w-full text-left text-xs'>
-                <thead>
-                  <tr className='border-b border-border text-muted-foreground'>
-                    <th className='py-2.5 font-semibold'>{t('approvals.dashboard.costCenters.colCode')}</th>
-                    <th className='py-2.5 font-semibold'>{t('approvals.dashboard.costCenters.colName')}</th>
-                    <th className='py-2.5 text-right font-semibold'>
-                      {t('approvals.dashboard.costCenters.colBudget')}
-                    </th>
-                    <th className='py-2.5 text-right font-semibold'>{t('approvals.dashboard.costCenters.colSpent')}</th>
-                    <th className='py-2.5 text-right font-semibold'>
-                      {t('approvals.dashboard.costCenters.colCommitments')}
-                    </th>
-                    <th className='py-2.5 text-right font-semibold'>
-                      {t('approvals.dashboard.costCenters.colRemaining')}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className='divide-y divide-border'>
-                  {financeCostCenters.map((cc) => {
-                    const remaining = cc.allocatedBudget - (cc.spent + cc.commitments)
-                    return (
-                      <tr key={cc.code} className='transition hover:bg-surface-subtle/50'>
-                        <td className='py-3 font-mono font-bold text-foreground'>{cc.code}</td>
-                        <td className='py-3 font-medium text-foreground'>{cc.name}</td>
-                        <td className='py-3 text-right text-muted-foreground'>{formatCurrency(cc.allocatedBudget)}</td>
-                        <td className='py-3 text-right font-bold text-foreground'>{formatCurrency(cc.spent)}</td>
-                        <td className='py-3 text-right font-medium text-warning'>{formatCurrency(cc.commitments)}</td>
-                        <td className='py-3 text-right font-bold text-success'>{formatCurrency(remaining)}</td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        {/* Right: Top SaaS Vendors */}
-        <div className='space-y-4 lg:col-span-4'>
-          <div className='rounded-2xl border border-border bg-surface p-5 shadow-sm'>
-            <h2 className='text-sm font-bold text-foreground'>{t('finance.dashboard.topVendorsTitle')}</h2>
-            <p className='text-xs text-muted-foreground'>{t('approvals.dashboard.topVendors.subtitle')}</p>
-
-            <div className='mt-4 divide-y divide-border text-xs'>
-              {financeTopVendors.map((vendor) => (
-                <div key={vendor.name} className='flex items-center justify-between py-2.5'>
-                  <div className='flex items-center gap-2.5 min-w-0 flex-1 pr-2'>
-                    <span className='flex size-8 shrink-0 items-center justify-center rounded-lg border border-border bg-background text-base'>
-                      {vendor.logo}
-                    </span>
-                    <div className='min-w-0 flex-1'>
-                      <p className='truncate font-bold text-foreground'>{vendor.name}</p>
-                      <p className='text-[11px] text-muted-foreground'>
-                        {t('finance.dashboard.percentTotalSpend', { percent: vendor.percentage })}
-                      </p>
-                    </div>
-                  </div>
-                  <div className='text-right'>
-                    <p className='font-bold text-foreground'>{formatCurrency(vendor.spend)}</p>
-                  </div>
-                </div>
+        <div className='mt-4 overflow-x-auto'>
+          <table className='w-full min-w-184 text-left text-xs'>
+            <thead>
+              <tr className='border-b border-border text-muted-foreground'>
+                <th className='py-2.5 font-semibold'>{t('budget.costCenter')}</th>
+                <th className='py-2.5 text-right font-semibold'>{t('budget.budget')}</th>
+                <th className='py-2.5 text-right font-semibold'>{t('budget.actual')}</th>
+                <th className='py-2.5 text-right font-semibold'>{t('budget.held')}</th>
+                <th className='py-2.5 text-right font-semibold'>{t('budget.remaining')}</th>
+                <th className='py-2.5 text-right font-semibold'>{t('budget.deductibleVat')}</th>
+              </tr>
+            </thead>
+            <tbody className='divide-y divide-border'>
+              {currentBudgetLines.map((line) => (
+                <tr className='transition hover:bg-surface-subtle/50' key={line.costCenter}>
+                  <td className='py-3'>
+                    <span className='font-mono font-bold text-foreground'>{line.costCenter}</span>
+                    <span className='ml-2 text-muted-foreground'>{costCenterName(line.costCenter)}</span>
+                  </td>
+                  <td className='py-3 text-right'>
+                    {line.budget === null ? (
+                      <Pill tone='warning'>{t('budget.noBudget')}</Pill>
+                    ) : (
+                      formatCurrency(line.budget)
+                    )}
+                  </td>
+                  <td className='py-3 text-right font-semibold'>{formatCurrency(line.actual)}</td>
+                  <td className='py-3 text-right text-warning'>{formatCurrency(line.held)}</td>
+                  <td className='py-3 text-right'>
+                    <RemainingValue formatCurrency={formatCurrency} remaining={getRemaining(line)} />
+                  </td>
+                  <td className='py-3 text-right text-muted-foreground'>{formatCurrency(line.deductibleVat)}</td>
+                </tr>
               ))}
-            </div>
-          </div>
+            </tbody>
+            <tfoot>
+              <tr className='border-t-2 border-border font-bold'>
+                <td className='py-3'>{t('finance.overview.totalWithBudget')}</td>
+                <td className='py-3 text-right'>{formatCurrency(totals.budget)}</td>
+                <td className='py-3 text-right'>{formatCurrency(totals.actual)}</td>
+                <td className='py-3 text-right text-warning'>{formatCurrency(totals.held)}</td>
+                <td className='py-3 text-right' colSpan={2} />
+              </tr>
+            </tfoot>
+          </table>
         </div>
-      </div>
+        <p className='mt-3 text-[0.7rem] text-muted-foreground'>{t('finance.overview.formulaNote')}</p>
+      </Panel>
     </div>
   )
 }

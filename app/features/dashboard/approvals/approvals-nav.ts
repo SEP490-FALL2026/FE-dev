@@ -1,7 +1,10 @@
 import { BarChart3, Clock, Grid2X2 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
-export type ApprovalTabKey = 'overview' | 'queue' | 'expense-approval' | 'renewal-decision' | 'reports'
+/** `request`, `renewal` and `charge` are the APV-02/APV-03 detail screens opened from the APV-01 queue (UF-15). */
+export const APPROVAL_TAB_KEYS = ['overview', 'queue', 'request', 'renewal', 'charge', 'reports'] as const
+
+export type ApprovalTabKey = (typeof APPROVAL_TAB_KEYS)[number]
 
 export type ApprovalTranslationKey = 'overview' | 'queue' | 'reports'
 
@@ -9,37 +12,20 @@ export interface ApprovalNavItem {
   badge?: number
   icon: LucideIcon
   key: ApprovalTabKey
+  screenCode?: string
   translationKey: ApprovalTranslationKey
 }
 
 export const approvalNavItems: ApprovalNavItem[] = [
-  {
-    icon: Grid2X2,
-    key: 'overview',
-    translationKey: 'overview'
-  },
-  {
-    badge: 4,
-    icon: Clock,
-    key: 'queue',
-    translationKey: 'queue'
-  },
-  {
-    icon: BarChart3,
-    key: 'reports',
-    translationKey: 'reports'
-  }
+  { icon: Grid2X2, key: 'overview', translationKey: 'overview' },
+  { badge: 7, icon: Clock, key: 'queue', screenCode: 'APV-01', translationKey: 'queue' },
+  { icon: BarChart3, key: 'reports', translationKey: 'reports' }
 ]
 
-const validTabs = new Set<string>(['overview', 'queue', 'expense-approval', 'renewal-decision', 'reports'])
-
 export function isValidApprovalTab(value: string | null): value is ApprovalTabKey {
-  return value !== null && validTabs.has(value)
+  return value !== null && (APPROVAL_TAB_KEYS as readonly string[]).includes(value)
 }
 
 export function getParentApprovalMenuKey(tab: ApprovalTabKey): ApprovalTabKey {
-  if (tab === 'expense-approval' || tab === 'renewal-decision') {
-    return 'queue'
-  }
-  return tab
+  return tab === 'request' || tab === 'renewal' || tab === 'charge' ? 'queue' : tab
 }

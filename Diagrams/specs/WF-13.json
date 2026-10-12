@@ -1,0 +1,815 @@
+{
+  "id": "WF-13",
+  "kind": "activity",
+  "version": "3.3",
+  "date": "10/10/2026",
+  "title": "WF-13 · Waste Detection & Department Head Attestation",
+  "out": "workflows-activity-diagram/WF-13-waste-detection-department-head-attestation",
+  "lanes": [
+    {
+      "id": "DH",
+      "label": "Department Head",
+      "slots": 2
+    },
+    {
+      "id": "SYS",
+      "label": "SaaS-Sentry",
+      "slots": 3
+    },
+    {
+      "id": "IT",
+      "label": "IT Admin",
+      "slots": 2
+    }
+  ],
+  "nodes": [
+    {
+      "id": "st",
+      "type": "start",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 0
+    },
+    {
+      "id": "t_sched",
+      "type": "time",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 1,
+      "label": "Daily G1/G2 · Weekly G3/G4 Run",
+      "vi": "Tác vụ nền theo lịch: G1 và G2 chạy hằng ngày (chỉ dùng dữ liệu nội bộ); G3 và G4 chạy hằng tuần (dữ liệu usage nhập theo đợt). Lịch cấu hình được.",
+      "rules": [
+        "FR-4.12b",
+        "QĐ-09",
+        "FR-8.2"
+      ]
+    },
+    {
+      "id": "c_gates",
+      "type": "call",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 2,
+      "label": "Apply Exclusion Gates",
+      "ref": "WF-13a",
+      "vi": "Áp tám cổng loại trừ cho từng seat (G1/G2 chỉ cổng 1 và 8). Trượt cổng thì không có khuyến nghị; dữ liệu quá 7 ngày thì không chạy rule mà hiển thị cảnh báo lỗi thời.",
+      "rules": [
+        "FR-4.9",
+        "OI-12a",
+        "OI-12b",
+        "TC-2",
+        "TC-4"
+      ]
+    },
+    {
+      "id": "d_pass",
+      "type": "decision",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 3,
+      "label": "Passed the Gates?",
+      "vi": "Seat có qua mọi cổng áp dụng và đủ điều kiện được đánh giá không.",
+      "rules": [
+        "FR-4.9",
+        "INV-12"
+      ]
+    },
+    {
+      "id": "end_gate",
+      "type": "end",
+      "lane": "SYS",
+      "slot": 2,
+      "row": 3,
+      "vi": "Seat bị loại khỏi đánh giá (lý do đã ghi ở WF-13a): không có khuyến nghị."
+    },
+    {
+      "id": "d_grp",
+      "type": "decision",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 4,
+      "label": "Waste Group?",
+      "vi": "G1 (seat mua chưa gán), G2 (seat của người đã nghỉ việc) hay G3/G4 (đã gán nhưng chưa từng dùng hoặc đã ngừng; cần bằng chứng sử dụng).",
+      "rules": [
+        "BRD 5.4.1"
+      ]
+    },
+    {
+      "id": "c_mf4",
+      "type": "call",
+      "lane": "SYS",
+      "slot": 0,
+      "row": 4,
+      "label": "Decide G1 at Renewal",
+      "ref": "MF-4",
+      "vi": "G1 nhắm vào thuê bao, không nhắm vào người: giảm số lượng chỉ có tiền thật khi gia hạn, nên khuyến nghị G1 đi vào chu kỳ gia hạn để Spending Approver quyết. Không qua xác nhận của Department Head.",
+      "rules": [
+        "FR-4.15",
+        "FR-3.13",
+        "BRD 5.4.1"
+      ]
+    },
+    {
+      "id": "end_g1",
+      "type": "end",
+      "lane": "SYS",
+      "slot": 0,
+      "row": 5,
+      "vi": "G1 được chuyển cho chu kỳ gia hạn quyết định."
+    },
+    {
+      "id": "s_g2",
+      "type": "action",
+      "lane": "SYS",
+      "slot": 2,
+      "row": 4,
+      "label": "Generate G2 Recommendation",
+      "vi": "Seat còn gán cho người đã nghỉ việc: xác định từ dữ liệu nội bộ, hiển thị *Xác định từ dữ liệu nội bộ*, không xếp mức tin cậy, bỏ qua mọi ngưỡng ngày. G2 đi thẳng tới thu hồi, không cần Department Head xác nhận; vừa là lãng phí vừa là lỗ hổng bảo mật. G2 ở tầng *Cần xử lý*: khuyến nghị kèm thông báo IT Admin (FR-4.12), nối với tác vụ thu hồi của hồ sơ nghỉ việc (WF-07 `s_tasks`) — không qua bước trưởng phòng.",
+      "rules": [
+        "FR-4.14",
+        "OI-02",
+        "QĐ-35b",
+        "TC-1"
+      ]
+    },
+    {
+      "id": "d_state",
+      "type": "decision",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 6,
+      "label": "Evidence State of the Seat?",
+      "vi": "Phân biệt ba trạng thái: có dữ liệu bao phủ (kết luận được); chưa import dữ liệu cho ứng dụng; có hoạt động nhưng chưa khớp danh tính. Hai trạng thái sau không được kết luận.",
+      "rules": [
+        "FR-4.10",
+        "INV-12",
+        "FR-5.10"
+      ]
+    },
+    {
+      "id": "end_nd",
+      "type": "end",
+      "lane": "SYS",
+      "slot": 2,
+      "row": 6,
+      "vi": "Không có dữ liệu usage cho ứng dụng: không kết luận, seat hiển thị là không có dữ liệu (không phải không hoạt động, không phải 0)."
+    },
+    {
+      "id": "end_um",
+      "type": "end",
+      "lane": "SYS",
+      "slot": 0,
+      "row": 6,
+      "vi": "Chưa khớp danh tính: không kết luận, bản ghi nằm trong hàng đợi của WF-12a."
+    },
+    {
+      "id": "d_cov",
+      "type": "decision",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 7,
+      "label": "Coverage Meets the Tier Threshold?",
+      "vi": "Cửa sổ bao phủ có đủ ngưỡng của tầng (kể từ ngày bắt đầu Assignment) không. Ngày ngoài cửa sổ bao phủ không được đếm là ngày không hoạt động.",
+      "rules": [
+        "FR-4.12",
+        "FR-4.3",
+        "FR-4.14a",
+        "DQ-04",
+        "OI-12b"
+      ]
+    },
+    {
+      "id": "end_ins",
+      "type": "end",
+      "lane": "SYS",
+      "slot": 2,
+      "row": 8,
+      "vi": "INSUFFICIENT EVIDENCE kèm lý do: không hiển thị con số trông như đã đánh giá xong và không sinh khuyến nghị thu hồi (bao phủ không đủ, hoặc bằng chứng chỉ từ bộ thu thập mà thiếu bằng chứng seat của nhà cung cấp)."
+    },
+    {
+      "id": "d_col",
+      "type": "decision",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 8,
+      "label": "Only Collector Evidence, No Vendor Seat Proof?",
+      "vi": "Bằng chứng không dùng chỉ đến từ bộ thu thập trên thiết bị công ty, không kèm bằng chứng seat của nhà cung cấp xác nhận đúng người đó giữ seat của đúng ứng dụng. Bộ thu thập một mình chỉ chứng minh một tên miền/ứng dụng được quan sát trên máy công ty, không xác định tài khoản SaaS nào.",
+      "rules": [
+        "FR-4.14a",
+        "DQ-03",
+        "FR-4.16"
+      ]
+    },
+    {
+      "id": "s_days",
+      "type": "action",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 9,
+      "label": "Count Inactive Days (Auth-Only Excluded)",
+      "vi": "Tính số ngày không hoạt động trên toàn chuỗi Assignment, theo ngưỡng ưu tiên: theo ứng dụng > toàn tổ chức > mặc định. Sự kiện chỉ xác thực (đăng nhập, SSO) không tính là hoạt động. Chưa từng hoạt động (có bao phủ mà không xuất hiện) là kết luận được cho G3.",
+      "rules": [
+        "FR-4.11",
+        "FR-4.7",
+        "FR-4.13",
+        "FR-4.10"
+      ]
+    },
+    {
+      "id": "d_tier",
+      "type": "decision",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 10,
+      "label": "Tier by Inactive Days?",
+      "vi": "Theo dõi (30–59 ngày): chỉ hiển thị cho IT Admin, không gửi thông báo, không bao giờ tới Department Head. Cần xem xét (từ 60 ngày): sinh khuyến nghị gửi Department Head. Cần xử lý (từ 90 ngày, hoặc chưa từng hoạt động, hoặc đã nghỉ việc): khuyến nghị và thông báo cả IT Admin. Dưới 30 ngày: không tầng nào.",
+      "rules": [
+        "FR-4.12",
+        "QĐ-09",
+        "SoD-2"
+      ]
+    },
+    {
+      "id": "end_watch",
+      "type": "end",
+      "lane": "SYS",
+      "slot": 2,
+      "row": 10,
+      "vi": "Tầng Theo dõi (30–59 ngày) chỉ hiện trên màn hình IT Admin, không gửi thông báo, không sinh khuyến nghị; dưới 30 ngày không có tầng và không hiển thị (FR-4.12)."
+    },
+    {
+      "id": "s_gen",
+      "type": "action",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 11,
+      "label": "Generate Recommendation with Confidence",
+      "vi": "Sinh khuyến nghị (trạng thái chờ xác nhận) kèm bản chụp căn cứ: số ngày, nguồn, cửa sổ bao phủ, phương pháp khớp, định nghĩa hoạt động của nguồn. Mức tin cậy: các cổng là điều kiện cần; G3/G4 bắt đầu Cao rồi hạ một bậc cho mỗi yếu tố (khớp bằng luật bí danh, định nghĩa lỏng, chỉ bộ thu thập, bao phủ dưới 80 %, dữ liệu cũ 4–7 ngày, sát ngưỡng, tín hiệu mâu thuẫn); không hiển thị phần trăm. Bằng chứng từ bộ thu thập mang nhãn Quan sát trên thiết bị công ty — không xác định tài khoản SaaS. Từ tầng Cần xem xét, Department Head nhận cảnh báo; tầng Cần xử lý cũng báo IT Admin. Phòng **chưa có trưởng phòng**: việc xác nhận chờ, không giao ai (approver dự phòng chỉ thay ở bước nhu cầu); IT Admin và Super Admin thấy cảnh báo; trưởng phòng mới nhận việc (QĐ-62c).",
+      "rules": [
+        "FR-4.12",
+        "FR-4.14",
+        "FR-4.14a",
+        "FR-5.14",
+        "KPI-5",
+        "QĐ-35b",
+        "QĐ-62c",
+        "TC-3"
+      ]
+    },
+    {
+      "id": "a_view",
+      "type": "action",
+      "lane": "DH",
+      "slot": 1,
+      "row": 12,
+      "label": "Review Recommendation and Evidence",
+      "vi": "Department Head xem khuyến nghị về nhân viên trong phòng mình, chỉ với số liệu tổng hợp (có hoạt động hay không, số ngày), kèm đủ căn cứ và giới hạn dữ liệu để quyết ngay; không xem raw activity log. Nếu IT đã trả lại kèm lý do kỹ thuật hoặc hợp đồng thì xem lý do đó và quyết lần cuối.",
+      "rules": [
+        "FR-3.7",
+        "SoD-2",
+        "FR-4.14",
+        "OI-02",
+        "ĐK-09"
+      ]
+    },
+    {
+      "id": "d_att",
+      "type": "decision",
+      "lane": "DH",
+      "slot": 1,
+      "row": 13,
+      "label": "Attestation Choice?",
+      "vi": "Department Head chọn Keep, Reclaim hoặc Exempt, kèm lý do. Khuyến nghị chỉ là đề xuất, không có đường nào tự động thu hồi.",
+      "rules": [
+        "FR-3.10",
+        "INV-09",
+        "FR-4.14a"
+      ]
+    },
+    {
+      "id": "end_keep",
+      "type": "end",
+      "lane": "DH",
+      "slot": 0,
+      "row": 13,
+      "vi": "Keep: khuyến nghị chuyển sang bị bác bỏ (Dismissed), tính vào KPI-5; lần chạy sau vẫn có thể sinh khuyến nghị mới. Nếu trước đó trưởng phòng đã chọn Reclaim (nhân viên đã được báo) và IT trả lại, đổi sang Keep/Exempt ⟹ báo nhân viên *thu hồi đã hủy* (QĐ-62p)."
+    },
+    {
+      "id": "a_ex",
+      "type": "action",
+      "lane": "DH",
+      "slot": 1,
+      "row": 14,
+      "label": "Set Exemption End Date (Max 12 Months)",
+      "vi": "Exempt bắt buộc có ngày hết hạn, tối đa 12 tháng, kèm lý do; không có miễn trừ vô thời hạn. Hết hạn thì seat tự quay lại hàng đợi review. Nếu trước đó trưởng phòng đã chọn Reclaim (nhân viên đã được báo) và IT trả lại, đổi sang Keep/Exempt ⟹ báo nhân viên *thu hồi đã hủy* (QĐ-62p).",
+      "rules": [
+        "FR-3.10",
+        "FR-4.9",
+        "INV-09",
+        "QĐ-62p"
+      ]
+    },
+    {
+      "id": "end_ex",
+      "type": "end",
+      "lane": "DH",
+      "slot": 1,
+      "row": 15,
+      "vi": "Miễn trừ đã ghi: cổng 7 của WF-13a loại seat cho tới ngày hết hạn, sau đó quay lại hàng đợi."
+    },
+    {
+      "id": "s_notify",
+      "type": "action",
+      "lane": "SYS",
+      "slot": 0,
+      "row": 14,
+      "label": "Notify Employee of Coming Reclaim",
+      "vi": "Khi Department Head chọn Reclaim, nhân viên giữ seat được thông báo rằng quyền sắp bị thu hồi.",
+      "rules": [
+        "FR-5.14",
+        "QĐ-57a",
+        "FR-3.10"
+      ]
+    },
+    {
+      "id": "d_it",
+      "type": "decision",
+      "lane": "IT",
+      "row": 15,
+      "label": "Technical or Contract Blocker?",
+      "vi": "IT Admin kiểm tra có lý do kỹ thuật hoặc hợp đồng chặn việc thu hồi không. IT được trả lại tối đa một lần; sau lần trả đó Department Head quyết cuối, IT không phủ quyết lần hai (sơ đồ không thể hiện bộ đếm, xem mục mở).",
+      "rules": [
+        "OI-02",
+        "SoD-5"
+      ]
+    },
+    {
+      "id": "a_ret",
+      "type": "action",
+      "lane": "IT",
+      "row": 16,
+      "label": "Return Once with Technical or Contract Reason",
+      "vi": "IT trả quyết định lại cho Department Head kèm lý do kỹ thuật hoặc hợp đồng bắt buộc; Department Head xem lại và quyết cuối.",
+      "rules": [
+        "OI-02"
+      ]
+    },
+    {
+      "id": "m_rec",
+      "type": "merge",
+      "lane": "IT",
+      "slot": 1,
+      "row": 15
+    },
+    {
+      "id": "c_reclaim",
+      "type": "call",
+      "lane": "IT",
+      "slot": 1,
+      "row": 16,
+      "label": "Reclaim Seat",
+      "ref": "WF-09a",
+      "vi": "IT Admin thực hiện thu hồi qua luồng cấp/thu hồi (SoD-5). Lỗi thực thi do WF-09a xử lý, không biến thành vòng phủ quyết. Gói có lưu ý mất dữ liệu: hiện lưu ý và trưởng phòng — người quyết Reclaim — xác nhận bàn giao trước khi gỡ ở nhà cung cấp; không chặn sau hạn ngắn (QĐ-62f, WF-09a `d_dl`). Seat này có thể đồng thời nằm trong phần vượt khi giảm thuê bao (MF-4/WF-15): vẫn một tác vụ thu hồi và trưởng phòng đó xác nhận, IT Admin không xác nhận thêm (QĐ-64a). Nếu WF-09a trả *đóng thất bại* (QĐ-62i): quyền còn hiệu lực, vẫn hiện G2/lãng phí theo điều kiện nguồn, seat chưa về kho và IT mở tác vụ thu hồi mới.",
+      "rules": [
+        "FR-2.4",
+        "OI-02",
+        "QĐ-62f",
+        "SoD-5",
+        "QĐ-64a"
+      ]
+    },
+    {
+      "id": "s_acc",
+      "type": "action",
+      "lane": "SYS",
+      "slot": 2,
+      "row": 17,
+      "label": "Mark Accepted; Record No Savings Yet",
+      "vi": "Khuyến nghị chuyển sang được chấp nhận. Thu hồi một quyền không tự ghi nhận tiền tiết kiệm: hệ thống chỉ hiển thị hai con số ước tính tách riêng (tiết kiệm có thể thực hiện ngay; tiết kiệm tại kỳ gia hạn kế tiếp) và tiết kiệm chỉ ghi khi hợp đồng hoặc khoản chi thực sự giảm.",
+      "rules": [
+        "FR-4.15",
+        "KPI-5",
+        "FR-5.9"
+      ]
+    },
+    {
+      "id": "end_ok",
+      "type": "end",
+      "lane": "SYS",
+      "slot": 2,
+      "row": 18,
+      "vi": "Khuyến nghị đã chấp nhận và tác vụ thu hồi đã thực hiện qua WF-09a: seat về kho; nếu tác vụ bị đóng thất bại thì quyền còn, vẫn hiện G2 và IT mở tác vụ mới (QĐ-62i). Chưa ghi tiết kiệm."
+    }
+  ],
+  "edges": [
+    {
+      "from": "st",
+      "to": "t_sched"
+    },
+    {
+      "from": "t_sched",
+      "to": "c_gates"
+    },
+    {
+      "from": "c_gates",
+      "to": "d_pass"
+    },
+    {
+      "from": "d_pass",
+      "to": "d_grp",
+      "guard": "passed",
+      "vi": "Qua mọi cổng áp dụng",
+      "result": "Phân nhóm"
+    },
+    {
+      "from": "d_pass",
+      "to": "end_gate",
+      "guard": "excluded",
+      "vi": "Trượt một cổng hoặc dữ liệu lỗi thời",
+      "result": "Không có khuyến nghị"
+    },
+    {
+      "from": "d_grp",
+      "to": "c_mf4",
+      "guard": "G1",
+      "vi": "Seat mua chưa gán",
+      "result": "Quyết ở kỳ gia hạn"
+    },
+    {
+      "from": "d_grp",
+      "to": "s_g2",
+      "guard": "G2",
+      "vi": "Seat của người đã nghỉ việc",
+      "result": "Đi thẳng tới thu hồi"
+    },
+    {
+      "from": "d_grp",
+      "to": "d_state",
+      "guard": "G3/G4",
+      "vi": "Cần bằng chứng sử dụng",
+      "result": "Kiểm trạng thái dữ liệu"
+    },
+    {
+      "from": "c_mf4",
+      "to": "end_g1"
+    },
+    {
+      "from": "s_g2",
+      "to": "m_rec"
+    },
+    {
+      "from": "d_state",
+      "to": "d_cov",
+      "guard": "has data",
+      "vi": "Có dữ liệu bao phủ",
+      "result": "Kiểm bao phủ"
+    },
+    {
+      "from": "d_state",
+      "to": "end_nd",
+      "guard": "no data",
+      "vi": "Chưa import dữ liệu cho ứng dụng",
+      "result": "Không kết luận"
+    },
+    {
+      "from": "d_state",
+      "to": "end_um",
+      "guard": "unmatched",
+      "vi": "Có hoạt động nhưng chưa khớp danh tính",
+      "result": "Không kết luận"
+    },
+    {
+      "from": "d_cov",
+      "to": "d_col",
+      "guard": "enough",
+      "vi": "Bao phủ đủ ngưỡng",
+      "result": "Kiểm nguồn bằng chứng"
+    },
+    {
+      "from": "d_cov",
+      "to": "end_ins",
+      "guard": "insufficient evidence",
+      "vi": "Bao phủ không đủ ngưỡng của tầng",
+      "result": "INSUFFICIENT EVIDENCE"
+    },
+    {
+      "from": "d_col",
+      "to": "end_ins",
+      "guard": "yes",
+      "vi": "Chỉ có bằng chứng từ bộ thu thập, không có bằng chứng seat của nhà cung cấp",
+      "result": "INSUFFICIENT EVIDENCE"
+    },
+    {
+      "from": "d_col",
+      "to": "s_days",
+      "guard": "no",
+      "vi": "Có nguồn nhà cung cấp, hoặc bộ thu thập kèm bằng chứng seat",
+      "result": "Tính số ngày"
+    },
+    {
+      "from": "s_days",
+      "to": "d_tier"
+    },
+    {
+      "from": "d_tier",
+      "to": "end_watch",
+      "guard": "watch only",
+      "vi": "Dưới 60 ngày: 30–59 ngày là tầng Theo dõi (chỉ IT Admin thấy); dưới 30 ngày không có tầng, không hiển thị",
+      "result": "Chỉ IT Admin thấy"
+    },
+    {
+      "from": "d_tier",
+      "to": "s_gen",
+      "guard": "review or act",
+      "vi": "Từ 60 ngày, hoặc chưa từng hoạt động, hoặc đã nghỉ việc",
+      "result": "Sinh khuyến nghị"
+    },
+    {
+      "from": "s_gen",
+      "to": "a_view"
+    },
+    {
+      "from": "a_view",
+      "to": "d_att"
+    },
+    {
+      "from": "d_att",
+      "to": "end_keep",
+      "guard": "keep",
+      "vi": "Giữ lại, kèm lý do",
+      "result": "Khuyến nghị bị bác bỏ"
+    },
+    {
+      "from": "d_att",
+      "to": "a_ex",
+      "guard": "exempt",
+      "vi": "Miễn trừ có thời hạn, kèm lý do",
+      "result": "Đặt ngày hết hạn"
+    },
+    {
+      "from": "d_att",
+      "to": "s_notify",
+      "guard": "reclaim",
+      "vi": "Thu hồi",
+      "result": "Thông báo nhân viên"
+    },
+    {
+      "from": "a_ex",
+      "to": "end_ex"
+    },
+    {
+      "from": "s_notify",
+      "to": "d_it"
+    },
+    {
+      "from": "d_it",
+      "to": "m_rec",
+      "guard": "no",
+      "vi": "Không có lý do kỹ thuật hoặc hợp đồng chặn",
+      "result": "Thu hồi"
+    },
+    {
+      "from": "d_it",
+      "to": "a_ret",
+      "guard": "blocker, first return",
+      "vi": "Có lý do chặn; chỉ được trả lại một lần",
+      "result": "Trả lại Department Head"
+    },
+    {
+      "from": "a_ret",
+      "to": "a_view",
+      "vi": "Department Head xem lại và quyết cuối"
+    },
+    {
+      "from": "m_rec",
+      "to": "c_reclaim"
+    },
+    {
+      "from": "c_reclaim",
+      "to": "s_acc"
+    },
+    {
+      "from": "s_acc",
+      "to": "end_ok"
+    }
+  ],
+  "doc": {
+    "level": "Workflow hỗ trợ (cấp chi tiết) — nhóm SF-4 (bằng chứng sử dụng và tối ưu seat không dùng)",
+    "status": "Vẽ lại theo QĐ-52a (Department Head), QĐ-09, QĐ-35b, OI-02, OI-12a/b và FR-4.14a/DQ-03/DQ-04; nguồn usage vẽ ở mức nghiệp vụ theo QĐ-59a; QĐ-64a (seat chồng lấn với phần vượt khi giảm thuê bao) ngày 10/10/2026; chờ Owner/GVHD review",
+    "purpose": "Mô tả cách **phát hiện seat lãng phí và để Department Head xác nhận có kiểm soát**: mọi khuyến nghị chỉ sinh ra khi qua các cổng, đủ bằng chứng và đủ bao phủ; không có đường nào tự thu hồi từ một khuyến nghị. G2 (seat của người đã nghỉ) đi thẳng tới thu hồi; G1 chờ kỳ gia hạn; G3/G4 cần Department Head quyết Keep, Reclaim hay Exempt. Đây là phần xử lý PP-1 (ghost seat) và là nguồn của KPI-3, KPI-5.",
+    "scope": "Chạy rule theo lịch, gọi tám cổng loại trừ, phân nhóm G1–G4, ba trạng thái không có ngày hoạt động, kiểm bao phủ và bằng chứng có điều kiện của bộ thu thập, tính số ngày và tầng, sinh khuyến nghị kèm mức tin cậy, Department Head xác nhận Keep/Reclaim/Exempt, thông báo nhân viên, IT trả lại tối đa một lần, thu hồi qua WF-09a, chấp nhận khuyến nghị và không ghi tiết kiệm tự động.",
+    "excluded": "Nhập và khớp dữ liệu usage (→ WF-12, WF-12a); chi tiết tám cổng (→ WF-13a); chi tiết thu hồi (→ WF-09a); quyết định giảm số lượng ở kỳ gia hạn cho G1 (→ MF-4); trạng thái bị dữ liệu mới phủ định (superseded) và việc báo cáo KPI; G5 (ngoài phạm vi); cảnh báo cho Employee dựa trên usage (chờ QĐ-57d); cách thu dữ liệu và loại bộ thu thập (giai đoạn Tools, QĐ-59a).",
+    "lanes_vi": {
+      "DH": [
+        "Department Head (trưởng phòng của nhân viên trong phạm vi)",
+        "Xem khuyến nghị với số liệu tổng hợp, chọn Keep / Reclaim / Exempt kèm lý do"
+      ],
+      "SYS": [
+        "SaaS-Sentry",
+        "Chạy rule theo lịch, cổng loại trừ, phân tầng, sinh khuyến nghị, thông báo, ghi trạng thái"
+      ],
+      "IT": [
+        "IT Admin",
+        "Kiểm lý do kỹ thuật/hợp đồng, trả lại tối đa một lần, thực hiện thu hồi"
+      ]
+    },
+    "trigger": "Tác vụ nền theo lịch: G1/G2 hằng ngày, G3/G4 hằng tuần.",
+    "pre": "Có Assignment đang hiệu lực (hoặc thuê bao có số lượng đã mua với G1); với G3/G4 có nguồn usage có cửa sổ bao phủ và định nghĩa hoạt động (WF-12); danh tính đã khớp (WF-12a).",
+    "post": "Một trong các kết cục: seat bị loại (không khuyến nghị); không kết luận (không có dữ liệu, chưa khớp danh tính); INSUFFICIENT EVIDENCE; chỉ theo dõi (IT Admin); Keep (khuyến nghị bị bác bỏ); Exempt có hạn; Reclaim đã thực hiện (khuyến nghị đã chấp nhận, chưa ghi tiết kiệm); G1 chuyển sang gia hạn.",
+    "reading": "Từ trên xuống là chuỗi lọc: cổng, nhóm, trạng thái dữ liệu, bao phủ, nguồn bằng chứng, tầng. Mọi lối rẽ ra bên phải là *không kết luận* hoặc *chỉ theo dõi* và không có cạnh nào sang làn Department Head. Chỉ tầng Cần xem xét trở lên sinh khuyến nghị và gửi sang làn Department Head. Khi chọn Reclaim, nhân viên được báo, IT kiểm tra một lần rồi thu hồi; IT trả lại thì quay về Department Head quyết cuối.",
+    "sources": [
+      [
+        "BRD 5.4.1",
+        "Năm nhóm lãng phí; G5 ngoài phạm vi; G1 nhắm thuê bao"
+      ],
+      [
+        "FR-4.9, OI-12a/b",
+        "Tám cổng; G1/G2 chỉ cổng 1 và 8"
+      ],
+      [
+        "FR-4.10, INV-12",
+        "Ba trạng thái không có ngày hoạt động; chưa khớp không dùng để kết luận"
+      ],
+      [
+        "FR-4.11",
+        "Sự kiện chỉ xác thực không tính là hoạt động"
+      ],
+      [
+        "FR-4.12, FR-4.12b, QĐ-09",
+        "Ba tầng; Theo dõi chỉ IT Admin thấy; G1/G2 hằng ngày, G3/G4 hằng tuần"
+      ],
+      [
+        "FR-4.13",
+        "Ngưỡng: ứng dụng > tổ chức > mặc định"
+      ],
+      [
+        "FR-4.14, QĐ-35b",
+        "Cổng trước, mức Cao/Trung bình/Thấp, không phần trăm"
+      ],
+      [
+        "FR-4.14a, DQ-03, DQ-04",
+        "Bộ thu thập là bằng chứng có điều kiện; INSUFFICIENT EVIDENCE; không có dữ liệu không phải không sử dụng"
+      ],
+      [
+        "FR-3.7, SoD-2",
+        "Department Head chỉ thấy số liệu tổng hợp trong phòng"
+      ],
+      [
+        "FR-3.10, INV-09",
+        "Keep/Reclaim/Exempt kèm lý do; Exempt tối đa 12 tháng rồi quay lại hàng đợi"
+      ],
+      [
+        "OI-02",
+        "G2 đi thẳng thu hồi; IT trả lại tối đa một lần; Department Head quyết cuối"
+      ],
+      [
+        "FR-5.14, QĐ-57a",
+        "Cảnh báo khuyến nghị mới cho Department Head; cảnh báo thu hồi sắp thực hiện cho Employee"
+      ],
+      [
+        "FR-4.15",
+        "Hai con số tiết kiệm; thu hồi không tự ghi tiết kiệm"
+      ],
+      [
+        "KPI-5, BRD 5.12.3",
+        "Vòng đời khuyến nghị: sinh ra, chờ xác nhận, chấp nhận / bác bỏ / bị phủ định"
+      ]
+    ],
+    "happy": [
+      "st",
+      "t_sched",
+      "c_gates",
+      "d_pass",
+      "d_grp",
+      "d_state",
+      "d_cov",
+      "d_col",
+      "s_days",
+      "d_tier",
+      "s_gen",
+      "a_view",
+      "d_att",
+      "s_notify",
+      "d_it",
+      "m_rec",
+      "c_reclaim",
+      "s_acc",
+      "end_ok"
+    ],
+    "alternates": [
+      {
+        "title": "G2: seat của người đã nghỉ việc",
+        "path": [
+          "d_grp",
+          "s_g2",
+          "m_rec",
+          "c_reclaim",
+          "s_acc",
+          "end_ok"
+        ],
+        "note": "Không cần Department Head xác nhận; không thông báo trước vì người đã nghỉ."
+      },
+      {
+        "title": "G1: seat mua chưa gán",
+        "path": [
+          "d_grp",
+          "c_mf4",
+          "end_g1"
+        ],
+        "note": "Chuyển cho chu kỳ gia hạn; Spending Approver quyết."
+      },
+      {
+        "title": "Department Head chọn Exempt",
+        "path": [
+          "d_att",
+          "a_ex",
+          "end_ex"
+        ],
+        "note": "Miễn trừ tối đa 12 tháng, sau đó quay lại hàng đợi."
+      },
+      {
+        "title": "Department Head chọn Keep",
+        "path": [
+          "d_att",
+          "end_keep"
+        ],
+        "note": "Khuyến nghị bị bác bỏ, tính vào KPI-5."
+      },
+      {
+        "title": "IT trả lại một lần",
+        "path": [
+          "d_it",
+          "a_ret",
+          "a_view",
+          "d_att"
+        ],
+        "note": "Department Head xem lý do và quyết cuối."
+      }
+    ],
+    "unhappy": [
+      {
+        "title": "Trượt cổng loại trừ",
+        "path": [
+          "d_pass",
+          "end_gate"
+        ],
+        "note": "Không khuyến nghị; lý do ghi ở WF-13a."
+      },
+      {
+        "title": "Không có dữ liệu usage",
+        "path": [
+          "d_state",
+          "end_nd"
+        ],
+        "note": "Không kết luận."
+      },
+      {
+        "title": "Chưa khớp danh tính",
+        "path": [
+          "d_state",
+          "end_um"
+        ],
+        "note": "Không kết luận; vào hàng đợi."
+      },
+      {
+        "title": "Bao phủ không đủ",
+        "path": [
+          "d_cov",
+          "end_ins"
+        ],
+        "note": "INSUFFICIENT EVIDENCE."
+      },
+      {
+        "title": "Chỉ có bằng chứng bộ thu thập",
+        "path": [
+          "d_col",
+          "end_ins"
+        ],
+        "note": "Không kết luận G3/G4, không thu hồi."
+      },
+      {
+        "title": "Tầng Theo dõi",
+        "path": [
+          "d_tier",
+          "end_watch"
+        ],
+        "note": "Chỉ IT Admin thấy."
+      }
+    ],
+    "relations": [
+      "Cấp trên: nhóm SF-4 (trước đây MF-3); Context (rule engine, khuyến nghị, attestation), FDD Feature 4",
+      "`WF-13a` — tám cổng loại trừ (node gọi)",
+      "`WF-12` / `WF-12a` — cung cấp dữ liệu usage đã khớp",
+      "`WF-09a` — thực hiện thu hồi (node gọi)",
+      "`MF-4` — G1 được quyết ở kỳ gia hạn (node gọi); `MF-5` — seat của người nghỉ việc là G2",
+      "User flow: `UF-05`, `UF-10`"
+    ],
+    "open": [
+      "(LIMIT · DOI-63, OI-02) IT chỉ được trả lại một lần: hình vẽ bằng cạnh quay lại, không biểu diễn bộ đếm — lần trả thứ hai phải bị từ chối bằng test.",
+      "(ĐÃ CHỐT · DOI-64, QĐ-62p) Trưởng phòng đổi Reclaim thành Keep/Exempt sau khi IT trả lại ⟹ báo nhân viên *thu hồi đã hủy*.",
+      "(LIMIT · DOI-66) Trạng thái khuyến nghị bị dữ liệu mới phủ định (superseded, tính vào KPI-5) không vẽ thành cạnh — xem máy trạng thái BRD 5.12.3.",
+      "(DEFERRED/OUT · DOI-17, QĐ-62o) Nguồn usage, G2–G4 và tiết kiệm cho phần mềm nội bộ ngoài MVP.",
+      "(DEFERRED/OUT · DOI-09, QĐ-59a) Hợp nhất bằng chứng khi một ứng dụng có nhiều nguồn (kể cả nhiều bộ thu thập) thuộc giai đoạn Tools."
+    ]
+  }
+}

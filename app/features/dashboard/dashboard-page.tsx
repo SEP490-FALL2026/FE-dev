@@ -72,18 +72,22 @@ import {
   isValidApprovalTab,
   type ApprovalTabKey
 } from './approvals/approvals-nav'
+import { ApprovalChargeView } from './approvals/views/approval-charge-view'
 import { ApprovalQueueView } from './approvals/views/approval-queue-view'
+import { ApprovalRenewalView } from './approvals/views/approval-renewal-view'
+import { ApprovalRequestView } from './approvals/views/approval-request-view'
 import { ApprovalsOverviewView } from './approvals/views/approvals-overview-view'
 import { ApproverReportsView } from './approvals/views/approver-reports-view'
-import { ExpenseApprovalView } from './approvals/views/expense-approval-view'
-import { RenewalDecisionView } from './approvals/views/renewal-decision-view'
-import { financeNavItems, getParentFinanceMenuKey, isValidFinanceTab, type FinanceTabKey } from './finance/finance-nav'
-import { FinanceBudgetSnapshotView } from './finance/views/finance-budget-snapshot-view'
-import { FinanceHeldCommitmentsView } from './finance/views/finance-held-commitments-view'
+import { financeNavSections, isValidFinanceTab, type FinanceTabKey } from './finance/finance-nav'
+import { FinanceBudgetQuestionsView } from './finance/views/finance-budget-questions-view'
+import { FinanceBudgetsView } from './finance/views/finance-budgets-view'
+import { FinanceChargeExceptionsView } from './finance/views/finance-charge-exceptions-view'
+import { FinanceCommitmentsView } from './finance/views/finance-commitments-view'
+import { FinanceCostAnalysisView } from './finance/views/finance-cost-analysis-view'
 import { FinanceOverviewView } from './finance/views/finance-overview-view'
-import { FinanceRenewalScheduleView } from './finance/views/finance-renewal-schedule-view'
-import { FinanceShadowItView } from './finance/views/finance-shadow-it-view'
-import { FinanceSoftwareDirectoryView } from './finance/views/finance-software-directory-view'
+import { FinancePeriodCloseView } from './finance/views/finance-period-close-view'
+import { FinancePeriodReportView } from './finance/views/finance-period-report-view'
+import { FinanceSpendImportView } from './finance/views/finance-spend-import-view'
 import { managerNavItems, getParentManagerMenuKey, isValidManagerTab, type ManagerTabKey } from './manager/manager-nav'
 import { ManagerAccessReviewView } from './manager/views/manager-access-review-view'
 import { ManagerCreateEmployeeRequestView } from './manager/views/manager-create-employee-request-view'
@@ -155,7 +159,6 @@ export function DashboardPage({ role }: { role: UserRole }) {
   const activeApprovalParent = isApprover ? getParentApprovalMenuKey(activeApprovalTab) : 'overview'
 
   const activeFinanceTab: FinanceTabKey = isFinance && isValidFinanceTab(tabParam) ? tabParam : 'overview'
-  const activeFinanceParent = isFinance ? getParentFinanceMenuKey(activeFinanceTab) : 'overview'
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     licenses: true,
@@ -520,41 +523,52 @@ export function DashboardPage({ role }: { role: UserRole }) {
               })}
             </ul>
           ) : isFinance ? (
-            <ul className='space-y-1.5'>
-              {financeNavItems.map((item) => {
-                const isCurrent = activeFinanceParent === item.key
-                const Icon = item.icon
+            <div className='space-y-4'>
+              {financeNavSections.map((section) => (
+                <div key={section.key}>
+                  {section.titleKey && (
+                    <p className='mb-1.5 px-3.5 text-[0.65rem] font-bold tracking-[0.12em] text-muted-foreground uppercase'>
+                      {t(`finance.nav.sections.${section.titleKey}`)}
+                    </p>
+                  )}
+                  <ul className='space-y-1'>
+                    {section.items.map((item) => {
+                      const isCurrent = activeFinanceTab === item.key
+                      const Icon = item.icon
 
-                return (
-                  <li key={item.key}>
-                    <button
-                      aria-current={isCurrent ? 'page' : undefined}
-                      className={`flex w-full items-center justify-between rounded-xl px-3.5 py-3 text-left text-sm font-semibold transition ${
-                        isCurrent
-                          ? 'bg-primary text-primary-foreground shadow-[0_10px_25px_var(--theme-primary-soft)]'
-                          : 'text-muted-foreground hover:bg-surface hover:text-foreground'
-                      }`}
-                      onClick={() => handleSelectFinanceTab(item.key)}
-                      type='button'
-                    >
-                      <div className='flex items-center gap-3'>
-                        <Icon aria-hidden='true' className='size-[1.125rem] shrink-0' />
-                        <span>{t(`finance.nav.${item.translationKey}`)}</span>
-                      </div>
-                      {item.badge !== undefined && (
-                        <span
-                          className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[0.65rem] font-bold ${
-                            isCurrent ? 'bg-white/20 text-white' : 'bg-surface-subtle text-muted-foreground'
-                          }`}
-                        >
-                          {item.badge}
-                        </span>
-                      )}
-                    </button>
-                  </li>
-                )
-              })}
-            </ul>
+                      return (
+                        <li key={item.key}>
+                          <button
+                            aria-current={isCurrent ? 'page' : undefined}
+                            className={`flex w-full items-center justify-between gap-2 rounded-xl px-3.5 py-2.5 text-left text-sm font-semibold transition ${
+                              isCurrent
+                                ? 'bg-primary text-primary-foreground shadow-[0_10px_25px_var(--theme-primary-soft)]'
+                                : 'text-muted-foreground hover:bg-surface hover:text-foreground'
+                            }`}
+                            onClick={() => handleSelectFinanceTab(item.key)}
+                            type='button'
+                          >
+                            <span className='flex min-w-0 items-center gap-3'>
+                              <Icon aria-hidden='true' className='size-[1.125rem] shrink-0' />
+                              <span className='truncate'>{t(`finance.nav.${item.translationKey}`)}</span>
+                            </span>
+                            {item.badge !== undefined && (
+                              <span
+                                className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[0.65rem] font-bold ${
+                                  isCurrent ? 'bg-white/20 text-white' : 'bg-surface-subtle text-muted-foreground'
+                                }`}
+                              >
+                                {item.badge}
+                              </span>
+                            )}
+                          </button>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                </div>
+              ))}
+            </div>
           ) : (
             <ul className='space-y-1.5'>
               {navigationItems.map(({ icon: Icon, key }) => {
@@ -667,7 +681,17 @@ export function DashboardPage({ role }: { role: UserRole }) {
           animate={{ opacity: 1, y: 0 }}
           className='mx-auto max-w-[100rem] p-4 sm:p-6 lg:p-8'
           initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
-          key={isItAdmin ? activeTab : isEmployee ? activeEmployeeTab : 'general'}
+          key={
+            isItAdmin
+              ? activeTab
+              : isEmployee
+                ? activeEmployeeTab
+                : isFinance
+                  ? activeFinanceTab
+                  : isApprover
+                    ? `${activeApprovalTab}-${searchParams.get('id') ?? ''}`
+                    : 'general'
+          }
           transition={{ duration: 0.25, ease: 'easeOut' }}
         >
           {isItAdmin ? (
@@ -797,20 +821,30 @@ export function DashboardPage({ role }: { role: UserRole }) {
             )
           ) : isApprover ? (
             activeApprovalTab === 'overview' ? (
-              <ApprovalsOverviewView formatCurrency={formatCurrency} onSelectTab={handleSelectApprovalTab} />
+              <ApprovalsOverviewView
+                displayName={profile.displayName}
+                formatCurrency={formatCurrency}
+                onSelectTab={handleSelectApprovalTab}
+              />
             ) : activeApprovalTab === 'queue' ? (
               <ApprovalQueueView formatCurrency={formatCurrency} onSelectTab={handleSelectApprovalTab} />
-            ) : activeApprovalTab === 'expense-approval' ? (
-              <ExpenseApprovalView
+            ) : activeApprovalTab === 'request' ? (
+              <ApprovalRequestView
                 formatCurrency={formatCurrency}
+                itemId={searchParams.get('id') || undefined}
                 onSelectTab={handleSelectApprovalTab}
-                taskId={searchParams.get('id') || undefined}
               />
-            ) : activeApprovalTab === 'renewal-decision' ? (
-              <RenewalDecisionView
+            ) : activeApprovalTab === 'renewal' ? (
+              <ApprovalRenewalView
                 formatCurrency={formatCurrency}
+                itemId={searchParams.get('id') || undefined}
                 onSelectTab={handleSelectApprovalTab}
-                taskId={searchParams.get('id') || undefined}
+              />
+            ) : activeApprovalTab === 'charge' ? (
+              <ApprovalChargeView
+                formatCurrency={formatCurrency}
+                itemId={searchParams.get('id') || undefined}
+                onSelectTab={handleSelectApprovalTab}
               />
             ) : (
               <ApproverReportsView formatCurrency={formatCurrency} />
@@ -818,16 +852,22 @@ export function DashboardPage({ role }: { role: UserRole }) {
           ) : isFinance ? (
             activeFinanceTab === 'overview' ? (
               <FinanceOverviewView formatCurrency={formatCurrency} onSelectTab={handleSelectFinanceTab} />
-            ) : activeFinanceTab === 'budget-snapshot' ? (
-              <FinanceBudgetSnapshotView formatCurrency={formatCurrency} onSelectTab={handleSelectFinanceTab} />
-            ) : activeFinanceTab === 'renewal-schedule' ? (
-              <FinanceRenewalScheduleView formatCurrency={formatCurrency} onSelectTab={handleSelectFinanceTab} />
-            ) : activeFinanceTab === 'held-commitments' ? (
-              <FinanceHeldCommitmentsView formatCurrency={formatCurrency} onSelectTab={handleSelectFinanceTab} />
-            ) : activeFinanceTab === 'shadow-it' ? (
-              <FinanceShadowItView formatCurrency={formatCurrency} onSelectTab={handleSelectFinanceTab} />
+            ) : activeFinanceTab === 'budget-questions' ? (
+              <FinanceBudgetQuestionsView formatCurrency={formatCurrency} />
+            ) : activeFinanceTab === 'commitments' ? (
+              <FinanceCommitmentsView formatCurrency={formatCurrency} />
+            ) : activeFinanceTab === 'budgets' ? (
+              <FinanceBudgetsView formatCurrency={formatCurrency} />
+            ) : activeFinanceTab === 'spend-import' ? (
+              <FinanceSpendImportView formatCurrency={formatCurrency} onSelectTab={handleSelectFinanceTab} />
+            ) : activeFinanceTab === 'charge-exceptions' ? (
+              <FinanceChargeExceptionsView formatCurrency={formatCurrency} />
+            ) : activeFinanceTab === 'period-close' ? (
+              <FinancePeriodCloseView formatCurrency={formatCurrency} onSelectTab={handleSelectFinanceTab} />
+            ) : activeFinanceTab === 'cost-analysis' ? (
+              <FinanceCostAnalysisView formatCurrency={formatCurrency} onSelectTab={handleSelectFinanceTab} />
             ) : (
-              <FinanceSoftwareDirectoryView formatCurrency={formatCurrency} onSelectTab={handleSelectFinanceTab} />
+              <FinancePeriodReportView formatCurrency={formatCurrency} />
             )
           ) : (
             <>

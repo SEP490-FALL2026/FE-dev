@@ -47,54 +47,113 @@ describe('DashboardPage', () => {
     view.unmount()
   })
 
-  it('renders the finance dashboard shell and navigates tabs', () => {
+  it('renders the finance dashboard and navigates the UF-11/12/19 screens', () => {
     const view = renderDashboard('finance')
     const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
 
-    expect(screen.getByText('Bảng điều khiển Tài chính & SaaS Spend')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Bảng điều khiển Tài chính' })).toBeInTheDocument()
     expect(screen.getByTestId('dashboard-role')).toHaveTextContent('Finance')
 
-    // Click "Báo cáo ngân sách"
-    const budgetBtn = within(nav).getByRole('button', { name: /Báo cáo ngân sách/i })
-    expect(budgetBtn).not.toHaveClass('bg-primary')
-    fireEvent.click(budgetBtn)
-    expect(budgetBtn).toHaveClass('bg-primary')
-    expect(screen.getByText('Báo cáo ngân sách & Giải trình chi phí')).toBeInTheDocument()
+    const questionsBtn = within(nav).getByRole('button', { name: /Câu hỏi ngân sách/i })
+    expect(questionsBtn).not.toHaveClass('bg-primary')
+    fireEvent.click(questionsBtn)
+    expect(questionsBtn).toHaveClass('bg-primary')
+    expect(screen.getByRole('heading', { level: 1, name: 'Câu hỏi ngân sách từ Người duyệt chi' })).toBeInTheDocument()
 
-    // Click "Lịch gia hạn"
-    const renewalBtn = within(nav).getByRole('button', { name: /Lịch gia hạn/i })
-    expect(renewalBtn).not.toHaveClass('bg-primary')
-    fireEvent.click(renewalBtn)
-    expect(renewalBtn).toHaveClass('bg-primary')
-    expect(budgetBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByText('Lịch gia hạn & Hạn chót hợp đồng')).toBeInTheDocument()
+    const commitmentsBtn = within(nav).getByRole('button', { name: /Cam kết chờ ghi nhận/i })
+    fireEvent.click(commitmentsBtn)
+    expect(commitmentsBtn).toHaveClass('bg-primary')
+    expect(questionsBtn).not.toHaveClass('bg-primary')
+    expect(screen.getByRole('heading', { level: 1, name: 'Khoản cam kết chờ ghi nhận' })).toBeInTheDocument()
+
+    fireEvent.click(within(nav).getByRole('button', { name: /Báo cáo kỳ/i }))
+    expect(screen.getByRole('heading', { level: 1, name: 'Báo cáo kỳ Q3-2026' })).toBeInTheDocument()
 
     view.unmount()
   })
 
-  it('renders the approvals dashboard shell for spending-approver and navigates tabs', () => {
+  it('requires an opinion and a note before Finance answers a budget question', () => {
+    renderDashboard('finance')
+    fireEvent.click(
+      within(screen.getByRole('navigation', { name: 'Điều hướng dashboard' })).getByRole('button', {
+        name: /Câu hỏi ngân sách/i
+      })
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Gửi câu trả lời' }))
+    expect(screen.getByText('Chọn một ý kiến.')).toBeInTheDocument()
+    expect(screen.getByText('Bắt buộc nhập ghi chú.')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('radio', { name: 'Trong hạn mức' }))
+    fireEvent.change(screen.getByLabelText('Ghi chú cho Người duyệt chi'), { target: { value: 'Còn đủ ngân sách.' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Gửi câu trả lời' }))
+
+    expect(screen.getByText(/Câu trả lời đã hiện trên màn hình quyết định của Người duyệt chi/)).toBeInTheDocument()
+  })
+
+  it('shows a negative remaining with the over-committed label when a budget is smaller than back-filled commitments', () => {
+    renderDashboard('finance')
+    fireEvent.click(
+      within(screen.getByRole('navigation', { name: 'Điều hướng dashboard' })).getByRole('button', {
+        name: /Cost Center & ngân sách/i
+      })
+    )
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Lập ngân sách' })[0])
+    fireEvent.change(screen.getByLabelText('Hạn mức ngân sách (chi phí thực chịu, VND)'), {
+      target: { value: '20000000' }
+    })
+    expect(screen.getByText(/Còn lại âm: cam kết tạo trước khi có ngân sách vượt hạn mức vừa lập/)).toBeInTheDocument()
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Lập ngân sách' }).at(-1)!)
+    expect(screen.getByText(/đã gắn ngược 2 khoản cam kết/)).toBeInTheDocument()
+  })
+
+  it('renders the spending approver dashboard and navigates the UF-15 screens', () => {
     const view = renderDashboard('spending-approver')
     const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
 
-    expect(screen.getByText('Bảng điều khiển Phê duyệt & Ngân sách')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Chào Hoàng Nam' })).toBeInTheDocument()
     expect(screen.getByTestId('dashboard-role')).toHaveTextContent(roleLabels['spending-approver'])
 
-    // Click "Hàng chờ duyệt"
     const queueBtn = within(nav).getByRole('button', { name: /Hàng chờ duyệt/i })
     expect(queueBtn).not.toHaveClass('bg-primary')
     fireEvent.click(queueBtn)
     expect(queueBtn).toHaveClass('bg-primary')
-    expect(screen.getByText('Hàng chờ phê duyệt yêu cầu')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Hàng chờ phê duyệt' })).toBeInTheDocument()
 
-    // Click "Báo cáo & Phân tích"
-    const reportsBtn = within(nav).getByRole('button', { name: /Báo cáo & Phân tích/i })
-    expect(reportsBtn).not.toHaveClass('bg-primary')
+    const reportsBtn = within(nav).getByRole('button', { name: /Báo cáo/i })
     fireEvent.click(reportsBtn)
     expect(reportsBtn).toHaveClass('bg-primary')
     expect(queueBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByText('Báo cáo & Phân tích chi tiêu')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Báo cáo của Người duyệt chi' })).toBeInTheDocument()
 
     view.unmount()
+  })
+
+  it('requires a reason before the spending approver rejects a request', () => {
+    renderDashboard('spending-approver')
+    fireEvent.click(
+      within(screen.getByRole('navigation', { name: 'Điều hướng dashboard' })).getByRole('button', {
+        name: /Hàng chờ duyệt/i
+      })
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Mở REQ-2026-089' }))
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Figma Organization · 15 seat' })).toBeInTheDocument()
+    expect(
+      within(screen.getByRole('navigation', { name: 'Điều hướng dashboard' })).getByRole('button', {
+        name: /Hàng chờ duyệt/i
+      })
+    ).toHaveClass('bg-primary')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Từ chối' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Xác nhận từ chối' }))
+    expect(screen.getByText('Bắt buộc nhập lý do.')).toBeInTheDocument()
+
+    fireEvent.change(screen.getByLabelText('Lý do từ chối (bắt buộc)'), { target: { value: 'Chưa cần trong Q4.' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Xác nhận từ chối' }))
+    expect(screen.getByText(/không tạo khoản cam kết/)).toBeInTheDocument()
   })
 
   it('renders the manager dashboard shell and navigates tabs', () => {
