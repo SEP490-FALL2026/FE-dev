@@ -67,14 +67,14 @@ export const itAdminMenuItems: readonly ItAdminMenuItem[] = [
         badge: 3,
         icon: PackageCheck,
         key: 'provisioning',
-        screenCode: 'UF-08 · ITA-05',
+        screenCode: 'Cấp phát AI',
         translationKey: 'provisioning'
       },
       {
         badge: 4,
         icon: Scale,
         key: 'reconciliation',
-        screenCode: 'UF-14 · ITA-11',
+        screenCode: 'Đối soát chi phí',
         translationKey: 'reconciliation'
       }
     ],
@@ -88,21 +88,21 @@ export const itAdminMenuItems: readonly ItAdminMenuItem[] = [
         badge: 3,
         icon: UploadCloud,
         key: 'usage-import',
-        screenCode: 'UF-06 · ITA-08',
+        screenCode: 'Nhập dữ liệu dùng',
         translationKey: 'usageImport'
       },
       {
         badge: 146,
         icon: UserX,
         key: 'unmatched-identities',
-        screenCode: 'UF-07 · ITA-09',
+        screenCode: 'Khớp danh tính AI',
         translationKey: 'unmatchedIdentities'
       },
       {
         badge: 24,
         icon: Laptop,
         key: 'device-collectors',
-        screenCode: 'UF-16 · ITA-16',
+        screenCode: 'Giám sát thiết bị',
         translationKey: 'deviceCollectors'
       }
     ],
@@ -116,14 +116,14 @@ export const itAdminMenuItems: readonly ItAdminMenuItem[] = [
         badge: 38,
         icon: Sparkles,
         key: 'license-optimization',
-        screenCode: 'UF-10 · ITA-10',
+        screenCode: 'Tối ưu tài khoản AI',
         translationKey: 'licenseOptimization'
       },
       {
         badge: 6,
         icon: ShieldAlert,
         key: 'shadow-it',
-        screenCode: 'UF-12 · ITA-15',
+        screenCode: 'AI chưa khai báo',
         translationKey: 'shadowIt'
       }
     ],
@@ -137,7 +137,7 @@ export const itAdminMenuItems: readonly ItAdminMenuItem[] = [
         badge: 1,
         icon: UserMinus,
         key: 'offboarding',
-        screenCode: 'UF-09 · ITA-12',
+        screenCode: 'Thu hồi nghỉ việc',
         translationKey: 'offboarding'
       }
     ],

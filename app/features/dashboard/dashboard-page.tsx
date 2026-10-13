@@ -168,16 +168,15 @@ export function DashboardPage({ role }: { role: UserRole }) {
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }))
   }
 
-  const handleSelectTab = (tab: ItAdminTabKey) => {
-    if (tab === 'overview') {
-      const nextParams = new URLSearchParams(searchParams)
-      nextParams.delete('tab')
-      setSearchParams(nextParams)
-    } else {
-      const nextParams = new URLSearchParams(searchParams)
+  const handleSelectTab = (tab: ItAdminTabKey, extraParams?: Record<string, string>) => {
+    const nextParams = new URLSearchParams()
+    if (tab !== 'overview') {
       nextParams.set('tab', tab)
-      setSearchParams(nextParams)
     }
+    if (extraParams) {
+      Object.entries(extraParams).forEach(([k, v]) => nextParams.set(k, v))
+    }
+    setSearchParams(nextParams)
     setMobileNavigationOpen(false)
   }
 
@@ -680,21 +679,24 @@ export function DashboardPage({ role }: { role: UserRole }) {
                 onSelectTab={handleSelectTab}
               />
             ) : activeTab === 'provisioning' ? (
-              <ItProvisioningView />
+              <ItProvisioningView
+                initialTaskId={searchParams.get('id') || undefined}
+                onSelectTab={handleSelectTab}
+              />
             ) : activeTab === 'reconciliation' ? (
-              <ItReconciliationView />
+              <ItReconciliationView onSelectTab={handleSelectTab} />
             ) : activeTab === 'usage-import' ? (
-              <ItUsageImportView />
+              <ItUsageImportView onSelectTab={handleSelectTab} />
             ) : activeTab === 'unmatched-identities' ? (
-              <ItUnmatchedIdentitiesView />
+              <ItUnmatchedIdentitiesView onSelectTab={handleSelectTab} />
             ) : activeTab === 'device-collectors' ? (
-              <ItDeviceCollectorsView />
+              <ItDeviceCollectorsView onSelectTab={handleSelectTab} />
             ) : activeTab === 'license-optimization' ? (
-              <ItOptimizationView formatCurrency={formatCurrency} />
+              <ItOptimizationView formatCurrency={formatCurrency} onSelectTab={handleSelectTab} />
             ) : activeTab === 'shadow-it' ? (
-              <ItShadowItView />
+              <ItShadowItView onSelectTab={handleSelectTab} />
             ) : (
-              <ItOffboardingView />
+              <ItOffboardingView onSelectTab={handleSelectTab} />
             )
           ) : isEmployee ? (
             activeEmployeeTab === 'overview' ? (

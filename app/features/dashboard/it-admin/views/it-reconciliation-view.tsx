@@ -1,39 +1,46 @@
-import { FileSpreadsheet, Scale, ShieldAlert, UserCheck } from 'lucide-react'
+import { CheckCircle2, FileSpreadsheet, Scale, ShieldAlert, UserCheck } from 'lucide-react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { itReconciliationItems } from '../it-admin-data'
+import type { ItAdminTabKey } from '../it-admin-nav'
 
-export function ItReconciliationView() {
+type ItReconciliationViewProps = {
+  onSelectTab?: (tab: ItAdminTabKey, extraParams?: Record<string, string>) => void
+}
+
+export function ItReconciliationView({ onSelectTab }: ItReconciliationViewProps = {}) {
   const { t } = useTranslation('dashboard')
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
 
   const comparisonRows = [
     {
       active: 48,
-      app: 'Slack Business+',
+      app: 'ChatGPT Enterprise (OpenAI)',
       billed: 55,
       declared: 50,
-      diff: '+5 seat (Billed > Declared)',
+      diff: '+5 seat (Hóa đơn vendor > Khai báo)',
       status: 'danger'
     },
     {
       active: 118,
-      app: 'GitHub Enterprise',
+      app: 'GitHub Copilot (OpenAI Codex)',
       billed: 120,
       declared: 120,
-      diff: '1 shadow admin',
+      diff: '1 tài khoản ngoài danh mục',
       status: 'warning'
     },
     {
       active: 45,
-      app: 'Figma Organization',
+      app: 'Claude Enterprise (Anthropic)',
       billed: 45,
       declared: 45,
-      diff: '1 pending activated',
+      diff: '1 seat chờ người dùng chấp nhận',
       status: 'info'
     },
     {
       active: 280,
-      app: 'Google Workspace',
+      app: 'Google Gemini Business',
       billed: 300,
       declared: 300,
       diff: 'Khớp hoàn toàn',
@@ -53,10 +60,33 @@ export function ItReconciliationView() {
     shadowAccess: t('itAdmin.reconciliation.actInvestigate')
   }
 
+  const handleAction = (type: 'invoice' | 'shadowAccess' | 'pendingAcceptance') => {
+    if (type === 'pendingAcceptance' && onSelectTab) {
+      onSelectTab('provisioning', { id: 'PV-2041' })
+    } else if (type === 'invoice') {
+      setToastMessage('Đã tạo phiếu đề xuất điều chỉnh hợp đồng gửi đội ngũ Tài chính & Thu mua!')
+      setTimeout(() => setToastMessage(null), 3000)
+    } else {
+      setToastMessage('Đã cô lập tài khoản AI ngoài luồng và kích hoạt quy trình điều tra an ninh IT!')
+      setTimeout(() => setToastMessage(null), 3000)
+    }
+  }
+
   return (
     <div className='space-y-6'>
+      {toastMessage && (
+        <div className='fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl border border-success/30 bg-success/15 px-5 py-3.5 shadow-xl backdrop-blur-md animate-[slideUp_0.3s_ease-out]'>
+          <CheckCircle2 className='size-5 text-success' />
+          <span className='text-sm font-semibold text-foreground'>{toastMessage}</span>
+        </div>
+      )}
+
       <div>
-        <h1 className='text-2xl font-bold tracking-tight sm:text-3xl'>{t('itAdmin.reconciliation.title')}</h1>
+        <div className='inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-soft px-3 py-1 text-xs font-semibold text-primary'>
+          <span className='size-2 rounded-full bg-primary' />
+          Đối soát ba con số bản quyền AI
+        </div>
+        <h1 className='mt-2 text-2xl font-bold tracking-tight sm:text-3xl'>{t('itAdmin.reconciliation.title')}</h1>
         <p className='mt-1 text-sm text-muted-foreground'>{t('itAdmin.reconciliation.subtitle')}</p>
       </div>
 
@@ -136,6 +166,7 @@ export function ItReconciliationView() {
                 <div className='mt-4 pt-3 border-t border-border'>
                   <button
                     className='inline-flex w-full items-center justify-center gap-1.5 rounded-xl bg-primary py-2 text-xs font-bold text-primary-foreground shadow-sm transition hover:bg-primary-hover'
+                    onClick={() => handleAction(item.type)}
                     type='button'
                   >
                     <span>{actionLabel}</span>

@@ -15,10 +15,16 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { itCollectorDevices, type CollectorDevice } from '../it-admin-data'
+import type { ItAdminTabKey } from '../it-admin-nav'
 
-export function ItDeviceCollectorsView() {
+type ItDeviceCollectorsViewProps = {
+  onSelectTab?: (tab: ItAdminTabKey, extraParams?: Record<string, string>) => void
+}
+
+export function ItDeviceCollectorsView({ onSelectTab }: ItDeviceCollectorsViewProps = {}) {
   const { t } = useTranslation('dashboard')
   const [selectedDevice, setSelectedDevice] = useState<CollectorDevice>(itCollectorDevices[0])
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
 
   const metricValues = {
     confirmed: 21,
@@ -28,19 +34,38 @@ export function ItDeviceCollectorsView() {
   }
 
   const allowlistDomains = [
-    { domain: 'github.com', minMinutes: 15 },
-    { domain: 'figma.com', minMinutes: 10 },
-    { domain: 'atlassian.net', minMinutes: 5 },
-    { domain: 'notion.so', minMinutes: 15 }
+    { domain: 'chatgpt.com (OpenAI Workspace)', minMinutes: 15 },
+    { domain: 'claude.ai (Anthropic Console)', minMinutes: 10 },
+    { domain: 'gemini.google.com (Gemini Workspace)', minMinutes: 5 },
+    { domain: 'github.com/copilot (Copilot IDE Extension)', minMinutes: 15 },
+    { domain: 'cursor.com (Cursor AI IDE)', minMinutes: 10 }
   ]
+
+  const handleRegisterDevice = () => {
+    setToastMessage('Đã mở quy trình cấp chứng chỉ bảo mật cho máy trạm mới!')
+    setTimeout(() => setToastMessage(null), 3000)
+  }
+
+  const handleInspectDevice = () => {
+    setToastMessage(`Đã kiểm tra nhật ký kết nối của thiết bị ${selectedDevice.device} (${selectedDevice.id})`)
+    setTimeout(() => setToastMessage(null), 3000)
+  }
 
   return (
     <div className='space-y-6'>
+      {/* Toast */}
+      {toastMessage && (
+        <div className='fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl border border-success/30 bg-success/15 px-5 py-3.5 shadow-xl backdrop-blur-md animate-[slideUp_0.3s_ease-out]'>
+          <CheckCircle2 className='size-5 text-success' />
+          <span className='text-sm font-semibold text-foreground'>{toastMessage}</span>
+        </div>
+      )}
+
       <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
         <div>
           <div className='inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-soft px-3 py-1 text-xs font-semibold text-primary'>
             <span className='size-2 rounded-full bg-primary' />
-            {t('itAdmin.deviceCollectors.badgeScreenCode')}
+            Giám sát tiện ích AI trên máy trạm
           </div>
           <h1 className='mt-2 text-2xl font-bold tracking-tight sm:text-3xl'>{t('itAdmin.deviceCollectors.title')}</h1>
           <p className='mt-1 text-sm text-muted-foreground'>{t('itAdmin.deviceCollectors.subtitle')}</p>
@@ -48,6 +73,7 @@ export function ItDeviceCollectorsView() {
         <div className='flex items-center gap-2'>
           <button
             className='inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-primary-foreground shadow-sm transition hover:bg-primary-hover'
+            onClick={handleRegisterDevice}
             type='button'
           >
             <Plus aria-hidden='true' className='size-4' />
@@ -269,6 +295,7 @@ export function ItDeviceCollectorsView() {
             <div className='mt-4 flex gap-2'>
               <button
                 className='flex-1 rounded-xl bg-primary py-2.5 text-center text-xs font-bold text-primary-foreground shadow-sm transition hover:bg-primary-hover'
+                onClick={handleInspectDevice}
                 type='button'
               >
                 {t('itAdmin.deviceCollectors.actInspect')}
