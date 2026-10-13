@@ -1,209 +1,156 @@
-import { useState } from 'react'
+import { Gauge, Sparkles, Timer } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { BarChart3, Download, Filter, PieChart, Sparkles, Wallet } from 'lucide-react'
 
-import { costCenterReports, topVendors } from '../approvals-data'
+import { PageHeader, Panel, PanelTitle, StatTile, useDashboardFormat } from '../../dashboard-ui'
+import { approverReport } from '../approvals-data'
 
-interface ApproverReportsViewProps {
-  formatCurrency: (value: number) => string
-}
-
-export function ApproverReportsView({ formatCurrency }: ApproverReportsViewProps) {
+export function ApproverReportsView({ formatCurrency }: { formatCurrency: (value: number) => string }) {
   const { t } = useTranslation('dashboard')
-  const [activeTab, setActiveTab] = useState<
-    'budgetUtilization' | 'vendorBreakdown' | 'wasteOptimization' | 'commitmentsForecast'
-  >('budgetUtilization')
+  const { formatNumber, formatPercent } = useDashboardFormat()
+  const report = approverReport
+  const usage = report.usage
 
-  const [selectedPeriod, setSelectedPeriod] = useState<string>('ALL')
-  const [selectedCostCenter, setSelectedCostCenter] = useState<string>('ALL')
-
-  const filteredCostCenters = costCenterReports.filter((item) => {
-    const periodMatch = selectedPeriod === 'ALL' || item.period === selectedPeriod
-    const costCenterMatch = selectedCostCenter === 'ALL' || item.code === selectedCostCenter
-    return periodMatch && costCenterMatch
-  })
+  const usageIndicators = [
+    { key: 'kpi3', value: usage.active / usage.purchased },
+    { key: 'coverage', value: usage.evaluated / usage.purchased },
+    { key: 'activeInEvaluated', value: usage.active / usage.evaluated }
+  ] as const
 
   return (
     <div className='space-y-6'>
-      {/* Header & Controls */}
-      <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
-        <div>
-          <h1 className='text-2xl font-bold tracking-tight text-foreground sm:text-3xl'>
-            {t('approvals.reports.title')}
-          </h1>
-          <p className='mt-1 text-sm text-muted-foreground'>{t('approvals.reports.subtitle')}</p>
-        </div>
+      <PageHeader
+        code='UF-15 · FR-5.9 → FR-5.11'
+        subtitle={t('approvals.reports.subtitle', { period: report.period })}
+        title={t('approvals.reports.title')}
+      />
 
-        <div className='flex items-center gap-2'>
-          <button
-            className='inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-4 py-2 text-xs font-semibold text-foreground transition hover:bg-surface-subtle shadow-xs'
-            type='button'
-          >
-            <Download className='size-3.5' />
-            <span>{t('approvals.reports.exportBtn')}</span>
-          </button>
-        </div>
-      </div>
+      <Panel>
+        <PanelTitle
+          hint={t('approvals.reports.spendHint')}
+          title={t('approvals.reports.spendTitle', {
+            budget: formatCurrency(report.totalBudget),
+            spend: formatCurrency(report.totalSpend)
+          })}
+        />
+        <ul className='mt-4 space-y-3'>
+          {report.costCenters.map((cc) => {
+            const ratio = cc.spend / cc.budget
 
-      {/* Main Tabs Navigation */}
-      <div className='flex border-b border-border'>
-        {[
-          { id: 'budgetUtilization' as const, label: t('approvals.reports.tabBudget'), icon: Wallet },
-          { id: 'vendorBreakdown' as const, label: t('approvals.reports.tabVendors'), icon: PieChart },
-          { id: 'wasteOptimization' as const, label: t('approvals.reports.tabWaste'), icon: Sparkles },
-          { id: 'commitmentsForecast' as const, label: t('approvals.reports.tabForecast'), icon: BarChart3 }
-        ].map((tab) => {
-          const Icon = tab.icon
-          const isActive = activeTab === tab.id
-          return (
-            <button
-              key={tab.id}
-              className={`inline-flex items-center gap-2 border-b-2 px-5 py-3 text-xs font-bold transition ${
-                isActive
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:border-border hover:text-foreground'
-              }`}
-              onClick={() => setActiveTab(tab.id)}
-              type='button'
-            >
-              <Icon className='size-4' />
-              <span>{tab.label}</span>
-            </button>
-          )
-        })}
-      </div>
-
-      {/* Filter Bar */}
-      <div className='flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-surface p-4 text-xs shadow-sm'>
-        <div className='flex items-center gap-1.5 font-bold text-muted-foreground'>
-          <Filter className='size-3.5' />
-          <span>{t('approvals.reports.filterPeriod')}:</span>
-        </div>
-
-        <select
-          className='rounded-xl border border-border bg-background px-3 py-1.5 text-xs text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
-          onChange={(e) => setSelectedPeriod(e.target.value)}
-          value={selectedPeriod}
-        >
-          <option value='ALL'>{t('approvals.reports.optAll')}</option>
-          {['Q1-2026', 'Q2-2026'].map((period) => (
-            <option key={period} value={period}>
-              {period}
-            </option>
-          ))}
-        </select>
-
-        <div className='flex items-center gap-1.5 font-bold text-muted-foreground ml-2'>
-          <span>{t('approvals.reports.filterCostCenter')}:</span>
-        </div>
-
-        <select
-          className='rounded-xl border border-border bg-background px-3 py-1.5 text-xs text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
-          onChange={(e) => setSelectedCostCenter(e.target.value)}
-          value={selectedCostCenter}
-        >
-          <option value='ALL'>{t('approvals.reports.optAll')}</option>
-          {costCenterReports.map((cc) => (
-            <option key={cc.id} value={cc.code}>
-              {cc.code} - {cc.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Tab Content Panels */}
-      {activeTab === 'budgetUtilization' && (
-        <div className='rounded-2xl border border-border bg-surface p-5 shadow-sm space-y-4'>
-          <h2 className='text-sm font-bold text-foreground'>{t('approvals.dashboard.costCenters.title')}</h2>
-          <div className='overflow-x-auto'>
-            <table className='w-full text-left text-xs'>
-              <thead>
-                <tr className='border-b border-border text-muted-foreground'>
-                  <th className='py-3 px-4 font-semibold'>{t('approvals.dashboard.costCenters.colCode')}</th>
-                  <th className='py-3 px-4 font-semibold'>{t('approvals.dashboard.costCenters.colName')}</th>
-                  <th className='py-3 px-4 text-right font-semibold'>
-                    {t('approvals.dashboard.costCenters.colBudget')}
-                  </th>
-                  <th className='py-3 px-4 text-right font-semibold'>
-                    {t('approvals.dashboard.costCenters.colSpent')}
-                  </th>
-                  <th className='py-3 px-4 text-right font-semibold'>
-                    {t('approvals.dashboard.costCenters.colCommitments')}
-                  </th>
-                  <th className='py-3 px-4 text-right font-semibold'>
-                    {t('approvals.dashboard.costCenters.colRemaining')}
-                  </th>
-                  <th className='py-3 px-4 text-center font-semibold'>{t('approvals.reports.filterStatus')}</th>
-                </tr>
-              </thead>
-              <tbody className='divide-y divide-border'>
-                {filteredCostCenters.map((item) => {
-                  const remaining = item.budget - (item.spent + item.commitments)
-                  return (
-                    <tr key={item.id} className='transition hover:bg-surface-subtle/50'>
-                      <td className='py-3 px-4 font-mono font-bold text-foreground'>{item.code}</td>
-                      <td className='py-3 px-4 font-medium text-foreground'>{item.name}</td>
-                      <td className='py-3 px-4 text-right text-muted-foreground'>{formatCurrency(item.budget)}</td>
-                      <td className='py-3 px-4 text-right font-bold text-foreground'>{formatCurrency(item.spent)}</td>
-                      <td className='py-3 px-4 text-right font-medium text-warning'>
-                        {formatCurrency(item.commitments)}
-                      </td>
-                      <td className='py-3 px-4 text-right font-bold text-success'>{formatCurrency(remaining)}</td>
-                      <td className='py-3 px-4 text-center'>
-                        <span
-                          className={`rounded-md px-2 py-0.5 text-[11px] font-bold ${
-                            item.status === 'DANGER'
-                              ? 'bg-danger/10 text-danger'
-                              : item.status === 'WARNING'
-                                ? 'bg-warning/10 text-warning'
-                                : 'bg-success/10 text-success'
-                          }`}
-                        >
-                          {item.status === 'DANGER'
-                            ? t('approvals.dashboard.costCenters.statusDanger')
-                            : item.status === 'WARNING'
-                              ? t('approvals.dashboard.costCenters.statusWarning')
-                              : t('approvals.dashboard.costCenters.statusNormal')}
-                        </span>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'vendorBreakdown' && (
-        <div className='rounded-2xl border border-border bg-surface p-5 shadow-sm space-y-4'>
-          <h2 className='text-sm font-bold text-foreground'>{t('approvals.dashboard.topVendors.title')}</h2>
-          <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
-            {topVendors.map((vendor) => (
-              <div key={vendor.name} className='rounded-xl border border-border bg-surface-subtle/50 p-4 space-y-2'>
-                <div className='flex items-center justify-between'>
-                  <span className='rounded-md bg-primary-soft px-2 py-0.5 text-[10px] font-bold text-primary'>
-                    {vendor.category}
+            return (
+              <li key={cc.code}>
+                <div className='flex justify-between gap-2 text-xs'>
+                  <span className='font-mono font-bold'>{cc.code}</span>
+                  <span className='text-muted-foreground'>
+                    {formatCurrency(cc.spend)} / {formatCurrency(cc.budget)} · {formatPercent(ratio)}
                   </span>
-                  <span className='font-mono font-bold text-xs text-foreground'>{vendor.percentage}%</span>
                 </div>
-                <h3 className='font-bold text-xs text-foreground'>{vendor.name}</h3>
-                <p className='text-lg font-extrabold text-foreground'>{formatCurrency(vendor.spend)}</p>
+                <div className='mt-1 h-2 overflow-hidden rounded-full bg-surface-subtle'>
+                  <div
+                    className={`h-full rounded-full ${ratio > 0.9 ? 'bg-warning' : 'bg-primary'}`}
+                    style={{ width: `${Math.min(1, ratio) * 100}%` }}
+                  />
+                </div>
+              </li>
+            )
+          })}
+          <li className='flex justify-between gap-2 border-t border-dashed border-warning/50 pt-3 text-xs'>
+            <span className='font-bold text-warning'>{t('finance.analysis.unallocated')}</span>
+            <span className='font-bold text-warning'>{formatCurrency(report.unallocated)}</span>
+          </li>
+        </ul>
+      </Panel>
+
+      <section aria-label={t('approvals.reports.savingsLabel')} className='grid gap-4 sm:grid-cols-3'>
+        <StatTile
+          icon={Sparkles}
+          label={t('finance.report.savingsImmediate')}
+          tone='success'
+          value={formatCurrency(report.savings.immediate)}
+        />
+        <StatTile
+          hint={t('finance.report.savingsSeparate')}
+          icon={Sparkles}
+          label={t('finance.report.savingsNextRenewal')}
+          tone='info'
+          value={formatCurrency(report.savings.nextRenewal)}
+        />
+        <StatTile
+          hint={t('approvals.reports.reclaimedHint')}
+          icon={Gauge}
+          label={t('approvals.reports.reclaimedSeats')}
+          tone='neutral'
+          value={formatNumber(report.savings.reclaimedSeats)}
+        />
+      </section>
+
+      <div className='grid gap-6 lg:grid-cols-2'>
+        <Panel>
+          <PanelTitle hint={t('approvals.reports.usageHint')} title={t('approvals.reports.usageTitle')} />
+          <div className='mt-4 grid gap-3 sm:grid-cols-3'>
+            {usageIndicators.map((indicator) => (
+              <div
+                className={`rounded-xl border p-3 ${indicator.key === 'kpi3' ? 'border-primary bg-primary-soft/30' : 'border-border'}`}
+                key={indicator.key}
+              >
+                <p className='text-[0.7rem] font-bold text-muted-foreground'>
+                  {t(`approvals.reports.usage.${indicator.key}`)}
+                </p>
+                <p className='mt-1 text-xl font-extrabold'>{formatPercent(indicator.value)}</p>
               </div>
             ))}
           </div>
-        </div>
-      )}
+          <p className='mt-3 text-[0.7rem] text-muted-foreground'>
+            {t('approvals.reports.usageNote', {
+              active: usage.active,
+              evaluated: usage.evaluated,
+              purchased: usage.purchased
+            })}
+          </p>
+        </Panel>
 
-      {(activeTab === 'wasteOptimization' || activeTab === 'commitmentsForecast') && (
-        <div className='rounded-2xl border border-border bg-surface p-8 shadow-sm text-center space-y-3'>
-          <Sparkles className='mx-auto size-10 text-primary' />
-          <h3 className='text-base font-bold text-foreground'>
-            {activeTab === 'wasteOptimization' ? t('approvals.reports.tabWaste') : t('approvals.reports.tabForecast')}
-          </h3>
-          <p className='max-w-md mx-auto text-xs text-muted-foreground'>{t('approvals.dashboard.subtitle')}</p>
-        </div>
-      )}
+        <Panel>
+          <PanelTitle hint={t('approvals.reports.processHint')} title={t('approvals.reports.processTitle')} />
+          <ul className='mt-4 divide-y divide-border text-xs'>
+            {report.stepDays.map((step) => (
+              <li className='flex justify-between py-2' key={step.key}>
+                <span className='flex items-center gap-1.5 text-muted-foreground'>
+                  <Timer aria-hidden='true' className='size-3.5' />
+                  {t(`approvals.reports.step.${step.key}`)}
+                </span>
+                <span className='font-bold'>{t('approvals.reports.days', { value: formatNumber(step.value) })}</span>
+              </li>
+            ))}
+            <li className='flex justify-between py-2'>
+              <span className='text-muted-foreground'>{t('approvals.reports.financeResponse')}</span>
+              <span className='font-bold'>
+                {t('approvals.reports.days', { value: formatNumber(report.financeResponseDays) })}
+              </span>
+            </li>
+            <li className='flex justify-between py-2'>
+              <span className='text-muted-foreground'>{t('approvals.reports.financeRecording')}</span>
+              <span className='font-bold'>
+                {t('approvals.reports.days', { value: formatNumber(report.financeRecordingDays) })}
+              </span>
+            </li>
+            <li className='flex justify-between py-2'>
+              <span className='text-muted-foreground'>{t('approvals.reports.myOverdue')}</span>
+              <span className='font-bold text-warning'>{formatPercent(report.myOverdueRate)}</span>
+            </li>
+          </ul>
+
+          <p className='mt-4 text-xs font-bold'>{t('approvals.reports.branchATitle')}</p>
+          <ul className='mt-2 space-y-1.5 text-xs'>
+            {report.branchASeats.map((row) => (
+              <li className='flex justify-between gap-2' key={row.app}>
+                <span className='text-muted-foreground'>
+                  {row.app} · <span className='font-mono'>{row.costCenter}</span>
+                </span>
+                <span className='font-bold'>{t('approvals.reports.seats', { count: row.seats })}</span>
+              </li>
+            ))}
+          </ul>
+        </Panel>
+      </div>
     </div>
   )
 }

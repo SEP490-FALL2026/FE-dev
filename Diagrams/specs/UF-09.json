@@ -1,0 +1,764 @@
+{
+  "id": "UF-09",
+  "kind": "screenflow",
+  "version": "1.5",
+  "date": "10/10/2026",
+  "title": "UF-09 · IT Admin Processes Offboarding",
+  "out": "user-flows/UF-09-it-admin-processes-offboarding",
+  "lanes": [
+    {
+      "id": "ITA",
+      "label": "IT Admin",
+      "slots": 4
+    }
+  ],
+  "nodes": [
+    {
+      "id": "t_start",
+      "type": "terminal",
+      "role": "start",
+      "lane": "ITA",
+      "slot": 1,
+      "row": 0,
+      "label": "Employee Is Leaving",
+      "vi": "IT Admin nhận thông tin một nhân viên sắp nghỉ (nghỉ có kế hoạch) hoặc đã nghỉ đột ngột."
+    },
+    {
+      "id": "s_people",
+      "type": "screen",
+      "code": "ITA-12",
+      "lane": "ITA",
+      "slot": 1,
+      "row": 1,
+      "label": "People List: Open Employee Record",
+      "vi": "Danh sách nhân sự; mở hồ sơ nhân viên sắp nghỉ.",
+      "rules": [
+        "FR-8.9"
+      ]
+    },
+    {
+      "id": "s_impact",
+      "type": "screen",
+      "code": "ITA-13",
+      "lane": "ITA",
+      "slot": 1,
+      "row": 2,
+      "label": "Leaving Impact: Head Role, Shared Accounts, Admin Role",
+      "vi": "Trước khi ghi nghỉ việc, màn hình cho thấy người này có đang là trưởng phòng, người chịu trách nhiệm tài khoản dùng chung, hay người giữ vai Super Admin không.",
+      "rules": [
+        "FR-3.1",
+        "FR-2.12",
+        "FR-8.10"
+      ]
+    },
+    {
+      "id": "d_head",
+      "type": "decision",
+      "lane": "ITA",
+      "slot": 1,
+      "row": 3,
+      "label": "Leaver Is a Department Head?",
+      "vi": "Người nghỉ có đang là trưởng phòng có hiệu lực không.",
+      "rules": [
+        "INV-19",
+        "QĐ-58a"
+      ]
+    },
+    {
+      "id": "s_newhead",
+      "type": "screen",
+      "code": "ITA-14",
+      "lane": "ITA",
+      "slot": 0,
+      "row": 4,
+      "label": "Appoint New Head or Record None Yet",
+      "vi": "Chọn trưởng phòng mới, hiệu lực từ ngày sau ngày làm việc cuối; người này không được đang là trưởng phòng khác. Chưa có người thì ghi tường minh để bước nhu cầu đi tới người duyệt dự phòng.",
+      "rules": [
+        "FR-3.6",
+        "FR-3.16",
+        "QĐ-52a",
+        "QĐ-58a"
+      ]
+    },
+    {
+      "id": "m_head",
+      "type": "merge",
+      "lane": "ITA",
+      "slot": 1,
+      "row": 5
+    },
+    {
+      "id": "d_shared",
+      "type": "decision",
+      "lane": "ITA",
+      "slot": 1,
+      "row": 6,
+      "label": "Responsible for a Shared Account?",
+      "vi": "Người nghỉ có đang chịu trách nhiệm một tài khoản dùng chung hoặc tài khoản dịch vụ không.",
+      "rules": [
+        "FR-2.12",
+        "QĐ-56c"
+      ]
+    },
+    {
+      "id": "s_resp",
+      "type": "screen",
+      "code": "ITA-14",
+      "lane": "ITA",
+      "slot": 0,
+      "row": 7,
+      "label": "Assign New Responsible Person",
+      "vi": "Chỉ định người chịu trách nhiệm mới trước ngày hiệu lực (lúc chuyển *đã nghỉ việc*); ghi nghỉ việc không bị chặn, chỉ nhắc; tới ngày đó chưa có thì hồ sơ không đóng được (`QĐ-66i`) — mặc định là trưởng phòng (trưởng phòng nghỉ thì trưởng phòng mới).",
+      "rules": [
+        "FR-2.12",
+        "QĐ-56c",
+        "QĐ-58d"
+      ]
+    },
+    {
+      "id": "m_resp",
+      "type": "merge",
+      "lane": "ITA",
+      "slot": 1,
+      "row": 8
+    },
+    {
+      "id": "d_sa",
+      "type": "decision",
+      "lane": "ITA",
+      "slot": 1,
+      "row": 9,
+      "label": "Holds the Super Admin Role?",
+      "vi": "Người nghỉ có đang giữ vai Super Admin duy nhất không.",
+      "rules": [
+        "FR-8.10",
+        "QĐ-44"
+      ]
+    },
+    {
+      "id": "y_sawarn",
+      "type": "system",
+      "lane": "ITA",
+      "slot": 2,
+      "row": 10,
+      "label": "Warning: Role Not Transferred; Audit Flag",
+      "vi": "Cảnh báo, không chặn: vai Super Admin chưa được chuyển giao (người giữ vai làm ở UF-13); audit ghi cờ.",
+      "rules": [
+        "FR-8.10",
+        "QĐ-47b"
+      ]
+    },
+    {
+      "id": "m_sa",
+      "type": "merge",
+      "lane": "ITA",
+      "slot": 1,
+      "row": 11
+    },
+    {
+      "id": "d_notice",
+      "type": "decision",
+      "lane": "ITA",
+      "slot": 1,
+      "row": 12,
+      "label": "Handover Period Before Leaving?",
+      "vi": "Nghỉ có kế hoạch (có thời gian bàn giao) hay nghỉ đột ngột.",
+      "rules": [
+        "QĐ-40a"
+      ]
+    },
+    {
+      "id": "s_hand",
+      "type": "screen",
+      "code": "ITA-13",
+      "lane": "ITA",
+      "slot": 1,
+      "row": 13,
+      "label": "Set Handover with Last Working Day (BM-04)",
+      "vi": "Ghi trạng thái đang bàn giao kèm ngày làm việc cuối, lập biên bản BM-04. Tài khoản đăng nhập vẫn dùng được trong thời gian bàn giao.",
+      "rules": [
+        "BM-04",
+        "FR-8.9",
+        "QĐ-41a"
+      ]
+    },
+    {
+      "id": "s_sudden",
+      "type": "screen",
+      "code": "ITA-13",
+      "lane": "ITA",
+      "slot": 3,
+      "row": 13,
+      "label": "Set Left Without Handover",
+      "vi": "Nghỉ đột ngột: chuyển thẳng sang đã nghỉ việc; các chỉ định thay thế ở trên ghi trong cùng thao tác. Không có thời gian bàn giao trước, nhưng trưởng phòng vẫn được đề nghị xác nhận bàn giao ngay. Đăng nhập SaaS-Sentry bị chặn ngay (FR-8.9).",
+      "rules": [
+        "FR-8.9",
+        "FR-2.12"
+      ]
+    },
+    {
+      "id": "y_ask2",
+      "type": "system",
+      "lane": "ITA",
+      "slot": 3,
+      "row": 14,
+      "label": "Head Asked to Confirm Handover Now",
+      "vi": "Liệt kê quyền kèm lưu ý trước khi thu hồi; đề nghị trưởng phòng xác nhận bàn giao ngay. Gói có lưu ý mất dữ liệu: việc gỡ ở nhà cung cấp chờ xác nhận tối đa hạn cấu hình (mặc định 1 ngày làm việc), gói khác gỡ ngay (QĐ-62e).",
+      "rules": [
+        "FR-2.12",
+        "OI-14c"
+      ]
+    },
+    {
+      "id": "y_ask",
+      "type": "system",
+      "lane": "ITA",
+      "slot": 1,
+      "row": 15,
+      "label": "Head Asked to Confirm Data Handover per Tool",
+      "vi": "Hệ thống liệt kê mọi quyền kèm lưu ý trước khi thu hồi và đề nghị trưởng phòng xác nhận bàn giao dữ liệu từng công cụ (BM-08 bước 1). Không có người kế nhiệm license. Tới hạn chưa xác nhận ⟹ chỉ cảnh báo trưởng phòng và IT, không chặn.",
+      "rules": [
+        "FR-2.12",
+        "BM-08",
+        "QĐ-56b",
+        "OI-14c"
+      ]
+    },
+    {
+      "id": "m_wait",
+      "type": "merge",
+      "lane": "ITA",
+      "slot": 1,
+      "row": 16
+    },
+    {
+      "id": "d_plan",
+      "type": "decision",
+      "lane": "ITA",
+      "slot": 1,
+      "row": 17,
+      "label": "Leaving as Planned?",
+      "vi": "Trước khi chuyển đã nghỉ việc: đúng ngày, đổi ngày làm việc cuối, hay nhân viên ở lại.",
+      "rules": [
+        "QĐ-48a"
+      ]
+    },
+    {
+      "id": "s_change",
+      "type": "screen",
+      "code": "ITA-13",
+      "lane": "ITA",
+      "slot": 0,
+      "row": 18,
+      "label": "Change Last Working Day with Reason",
+      "vi": "Chỉ khi hôm nay ≤ ngày làm việc cuối hiện tại; lý do bắt buộc; Audit Trail ghi giá trị trước/sau.",
+      "rules": [
+        "QĐ-48a",
+        "QĐ-48b",
+        "QĐ-48c"
+      ]
+    },
+    {
+      "id": "s_cancel",
+      "type": "screen",
+      "code": "ITA-13",
+      "lane": "ITA",
+      "slot": 2,
+      "row": 18,
+      "label": "Cancel Handover with Reason",
+      "vi": "Hủy bàn giao bất kỳ lúc nào trước đã nghỉ việc; nhân viên trở lại đang làm việc, không thu hồi quyền.",
+      "rules": [
+        "QĐ-48a",
+        "QĐ-48c"
+      ]
+    },
+    {
+      "id": "t_cancel",
+      "type": "terminal",
+      "lane": "ITA",
+      "slot": 2,
+      "row": 19,
+      "label": "End: Handover Cancelled, No Reclaim",
+      "vi": "Nhân viên ở lại; quyền giữ nguyên."
+    },
+    {
+      "id": "s_left",
+      "type": "screen",
+      "code": "ITA-13",
+      "lane": "ITA",
+      "slot": 1,
+      "row": 19,
+      "label": "Set Status to Left",
+      "vi": "IT chuyển nhân viên sang đã nghỉ việc (S0 làm tay).",
+      "rules": [
+        "FR-8.9",
+        "QĐ-41a"
+      ]
+    },
+    {
+      "id": "m_left",
+      "type": "merge",
+      "lane": "ITA",
+      "slot": 1,
+      "row": 20
+    },
+    {
+      "id": "y_block",
+      "type": "system",
+      "lane": "ITA",
+      "slot": 1,
+      "row": 21,
+      "label": "Login Blocked; Reclaim Tasks Created (G2)",
+      "vi": "Mọi thao tác của tài khoản liên kết bị từ chối ngay; nhắc Super Admin khóa tài khoản chính thức; kết thúc đăng ký thiết bị; tạo tác vụ thu hồi cho IT Admin phụ trách phòng.",
+      "rules": [
+        "FR-8.9",
+        "FR-4.18",
+        "BRD 5.12.3"
+      ]
+    },
+    {
+      "id": "d_hc",
+      "type": "decision",
+      "lane": "ITA",
+      "slot": 1,
+      "row": 22,
+      "label": "Data Handover Confirmed?",
+      "vi": "Trước bước 2 của BM-08 (gỡ khỏi workspace, hủy gia hạn, thu khóa): trưởng phòng đã xác nhận *đã bàn giao* hoặc *không cần* cho từng công cụ chưa. Bàn giao đi trước thu hồi; nhưng bàn giao quá hạn **không** chặn thu hồi. **Nghỉ đột ngột:** đăng nhập bị chặn ngay theo trạng thái; riêng gói có lưu ý *mất dữ liệu khi gỡ*, việc gỡ ở nhà cung cấp chờ trưởng phòng xác nhận bàn giao hoặc tới hạn cấu hình được (mặc định 1 ngày làm việc), seat vẫn tính phí và hiện G2; gói khác gỡ ngay (QĐ-62e — chi tiết ở WF-07 `d_hold`). Phòng thiếu trưởng phòng ⟹ việc xác nhận chờ, không giao ai; hết hạn thì thu hồi tiếp (QĐ-62c).",
+      "rules": [
+        "FR-2.12",
+        "BM-08",
+        "QĐ-56b",
+        "OI-14c"
+      ]
+    },
+    {
+      "id": "s_over",
+      "type": "system",
+      "lane": "ITA",
+      "slot": 2,
+      "row": 23,
+      "label": "Reclaim Proceeds; Missing Handover Flagged",
+      "vi": "Hạn bàn giao đã qua mà chưa có xác nhận: thu hồi vẫn tiếp tục; Audit Trail ghi cờ *thu hồi khi chưa xác nhận bàn giao* và trưởng phòng, IT Admin thấy trong danh sách cần xử lý.",
+      "rules": [
+        "FR-2.12",
+        "OI-14c",
+        "FR-5.14"
+      ]
+    },
+    {
+      "id": "m_hc",
+      "type": "merge",
+      "lane": "ITA",
+      "slot": 1,
+      "row": 24
+    },
+    {
+      "id": "r_uf08",
+      "type": "ref",
+      "ref": "UF-08",
+      "lane": "ITA",
+      "slot": 1,
+      "row": 25,
+      "label": "UF-08 Reclaim Each Access by Plan Type",
+      "vi": "Bước 2 BM-08 cho từng quyền theo kiểu cấp K1–K5 (gỡ seat, hủy gia hạn gói cá nhân, thu khóa về kho, đổi mật khẩu tài khoản dùng chung...) qua hàng đợi cấp phát. Nếu WF-09a trả *đóng thất bại* (QĐ-62i): quyền còn hiệu lực, vẫn hiện G2/lãng phí theo điều kiện nguồn, seat chưa về kho và IT mở tác vụ thu hồi mới.",
+      "rules": [
+        "FR-2.10",
+        "FR-2.11",
+        "BM-08",
+        "QĐ-54"
+      ]
+    },
+    {
+      "id": "s_lock",
+      "type": "screen",
+      "code": "ITA-13",
+      "lane": "ITA",
+      "slot": 1,
+      "row": 26,
+      "label": "Lock Company Account (BM-08 Step 3)",
+      "vi": "Khóa tài khoản email công ty sau khi đã gỡ seat — khóa tài khoản không tự dừng tính tiền.",
+      "rules": [
+        "FR-2.9",
+        "BM-08",
+        "QĐ-54c"
+      ]
+    },
+    {
+      "id": "y_close",
+      "type": "system",
+      "lane": "ITA",
+      "slot": 1,
+      "row": 27,
+      "label": "Seats Freed; Usage Detail Deleted in 30 Days",
+      "vi": "Seat trống về kho; tiết kiệm chỉ ghi khi hợp đồng/khoản chi thực sự giảm; bản ghi hoạt động chi tiết xóa trong 30 ngày.",
+      "rules": [
+        "FR-4.15",
+        "FR-10.6",
+        "BM-08"
+      ]
+    },
+    {
+      "id": "t_done",
+      "type": "terminal",
+      "lane": "ITA",
+      "slot": 1,
+      "row": 28,
+      "label": "End: Offboarding Processed",
+      "vi": "Nghỉ việc đã xử lý: tài khoản đăng nhập đã bị chặn, các quyền đã thu hồi; quyền có tác vụ thu hồi bị đóng thất bại vẫn còn, hiện G2 chờ tác vụ mới (QĐ-62i)."
+    }
+  ],
+  "edges": [
+    {
+      "from": "t_start",
+      "to": "s_people"
+    },
+    {
+      "from": "s_people",
+      "to": "s_impact"
+    },
+    {
+      "from": "s_impact",
+      "to": "d_head"
+    },
+    {
+      "from": "d_head",
+      "to": "s_newhead",
+      "guard": "yes",
+      "vi": "Đang là trưởng phòng",
+      "result": "Chỉ định trưởng phòng mới"
+    },
+    {
+      "from": "d_head",
+      "to": "m_head",
+      "guard": "no",
+      "vi": "Không phải trưởng phòng",
+      "result": "Đi tiếp"
+    },
+    {
+      "from": "s_newhead",
+      "to": "m_head"
+    },
+    {
+      "from": "m_head",
+      "to": "d_shared"
+    },
+    {
+      "from": "d_shared",
+      "to": "s_resp",
+      "guard": "yes",
+      "vi": "Đang chịu trách nhiệm tài khoản dùng chung/dịch vụ",
+      "result": "Chỉ định người mới"
+    },
+    {
+      "from": "d_shared",
+      "to": "m_resp",
+      "guard": "no",
+      "vi": "Không",
+      "result": "Đi tiếp"
+    },
+    {
+      "from": "s_resp",
+      "to": "m_resp"
+    },
+    {
+      "from": "m_resp",
+      "to": "d_sa"
+    },
+    {
+      "from": "d_sa",
+      "to": "y_sawarn",
+      "guard": "yes",
+      "vi": "Đang giữ vai Super Admin",
+      "result": "Cảnh báo, không chặn"
+    },
+    {
+      "from": "d_sa",
+      "to": "m_sa",
+      "guard": "no",
+      "vi": "Không",
+      "result": "Đi tiếp"
+    },
+    {
+      "from": "y_sawarn",
+      "to": "m_sa"
+    },
+    {
+      "from": "m_sa",
+      "to": "d_notice"
+    },
+    {
+      "from": "d_notice",
+      "to": "s_hand",
+      "guard": "planned",
+      "vi": "Có thời gian bàn giao",
+      "result": "Ghi đang bàn giao"
+    },
+    {
+      "from": "d_notice",
+      "to": "s_sudden",
+      "guard": "sudden",
+      "vi": "Nghỉ đột ngột",
+      "result": "Ghi thẳng đã nghỉ việc"
+    },
+    {
+      "from": "s_hand",
+      "to": "y_ask"
+    },
+    {
+      "from": "y_ask",
+      "to": "m_wait"
+    },
+    {
+      "from": "m_wait",
+      "to": "d_plan"
+    },
+    {
+      "from": "d_plan",
+      "to": "s_left",
+      "guard": "as planned",
+      "vi": "Nghỉ đúng ngày đã ghi",
+      "result": "Chuyển đã nghỉ việc"
+    },
+    {
+      "from": "d_plan",
+      "to": "s_change",
+      "guard": "new last day",
+      "vi": "Cần đổi ngày làm việc cuối",
+      "result": "Đổi ngày, chờ tiếp"
+    },
+    {
+      "from": "d_plan",
+      "to": "s_cancel",
+      "guard": "stays",
+      "vi": "Nhân viên ở lại",
+      "result": "Hủy bàn giao"
+    },
+    {
+      "from": "s_change",
+      "to": "m_wait",
+      "sides": [
+        "T",
+        "L"
+      ]
+    },
+    {
+      "from": "s_cancel",
+      "to": "t_cancel"
+    },
+    {
+      "from": "s_left",
+      "to": "m_left"
+    },
+    {
+      "from": "s_sudden",
+      "to": "y_ask2"
+    },
+    {
+      "from": "m_left",
+      "to": "y_block"
+    },
+    {
+      "from": "y_block",
+      "to": "d_hc"
+    },
+    {
+      "from": "r_uf08",
+      "to": "s_lock"
+    },
+    {
+      "from": "s_lock",
+      "to": "y_close"
+    },
+    {
+      "from": "y_close",
+      "to": "t_done"
+    },
+    {
+      "from": "d_hc",
+      "to": "m_hc",
+      "guard": "confirmed",
+      "vi": "Trưởng phòng đã xác nhận bàn giao hoặc không cần",
+      "result": "Thu hồi theo checklist"
+    },
+    {
+      "from": "d_hc",
+      "to": "s_over",
+      "guard": "not confirmed, overdue",
+      "vi": "Hạn bàn giao đã qua, chưa xác nhận",
+      "result": "Ghi cờ, thu hồi vẫn tiếp tục"
+    },
+    {
+      "from": "s_over",
+      "to": "m_hc",
+      "sides": [
+        "B",
+        "R"
+      ]
+    },
+    {
+      "from": "m_hc",
+      "to": "r_uf08"
+    },
+    {
+      "from": "y_ask2",
+      "to": "m_left",
+      "sides": [
+        "B",
+        "R"
+      ]
+    }
+  ],
+  "doc": {
+    "level": "User flow (mức màn hình) — IT Admin",
+    "status": "Vẽ lại theo BRD v3.30 (đồng bộ QĐ-61/QĐ-62) và QĐ-56 (bàn giao dữ liệu trước khi thu hồi, không có người kế nhiệm license), QĐ-58 (trưởng phòng mới), QĐ-48 (đổi ngày/hủy bàn giao); mã màn hình là đề xuất (QĐ-08)",
+    "purpose": "Hành trình của IT Admin khi một nhân viên nghỉ việc: xử lý các vai người nghỉ đang giữ (trưởng phòng, người chịu trách nhiệm tài khoản dùng chung, Super Admin), ghi bàn giao hoặc nghỉ đột ngột, chờ trưởng phòng xác nhận bàn giao dữ liệu, rồi thu hồi toàn bộ quyền theo checklist BM-08. Đây là phía màn hình của MF-5 / WF-07.",
+    "scope": "Màn hình ITA-12, ITA-13, ITA-14 và phản hồi hệ thống IT Admin nhìn thấy; bước thu hồi từng quyền chuyển sang UF-08.",
+    "excluded": "Trưởng phòng xác nhận bàn giao dữ liệu từng công cụ (chỉ hiện như bước hệ thống); chuyển giao vai Super Admin (UF-13); thực thi thu hồi theo kiểu cấp (UF-08, WF-09a).",
+    "lanes_vi": {
+      "ITA": [
+        "IT Admin",
+        "Thao tác trên màn hình ITA-xx; bước của trưởng phòng và hệ thống hiện dưới dạng trạng thái"
+      ]
+    },
+    "trigger": "Một nhân viên sắp nghỉ hoặc đã nghỉ đột ngột.",
+    "pre": "Nhân viên có hồ sơ đang làm việc; IT Admin phụ trách phòng của nhân viên (QĐ-58).",
+    "post": "Nhân viên đã nghỉ việc, các quyền đã được thu hồi — quyền có tác vụ thu hồi bị đóng thất bại vẫn còn, hiện G2 chờ tác vụ mới (QĐ-62i) — và tài khoản đăng nhập đã bị chặn; hoặc bàn giao bị hủy và nhân viên ở lại.",
+    "reading": "Đọc từ trên xuống. Ba điểm rẽ đầu là ba việc phải xử lý trước khi cho nghỉ; nhánh nghỉ đột ngột (bên phải) nhập lại ở bước chuyển đã nghỉ việc. **Ngoại lệ biểu diễn (QĐ-62e):** ca nghỉ đột ngột với gói mất dữ liệu, chưa xác nhận và chưa quá hạn không vẽ thành nhánh riêng ở đây — việc gỡ ở nhà cung cấp chờ tới hạn cấu hình (mặc định 1 ngày làm việc) rồi mới vào nhánh *chưa xác nhận, quá hạn*; chi tiết ở WF-07 `d_hold`. Với gói **không** mất dữ liệu, ca nghỉ đột ngột gỡ ngay, không chờ xác nhận bàn giao; ca này đi nhánh *chưa xác nhận* (cờ *thu hồi khi chưa xác nhận bàn giao*), đúng như WF-07 `d_hold` → `s_over` — chữ *overdue* của guard `d_hc` đọc là *không còn lý do chờ*. Quy ước chung cho luồng phụ và activity final: `tools/README.md` mục 7.",
+    "sources": [
+      [
+        "FR-2.12, BM-08, QĐ-56b",
+        "Bàn giao dữ liệu trước khi thu hồi; không có người kế nhiệm license; quá hạn chỉ cảnh báo"
+      ],
+      [
+        "FR-2.12, QĐ-56c",
+        "Người chịu trách nhiệm mới cho tài khoản dùng chung trước khi đóng hồ sơ"
+      ],
+      [
+        "FR-3.6, FR-3.16, QĐ-52a, QĐ-58a, INV-19",
+        "Trưởng phòng mới; mỗi phòng đúng một trưởng phòng"
+      ],
+      [
+        "FR-8.10, QĐ-47b",
+        "Người giữ vai Super Admin nghỉ: cảnh báo, không chặn"
+      ],
+      [
+        "QĐ-40a, QĐ-41a, QĐ-48a–c",
+        "Nghỉ có kế hoạch / đột ngột; đổi ngày làm việc cuối; hủy bàn giao"
+      ],
+      [
+        "FR-8.9, FR-2.9, QĐ-54c",
+        "Từ chối đăng nhập khi đã nghỉ việc; khóa tài khoản công ty không tự dừng tính tiền"
+      ],
+      [
+        "FR-4.15, FR-10.6",
+        "Tiết kiệm chỉ khi chi phí thực giảm; xóa dữ liệu hoạt động chi tiết trong 30 ngày"
+      ],
+      [
+        "FR-2.12, BM-08",
+        "Thứ tự: (1) bàn giao dữ liệu → (2) gỡ người dùng; bàn giao không chặn thu hồi quá hạn"
+      ]
+    ],
+    "happy": [
+      "t_start",
+      "s_people",
+      "s_impact",
+      "d_head",
+      "m_head",
+      "d_shared",
+      "m_resp",
+      "d_sa",
+      "m_sa",
+      "d_notice",
+      "s_hand",
+      "y_ask",
+      "m_wait",
+      "d_plan",
+      "s_left",
+      "m_left",
+      "y_block",
+      "d_hc",
+      "m_hc",
+      "r_uf08",
+      "s_lock",
+      "y_close",
+      "t_done"
+    ],
+    "alternates": [
+      {
+        "title": "Người nghỉ là trưởng phòng",
+        "path": [
+          "d_head",
+          "s_newhead",
+          "m_head"
+        ],
+        "note": "Trưởng phòng mới hiệu lực từ ngày sau ngày làm việc cuối."
+      },
+      {
+        "title": "Người chịu trách nhiệm tài khoản dùng chung",
+        "path": [
+          "d_shared",
+          "s_resp",
+          "m_resp"
+        ],
+        "note": "Mặc định trưởng phòng."
+      },
+      {
+        "title": "Người giữ vai Super Admin",
+        "path": [
+          "d_sa",
+          "y_sawarn",
+          "m_sa"
+        ],
+        "note": "Cảnh báo và cờ audit; chuyển giao vai làm ở UF-13."
+      },
+      {
+        "title": "Nghỉ đột ngột",
+        "path": [
+          "d_notice",
+          "s_sudden",
+          "y_ask2",
+          "m_left"
+        ],
+        "note": "Trưởng phòng vẫn được đề nghị xác nhận bàn giao ngay; đăng nhập bị chặn ngay; gói có lưu ý mất dữ liệu giữ việc gỡ ở nhà cung cấp tối đa hạn cấu hình (mặc định 1 ngày làm việc), gói khác gỡ ngay (QĐ-62e)."
+      },
+      {
+        "title": "Đổi ngày làm việc cuối",
+        "path": [
+          "d_plan",
+          "s_change",
+          "m_wait"
+        ],
+        "note": "Lý do bắt buộc; quay lại chờ."
+      }
+    ],
+    "unhappy": [
+      {
+        "title": "Nhân viên ở lại — hủy bàn giao",
+        "path": [
+          "d_plan",
+          "s_cancel",
+          "t_cancel"
+        ],
+        "note": "Không thu hồi quyền."
+      },
+      {
+        "title": "Thu hồi khi bàn giao chưa được xác nhận",
+        "path": [
+          "d_hc",
+          "s_over",
+          "m_hc"
+        ],
+        "note": "Bàn giao quá hạn không chặn thu hồi (FR-2.12, OI-14c); có cờ audit."
+      }
+    ],
+    "relations": [
+      "Main flow: `MF-5`; workflow: `WF-07`, `WF-09a`, `WF-18` (kết thúc đăng ký thiết bị)",
+      "`UF-08` (thu hồi từng quyền), `UF-13` (chuyển giao vai Super Admin), `UF-17` (tài khoản bị từ chối đăng nhập)"
+    ],
+    "open": [
+      "(LATER-TECH/UI · DOI-01, QĐ-08) Mã màn hình ITA-12/13/14 giữ từ bản cũ, là đề xuất.",
+      "(LATER-TECH/UI · DOI-41) Màn hình xác nhận bàn giao của trưởng phòng chưa có user flow riêng — chỉ hiện ở đây như bước hệ thống (WF-07 vẽ đầy đủ).",
+      "(ĐÃ CHỐT · DOI-37, QĐ-62e) Nghỉ đột ngột: chặn đăng nhập ngay; chỉ gói mất dữ liệu giữ việc gỡ ở nhà cung cấp tối đa hạn cấu hình; phòng thiếu trưởng phòng thì hết hạn gỡ (QĐ-62c)."
+    ]
+  }
+}

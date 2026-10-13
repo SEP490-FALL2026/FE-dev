@@ -1,0 +1,598 @@
+{
+  "id": "MF-7",
+  "kind": "activity",
+  "version": "2.2",
+  "date": "10/10/2026",
+  "title": "MF-7 · Department Transfer & Access Adjustment",
+  "out": "main-workflows-activity-diagram/MF-7-department-transfer-access-adjustment",
+  "lanes": [
+    {
+      "id": "NEWH",
+      "label": "New Department Head",
+      "slots": 2
+    },
+    {
+      "id": "IT",
+      "label": "IT Admin",
+      "slots": 2
+    },
+    {
+      "id": "SYS",
+      "label": "SaaS-Sentry",
+      "slots": 2
+    }
+  ],
+  "nodes": [
+    {
+      "id": "st",
+      "type": "start",
+      "lane": "IT",
+      "row": 0
+    },
+    {
+      "id": "a_rec",
+      "type": "action",
+      "lane": "IT",
+      "row": 1,
+      "label": "Record Transfer with Effective Date (BM-04)",
+      "vi": "IT Admin ghi phòng mới (kèm chức vụ nếu đổi) và ngày hiệu lực; lập biên bản BM-04 liệt kê quyền đang giữ. Không ghi đè dữ liệu tổ chức cũ.",
+      "rules": [
+        "FR-2.2",
+        "ADR-04",
+        "BM-04",
+        "QĐ-52a"
+      ]
+    },
+    {
+      "id": "d_shared",
+      "type": "decision",
+      "lane": "IT",
+      "row": 2,
+      "label": "Responsible for a Shared Account?",
+      "vi": "Người được điều chuyển có đang là người chịu trách nhiệm một tài khoản dùng chung của phòng cũ không.",
+      "rules": [
+        "FR-2.12",
+        "QĐ-58d"
+      ]
+    },
+    {
+      "id": "a_resp",
+      "type": "action",
+      "lane": "IT",
+      "slot": 1,
+      "row": 3,
+      "label": "Assign New Responsible Person",
+      "vi": "Chỉ định người chịu trách nhiệm mới trước ngày hiệu lực — mặc định trưởng phòng của phòng sở hữu tài khoản; đổi mật khẩu/thiết bị xác thực nếu người rời là thành viên. Người chỉ là **thành viên** tài khoản dùng chung của phòng cũ: tư cách thành viên kết thúc tại ngày hiệu lực, IT đổi mật khẩu (QĐ-62g; chi tiết ở WF-05 `d_member`).",
+      "rules": [
+        "FR-2.11",
+        "FR-2.12",
+        "QĐ-56a",
+        "QĐ-58d",
+        "QĐ-62g"
+      ]
+    },
+    {
+      "id": "m_sh",
+      "type": "merge",
+      "lane": "IT",
+      "row": 4
+    },
+    {
+      "id": "t_eff",
+      "type": "time",
+      "lane": "SYS",
+      "row": 5,
+      "label": "Effective Date Reached",
+      "vi": "Chờ tới ngày hiệu lực của điều chuyển."
+    },
+    {
+      "id": "s_period",
+      "type": "action",
+      "lane": "SYS",
+      "row": 6,
+      "label": "Close Old Period and Open New Period",
+      "vi": "Đóng kỳ quan hệ nhân viên–phòng cũ, mở kỳ mới; Cost Center Unit của phòng mới áp từ ngày hiệu lực. Chi phí theo kỳ chia theo ngày; chi phí đã phát sinh không bị viết lại.",
+      "rules": [
+        "FR-2.2",
+        "FR-5.3",
+        "INV-20",
+        "QĐ-55b"
+      ]
+    },
+    {
+      "id": "s_reroute",
+      "type": "action",
+      "lane": "SYS",
+      "row": 7,
+      "label": "Re-route Pending Need Steps to New Head",
+      "vi": "Chỉ các bước duyệt nhu cầu đang chờ được xác định lại cho trưởng phòng mới; SLA không đặt lại. Bước duyệt chi và bước thực thi giữ người xử lý.",
+      "rules": [
+        "FR-3.16",
+        "QĐ-28d"
+      ]
+    },
+    {
+      "id": "s_compare",
+      "type": "action",
+      "lane": "SYS",
+      "row": 8,
+      "label": "Compare Access with New Standard Toolset",
+      "vi": "So quyền đang giữ (cá nhân, khóa bản quyền) với bộ công cụ chuẩn của phòng × chức vụ mới. Công cụ thuộc bộ chuẩn mặc định giữ. Đổi chức vụ trong cùng phòng không mở rà soát (QĐ-62p).",
+      "rules": [
+        "FR-3.18",
+        "QĐ-56a"
+      ]
+    },
+    {
+      "id": "d_out",
+      "type": "decision",
+      "lane": "SYS",
+      "row": 9,
+      "label": "Tools Outside New Toolset?",
+      "vi": "Còn công cụ nào ngoài bộ chuẩn của phòng mới không."
+    },
+    {
+      "id": "s_keepall",
+      "type": "action",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 10,
+      "label": "Keep All Access",
+      "vi": "Mọi công cụ thuộc bộ chuẩn: giữ nguyên, không cần trưởng phòng quyết.",
+      "rules": [
+        "QĐ-56a"
+      ]
+    },
+    {
+      "id": "end_keep",
+      "type": "end",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 11,
+      "vi": "Điều chuyển hoàn tất, không có quyền nào phải rà soát."
+    },
+    {
+      "id": "s_task",
+      "type": "action",
+      "lane": "SYS",
+      "row": 10,
+      "label": "Open 5-Day Review for New Head",
+      "vi": "Tạo việc rà soát cho trưởng phòng mới, hạn 5 ngày làm việc kể từ ngày hiệu lực (Super Admin cấu hình được). Đây không phải một bước phê duyệt của request. Phòng mới **chưa có trưởng phòng**: việc rà soát **chờ, không giao ai** (approver dự phòng chỉ thay ở bước nhu cầu); quyền giữ nguyên; IT Admin và Super Admin thấy cảnh báo phòng thiếu trưởng phòng; khi có trưởng phòng mới, việc chuyển sang người đó, hạn không đặt lại (QĐ-62c).",
+      "rules": [
+        "FR-3.8",
+        "FR-8.2",
+        "QĐ-50b",
+        "QĐ-62c"
+      ]
+    },
+    {
+      "id": "f_rev",
+      "type": "fork",
+      "lane": "SYS",
+      "row": 11,
+      "span": [
+        "NEWH",
+        "SYS:0"
+      ]
+    },
+    {
+      "id": "a_review",
+      "type": "action",
+      "lane": "NEWH",
+      "row": 12,
+      "label": "Review a Tool Outside the Toolset",
+      "vi": "Trưởng phòng mới xem từng công cụ ngoài bộ chuẩn cùng lý do cấp ban đầu và tình trạng sử dụng (dạng tổng hợp).",
+      "rules": [
+        "FR-3.7",
+        "SoD-2"
+      ],
+      "slot": 1
+    },
+    {
+      "id": "t_due",
+      "type": "time",
+      "lane": "SYS",
+      "row": 12,
+      "label": "5 Working Days Elapsed",
+      "vi": "Hết hạn 5 ngày làm việc tính theo lịch làm việc của tổ chức."
+    },
+    {
+      "id": "d_choice",
+      "type": "decision",
+      "lane": "NEWH",
+      "row": 13,
+      "label": "Still Needed?",
+      "vi": "Quyết định cho từng công cụ: còn cần · không còn cần · cần công cụ mới.",
+      "slot": 1
+    },
+    {
+      "id": "d_open",
+      "type": "decision",
+      "lane": "SYS",
+      "row": 14,
+      "label": "Review Still Open?",
+      "vi": "Còn công cụ chưa có quyết định khi hết hạn không."
+    },
+    {
+      "id": "c_revoke",
+      "type": "call",
+      "lane": "IT",
+      "row": 14,
+      "label": "Reclaim Access",
+      "ref": "WF-09a",
+      "vi": "IT Admin thu hồi quyền không còn cần (phần mềm nội bộ: ngoài hệ thống kèm bằng chứng); seat về kho. Thu hồi không tự ghi nhận tiết kiệm. Gói có lưu ý mất dữ liệu: hiện lưu ý và **trưởng phòng mới** (người quyết thu hồi) xác nhận bàn giao trước khi gỡ ở nhà cung cấp; không chặn sau hạn ngắn (QĐ-62f, WF-09a `d_dl`). Nếu WF-09a trả *đóng thất bại* (QĐ-62i): quyền còn hiệu lực, vẫn hiện G2/lãng phí theo điều kiện nguồn, seat chưa về kho và IT mở tác vụ thu hồi mới.",
+      "rules": [
+        "FR-2.4",
+        "FR-4.15",
+        "SoD-5"
+      ]
+    },
+    {
+      "id": "c_req",
+      "type": "call",
+      "lane": "NEWH",
+      "slot": 0,
+      "row": 14,
+      "label": "Record New-Tool Need; Employee Requests via MF-2",
+      "ref": "MF-2",
+      "vi": "Trưởng phòng mới ghi nhu cầu công cụ khác; **nhân viên** tự gửi yêu cầu qua luồng thường (MF-2, UF-01) — FR-3.2 chỉ cho trưởng phòng tạo thay khi onboarding hoặc yêu cầu theo nhóm. Hệ thống hiện bộ công cụ chuẩn của phòng mới trước.",
+      "rules": [
+        "FR-3.2"
+      ]
+    },
+    {
+      "id": "s_remind",
+      "type": "action",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 15,
+      "label": "Remind New Head and Alert IT Admin",
+      "vi": "Quá hạn: chỉ nhắc trưởng phòng mới và cảnh báo IT Admin. Không tự thu hồi, không giao người khác, không tự quyết; quyền giữ nguyên tới khi có quyết định.",
+      "rules": [
+        "FR-3.8",
+        "QĐ-50b"
+      ]
+    },
+    {
+      "id": "ff_t1",
+      "type": "flowfinal",
+      "lane": "SYS",
+      "row": 15,
+      "vi": "Nhánh hạn kết thúc — mọi công cụ đã có quyết định."
+    },
+    {
+      "id": "ff_t2",
+      "type": "flowfinal",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 16,
+      "vi": "Nhánh hạn kết thúc sau khi nhắc; việc rà soát vẫn mở ở nhánh trưởng phòng."
+    },
+    {
+      "id": "m_done",
+      "type": "merge",
+      "lane": "NEWH",
+      "row": 16,
+      "slot": 1
+    },
+    {
+      "id": "d_more",
+      "type": "decision",
+      "lane": "NEWH",
+      "row": 17,
+      "label": "More Tools to Decide?",
+      "vi": "Còn công cụ ngoài bộ chuẩn chưa quyết không.",
+      "slot": 1
+    },
+    {
+      "id": "ff_rev",
+      "type": "flowfinal",
+      "lane": "NEWH",
+      "row": 18,
+      "vi": "Rà soát xong — quyền của nhân viên khớp nhu cầu ở phòng mới.",
+      "slot": 1
+    }
+  ],
+  "edges": [
+    {
+      "from": "st",
+      "to": "a_rec"
+    },
+    {
+      "from": "a_rec",
+      "to": "d_shared"
+    },
+    {
+      "from": "d_shared",
+      "to": "a_resp",
+      "guard": "yes",
+      "vi": "Người được điều chuyển đang chịu trách nhiệm tài khoản dùng chung của phòng cũ",
+      "result": "Chỉ định người mới trước ngày hiệu lực"
+    },
+    {
+      "from": "d_shared",
+      "to": "m_sh",
+      "guard": "no",
+      "vi": "Không giữ trách nhiệm tài khoản dùng chung",
+      "result": "Chờ ngày hiệu lực"
+    },
+    {
+      "from": "a_resp",
+      "to": "m_sh"
+    },
+    {
+      "from": "m_sh",
+      "to": "t_eff"
+    },
+    {
+      "from": "t_eff",
+      "to": "s_period"
+    },
+    {
+      "from": "s_period",
+      "to": "s_reroute"
+    },
+    {
+      "from": "s_reroute",
+      "to": "s_compare"
+    },
+    {
+      "from": "s_compare",
+      "to": "d_out"
+    },
+    {
+      "from": "d_out",
+      "to": "s_keepall",
+      "guard": "none",
+      "vi": "Mọi quyền đều thuộc bộ chuẩn của phòng mới",
+      "result": "Giữ toàn bộ"
+    },
+    {
+      "from": "d_out",
+      "to": "s_task",
+      "guard": "some",
+      "vi": "Có ít nhất một công cụ ngoài bộ chuẩn",
+      "result": "Mở việc rà soát 5 ngày"
+    },
+    {
+      "from": "s_keepall",
+      "to": "end_keep"
+    },
+    {
+      "from": "s_task",
+      "to": "f_rev"
+    },
+    {
+      "from": "f_rev",
+      "to": "a_review",
+      "result": "Nhánh rà soát của trưởng phòng mới"
+    },
+    {
+      "from": "f_rev",
+      "to": "t_due",
+      "result": "Nhánh theo dõi hạn"
+    },
+    {
+      "from": "a_review",
+      "to": "d_choice"
+    },
+    {
+      "from": "d_choice",
+      "to": "m_done",
+      "guard": "still needed",
+      "vi": "Còn cần cho công việc ở phòng mới",
+      "result": "Giữ quyền; chi phí vào phòng mới từ ngày hiệu lực"
+    },
+    {
+      "from": "d_choice",
+      "to": "c_revoke",
+      "guard": "no longer needed",
+      "vi": "Không còn cần",
+      "result": "IT thu hồi"
+    },
+    {
+      "from": "d_choice",
+      "to": "c_req",
+      "guard": "new tool needed",
+      "vi": "Cần một công cụ khác cho công việc mới",
+      "result": "Tạo yêu cầu mới theo MF-2"
+    },
+    {
+      "from": "c_revoke",
+      "to": "m_done"
+    },
+    {
+      "from": "c_req",
+      "to": "m_done"
+    },
+    {
+      "from": "m_done",
+      "to": "d_more"
+    },
+    {
+      "from": "d_more",
+      "to": "a_review",
+      "guard": "yes",
+      "vi": "Còn công cụ chưa quyết",
+      "result": "Rà công cụ kế tiếp"
+    },
+    {
+      "from": "d_more",
+      "to": "ff_rev",
+      "guard": "no",
+      "vi": "Đã quyết hết",
+      "result": "Kết thúc nhánh rà soát"
+    },
+    {
+      "from": "t_due",
+      "to": "d_open"
+    },
+    {
+      "from": "d_open",
+      "to": "ff_t1",
+      "guard": "no",
+      "vi": "Mọi công cụ đã có quyết định trước hạn",
+      "result": "Kết thúc nhánh hạn"
+    },
+    {
+      "from": "d_open",
+      "to": "s_remind",
+      "guard": "yes",
+      "vi": "Còn công cụ chưa quyết khi hết hạn",
+      "result": "Nhắc và cảnh báo"
+    },
+    {
+      "from": "s_remind",
+      "to": "ff_t2"
+    }
+  ],
+  "doc": {
+    "level": "Main flow (cấp tổng quan) — 2/5",
+    "status": "Vẽ lại theo mô hình phòng ban (QĐ-52) và QĐ-55b, QĐ-56a, QĐ-58d; chờ Owner/GVHD review",
+    "purpose": "Mô tả việc **điều chỉnh quyền khi nhân viên chuyển phòng ban**: giữ lịch sử tổ chức, chuyển chi phí sang phòng mới đúng ngày, chuyển trách nhiệm tài khoản dùng chung, và để trưởng phòng mới quyết những công cụ nằm ngoài bộ chuẩn của phòng mới. Trả lời trực tiếp câu hỏi của hội đồng (Review 1, Phần 3): *điều chuyển xử lý thế nào*. Điểm cốt lõi: **điều chuyển không phải thu hồi** — hệ thống không tự thu hồi quyền nào.",
+    "scope": "Ghi điều chuyển có ngày hiệu lực, người chịu trách nhiệm tài khoản dùng chung, đổi kỳ tổ chức và Cost Center, xác định lại bước nhu cầu đang chờ, so với bộ công cụ chuẩn, rà soát 5 ngày làm việc có nhắc/cảnh báo, thu hồi hoặc yêu cầu công cụ mới.",
+    "excluded": "Chi tiết thu hồi theo kiểu cấp (→ WF-09a); chi tiết điều chuyển ở mức thao tác, ca trưởng phòng là người được điều chuyển và giải thể/gộp phòng (→ WF-05); chi phí chia theo ngày khi lập báo cáo kỳ (→ MF-8, WF-19).",
+    "lanes_vi": {
+      "NEWH": [
+        "Trưởng phòng của phòng mới (vai Manager suy ra)",
+        "Quyết từng công cụ ngoài bộ chuẩn"
+      ],
+      "IT": [
+        "IT Admin phụ trách phòng",
+        "Ghi điều chuyển, chỉ định người chịu trách nhiệm, thu hồi"
+      ],
+      "SYS": [
+        "SaaS-Sentry",
+        "Đổi kỳ tổ chức, định tuyến lại, so bộ chuẩn, theo dõi hạn"
+      ]
+    },
+    "trigger": "Doanh nghiệp quyết định chuyển một nhân viên sang phòng khác; IT Admin ghi nhận kèm ngày hiệu lực.",
+    "pre": "Phòng mới đã có trưởng phòng và Cost Center Unit (thiếu trưởng phòng ⟹ cảnh báo, bước nhu cầu tới approver dự phòng — FR-3.6); bộ công cụ chuẩn của phòng mới đã cấu hình (nếu chưa, mọi công cụ được coi là ngoài bộ chuẩn).",
+    "post": "Nhân viên thuộc đúng một phòng mới từ ngày hiệu lực; chi phí từ ngày đó vào Cost Center mới, quá khứ giữ nguyên; tài khoản dùng chung có người chịu trách nhiệm mới; mỗi công cụ ngoài bộ chuẩn đã được giữ, thu hồi, hoặc thay bằng yêu cầu mới — hoặc vẫn giữ nguyên khi chưa có quyết định.",
+    "reading": "Đọc từ trên xuống. Sau thanh tách, hai nhánh chạy song song: nhánh trái là trưởng phòng mới quyết từng công cụ (vòng lặp tới khi hết công cụ), nhánh phải chỉ theo dõi hạn 5 ngày làm việc. Nhánh hạn **chỉ nhắc và cảnh báo**, không có cạnh nào dẫn tới thu hồi — đúng QĐ-50b. Vì hai nhánh song song, kết cục của từng nhánh là flow final.",
+    "sources": [
+      [
+        "FR-2.2, ADR-04, INV-20",
+        "Quan hệ nhân viên–phòng có lịch sử, không ghi đè; đúng một phòng mỗi thời điểm"
+      ],
+      [
+        "FR-3.16, QĐ-28d",
+        "Chỉ xác định lại bước nhu cầu đang chờ khi phòng của người yêu cầu đổi; SLA không đặt lại"
+      ],
+      [
+        "FR-3.8, FR-8.2, QĐ-50b",
+        "Hạn rà soát 5 ngày làm việc, quá hạn chỉ nhắc/cảnh báo"
+      ],
+      [
+        "FR-3.18, QĐ-56a",
+        "Bộ công cụ chuẩn phòng × chức vụ; công cụ trong bộ chuẩn mặc định giữ"
+      ],
+      [
+        "FR-2.12, QĐ-58d",
+        "Người chịu trách nhiệm tài khoản dùng chung phải được thay trước ngày hiệu lực"
+      ],
+      [
+        "FR-5.3, QĐ-55b",
+        "Chi phí theo kỳ chia theo ngày; không viết lại chi phí đã phát sinh"
+      ],
+      [
+        "FR-2.4, FR-4.15",
+        "Thu hồi không tự ghi nhận tiết kiệm"
+      ],
+      [
+        "BM-04",
+        "Biên bản bàn giao khi điều chuyển"
+      ],
+      [
+        "BRD 5.10 dòng Điều chuyển phòng; BRD 4.6",
+        "Luồng và ma trận trách nhiệm"
+      ]
+    ],
+    "happy": [
+      "st",
+      "a_rec",
+      "d_shared",
+      "m_sh",
+      "t_eff",
+      "s_period",
+      "s_reroute",
+      "s_compare",
+      "d_out",
+      "s_task",
+      "f_rev",
+      "a_review",
+      "d_choice",
+      "m_done",
+      "d_more",
+      "ff_rev"
+    ],
+    "alternates": [
+      {
+        "title": "Mọi công cụ thuộc bộ chuẩn",
+        "path": [
+          "d_out",
+          "s_keepall",
+          "end_keep"
+        ],
+        "note": "Không mở việc rà soát."
+      },
+      {
+        "title": "Người được điều chuyển giữ tài khoản dùng chung",
+        "path": [
+          "d_shared",
+          "a_resp",
+          "m_sh"
+        ],
+        "note": "Phải xong trước ngày hiệu lực; cảnh báo trưởng phòng và IT Admin nếu chưa."
+      },
+      {
+        "title": "Không còn cần một công cụ",
+        "path": [
+          "d_choice",
+          "c_revoke",
+          "m_done"
+        ],
+        "note": "Thu hồi qua WF-09a; seat về kho, tiết kiệm chỉ ghi theo FR-4.15."
+      },
+      {
+        "title": "Cần công cụ mới",
+        "path": [
+          "d_choice",
+          "c_req",
+          "m_done"
+        ],
+        "note": "Đi MF-2 như mọi yêu cầu khác."
+      },
+      {
+        "title": "Lặp qua từng công cụ",
+        "path": [
+          "d_more",
+          "a_review"
+        ],
+        "note": "Mỗi công cụ ngoài bộ chuẩn một quyết định."
+      }
+    ],
+    "unhappy": [
+      {
+        "title": "Quá hạn 5 ngày làm việc",
+        "path": [
+          "t_due",
+          "d_open",
+          "s_remind",
+          "ff_t2"
+        ],
+        "note": "Chỉ nhắc trưởng phòng mới và cảnh báo IT Admin; quyền giữ nguyên; nhánh rà soát vẫn mở cho tới khi trưởng phòng quyết."
+      }
+    ],
+    "relations": [
+      "Cấp trên: Context (G08, G12, G17), FDD Feature 6.1, 6.3, 1.5",
+      "`WF-05` — chi tiết điều chuyển, ca trưởng phòng được điều chuyển, phòng giải thể/gộp",
+      "`MF-8` / `WF-19` — chi phí theo kỳ chia theo ngày khi lập báo cáo",
+      "User flow: `UF-18`"
+    ],
+    "open": [
+      "(ĐÃ CHỐT · DOI-43, QĐ-62p) Đổi chức vụ trong cùng phòng không mở rà soát; bộ chuẩn mới áp cho yêu cầu mới.",
+      "(DEFERRED/OUT · DOI-05) Module tổ chức ở BE vẫn dựa trên `manager_id` (`QĐ-51`) — thiết kế chuyển đổi sau ERD (QĐ-59e)."
+    ]
+  }
+}

@@ -1,0 +1,555 @@
+{
+  "id": "WF-13a",
+  "kind": "activity",
+  "version": "3.1",
+  "date": "09/10/2026",
+  "title": "WF-13a · Exclusion Gates Before Waste Assessment",
+  "out": "workflows-activity-diagram/WF-13a-exclusion-gates-before-waste-assessment",
+  "lanes": [
+    {
+      "id": "SYS",
+      "label": "SaaS-Sentry",
+      "slots": 4
+    }
+  ],
+  "nodes": [
+    {
+      "id": "st",
+      "type": "start",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 0
+    },
+    {
+      "id": "g1",
+      "type": "decision",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 1,
+      "label": "1. Per-Seat Pricing Plan?",
+      "vi": "Cổng 1: gói tính theo seat không. Gói flat-rate hoặc theo mức tiêu thụ không có khái niệm ghost seat. Cổng này áp cho cả G1/G2/G3/G4.",
+      "rules": [
+        "FR-4.9",
+        "OI-12a",
+        "KPI-3"
+      ]
+    },
+    {
+      "id": "d_grp",
+      "type": "decision",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 2,
+      "label": "G3 or G4 Assessment?",
+      "vi": "Nhóm cần đánh giá là G3/G4 (cần bằng chứng sử dụng) hay G1/G2 (chỉ dùng dữ liệu nội bộ). G1/G2 chỉ áp cổng 1 và cổng 8; các cổng 2–7 là điều kiện về bằng chứng sử dụng và người dùng, chỉ áp cho G3/G4.",
+      "rules": [
+        "FR-4.9",
+        "OI-12a"
+      ]
+    },
+    {
+      "id": "g2",
+      "type": "decision",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 3,
+      "label": "2. Service Account?",
+      "vi": "Cổng 2: tài khoản dịch vụ (bot, CI, integration) không bao giờ đăng nhập theo cách thông thường nên loại khỏi đánh giá.",
+      "rules": [
+        "FR-4.9"
+      ]
+    },
+    {
+      "id": "g3",
+      "type": "decision",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 4,
+      "label": "3. Leave, Handover or Department Head?",
+      "vi": "Cổng 3: nhân viên đang nghỉ phép dài hoặc đang bàn giao thì loại để tránh báo động giả. Mở rộng 11/10/2026: seat của người **đang là trưởng phòng** cũng bị loại khỏi G3/G4 — trưởng phòng ít dùng là bình thường (`QĐ-66s`).",
+      "rules": [
+        "FR-4.9",
+        "TC-2"
+      ]
+    },
+    {
+      "id": "g4",
+      "type": "decision",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 5,
+      "label": "4. Within 14-Day Grace Period?",
+      "vi": "Cổng 4: Assignment mới tạo dưới ngưỡng ân hạn (mặc định 14 ngày, cấu hình được) thì vừa cấp seat, chưa kịp dùng.",
+      "rules": [
+        "FR-4.9",
+        "TC-2"
+      ]
+    },
+    {
+      "id": "g5",
+      "type": "decision",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 6,
+      "label": "5. Enough Coverage Since Assignment Start?",
+      "vi": "Cổng 5 đọc theo OI-12b: chỉ dùng các ngày bao phủ từ ngày bắt đầu Assignment; đủ ngưỡng của tầng thì được đánh giá, thiếu thì loại kèm lý do cổng 5 (không đủ dữ liệu để kết luận).",
+      "rules": [
+        "FR-4.9",
+        "OI-12b",
+        "FR-4.12"
+      ]
+    },
+    {
+      "id": "g6",
+      "type": "decision",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 7,
+      "label": "6. Source Data Older Than 7 Days?",
+      "vi": "Cổng 6: dữ liệu nguồn quá 7 ngày kể từ ngày bao phủ cuối thì không chạy rule, thay vào đó hiển thị cảnh báo dữ liệu lỗi thời. Không bao giờ âm thầm chạy với dữ liệu cũ.",
+      "rules": [
+        "FR-4.9",
+        "TC-4"
+      ]
+    },
+    {
+      "id": "s_warn",
+      "type": "action",
+      "lane": "SYS",
+      "slot": 2,
+      "row": 7,
+      "label": "Raise Stale-Data Warning for the App",
+      "vi": "Cảnh báo chất lượng dữ liệu cho ứng dụng (dữ liệu lỗi thời) để IT import dữ liệu mới; thay cho việc chạy rule. Seat này không có khuyến nghị.",
+      "rules": [
+        "FR-4.9",
+        "TC-4"
+      ]
+    },
+    {
+      "id": "g7",
+      "type": "decision",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 8,
+      "label": "7. Active Exemption?",
+      "vi": "Cổng 7: seat đang trong thời hạn miễn trừ do Department Head xác nhận thì tôn trọng quyết định đã có; hết hạn miễn trừ seat quay lại hàng đợi.",
+      "rules": [
+        "FR-4.9",
+        "FR-3.10",
+        "INV-09"
+      ]
+    },
+    {
+      "id": "m_pre",
+      "type": "merge",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 9
+    },
+    {
+      "id": "g8",
+      "type": "decision",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 10,
+      "label": "8. Open Recommendation Exists?",
+      "vi": "Cổng 8: Assignment (hoặc thuê bao với G1) đã có khuyến nghị đang mở thì không sinh trùng.",
+      "rules": [
+        "FR-4.9",
+        "OI-12a"
+      ]
+    },
+    {
+      "id": "end_ok",
+      "type": "end",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 11,
+      "vi": "Qua mọi cổng áp dụng: seat đủ điều kiện được đánh giá."
+    },
+    {
+      "id": "m_a",
+      "type": "merge",
+      "lane": "SYS",
+      "slot": 3,
+      "row": 3
+    },
+    {
+      "id": "m_b",
+      "type": "merge",
+      "lane": "SYS",
+      "slot": 3,
+      "row": 4
+    },
+    {
+      "id": "m_c",
+      "type": "merge",
+      "lane": "SYS",
+      "slot": 3,
+      "row": 5
+    },
+    {
+      "id": "m_d",
+      "type": "merge",
+      "lane": "SYS",
+      "slot": 3,
+      "row": 6
+    },
+    {
+      "id": "m_e",
+      "type": "merge",
+      "lane": "SYS",
+      "slot": 3,
+      "row": 7
+    },
+    {
+      "id": "m_f",
+      "type": "merge",
+      "lane": "SYS",
+      "slot": 3,
+      "row": 8
+    },
+    {
+      "id": "m_g",
+      "type": "merge",
+      "lane": "SYS",
+      "slot": 3,
+      "row": 10
+    },
+    {
+      "id": "s_reason",
+      "type": "action",
+      "lane": "SYS",
+      "slot": 3,
+      "row": 11,
+      "label": "Record Skip Reason; No Recommendation",
+      "vi": "Trượt cổng thì không sinh khuyến nghị và không yếu tố nào bù được; ghi lý do cổng nào để truy vết và để chứng minh không báo động giả. Không bao giờ âm thầm bỏ.",
+      "rules": [
+        "QĐ-35b",
+        "FR-4.14",
+        "TC-2",
+        "TC-4"
+      ]
+    },
+    {
+      "id": "end_skip",
+      "type": "end",
+      "lane": "SYS",
+      "slot": 3,
+      "row": 12,
+      "vi": "Seat bị loại khỏi đánh giá, đã ghi lý do; không có khuyến nghị."
+    }
+  ],
+  "edges": [
+    {
+      "from": "st",
+      "to": "g1"
+    },
+    {
+      "from": "g1",
+      "to": "d_grp",
+      "guard": "yes",
+      "vi": "Gói theo seat",
+      "result": "Đi tiếp"
+    },
+    {
+      "from": "g1",
+      "to": "m_a",
+      "guard": "no",
+      "vi": "Gói không theo seat: không có ghost seat",
+      "result": "Loại, ghi lý do"
+    },
+    {
+      "from": "d_grp",
+      "to": "g2",
+      "guard": "G3/G4",
+      "vi": "Cần bằng chứng sử dụng",
+      "result": "Áp các cổng 2–7"
+    },
+    {
+      "from": "d_grp",
+      "to": "m_pre",
+      "guard": "G1/G2",
+      "vi": "Chỉ dùng dữ liệu nội bộ",
+      "result": "Chỉ áp cổng 8",
+      "sides": [
+        "L",
+        "L"
+      ]
+    },
+    {
+      "from": "g2",
+      "to": "g3",
+      "guard": "no",
+      "vi": "Không phải tài khoản dịch vụ",
+      "result": "Đi tiếp"
+    },
+    {
+      "from": "g2",
+      "to": "m_a",
+      "guard": "yes",
+      "vi": "Tài khoản dịch vụ",
+      "result": "Loại, ghi lý do"
+    },
+    {
+      "from": "m_a",
+      "to": "m_b"
+    },
+    {
+      "from": "g3",
+      "to": "g4",
+      "guard": "no",
+      "vi": "Không nghỉ dài, không bàn giao",
+      "result": "Đi tiếp"
+    },
+    {
+      "from": "g3",
+      "to": "m_b",
+      "guard": "yes",
+      "vi": "Đang nghỉ dài hoặc bàn giao",
+      "result": "Loại, ghi lý do"
+    },
+    {
+      "from": "m_b",
+      "to": "m_c"
+    },
+    {
+      "from": "g4",
+      "to": "g5",
+      "guard": "no",
+      "vi": "Đã qua ân hạn",
+      "result": "Đi tiếp"
+    },
+    {
+      "from": "g4",
+      "to": "m_c",
+      "guard": "yes",
+      "vi": "Còn trong ân hạn",
+      "result": "Loại, ghi lý do"
+    },
+    {
+      "from": "m_c",
+      "to": "m_d"
+    },
+    {
+      "from": "g5",
+      "to": "g6",
+      "guard": "yes",
+      "vi": "Đủ ngày bao phủ từ ngày bắt đầu Assignment",
+      "result": "Đi tiếp"
+    },
+    {
+      "from": "g5",
+      "to": "m_d",
+      "guard": "no",
+      "vi": "Thiếu ngày bao phủ kể từ ngày bắt đầu Assignment",
+      "result": "Loại, ghi lý do cổng 5"
+    },
+    {
+      "from": "m_d",
+      "to": "m_e"
+    },
+    {
+      "from": "g6",
+      "to": "g7",
+      "guard": "no",
+      "vi": "Dữ liệu còn mới",
+      "result": "Đi tiếp"
+    },
+    {
+      "from": "g6",
+      "to": "s_warn",
+      "guard": "yes",
+      "vi": "Quá 7 ngày kể từ ngày bao phủ cuối",
+      "result": "Cảnh báo dữ liệu lỗi thời"
+    },
+    {
+      "from": "s_warn",
+      "to": "m_e"
+    },
+    {
+      "from": "m_e",
+      "to": "m_f"
+    },
+    {
+      "from": "g7",
+      "to": "m_pre",
+      "guard": "no",
+      "vi": "Không có miễn trừ hiệu lực",
+      "result": "Đi tiếp"
+    },
+    {
+      "from": "g7",
+      "to": "m_f",
+      "guard": "yes",
+      "vi": "Đang trong thời hạn miễn trừ",
+      "result": "Loại, ghi lý do"
+    },
+    {
+      "from": "m_f",
+      "to": "m_g"
+    },
+    {
+      "from": "m_pre",
+      "to": "g8"
+    },
+    {
+      "from": "g8",
+      "to": "end_ok",
+      "guard": "no",
+      "vi": "Chưa có khuyến nghị mở",
+      "result": "Đủ điều kiện đánh giá"
+    },
+    {
+      "from": "g8",
+      "to": "m_g",
+      "guard": "yes",
+      "vi": "Đã có khuyến nghị đang mở",
+      "result": "Loại, ghi lý do"
+    },
+    {
+      "from": "m_g",
+      "to": "s_reason"
+    },
+    {
+      "from": "s_reason",
+      "to": "end_skip"
+    }
+  ],
+  "doc": {
+    "level": "Workflow con (cấp chi tiết) — nhóm SF-4",
+    "status": "Vẽ lại theo FR-4.9 hiện hành, OI-12a (G1/G2 chỉ cổng 1 và 8) và OI-12b (cổng 5 đọc theo ngày bao phủ từ ngày bắt đầu Assignment); chờ Owner/GVHD review",
+    "purpose": "**Chứng minh hệ thống không báo động giả.** Tám cổng chạy trước mọi đánh giá: trượt một cổng thì không có khuyến nghị (kèm lý do), không yếu tố nào bù được; dữ liệu quá cũ thì không chạy rule mà hiển thị cảnh báo. Đây là cơ sở của tiêu chí TC-2 (báo động giả bằng 0) và TC-4.",
+    "scope": "Tám cổng theo thứ tự cho một seat (hoặc thuê bao với G1): gói theo seat, tài khoản dịch vụ, nghỉ dài hoặc bàn giao, ân hạn 14 ngày, đủ bao phủ từ ngày bắt đầu Assignment, dữ liệu quá 7 ngày, miễn trừ đang hiệu lực, khuyến nghị đang mở; ghi lý do khi loại.",
+    "excluded": "Ba trạng thái *không có ngày hoạt động*, tầng, mức tin cậy và bằng chứng có điều kiện (→ WF-13); khớp danh tính (→ WF-12a); ngưỡng cấu hình theo ứng dụng (FR-4.13).",
+    "lanes_vi": {
+      "SYS": [
+        "SaaS-Sentry",
+        "Toàn bộ là tác vụ nền: đánh giá tám cổng và ghi lý do loại"
+      ]
+    },
+    "trigger": "Được gọi từ WF-13 cho từng seat (hoặc thuê bao với G1) khi chạy rule theo lịch.",
+    "pre": "Một seat đã được đưa vào danh sách cần đánh giá, cùng nhóm lãng phí dự kiến (G1–G4).",
+    "post": "Seat đủ điều kiện được đánh giá; hoặc bị loại kèm lý do và không có khuyến nghị; với dữ liệu quá cũ thì có cảnh báo dữ liệu lỗi thời thay cho việc chạy rule.",
+    "reading": "Đọc từ trên xuống. Cổng 1 áp cho mọi nhóm; sau đó G1/G2 nhảy thẳng tới cổng 8 còn G3/G4 đi hết cổng 2–7. Mọi lối *loại* đi sang cột bên phải (một đường gom): đường gom ghi lý do rồi kết thúc, và riêng cổng 6 phát cảnh báo dữ liệu lỗi thời trước khi vào đường gom. Chỉ lối ra ở đáy cột chính (cổng 8 trả lời *không*) mới là đủ điều kiện.",
+    "sources": [
+      [
+        "FR-4.9",
+        "Tám điều kiện loại trừ trước khi đánh giá"
+      ],
+      [
+        "OI-12a",
+        "G1/G2 chỉ áp cổng 1 và 8"
+      ],
+      [
+        "OI-12b",
+        "Cổng 5: chỉ dùng ngày bao phủ từ ngày bắt đầu Assignment"
+      ],
+      [
+        "FR-4.14, QĐ-35b",
+        "Cổng trượt thì không có khuyến nghị; không yếu tố nào bù"
+      ],
+      [
+        "FR-3.10, INV-09",
+        "Miễn trừ có hạn, hết hạn quay lại hàng đợi"
+      ],
+      [
+        "TC-2, TC-4",
+        "Không báo động giả; không sinh khuyến nghị khi dữ liệu quá hạn hoặc chưa khớp"
+      ]
+    ],
+    "happy": [
+      "st",
+      "g1",
+      "d_grp",
+      "g2",
+      "g3",
+      "g4",
+      "g5",
+      "g6",
+      "g7",
+      "m_pre",
+      "g8",
+      "end_ok"
+    ],
+    "alternates": [
+      {
+        "title": "G1 hoặc G2: chỉ cổng 1 và 8",
+        "path": [
+          "g1",
+          "d_grp",
+          "m_pre",
+          "g8",
+          "end_ok"
+        ],
+        "note": "Không áp cổng 2–7 vì đó là điều kiện về bằng chứng sử dụng và người dùng."
+      }
+    ],
+    "unhappy": [
+      {
+        "title": "Gói không theo seat",
+        "path": [
+          "g1",
+          "m_a",
+          "m_b",
+          "m_c",
+          "m_d",
+          "m_e",
+          "m_f",
+          "m_g",
+          "s_reason",
+          "end_skip"
+        ],
+        "note": "Không có ghost seat; ghi lý do."
+      },
+      {
+        "title": "Còn trong ân hạn",
+        "path": [
+          "g4",
+          "m_c",
+          "m_d",
+          "m_e",
+          "m_f",
+          "m_g",
+          "s_reason",
+          "end_skip"
+        ],
+        "note": "Cấp seat chưa lâu; ghi lý do."
+      },
+      {
+        "title": "Dữ liệu quá 7 ngày",
+        "path": [
+          "g6",
+          "s_warn",
+          "m_e",
+          "m_f",
+          "m_g",
+          "s_reason",
+          "end_skip"
+        ],
+        "note": "Cảnh báo dữ liệu lỗi thời thay cho việc chạy rule."
+      },
+      {
+        "title": "Đã có khuyến nghị mở",
+        "path": [
+          "g8",
+          "m_g",
+          "s_reason",
+          "end_skip"
+        ],
+        "note": "Không sinh trùng."
+      }
+    ],
+    "relations": [
+      "Cấp trên: nhóm SF-4; Context (rule engine), FDD Feature 4",
+      "`WF-13` — gọi workflow này cho từng seat",
+      "`WF-12a` — ba trạng thái *không có dữ liệu / chưa khớp* nằm ở WF-13, không phải cổng ở đây",
+      "User flow: `UF-10`"
+    ],
+    "open": [
+      "(ĐÃ CÓ NGUỒN · DOI-70, QĐ-52a) Cổng 7 *miễn trừ do Manager xác nhận*: Manager là trưởng phòng có hiệu lực — sơ đồ dùng Department Head.",
+      "(ĐÃ CÓ NGUỒN · DOI-71) Cảnh báo dữ liệu lỗi thời (cổng 6) hiện trong báo cáo chất lượng dữ liệu cho IT Admin và Super Admin (FR-5.12, FR-4.9).",
+      "(LATER-TECH/UI · DOI-72, OI-12a) Với G1 (đối tượng là thuê bao) cổng 1 và cổng 8 được hiểu theo thuê bao — khóa của rule engine chốt ở thiết kế BE."
+    ]
+  }
+}

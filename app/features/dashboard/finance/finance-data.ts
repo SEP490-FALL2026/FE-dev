@@ -1,291 +1,584 @@
-export interface BudgetInquiry {
-  id: string
-  requestCode: string
-  saasName: string
-  requesterName: string
-  amount: number
-  costCenter: string
-  askedAt: string
-  status: 'PENDING' | 'RESPONDED'
-  financeResponse?: 'WITHIN_LIMIT' | 'EXCEEDS_LIMIT' | 'NO_BUDGET'
-  financeNote?: string
-}
+import type { BudgetSnapshot, CostEstimate } from '../budget-figures'
 
-export const MOCK_BUDGET_INQUIRIES: BudgetInquiry[] = [
-  {
-    id: 'inq-01',
-    requestCode: 'REQ-2026-089',
-    saasName: 'Figma Enterprise (15 seats)',
-    requesterName: 'Trần Vũ Bảo',
-    amount: 13500000,
-    costCenter: 'CC-DESIGN-01',
-    askedAt: '2026-09-28T15:10:00Z',
-    status: 'PENDING'
-  },
-  {
-    id: 'inq-02',
-    requestCode: 'REQ-2026-078',
-    saasName: 'Cursor AI Pro (10 seats)',
-    requesterName: 'Phạm Hoàng Nam',
-    amount: 8200000,
-    costCenter: 'CC-EXEC-01',
-    askedAt: '2026-09-25T12:00:00Z',
-    status: 'RESPONDED',
-    financeResponse: 'WITHIN_LIMIT',
-    financeNote: 'Ngân sách Q3 còn đủ chi trả. Không chặn quy trình duyệt chi.'
-  }
-]
+/*
+ * Demo data for the Finance screens (UF-11, UF-12, UF-19). Every amount is VND borne cost
+ * (price + non-deductible tax); deductible VAT is kept apart (FR-5.13, QĐ-60a).
+ * Budget work runs on the current period; period close runs on the period that just ended.
+ */
 
-export interface CommitmentRecord {
-  id: string
-  commitmentCode: string
-  requestRefCode: string
-  saasName: string
-  costCenter: string
-  amount: number
-  createdAt: string
-  status: 'HELD' | 'RECONCILED' | 'RELEASED'
-}
+export const financeDataAsOf = '2026-10-12T08:30:00+07:00'
 
-export const MOCK_COMMITMENTS: CommitmentRecord[] = [
-  {
-    id: 'cmt-01',
-    commitmentCode: 'CMT-2026-044',
-    requestRefCode: 'REQ-2026-089',
-    saasName: 'Figma Enterprise (15 seats)',
-    costCenter: 'CC-DESIGN-01',
-    amount: 13500000,
-    createdAt: '2026-09-28T16:00:00Z',
-    status: 'HELD'
-  },
-  {
-    id: 'cmt-02',
-    commitmentCode: 'CMT-2026-039',
-    requestRefCode: 'REQ-2026-065',
-    saasName: 'Jira Service Management',
-    costCenter: 'CC-OPS-03',
-    amount: 24000000,
-    createdAt: '2026-09-20T10:30:00Z',
-    status: 'RECONCILED'
-  },
-  {
-    id: 'cmt-03',
-    commitmentCode: 'CMT-2026-028',
-    requestRefCode: 'REQ-2026-041',
-    saasName: 'Miro Team Plan',
-    costCenter: 'CC-PRODUCT-02',
-    amount: 7500000,
-    createdAt: '2026-09-12T14:15:00Z',
-    status: 'RELEASED'
-  }
-]
+/** One period type for the whole organization, set once by Super Admin (FR-5.1, OI-11b). */
+export const budgetPeriodType = 'QUARTER' as const
+export const currentPeriod = 'Q4-2026'
+export const closingPeriod = 'Q3-2026'
 
-export interface RenewalScheduleItem {
-  id: string
-  subscriptionName: string
-  vendor: string
-  seats: number
-  cancellationDeadline: string
-  renewalDate: string
-  annualCost: number
-  unassignedSeats: number
-  inactiveUsers: number
-  potentialSavings: number
-  status: 'PENDING_DECISION' | 'DECIDED_RENEW' | 'DECIDED_DOWNSIZE' | 'AUTO_RENEWED_INCIDENT'
-}
+// ---------------------------------------------------------------- Cost Centers (FIN-22)
 
-export const MOCK_RENEWAL_ITEMS: RenewalScheduleItem[] = [
-  {
-    id: 'sub-01',
-    subscriptionName: 'GitHub Enterprise & Copilot Business',
-    vendor: 'GitHub / Microsoft',
-    seats: 50,
-    cancellationDeadline: '2026-10-05',
-    renewalDate: '2026-11-05',
-    annualCost: 45000000,
-    unassignedSeats: 10,
-    inactiveUsers: 5,
-    potentialSavings: 13500000,
-    status: 'PENDING_DECISION'
-  },
-  {
-    id: 'sub-02',
-    subscriptionName: 'Slack Enterprise Grid',
-    vendor: 'Salesforce',
-    seats: 120,
-    cancellationDeadline: '2026-10-15',
-    renewalDate: '2026-11-15',
-    annualCost: 96000000,
-    unassignedSeats: 15,
-    inactiveUsers: 12,
-    potentialSavings: 21600000,
-    status: 'PENDING_DECISION'
-  },
-  {
-    id: 'sub-03',
-    subscriptionName: 'Jira Software Enterprise',
-    vendor: 'Atlassian',
-    seats: 80,
-    cancellationDeadline: '2026-09-20',
-    renewalDate: '2026-10-20',
-    annualCost: 64000000,
-    unassignedSeats: 8,
-    inactiveUsers: 4,
-    potentialSavings: 9600000,
-    status: 'AUTO_RENEWED_INCIDENT'
-  }
-]
-
-export interface ShadowItTransaction {
-  id: string
-  serviceName: string
-  vendor: string
-  spenderName: string
-  spenderRole: string
-  cardLast4: string
-  amount: number
-  date: string
-  status: 'FLAGGED' | 'INQUIRED' | 'LEGALIZED' | 'REJECTED'
-}
-
-export const MOCK_SHADOW_IT_TRANSACTIONS: ShadowItTransaction[] = [
-  {
-    id: 'sit-01',
-    serviceName: 'OpenAI ChatGPT Plus',
-    vendor: 'OpenAI LLC',
-    spenderName: 'Lê Hoàng Anh',
-    spenderRole: 'Senior AI Engineer',
-    cardLast4: '8812',
-    amount: 520000,
-    date: '2026-09-27',
-    status: 'FLAGGED'
-  },
-  {
-    id: 'sit-02',
-    serviceName: 'Canva Pro Annual',
-    vendor: 'Canva Pty Ltd',
-    spenderName: 'Nguyễn Thị Mai',
-    spenderRole: 'Marketing Specialist',
-    cardLast4: '3341',
-    amount: 2400000,
-    date: '2026-09-24',
-    status: 'INQUIRED'
-  },
-  {
-    id: 'sit-03',
-    serviceName: 'Vercel Pro Team Plan',
-    vendor: 'Vercel Inc.',
-    spenderName: 'Đỗ Văn Thành',
-    spenderRole: 'Frontend Tech Lead',
-    cardLast4: '9012',
-    amount: 1450000,
-    date: '2026-09-18',
-    status: 'LEGALIZED'
-  }
-]
-
-export interface SoftwareExpenseItem {
-  id: string
+export interface CostCenter {
+  code: string
+  department?: string
+  kind: 'COMPANY' | 'UNIT'
   name: string
-  vendor: string
-  logo: string
-  pricingModel: string
-  totalSeats: number
-  assignedSeats: number
-  annualCost: number
+  replacedBy?: string
+  status: 'ACTIVE' | 'RETIRED'
+}
+
+export const costCenters: CostCenter[] = [
+  { code: 'CC-ENG', department: 'Phòng Kỹ thuật', kind: 'UNIT', name: 'Kỹ thuật', status: 'ACTIVE' },
+  { code: 'CC-DES', department: 'Phòng Thiết kế', kind: 'UNIT', name: 'Thiết kế', status: 'ACTIVE' },
+  { code: 'CC-OPS', department: 'Phòng Vận hành', kind: 'UNIT', name: 'Vận hành', status: 'ACTIVE' },
+  { code: 'CC-MKT', department: 'Phòng Marketing', kind: 'UNIT', name: 'Marketing', status: 'ACTIVE' },
+  { code: 'CC-SAL', department: 'Phòng Kinh doanh', kind: 'UNIT', name: 'Kinh doanh', status: 'ACTIVE' },
+  { code: 'CC-COMPANY', kind: 'COMPANY', name: 'Toàn công ty', status: 'ACTIVE' },
+  {
+    code: 'CC-PRD',
+    department: 'Phòng Sản phẩm (đã gộp)',
+    kind: 'UNIT',
+    name: 'Sản phẩm',
+    replacedBy: 'CC-DES',
+    status: 'RETIRED'
+  }
+]
+
+// ---------------------------------------------------------------- Budget vs actual of the current period
+
+export const currentBudgetLines: BudgetSnapshot[] = [
+  {
+    actual: 96_000_000,
+    asOf: financeDataAsOf,
+    budget: 250_000_000,
+    costCenter: 'CC-ENG',
+    deductibleVat: 7_400_000,
+    held: 38_500_000,
+    pending: 0,
+    period: currentPeriod
+  },
+  {
+    actual: 41_000_000,
+    asOf: financeDataAsOf,
+    budget: 120_000_000,
+    costCenter: 'CC-DES',
+    deductibleVat: 3_100_000,
+    held: 13_200_000,
+    pending: 14_175_000,
+    period: currentPeriod
+  },
+  {
+    actual: 48_000_000,
+    asOf: financeDataAsOf,
+    budget: 80_000_000,
+    costCenter: 'CC-OPS',
+    deductibleVat: 3_900_000,
+    held: 18_000_000,
+    pending: 6_615_000,
+    period: currentPeriod
+  },
+  {
+    actual: 6_200_000,
+    asOf: financeDataAsOf,
+    budget: null,
+    costCenter: 'CC-MKT',
+    deductibleVat: 600_000,
+    held: 24_000_000,
+    pending: 4_200_000,
+    period: currentPeriod
+  },
+  {
+    actual: 0,
+    asOf: financeDataAsOf,
+    budget: null,
+    costCenter: 'CC-SAL',
+    deductibleVat: 0,
+    held: 0,
+    pending: 0,
+    period: currentPeriod
+  },
+  {
+    actual: 22_000_000,
+    asOf: financeDataAsOf,
+    budget: 60_000_000,
+    costCenter: 'CC-COMPANY',
+    deductibleVat: 1_800_000,
+    held: 0,
+    pending: 0,
+    period: currentPeriod
+  }
+]
+
+export function findBudgetLine(costCenter: string) {
+  return currentBudgetLines.find((line) => line.costCenter === costCenter)
+}
+
+// ---------------------------------------------------------------- Budget questions (FIN-05)
+
+export type BudgetOpinion = 'NO_BUDGET' | 'OVER' | 'WITHIN'
+
+export interface BudgetQuestion {
+  answer?: { note: string; opinion: BudgetOpinion; answeredAt: string }
+  askedAt: string
+  askedBy: string
   costCenter: string
-  paymentMethod: 'INVOICE' | 'CARD'
-  cardLast4?: string
-  status: 'ACTIVE' | 'PENDING_RENEWAL'
+  estimate: CostEstimate
+  id: string
+  question: string
+  requestCode: string
+  requester: string
+  /** SoD-8: the Finance user is the (substitute) Spending Approver of this request and must not answer. */
+  responderIsApprover?: boolean
+  software: string
+  status: 'ANSWERED' | 'CLOSED_CANCELLED' | 'OPEN'
 }
 
-export const MOCK_SOFTWARE_DIRECTORY: SoftwareExpenseItem[] = [
+export const budgetQuestions: BudgetQuestion[] = [
   {
-    id: 'soft-01',
-    name: 'Figma Enterprise',
-    vendor: 'Figma Inc.',
-    logo: '🎨',
-    pricingModel: 'Per Seat / Month',
-    totalSeats: 35,
-    assignedSeats: 25,
-    annualCost: 31500000,
-    costCenter: 'CC-DESIGN-01',
-    paymentMethod: 'INVOICE',
-    status: 'ACTIVE'
+    askedAt: '2026-10-12T09:10:00+07:00',
+    askedBy: 'Phạm Hoàng Nam',
+    costCenter: 'CC-DES',
+    estimate: { deductibleVat: 1_350_000, nonDeductibleTax: 675_000, preTax: 13_500_000 },
+    id: 'bq-01',
+    question: 'Phòng Thiết kế còn đủ ngân sách Q4 để mua thêm 15 seat Figma không?',
+    requestCode: 'REQ-2026-089',
+    requester: 'Trần Vũ Bảo',
+    software: 'Figma Organization · 15 seat',
+    status: 'OPEN'
   },
   {
-    id: 'soft-02',
-    name: 'GitHub Copilot Business',
-    vendor: 'GitHub / Microsoft',
-    logo: '🐙',
-    pricingModel: 'Per Seat / Month',
-    totalSeats: 50,
-    assignedSeats: 40,
-    annualCost: 45000000,
-    costCenter: 'CC-ENG-02',
-    paymentMethod: 'INVOICE',
-    status: 'PENDING_RENEWAL'
+    askedAt: '2026-10-11T16:40:00+07:00',
+    askedBy: 'Phạm Hoàng Nam',
+    costCenter: 'CC-MKT',
+    estimate: { deductibleVat: 400_000, nonDeductibleTax: 200_000, preTax: 4_000_000 },
+    id: 'bq-02',
+    question: 'Marketing chưa có ngân sách Q4 — Finance có dự kiến lập trong tuần này không?',
+    requestCode: 'REQ-2026-101',
+    requester: 'Lý Thu Trang',
+    software: 'HubSpot Marketing Starter',
+    status: 'OPEN'
   },
   {
-    id: 'soft-03',
-    name: 'Notion AI Workspace',
-    vendor: 'Notion Labs',
-    logo: '📝',
-    pricingModel: 'Per Seat / Month',
-    totalSeats: 40,
-    assignedSeats: 35,
-    annualCost: 28800000,
-    costCenter: 'CC-OPS-03',
-    paymentMethod: 'CARD',
+    askedAt: '2026-10-09T11:00:00+07:00',
+    askedBy: 'Phạm Hoàng Nam',
+    costCenter: 'CC-ENG',
+    estimate: { deductibleVat: 820_000, nonDeductibleTax: 410_000, preTax: 8_200_000 },
+    id: 'bq-03',
+    question: 'Kiểm tra giúp ngân sách Kỹ thuật cho 10 seat Cursor Pro.',
+    requestCode: 'REQ-2026-078',
+    requester: 'Lê Hoàng Anh',
+    answer: {
+      answeredAt: '2026-10-09T14:20:00+07:00',
+      note: 'Còn khoảng 115 triệu sau khi trừ cam kết đang giữ. Ý kiến tham khảo, không chặn.',
+      opinion: 'WITHIN'
+    },
+    software: 'Cursor Pro · 10 seat',
+    status: 'ANSWERED'
+  },
+  {
+    askedAt: '2026-10-10T10:05:00+07:00',
+    askedBy: 'Nguyễn Minh Khôi (Người duyệt chi thay thế)',
+    costCenter: 'CC-COMPANY',
+    estimate: { deductibleVat: 2_880_000, nonDeductibleTax: 1_440_000, preTax: 28_800_000 },
+    id: 'bq-04',
+    question: 'Ngân sách Toàn công ty cho gói Notion AI 40 seat?',
+    requestCode: 'REQ-2026-097',
+    requester: 'Phạm Hoàng Nam',
+    responderIsApprover: true,
+    software: 'Notion AI Business · 40 seat',
+    status: 'OPEN'
+  },
+  {
+    askedAt: '2026-10-05T08:30:00+07:00',
+    askedBy: 'Phạm Hoàng Nam',
+    costCenter: 'CC-OPS',
+    estimate: { deductibleVat: 750_000, nonDeductibleTax: 375_000, preTax: 7_500_000 },
+    id: 'bq-05',
+    question: 'Ngân sách Vận hành cho Miro Team?',
+    requestCode: 'REQ-2026-084',
+    requester: 'Đặng Thanh Hà',
+    software: 'Miro Team',
+    status: 'CLOSED_CANCELLED'
+  }
+]
+
+// ---------------------------------------------------------------- Commitments awaiting recording (FIN-20/21)
+
+export interface CommitmentToRecord {
+  approvedAt: string
+  approvedBy: string
+  budgetAttached: boolean
+  code: string
+  costCenter: string
+  estimate: CostEstimate
+  id: string
+  recordingDueAt: string
+  requestCode: string
+  software: string
+}
+
+export const commitmentsToRecord: CommitmentToRecord[] = [
+  {
+    approvedAt: '2026-10-10T15:00:00+07:00',
+    approvedBy: 'Phạm Hoàng Nam',
+    budgetAttached: true,
+    code: 'CMT-2026-051',
+    costCenter: 'CC-ENG',
+    estimate: { deductibleVat: 820_000, nonDeductibleTax: 410_000, preTax: 8_200_000 },
+    id: 'cmt-51',
+    recordingDueAt: '2026-10-14T15:00:00+07:00',
+    requestCode: 'REQ-2026-078',
+    software: 'Cursor Pro · 10 seat'
+  },
+  {
+    approvedAt: '2026-10-08T10:20:00+07:00',
+    approvedBy: 'Phạm Hoàng Nam',
+    budgetAttached: false,
+    code: 'CMT-2026-049',
+    costCenter: 'CC-MKT',
+    estimate: { deductibleVat: 1_400_000, nonDeductibleTax: 700_000, preTax: 14_000_000 },
+    id: 'cmt-49',
+    recordingDueAt: '2026-10-12T10:20:00+07:00',
+    requestCode: 'REQ-2026-090',
+    software: 'Adobe Creative Cloud · 3 seat'
+  },
+  {
+    approvedAt: '2026-10-09T09:45:00+07:00',
+    approvedBy: 'Phạm Hoàng Nam',
+    budgetAttached: false,
+    code: 'CMT-2026-050',
+    costCenter: 'CC-MKT',
+    estimate: { deductibleVat: 885_714, nonDeductibleTax: 442_857, preTax: 8_857_143 },
+    id: 'cmt-50',
+    recordingDueAt: '2026-10-13T09:45:00+07:00',
+    requestCode: 'REQ-2026-093',
+    software: 'Semrush Guru'
+  }
+]
+
+// ---------------------------------------------------------------- Statement import (FIN-04)
+
+export const importTemplates = [
+  { id: 'standard', label: 'Mẫu chuẩn SaaS-Sentry (CSV)' },
+  { id: 'vcb', label: 'Vietcombank — thẻ doanh nghiệp (CSV)' },
+  { id: 'tcb', label: 'Techcombank — sao kê tài khoản (CSV)' }
+] as const
+
+export interface ImportPreviewRow {
+  amount: number | null
+  date: string
+  description: string
+  line: number
+  problem?: 'DUPLICATE' | 'INVALID_DATE' | 'MISSING_AMOUNT'
+}
+
+export const importPreview = {
+  alreadyImportedWarning: false,
+  fileName: 'vcb-the-doanh-nghiep-10-2026.csv',
+  rows: [
+    { amount: 3_750_000, date: '2026-10-01', description: 'GITHUB.COM *COPILOT', line: 2 },
+    { amount: 6_300_000, date: '2026-10-02', description: 'FIGMA ORGANIZATION', line: 3 },
+    { amount: 520_000, date: '2026-10-03', description: 'OPENAI *CHATGPT PLUS', line: 4 },
+    { amount: 1_150_000, date: '31/09/2026', description: 'NOTION LABS INC', line: 5, problem: 'INVALID_DATE' },
+    { amount: null, date: '2026-10-05', description: 'CANVA* PRO', line: 6, problem: 'MISSING_AMOUNT' },
+    { amount: 8_000_000, date: '2026-09-15', description: 'SLACK T0123 ENTERPRISE', line: 7, problem: 'DUPLICATE' },
+    { amount: 2_450_000, date: '2026-10-06', description: 'LOOM.COM BUSINESS', line: 8 },
+    { amount: 890_000, date: '2026-10-07', description: 'GOOGLE *WORKSPACE ADDON', line: 9 }
+  ] satisfies ImportPreviewRow[]
+}
+
+/** What the system reports after vendor normalization and reconciliation (WF-17 / WF-17a). */
+export const importReconcileResult = { exception: 1, noFollowUp: 3, vendorQueue: 1 }
+
+// ---------------------------------------------------------------- Charge exceptions (FIN-07)
+
+export type ExceptionReason = 'MULTIPLE_BASES' | 'NO_BASIS' | 'OUT_OF_TERM' | 'OVER_APPROVED'
+export type ExceptionStatus = 'BASIS_LINKED' | 'BILLING_ERROR' | 'CHECKING' | 'SENT_TO_APPROVER'
+
+export interface ChargeException {
+  amount: number
+  approvedAmount?: number
+  basisTried: string[]
+  cardLast4: string
+  closeNote?: string
+  code: string
+  date: string
+  evidence: string[]
+  id: string
+  itNote?: string
+  reason: ExceptionReason
+  status: ExceptionStatus
+  vendor: string
+}
+
+export const chargeExceptions: ChargeException[] = [
+  {
+    amount: 520_000,
+    basisTried: ['Danh mục: không có ChatGPT', 'Yêu cầu đã duyệt: không có'],
+    cardLast4: '8812',
+    code: 'CHG-1003',
+    date: '2026-10-03',
+    evidence: ['sao-ke-vcb-10-2026-dong-4.pdf'],
+    id: 'chg-1003',
+    itNote: 'IT đang xác minh người dùng thẻ 8812 (Phòng Kỹ thuật).',
+    reason: 'NO_BASIS',
+    status: 'CHECKING',
+    vendor: 'OpenAI'
+  },
+  {
+    amount: 11_600_000,
+    approvedAmount: 8_000_000,
+    basisTried: ['Thuê bao Slack Enterprise Grid — 8.000.000 ₫/tháng'],
+    cardLast4: '3341',
+    code: 'CHG-0998',
+    date: '2026-09-28',
+    evidence: [],
+    id: 'chg-0998',
+    reason: 'OVER_APPROVED',
+    status: 'CHECKING',
+    vendor: 'Slack (Salesforce)'
+  },
+  {
+    amount: 2_100_000,
+    basisTried: ['Thuê bao Confluence Standard — hết hạn 31/08/2026'],
+    cardLast4: '9012',
+    code: 'CHG-0991',
+    date: '2026-09-21',
+    evidence: ['hoa-don-atlassian-0921.pdf'],
+    id: 'chg-0991',
+    itNote: 'Gói đã hủy ở danh mục nhưng nhà cung cấp vẫn trừ tiền.',
+    reason: 'OUT_OF_TERM',
+    status: 'CHECKING',
+    vendor: 'Atlassian'
+  },
+  {
+    amount: 1_850_000,
+    basisTried: ['Thuê bao Miro Team', 'REQ-2026-062 Miro Business'],
     cardLast4: '4892',
-    status: 'ACTIVE'
+    code: 'CHG-0985',
+    date: '2026-09-18',
+    evidence: ['hoa-don-miro-0918.pdf'],
+    id: 'chg-0985',
+    itNote: 'Đã liên kết với thuê bao Miro Team.',
+    reason: 'MULTIPLE_BASES',
+    status: 'BASIS_LINKED',
+    vendor: 'Miro'
+  },
+  {
+    amount: 2_400_000,
+    basisTried: ['Danh mục: không có Canva Pro', 'Yêu cầu đã duyệt: không có'],
+    cardLast4: '3341',
+    code: 'CHG-0979',
+    date: '2026-09-12',
+    evidence: ['sao-ke-vcb-09-2026-dong-12.pdf'],
+    id: 'chg-0979',
+    reason: 'NO_BASIS',
+    status: 'SENT_TO_APPROVER',
+    vendor: 'Canva'
   }
 ]
 
-export const financeMetrics = {
-  arr: 680000000,
-  mrr: 56600000,
-  activeSubscriptions: 24,
-  realizedSavings: 112000000
+// ---------------------------------------------------------------- Period close (FIN-30/31)
+
+export interface HeldRemainder {
+  code: string
+  committed: number
+  costCenter: string
+  id: string
+  invoiced: number
+  lastInvoiceAt?: string
+  moreInvoicesExpected: boolean
+  requestCode: string
+  software: string
 }
 
-export const financeCostCenters = [
+export const heldRemainders: HeldRemainder[] = [
   {
-    code: 'CC-ENG-02',
-    name: 'Engineering & Core Backend',
-    allocatedBudget: 250000000,
-    spent: 185000000,
-    commitments: 35000000
+    code: 'CMT-2026-031',
+    committed: 26_400_000,
+    costCenter: 'CC-OPS',
+    id: 'rem-31',
+    invoiced: 24_000_000,
+    lastInvoiceAt: '2026-09-20',
+    moreInvoicesExpected: false,
+    requestCode: 'REQ-2026-041',
+    software: 'Jira Service Management · 20 agent'
   },
   {
-    code: 'CC-DESIGN-01',
-    name: 'Product Design & UX',
-    allocatedBudget: 120000000,
-    spent: 82000000,
-    commitments: 13500000
+    code: 'CMT-2026-036',
+    committed: 9_450_000,
+    costCenter: 'CC-DES',
+    id: 'rem-36',
+    invoiced: 6_300_000,
+    lastInvoiceAt: '2026-09-02',
+    moreInvoicesExpected: true,
+    requestCode: 'REQ-2026-052',
+    software: 'Figma Organization · 10 seat'
   },
   {
-    code: 'CC-OPS-03',
-    name: 'Operations & IT Infrastructure',
-    allocatedBudget: 80000000,
-    spent: 45000000,
-    commitments: 10000000
+    code: 'CMT-2026-039',
+    committed: 5_250_000,
+    costCenter: 'CC-ENG',
+    id: 'rem-39',
+    invoiced: 0,
+    moreInvoicesExpected: true,
+    requestCode: 'REQ-2026-058',
+    software: 'Postman Professional'
   }
 ]
 
-export const financeTopVendors = [
-  { name: 'GitHub Enterprise & Copilot', spend: 180000000, percentage: 26, logo: '🐙' },
-  { name: 'Salesforce Slack Grid', spend: 144000000, percentage: 21, logo: '💬' },
-  { name: 'Atlassian Jira & Confluence', spend: 120000000, percentage: 18, logo: '📊' },
-  { name: 'Figma Enterprise', spend: 96000000, percentage: 14, logo: '🎨' },
-  { name: 'Notion AI Workspace', spend: 60000000, percentage: 9, logo: '📝' }
+export const periodCloseSummary = { convertedToCost: 142_600_000, matchedInvoices: 37 }
+
+export interface InternalCost {
+  amount: number
+  costCenter: string
+  description: string
+  id: string
+}
+
+export const internalCosts: InternalCost[] = [
+  { amount: 12_000_000, costCenter: 'CC-COMPANY', description: 'Hệ thống chấm công nội bộ — máy chủ Q3', id: 'int-1' },
+  { amount: 7_500_000, costCenter: 'CC-ENG', description: 'CI runner nội bộ — phần Phòng Kỹ thuật', id: 'int-2' }
 ]
 
-export const financeSnapshotData = {
-  period: 'Q3-2026',
-  totalBudget: 500000000,
-  actualSpend: 312000000,
-  heldCommitments: 45000000,
-  remainingBudget: 143000000,
-  pendingApprovals: 68000000
+// ---------------------------------------------------------------- Allocation and budget vs actual (FIN-32/33)
+
+export interface AllocationLine {
+  costCenter: string | null
+  internal: number
+  personalSeats: number
+  sharedAccounts: number
+  sharedByRatio: number
 }
+
+/** `costCenter === null` is the "Unallocated" report line (QĐ-50c, FR-9.7) — never a Cost Center record. */
+export const allocationLines: AllocationLine[] = [
+  {
+    costCenter: 'CC-ENG',
+    internal: 7_500_000,
+    personalSeats: 128_400_000,
+    sharedAccounts: 4_200_000,
+    sharedByRatio: 42_300_000
+  },
+  {
+    costCenter: 'CC-DES',
+    internal: 0,
+    personalSeats: 61_800_000,
+    sharedAccounts: 1_900_000,
+    sharedByRatio: 14_900_000
+  },
+  {
+    costCenter: 'CC-OPS',
+    internal: 0,
+    personalSeats: 39_200_000,
+    sharedAccounts: 3_600_000,
+    sharedByRatio: 20_300_000
+  },
+  { costCenter: 'CC-MKT', internal: 0, personalSeats: 14_100_000, sharedAccounts: 2_400_000, sharedByRatio: 5_200_000 },
+  { costCenter: 'CC-SAL', internal: 0, personalSeats: 9_800_000, sharedAccounts: 0, sharedByRatio: 4_400_000 },
+  {
+    costCenter: 'CC-COMPANY',
+    internal: 12_000_000,
+    personalSeats: 0,
+    sharedAccounts: 18_700_000,
+    sharedByRatio: 10_800_000
+  },
+  { costCenter: null, internal: 0, personalSeats: 3_500_000, sharedAccounts: 0, sharedByRatio: 3_120_000 }
+]
+
+export const unallocatedOpenExceptions = 3
+
+export interface BudgetVsActualLine {
+  budget: number | null
+  cashActual: number
+  costCenter: string | null
+  deductibleVat: number
+  held: number
+  periodActual: number
+}
+
+export const budgetVsActual: BudgetVsActualLine[] = [
+  {
+    budget: 240_000_000,
+    cashActual: 196_000_000,
+    costCenter: 'CC-ENG',
+    deductibleVat: 14_600_000,
+    held: 5_250_000,
+    periodActual: 182_400_000
+  },
+  {
+    budget: 110_000_000,
+    cashActual: 70_200_000,
+    costCenter: 'CC-DES',
+    deductibleVat: 6_100_000,
+    held: 3_150_000,
+    periodActual: 78_600_000
+  },
+  {
+    budget: 70_000_000,
+    cashActual: 66_800_000,
+    costCenter: 'CC-OPS',
+    deductibleVat: 5_200_000,
+    held: 2_400_000,
+    periodActual: 63_100_000
+  },
+  {
+    budget: 30_000_000,
+    cashActual: 24_000_000,
+    costCenter: 'CC-MKT',
+    deductibleVat: 1_800_000,
+    held: 0,
+    periodActual: 21_700_000
+  },
+  {
+    budget: 20_000_000,
+    cashActual: 14_200_000,
+    costCenter: 'CC-SAL',
+    deductibleVat: 1_100_000,
+    held: 0,
+    periodActual: 14_200_000
+  },
+  {
+    budget: 50_000_000,
+    cashActual: 41_500_000,
+    costCenter: 'CC-COMPANY',
+    deductibleVat: 3_000_000,
+    held: 0,
+    periodActual: 41_500_000
+  },
+  { budget: null, cashActual: 6_620_000, costCenter: null, deductibleVat: 0, held: 0, periodActual: 6_620_000 }
+]
+
+/** Late items of the previous period appear as a labelled adjustment (QĐ-62m). */
+export const priorPeriodAdjustment = { amount: 1_200_000, period: 'Q2-2026' }
+
+/** L1 — committed cost read straight from contracts (FR-5.5). */
+export const committedForecast = [
+  { month: '2026-10-01', value: 118_000_000 },
+  { month: '2026-11-01', value: 124_500_000 },
+  { month: '2026-12-01', value: 131_200_000 }
+]
+
+export const upcomingRenewals = [
+  { cost: 45_000_000, date: '2026-11-05', name: 'GitHub Enterprise & Copilot' },
+  { cost: 96_000_000, date: '2026-11-15', name: 'Slack Enterprise Grid' }
+]
+
+export const scenarioDefaults = { costPerHire: 1_800_000, newHires: 12, newProjects: 25_000_000 }
+
+// ---------------------------------------------------------------- Period report (FIN-34)
+
+export const periodSavings = { immediate: 18_400_000, nextRenewal: 41_200_000, reclaimedSeats: 23 }
+
+export const aiNarrativeAvailable = true
+
+export const aiDraftNarrative =
+  'Chi phí phần mềm Q3-2026 theo kỳ là 408,1 triệu đồng [1], thấp hơn tổng ngân sách 520 triệu đồng [2]. ' +
+  'Phòng Vận hành dùng 93,6% ngân sách, cao nhất công ty [3]. ' +
+  'Dòng Chưa phân bổ Cost Center còn 6,62 triệu đồng với 3 ngoại lệ đang chờ Người duyệt chi [4]. ' +
+  'Tiết kiệm thực hiện ngay 18,4 triệu đồng; tiết kiệm tại kỳ gia hạn kế tiếp 41,2 triệu đồng — hai con số tách riêng [5].'
+
+export const aiDraftSources = [
+  '[1] Budget vs Actual · cơ sở theo kỳ · tổng',
+  '[2] Ngân sách Q3-2026 · 6 Cost Center',
+  '[3] CC-OPS · thực chi theo kỳ ÷ ngân sách',
+  '[4] Phân bổ · dòng Chưa phân bổ',
+  '[5] Báo cáo tiết kiệm · FR-5.9'
+]
