@@ -19,7 +19,23 @@ export function EmployeeSoftwareDetailView({
   const { t } = useTranslation('dashboard')
   const [copied, setCopied] = useState(false)
 
-  const software = employeeSoftwareItems.find((s) => s.id === softwareId) || employeeSoftwareItems[0]
+  const software = employeeSoftwareItems.find((s) => s.id === softwareId)
+
+  if (!software) {
+    return (
+      <div className='rounded-2xl border border-border bg-surface p-6 sm:p-8'>
+        <h1 className='text-2xl font-bold text-foreground'>{t('employee.softwareDetail.notFoundTitle')}</h1>
+        <p className='mt-2 text-sm text-muted-foreground'>{t('employee.softwareDetail.notFoundDescription')}</p>
+        <button
+          className='mt-5 min-h-11 rounded-xl border border-border px-4 text-sm font-semibold text-foreground hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
+          onClick={() => onSelectTab('my-software')}
+          type='button'
+        >
+          {t('employee.softwareDetail.backToList')}
+        </button>
+      </div>
+    )
+  }
 
   const handleCopyKey = () => {
     navigator.clipboard?.writeText(software.licenseKey)
@@ -42,15 +58,15 @@ export function EmployeeSoftwareDetailView({
       </div>
 
       {/* Hero Header Card */}
-      <div className='flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border bg-surface p-6 shadow-sm'>
-        <div className='flex items-center gap-4'>
+      <div className='flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-6'>
+        <div className='flex min-w-0 items-center gap-4'>
           <img
             alt={software.name}
             className='size-14 rounded-2xl border border-border bg-surface object-contain p-2 shadow-xs'
             src={software.logoUrl}
           />
-          <div>
-            <div className='flex items-center gap-2.5'>
+          <div className='min-w-0'>
+            <div className='flex flex-wrap items-center gap-2.5'>
               <h1 className='text-2xl font-bold tracking-tight text-foreground'>{software.name}</h1>
               {software.status === 'active' ? (
                 <span className='inline-flex items-center gap-1.5 rounded-full border border-success/20 bg-success/10 px-2.5 py-0.5 text-xs font-bold text-success'>
@@ -143,11 +159,11 @@ export function EmployeeSoftwareDetailView({
               <Key aria-hidden='true' className='size-4 text-primary' />
               <h2 className='text-sm font-bold text-foreground'>{t('employee.softwareDetail.licenseKey')}</h2>
             </div>
-            <div className='mt-3 flex items-center justify-between rounded-xl border border-border bg-surface-subtle/70 px-4 py-3 font-mono text-sm font-bold text-foreground'>
-              <span>{software.licenseKey}</span>
+            <div className='mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface-subtle/70 px-4 py-3 font-mono text-sm font-bold text-foreground'>
+              <span className='min-w-0 break-all'>{software.licenseKey}</span>
               <button
-                aria-label={t('employee.softwareDetail.copySuccess')}
-                className='inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-2.5 py-1 text-xs font-sans font-semibold text-muted-foreground transition hover:text-foreground'
+                aria-label={t(copied ? 'employee.softwareDetail.copySuccess' : 'employee.softwareDetail.copyAction')}
+                className='inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1 text-sm font-sans font-semibold text-foreground transition hover:bg-primary-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
                 onClick={handleCopyKey}
                 type='button'
               >
@@ -214,11 +230,13 @@ export function EmployeeSoftwareDetailView({
             </div>
             <p className='mt-1 text-[0.72rem] text-muted-foreground'>{t('employee.softwareDetail.supportDesc')}</p>
             <button
-              className='mt-3 inline-flex w-full items-center justify-center rounded-xl border border-border bg-surface px-3 py-2 text-xs font-semibold text-foreground transition hover:bg-surface-subtle'
+              className='mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-border bg-surface px-3 py-2 text-sm font-semibold text-muted-foreground disabled:cursor-not-allowed'
+              disabled
               type='button'
             >
               {t('employee.softwareDetail.actSubmitTicket')}
             </button>
+            <p className='mt-2 text-sm text-muted-foreground'>{t('employee.softwareDetail.supportUnavailable')}</p>
           </div>
         </div>
       </div>

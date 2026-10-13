@@ -3,6 +3,8 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { type GhostSeatItem, MOCK_GHOST_SEATS } from '../manager-data'
+import { handleManagerDialogKeyDown } from '../manager-dialog-keyboard'
+import { ManagerIdentityMark } from '../manager-identity-mark'
 import type { ManagerTabKey } from '../manager-nav'
 
 interface ManagerGhostSeatDetailViewProps {
@@ -41,6 +43,7 @@ export function ManagerGhostSeatDetailView({
       {/* Header */}
       <div className='flex items-center gap-3'>
         <button
+          aria-label={t('manager.ghostDetail.backToList')}
           className='inline-flex items-center justify-center rounded-xl border border-border bg-surface p-2 text-muted-foreground transition hover:bg-surface-subtle hover:text-foreground'
           onClick={() => onSelectTab('ghost-seat-review')}
           type='button'
@@ -67,7 +70,10 @@ export function ManagerGhostSeatDetailView({
       </div>
 
       {actionNotice && (
-        <div className='flex items-center gap-2 rounded-xl border border-success/30 bg-success/10 p-4 text-xs font-medium text-success shadow-xs'>
+        <div
+          role='status'
+          className='flex items-center gap-2 rounded-xl border border-success/30 bg-success/10 p-4 text-xs font-medium text-success shadow-xs'
+        >
           <CheckCircle2 className='size-5 shrink-0' />
           <span>{actionNotice}</span>
         </div>
@@ -80,9 +86,7 @@ export function ManagerGhostSeatDetailView({
           {/* Main Info Box */}
           <div className='rounded-2xl border border-border bg-surface p-5 shadow-sm space-y-4'>
             <div className='flex items-center gap-3 border-b border-border pb-4'>
-              <span className='flex size-12 shrink-0 items-center justify-center rounded-2xl border border-border bg-background text-2xl'>
-                {seat.logo}
-              </span>
+              <ManagerIdentityMark className='size-12 rounded-2xl text-base' name={seat.softwareName} />
               <div>
                 <h2 className='text-base font-bold text-foreground'>{seat.softwareName}</h2>
                 <p className='text-xs text-muted-foreground'>{seat.plan}</p>
@@ -180,10 +184,19 @@ export function ManagerGhostSeatDetailView({
       {/* Keep Seat Justification Modal */}
       {keepModalOpen && (
         <div className='fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 backdrop-blur-xs p-4'>
-          <div className='w-full max-w-md rounded-2xl border border-border bg-surface p-6 shadow-xl space-y-4'>
+          <div
+            aria-labelledby='manager-keep-title'
+            aria-modal='true'
+            className='w-full max-w-md rounded-2xl border border-border bg-surface p-6 shadow-xl space-y-4'
+            onKeyDown={(event) => handleManagerDialogKeyDown(event, () => setKeepModalOpen(false))}
+            role='dialog'
+          >
             <div className='flex items-center justify-between'>
-              <h3 className='font-bold text-sm text-foreground'>{t('manager.ghostDetail.keepModalTitle')}</h3>
+              <h3 className='font-bold text-sm text-foreground' id='manager-keep-title'>
+                {t('manager.ghostDetail.keepModalTitle')}
+              </h3>
               <button
+                aria-label={t('manager.ghostDetail.cancelBtn')}
                 className='text-muted-foreground hover:text-foreground'
                 onClick={() => setKeepModalOpen(false)}
                 type='button'
@@ -193,6 +206,8 @@ export function ManagerGhostSeatDetailView({
             </div>
             <p className='text-xs text-muted-foreground'>{t('manager.ghostDetail.keepModalDesc')}</p>
             <textarea
+              aria-label={t('manager.ghostDetail.keepReasonPlaceholder')}
+              autoFocus
               className='w-full rounded-xl border border-border bg-background p-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
               onChange={(e) => setKeepReason(e.target.value)}
               placeholder={t('manager.ghostDetail.keepReasonPlaceholder')}
@@ -208,7 +223,8 @@ export function ManagerGhostSeatDetailView({
                 {t('manager.ghostDetail.cancelBtn')}
               </button>
               <button
-                className='rounded-xl bg-primary px-4 py-1.5 text-xs font-bold text-primary-foreground shadow-sm hover:bg-primary/90'
+                className='rounded-xl bg-primary px-4 py-1.5 text-xs font-bold text-primary-foreground shadow-sm hover:bg-primary/90 disabled:opacity-50'
+                disabled={!keepReason.trim()}
                 onClick={handleConfirmKeep}
                 type='button'
               >

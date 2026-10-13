@@ -3,6 +3,8 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { type GhostSeatItem, MOCK_GHOST_SEATS } from '../manager-data'
+import { ManagerConfirmDialog } from '../manager-confirm-dialog'
+import { ManagerIdentityMark } from '../manager-identity-mark'
 import type { ManagerTabKey } from '../manager-nav'
 
 interface ManagerGhostSeatReviewViewProps {
@@ -15,10 +17,13 @@ export function ManagerGhostSeatReviewView({ formatCurrency, onSelectTab }: Mana
   const [ghostSeats, setGhostSeats] = useState<GhostSeatItem[]>(MOCK_GHOST_SEATS)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
   const [ruleFilter, setRuleFilter] = useState<'ALL' | 'G3' | 'G4'>('ALL')
+  const [batchConfirmOpen, setBatchConfirmOpen] = useState(false)
 
   const totalWaste = ghostSeats.filter((g) => g.status === 'FLAGGED').reduce((sum, g) => sum + g.monthlyCost, 0)
+  const flaggedG3Count = ghostSeats.filter((seat) => seat.flagRule === 'G3' && seat.status === 'FLAGGED').length
 
   const handleBatchRevokeG3 = () => {
+    setBatchConfirmOpen(false)
     setGhostSeats((prev) =>
       prev.map((g) => (g.flagRule === 'G3' && g.status === 'FLAGGED' ? { ...g, status: 'REVOKED' } : g))
     )
@@ -44,8 +49,9 @@ export function ManagerGhostSeatReviewView({ formatCurrency, onSelectTab }: Mana
 
         <div className='flex items-center gap-2'>
           <button
-            className='inline-flex items-center gap-1.5 rounded-xl bg-danger px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-danger/90'
-            onClick={handleBatchRevokeG3}
+            className='inline-flex items-center gap-1.5 rounded-xl bg-danger px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-danger/90 disabled:opacity-50'
+            disabled={flaggedG3Count === 0}
+            onClick={() => setBatchConfirmOpen(true)}
             type='button'
           >
             <RotateCcw className='size-3.5' />
@@ -54,8 +60,23 @@ export function ManagerGhostSeatReviewView({ formatCurrency, onSelectTab }: Mana
         </div>
       </div>
 
+      {batchConfirmOpen && (
+        <ManagerConfirmDialog
+          cancelLabel={t('manager.ghostSeat.cancelBtn')}
+          confirmLabel={t('manager.ghostSeat.batchRevokeG3Btn')}
+          description={t('manager.ghostSeat.batchConfirmDesc', { count: flaggedG3Count })}
+          onCancel={() => setBatchConfirmOpen(false)}
+          onConfirm={handleBatchRevokeG3}
+          title={t('manager.ghostSeat.batchConfirmTitle')}
+          tone='danger'
+        />
+      )}
+
       {successMsg && (
-        <div className='flex items-center gap-2 rounded-xl border border-success/30 bg-success/10 p-4 text-xs font-medium text-success shadow-xs'>
+        <div
+          role='status'
+          className='flex items-center gap-2 rounded-xl border border-success/30 bg-success/10 p-4 text-xs font-medium text-success shadow-xs'
+        >
           <CheckCircle2 className='size-5 shrink-0' />
           <span>{successMsg}</span>
         </div>
@@ -109,6 +130,7 @@ export function ManagerGhostSeatReviewView({ formatCurrency, onSelectTab }: Mana
               { id: 'G4' as const, label: t('manager.ghostSeat.filterG4') }
             ].map((opt) => (
               <button
+                aria-pressed={ruleFilter === opt.id}
                 key={opt.id}
                 className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
                   ruleFilter === opt.id
@@ -127,6 +149,7 @@ export function ManagerGhostSeatReviewView({ formatCurrency, onSelectTab }: Mana
         {/* Table */}
         <div className='overflow-x-auto'>
           <table className='w-full text-left text-xs'>
+            <caption className='sr-only'>{t('manager.ghostSeat.title')}</caption>
             <thead>
               <tr className='border-b border-border text-muted-foreground'>
                 <th className='py-3 px-4 font-semibold'>{t('manager.ghostSeat.colEmployee')}</th>
@@ -148,9 +171,7 @@ export function ManagerGhostSeatReviewView({ formatCurrency, onSelectTab }: Mana
 
                   <td className='py-3.5 px-4'>
                     <div className='flex items-center gap-2'>
-                      <span className='flex size-7 shrink-0 items-center justify-center rounded-lg border border-border bg-background text-sm'>
-                        {item.logo}
-                      </span>
+                      <ManagerIdentityMark className='size-8 rounded-lg' name={item.softwareName} />
                       <div>
                         <p className='font-bold text-foreground'>{item.softwareName}</p>
                         <p className='text-[10px] text-muted-foreground'>{item.plan}</p>

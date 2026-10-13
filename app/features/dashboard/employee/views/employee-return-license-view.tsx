@@ -4,17 +4,25 @@ import { useTranslation } from 'react-i18next'
 
 import { employeeSoftwareItems } from '../employee-data'
 import type { EmployeeTabKey } from '../employee-nav'
+import { EmployeeRequestStepper } from '../employee-request-stepper'
 
 interface EmployeeReturnLicenseViewProps {
   onSelectTab: (tab: EmployeeTabKey, params?: Record<string, string>) => void
+  initialParams?: Record<string, string>
   softwareId?: string
 }
 
-export function EmployeeReturnLicenseView({ onSelectTab, softwareId }: EmployeeReturnLicenseViewProps) {
+export function EmployeeReturnLicenseView({
+  onSelectTab,
+  initialParams = {},
+  softwareId
+}: EmployeeReturnLicenseViewProps) {
   const { t } = useTranslation('dashboard')
-  const [selectedSoftwareId, setSelectedSoftwareId] = useState(softwareId || '1')
-  const [reasonCategory, setReasonCategory] = useState('projectEnded')
-  const [note, setNote] = useState('Dự án đã bàn giao xong, xin trả lại seat license cho IT Admin tái sử dụng.')
+  const [selectedSoftwareId, setSelectedSoftwareId] = useState(() =>
+    softwareId && employeeSoftwareItems.some((item) => item.id === softwareId) ? softwareId : '1'
+  )
+  const [reasonCategory, setReasonCategory] = useState(initialParams.reasonCategory || 'projectEnded')
+  const [note, setNote] = useState(initialParams.note || '')
 
   const software = employeeSoftwareItems.find((s) => s.id === selectedSoftwareId) || employeeSoftwareItems[0]
 
@@ -44,38 +52,17 @@ export function EmployeeReturnLicenseView({ onSelectTab, softwareId }: EmployeeR
         <p className='mt-1 text-sm text-muted-foreground'>{t('employee.returnLicense.subtitle')}</p>
       </div>
 
-      {/* Stepper */}
-      <div className='flex items-center justify-between rounded-2xl border border-border bg-surface p-4 shadow-sm'>
-        <div className='flex items-center gap-3'>
-          <span className='grid size-7 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground'>
-            {1}
-          </span>
-          <span className='text-xs font-bold text-foreground'>{t('employee.returnLicense.step1')}</span>
-        </div>
-        <div className='h-0.5 w-20 bg-border' />
-        <div className='flex items-center gap-3 opacity-50'>
-          <span className='grid size-7 place-items-center rounded-full border border-border text-xs font-bold text-muted-foreground'>
-            {2}
-          </span>
-          <span className='text-xs font-medium text-muted-foreground'>{t('employee.requestNewSoftware.step2')}</span>
-        </div>
-        <div className='h-0.5 w-20 bg-border' />
-        <div className='flex items-center gap-3 opacity-50'>
-          <span className='grid size-7 place-items-center rounded-full border border-border text-xs font-bold text-muted-foreground'>
-            {3}
-          </span>
-          <span className='text-xs font-medium text-muted-foreground'>{t('employee.requestNewSoftware.step3')}</span>
-        </div>
-      </div>
+      <EmployeeRequestStepper currentStep={1} firstStepLabel={t('employee.returnLicense.step1')} />
 
       {/* Form Card */}
       <div className='rounded-2xl border border-border bg-surface p-6 shadow-sm space-y-5'>
         <div>
-          <label className='block text-xs font-semibold text-muted-foreground mb-2'>
+          <label className='mb-2 block text-sm font-semibold text-foreground' htmlFor='employee-return-software'>
             {t('employee.returnLicense.fieldSoftware')}
           </label>
           <select
-            className='h-11 w-full rounded-xl border border-border bg-background px-3 text-xs text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
+            className='h-11 w-full rounded-xl border border-border bg-background px-3 text-base text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action sm:text-sm'
+            id='employee-return-software'
             onChange={(e) => setSelectedSoftwareId(e.target.value)}
             value={selectedSoftwareId}
           >
@@ -87,10 +74,10 @@ export function EmployeeReturnLicenseView({ onSelectTab, softwareId }: EmployeeR
           </select>
         </div>
 
-        <div>
-          <label className='block text-xs font-semibold text-muted-foreground mb-2'>
+        <fieldset>
+          <legend className='mb-2 text-sm font-semibold text-foreground'>
             {t('employee.returnLicense.fieldReason')}
-          </label>
+          </legend>
           <div className='space-y-2'>
             {[
               { id: 'projectEnded', label: t('employee.returnLicense.reasonProjectEnded') },
@@ -100,7 +87,7 @@ export function EmployeeReturnLicenseView({ onSelectTab, softwareId }: EmployeeR
               <label
                 className={`flex items-center gap-3 rounded-xl border p-3.5 cursor-pointer transition ${
                   reasonCategory === opt.id
-                    ? 'border-primary bg-primary-soft/50 font-bold text-primary'
+                    ? 'border-primary bg-primary-soft/50 font-bold text-primary-ink'
                     : 'border-border bg-surface text-foreground hover:bg-surface-subtle'
                 }`}
                 key={opt.id}
@@ -112,18 +99,19 @@ export function EmployeeReturnLicenseView({ onSelectTab, softwareId }: EmployeeR
                   onChange={() => setReasonCategory(opt.id)}
                   type='radio'
                 />
-                <span className='text-xs'>{opt.label}</span>
+                <span className='text-sm'>{opt.label}</span>
               </label>
             ))}
           </div>
-        </div>
+        </fieldset>
 
         <div>
-          <label className='block text-xs font-semibold text-muted-foreground mb-2'>
+          <label className='mb-2 block text-sm font-semibold text-foreground' htmlFor='employee-return-notes'>
             {t('employee.returnLicense.additionalNotes')}
           </label>
           <textarea
-            className='w-full rounded-xl border border-border bg-background p-3 text-xs text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
+            className='w-full rounded-xl border border-border bg-background p-3 text-base text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action sm:text-sm'
+            id='employee-return-notes'
             onChange={(e) => setNote(e.target.value)}
             rows={2}
             value={note}
@@ -139,7 +127,7 @@ export function EmployeeReturnLicenseView({ onSelectTab, softwareId }: EmployeeR
             {t('employee.returnLicense.actCancel')}
           </button>
           <button
-            className='inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2 text-xs font-bold text-primary-foreground shadow-sm transition hover:bg-primary/90'
+            className='inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary-action px-5 py-2 text-sm font-bold text-white transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action'
             onClick={handleContinue}
             type='button'
           >

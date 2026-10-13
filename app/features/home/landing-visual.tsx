@@ -4,13 +4,14 @@ import {
   CircleCheckBig,
   DatabaseZap,
   Flower2,
-  Layers3,
   ReceiptText,
   UserRoundCheck,
   WalletCards
 } from 'lucide-react'
 import { motion, useReducedMotion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
+
+import { BrandMark } from '~/shared/ui/brand-mark'
 
 const lifecycleNodes = [
   {
@@ -110,7 +111,7 @@ export function LandingVisual() {
       >
         <div className='relative grid size-12 place-items-center overflow-hidden rounded-2xl bg-primary text-primary-foreground'>
           <span className='absolute -top-2 -right-2 size-5 rounded-full bg-primary-foreground/20' />
-          <Layers3 className='size-6' strokeWidth={1.8} />
+          <BrandMark className='size-7' />
         </div>
         <p className='mt-3 min-h-8 text-xs leading-4 font-semibold tracking-[0.08em] text-primary uppercase'>
           {t('visual.controlCenter')}

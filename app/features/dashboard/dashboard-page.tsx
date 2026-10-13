@@ -8,7 +8,6 @@ import {
   CircleDollarSign,
   FileChartColumn,
   Grid2X2,
-  Layers3,
   Lightbulb,
   LogOut,
   Menu,
@@ -31,6 +30,7 @@ import { Link, useSearchParams } from 'react-router'
 
 import type { UserRole } from '~/entities/user-role/user-role'
 import { useDocumentTitle } from '~/shared/lib/use-document-title'
+import { BrandMark } from '~/shared/ui/brand-mark'
 import { LanguageSwitch } from '~/shared/ui/language-switch'
 import { ThemeSwitch } from '~/shared/ui/theme-switch'
 
@@ -61,6 +61,7 @@ import { EmployeeOverviewView } from './employee/views/employee-overview-view'
 import { EmployeeProfileView } from './employee/views/employee-profile-view'
 import { EmployeeRequestDetailView } from './employee/views/employee-request-detail-view'
 import { EmployeeRequestNewSoftwareView } from './employee/views/employee-request-new-software-view'
+import { EmployeeRequestSoftwareDetailsView } from './employee/views/employee-request-software-details-view'
 import { EmployeeReturnLicenseView } from './employee/views/employee-return-license-view'
 import { EmployeeReviewRequestView } from './employee/views/employee-review-request-view'
 import { EmployeeSoftwareDetailView } from './employee/views/employee-software-detail-view'
@@ -91,10 +92,13 @@ import { ManagerEmployeeDetailView } from './manager/views/manager-employee-deta
 import { ManagerGhostSeatDetailView } from './manager/views/manager-ghost-seat-detail-view'
 import { ManagerGhostSeatReviewView } from './manager/views/manager-ghost-seat-review-view'
 import { ManagerMyTeamView } from './manager/views/manager-my-team-view'
+import { ManagerMyRequestsView } from './manager/views/manager-my-requests-view'
 import { ManagerOverviewView } from './manager/views/manager-overview-view'
 import { ManagerRequestApprovalView } from './manager/views/manager-request-approval-view'
 import { ManagerTeamRequestsView } from './manager/views/manager-team-requests-view'
 import { ManagerTeamSoftwareView } from './manager/views/manager-team-software-view'
+import type { ManagerPreviewRequest, ManagerPreviewRequestInput } from './manager/manager-preview-request'
+import './manager/manager-workspace.css'
 
 const navigationItems = [
   { icon: Grid2X2, key: 'overview' },
@@ -150,6 +154,9 @@ export function DashboardPage({ role }: { role: UserRole }) {
 
   const activeManagerTab: ManagerTabKey = isManager && isValidManagerTab(tabParam) ? tabParam : 'overview'
   const activeManagerParent = isManager ? getParentManagerMenuKey(activeManagerTab) : 'overview'
+  const managerRequestScope = searchParams.get('scope') === 'team' ? 'team' : 'individual'
+  const [managerCreateMenuOpen, setManagerCreateMenuOpen] = useState(activeManagerTab === 'create-employee-request')
+  const [managerPreviewRequests, setManagerPreviewRequests] = useState<ManagerPreviewRequest[]>([])
 
   const activeApprovalTab: ApprovalTabKey = isApprover && isValidApprovalTab(tabParam) ? tabParam : 'overview'
   const activeApprovalParent = isApprover ? getParentApprovalMenuKey(activeApprovalTab) : 'overview'
@@ -193,6 +200,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
   }
 
   const handleSelectManagerTab = (tab: ManagerTabKey, extraParams?: Record<string, string>) => {
+    if (tab === 'create-employee-request') setManagerCreateMenuOpen(true)
     const nextParams = new URLSearchParams()
     if (tab !== 'overview') {
       nextParams.set('tab', tab)
@@ -202,6 +210,15 @@ export function DashboardPage({ role }: { role: UserRole }) {
     }
     setSearchParams(nextParams)
     setMobileNavigationOpen(false)
+  }
+
+  const handleSaveManagerPreview = (request: ManagerPreviewRequestInput) => {
+    const createdAt = new Date().toISOString()
+    setManagerPreviewRequests((current) => [
+      { ...request, id: `preview-${Date.now()}-${current.length}`, createdAt },
+      ...current
+    ])
+    handleSelectManagerTab('my-requests')
   }
 
   const handleSelectApprovalTab = (tab: ApprovalTabKey, extraParams?: Record<string, string>) => {
@@ -290,7 +307,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
           <div className='flex items-center gap-3'>
             <span className='relative grid size-11 place-items-center overflow-hidden rounded-2xl bg-primary text-primary-foreground shadow-[0_10px_28px_var(--theme-primary-soft)]'>
               <span aria-hidden='true' className='absolute -top-2 -right-2 size-5 rounded-full bg-white/20' />
-              <Layers3 aria-hidden='true' className='size-5' />
+              <BrandMark className='size-6' />
             </span>
             <div>
               <p className='font-bold tracking-[-0.02em]'>{tCommon('brand')}</p>
@@ -455,19 +472,41 @@ export function DashboardPage({ role }: { role: UserRole }) {
                 return (
                   <li key={item.key}>
                     <button
-                      aria-current={isCurrent ? 'page' : undefined}
+                      aria-current={
+                        isCurrent && (item.key !== 'create-employee-request' || !managerCreateMenuOpen)
+                          ? 'page'
+                          : undefined
+                      }
                       className={`flex w-full items-center justify-between rounded-xl px-3.5 py-3 text-left text-sm font-semibold transition ${
                         isCurrent
                           ? 'bg-primary text-primary-foreground shadow-[0_10px_25px_var(--theme-primary-soft)]'
                           : 'text-muted-foreground hover:bg-surface hover:text-foreground'
                       }`}
-                      onClick={() => handleSelectManagerTab(item.key)}
+                      onClick={() => {
+                        if (item.key === 'create-employee-request') {
+                          setManagerCreateMenuOpen((open) => !open)
+                        } else {
+                          handleSelectManagerTab(item.key)
+                        }
+                      }}
+                      aria-expanded={item.key === 'create-employee-request' ? managerCreateMenuOpen : undefined}
+                      aria-controls={
+                        item.key === 'create-employee-request' && managerCreateMenuOpen
+                          ? 'manager-create-request-options'
+                          : undefined
+                      }
                       type='button'
                     >
                       <div className='flex items-center gap-3'>
                         <Icon aria-hidden='true' className='size-[1.125rem] shrink-0' />
                         <span>{t(`manager.nav.${item.translationKey}`)}</span>
                       </div>
+                      {item.key === 'create-employee-request' && (
+                        <ChevronDown
+                          aria-hidden='true'
+                          className={`size-4 transition-transform ${managerCreateMenuOpen ? 'rotate-180' : ''}`}
+                        />
+                      )}
                       {item.badge !== undefined && (
                         <span
                           className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[0.65rem] font-bold ${
@@ -478,6 +517,26 @@ export function DashboardPage({ role }: { role: UserRole }) {
                         </span>
                       )}
                     </button>
+                    {item.key === 'create-employee-request' && managerCreateMenuOpen && (
+                      <ul className='mt-1 space-y-1 pl-8' id='manager-create-request-options'>
+                        {(['team', 'individual'] as const).map((scope) => (
+                          <li key={scope}>
+                            <button
+                              aria-current={isCurrent && managerRequestScope === scope ? 'page' : undefined}
+                              className={`min-h-10 w-full rounded-lg px-3 text-left text-sm transition ${
+                                isCurrent && managerRequestScope === scope
+                                  ? 'bg-primary-soft font-semibold text-primary-ink'
+                                  : 'text-muted-foreground hover:bg-surface hover:text-foreground'
+                              }`}
+                              onClick={() => handleSelectManagerTab('create-employee-request', { scope })}
+                              type='button'
+                            >
+                              {t(scope === 'team' ? 'manager.nav.requestForTeam' : 'manager.nav.requestForIndividual')}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </li>
                 )
               })}
@@ -580,22 +639,10 @@ export function DashboardPage({ role }: { role: UserRole }) {
           )}
         </nav>
 
-        <div className='space-y-3 p-4'>
-          <div className='rounded-2xl border border-primary/20 bg-primary-soft/65 p-4 text-center'>
-            <span className='mx-auto grid size-11 place-items-center rounded-2xl bg-primary text-primary-foreground'>
-              <WalletCards aria-hidden='true' className='size-5' />
-            </span>
-            <p className='mt-3 text-xs font-semibold text-muted-foreground'>{t('savings.title')}</p>
-            <p className='mt-1 text-lg font-bold text-primary'>{formatCurrency(245_800_000)}</p>
-            <p className='mt-1 text-xs text-muted-foreground'>{t('savings.period')}</p>
-            <button className='mt-3 text-xs font-bold text-primary hover:underline' type='button'>
-              {t('savings.action')}
-            </button>
-          </div>
-          <div className='flex items-center justify-between rounded-xl border border-border bg-surface px-3 py-2'>
-            <ThemeSwitch />
+        <div className='p-4'>
+          <div className='rounded-xl border border-border bg-surface px-3 py-2'>
             <Link
-              className='inline-flex h-10 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-muted-foreground transition hover:bg-primary-soft hover:text-primary'
+              className='flex h-10 w-full items-center gap-2 rounded-lg px-3 text-sm font-semibold text-muted-foreground transition hover:bg-primary-soft hover:text-primary'
               to='/login'
             >
               <LogOut aria-hidden='true' className='size-4' />
@@ -636,6 +683,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
               />
             </div>
 
+            <ThemeSwitch />
             <LanguageSwitch />
             <button
               aria-label={t('header.notifications')}
@@ -664,7 +712,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
 
         <motion.main
           animate={{ opacity: 1, y: 0 }}
-          className='mx-auto max-w-[100rem] p-4 sm:p-6 lg:p-8'
+          className={`mx-auto max-w-[100rem] p-4 sm:p-6 lg:p-8 ${isManager ? 'manager-workspace' : ''}`}
           initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
           key={isItAdmin ? activeTab : isEmployee ? activeEmployeeTab : 'general'}
           transition={{ duration: 0.25, ease: 'easeOut' }}
@@ -725,16 +773,25 @@ export function DashboardPage({ role }: { role: UserRole }) {
               <EmployeeCreateRequestView onSelectTab={handleSelectEmployeeTab} />
             ) : activeEmployeeTab === 'request-new-software' ? (
               <EmployeeRequestNewSoftwareView
+                initialParams={Object.fromEntries(searchParams.entries())}
                 onSelectTab={handleSelectEmployeeTab}
-                preselectedSoftwareId={searchParams.get('softwareId') || 'figma'}
+                preselectedSoftwareId={searchParams.get('softwareId') || undefined}
+                requestType={searchParams.get('type') === 'changePlan' ? 'changePlan' : 'newSoftware'}
+              />
+            ) : activeEmployeeTab === 'request-software-details' ? (
+              <EmployeeRequestSoftwareDetailsView
+                initialParams={Object.fromEntries(searchParams.entries())}
+                onSelectTab={handleSelectEmployeeTab}
               />
             ) : activeEmployeeTab === 'temporary-renewal' ? (
               <EmployeeTemporaryRenewalView
+                initialParams={Object.fromEntries(searchParams.entries())}
                 onSelectTab={handleSelectEmployeeTab}
                 softwareId={searchParams.get('softwareId') || undefined}
               />
             ) : activeEmployeeTab === 'return-license' ? (
               <EmployeeReturnLicenseView
+                initialParams={Object.fromEntries(searchParams.entries())}
                 onSelectTab={handleSelectEmployeeTab}
                 softwareId={searchParams.get('softwareId') || undefined}
               />
@@ -744,10 +801,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
                 requestParams={Object.fromEntries(searchParams.entries())}
               />
             ) : activeEmployeeTab === 'submission-success' ? (
-              <EmployeeSubmissionSuccessView
-                onSelectTab={handleSelectEmployeeTab}
-                requestId={searchParams.get('id') || 'REQ-1027'}
-              />
+              <EmployeeSubmissionSuccessView onSelectTab={handleSelectEmployeeTab} />
             ) : activeEmployeeTab === 'profile' ? (
               <EmployeeProfileView onSelectTab={handleSelectEmployeeTab} />
             ) : activeEmployeeTab === 'data-export' ? (
@@ -774,6 +828,12 @@ export function DashboardPage({ role }: { role: UserRole }) {
               <ManagerTeamSoftwareView formatCurrency={formatCurrency} onSelectTab={handleSelectManagerTab} />
             ) : activeManagerTab === 'team-requests' ? (
               <ManagerTeamRequestsView formatCurrency={formatCurrency} onSelectTab={handleSelectManagerTab} />
+            ) : activeManagerTab === 'my-requests' ? (
+              <ManagerMyRequestsView
+                managerName={profile.displayName}
+                onSelectTab={handleSelectManagerTab}
+                requests={managerPreviewRequests}
+              />
             ) : activeManagerTab === 'request-approval' ? (
               <ManagerRequestApprovalView
                 formatCurrency={formatCurrency}
@@ -784,7 +844,10 @@ export function DashboardPage({ role }: { role: UserRole }) {
               <ManagerCreateEmployeeRequestView
                 employeeId={searchParams.get('employeeId') || undefined}
                 formatCurrency={formatCurrency}
+                key={managerRequestScope}
                 onSelectTab={handleSelectManagerTab}
+                onSavePreview={handleSaveManagerPreview}
+                scope={managerRequestScope}
               />
             ) : activeManagerTab === 'ghost-seat-review' ? (
               <ManagerGhostSeatReviewView formatCurrency={formatCurrency} onSelectTab={handleSelectManagerTab} />
@@ -795,7 +858,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
                 onSelectTab={handleSelectManagerTab}
               />
             ) : (
-              <ManagerAccessReviewView onSelectTab={handleSelectManagerTab} />
+              <ManagerAccessReviewView />
             )
           ) : isApprover ? (
             activeApprovalTab === 'overview' ? (

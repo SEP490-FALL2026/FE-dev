@@ -1,7 +1,7 @@
-import { ArrowLeft, Check, Download, FileJson, FileSpreadsheet, FileText } from 'lucide-react'
-import { useState } from 'react'
+import { ArrowLeft, Download, FileJson, FileSpreadsheet, FileText } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
+import { EmployeePreviewNotice } from '../employee-preview-notice'
 import type { EmployeeTabKey } from '../employee-nav'
 
 interface EmployeeDataExportViewProps {
@@ -10,133 +10,71 @@ interface EmployeeDataExportViewProps {
 
 export function EmployeeDataExportView({ onSelectTab }: EmployeeDataExportViewProps) {
   const { t } = useTranslation('dashboard')
-  const [downloaded, setDownloaded] = useState<string | null>(null)
-
-  const handleDownload = (format: string) => {
-    setDownloaded(format)
-    setTimeout(() => setDownloaded(null), 2500)
-  }
+  const formats = [
+    {
+      description: t('employee.dataExport.formatCsvDesc'),
+      icon: FileSpreadsheet,
+      label: t('employee.dataExport.formatCsv'),
+      action: t('employee.dataExport.downloadCsv'),
+      tone: 'bg-success/10 text-success-ink'
+    },
+    {
+      description: t('employee.dataExport.formatJsonDesc'),
+      icon: FileJson,
+      label: t('employee.dataExport.formatJson'),
+      action: t('employee.dataExport.downloadJson'),
+      tone: 'bg-info/10 text-info-ink'
+    },
+    {
+      description: t('employee.dataExport.formatPdfDesc'),
+      icon: FileText,
+      label: t('employee.dataExport.formatPdf'),
+      action: t('employee.dataExport.downloadPdf'),
+      tone: 'bg-danger/10 text-danger-ink'
+    }
+  ]
 
   return (
-    <div className='mx-auto max-w-4xl space-y-6'>
-      {/* Header */}
+    <div className='mx-auto max-w-5xl space-y-6'>
       <div>
         <button
-          className='inline-flex items-center gap-2 text-xs font-bold text-muted-foreground transition hover:text-foreground'
+          className='inline-flex min-h-11 items-center gap-2 text-sm font-bold text-foreground hover:text-primary-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action'
           onClick={() => onSelectTab('profile')}
           type='button'
         >
           <ArrowLeft aria-hidden='true' className='size-4' />
-          <span>{t('employee.dataExport.backToProfile')}</span>
+          {t('employee.dataExport.backToProfile')}
         </button>
         <h1 className='mt-2 text-2xl font-bold tracking-tight sm:text-3xl'>{t('employee.dataExport.title')}</h1>
         <p className='mt-1 text-sm text-muted-foreground'>{t('employee.dataExport.subtitle')}</p>
       </div>
 
-      {/* Export Options Cards */}
-      <div className='grid gap-4 sm:grid-cols-3'>
-        <div className='flex flex-col justify-between rounded-2xl border border-border bg-surface p-5 shadow-sm'>
-          <div>
-            <span className='grid size-10 place-items-center rounded-xl bg-success/10 text-success'>
-              <FileSpreadsheet aria-hidden='true' className='size-5' />
-            </span>
-            <h2 className='mt-3 text-sm font-bold text-foreground'>{t('employee.dataExport.formatCsv')}</h2>
-            <p className='mt-1 text-[0.72rem] text-muted-foreground'>{t('employee.dataExport.formatCsvDesc')}</p>
-          </div>
-          <button
-            className='mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-3 py-2 text-xs font-bold text-primary-foreground shadow-xs transition hover:bg-primary/90'
-            onClick={() => handleDownload('csv')}
-            type='button'
-          >
-            {downloaded === 'csv' ? (
-              <>
-                <Check aria-hidden='true' className='size-3.5' />
-                <span>{t('employee.dataExport.downloaded')}</span>
-              </>
-            ) : (
-              <>
-                <Download aria-hidden='true' className='size-3.5' />
-                <span>{t('employee.dataExport.downloadCsv')}</span>
-              </>
-            )}
-          </button>
-        </div>
+      <EmployeePreviewNotice>{t('employee.preview.export')}</EmployeePreviewNotice>
 
-        <div className='flex flex-col justify-between rounded-2xl border border-border bg-surface p-5 shadow-sm'>
-          <div>
-            <span className='grid size-10 place-items-center rounded-xl bg-info/10 text-info'>
-              <FileJson aria-hidden='true' className='size-5' />
+      <section aria-label={t('employee.dataExport.title')} className='grid gap-4 md:grid-cols-3'>
+        {formats.map(({ action, description, icon: Icon, label, tone }) => (
+          <article className='flex flex-col rounded-2xl border border-border bg-surface p-5 shadow-sm' key={label}>
+            <span className={`grid size-11 place-items-center rounded-xl ${tone}`}>
+              <Icon aria-hidden='true' className='size-5' />
             </span>
-            <h2 className='mt-3 text-sm font-bold text-foreground'>{t('employee.dataExport.formatJson')}</h2>
-            <p className='mt-1 text-[0.72rem] text-muted-foreground'>{t('employee.dataExport.formatJsonDesc')}</p>
-          </div>
-          <button
-            className='mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-3 py-2 text-xs font-bold text-primary-foreground shadow-xs transition hover:bg-primary/90'
-            onClick={() => handleDownload('json')}
-            type='button'
-          >
-            {downloaded === 'json' ? (
-              <>
-                <Check aria-hidden='true' className='size-3.5' />
-                <span>{t('employee.dataExport.downloaded')}</span>
-              </>
-            ) : (
-              <>
-                <Download aria-hidden='true' className='size-3.5' />
-                <span>{t('employee.dataExport.downloadJson')}</span>
-              </>
-            )}
-          </button>
-        </div>
+            <h2 className='mt-4 text-base font-bold text-foreground'>{label}</h2>
+            <p className='mt-2 flex-1 text-sm leading-relaxed text-muted-foreground'>{description}</p>
+            <button
+              className='mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border bg-surface-subtle px-3 text-sm font-semibold text-muted-foreground disabled:cursor-not-allowed'
+              disabled
+              type='button'
+            >
+              <Download aria-hidden='true' className='size-4' />
+              {action}
+            </button>
+          </article>
+        ))}
+      </section>
 
-        <div className='flex flex-col justify-between rounded-2xl border border-border bg-surface p-5 shadow-sm'>
-          <div>
-            <span className='grid size-10 place-items-center rounded-xl bg-danger/10 text-danger'>
-              <FileText aria-hidden='true' className='size-5' />
-            </span>
-            <h2 className='mt-3 text-sm font-bold text-foreground'>{t('employee.dataExport.formatPdf')}</h2>
-            <p className='mt-1 text-[0.72rem] text-muted-foreground'>{t('employee.dataExport.formatPdfDesc')}</p>
-          </div>
-          <button
-            className='mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-3 py-2 text-xs font-bold text-primary-foreground shadow-xs transition hover:bg-primary/90'
-            onClick={() => handleDownload('pdf')}
-            type='button'
-          >
-            {downloaded === 'pdf' ? (
-              <>
-                <Check aria-hidden='true' className='size-3.5' />
-                <span>{t('employee.dataExport.downloaded')}</span>
-              </>
-            ) : (
-              <>
-                <Download aria-hidden='true' className='size-3.5' />
-                <span>{t('employee.dataExport.downloadPdf')}</span>
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-
-      {/* History */}
-      <div className='rounded-2xl border border-border bg-surface p-6 shadow-sm'>
-        <h2 className='text-sm font-bold text-foreground'>{t('employee.dataExport.recentExports')}</h2>
-        <div className='mt-4 divide-y divide-border text-xs'>
-          {[
-            { id: '1', fileName: 'personal_telemetry_2026_09.csv', meta: '28/09/2026 16:42 · 14.2 KB' },
-            { id: '2', fileName: 'gdpr_compliance_export_full.json', meta: '15/08/2026 09:15 · 88.6 KB' }
-          ].map((item) => (
-            <div key={item.id} className='flex items-center justify-between py-3'>
-              <div>
-                <p className='font-bold text-foreground'>{item.fileName}</p>
-                <p className='text-[0.68rem] text-muted-foreground'>{item.meta}</p>
-              </div>
-              <span className='rounded-md bg-success/10 px-2 py-0.5 text-[0.7rem] font-bold text-success'>
-                {t('employee.dataExport.statusSuccess')}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
+      <section className='rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-6'>
+        <h2 className='text-base font-bold text-foreground'>{t('employee.dataExport.recentExports')}</h2>
+        <p className='mt-3 text-sm text-muted-foreground'>{t('employee.dataExport.emptyHistory')}</p>
+      </section>
     </div>
   )
 }

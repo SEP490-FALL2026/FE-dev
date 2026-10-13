@@ -3,18 +3,17 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { type AccessReviewItem, MOCK_ACCESS_REVIEW } from '../manager-data'
-import type { ManagerTabKey } from '../manager-nav'
+import { ManagerConfirmDialog } from '../manager-confirm-dialog'
+import { ManagerIdentityMark } from '../manager-identity-mark'
 
-interface ManagerAccessReviewViewProps {
-  onSelectTab?: (tab: ManagerTabKey, params?: Record<string, string>) => void
-}
-
-export function ManagerAccessReviewView({ onSelectTab }: ManagerAccessReviewViewProps) {
+export function ManagerAccessReviewView() {
   const { t } = useTranslation('dashboard')
   const [items, setItems] = useState<AccessReviewItem[]>(MOCK_ACCESS_REVIEW)
   const [completedNotice, setCompletedNotice] = useState<string | null>(null)
+  const [retainConfirmOpen, setRetainConfirmOpen] = useState(false)
 
   const reviewedCount = items.filter((i) => i.status !== 'PENDING').length
+  const pendingCount = items.length - reviewedCount
   const progressPercent = Math.round((reviewedCount / items.length) * 100)
 
   const handleDecision = (id: string, decision: 'RETAIN' | 'REVOKE') => {
@@ -22,6 +21,7 @@ export function ManagerAccessReviewView({ onSelectTab }: ManagerAccessReviewView
   }
 
   const handleRetainAllActive = () => {
+    setRetainConfirmOpen(false)
     setItems((prev) => prev.map((item) => (item.status === 'PENDING' ? { ...item, status: 'RETAIN' } : item)))
     setCompletedNotice(t('manager.accessReview.retainedAllMsg'))
     setTimeout(() => setCompletedNotice(null), 3000)
@@ -29,9 +29,6 @@ export function ManagerAccessReviewView({ onSelectTab }: ManagerAccessReviewView
 
   const handleCompleteCampaign = () => {
     setCompletedNotice(t('manager.accessReview.campaignCompletedMsg'))
-    if (onSelectTab) {
-      setTimeout(() => onSelectTab('overview'), 1500)
-    }
   }
 
   return (
@@ -45,10 +42,11 @@ export function ManagerAccessReviewView({ onSelectTab }: ManagerAccessReviewView
           <p className='mt-1 text-sm text-muted-foreground'>{t('manager.accessReview.subtitle')}</p>
         </div>
 
-        <div className='flex items-center gap-2'>
+        <div className='flex w-full flex-wrap items-center gap-2 sm:w-auto'>
           <button
             className='inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-4 py-2 text-xs font-semibold text-foreground transition hover:bg-surface-subtle shadow-xs'
-            onClick={handleRetainAllActive}
+            disabled={pendingCount === 0}
+            onClick={() => setRetainConfirmOpen(true)}
             type='button'
           >
             <CheckCircle2 className='size-3.5 text-success' />
@@ -66,8 +64,22 @@ export function ManagerAccessReviewView({ onSelectTab }: ManagerAccessReviewView
         </div>
       </div>
 
+      {retainConfirmOpen && (
+        <ManagerConfirmDialog
+          cancelLabel={t('manager.accessReview.cancelBtn')}
+          confirmLabel={t('manager.accessReview.retainActiveBtn')}
+          description={t('manager.accessReview.retainConfirmDesc', { count: pendingCount })}
+          onCancel={() => setRetainConfirmOpen(false)}
+          onConfirm={handleRetainAllActive}
+          title={t('manager.accessReview.retainConfirmTitle')}
+        />
+      )}
+
       {completedNotice && (
-        <div className='flex items-center gap-2 rounded-xl border border-success/30 bg-success/10 p-4 text-xs font-medium text-success shadow-xs'>
+        <div
+          role='status'
+          className='flex items-center gap-2 rounded-xl border border-success/30 bg-success/10 p-4 text-xs font-medium text-success shadow-xs'
+        >
           <ShieldCheck className='size-5 shrink-0' />
           <span>{completedNotice}</span>
         </div>
@@ -84,7 +96,14 @@ export function ManagerAccessReviewView({ onSelectTab }: ManagerAccessReviewView
           </div>
           <span className='font-mono font-bold text-foreground'>{progressPercent}%</span>
         </div>
-        <div className='h-2 w-full overflow-hidden rounded-full bg-border'>
+        <div
+          aria-label={t('manager.accessReview.progressTitle')}
+          aria-valuemax={items.length}
+          aria-valuemin={0}
+          aria-valuenow={reviewedCount}
+          className='h-2 w-full overflow-hidden rounded-full bg-border'
+          role='progressbar'
+        >
           <div
             className='h-full rounded-full bg-primary transition-all duration-300'
             style={{ width: `${progressPercent}%` }}
@@ -98,6 +117,7 @@ export function ManagerAccessReviewView({ onSelectTab }: ManagerAccessReviewView
 
         <div className='overflow-x-auto'>
           <table className='w-full text-left text-xs'>
+            <caption className='sr-only'>{t('manager.accessReview.tableTitle')}</caption>
             <thead>
               <tr className='border-b border-border text-muted-foreground'>
                 <th className='py-3 px-4 font-semibold'>{t('manager.accessReview.colEmployee')}</th>
@@ -118,9 +138,7 @@ export function ManagerAccessReviewView({ onSelectTab }: ManagerAccessReviewView
 
                   <td className='py-3.5 px-4'>
                     <div className='flex items-center gap-2'>
-                      <span className='flex size-7 shrink-0 items-center justify-center rounded-lg border border-border bg-background text-sm'>
-                        {item.logo}
-                      </span>
+                      <ManagerIdentityMark className='size-8 rounded-lg' name={item.softwareName} />
                       <span className='font-bold text-foreground'>{item.softwareName}</span>
                     </div>
                   </td>
@@ -150,6 +168,7 @@ export function ManagerAccessReviewView({ onSelectTab }: ManagerAccessReviewView
                   <td className='py-3.5 px-4 text-right'>
                     <div className='flex items-center justify-end gap-1.5'>
                       <button
+                        aria-pressed={item.status === 'RETAIN'}
                         className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
                           item.status === 'RETAIN'
                             ? 'bg-success text-white shadow-xs'
@@ -161,6 +180,7 @@ export function ManagerAccessReviewView({ onSelectTab }: ManagerAccessReviewView
                         {t('manager.accessReview.actRetain')}
                       </button>
                       <button
+                        aria-pressed={item.status === 'REVOKE'}
                         className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
                           item.status === 'REVOKE'
                             ? 'bg-danger text-white shadow-xs'

@@ -3,7 +3,9 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { MOCK_TEAM_REQUESTS } from '../manager-data'
+import { ManagerIdentityMark } from '../manager-identity-mark'
 import type { ManagerTabKey } from '../manager-nav'
+import { ManagerSummaryStrip } from '../manager-summary-strip'
 
 interface ManagerTeamRequestsViewProps {
   formatCurrency: (value: number) => string
@@ -11,7 +13,8 @@ interface ManagerTeamRequestsViewProps {
 }
 
 export function ManagerTeamRequestsView({ formatCurrency, onSelectTab }: ManagerTeamRequestsViewProps) {
-  const { t } = useTranslation('dashboard')
+  const { i18n, t } = useTranslation('dashboard')
+  const formatCount = new Intl.NumberFormat(i18n.resolvedLanguage ?? 'vi').format
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED'>('ALL')
 
@@ -25,6 +28,9 @@ export function ManagerTeamRequestsView({ formatCurrency, onSelectTab }: Manager
 
     return matchesSearch && matchesStatus
   })
+
+  const pendingCount = MOCK_TEAM_REQUESTS.filter((request) => request.status === 'PENDING').length
+  const urgentCount = MOCK_TEAM_REQUESTS.filter((request) => request.urgency === 'HIGH').length
 
   return (
     <div className='space-y-6'>
@@ -49,6 +55,14 @@ export function ManagerTeamRequestsView({ formatCurrency, onSelectTab }: Manager
         </div>
       </div>
 
+      <ManagerSummaryStrip
+        metrics={[
+          { label: t('manager.requests.metricTotal'), value: formatCount(MOCK_TEAM_REQUESTS.length) },
+          { label: t('manager.requests.metricPending'), value: formatCount(pendingCount) },
+          { label: t('manager.requests.metricUrgent'), value: formatCount(urgentCount) }
+        ]}
+      />
+
       {/* Main Table Card */}
       <div className='rounded-2xl border border-border bg-surface p-5 shadow-sm space-y-4'>
         {/* Controls */}
@@ -56,6 +70,7 @@ export function ManagerTeamRequestsView({ formatCurrency, onSelectTab }: Manager
           <div className='relative flex-1 max-w-md'>
             <Search className='absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground' />
             <input
+              aria-label={t('manager.requests.searchPlaceholder')}
               className='h-10 w-full rounded-xl border border-border bg-background pl-10 pr-4 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder={t('manager.requests.searchPlaceholder')}
@@ -72,6 +87,7 @@ export function ManagerTeamRequestsView({ formatCurrency, onSelectTab }: Manager
               { id: 'REJECTED' as const, label: t('manager.requests.filterRejected') }
             ].map((opt) => (
               <button
+                aria-pressed={statusFilter === opt.id}
                 key={opt.id}
                 className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
                   statusFilter === opt.id
@@ -90,6 +106,7 @@ export function ManagerTeamRequestsView({ formatCurrency, onSelectTab }: Manager
         {/* Table */}
         <div className='overflow-x-auto'>
           <table className='w-full text-left text-xs'>
+            <caption className='sr-only'>{t('manager.requests.title')}</caption>
             <thead>
               <tr className='border-b border-border text-muted-foreground'>
                 <th className='py-3 px-4 font-semibold'>{t('manager.requests.colRequest')}</th>
@@ -114,9 +131,7 @@ export function ManagerTeamRequestsView({ formatCurrency, onSelectTab }: Manager
                   <tr key={item.id} className='transition hover:bg-surface-subtle/50'>
                     <td className='py-3.5 px-4'>
                       <div className='flex items-center gap-3'>
-                        <span className='flex size-9 shrink-0 items-center justify-center rounded-xl border border-border bg-background text-base'>
-                          {item.logo}
-                        </span>
+                        <ManagerIdentityMark name={item.saasName} />
                         <div>
                           <p className='font-bold text-foreground'>{item.saasName}</p>
                           <div className='flex items-center gap-1.5 text-[11px] text-muted-foreground'>
