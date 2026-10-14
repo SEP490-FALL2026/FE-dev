@@ -280,7 +280,7 @@ export const spendDashboard = {
   },
   finance: {
     nav: {
-      budgetQuestions: 'Budget questions',
+      budgetQuestions: 'Budget info requests',
       budgets: 'Cost Centers & budgets',
       chargeExceptions: 'Charge exceptions',
       commitments: 'Commitments to record',
@@ -311,7 +311,7 @@ export const spendDashboard = {
         'Finance is not on the spend approval path: it answers when asked and records after the Spending Approver approves.',
       openAction: 'Open →',
       openExceptions: 'Charge exceptions',
-      openQuestions: 'Open budget questions',
+      openQuestions: 'Open budget info requests',
       periodClose: 'Close {{period}}',
       questionsHint: 'From the Spending Approver — reference only, non-blocking',
       recordingHint: '{{count}} past their recording due time',
@@ -324,30 +324,43 @@ export const spendDashboard = {
     questions: {
       answeredNotice:
         "The answer now shows on the Spending Approver's decision screen. The spend step SLA was not paused.",
-      askedBy: 'Asked by {{name}} at {{time}}',
-      cancelledNotice: 'The request was cancelled, so the question closed with it.',
-      empty: 'No questions.',
-      filterLabel: 'Filter questions by status',
+      backToList: 'Back to list',
+      cancelledNotice: 'The purchase request was cancelled, so this budget info request closed with it.',
+      colRequest: 'Request',
+      colSentBy: 'Sent by',
+      colStatus: 'Status',
+      dossierBudget: '1. Current budget',
+      dossierCost: '2. Total cost of this request',
+      dossierHint: "Figures for the request's Cost Center and period; every amount is borne cost.",
+      dossierTitle: 'Attached dossier',
+      empty: 'No requests.',
+      filterLabel: 'Filter requests by status',
+      from: 'From {{name}} · Spending Approver',
       noteLabel: 'Note for the Spending Approver',
       notePlaceholder: 'E.g. about 50 million left after held commitments.',
       noteRequired: 'A note is required.',
+      openDetail: 'View details',
+      openDetailFor: 'View details of {{code}}',
+      opinionLegend: 'Budget opinion',
       opinionRequired: 'Choose an opinion.',
       replyLegend: 'Reply',
+      requestKicker: 'Budget info request',
       requester: 'requested by {{name}}',
       ruleNotice:
         'Your answer is input for reference — not an approval and never blocking. The Spending Approver can decide at any time, even before you answer.',
       slaNote: 'Finance response time is measured separately.',
       sodBlocked:
-        'You are the (substitute) Spending Approver of this request, so you cannot answer its budget question (SoD-8).',
+        'You are the Spending Approver of this request, so you cannot answer its budget info request (SoD-8).',
       status: {
         ANSWERED: 'Answered',
         CLOSED_CANCELLED: 'Closed — request cancelled',
         OPEN: 'Open'
       },
       submit: 'Send answer',
-      subtitle: 'The Spending Approver asks for the Cost Center and period budget position before deciding.',
+      subtitle:
+        "The Spending Approver sends a request with the Cost Center's budget dossier for the period; Finance answers for reference before the decision.",
       suggested: 'Snapshot suggests: {{opinion}}',
-      title: 'Budget questions from the Spending Approver'
+      title: 'Budget info requests from the Spending Approver'
     },
     commitments: {
       approvedBy: 'approved by {{name}}',
