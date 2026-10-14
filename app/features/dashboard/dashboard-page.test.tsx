@@ -17,9 +17,9 @@ const roleLabels: Record<UserRole, string> = {
   'super-admin': 'Quản trị hệ thống'
 }
 
-function renderDashboard(role: UserRole) {
+function renderDashboard(role: UserRole, initialEntry = '/') {
   return render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={[initialEntry]}>
       <AppProviders>
         <DashboardPage role={role} />
       </AppProviders>
@@ -47,54 +47,113 @@ describe('DashboardPage', () => {
     view.unmount()
   })
 
-  it('renders the finance dashboard shell and navigates tabs', () => {
+  it('renders the finance dashboard and navigates the UF-11/12/19 screens', () => {
     const view = renderDashboard('finance')
     const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
 
-    expect(screen.getByText('Bảng điều khiển Tài chính & SaaS Spend')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Bảng điều khiển Tài chính' })).toBeInTheDocument()
     expect(screen.getByTestId('dashboard-role')).toHaveTextContent('Finance')
 
-    // Click "Báo cáo ngân sách"
-    const budgetBtn = within(nav).getByRole('button', { name: /Báo cáo ngân sách/i })
-    expect(budgetBtn).not.toHaveClass('bg-primary')
-    fireEvent.click(budgetBtn)
-    expect(budgetBtn).toHaveClass('bg-primary')
-    expect(screen.getByText('Báo cáo ngân sách & Giải trình chi phí')).toBeInTheDocument()
+    const questionsBtn = within(nav).getByRole('button', { name: /Câu hỏi ngân sách/i })
+    expect(questionsBtn).not.toHaveClass('bg-primary')
+    fireEvent.click(questionsBtn)
+    expect(questionsBtn).toHaveClass('bg-primary')
+    expect(screen.getByRole('heading', { level: 1, name: 'Câu hỏi ngân sách từ Người duyệt chi' })).toBeInTheDocument()
 
-    // Click "Lịch gia hạn"
-    const renewalBtn = within(nav).getByRole('button', { name: /Lịch gia hạn/i })
-    expect(renewalBtn).not.toHaveClass('bg-primary')
-    fireEvent.click(renewalBtn)
-    expect(renewalBtn).toHaveClass('bg-primary')
-    expect(budgetBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByText('Lịch gia hạn & Hạn chót hợp đồng')).toBeInTheDocument()
+    const commitmentsBtn = within(nav).getByRole('button', { name: /Cam kết chờ ghi nhận/i })
+    fireEvent.click(commitmentsBtn)
+    expect(commitmentsBtn).toHaveClass('bg-primary')
+    expect(questionsBtn).not.toHaveClass('bg-primary')
+    expect(screen.getByRole('heading', { level: 1, name: 'Khoản cam kết chờ ghi nhận' })).toBeInTheDocument()
+
+    fireEvent.click(within(nav).getByRole('button', { name: /Báo cáo kỳ/i }))
+    expect(screen.getByRole('heading', { level: 1, name: 'Báo cáo kỳ Q3-2026' })).toBeInTheDocument()
 
     view.unmount()
   })
 
-  it('renders the approvals dashboard shell for spending-approver and navigates tabs', () => {
+  it('requires an opinion and a note before Finance answers a budget question', () => {
+    renderDashboard('finance')
+    fireEvent.click(
+      within(screen.getByRole('navigation', { name: 'Điều hướng dashboard' })).getByRole('button', {
+        name: /Câu hỏi ngân sách/i
+      })
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Gửi câu trả lời' }))
+    expect(screen.getByText('Chọn một ý kiến.')).toBeInTheDocument()
+    expect(screen.getByText('Bắt buộc nhập ghi chú.')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('radio', { name: 'Trong hạn mức' }))
+    fireEvent.change(screen.getByLabelText('Ghi chú cho Người duyệt chi'), { target: { value: 'Còn đủ ngân sách.' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Gửi câu trả lời' }))
+
+    expect(screen.getByText(/Câu trả lời đã hiện trên màn hình quyết định của Người duyệt chi/)).toBeInTheDocument()
+  })
+
+  it('shows a negative remaining with the over-committed label when a budget is smaller than back-filled commitments', () => {
+    renderDashboard('finance')
+    fireEvent.click(
+      within(screen.getByRole('navigation', { name: 'Điều hướng dashboard' })).getByRole('button', {
+        name: /Cost Center & ngân sách/i
+      })
+    )
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Lập ngân sách' })[0])
+    fireEvent.change(screen.getByLabelText('Hạn mức ngân sách (chi phí thực chịu, VND)'), {
+      target: { value: '20000000' }
+    })
+    expect(screen.getByText(/Còn lại âm: cam kết tạo trước khi có ngân sách vượt hạn mức vừa lập/)).toBeInTheDocument()
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Lập ngân sách' }).at(-1)!)
+    expect(screen.getByText(/đã gắn ngược 2 khoản cam kết/)).toBeInTheDocument()
+  })
+
+  it('renders the spending approver dashboard and navigates the UF-15 screens', () => {
     const view = renderDashboard('spending-approver')
     const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
 
-    expect(screen.getByText('Bảng điều khiển Phê duyệt & Ngân sách')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Chào Hoàng Nam' })).toBeInTheDocument()
     expect(screen.getByTestId('dashboard-role')).toHaveTextContent(roleLabels['spending-approver'])
 
-    // Click "Hàng chờ duyệt"
     const queueBtn = within(nav).getByRole('button', { name: /Hàng chờ duyệt/i })
     expect(queueBtn).not.toHaveClass('bg-primary')
     fireEvent.click(queueBtn)
     expect(queueBtn).toHaveClass('bg-primary')
-    expect(screen.getByText('Hàng chờ phê duyệt yêu cầu')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Hàng chờ phê duyệt' })).toBeInTheDocument()
 
-    // Click "Báo cáo & Phân tích"
-    const reportsBtn = within(nav).getByRole('button', { name: /Báo cáo & Phân tích/i })
-    expect(reportsBtn).not.toHaveClass('bg-primary')
+    const reportsBtn = within(nav).getByRole('button', { name: /Báo cáo/i })
     fireEvent.click(reportsBtn)
     expect(reportsBtn).toHaveClass('bg-primary')
     expect(queueBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByText('Báo cáo & Phân tích chi tiêu')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Báo cáo của Người duyệt chi' })).toBeInTheDocument()
 
     view.unmount()
+  })
+
+  it('requires a reason before the spending approver rejects a request', () => {
+    renderDashboard('spending-approver')
+    fireEvent.click(
+      within(screen.getByRole('navigation', { name: 'Điều hướng dashboard' })).getByRole('button', {
+        name: /Hàng chờ duyệt/i
+      })
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Mở REQ-2026-089' }))
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Figma Organization · 15 seat' })).toBeInTheDocument()
+    expect(
+      within(screen.getByRole('navigation', { name: 'Điều hướng dashboard' })).getByRole('button', {
+        name: /Hàng chờ duyệt/i
+      })
+    ).toHaveClass('bg-primary')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Từ chối' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Xác nhận từ chối' }))
+    expect(screen.getByText('Bắt buộc nhập lý do.')).toBeInTheDocument()
+
+    fireEvent.change(screen.getByLabelText('Lý do từ chối (bắt buộc)'), { target: { value: 'Chưa cần trong Q4.' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Xác nhận từ chối' }))
+    expect(screen.getByText(/không tạo khoản cam kết/)).toBeInTheDocument()
   })
 
   it('renders the manager dashboard shell and navigates tabs', () => {
@@ -109,7 +168,7 @@ describe('DashboardPage', () => {
     expect(myTeamBtn).not.toHaveClass('bg-primary')
     fireEvent.click(myTeamBtn)
     expect(myTeamBtn).toHaveClass('bg-primary')
-    expect(screen.getByText('Thành viên trong nhóm')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Thành viên trong nhóm' })).toBeInTheDocument()
 
     // Click "Phần mềm của nhóm"
     const teamSoftBtn = within(nav).getByRole('button', { name: /Phần mềm của nhóm/i })
@@ -117,23 +176,167 @@ describe('DashboardPage', () => {
     fireEvent.click(teamSoftBtn)
     expect(teamSoftBtn).toHaveClass('bg-primary')
     expect(myTeamBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByText('Phần mềm phòng ban sử dụng')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Phần mềm phòng ban sử dụng' })).toBeInTheDocument()
 
     // Click "Yêu cầu phê duyệt"
     const teamRequestsBtn = within(nav).getByRole('button', { name: /Yêu cầu phê duyệt/i })
     fireEvent.click(teamRequestsBtn)
     expect(teamRequestsBtn).toHaveClass('bg-primary')
     expect(teamSoftBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByText('Yêu cầu phần mềm của nhóm')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Yêu cầu phần mềm của nhóm' })).toBeInTheDocument()
 
     // Click "Rà soát tài khoản lãng phí"
     const ghostSeatBtn = within(nav).getByRole('button', { name: /Rà soát tài khoản lãng phí/i })
     fireEvent.click(ghostSeatBtn)
     expect(ghostSeatBtn).toHaveClass('bg-primary')
     expect(teamRequestsBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByText('Rà soát tài khoản lãng phí (Ghost Seats)')).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Rà soát tài khoản lãng phí (Ghost Seats)' })
+    ).toBeInTheDocument()
 
     view.unmount()
+  })
+
+  it('opens team and individual request forms from the Manager sidebar', async () => {
+    localStorage.setItem('saas-sentry.language', 'en')
+    await setAppLanguage('en', false)
+    renderDashboard('manager')
+    const nav = screen.getByRole('navigation', { name: 'Dashboard navigation' })
+    const createButton = within(nav).getByRole('button', { name: 'Create Request' })
+
+    expect(createButton).toHaveAttribute('aria-expanded', 'false')
+    fireEvent.click(createButton)
+    expect(createButton).toHaveAttribute('aria-expanded', 'true')
+
+    fireEvent.click(within(nav).getByRole('button', { name: 'Request for team' }))
+    expect(screen.getByRole('heading', { level: 1, name: 'Create License Request for Team' })).toBeInTheDocument()
+    expect(screen.queryByRole('combobox', { name: 'Select Employee' })).not.toBeInTheDocument()
+    const members = screen.getByRole('group', { name: 'Select team members to receive access' })
+    const previewButton = screen.getByRole('button', { name: 'Preview Request' })
+    expect(previewButton).toBeDisabled()
+    fireEvent.click(within(members).getAllByRole('checkbox')[0])
+    expect(previewButton).toBeDisabled()
+    fireEvent.change(screen.getByRole('textbox', { name: 'Desired license plan' }), {
+      target: { value: 'Enterprise Custom' }
+    })
+    fireEvent.change(screen.getByLabelText('From date'), {
+      target: { value: '2026-01-01' }
+    })
+    fireEvent.change(screen.getByLabelText('To date'), { target: { value: '2025-12-31' } })
+    expect(screen.getByText('The end date must be on or after the start date.')).toBeInTheDocument()
+    expect(previewButton).toBeDisabled()
+    fireEvent.change(screen.getByLabelText('To date'), { target: { value: '2026-06-30' } })
+    expect(previewButton).toBeEnabled()
+    fireEvent.change(screen.getByRole('textbox', { name: 'Business Justification' }), {
+      target: { value: 'Shared access for the design project' }
+    })
+    fireEvent.click(previewButton)
+    expect(screen.getByText('Enterprise Custom')).toBeInTheDocument()
+    expect(screen.getByText('1/1/2026 – 6/30/2026')).toBeInTheDocument()
+
+    fireEvent.click(within(nav).getByRole('button', { name: 'Request for individual' }))
+    expect(screen.getByRole('heading', { level: 1, name: 'Create License Request for Employee' })).toBeInTheDocument()
+    expect(screen.getByRole('combobox', { name: 'Select Employee' })).toBeInTheDocument()
+    expect(screen.getByRole('textbox', { name: 'Desired license plan' })).toHaveValue('')
+    expect(screen.getByLabelText('From date')).toHaveValue('')
+    expect(screen.getByLabelText('To date')).toHaveValue('')
+    expect(within(nav).getByRole('button', { name: 'Request for individual' })).toHaveAttribute('aria-current', 'page')
+  })
+
+  it('restores team request mode from the Manager URL', async () => {
+    localStorage.setItem('saas-sentry.language', 'en')
+    await setAppLanguage('en', false)
+    renderDashboard('manager', '/?tab=create-employee-request&scope=team')
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Create License Request for Team' })).toBeInTheDocument()
+    const nav = screen.getByRole('navigation', { name: 'Dashboard navigation' })
+    expect(within(nav).getByRole('button', { name: 'Create Request' })).toHaveAttribute('aria-expanded', 'true')
+  })
+
+  it('shows only Manager session previews in My Requests and lets the manager filter them', async () => {
+    localStorage.setItem('saas-sentry.language', 'en')
+    await setAppLanguage('en', false)
+    const view = renderDashboard('manager', '/?tab=my-requests')
+    const nav = screen.getByRole('navigation', { name: 'Dashboard navigation' })
+    const approvalButton = within(nav).getByRole('button', { name: /Team Requests/ })
+    const myRequestsButton = within(nav).getByRole('button', { name: 'My Requests' })
+
+    expect(approvalButton.compareDocumentPosition(myRequestsButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(myRequestsButton).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByRole('heading', { level: 1, name: 'My Requests' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'No previews yet' })).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Request for team' }))
+    const members = screen.getByRole('group', { name: 'Select team members to receive access' })
+    fireEvent.click(within(members).getAllByRole('checkbox')[0])
+    fireEvent.change(screen.getByRole('textbox', { name: 'Desired license plan' }), {
+      target: { value: 'Enterprise Custom' }
+    })
+    fireEvent.change(screen.getByLabelText('From date'), { target: { value: '2026-01-01' } })
+    fireEvent.change(screen.getByLabelText('To date'), { target: { value: '2026-06-30' } })
+    fireEvent.change(screen.getByRole('textbox', { name: 'Business Justification' }), {
+      target: { value: 'Shared design work' }
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Preview Request' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Save preview' }))
+
+    expect(screen.getByRole('heading', { level: 1, name: 'My Requests' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'No previews yet' })).not.toBeInTheDocument()
+    expect(screen.getByText('Enterprise Custom')).toBeInTheDocument()
+    expect(screen.getByText('Not submitted')).toBeInTheDocument()
+    const detailsButton = screen.getByRole('button', { name: 'View details' })
+    expect(detailsButton).toHaveAttribute('aria-expanded', 'false')
+    fireEvent.click(detailsButton)
+    expect(detailsButton).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByText('Shared design work')).toBeInTheDocument()
+
+    const filters = screen.getByRole('group', { name: 'Filter by request audience' })
+    fireEvent.click(within(filters).getByRole('button', { name: 'Individual' }))
+    expect(screen.getByText('No matching previews found.')).toBeInTheDocument()
+    fireEvent.click(within(filters).getByRole('button', { name: 'All' }))
+    fireEvent.change(screen.getByRole('searchbox', { name: 'Search my requests' }), {
+      target: { value: 'no-such-software' }
+    })
+    expect(screen.getByText('No matching previews found.')).toBeInTheDocument()
+
+    view.unmount()
+    renderDashboard('manager', '/?tab=my-requests')
+    expect(screen.getByRole('heading', { name: 'No previews yet' })).toBeInTheDocument()
+  })
+
+  it('keeps Manager filters and access-review progress available to assistive technology', () => {
+    renderDashboard('manager')
+    const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
+
+    fireEvent.click(within(nav).getByRole('button', { name: /Nhân viên của tôi/i }))
+    const onLeave = screen.getByRole('button', { name: 'Nghỉ phép' })
+    fireEvent.click(onLeave)
+    expect(onLeave).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('table', { name: 'Thành viên trong nhóm' })).toBeInTheDocument()
+
+    fireEvent.click(within(nav).getByRole('button', { name: /Đợt tái chứng nhận quyền/i }))
+    const progress = screen.getByRole('progressbar', { name: 'Tiến độ hoàn thành chiến dịch' })
+    expect(progress).toHaveAttribute('aria-valuenow', '3')
+    const pendingRow = screen.getByText('AutoCAD').closest('tr')
+    expect(pendingRow).not.toBeNull()
+    fireEvent.click(within(pendingRow!).getByRole('button', { name: 'Duy trì' }))
+    expect(progress).toHaveAttribute('aria-valuenow', '4')
+  })
+
+  it('confirms a Manager bulk ghost-seat decision before changing the preview', () => {
+    renderDashboard('manager')
+    const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
+    fireEvent.click(within(nav).getByRole('button', { name: /Rà soát tài khoản lãng phí/i }))
+
+    fireEvent.click(screen.getByRole('button', { name: 'Đánh dấu thu hồi G3' }))
+    const dialog = screen.getByRole('dialog', { name: 'Xác nhận rà soát hàng loạt' })
+    expect(dialog).toHaveTextContent('chưa gửi đến IT Admin')
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Hủy' }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Đánh dấu thu hồi G3' }))
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Đánh dấu thu hồi G3' }))
+    expect(screen.getByRole('status')).toHaveTextContent('trong bản xem trước')
   })
 
   it('renders the employee dashboard shell', () => {
@@ -196,6 +399,12 @@ describe('DashboardPage', () => {
     expect(provisioningBtn).not.toHaveAttribute('aria-current', 'page')
     expect(provisioningBtn).not.toHaveClass('bg-primary')
     expect(screen.getByText('Bảng tối ưu bản quyền & Giảm chi phí')).toBeInTheDocument()
+
+    // Click sub-menu "Gia hạn AI"
+    const renewalsBtn = screen.getByRole('button', { name: /Gia hạn AI/i })
+    fireEvent.click(renewalsBtn)
+    expect(renewalsBtn).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByText('Đề xuất gia hạn & Đàm phán hợp đồng AI')).toBeInTheDocument()
 
     // Return to default dashboard home
     fireEvent.click(overviewBtn)

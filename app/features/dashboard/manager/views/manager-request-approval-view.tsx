@@ -3,6 +3,8 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { MOCK_TEAM_REQUESTS, type TeamRequestItem } from '../manager-data'
+import { handleManagerDialogKeyDown } from '../manager-dialog-keyboard'
+import { ManagerIdentityMark } from '../manager-identity-mark'
 import type { ManagerTabKey } from '../manager-nav'
 
 interface ManagerRequestApprovalViewProps {
@@ -49,6 +51,7 @@ export function ManagerRequestApprovalView({
       <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
         <div className='flex items-center gap-3'>
           <button
+            aria-label={t('manager.approval.backToRequests')}
             className='inline-flex items-center justify-center rounded-xl border border-border bg-surface p-2 text-muted-foreground transition hover:bg-surface-subtle hover:text-foreground'
             onClick={() => onSelectTab('team-requests')}
             type='button'
@@ -70,7 +73,10 @@ export function ManagerRequestApprovalView({
       </div>
 
       {successMsg && (
-        <div className='flex items-center gap-2 rounded-xl border border-success/30 bg-success/10 p-4 text-xs font-medium text-success shadow-xs'>
+        <div
+          role='status'
+          className='flex items-center gap-2 rounded-xl border border-success/30 bg-success/10 p-4 text-xs font-medium text-success shadow-xs'
+        >
           <CheckCircle2 className='size-5 shrink-0' />
           <span>{successMsg}</span>
         </div>
@@ -83,9 +89,7 @@ export function ManagerRequestApprovalView({
           {/* Main Info Card */}
           <div className='rounded-2xl border border-border bg-surface p-5 shadow-sm space-y-5'>
             <div className='flex items-center gap-3 border-b border-border pb-4'>
-              <span className='flex size-12 shrink-0 items-center justify-center rounded-2xl border border-border bg-background text-2xl'>
-                {request.logo}
-              </span>
+              <ManagerIdentityMark className='size-12 rounded-2xl text-base' name={request.saasName} />
               <div>
                 <h2 className='text-base font-bold text-foreground'>{request.saasName}</h2>
                 <p className='text-xs text-muted-foreground'>{request.plan}</p>
@@ -200,10 +204,19 @@ export function ManagerRequestApprovalView({
       {/* Reject Modal */}
       {rejectModalOpen && (
         <div className='fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 backdrop-blur-xs p-4'>
-          <div className='w-full max-w-md rounded-2xl border border-border bg-surface p-6 shadow-xl space-y-4'>
+          <div
+            aria-labelledby='manager-reject-title'
+            aria-modal='true'
+            className='w-full max-w-md rounded-2xl border border-border bg-surface p-6 shadow-xl space-y-4'
+            onKeyDown={(event) => handleManagerDialogKeyDown(event, () => setRejectModalOpen(false))}
+            role='dialog'
+          >
             <div className='flex items-center justify-between'>
-              <h3 className='font-bold text-sm text-foreground'>{t('manager.approval.rejectModalTitle')}</h3>
+              <h3 className='font-bold text-sm text-foreground' id='manager-reject-title'>
+                {t('manager.approval.rejectModalTitle')}
+              </h3>
               <button
+                aria-label={t('manager.approval.cancelBtn')}
                 className='text-muted-foreground hover:text-foreground'
                 onClick={() => setRejectModalOpen(false)}
                 type='button'
@@ -212,6 +225,8 @@ export function ManagerRequestApprovalView({
               </button>
             </div>
             <textarea
+              aria-label={t('manager.approval.rejectPlaceholder')}
+              autoFocus
               className='w-full rounded-xl border border-border bg-background p-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
               onChange={(e) => setRejectReason(e.target.value)}
               placeholder={t('manager.approval.rejectPlaceholder')}
@@ -227,7 +242,8 @@ export function ManagerRequestApprovalView({
                 {t('manager.approval.cancelBtn')}
               </button>
               <button
-                className='rounded-xl bg-danger px-4 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-danger/90'
+                className='rounded-xl bg-danger px-4 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-danger/90 disabled:opacity-50'
+                disabled={!rejectReason.trim()}
                 onClick={handleConfirmReject}
                 type='button'
               >
@@ -241,10 +257,19 @@ export function ManagerRequestApprovalView({
       {/* Clarify Modal */}
       {clarifyModalOpen && (
         <div className='fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 backdrop-blur-xs p-4'>
-          <div className='w-full max-w-md rounded-2xl border border-border bg-surface p-6 shadow-xl space-y-4'>
+          <div
+            aria-labelledby='manager-clarify-title'
+            aria-modal='true'
+            className='w-full max-w-md rounded-2xl border border-border bg-surface p-6 shadow-xl space-y-4'
+            onKeyDown={(event) => handleManagerDialogKeyDown(event, () => setClarifyModalOpen(false))}
+            role='dialog'
+          >
             <div className='flex items-center justify-between'>
-              <h3 className='font-bold text-sm text-foreground'>{t('manager.approval.clarifyModalTitle')}</h3>
+              <h3 className='font-bold text-sm text-foreground' id='manager-clarify-title'>
+                {t('manager.approval.clarifyModalTitle')}
+              </h3>
               <button
+                aria-label={t('manager.approval.cancelBtn')}
                 className='text-muted-foreground hover:text-foreground'
                 onClick={() => setClarifyModalOpen(false)}
                 type='button'
@@ -253,6 +278,8 @@ export function ManagerRequestApprovalView({
               </button>
             </div>
             <textarea
+              aria-label={t('manager.approval.clarifyPlaceholder')}
+              autoFocus
               className='w-full rounded-xl border border-border bg-background p-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
               onChange={(e) => setClarifyMsg(e.target.value)}
               placeholder={t('manager.approval.clarifyPlaceholder')}
@@ -268,7 +295,8 @@ export function ManagerRequestApprovalView({
                 {t('manager.approval.cancelBtn')}
               </button>
               <button
-                className='rounded-xl bg-primary px-4 py-1.5 text-xs font-bold text-primary-foreground shadow-sm hover:bg-primary/90'
+                className='rounded-xl bg-primary px-4 py-1.5 text-xs font-bold text-primary-foreground shadow-sm hover:bg-primary/90 disabled:opacity-50'
+                disabled={!clarifyMsg.trim()}
                 onClick={handleConfirmClarify}
                 type='button'
               >

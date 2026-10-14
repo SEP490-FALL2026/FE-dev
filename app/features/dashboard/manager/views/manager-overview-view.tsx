@@ -1,6 +1,8 @@
 import { AlertTriangle, ArrowRight, Boxes, Clock, DollarSign, Plus, Sparkles, UsersRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
+import { ManagerIdentityMark } from '../manager-identity-mark'
+
 import { MOCK_GHOST_SEATS, MOCK_TEAM_REQUESTS, MOCK_TEAM_SOFTWARE, managerMetrics } from '../manager-data'
 import type { ManagerTabKey } from '../manager-nav'
 
@@ -143,9 +145,7 @@ export function ManagerOverviewView({
             {pendingRequests.map((req) => (
               <div key={req.id} className='flex items-center justify-between py-3'>
                 <div className='flex items-center gap-3 min-w-0 flex-1 pr-2'>
-                  <span className='flex size-9 shrink-0 items-center justify-center rounded-xl border border-border bg-background text-base'>
-                    {req.logo}
-                  </span>
+                  <ManagerIdentityMark name={req.saasName} />
                   <div className='min-w-0 flex-1'>
                     <div className='flex items-center gap-2'>
                       <p className='truncate font-bold text-xs text-foreground'>{req.requesterName}</p>
@@ -196,9 +196,7 @@ export function ManagerOverviewView({
             {flaggedGhostSeats.map((ghost) => (
               <div key={ghost.id} className='flex items-center justify-between py-3'>
                 <div className='flex items-center gap-3 min-w-0 flex-1 pr-2'>
-                  <span className='flex size-9 shrink-0 items-center justify-center rounded-xl border border-border bg-background text-base'>
-                    {ghost.logo}
-                  </span>
+                  <ManagerIdentityMark name={ghost.softwareName} />
                   <div className='min-w-0 flex-1'>
                     <p className='truncate font-bold text-xs text-foreground'>{ghost.employeeName}</p>
                     <p className='truncate text-[11px] text-muted-foreground'>
@@ -247,9 +245,7 @@ export function ManagerOverviewView({
             <div key={app.id} className='rounded-xl border border-border bg-surface-subtle/50 p-4 space-y-3'>
               <div className='flex items-center justify-between'>
                 <div className='flex items-center gap-2 min-w-0'>
-                  <span className='flex size-8 shrink-0 items-center justify-center rounded-lg border border-border bg-background text-base'>
-                    {app.logo}
-                  </span>
+                  <ManagerIdentityMark className='size-8 rounded-lg' name={app.name} />
                   <div className='min-w-0'>
                     <h3 className='truncate font-bold text-xs text-foreground'>{app.name}</h3>
                     <p className='truncate text-[10px] text-muted-foreground'>{app.category}</p>

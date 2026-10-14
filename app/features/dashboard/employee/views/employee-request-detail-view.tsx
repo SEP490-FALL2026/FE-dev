@@ -12,7 +12,23 @@ interface EmployeeRequestDetailViewProps {
 export function EmployeeRequestDetailView({ onSelectTab, requestId = 'REQ-1024' }: EmployeeRequestDetailViewProps) {
   const { t } = useTranslation('dashboard')
 
-  const request = employeeRequestItems.find((r) => r.id === requestId) || employeeRequestItems[0]
+  const request = employeeRequestItems.find((r) => r.id === requestId)
+
+  if (!request) {
+    return (
+      <div className='rounded-2xl border border-border bg-surface p-6 sm:p-8'>
+        <h1 className='text-2xl font-bold text-foreground'>{t('employee.requestDetail.notFoundTitle')}</h1>
+        <p className='mt-2 text-sm text-muted-foreground'>{t('employee.requestDetail.notFoundDescription')}</p>
+        <button
+          className='mt-5 min-h-11 rounded-xl border border-border px-4 text-sm font-semibold text-foreground hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
+          onClick={() => onSelectTab('my-requests')}
+          type='button'
+        >
+          {t('employee.requestDetail.backToList')}
+        </button>
+      </div>
+    )
+  }
 
   return (
     <div className='space-y-6'>
@@ -29,15 +45,15 @@ export function EmployeeRequestDetailView({ onSelectTab, requestId = 'REQ-1024' 
       </div>
 
       {/* Header Card */}
-      <div className='flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border bg-surface p-6 shadow-sm'>
-        <div className='flex items-center gap-4'>
+      <div className='flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-6'>
+        <div className='flex min-w-0 items-center gap-4'>
           <img
             alt={request.softwareName}
             className='size-12 rounded-xl border border-border bg-surface object-contain p-2 shadow-xs'
             src={request.softwareLogoUrl}
           />
-          <div>
-            <div className='flex items-center gap-3'>
+          <div className='min-w-0'>
+            <div className='flex flex-wrap items-center gap-3'>
               <h1 className='font-mono text-xl font-bold tracking-tight text-foreground'>{request.id}</h1>
               {request.status === 'approved' ? (
                 <span className='rounded-full border border-success/20 bg-success/10 px-2.5 py-0.5 text-xs font-bold text-success'>
@@ -47,8 +63,16 @@ export function EmployeeRequestDetailView({ onSelectTab, requestId = 'REQ-1024' 
                 <span className='rounded-full border border-info/25 bg-info/10 px-2.5 py-0.5 text-xs font-bold text-info'>
                   {t('employee.myRequests.statusCompleted')}
                 </span>
+              ) : request.status === 'rejected' ? (
+                <span className='rounded-full border border-danger/25 bg-danger/10 px-2.5 py-0.5 text-xs font-bold text-danger-ink'>
+                  {t('employee.myRequests.statusRejected')}
+                </span>
+              ) : request.status === 'cancelled' ? (
+                <span className='rounded-full border border-border bg-surface-subtle px-2.5 py-0.5 text-xs font-bold text-foreground'>
+                  {t('employee.myRequests.statusCancelled')}
+                </span>
               ) : (
-                <span className='rounded-full border border-warning/25 bg-warning/10 px-2.5 py-0.5 text-xs font-bold text-warning'>
+                <span className='rounded-full border border-warning/25 bg-warning/10 px-2.5 py-0.5 text-xs font-bold text-warning-ink'>
                   {t('employee.myRequests.statusPending')}
                 </span>
               )}
@@ -71,20 +95,20 @@ export function EmployeeRequestDetailView({ onSelectTab, requestId = 'REQ-1024' 
         <div className='space-y-6 lg:col-span-7'>
           <div className='rounded-2xl border border-border bg-surface p-6 shadow-sm'>
             <h2 className='text-sm font-bold text-foreground'>{t('employee.requestDetail.infoTitle')}</h2>
-            <div className='mt-4 space-y-3.5 text-xs'>
-              <div className='flex items-center justify-between border-b border-border/70 pb-3'>
+            <div className='mt-4 space-y-3.5 text-sm'>
+              <div className='flex flex-wrap items-center justify-between gap-1 border-b border-border/70 pb-3'>
                 <span className='text-muted-foreground'>{t('employee.requestDetail.software')}</span>
                 <span className='font-bold text-foreground'>{request.softwareName}</span>
               </div>
-              <div className='flex items-center justify-between border-b border-border/70 pb-3'>
+              <div className='flex flex-wrap items-center justify-between gap-1 border-b border-border/70 pb-3'>
                 <span className='text-muted-foreground'>{t('employee.requestDetail.plan')}</span>
                 <span className='font-medium text-foreground'>{request.plan}</span>
               </div>
-              <div className='flex items-center justify-between border-b border-border/70 pb-3'>
+              <div className='flex flex-wrap items-center justify-between gap-1 border-b border-border/70 pb-3'>
                 <span className='text-muted-foreground'>{t('employee.requestDetail.project')}</span>
                 <span className='font-medium text-foreground'>{request.project}</span>
               </div>
-              <div className='flex items-center justify-between border-b border-border/70 pb-3'>
+              <div className='flex flex-wrap items-center justify-between gap-1 border-b border-border/70 pb-3'>
                 <span className='text-muted-foreground'>{t('employee.requestDetail.currentApprover')}</span>
                 <span className='font-bold text-primary'>{request.currentApprover}</span>
               </div>

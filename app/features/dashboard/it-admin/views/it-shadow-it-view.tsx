@@ -1,12 +1,36 @@
-import { CreditCard, EyeOff, KeyRound, Laptop, PlusCircle, Trash2 } from 'lucide-react'
+import { CheckCircle2, CreditCard, EyeOff, KeyRound, Laptop, PlusCircle, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { itShadowFindings, type ShadowFinding } from '../it-admin-data'
+import type { ItAdminTabKey } from '../it-admin-nav'
 
-export function ItShadowItView() {
+type ItShadowItViewProps = {
+  onSelectTab?: (tab: ItAdminTabKey, extraParams?: Record<string, string>) => void
+}
+
+export function ItShadowItView({ onSelectTab }: ItShadowItViewProps = {}) {
   const { t } = useTranslation('dashboard')
   const [selectedFinding, setSelectedFinding] = useState<ShadowFinding>(itShadowFindings[0])
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
+
+  const handleRegularize = () => {
+    setToastMessage(`Đã đưa ${selectedFinding.app} vào quy trình hợp thức hóa & cấp phát tài khoản AI chính thức!`)
+    setTimeout(() => {
+      setToastMessage(null)
+      if (onSelectTab) onSelectTab('provisioning')
+    }, 1800)
+  }
+
+  const handleIgnore = () => {
+    setToastMessage(`Đã đánh dấu ${selectedFinding.app} là cảnh báo ngoại lệ an toàn.`)
+    setTimeout(() => setToastMessage(null), 2500)
+  }
+
+  const handleDeprovision = () => {
+    setToastMessage(`Đã cô lập truy cập và gửi thông báo dừng sử dụng ${selectedFinding.app} tới nhân viên.`)
+    setTimeout(() => setToastMessage(null), 3000)
+  }
 
   const riskConfig: Record<ShadowFinding['risk'], { label: string; tone: string }> = {
     high: {
@@ -46,8 +70,20 @@ export function ItShadowItView() {
 
   return (
     <div className='space-y-6'>
+      {/* Toast */}
+      {toastMessage && (
+        <div className='fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl border border-success/30 bg-success/15 px-5 py-3.5 shadow-xl backdrop-blur-md animate-[slideUp_0.3s_ease-out]'>
+          <CheckCircle2 className='size-5 text-success' />
+          <span className='text-sm font-semibold text-foreground'>{toastMessage}</span>
+        </div>
+      )}
+
       <div>
-        <h1 className='text-2xl font-bold tracking-tight sm:text-3xl'>{t('itAdmin.shadowIt.title')}</h1>
+        <div className='inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-soft px-3 py-1 text-xs font-semibold text-primary'>
+          <span className='size-2 rounded-full bg-primary' />
+          ITA-12 · Giám sát ứng dụng AI ngoài luồng (Shadow AI)
+        </div>
+        <h1 className='mt-2 text-2xl font-bold tracking-tight sm:text-3xl'>{t('itAdmin.shadowIt.title')}</h1>
         <p className='mt-1 text-sm text-muted-foreground'>{t('itAdmin.shadowIt.subtitle')}</p>
       </div>
 
@@ -150,6 +186,7 @@ export function ItShadowItView() {
             <div className='flex flex-col gap-2'>
               <button
                 className='inline-flex items-center justify-center gap-2 rounded-xl bg-primary py-2.5 text-xs font-bold text-primary-foreground shadow-sm transition hover:bg-primary-hover'
+                onClick={handleRegularize}
                 type='button'
               >
                 <PlusCircle aria-hidden='true' className='size-3.5' />
@@ -159,6 +196,7 @@ export function ItShadowItView() {
               <div className='grid grid-cols-2 gap-2'>
                 <button
                   className='inline-flex items-center justify-center gap-1.5 rounded-xl border border-border bg-surface py-2 text-xs font-semibold hover:border-warning hover:text-warning'
+                  onClick={handleIgnore}
                   type='button'
                 >
                   <EyeOff aria-hidden='true' className='size-3.5' />
@@ -166,6 +204,7 @@ export function ItShadowItView() {
                 </button>
                 <button
                   className='inline-flex items-center justify-center gap-1.5 rounded-xl border border-border bg-surface py-2 text-xs font-semibold hover:border-danger hover:text-danger'
+                  onClick={handleDeprovision}
                   type='button'
                 >
                   <Trash2 aria-hidden='true' className='size-3.5' />

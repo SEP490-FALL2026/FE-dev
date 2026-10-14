@@ -1,13 +1,18 @@
 import {
   ArrowRight,
   Boxes,
+  CalendarClock,
+  ChevronRight,
   CircleDollarSign,
+  Clock,
+  Key,
   Laptop,
   PackageCheck,
   Scale,
   ShieldAlert,
   Sparkles,
   UploadCloud,
+  UserCheck,
   UserMinus,
   UserX,
   WalletCards
@@ -22,7 +27,7 @@ type ItOverviewViewProps = {
   formatCurrency: (value: number) => string
   formatMonth: (value: string) => string
   formatNumber: (value: number) => string
-  onSelectTab: (tab: ItAdminTabKey) => void
+  onSelectTab: (tab: ItAdminTabKey, extraParams?: Record<string, string>) => void
 }
 
 export function ItOverviewView({
@@ -72,7 +77,7 @@ export function ItOverviewView({
   const quickQueues: {
     count: number
     desc: string
-    icon: typeof PackageCheck
+    icon: typeof PackageCheck | typeof CalendarClock
     key: ItAdminTabKey
     title: string
     tone: 'danger' | 'warning' | 'info' | 'primary'
@@ -91,6 +96,14 @@ export function ItOverviewView({
       icon: UserX,
       key: 'unmatched-identities',
       title: t('itAdmin.nav.unmatchedIdentities'),
+      tone: 'warning'
+    },
+    {
+      count: 2,
+      desc: 'Quét mốc hạn chót báo hủy T-15/T-7 và checklist 6 điều khoản nhà cung cấp AI (UF-20)',
+      icon: CalendarClock,
+      key: 'renewals',
+      title: t('itAdmin.nav.renewals', 'Gia hạn AI (ITA-53)'),
       tone: 'warning'
     },
     {
@@ -214,6 +227,121 @@ export function ItOverviewView({
           </div>
         </section>
       </div>
+
+      {/* Priority Provisioning Tasks */}
+      <section className='rounded-2xl border border-border bg-surface p-6 shadow-sm'>
+        <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-4'>
+          <div>
+            <div className='inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-soft px-2.5 py-0.5 text-xs font-semibold text-primary'>
+              <span className='size-1.5 rounded-full bg-primary' />
+              Cấp phát & Thu hồi tài khoản AI
+            </div>
+            <h2 className='mt-1 text-lg font-bold text-foreground'>Tác vụ cấp phát AI ưu tiên cần xử lý</h2>
+            <p className='text-xs text-muted-foreground'>
+              Hàng đợi cấp phát tài khoản AI (ChatGPT, Claude, Copilot, Gemini) đang chờ IT Admin thao tác
+            </p>
+          </div>
+          <button
+            className='inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline'
+            onClick={() => onSelectTab('provisioning')}
+            type='button'
+          >
+            <span>Xem toàn bộ hàng đợi</span>
+            <ChevronRight aria-hidden='true' className='size-3.5' />
+          </button>
+        </div>
+
+        <div className='mt-4 divide-y divide-border'>
+          {[
+            {
+              action: 'Cấp quyền mới',
+              app: 'GitHub Copilot (OpenAI Codex)',
+              channel: 'Kết nối tự động API',
+              dept: 'Kỹ thuật phần mềm',
+              id: 'PV-2041',
+              planType: 'Workspace Doanh nghiệp',
+              sla: '3 giờ 18 phút',
+              status: 'pendingAccept',
+              statusLabel: 'Chờ chấp nhận',
+              tone: 'bg-info/10 text-info border-info/25',
+              user: 'Nguyễn Minh An'
+            },
+            {
+              action: 'Thu hồi quyền (Nghỉ việc)',
+              app: 'Claude Enterprise (Anthropic)',
+              channel: 'Thao tác thủ công',
+              dept: 'Thiết kế sản phẩm',
+              id: 'PV-2042',
+              planType: 'Workspace Doanh nghiệp',
+              sla: '2 giờ 54 phút',
+              status: 'manual',
+              statusLabel: 'Cần làm tay',
+              tone: 'bg-primary-soft text-primary border-primary/25',
+              user: 'Trần Minh'
+            },
+            {
+              action: 'Cấp quyền mới',
+              app: 'Google Gemini Code Assist (Google Cloud)',
+              channel: 'Khóa bản quyền & Token API',
+              dept: 'Thiết kế sản phẩm',
+              id: 'PV-2043',
+              planType: 'Khóa bản quyền & Token API',
+              sla: '5 giờ 30 phút',
+              status: 'manual',
+              statusLabel: 'Gán mã bản quyền',
+              tone: 'bg-primary-soft text-primary border-primary/25',
+              user: 'Lê Thanh Huyền'
+            }
+          ].map((task) => (
+            <div
+              className='flex flex-col gap-3 py-3.5 sm:flex-row sm:items-center sm:justify-between transition hover:bg-surface-subtle/50 px-2 rounded-xl'
+              key={task.id}
+            >
+              <div className='flex items-start gap-3'>
+                <span className='grid size-10 shrink-0 place-items-center rounded-xl border border-primary/20 bg-primary-soft text-primary'>
+                  {task.planType === 'Khóa bản quyền & Token API' ? (
+                    <Key className='size-4' />
+                  ) : task.action.includes('Thu hồi') ? (
+                    <UserMinus className='size-4' />
+                  ) : (
+                    <UserCheck className='size-4' />
+                  )}
+                </span>
+                <div>
+                  <div className='flex items-center gap-2'>
+                    <span className='font-mono text-xs font-bold text-primary'>{task.id}</span>
+                    <span className='text-sm font-bold text-foreground'>{task.app}</span>
+                    <span className={`inline-flex rounded-full border px-2 py-0.5 text-[0.65rem] font-bold ${task.tone}`}>
+                      {task.statusLabel}
+                    </span>
+                    <span className='rounded-md border border-border bg-surface-subtle px-1.5 py-0.5 text-[0.65rem] font-bold text-muted-foreground'>
+                      {task.planType}
+                    </span>
+                  </div>
+                  <p className='mt-0.5 text-xs text-muted-foreground'>
+                    {task.user} · {task.dept} — {task.channel}
+                  </p>
+                </div>
+              </div>
+
+              <div className='flex items-center gap-3 sm:justify-end'>
+                <div className='flex items-center gap-1 text-xs text-muted-foreground'>
+                  <Clock className='size-3.5 text-warning' />
+                  <span>SLA: {task.sla}</span>
+                </div>
+                <button
+                  className='inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-xs font-bold text-primary-foreground shadow-sm transition hover:bg-primary-hover'
+                  onClick={() => onSelectTab('provisioning', { id: task.id })}
+                  type='button'
+                >
+                  <span>Xử lý ngay</span>
+                  <ArrowRight aria-hidden='true' className='size-3.5' />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <section className='rounded-2xl border border-border bg-surface p-6 shadow-sm'>
         <div>

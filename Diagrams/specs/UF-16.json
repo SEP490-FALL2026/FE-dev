@@ -1,0 +1,589 @@
+{
+  "id": "UF-16",
+  "kind": "screenflow",
+  "version": "1.1",
+  "date": "09/10/2026",
+  "title": "UF-16 · Company Device Registration and Monitoring Acknowledgment",
+  "out": "user-flows/UF-16-company-device-registration-and-monitoring-acknowledgment",
+  "lanes": [
+    {
+      "id": "ITA",
+      "label": "IT Admin",
+      "slots": 2
+    },
+    {
+      "id": "EMP",
+      "label": "Employee",
+      "slots": 2
+    }
+  ],
+  "nodes": [
+    {
+      "id": "t_start",
+      "type": "terminal",
+      "role": "start",
+      "lane": "ITA",
+      "slot": 0,
+      "row": 0,
+      "label": "Company Device Handed to Employee",
+      "vi": "Doanh nghiệp bàn giao một máy công ty cho nhân viên; IT Admin bắt đầu đăng ký thiết bị."
+    },
+    {
+      "id": "s_reg",
+      "type": "screen",
+      "code": "ITA-60",
+      "lane": "ITA",
+      "slot": 0,
+      "row": 1,
+      "label": "Device Register: Add Device and Holder",
+      "vi": "Sổ thiết bị: mã tài sản, hệ điều hành, tên máy, người giữ, khoảng hiệu lực. Không lưu địa chỉ IP. Một nhân viên có thể có nhiều thiết bị, mỗi thiết bị xác nhận riêng.",
+      "rules": [
+        "FR-4.18",
+        "FR-4.21",
+        "QĐ-57b",
+        "ADR-04"
+      ]
+    },
+    {
+      "id": "d_dev",
+      "type": "decision",
+      "lane": "ITA",
+      "slot": 0,
+      "row": 2,
+      "label": "Company-Issued, Single-User Device?",
+      "vi": "Thiết bị do công ty cấp và chỉ một người dùng thì mới đăng ký thu thập.",
+      "rules": [
+        "FR-4.21",
+        "OI-14d",
+        "ĐK-01"
+      ]
+    },
+    {
+      "id": "b_per",
+      "type": "blocked",
+      "code": "ITA-60",
+      "lane": "ITA",
+      "slot": 1,
+      "row": 3,
+      "label": "Blocked: Personal or Shared Device Not Registered",
+      "vi": "Máy cá nhân không đăng ký và không bị thu dữ liệu; thiết bị dùng chung nhiều người không được đăng ký thu thập (điểm mù có ghi nhận). Hệ thống không chặn kỹ thuật việc dùng dịch vụ trên máy cá nhân.",
+      "rules": [
+        "FR-4.21",
+        "OI-14d",
+        "QĐ-58f"
+      ]
+    },
+    {
+      "id": "t_not",
+      "type": "terminal",
+      "lane": "ITA",
+      "slot": 1,
+      "row": 4,
+      "label": "End: Device Not Registered",
+      "vi": "Không đăng ký; không có thu thập từ thiết bị này."
+    },
+    {
+      "id": "s_hand",
+      "type": "screen",
+      "code": "ITA-61",
+      "lane": "ITA",
+      "slot": 0,
+      "row": 3,
+      "label": "Handover: Policy Text (BM-06)",
+      "vi": "Bàn giao máy kèm văn bản chính sách thiết bị và theo dõi (BM-06): dữ liệu thu, không thu, mục đích, ai xem, thời hạn lưu, quyền dừng thu thập.",
+      "rules": [
+        "FR-4.21",
+        "BM-06",
+        "QĐ-58f"
+      ]
+    },
+    {
+      "id": "s_sign",
+      "type": "screen",
+      "code": "EMP-30",
+      "lane": "EMP",
+      "slot": 0,
+      "row": 5,
+      "label": "Sign Acknowledgment of Policy Text (BM-06)",
+      "vi": "Nhân viên ký văn bản **BM-06** *xác nhận đã biết rõ* chính sách theo dõi trên máy (không phải đồng ý) **tại bàn giao máy, ngoài ứng dụng**; không phải chữ ký số (QĐ-53a). IT Admin lưu bản ký; xác nhận trong ứng dụng là bước riêng sau đó (FR-4.21(1)). Việc chữ ký có thay được sự đồng ý theo luật hay không còn là câu hỏi pháp lý mở.",
+      "rules": [
+        "FR-4.21",
+        "BM-06",
+        "OQ-16",
+        "OQ-23"
+      ]
+    },
+    {
+      "id": "s_store",
+      "type": "screen",
+      "code": "ITA-61",
+      "lane": "ITA",
+      "slot": 0,
+      "row": 6,
+      "label": "Store Signed Copy (BM-06)",
+      "vi": "IT Admin lưu bản ký gắn với thiết bị và nhân viên; hồ sơ không sửa sau khi đã có quyết định.",
+      "rules": [
+        "FR-4.21",
+        "BM-06",
+        "FR-1.5",
+        "FR-11.2"
+      ]
+    },
+    {
+      "id": "s_notice",
+      "type": "screen",
+      "code": "EMP-31",
+      "lane": "EMP",
+      "slot": 0,
+      "row": 7,
+      "label": "Versioned Monitoring Notice",
+      "vi": "Thông báo theo dõi mức độ sử dụng có đánh phiên bản: thu gì, không thu gì, mục đích, thời hạn lưu, quyền yêu cầu dừng. Hiện trước khi nhận bất kỳ dữ liệu nào từ thiết bị; thông báo đơn thuần là không đủ, cần xác nhận chủ động. Thông báo có **phiên bản**: khi Super Admin đánh dấu phiên bản mới *cần xác nhận lại* (đổi loại dữ liệu hoặc mục đích), hệ thống ngừng nhận dữ liệu từ thiết bị tới khi nhân viên xác nhận lại phiên bản đó; phiên bản chỉ sửa câu chữ thì chỉ thông báo (QĐ-62q, INV-17).",
+      "rules": [
+        "FR-10.4",
+        "FR-4.18",
+        "QĐ-20"
+      ]
+    },
+    {
+      "id": "d_ack",
+      "type": "decision",
+      "lane": "EMP",
+      "slot": 0,
+      "row": 8,
+      "label": "Acknowledge Notice in App?",
+      "vi": "Nhân viên bấm xác nhận chủ động hay chưa. Im lặng không phải là xác nhận. Phiên bản đánh dấu *cần xác nhận lại* phải được xác nhận lại (QĐ-62q).",
+      "rules": [
+        "FR-4.18",
+        "INV-17",
+        "ĐK-03"
+      ]
+    },
+    {
+      "id": "b_noack",
+      "type": "blocked",
+      "code": "ITA-62",
+      "lane": "ITA",
+      "slot": 1,
+      "row": 9,
+      "label": "Blocked: Not Acknowledged, Device Data Rejected",
+      "vi": "Chưa xác nhận thì máy chủ từ chối dữ liệu từ thiết bị; IT Admin thấy cảnh báo máy công ty chưa có xác nhận chính sách.",
+      "rules": [
+        "INV-17",
+        "FR-4.21",
+        "FR-5.14",
+        "ADR-13"
+      ]
+    },
+    {
+      "id": "t_noack",
+      "type": "terminal",
+      "lane": "ITA",
+      "slot": 1,
+      "row": 10,
+      "label": "End: No Data Received, IT Alerted",
+      "vi": "Kết cục hợp lệ, không phải lỗi: không có dữ liệu nào từ thiết bị; IT Admin đã được cảnh báo."
+    },
+    {
+      "id": "y_rec",
+      "type": "system",
+      "lane": "EMP",
+      "slot": 0,
+      "row": 9,
+      "label": "Acknowledgment Recorded; Device Data Accepted",
+      "vi": "Hệ thống lưu phiên bản nội dung thông báo và thời điểm xác nhận, rồi bắt đầu nhận dữ liệu tổng hợp đã lọc tại nguồn từ thiết bị (nhập qua WF-12).",
+      "rules": [
+        "FR-4.18",
+        "INV-17",
+        "ADR-13",
+        "ĐK-04"
+      ]
+    },
+    {
+      "id": "s_dev",
+      "type": "screen",
+      "code": "EMP-32",
+      "lane": "EMP",
+      "slot": 0,
+      "row": 10,
+      "label": "My Devices: Acknowledged Devices",
+      "vi": "Danh sách thiết bị đã đăng ký của tôi, phiên bản và thời điểm đã xác nhận, nút yêu cầu dừng thu thập cho từng thiết bị.",
+      "rules": [
+        "FR-10.1",
+        "FR-4.18"
+      ]
+    },
+    {
+      "id": "d_stop",
+      "type": "decision",
+      "lane": "EMP",
+      "slot": 0,
+      "row": 11,
+      "label": "Request Stop Collection?",
+      "vi": "Nhân viên muốn yêu cầu dừng thu thập trên thiết bị này hay không. Có thể làm bất cứ lúc nào sau khi xác nhận.",
+      "rules": [
+        "FR-4.18",
+        "FR-10.5"
+      ]
+    },
+    {
+      "id": "t_run",
+      "type": "terminal",
+      "lane": "EMP",
+      "slot": 1,
+      "row": 12,
+      "label": "End: Device Sending Filtered Aggregates",
+      "vi": "Thiết bị gửi tổng hợp theo ngày đã lọc tại nguồn theo lịch của WF-12; nhân viên giữ quyền yêu cầu dừng sau này."
+    },
+    {
+      "id": "s_stop",
+      "type": "screen",
+      "code": "EMP-33",
+      "lane": "EMP",
+      "slot": 0,
+      "row": 12,
+      "label": "Submit Stop-Collection Request",
+      "vi": "Nhân viên gửi yêu cầu dừng thu thập trên thiết bị đã đăng ký. Gửi yêu cầu không đồng nghĩa dừng ngay.",
+      "rules": [
+        "FR-4.18",
+        "FR-10.5",
+        "OI-01a"
+      ]
+    },
+    {
+      "id": "y_log",
+      "type": "system",
+      "lane": "EMP",
+      "slot": 0,
+      "row": 13,
+      "label": "System Logs Receipt Time; Request Queued",
+      "vi": "Hệ thống ghi thời điểm tiếp nhận và đưa yêu cầu vào hàng đợi của IT Admin; nhân viên theo dõi trạng thái trong ứng dụng.",
+      "rules": [
+        "FR-10.5",
+        "FR-3.11"
+      ]
+    },
+    {
+      "id": "s_q",
+      "type": "screen",
+      "code": "ITA-63",
+      "lane": "ITA",
+      "slot": 0,
+      "row": 14,
+      "label": "Data-Rights Queue: Stop-Collection Requests",
+      "vi": "IT Admin tiếp nhận yêu cầu dừng thu thập và xử lý trong 2 ngày làm việc (cấu hình được); quá hạn thì nhắc và cảnh báo nghẽn. IT được tự xử lý yêu cầu của chính mình, Audit Trail gắn cờ tự xử lý.",
+      "rules": [
+        "FR-10.5",
+        "OI-01a",
+        "OI-01c",
+        "FR-3.8"
+      ]
+    },
+    {
+      "id": "d_valid",
+      "type": "decision",
+      "lane": "ITA",
+      "slot": 0,
+      "row": 15,
+      "label": "Valid Request?",
+      "vi": "Yêu cầu hợp lệ luôn được thực hiện; chỉ yêu cầu không hợp lệ (không phải thiết bị của mình, trùng, đã dừng) bị đóng.",
+      "rules": [
+        "FR-10.5",
+        "OI-01b"
+      ]
+    },
+    {
+      "id": "y_stop",
+      "type": "system",
+      "lane": "EMP",
+      "slot": 0,
+      "row": 16,
+      "label": "Device Stops Being Accepted",
+      "vi": "Khi yêu cầu được xử lý, thiết bị ngừng được nhận dữ liệu; nhân viên được báo. Hệ quả của việc dừng theo nội quy lao động do doanh nghiệp quyết, ngoài phạm vi hệ thống.",
+      "rules": [
+        "FR-10.5",
+        "FR-4.18",
+        "FR-4.21"
+      ]
+    },
+    {
+      "id": "t_stop",
+      "type": "terminal",
+      "lane": "EMP",
+      "slot": 0,
+      "row": 17,
+      "label": "End: Collection Stopped",
+      "vi": "Thiết bị không còn gửi dữ liệu được nhận."
+    },
+    {
+      "id": "s_close",
+      "type": "screen",
+      "code": "ITA-64",
+      "lane": "ITA",
+      "slot": 0,
+      "row": 16,
+      "label": "Close Request with Reason",
+      "vi": "IT Admin đóng yêu cầu không hợp lệ kèm lý do; nhân viên được báo và gửi lại được. MVP không có luồng kháng nghị.",
+      "rules": [
+        "FR-10.5",
+        "OI-01b"
+      ]
+    },
+    {
+      "id": "t_closed",
+      "type": "terminal",
+      "lane": "ITA",
+      "slot": 0,
+      "row": 17,
+      "label": "End: Closed, Employee May Resubmit",
+      "vi": "Yêu cầu bị đóng, thiết bị vẫn đăng ký."
+    }
+  ],
+  "edges": [
+    {
+      "from": "t_start",
+      "to": "s_reg"
+    },
+    {
+      "from": "s_reg",
+      "to": "d_dev"
+    },
+    {
+      "from": "d_dev",
+      "to": "s_hand",
+      "guard": "yes",
+      "vi": "Máy công ty cấp, một người dùng",
+      "result": "Bàn giao máy"
+    },
+    {
+      "from": "d_dev",
+      "to": "b_per",
+      "guard": "no",
+      "vi": "Máy cá nhân hoặc dùng chung",
+      "result": "Không đăng ký"
+    },
+    {
+      "from": "b_per",
+      "to": "t_not"
+    },
+    {
+      "from": "s_hand",
+      "to": "s_sign",
+      "sides": [
+        "B",
+        "L"
+      ]
+    },
+    {
+      "from": "s_sign",
+      "to": "s_store",
+      "sides": [
+        "B",
+        "R"
+      ]
+    },
+    {
+      "from": "s_store",
+      "to": "s_notice"
+    },
+    {
+      "from": "s_notice",
+      "to": "d_ack"
+    },
+    {
+      "from": "d_ack",
+      "to": "y_rec",
+      "guard": "acknowledged",
+      "vi": "Nhân viên bấm xác nhận chủ động",
+      "result": "Ghi xác nhận, nhận dữ liệu"
+    },
+    {
+      "from": "d_ack",
+      "to": "b_noack",
+      "guard": "not acknowledged",
+      "vi": "Chưa xác nhận",
+      "result": "Từ chối dữ liệu, cảnh báo IT"
+    },
+    {
+      "from": "b_noack",
+      "to": "t_noack"
+    },
+    {
+      "from": "y_rec",
+      "to": "s_dev"
+    },
+    {
+      "from": "s_dev",
+      "to": "d_stop"
+    },
+    {
+      "from": "d_stop",
+      "to": "s_stop",
+      "guard": "yes",
+      "vi": "Muốn dừng thu thập",
+      "result": "Gửi yêu cầu dừng"
+    },
+    {
+      "from": "d_stop",
+      "to": "t_run",
+      "guard": "no",
+      "vi": "Không dừng",
+      "result": "Thiết bị tiếp tục gửi"
+    },
+    {
+      "from": "s_stop",
+      "to": "y_log"
+    },
+    {
+      "from": "y_log",
+      "to": "s_q"
+    },
+    {
+      "from": "s_q",
+      "to": "d_valid"
+    },
+    {
+      "from": "d_valid",
+      "to": "y_stop",
+      "guard": "valid",
+      "vi": "Yêu cầu hợp lệ",
+      "result": "Dừng nhận dữ liệu"
+    },
+    {
+      "from": "d_valid",
+      "to": "s_close",
+      "guard": "not valid",
+      "vi": "Không phải thiết bị của mình, trùng hoặc đã dừng",
+      "result": "Đóng kèm lý do"
+    },
+    {
+      "from": "y_stop",
+      "to": "t_stop"
+    },
+    {
+      "from": "s_close",
+      "to": "t_closed"
+    }
+  ],
+  "doc": {
+    "level": "User flow (mức màn hình) — IT Admin và Employee",
+    "status": "Vẽ lại theo BRD v3.30 (đồng bộ QĐ-61/QĐ-62) (FR-4.18, FR-4.21, FR-10.4, FR-10.5) và QĐ-57b, QĐ-58f, QĐ-59a, khớp WF-18; tính đủ pháp lý của chữ ký xác nhận còn mở (OQ-16, OQ-23, hoãn có điều kiện theo QĐ-59b) — sơ đồ không khẳng định tuân thủ; mã màn hình là đề xuất (QĐ-08); chờ Owner/GVHD review",
+    "purpose": "Hai vai cùng thao tác trong một hành trình: IT Admin đăng ký máy công ty và bàn giao kèm văn bản BM-06; nhân viên ký xác nhận đã biết rõ, xem thông báo theo dõi có phiên bản và bấm xác nhận chủ động trong ứng dụng — chưa xác nhận thì không có dữ liệu từ máy. Sau đó nhân viên có thể gửi yêu cầu dừng thu thập và IT Admin xử lý. Đây là phía màn hình của WF-18.",
+    "scope": "Màn hình ITA-60 → ITA-64 và EMP-30 → EMP-33, từ lúc đăng ký thiết bị tới khi dữ liệu được nhận, bị từ chối, hoặc yêu cầu dừng thu thập được thực hiện hay đóng.",
+    "excluded": "Cách thu và loại bộ thu thập cụ thể (giai đoạn Tools, QĐ-59a); nhập và khớp dữ liệu từ thiết bị (→ WF-12, UF-06, UF-07); đăng ký thiết bị hết hiệu lực khi nhân viên nghỉ việc (nhánh của WF-18, chạy từ MF-5, → UF-09); xem và xuất dữ liệu cá nhân (→ UF-03); hồ sơ đánh giá tác động, nội quy lao động và xử lý vi phạm (ngoài phạm vi hệ thống).",
+    "lanes_vi": {
+      "ITA": [
+        "IT Admin",
+        "Đăng ký thiết bị, bàn giao máy, lưu bản ký, xử lý yêu cầu dừng thu thập; thấy cảnh báo khi nhân viên chưa xác nhận"
+      ],
+      "EMP": [
+        "Employee",
+        "Ký xác nhận đã biết rõ, xác nhận chủ động trong ứng dụng, gửi yêu cầu dừng thu thập; bước hệ thống chỉ hiện kết quả"
+      ]
+    },
+    "trigger": "Doanh nghiệp bàn giao một máy công ty cho nhân viên và IT Admin đăng ký thiết bị.",
+    "pre": "Nhân viên đang làm việc, có tài khoản đã kích hoạt (UF-17); thiết bị do công ty cấp và chỉ một người dùng; ứng dụng liên lạc không nằm trong danh sách được thu (ADR-10).",
+    "post": "Một trong: không đăng ký (máy cá nhân hoặc dùng chung) · chưa xác nhận nên không có dữ liệu và IT được cảnh báo · đã xác nhận, dữ liệu tổng hợp đã lọc được nhận · yêu cầu dừng thu thập được thực hiện hoặc bị đóng kèm lý do.",
+    "reading": "Hai làn: IT Admin và Employee. Đọc từ trên xuống; mũi tên đi qua lại giữa hai làn là các bàn giao. Hình chữ nhật viền liền là màn hình (dòng đầu là mã màn hình đề xuất), viền rất đậm là màn hình chặn, nét đứt là bước hệ thống.",
+    "sources": [
+      [
+        "FR-4.18, INV-17",
+        "Đăng ký thiết bị, xác nhận chủ động lưu phiên bản và thời điểm, chưa xác nhận thì không nhận dữ liệu, nút yêu cầu dừng thu thập"
+      ],
+      [
+        "FR-4.21, QĐ-57b, QĐ-58f, BM-06",
+        "Ký văn bản xác nhận đã biết rõ khi nhận máy; chỉ dùng trên máy công ty; sổ thiết bị không lưu IP; không chặn kỹ thuật, không xử lý kỷ luật"
+      ],
+      [
+        "OI-14d",
+        "Thiết bị dùng chung không đăng ký thu thập"
+      ],
+      [
+        "FR-10.4, QĐ-20",
+        "Thông báo trước và xác nhận chủ động; thông báo đơn thuần không đủ"
+      ],
+      [
+        "FR-10.5, OI-01a, OI-01b, OI-01c",
+        "Yêu cầu dừng thu thập: 2 ngày làm việc, hợp lệ luôn được thực hiện, đóng kèm lý do, IT tự xử lý được"
+      ],
+      [
+        "FR-5.14",
+        "Cảnh báo máy công ty chưa có xác nhận chính sách gửi IT Admin"
+      ],
+      [
+        "OQ-16, OQ-23, QĐ-59b",
+        "Chữ ký có thay được sự đồng ý hay không — hoãn có điều kiện, không khẳng định tuân thủ"
+      ]
+    ],
+    "happy": [
+      "t_start",
+      "s_reg",
+      "d_dev",
+      "s_hand",
+      "s_sign",
+      "s_store",
+      "s_notice",
+      "d_ack",
+      "y_rec",
+      "s_dev",
+      "d_stop",
+      "t_run"
+    ],
+    "alternates": [
+      {
+        "title": "Yêu cầu dừng thu thập hợp lệ",
+        "path": [
+          "d_stop",
+          "s_stop",
+          "y_log",
+          "s_q",
+          "d_valid",
+          "y_stop",
+          "t_stop"
+        ],
+        "note": "Xử lý trong 2 ngày làm việc; thiết bị ngừng được nhận dữ liệu."
+      }
+    ],
+    "unhappy": [
+      {
+        "title": "Máy cá nhân hoặc dùng chung",
+        "path": [
+          "d_dev",
+          "b_per",
+          "t_not"
+        ],
+        "note": "Không đăng ký, không thu."
+      },
+      {
+        "title": "Chưa xác nhận chủ động",
+        "path": [
+          "d_ack",
+          "b_noack",
+          "t_noack"
+        ],
+        "note": "Không nhận dữ liệu; IT Admin thấy cảnh báo; kết cục hợp lệ."
+      },
+      {
+        "title": "Yêu cầu dừng không hợp lệ",
+        "path": [
+          "d_valid",
+          "s_close",
+          "t_closed"
+        ],
+        "note": "Đóng kèm lý do; nhân viên gửi lại được."
+      }
+    ],
+    "relations": [
+      "Workflow: `WF-18` (khớp), `WF-12` (nhận dữ liệu tổng hợp), `MF-5` (nghỉ việc kết thúc đăng ký)",
+      "`UF-03` (nơi nhân viên đi tới yêu cầu dừng thu thập), `UF-06` và `UF-07` (dữ liệu từ thiết bị đi qua nhập và khớp danh tính), `UF-09` (nghỉ việc)",
+      "`UF-17` (tài khoản của nhân viên)"
+    ],
+    "open": [
+      "(LATER-TECH/UI · DOI-01, QĐ-08) Mã màn hình ITA-6x và EMP-3x là đề xuất, chưa có UI Spec hiện hành; EMP-30 chỉ là màn hình nhân viên xem văn bản BM-06 — chữ ký ở ngoài ứng dụng.",
+      "(ĐÃ CÓ NGUỒN · DOI-73, FR-4.21(1), QĐ-53a) BM-06 ký trên văn bản tại bàn giao máy, ngoài ứng dụng, không chữ ký số; IT lưu bản ký; xác nhận trong ứng dụng là bước riêng.",
+      "(LATER-TECH/UI · DOI-74) Nhịp nhắc khi nhân viên chưa xác nhận là tham số thiết kế; xác nhận muộn ⟹ chỉ nhận dữ liệu từ thời điểm xác nhận (INV-17 *tại thời điểm ghi nhận*).",
+      "(ĐÃ CHỐT · DOI-75, QĐ-62q) Phiên bản đổi loại dữ liệu hoặc mục đích ⟹ xác nhận lại; chỉ sửa câu chữ ⟹ chỉ thông báo.",
+      "(DEFERRED/OUT · DOI-13, QĐ-59b) Chữ ký BM-06 cùng xác nhận trong hệ thống có thay được sự đồng ý tự nguyện theo luật hay không là câu hỏi pháp lý hoãn (OQ-16, OQ-23); không khẳng định đã tuân thủ.",
+      "(LIMIT · DOI-14, OI-14d) Thiết bị dùng chung nhiều người là điểm mù được ghi nhận, chưa có chỗ ghi trong hình."
+    ]
+  }
+}

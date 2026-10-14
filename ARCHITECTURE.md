@@ -32,6 +32,72 @@ and all decisions that affect money or access.
 
 ## Key decisions
 
+### Employee software request preview
+
+The employee software request preview now uses separate catalog selection and
+registration screens. The `request-new-software` tab selects a catalog item and
+`request-software-details` collects the plan, individual or shared-team usage type,
+project, reason, and a name when
+"Other software" is selected. URL parameters carry the draft through the review
+screen and back navigation. This request type shows four steps; renewal and return
+requests retain their three-step previews. Submission remains unavailable until a
+backend contract and authorization flow are connected.
+
+### Manager request creation preview
+
+In the dashboard Manager shell, the create-request sidebar item expands to team
+and individual choices. Both open the existing `create-employee-request` preview
+tab with `scope=team|individual` in the URL. Individual mode keeps the single
+employee selector; team mode lets the manager choose multiple members from the
+available sample list. Both modes collect a free-text desired license plan and
+a usage date range using native date inputs. The end date must be on or after the
+start date. The Manager sidebar's `my-requests` tab shows previews explicitly
+saved from either mode in the current dashboard session. These records are local
+component state, are lost on reload, and are labeled as unsubmitted previews;
+they are not authoritative requests. Neither mode creates or authorizes backend
+requests. Other entry points without `scope` retain individual mode.
+
+`/manager/create-request` renders the first employee-selection screen of the
+Manager create-employee-request feature. The sidebar, My Team and Employee Detail
+link to it; the `employee` search param selects a known team member, with an empty
+value explicitly clearing selection and unknown IDs showing an error. The source's
+initial employee maps to the existing first team member. Shared employee metadata
+and assignment samples live in `entities/user/` and `entities/license/` so the
+employee detail and request selection remain consistent despite conflicting designs.
+Search is local presentation state; summary selection is URL state. No employee IDs
+or assignments are invented for other team members. Only step one has a supplied
+design, so Next and the later stages remain unavailable with an explanation. No
+request is created, no remote cache is introduced, and backend authorization and
+approval workflow responsibilities remain unchanged.
+
+### Manager Ghost Seat Review preview
+
+`/manager/ghost-seat-review` composes the private Manager ghost-seat-review feature
+inside the shared warm orange Manager shell. Search, tier, recommendation,
+application, critical view, sorting and pagination belong to
+search params; row selection is local presentation state. The supplied design has
+10 records but independent overview figures (24 seats, 18 pending, 6 critical,
+USD 4,320 monthly savings). Its inactivity durations also conflict with the displayed
+dates. The preview labels these limitations and preserves the supplied values
+without deriving current policy decisions or inventing missing rows. Per-record
+review status and historical snapshots were not provided, so the pending view and
+date control remain disabled. View links open the selected record's detail route;
+reclaim, keep and exemption decisions await backend contracts and authorization.
+No API contract or existing access-control behavior is changed by this preview.
+
+`/manager/ghost-seat-review/:id` renders the separate ghost-seat-detail feature.
+Shared seat records, filter ordering and logos live in `entities/license/` because
+both review and detail consume them. View links preserve list filters and pagination;
+the detail's `panel` param selects its accessible tabs without overriding the list's
+`tab` filter. Previous/next follows the filtered record order. Missing IDs render an
+explicit not-found state. The Figma design supplies additional sample fields only;
+all other records show their own core data and explicit missing detail states. Where
+the designs disagree, the review row supplies identity, dates, duration and confidence.
+The first timeline date follows that row; sample cost and evidence are not API facts.
+REQ-1024 is an unverified relationship to a different employee, so no request link is
+enabled. Notes are unsaved local drafts; backend review decisions and note persistence
+remain unavailable.
+
 ### React Router Framework Mode as an SPA
 
 `react-router.config.ts` sets `ssr: false`. Framework Mode remains valuable for
@@ -45,18 +111,39 @@ requests to `index.html`; `nginx.conf` contains this rule. `/api` must be routed
 NestJS by the deployment ingress/reverse proxy. Vite supplies the equivalent proxy
 in local development.
 
-### Feature-oriented source tree
+### Feature-oriented source tree (Multi-Role Enterprise Architecture)
+
+SaaS-Sentry serves multiple user roles with distinct business capabilities:
+
+- **Employee**: Self-service portal (my software, license requests, renewals, return seat).
+- **IT Admin**: SaaS catalog, license seat inventory & allocation, vendor contracts, Shadow IT discovery.
+- **Manager / Approver**: Approval inbox, team license overview, department spend.
+- **Finance**: SaaS cost analysis, optimization recommendations, budget tracking.
+
+To keep the codebase maintainable as the number of screens grows, routes and features are grouped by role/portal, while cross-role domain logic is shared through `entities/`:
 
 ```text
 app/
   root.tsx                 document shell and error boundary
-  routes.ts                route manifest
-  routes/                  thin route modules
+  routes.ts                route manifest defining nested layouts per role
+  routes/                  thin route modules grouped by role/portal
+    auth/                  login, sso-callback, forbidden
+    employee/              employee portal routes (layout, dashboard, software, requests...)
+    admin/                 IT admin portal routes (layout, catalog, licenses, contracts...)
+    manager/               manager portal routes (layout, approvals...)
+    finance/               finance portal routes (layout, cost-analytics...)
   providers/               root-only framework providers
-  features/
-    <capability>/           screen, components, hooks, tests, feature-local models
-  entities/
-    <domain-concept>/       reusable domain presentation logic, only when needed
+  features/                business capabilities grouped by role/portal
+    employee/              employee portal features (layout, dashboard, my-software, requests...)
+    admin/                 IT admin portal features (layout, catalog, licenses, contracts...)
+    manager/               manager portal features (layout, approvals...)
+    finance/               finance portal features (layout, cost-optimization...)
+    shared/                cross-role features (auth, profile-settings, notifications)
+  entities/                domain presentation logic and models shared across roles
+    license/               LicenseStatusBadge, LicenseCard, license domain types
+    software/              SoftwareLogo, SoftwarePlanBadge, software domain types
+    request/               RequestStatusBadge, ApprovalTimeline, request domain types
+    user/                  UserAvatar, UserRoleBadge, user domain types
   shared/
     api/
       generated/
@@ -67,7 +154,7 @@ app/
     config/                 validated public runtime/build configuration
     i18n/                   typed vi/en resources and language lifecycle
     lib/                    framework-neutral utilities
-    ui/                     reusable presentation primitives
+    ui/                     reusable presentation primitives (Button, Modal, Input, Table...)
 test/                       global test setup
 openapi/                    committed API contract snapshot
 ```
@@ -81,10 +168,76 @@ routes -> features -> entities -> shared
 providers -------------------------> shared
 ```
 
-A lower layer cannot import a higher layer. Features do not import other features'
-private modules. When multiple features need a true domain concept, move that concept
-to `entities/`; when they need generic infrastructure or a primitive, move it to
-`shared/`.
+A lower layer cannot import a higher layer:
+
+- A route module only renders its corresponding feature and configures loaders/meta.
+- Features within one role do not import features from another role.
+- Cross-role presentation or domain concepts MUST live in `entities/` (e.g. both Employee and Admin can import `LicenseStatusBadge` from `entities/license/`).
+- Generic UI primitives and infrastructure live in `shared/ui/` and `shared/api/`.
+
+### Role layouts and access control (RBAC)
+
+1. **Dedicated Role Layouts**: Each role has its own layout shell (e.g., `features/employee/layout/employee-layout.tsx` for Employee, `features/admin/layout/admin-layout.tsx` for Admin). This ensures navigation items, headers, and quick actions are role-tailored without complex conditional logic in a single monolith layout.
+2. **Layout-Level Route Guards**: Access control checks (e.g. verifying role permissions) run at the parent layout route module in `routes/<role>/layout.tsx`. Unauthorized users are intercepted before child route screens mount.
+
+### Feature-internal organization
+
+Each feature is self-contained. When a feature screen grows beyond a comfortable size, split it into focused files inside that feature folder:
+
+```text
+features/
+  <role>/
+    <feature>/
+      <feature>-page.tsx              page component (~100 lines, composes children)
+      components/                     feature-private child components
+        <child-component>.tsx
+      hooks/                          feature-private hooks
+        use-<feature>-filters.ts
+      __tests__/
+        <feature>-page.test.tsx
+```
+
+Child components and hooks inside `components/` and `hooks/` are private to the
+feature. Do not import them from other features. When a genuine second consumer
+appears, promote the module to `entities/` (domain concept) or `shared/ui/`
+(generic primitive).
+
+#### Naming conventions
+
+All file names use `kebab-case`. Exported symbols use their idiomatic JavaScript
+casing (PascalCase for components, camelCase for hooks and functions).
+
+| File type       | File name pattern            | Export pattern     | Example                                                 |
+| --------------- | ---------------------------- | ------------------ | ------------------------------------------------------- |
+| Page/screen     | `<feature>-page.tsx`         | `<Feature>Page`    | `employee-dashboard-page.tsx` → `EmployeeDashboardPage` |
+| Child component | `<description>.tsx`          | `<Description>`    | `software-table.tsx` → `SoftwareTable`                  |
+| Hook            | `use-<description>.ts`       | `use<Description>` | `use-license-filters.ts` → `useLicenseFilters`          |
+| Utility         | `<description>.ts`           | named exports      | `format-currency.ts` → `formatCurrency`                 |
+| Type-only       | `<description>.types.ts`     | named exports      | `license.types.ts`                                      |
+| Constants       | `<description>.constants.ts` | named exports      | `license.constants.ts`                                  |
+| Test            | `<source-file>.test.tsx`     | —                  | `software-table.test.tsx`                               |
+
+#### File size guideline
+
+These are soft guidelines, not hard rules. Tailwind class names make JSX wider than
+CSS-module equivalents, so the threshold is slightly generous.
+
+| Lines   | Action                                                                  |
+| ------- | ----------------------------------------------------------------------- |
+| ≤ 150   | Ideal. Keep as-is.                                                      |
+| 150–300 | Review: split if the file has two or more distinct responsibilities.    |
+| > 300   | Split. A file this long almost certainly handles more than one concern. |
+
+#### Splitting triggers
+
+Beyond line count, split a component when any of these apply:
+
+- The component owns two or more independent UI sections (table + filters + drawer).
+- It accumulates more than four or five pieces of local state (`useState`,
+  `useReducer`); extract a custom hook.
+- A rendered list item has non-trivial logic of its own; extract an item component.
+- The same markup or logic appears in two features; promote to `entities/` or
+  `shared/ui/`.
 
 ### State ownership
 
@@ -245,12 +398,98 @@ does not require creating empty packages.
 
 ## Deferred decisions
 
+The Manager shell now provides a shared header (breadcrumbs, sample manager identity,
+and the language switch) for Dashboard and My Team at `/manager/my-team`. My Team
+uses the eight profiles in the supplied design; its overview figures represent the
+eighteen-member sample design. Search, filters, and pagination live in URL search
+parameters. CSV export includes all filtered sample profiles, with localized headers
+and spreadsheet formula escaping. Member details navigate to `/manager/my-team/:id`
+and preserve list filters for the return link. Employee request creation links to
+the employee-selection preview; later stages await designs and a backend contract.
+
+`entities/user` now owns the shared TeamMember presentation type, sample team list,
+and member avatar used by My Team and Employee Detail. Detail tab selection lives in
+URL search parameters. The supplied detailed records belong only to employee `1`;
+other sample employees show their known profile fields and explicit missing-data
+states. Unknown IDs show a localized missing-employee screen. Monthly cost is derived
+from the four assigned licenses (USD 57.99), rather than the inconsistent USD 48
+figure in the source design. Request SLA and usage dates are labeled sample values;
+approval and access-review mutations remain disabled pending backend integration.
+
+The Manager presentation preview is available at `/manager/dashboard` with its own
+layout under `features/manager/layout`. Dashboard fixtures reproduce the supplied
+design and are explicitly labeled as sample data. Date search parameters filter
+only the recent sample requests; KPI, usage, status, and cost panels remain static.
+The supplied usage series are preserved independently and must not be interpreted
+as an active/inactive partition until the backend defines these metrics.
+Unimplemented navigation destinations are disabled. Authentication and Manager
+layout route guards await the backend session/role contract; this preview does not
+grant permissions or perform business mutations.
+
+Team Requests is available at `/manager/team-requests`. Its six supplied sample
+records support URL search, status/type/software/date filters, ID sorting,
+pagination, and links to `/manager/team-requests/:id` for request approval detail.
+The initial status is All so every supplied row is visible; overview totals
+remain independent illustrative figures. Date filters initially cover August 2026.
+The source's contradictory Overdue status and six hours left are retained and
+explained on the detail page; SLA is not inferred from the current clock.
+The shared header search uses the same URL search parameter as the table.
+Approval mutations and authentication await the backend contract.
+
+Request Approval Detail preserves list query parameters for the return link.
+`entities/request` owns the shared Manager request presentation fixtures, status
+badge, requester avatar, and software summary used by the list and detail features.
+Only REQ-1024 has the extended supplied fields and sample approval flow; other
+known requests show their own summary with explicit missing fields and history.
+Unknown IDs render a missing-request state. Submitted dates match the list;
+the conflicting May dates in the detailed source are not used to infer a deadline.
+Download exports a localized, labeled sample text summary. Approve and Reject
+remain disabled until backend permissions and workflow transitions are defined.
+
+Team Software / Usage is available at `/manager/team-software`, with the supplied
+eight software rows and independently labeled illustrative overview/chart values.
+The only available usage snapshot is May 18–24, 2026; selecting another period
+shows a missing-snapshot state rather than recalculating unsupported usage data.
+Search, status, usage band, ghost/expiring flags, and pagination live in the URL.
+Organization selectors are disabled because no allocation mapping was supplied.
+Ghost review filters the table; row disclosures explain the pending assignment
+and activity integration. Export contains all filtered table records in localized
+CSV. CSV cell encoding is shared with My Team under `shared/lib/csv`.
+The Figma mark is shared by request and software presentations under
+`entities/software`.
+Team Software uses the shared warm orange palette. The Manager shell is fixed to
+the viewport, with scrolling confined to its main content and sidebar navigation,
+so document scrolling cannot reveal unused body space below the portal.
+
 - Authentication/session storage awaits the backend OIDC contract. Do not store
   long-lived tokens in local storage by default.
 - Form, table, chart, and component libraries should be chosen from real screens and
   accessibility requirements, not installed as architecture placeholders.
 - A shared Web/Mobile package is deferred. Web is the MVP and native presentation
   constraints differ; share the API contract and domain language before sharing UI.
+
+Access Review is available at `/manager/access-review`. Its three supplied pending
+assignments use shared team identities, with cycle-specific sample activity and
+risk. Overview and tab counts remain explicitly independent design figures. URL
+parameters control search, status, software, team, risk, employee, and pagination;
+reviewed/exempt views show missing-sample states rather than invented records.
+Selection spans pages, while bulk preview includes only selected filtered results.
+Row View links open `/manager/access-review/:id`, preserving list filters. Bulk
+review opens a read-only summary with links to individual details. Opening either
+never changes status or access. The only available cycle is Q2 2026. CSV exports all filtered sample rows
+with localized headers and shared spreadsheet escaping. Backend review decisions,
+permissions, and live campaign data await an OpenAPI contract.
+
+Assignment Details renders the supplied decision screen in the Manager shell.
+Shared assignment records and filtering live in `entities/license/` because list
+and detail both consume them. The list's Q2 cycle and Manager identity take
+precedence over conflicting Q1/IT Admin labels in the detail source. Only AR-1 has
+the supplied business-purpose/project examples; other assignments show missing
+extended fields. Employee identity and cost center come from shared team records.
+Unknown IDs show a recoverable missing-record state. Keep/Reclaim/Exempt and the
+required reason (maximum 250 characters) are ephemeral unsaved drafts reset when
+the assignment changes. Submit remains unavailable pending backend authorization
+and review workflow; no decision is persisted or reported as successful.
 
 ## Official references
 

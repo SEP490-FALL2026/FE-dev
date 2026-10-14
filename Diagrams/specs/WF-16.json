@@ -1,0 +1,785 @@
+{
+  "id": "WF-16",
+  "kind": "activity",
+  "version": "3.6",
+  "date": "10/10/2026",
+  "title": "WF-16 · Invoice & Vendor Reconciliation",
+  "out": "workflows-activity-diagram/WF-16-invoice-vendor-reconciliation",
+  "lanes": [
+    {
+      "id": "FIN",
+      "label": "Finance"
+    },
+    {
+      "id": "SYS",
+      "label": "SaaS-Sentry",
+      "slots": 4
+    },
+    {
+      "id": "IT",
+      "label": "IT Admin",
+      "slots": 3
+    },
+    {
+      "id": "SA",
+      "label": "Spending Approver"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "st",
+      "type": "start",
+      "lane": "SYS",
+      "row": 0,
+      "slot": 1
+    },
+    {
+      "id": "d_src",
+      "type": "decision",
+      "lane": "SYS",
+      "row": 1,
+      "slot": 1,
+      "label": "Reconciliation Trigger?",
+      "vi": "Hai nguồn khởi động: Finance nhận hóa đơn của nhà cung cấp, hoặc tới lịch job đối soát với nhà cung cấp (mặc định hằng ngày, cấu hình được) cho các ứng dụng có connector.",
+      "rules": [
+        "FR-2.6",
+        "FR-5.4",
+        "OI-14h"
+      ]
+    },
+    {
+      "id": "a_inv",
+      "type": "action",
+      "lane": "FIN",
+      "row": 2,
+      "label": "Record Invoice with Tax Lines per Document",
+      "vi": "Finance nhập hoặc import hóa đơn (số hóa đơn, ngày, nhà cung cấp, số tiền, tiền tệ, tỷ giá tại ngày giao dịch) và ghi từng dòng thuế đúng như chứng từ: loại thuế, tỷ lệ, số tiền, nhà cung cấp thu hay doanh nghiệp nộp thay, được khấu trừ có/không. Cờ mặc định theo hồ sơ thuế của nhà cung cấp (T1 trong nước · T2 nước ngoài, doanh nghiệp nộp thay — mặc định · T3 nước ngoài, thuế đã thu trên chứng từ); Finance sửa theo chứng từ. Hệ thống chỉ ghi nhận, không tính hay kê khai thuế. Chứng từ lưu theo BM-05.",
+      "rules": [
+        "FR-5.4",
+        "FR-5.13",
+        "FR-5.6",
+        "QĐ-55a",
+        "QĐ-60a",
+        "QĐ-60b",
+        "BM-05"
+      ]
+    },
+    {
+      "id": "a_conn",
+      "type": "action",
+      "lane": "SYS",
+      "row": 2,
+      "slot": 3,
+      "label": "Read Vendor Member List via Connector",
+      "vi": "Job đọc danh sách thành viên/tài khoản phía nhà cung cấp qua connector. Ứng dụng không có connector không đi qua job này nên không bao giờ sinh sai lệch giả.",
+      "rules": [
+        "FR-2.6",
+        "OI-14h"
+      ]
+    },
+    {
+      "id": "s_match",
+      "type": "action",
+      "lane": "SYS",
+      "row": 3,
+      "slot": 1,
+      "label": "Match Invoice Lines to Subscription",
+      "vi": "Ghép từng dòng hóa đơn với thuê bao/phần mềm và kỳ; so số lượng, đơn giá và tổng tiền phải trả ước tính của bản ghi mua. Thuê bao 100 seat so với 80 Assignment là seat chưa gán (G1), không phải sai lệch hóa đơn.",
+      "rules": [
+        "FR-5.4",
+        "ADR-06"
+      ]
+    },
+    {
+      "id": "s_cmp",
+      "type": "action",
+      "lane": "SYS",
+      "row": 3,
+      "slot": 3,
+      "label": "Compare with Active Assignments",
+      "vi": "So danh sách phía nhà cung cấp với Assignment đang hiệu lực. Lời mời đang chờ chấp nhận chưa phải thành viên đã kích hoạt.",
+      "rules": [
+        "FR-2.6",
+        "FR-7.7",
+        "QĐ-03"
+      ]
+    },
+    {
+      "id": "d_var",
+      "type": "decision",
+      "lane": "SYS",
+      "row": 4,
+      "slot": 1,
+      "label": "Invoice vs Subscription?",
+      "vi": "Kết quả so hóa đơn với thuê bao: khớp · chỉ lệch do thuế, tỷ giá hoặc phí · lệch số lượng hoặc đơn giá.",
+      "rules": [
+        "FR-5.4",
+        "FR-5.13"
+      ]
+    },
+    {
+      "id": "d_diff",
+      "type": "decision",
+      "lane": "SYS",
+      "row": 4,
+      "slot": 3,
+      "label": "Accounts Match?",
+      "vi": "Hai loại khác biệt: có trong hệ thống nhưng không có ở nhà cung cấp; có ở nhà cung cấp nhưng không có trong hệ thống (dấu hiệu quyền được cấp ngoài quy trình).",
+      "rules": [
+        "FR-2.6",
+        "FR-7.7"
+      ]
+    },
+    {
+      "id": "s_tax",
+      "type": "action",
+      "lane": "SYS",
+      "row": 5,
+      "slot": 0,
+      "label": "Record Tax or FX Variance Separately",
+      "vi": "Chênh lệch chỉ do thuế, tỷ giá hoặc phí thẻ: ghi nhận hóa đơn bình thường, tách phần chênh vào chênh lệch thuế/tỷ giá của báo cáo; không mở hồ sơ sai lệch.",
+      "rules": [
+        "FR-5.13",
+        "FR-5.4",
+        "QĐ-55a"
+      ]
+    },
+    {
+      "id": "m_open",
+      "type": "merge",
+      "lane": "SYS",
+      "row": 5,
+      "slot": 2
+    },
+    {
+      "id": "end_job",
+      "type": "end",
+      "lane": "SYS",
+      "row": 5,
+      "slot": 3,
+      "vi": "Job đối soát không thấy khác biệt; không tạo bản ghi nào."
+    },
+    {
+      "id": "m_ok",
+      "type": "merge",
+      "lane": "SYS",
+      "row": 6,
+      "slot": 1
+    },
+    {
+      "id": "s_open",
+      "type": "action",
+      "lane": "SYS",
+      "row": 6,
+      "slot": 2,
+      "label": "Open Discrepancy Keeping Both Values",
+      "vi": "Mở hồ sơ sai lệch (case-level) ghi đúng loại: in system not at vendor · at vendor not in system · lệch số lượng/đơn giá hóa đơn. Giữ nguyên cả hai giá trị, không nguồn nào tự ghi đè: không tự tạo/sửa Assignment, không tự sửa thuê bao hay hóa đơn. Hóa đơn lệch vẫn nằm trong thực chi như đã nhận. Ngoại lệ của một khoản chi trên sao kê không phải và không tự sinh Discrepancy (→ WF-17).",
+      "rules": [
+        "FR-2.6",
+        "FR-7.7",
+        "FR-4.8",
+        "QĐ-15",
+        "QĐ-34a",
+        "QĐ-34b"
+      ]
+    },
+    {
+      "id": "end_ok",
+      "type": "end",
+      "lane": "SYS",
+      "row": 7,
+      "slot": 1,
+      "vi": "Hóa đơn là thực chi đã ghi nhận của kỳ, sẵn sàng cho chuyển cam kết và phân bổ (WF-19)."
+    },
+    {
+      "id": "a_invs",
+      "type": "action",
+      "lane": "IT",
+      "row": 8,
+      "slot": 1,
+      "label": "Investigate Cause with Finance",
+      "vi": "IT Admin điều tra nguyên nhân cùng Finance (Finance cung cấp chứng từ, căn cứ mua). Hồ sơ chỉ đóng bằng quyết định, không tự đóng theo thời gian.",
+      "rules": [
+        "FR-7.7",
+        "FR-5.4",
+        "SoD-3"
+      ]
+    },
+    {
+      "id": "d_ver",
+      "type": "decision",
+      "lane": "IT",
+      "row": 9,
+      "slot": 1,
+      "label": "Cause Verified?",
+      "vi": "Đã xác minh được nguyên nhân bằng chứng từ/dữ liệu chưa. Chưa xác minh thì không ép chọn một nguyên nhân: hồ sơ vẫn mở, giữ cả hai giá trị (đồng bộ với UF-14).",
+      "rules": [
+        "FR-7.7",
+        "FR-2.6",
+        "QĐ-15"
+      ]
+    },
+    {
+      "id": "s_keep",
+      "type": "action",
+      "lane": "SYS",
+      "row": 10,
+      "slot": 2,
+      "label": "Keep Case Open, Awaiting Evidence",
+      "vi": "Chưa xác minh được nguyên nhân: hồ sơ sai lệch vẫn mở, giữ cả hai giá trị, ghi điều đã kiểm và chứng từ còn thiếu. Không tự phân loại nguyên nhân, không tự sửa thuê bao/hóa đơn/Assignment, không tự đóng theo thời gian. Hóa đơn lệch vẫn là thực chi như đã nhận. Khi có chứng từ mới, IT Admin điều tra lại (bắt đầu lại từ bước điều tra).",
+      "rules": [
+        "FR-7.7",
+        "FR-2.6",
+        "QĐ-34b"
+      ]
+    },
+    {
+      "id": "end_open",
+      "type": "end",
+      "lane": "SYS",
+      "row": 11,
+      "slot": 2,
+      "vi": "Hồ sơ còn mở, chờ bằng chứng; không phải kết quả đóng. Hồ sơ chỉ đóng bằng quyết định của người thật."
+    },
+    {
+      "id": "d_cause",
+      "type": "decision",
+      "lane": "IT",
+      "row": 10,
+      "slot": 1,
+      "label": "Which Cause?",
+      "vi": "Nguyên nhân đã xác minh thuộc một trong ba nhóm: nhà cung cấp tính sai (chỉ ca hóa đơn) · quyền được cấp ngoài quy trình · bản ghi nội bộ hoặc việc thực thi chưa theo kịp quyết định.",
+      "rules": [
+        "FR-5.4",
+        "FR-7.7",
+        "QĐ-49f"
+      ]
+    },
+    {
+      "id": "d_gap",
+      "type": "decision",
+      "lane": "IT",
+      "row": 11,
+      "slot": 0,
+      "label": "Which Side Lags the Decision?",
+      "vi": "Phân biệt: mua đã duyệt nhưng thuê bao chưa ghi theo căn cứ, hay tài khoản phía nhà cung cấp chưa đúng với Assignment đã quyết (chưa cấp xong hoặc đã mất).",
+      "rules": [
+        "FR-5.4",
+        "FR-2.5"
+      ]
+    },
+    {
+      "id": "a_berr",
+      "type": "action",
+      "lane": "IT",
+      "row": 12,
+      "slot": 2,
+      "label": "Record Vendor Billing Error with Note",
+      "vi": "Nhà cung cấp tính sai (Finance xác minh và ghi chú): quyết định “nhà cung cấp tính sai” kèm ghi chú xác minh bắt buộc. Hóa đơn vẫn tính như đã nhận; điều chỉnh (nếu có) đến sau bằng hóa đơn mới. Không có quy trình tranh chấp, hoàn tiền hay thanh toán.",
+      "rules": [
+        "QĐ-49f",
+        "FR-5.4",
+        "QĐ-34"
+      ]
+    },
+    {
+      "id": "c_leg",
+      "type": "call",
+      "lane": "SA",
+      "row": 11,
+      "ref": "WF-17",
+      "label": "Decide Legitimization or Reclaim",
+      "vi": "Có tài khoản/quyền ngoài quy trình: chỉ Người duyệt chi quyết hợp thức hóa (hồ sơ BM-07, không duyệt chi lần hai); không duyệt thì IT thu hồi hoặc chuyển người dùng (WF-09a).",
+      "rules": [
+        "FR-3.4c-1",
+        "DQ-06",
+        "BM-07"
+      ]
+    },
+    {
+      "id": "a_upd",
+      "type": "action",
+      "lane": "IT",
+      "row": 12,
+      "label": "Update Subscription per Evidence",
+      "vi": "Mua đã duyệt nhưng thuê bao chưa ghi: **IT Admin** cập nhật thuê bao theo căn cứ (quyết định duyệt chi, chứng từ Finance đính kèm); Finance giữ hóa đơn, dòng thuế và cờ được khấu trừ. Hệ thống không tự sửa (QĐ-62b).",
+      "rules": [
+        "FR-5.4",
+        "FR-7.7",
+        "QĐ-62b"
+      ],
+      "slot": 0
+    },
+    {
+      "id": "c_exec",
+      "type": "call",
+      "lane": "IT",
+      "row": 12,
+      "slot": 1,
+      "ref": "WF-09a",
+      "label": "Re-provision or Reclaim per Decision",
+      "vi": "Tài khoản phía nhà cung cấp chưa đúng với Assignment đã quyết: IT thực thi lại cấp phát hoặc thu hồi theo quyết định đã có, qua connector hoặc thủ công. Nếu WF-09a trả *đóng thất bại* (QĐ-62i): sai lệch chưa được giải quyết; hồ sơ không tự đóng (chỉ đóng bằng quyết định) và IT mở tác vụ mới. Gói có lưu ý mất dữ liệu: IT Admin ghi xác nhận đã xử lý bàn giao trước khi gỡ ở nhà cung cấp; không chặn sau hạn ngắn (WF-09a `d_dl`, `s_ask`; QĐ-63a).",
+      "rules": [
+        "FR-2.5",
+        "FR-2.4",
+        "QĐ-63a"
+      ]
+    },
+    {
+      "id": "m_gap",
+      "type": "merge",
+      "lane": "IT",
+      "row": 13,
+      "slot": 0
+    },
+    {
+      "id": "m_res",
+      "type": "merge",
+      "lane": "IT",
+      "row": 14,
+      "slot": 1
+    },
+    {
+      "id": "a_close",
+      "type": "action",
+      "lane": "IT",
+      "row": 15,
+      "slot": 1,
+      "label": "Close Discrepancy with Decision",
+      "vi": "IT Admin đóng hồ sơ sai lệch kèm quyết định và căn cứ; ghi Audit Trail. Không có đóng tự động theo thời gian. Áp cho mọi loại hồ sơ, kể cả sai lệch hóa đơn (QĐ-62b).",
+      "rules": [
+        "FR-7.7",
+        "FR-8.3"
+      ]
+    },
+    {
+      "id": "end_dis",
+      "type": "end",
+      "lane": "IT",
+      "row": 16,
+      "slot": 1,
+      "vi": "Sai lệch đã đóng bằng quyết định; cả hai giá trị gốc vẫn được giữ làm bằng chứng."
+    }
+  ],
+  "edges": [
+    {
+      "from": "st",
+      "to": "d_src"
+    },
+    {
+      "from": "d_src",
+      "to": "a_inv",
+      "guard": "invoice received",
+      "sides": [
+        "L",
+        "T"
+      ],
+      "vi": "Finance nhận hóa đơn của kỳ",
+      "result": "Ghi hóa đơn và dòng thuế"
+    },
+    {
+      "from": "d_src",
+      "to": "a_conn",
+      "guard": "daily connector job",
+      "sides": [
+        "R",
+        "T"
+      ],
+      "vi": "Tới lịch job đối soát (mặc định hằng ngày)",
+      "result": "Đọc danh sách phía nhà cung cấp"
+    },
+    {
+      "from": "a_inv",
+      "to": "s_match"
+    },
+    {
+      "from": "a_conn",
+      "to": "s_cmp"
+    },
+    {
+      "from": "s_match",
+      "to": "d_var"
+    },
+    {
+      "from": "s_cmp",
+      "to": "d_diff"
+    },
+    {
+      "from": "d_var",
+      "to": "s_tax",
+      "guard": "tax or FX only",
+      "sides": [
+        "L",
+        "T"
+      ],
+      "vi": "Chỉ lệch do thuế, tỷ giá hoặc phí",
+      "result": "Ghi nhận, tách chênh lệch"
+    },
+    {
+      "from": "d_var",
+      "to": "m_ok",
+      "guard": "matches",
+      "sides": [
+        "B",
+        "T"
+      ],
+      "vi": "Hóa đơn khớp thuê bao",
+      "result": "Ghi nhận thực chi"
+    },
+    {
+      "from": "d_var",
+      "to": "m_open",
+      "guard": "quantity or price differs",
+      "sides": [
+        "R",
+        "T"
+      ],
+      "vi": "Lệch số lượng hoặc đơn giá",
+      "result": "Mở hồ sơ sai lệch; hóa đơn vẫn là thực chi"
+    },
+    {
+      "from": "d_diff",
+      "to": "m_open",
+      "guard": "differs",
+      "sides": [
+        "L",
+        "R"
+      ],
+      "vi": "Có tài khoản chỉ ở một phía",
+      "result": "Mở hồ sơ sai lệch theo loại"
+    },
+    {
+      "from": "d_diff",
+      "to": "end_job",
+      "guard": "all match",
+      "sides": [
+        "B",
+        "T"
+      ],
+      "vi": "Hai phía khớp",
+      "result": "Không tạo bản ghi"
+    },
+    {
+      "from": "s_tax",
+      "to": "m_ok",
+      "sides": [
+        "B",
+        "L"
+      ]
+    },
+    {
+      "from": "m_ok",
+      "to": "end_ok"
+    },
+    {
+      "from": "m_open",
+      "to": "s_open"
+    },
+    {
+      "from": "s_open",
+      "to": "a_invs",
+      "sides": [
+        "B",
+        "T"
+      ]
+    },
+    {
+      "from": "a_invs",
+      "to": "d_ver"
+    },
+    {
+      "from": "d_ver",
+      "to": "s_keep",
+      "guard": "not yet",
+      "vi": "Chưa xác minh được nguyên nhân"
+    },
+    {
+      "from": "d_ver",
+      "to": "d_cause",
+      "guard": "verified",
+      "vi": "Đã xác minh nguyên nhân"
+    },
+    {
+      "from": "s_keep",
+      "to": "end_open"
+    },
+    {
+      "from": "d_cause",
+      "to": "a_berr",
+      "guard": "vendor billing error",
+      "sides": [
+        "B",
+        "T"
+      ],
+      "vi": "Xác minh cho thấy nhà cung cấp tính sai",
+      "result": "Ghi quyết định kèm ghi chú bắt buộc"
+    },
+    {
+      "from": "d_cause",
+      "to": "c_leg",
+      "guard": "access outside process",
+      "sides": [
+        "R",
+        "T"
+      ],
+      "vi": "Có tài khoản ở nhà cung cấp mà không có quyết định cấp",
+      "result": "Người duyệt chi quyết hợp thức hóa hoặc IT thu hồi"
+    },
+    {
+      "from": "d_cause",
+      "to": "d_gap",
+      "guard": "record or execution gap",
+      "sides": [
+        "L",
+        "T"
+      ],
+      "vi": "Bản ghi nội bộ hoặc việc thực thi chưa theo kịp quyết định",
+      "result": "Xác định phía cần sửa"
+    },
+    {
+      "from": "d_gap",
+      "to": "a_upd",
+      "guard": "approved purchase not recorded",
+      "sides": [
+        "B",
+        "T"
+      ],
+      "vi": "Mua đã duyệt nhưng thuê bao chưa ghi",
+      "result": "IT Admin cập nhật thuê bao theo căn cứ; Finance đính chứng từ (QĐ-62b)"
+    },
+    {
+      "from": "d_gap",
+      "to": "c_exec",
+      "guard": "vendor account differs",
+      "sides": [
+        "R",
+        "T"
+      ],
+      "vi": "Tài khoản phía nhà cung cấp khác Assignment đã quyết",
+      "result": "IT thực thi lại cấp phát/thu hồi"
+    },
+    {
+      "from": "a_upd",
+      "to": "m_gap",
+      "sides": [
+        "B",
+        "L"
+      ]
+    },
+    {
+      "from": "c_exec",
+      "to": "m_gap"
+    },
+    {
+      "from": "m_gap",
+      "to": "m_res",
+      "sides": [
+        "B",
+        "L"
+      ]
+    },
+    {
+      "from": "a_berr",
+      "to": "m_res"
+    },
+    {
+      "from": "c_leg",
+      "to": "m_res",
+      "sides": [
+        "B",
+        "R"
+      ]
+    },
+    {
+      "from": "m_res",
+      "to": "a_close"
+    },
+    {
+      "from": "a_close",
+      "to": "end_dis"
+    }
+  ],
+  "doc": {
+    "level": "Workflow chi tiết (detail) của MF-8",
+    "status": "Vẽ lại theo QĐ-34a/b, QĐ-49f, QĐ-55a, QĐ-60a/b và BRD v3.31 (đồng bộ QĐ-61 → QĐ-63) FR-2.6, FR-5.4, FR-5.13, FR-7.7; chờ Owner/GVHD review",
+    "purpose": "Đối soát **hai nguồn sự thật**: dữ liệu nhà cung cấp (thực tế) với dữ liệu nội bộ đã qua phê duyệt (ý định). Hai nơi xuất hiện: job đối soát tài khoản qua connector và đối chiếu hóa đơn với thuê bao. Khác biệt thành **hồ sơ sai lệch giữ cả hai giá trị** để người xử lý — hệ thống không tự đồng bộ cho khớp vì như vậy xóa chính bằng chứng.",
+    "scope": "Ghi hóa đơn kèm dòng thuế theo chứng từ; ghép hóa đơn với thuê bao và ba kết quả so; job connector hằng ngày và hai loại sai lệch tài khoản; điều tra cùng Finance; bốn hướng xử lý (nhà cung cấp tính sai, quyền ngoài quy trình, thuê bao chưa ghi, tài khoản chưa đúng quyết định); đóng hồ sơ bằng quyết định.",
+    "excluded": "Ngoại lệ của từng khoản chi trên sao kê và hợp thức hóa (→ WF-17; không phải Discrepancy, QĐ-34a). Chuyển cam kết thành chi phí, phân bổ và báo cáo (→ WF-19). Thực thi cấp/thu hồi (→ WF-09a). Không có thanh toán, tranh chấp, hoàn tiền, sổ cái, kết nối ngân hàng; thuế chỉ ghi nhận, không tính/kê khai (QĐ-34, QĐ-55a).",
+    "lanes_vi": {
+      "FIN": [
+        "Finance (một người)",
+        "Ghi hóa đơn và dòng thuế theo chứng từ, đính chứng từ/căn cứ cho việc cập nhật thuê bao, cung cấp chứng từ khi điều tra"
+      ],
+      "SYS": [
+        "SaaS-Sentry",
+        "Job đối soát connector, ghép hóa đơn, so, mở hồ sơ sai lệch giữ cả hai giá trị"
+      ],
+      "IT": [
+        "IT Admin",
+        "Điều tra cùng Finance, cập nhật thuê bao theo căn cứ (QĐ-62b), ghi nhà cung cấp tính sai, thực thi lại cấp/thu hồi, đóng hồ sơ"
+      ],
+      "SA": [
+        "Người duyệt chi",
+        "Quyết hợp thức hóa khi có quyền cấp ngoài quy trình"
+      ]
+    },
+    "trigger": "Finance nhận hóa đơn của nhà cung cấp, hoặc tới lịch job đối soát với nhà cung cấp (mặc định hằng ngày, cấu hình được — OI-14h).",
+    "pre": "Thuê bao và Assignment đã ghi; hồ sơ thuế nhà cung cấp đã khai (FR-5.13); ứng dụng có connector mới tham gia job tài khoản.",
+    "post": "Hóa đơn là thực chi như đã nhận; chênh lệch thuế/tỷ giá được tách riêng; mọi khác biệt còn lại nằm trong hồ sơ sai lệch mở hoặc đã đóng bằng quyết định, cả hai giá trị gốc được giữ.",
+    "reading": "Hai cột vào từ quyết định đầu: trái là hóa đơn (Finance → ghép → so), phải là job connector. Hai nguồn gặp nhau ở hình thoi nhỏ trước *Open Discrepancy Keeping Both Values*, rồi đi sang làn IT Admin. Nhánh *record or execution gap* tách tiếp theo phía cần sửa. Mọi đường xử lý hội tụ ở bước đóng hồ sơ bằng quyết định.",
+    "sources": [
+      [
+        "FR-2.6, OI-14h",
+        "Job đối soát hằng ngày cho app có connector; hai loại sai lệch; loại *có ở nhà cung cấp* là dấu hiệu cấp quyền ngoài quy trình"
+      ],
+      [
+        "FR-7.7 (bảng 5.7.1)",
+        "Không nguồn nào tự ghi đè; không tự tạo Assignment; không tự sửa thuê bao"
+      ],
+      [
+        "FR-5.4, QĐ-34b",
+        "Hóa đơn là khoản chi đã ghi nhận; seat chưa gán không phải sai lệch hóa đơn"
+      ],
+      [
+        "QĐ-49f",
+        "Nhà cung cấp tính sai: hóa đơn giữ như đã nhận, đóng kèm ghi chú bắt buộc, điều chỉnh bằng hóa đơn mới"
+      ],
+      [
+        "FR-5.13, QĐ-55a, QĐ-60a, QĐ-60b",
+        "Dòng thuế đúng chứng từ, cờ được khấu trừ, hồ sơ T1/T2/T3; chênh lệch thuế/tỷ giá không mở Discrepancy"
+      ],
+      [
+        "QĐ-34a",
+        "Ngoại lệ khoản chi sao kê tách khỏi Discrepancy"
+      ],
+      [
+        "QĐ-15",
+        "Discrepancy ở mức hồ sơ (case-level)"
+      ],
+      [
+        "FR-3.4c-1, DQ-06",
+        "Chỉ Người duyệt chi quyết hợp thức hóa"
+      ],
+      [
+        "BRD 5.10 dòng *Đối soát nhà cung cấp*, dòng MF-8",
+        "Diễn tiến luồng"
+      ]
+    ],
+    "happy": [
+      "st",
+      "d_src",
+      "a_inv",
+      "s_match",
+      "d_var",
+      "m_ok",
+      "end_ok"
+    ],
+    "alternates": [
+      {
+        "title": "Chỉ lệch do thuế/tỷ giá/phí",
+        "path": [
+          "d_var",
+          "s_tax",
+          "m_ok",
+          "end_ok"
+        ],
+        "note": "Ghi nhận bình thường, chênh lệch tách riêng; không mở hồ sơ."
+      },
+      {
+        "title": "Job connector không thấy khác biệt",
+        "path": [
+          "st",
+          "d_src",
+          "a_conn",
+          "s_cmp",
+          "d_diff",
+          "end_job"
+        ],
+        "note": "Không tạo bản ghi."
+      }
+    ],
+    "unhappy": [
+      {
+        "title": "Hóa đơn lệch — nhà cung cấp tính sai",
+        "path": [
+          "d_var",
+          "m_open",
+          "s_open",
+          "a_invs",
+          "d_ver",
+          "d_cause",
+          "a_berr",
+          "m_res",
+          "a_close",
+          "end_dis"
+        ],
+        "note": "Hóa đơn vẫn là thực chi như đã nhận; ghi chú xác minh bắt buộc."
+      },
+      {
+        "title": "Tài khoản có ở nhà cung cấp nhưng không có trong hệ thống",
+        "path": [
+          "d_diff",
+          "m_open",
+          "s_open",
+          "a_invs",
+          "d_ver",
+          "d_cause",
+          "c_leg",
+          "m_res",
+          "a_close"
+        ],
+        "note": "Người duyệt chi quyết hợp thức hóa; không duyệt thì IT thu hồi."
+      },
+      {
+        "title": "Mua đã duyệt nhưng thuê bao chưa ghi",
+        "path": [
+          "d_ver",
+          "d_cause",
+          "d_gap",
+          "a_upd",
+          "m_gap",
+          "m_res",
+          "a_close"
+        ],
+        "note": "IT Admin cập nhật thuê bao theo căn cứ; Finance đính chứng từ (QĐ-62b)."
+      },
+      {
+        "title": "Tài khoản phía nhà cung cấp khác Assignment đã quyết",
+        "path": [
+          "d_ver",
+          "d_cause",
+          "d_gap",
+          "c_exec",
+          "m_gap",
+          "m_res",
+          "a_close"
+        ],
+        "note": "IT thực thi lại cấp phát hoặc thu hồi qua WF-09a."
+      },
+      {
+        "title": "Chưa xác minh được nguyên nhân",
+        "path": [
+          "s_open",
+          "a_invs",
+          "d_ver",
+          "s_keep",
+          "end_open"
+        ],
+        "note": "Hồ sơ vẫn mở, chờ chứng từ; không ép phân loại, không tự sửa hay tự đóng. Có chứng từ mới thì điều tra lại."
+      }
+    ],
+    "relations": [
+      "Cấp trên: `MF-8` (bước *Investigate Discrepancy with Finance*)",
+      "`WF-17` — hợp thức hóa hoặc thu hồi khi quyền cấp ngoài quy trình; ngoại lệ khoản chi sao kê",
+      "`WF-09a` — thực thi lại cấp phát/thu hồi",
+      "`WF-19` — hóa đơn đã ghi nhận đi vào chuyển cam kết, phân bổ, báo cáo",
+      "User flow: `UF-14`, `UF-19`"
+    ],
+    "open": [
+      "(ĐÃ CÓ NGUỒN · DOI-93, QĐ-62b) IT Admin đóng hồ sơ sai lệch kèm quyết định và căn cứ — BRD 5.10 dòng *Đối soát nhà cung cấp* (*IT Admin xử lý*); ca *nhà cung cấp tính sai* kèm ghi chú xác minh của Finance.",
+      "(ĐÃ CÓ NGUỒN · DOI-95) Phân biệt *phía nào chưa theo kịp quyết định* theo nguyên tắc BRD 5.7.1: dữ liệu nội bộ là nguồn về ý định đã được duyệt, nhà cung cấp là nguồn về thực tế quan sát được; sai lệch được xử lý theo quyết định đã có, không nguồn nào tự ghi đè nguồn kia (FR-7.7).",
+      "(DEFERRED/OUT · DOI-07, QĐ-59e) ERD chưa có hồ sơ thuế và dòng thuế có cờ được khấu trừ (`QĐ-60`).",
+      "(DEFERRED/OUT · DOI-11, QĐ-59c) Quyền ghi `Members` của connector GitHub chưa kiểm (`TE-11b`) — job đọc chạy được, thực thi lại cấp phát qua connector chưa kiểm."
+    ]
+  }
+}

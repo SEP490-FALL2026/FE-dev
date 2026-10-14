@@ -1,4 +1,14 @@
-import { Boxes, ClipboardList, FileCheck2, Grid2X2, Plus, Sparkles, UsersRound, type LucideIcon } from 'lucide-react'
+import {
+  Boxes,
+  ClipboardList,
+  FileCheck2,
+  FolderOpen,
+  Grid2X2,
+  Plus,
+  Sparkles,
+  UsersRound,
+  type LucideIcon
+} from 'lucide-react'
 
 export type ManagerTabKey =
   | 'overview'
@@ -6,6 +16,7 @@ export type ManagerTabKey =
   | 'employee-detail'
   | 'team-software'
   | 'team-requests'
+  | 'my-requests'
   | 'request-approval'
   | 'create-employee-request'
   | 'ghost-seat-review'
@@ -13,7 +24,14 @@ export type ManagerTabKey =
   | 'access-review'
 
 export type ManagerTranslationKey =
-  'overview' | 'myTeam' | 'teamSoftware' | 'teamRequests' | 'ghostSeatReview' | 'accessReview' | 'createEmployeeRequest'
+  | 'overview'
+  | 'myTeam'
+  | 'teamSoftware'
+  | 'teamRequests'
+  | 'myRequests'
+  | 'ghostSeatReview'
+  | 'accessReview'
+  | 'createEmployeeRequest'
 
 export interface ManagerNavItem {
   badge?: number
@@ -45,6 +63,11 @@ export const managerNavItems: ManagerNavItem[] = [
     translationKey: 'teamRequests'
   },
   {
+    icon: FolderOpen,
+    key: 'my-requests',
+    translationKey: 'myRequests'
+  },
+  {
     badge: 4,
     icon: Sparkles,
     key: 'ghost-seat-review',
@@ -69,6 +92,7 @@ const validTabs = new Set<string>([
   'employee-detail',
   'team-software',
   'team-requests',
+  'my-requests',
   'request-approval',
   'create-employee-request',
   'ghost-seat-review',

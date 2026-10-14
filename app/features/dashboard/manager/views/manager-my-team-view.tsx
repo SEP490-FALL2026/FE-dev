@@ -3,14 +3,17 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { MOCK_TEAM_MEMBERS } from '../manager-data'
+import { ManagerIdentityMark } from '../manager-identity-mark'
 import type { ManagerTabKey } from '../manager-nav'
+import { ManagerSummaryStrip } from '../manager-summary-strip'
 
 interface ManagerMyTeamViewProps {
   onSelectTab: (tab: ManagerTabKey, params?: Record<string, string>) => void
 }
 
 export function ManagerMyTeamView({ onSelectTab }: ManagerMyTeamViewProps) {
-  const { t } = useTranslation('dashboard')
+  const { i18n, t } = useTranslation('dashboard')
+  const formatCount = new Intl.NumberFormat(i18n.resolvedLanguage ?? 'vi').format
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'ON_LEAVE' | 'OFFBOARDING'>('ALL')
 
@@ -25,6 +28,9 @@ export function ManagerMyTeamView({ onSelectTab }: ManagerMyTeamViewProps) {
 
     return matchesSearch && matchesStatus
   })
+
+  const activeCount = MOCK_TEAM_MEMBERS.filter((member) => member.status === 'ACTIVE').length
+  const pendingCount = MOCK_TEAM_MEMBERS.reduce((count, member) => count + member.pendingRequestsCount, 0)
 
   return (
     <div className='space-y-6'>
@@ -47,6 +53,14 @@ export function ManagerMyTeamView({ onSelectTab }: ManagerMyTeamViewProps) {
         </div>
       </div>
 
+      <ManagerSummaryStrip
+        metrics={[
+          { label: t('manager.team.metricMembers'), value: formatCount(MOCK_TEAM_MEMBERS.length) },
+          { label: t('manager.team.metricActive'), value: formatCount(activeCount) },
+          { label: t('manager.team.metricPending'), value: formatCount(pendingCount) }
+        ]}
+      />
+
       {/* Main Table Card */}
       <div className='rounded-2xl border border-border bg-surface p-5 shadow-sm space-y-4'>
         {/* Search & Filters */}
@@ -54,6 +68,7 @@ export function ManagerMyTeamView({ onSelectTab }: ManagerMyTeamViewProps) {
           <div className='relative flex-1 max-w-md'>
             <Search className='absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground' />
             <input
+              aria-label={t('manager.team.searchPlaceholder')}
               className='h-10 w-full rounded-xl border border-border bg-background pl-10 pr-4 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder={t('manager.team.searchPlaceholder')}
@@ -70,6 +85,7 @@ export function ManagerMyTeamView({ onSelectTab }: ManagerMyTeamViewProps) {
               { id: 'OFFBOARDING' as const, label: t('manager.team.filterOffboarding') }
             ].map((opt) => (
               <button
+                aria-pressed={statusFilter === opt.id}
                 key={opt.id}
                 className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
                   statusFilter === opt.id
@@ -88,6 +104,7 @@ export function ManagerMyTeamView({ onSelectTab }: ManagerMyTeamViewProps) {
         {/* Members Table */}
         <div className='overflow-x-auto'>
           <table className='w-full text-left text-xs'>
+            <caption className='sr-only'>{t('manager.team.title')}</caption>
             <thead>
               <tr className='border-b border-border text-muted-foreground'>
                 <th className='py-3 px-4 font-semibold'>{t('manager.team.colMember')}</th>
@@ -112,9 +129,7 @@ export function ManagerMyTeamView({ onSelectTab }: ManagerMyTeamViewProps) {
                   <tr key={member.id} className='transition hover:bg-surface-subtle/50'>
                     <td className='py-3.5 px-4'>
                       <div className='flex items-center gap-3'>
-                        <span className='flex size-9 shrink-0 items-center justify-center rounded-xl border border-border bg-background text-base'>
-                          {member.avatar}
-                        </span>
+                        <ManagerIdentityMark name={member.name} person />
                         <div>
                           <p className='font-bold text-foreground'>{member.name}</p>
                           <div className='flex items-center gap-2 text-[11px] text-muted-foreground'>

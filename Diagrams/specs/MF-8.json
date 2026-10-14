@@ -1,0 +1,719 @@
+{
+  "id": "MF-8",
+  "kind": "activity",
+  "version": "2.2",
+  "date": "10/10/2026",
+  "title": "MF-8 · Period Software Cost Control & Allocation",
+  "out": "main-workflows-activity-diagram/MF-8-period-software-cost-control",
+  "lanes": [
+    {
+      "id": "SA",
+      "label": "Spending Approver"
+    },
+    {
+      "id": "IT",
+      "label": "IT Admin",
+      "slots": 2
+    },
+    {
+      "id": "SYS",
+      "label": "SaaS-Sentry",
+      "slots": 3
+    },
+    {
+      "id": "FIN",
+      "label": "Finance",
+      "slots": 2
+    }
+  ],
+  "nodes": [
+    {
+      "id": "st",
+      "type": "start",
+      "lane": "FIN",
+      "row": 0,
+      "slot": 1
+    },
+    {
+      "id": "a_inv",
+      "type": "action",
+      "lane": "FIN",
+      "row": 1,
+      "label": "Record Period Invoices and Internal Cost Items",
+      "vi": "Finance nhập hoặc import hóa đơn của kỳ kèm từng dòng thuế đúng chứng từ (loại, tỷ lệ, số tiền, nhà cung cấp thu hay doanh nghiệp nộp thay, được khấu trừ có/không); hoặc ghi khoản chi phí phần mềm nội bộ vào đúng một Cost Center, không cần hóa đơn/thuê bao/nhà cung cấp.",
+      "rules": [
+        "FR-5.4",
+        "FR-5.13",
+        "QĐ-49g",
+        "QĐ-60a",
+        "QĐ-60b",
+        "BM-05"
+      ],
+      "slot": 1
+    },
+    {
+      "id": "d_stmt",
+      "type": "decision",
+      "lane": "FIN",
+      "row": 2,
+      "label": "Statement File for the Period?",
+      "vi": "Có tệp CSV sao kê/thẻ của kỳ để đối soát không (nguồn tùy chọn).",
+      "slot": 1
+    },
+    {
+      "id": "c_stmt",
+      "type": "call",
+      "lane": "FIN",
+      "slot": 0,
+      "row": 3,
+      "label": "Reconcile Statement Charges",
+      "ref": "WF-17",
+      "vi": "Đối soát từng khoản chi trên sao kê với căn cứ phê duyệt; khoản chưa có căn cứ là ngoại lệ chỉ Người duyệt chi chấp nhận/không chấp nhận; phần mềm ngoài danh mục đi hợp thức hóa (tính năng bổ sung, MF-6 cũ).",
+      "rules": [
+        "FR-6.4",
+        "QĐ-33a",
+        "QĐ-33b",
+        "QĐ-31a"
+      ]
+    },
+    {
+      "id": "m_stmt",
+      "type": "merge",
+      "lane": "FIN",
+      "row": 4,
+      "slot": 1
+    },
+    {
+      "id": "s_match",
+      "type": "action",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 5,
+      "label": "Match Invoice Lines to Subscriptions and Period",
+      "vi": "Hệ thống ghép từng dòng hóa đơn với thuê bao/phần mềm và kỳ, so với bản ghi mua (số lượng, đơn giá, tổng tiền phải trả ước tính).",
+      "rules": [
+        "FR-5.4",
+        "ADR-06"
+      ]
+    },
+    {
+      "id": "d_var",
+      "type": "decision",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 6,
+      "label": "Invoice vs Purchase Record?",
+      "vi": "Kết quả so hóa đơn với bản ghi mua."
+    },
+    {
+      "id": "s_disc",
+      "type": "action",
+      "lane": "SYS",
+      "slot": 0,
+      "row": 7,
+      "label": "Open Discrepancy; Count Invoice as Received",
+      "vi": "Lệch số lượng/đơn giá: hóa đơn vẫn tính vào thực chi như đã nhận; song song mở hồ sơ sai lệch giữ cả hai giá trị. Không tự sửa thuê bao hay hóa đơn.",
+      "rules": [
+        "FR-5.4",
+        "FR-7.7",
+        "QĐ-34b",
+        "QĐ-49f"
+      ]
+    },
+    {
+      "id": "s_tax",
+      "type": "action",
+      "lane": "SYS",
+      "slot": 2,
+      "row": 7,
+      "label": "Record Tax or FX Variance Separately",
+      "vi": "Chênh lệch chỉ do thuế, tỷ giá hoặc phí: ghi nhận, tách vào chênh lệch do thuế/tỷ giá; không mở hồ sơ sai lệch.",
+      "rules": [
+        "FR-5.13",
+        "QĐ-55a"
+      ]
+    },
+    {
+      "id": "f_disc",
+      "type": "fork",
+      "lane": "SYS",
+      "slot": 0,
+      "row": 8,
+      "span": [
+        "IT",
+        "SYS:0"
+      ]
+    },
+    {
+      "id": "c_inv",
+      "type": "call",
+      "lane": "IT",
+      "row": 9,
+      "label": "Investigate Discrepancy with Finance",
+      "ref": "WF-16",
+      "vi": "IT điều tra cùng Finance nguyên nhân lệch.",
+      "rules": [
+        "FR-7.7",
+        "SoD-3"
+      ],
+      "slot": 0
+    },
+    {
+      "id": "d_ver",
+      "type": "decision",
+      "lane": "IT",
+      "row": 10,
+      "slot": 0,
+      "label": "Cause Verified?",
+      "vi": "Đã xác minh được nguyên nhân sai lệch chưa (chi tiết ở WF-16). Chưa xác minh thì không ép chọn nguyên nhân.",
+      "rules": [
+        "FR-7.7",
+        "QĐ-15"
+      ]
+    },
+    {
+      "id": "ff_open",
+      "type": "flowfinal",
+      "lane": "IT",
+      "row": 10,
+      "slot": 1,
+      "vi": "Hồ sơ sai lệch vẫn mở, chờ chứng từ; giữ cả hai giá trị, không tự sửa thuê bao hay tự đóng. Hóa đơn vẫn nằm trong thực chi như đã nhận, nên việc khép kỳ không phải chờ nhánh này; hồ sơ mở hiện trong báo cáo kỳ dưới dạng ngoại lệ đang mở."
+    },
+    {
+      "id": "m_ok",
+      "type": "merge",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 9
+    },
+    {
+      "id": "d_cause",
+      "type": "decision",
+      "lane": "IT",
+      "row": 11,
+      "label": "Which Cause?",
+      "vi": "Nguyên nhân đã xác minh. Hồ sơ chỉ đóng bằng quyết định, không tự đóng theo thời gian.",
+      "slot": 0
+    },
+    {
+      "id": "s_commit",
+      "type": "action",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 11,
+      "label": "Convert Matched Commitments to Actual Cost",
+      "vi": "Khoản cam kết khớp hóa đơn chuyển thành chi phí theo đúng số tiền; khớp một phần thì phần còn lại vẫn đang giữ.",
+      "rules": [
+        "FR-5.8",
+        "OI-11a"
+      ]
+    },
+    {
+      "id": "a_updsub",
+      "type": "action",
+      "lane": "IT",
+      "slot": 1,
+      "row": 12,
+      "label": "IT Updates Subscription per Evidence",
+      "vi": "Mua đã duyệt nhưng thuê bao chưa ghi: **IT Admin** cập nhật thuê bao theo căn cứ (quyết định duyệt chi, chứng từ Finance đính kèm); Finance giữ hóa đơn, dòng thuế và cờ được khấu trừ. Hệ thống không tự sửa (QĐ-62b).",
+      "rules": [
+        "FR-5.4",
+        "FR-7.7",
+        "QĐ-62b"
+      ]
+    },
+    {
+      "id": "a_billerr",
+      "type": "action",
+      "lane": "IT",
+      "row": 12,
+      "label": "Close as Vendor Billing Error with Note",
+      "vi": "Nhà cung cấp tính sai: IT Admin đóng hồ sơ với quyết định “nhà cung cấp tính sai” kèm ghi chú xác minh bắt buộc của Finance; điều chỉnh (nếu có) đến sau bằng hóa đơn/điều chỉnh mới (QĐ-49f, QĐ-62b).",
+      "rules": [
+        "QĐ-49f",
+        "FR-5.4"
+      ],
+      "slot": 0
+    },
+    {
+      "id": "c_leg",
+      "type": "call",
+      "lane": "SA",
+      "row": 12,
+      "label": "Decide Legitimization or Reclaim",
+      "ref": "WF-17",
+      "vi": "Quyền được cấp ngoài quy trình: chỉ Người duyệt chi quyết hợp thức hóa; không duyệt thì IT thu hồi (WF-09a).",
+      "rules": [
+        "FR-3.4c-1",
+        "DQ-06",
+        "BM-07"
+      ]
+    },
+    {
+      "id": "s_alloc",
+      "type": "action",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 12,
+      "label": "Allocate Costs to Cost Centers",
+      "vi": "Theo seat ⟹ Cost Center của phòng có hiệu lực tại ngày chi phí, chia theo ngày khi điều chuyển; tài khoản dịch vụ/dùng chung toàn công ty ⟹ Company; dùng chung của phòng ⟹ Unit của phòng; gói dùng chung ⟹ tỷ lệ Finance khai (tổng 100%); nội bộ ⟹ một Cost Center; khoản chi sao kê chưa có căn cứ ⟹ dòng Chưa phân bổ Cost Center.",
+      "rules": [
+        "FR-5.2",
+        "FR-5.3",
+        "INV-03",
+        "QĐ-49g",
+        "QĐ-50c",
+        "QĐ-55b"
+      ]
+    },
+    {
+      "id": "m_disc",
+      "type": "merge",
+      "lane": "IT",
+      "row": 13,
+      "slot": 0
+    },
+    {
+      "id": "s_report",
+      "type": "action",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 13,
+      "label": "Update Period Report on Borne Cost",
+      "vi": "Báo cáo kỳ trên chi phí thực chịu: ngân sách · thực chi · cam kết đang giữ · còn lại · dòng Chưa phân bổ Cost Center · ngoại lệ đang mở; GTGT được khấu trừ ở cột riêng; chênh lệch thuế/tỷ giá tách riêng.",
+      "rules": [
+        "FR-5.1",
+        "FR-5.13",
+        "QĐ-60a"
+      ]
+    },
+    {
+      "id": "ff_disc",
+      "type": "flowfinal",
+      "lane": "IT",
+      "row": 14,
+      "vi": "Nhánh sai lệch kết thúc bằng một quyết định.",
+      "slot": 0
+    },
+    {
+      "id": "d_ai",
+      "type": "decision",
+      "lane": "FIN",
+      "row": 14,
+      "label": "Use AI Narrative Draft?",
+      "vi": "Finance chọn dùng bản nháp diễn giải do AI soạn hay không (AI tắt/lỗi thì không có lựa chọn này).",
+      "slot": 1
+    },
+    {
+      "id": "s_ai",
+      "type": "action",
+      "lane": "SYS",
+      "slot": 1,
+      "row": 15,
+      "label": "Draft Narrative from Backend Figures",
+      "vi": "AI chỉ diễn giải số liệu backend đã tính, mỗi con số truy được nguồn; không tính tiền, không kết luận vi phạm; chỉ dùng dữ liệu Finance được thấy.",
+      "rules": [
+        "QĐ-49e(2)",
+        "BRD 6.4"
+      ]
+    },
+    {
+      "id": "a_edit",
+      "type": "action",
+      "lane": "FIN",
+      "slot": 0,
+      "row": 16,
+      "label": "Review and Edit Draft",
+      "vi": "Finance xem và sửa bản nháp trước khi dùng.",
+      "rules": [
+        "QĐ-49e(2)"
+      ]
+    },
+    {
+      "id": "m_pub",
+      "type": "merge",
+      "lane": "FIN",
+      "row": 17,
+      "slot": 1
+    },
+    {
+      "id": "a_pub",
+      "type": "action",
+      "lane": "FIN",
+      "row": 18,
+      "label": "Publish Period Cost Report",
+      "vi": "Finance phát hành báo cáo kỳ cho Người duyệt chi; trưởng phòng thấy thực chi + cam kết của phòng mình. Finance không phải người duyệt.",
+      "rules": [
+        "BRD 5.5.3",
+        "SoD-3"
+      ],
+      "slot": 1
+    },
+    {
+      "id": "end_ok",
+      "type": "end",
+      "lane": "FIN",
+      "row": 19,
+      "vi": "Kỳ đã khép: chi phí về đúng Cost Center, báo cáo phát hành.",
+      "slot": 1
+    }
+  ],
+  "edges": [
+    {
+      "from": "st",
+      "to": "a_inv"
+    },
+    {
+      "from": "a_inv",
+      "to": "d_stmt"
+    },
+    {
+      "from": "d_stmt",
+      "to": "c_stmt",
+      "guard": "yes",
+      "vi": "Có tệp sao kê/thẻ của kỳ",
+      "result": "Đối soát từng khoản chi"
+    },
+    {
+      "from": "d_stmt",
+      "to": "m_stmt",
+      "guard": "no",
+      "vi": "Không có tệp (nguồn tùy chọn)",
+      "result": "Đi tiếp với hóa đơn"
+    },
+    {
+      "from": "c_stmt",
+      "to": "m_stmt"
+    },
+    {
+      "from": "m_stmt",
+      "to": "s_match"
+    },
+    {
+      "from": "s_match",
+      "to": "d_var"
+    },
+    {
+      "from": "d_var",
+      "to": "m_ok",
+      "guard": "matches",
+      "vi": "Hóa đơn khớp bản ghi mua",
+      "result": "Ghi nhận"
+    },
+    {
+      "from": "d_var",
+      "to": "s_tax",
+      "guard": "tax or FX only",
+      "vi": "Chỉ lệch do thuế, tỷ giá hoặc phí",
+      "result": "Ghi nhận, tách chênh lệch thuế/tỷ giá"
+    },
+    {
+      "from": "d_var",
+      "to": "s_disc",
+      "guard": "quantity or price differs",
+      "vi": "Lệch số lượng hoặc đơn giá",
+      "result": "Mở hồ sơ sai lệch"
+    },
+    {
+      "from": "s_tax",
+      "to": "m_ok"
+    },
+    {
+      "from": "s_disc",
+      "to": "f_disc"
+    },
+    {
+      "from": "f_disc",
+      "to": "c_inv",
+      "result": "Nhánh điều tra sai lệch"
+    },
+    {
+      "from": "f_disc",
+      "to": "m_ok",
+      "result": "Hóa đơn vẫn đi tiếp vào thực chi"
+    },
+    {
+      "from": "c_inv",
+      "to": "d_ver"
+    },
+    {
+      "from": "d_ver",
+      "to": "d_cause",
+      "guard": "verified",
+      "vi": "Đã xác minh nguyên nhân"
+    },
+    {
+      "from": "d_ver",
+      "to": "ff_open",
+      "guard": "not yet",
+      "vi": "Chưa xác minh được nguyên nhân — hồ sơ vẫn mở"
+    },
+    {
+      "from": "d_cause",
+      "to": "a_updsub",
+      "sides": [
+        "R",
+        "T"
+      ],
+      "guard": "purchase not recorded",
+      "vi": "Mua đã duyệt nhưng chưa ghi thuê bao",
+      "result": "IT Admin cập nhật thuê bao theo căn cứ; Finance đính chứng từ (QĐ-62b)"
+    },
+    {
+      "from": "d_cause",
+      "to": "a_billerr",
+      "sides": [
+        "B",
+        "T"
+      ],
+      "guard": "vendor billing error",
+      "vi": "Nhà cung cấp tính sai",
+      "result": "Đóng hồ sơ kèm ghi chú"
+    },
+    {
+      "from": "d_cause",
+      "to": "c_leg",
+      "sides": [
+        "L",
+        "T"
+      ],
+      "guard": "access outside process",
+      "vi": "Có quyền được cấp ngoài quy trình",
+      "result": "Người duyệt chi quyết hợp thức hóa hoặc IT thu hồi"
+    },
+    {
+      "from": "a_updsub",
+      "to": "m_disc"
+    },
+    {
+      "from": "a_billerr",
+      "to": "m_disc"
+    },
+    {
+      "from": "c_leg",
+      "to": "m_disc"
+    },
+    {
+      "from": "m_disc",
+      "to": "ff_disc"
+    },
+    {
+      "from": "m_ok",
+      "to": "s_commit"
+    },
+    {
+      "from": "s_commit",
+      "to": "s_alloc"
+    },
+    {
+      "from": "s_alloc",
+      "to": "s_report"
+    },
+    {
+      "from": "s_report",
+      "to": "d_ai"
+    },
+    {
+      "from": "d_ai",
+      "to": "s_ai",
+      "guard": "yes",
+      "vi": "Finance chọn dùng bản nháp AI",
+      "result": "AI soạn bản nháp"
+    },
+    {
+      "from": "d_ai",
+      "to": "m_pub",
+      "guard": "no",
+      "vi": "Không dùng, hoặc AI tắt/lỗi",
+      "result": "Viết tay hoặc phát hành như cũ"
+    },
+    {
+      "from": "s_ai",
+      "to": "a_edit"
+    },
+    {
+      "from": "a_edit",
+      "to": "m_pub"
+    },
+    {
+      "from": "m_pub",
+      "to": "a_pub"
+    },
+    {
+      "from": "a_pub",
+      "to": "end_ok"
+    }
+  ],
+  "doc": {
+    "level": "Main flow (cấp tổng quan) — 4/5",
+    "status": "Vẽ lại theo QĐ-55, QĐ-60 (thuế ghi nhận, chi phí thực chịu), QĐ-49f/g, QĐ-50c; chờ Owner/GVHD review",
+    "purpose": "Mô tả việc **khép chi phí phần mềm của một kỳ**: ghi nhận hóa đơn đúng chứng từ (kể cả dòng thuế), đối soát với bản ghi mua và sao kê, xử lý sai lệch mà không xóa bằng chứng, quy chi phí về đúng Cost Center theo ngày và phát hành báo cáo theo **chi phí thực chịu**. Xử lý PP-3 (Tài chính và CNTT không cùng ngôn ngữ) và trả lời câu hỏi thuế của hội đồng: hệ thống **ghi nhận** thuế, **không** tính hay kê khai.",
+    "scope": "Hóa đơn và khoản chi phí nội bộ, gọi đối soát sao kê, ghép hóa đơn với thuê bao, ba kết quả so (khớp / chỉ lệch thuế-tỷ giá / lệch số lượng-đơn giá), điều tra sai lệch song song, chuyển cam kết thành chi phí, phân bổ, báo cáo kỳ, bản nháp AI tùy chọn.",
+    "excluded": "Đối soát từng khoản chi trên sao kê và hợp thức hóa (→ WF-17, WF-17a); chi tiết điều tra sai lệch và đối soát nhà cung cấp (→ WF-16); quy tắc phân bổ và báo cáo chi tiết (→ WF-19); lập ngân sách và gắn ngược khoản cam kết (→ WF-20). Không có thanh toán, sổ cái, kết nối ngân hàng, tính/kê khai thuế (`QĐ-34`, `QĐ-55a`).",
+    "lanes_vi": {
+      "FIN": [
+        "Finance (một người)",
+        "Nhập chứng từ, đính chứng từ/căn cứ cho việc cập nhật thuê bao, sửa bản nháp, phát hành báo cáo"
+      ],
+      "IT": [
+        "IT Admin",
+        "Điều tra sai lệch cùng Finance, cập nhật thuê bao theo căn cứ (QĐ-62b), đóng hồ sơ nhà cung cấp tính sai"
+      ],
+      "SYS": [
+        "SaaS-Sentry",
+        "Ghép, so, chuyển cam kết, phân bổ, báo cáo, soạn nháp AI"
+      ],
+      "SA": [
+        "Người duyệt chi",
+        "Quyết hợp thức hóa khi có quyền ngoài quy trình"
+      ]
+    },
+    "trigger": "Kết thúc kỳ hoặc khi hóa đơn/chứng từ của kỳ về tới Finance.",
+    "pre": "Danh mục, thuê bao và hồ sơ thuế nhà cung cấp đã khai (FR-5.13); Cost Center và quan hệ nhân viên–phòng có hiệu lực theo thời gian; ngân sách của kỳ có thể chưa lập (FR-5.8a).",
+    "post": "Mọi hóa đơn của kỳ là thực chi như đã nhận; chi phí thuộc đúng Cost Center tại ngày phát sinh; khoản cam kết khớp đã thành chi phí; sai lệch đang mở hoặc đã đóng bằng quyết định; báo cáo kỳ phát hành trên chi phí thực chịu.",
+    "reading": "Sau rẽ nhánh *Invoice vs Purchase Record?*, nhánh lệch số lượng/đơn giá tách đôi: một nhánh điều tra sai lệch (kết thúc bằng flow final khi có quyết định), nhánh kia đưa hóa đơn đi tiếp — vì hóa đơn **vẫn** là thực chi trong lúc điều tra (QĐ-34b, QĐ-49f).",
+    "sources": [
+      [
+        "FR-5.4, QĐ-34b, QĐ-49f",
+        "Hóa đơn là khoản chi đã ghi nhận; lệch vì nhà cung cấp tính sai"
+      ],
+      [
+        "FR-5.13, QĐ-55a, QĐ-60a, QĐ-60b",
+        "Ghi nhận thuế theo chứng từ, chi phí thực chịu, hồ sơ thuế T1/T2/T3"
+      ],
+      [
+        "FR-5.2, FR-5.3, INV-03, QĐ-55b",
+        "Phân bổ theo Cost Center, chia theo ngày khi điều chuyển, tỷ lệ gói dùng chung"
+      ],
+      [
+        "QĐ-49g, QĐ-50c",
+        "Chi phí nội bộ một Cost Center; dòng Chưa phân bổ Cost Center"
+      ],
+      [
+        "FR-5.8, OI-11a",
+        "Chuyển khoản cam kết thành chi phí theo số tiền"
+      ],
+      [
+        "FR-6.4, QĐ-33a, QĐ-33b, FR-3.4c-1",
+        "Đối soát khoản chi và hợp thức hóa — luồng con WF-17"
+      ],
+      [
+        "FR-7.7",
+        "Không nguồn nào tự ghi đè nguồn kia"
+      ],
+      [
+        "QĐ-49e, BRD 6.4",
+        "Bản nháp diễn giải AI chỉ hỗ trợ"
+      ],
+      [
+        "BRD 5.10 dòng MF-8",
+        "Diễn tiến luồng"
+      ]
+    ],
+    "happy": [
+      "st",
+      "a_inv",
+      "d_stmt",
+      "m_stmt",
+      "s_match",
+      "d_var",
+      "m_ok",
+      "s_commit",
+      "s_alloc",
+      "s_report",
+      "d_ai",
+      "m_pub",
+      "a_pub",
+      "end_ok"
+    ],
+    "alternates": [
+      {
+        "title": "Có sao kê của kỳ",
+        "path": [
+          "d_stmt",
+          "c_stmt",
+          "m_stmt"
+        ],
+        "note": "Đối soát từng khoản chi trước khi ghép hóa đơn."
+      },
+      {
+        "title": "Chỉ lệch do thuế/tỷ giá/phí",
+        "path": [
+          "d_var",
+          "s_tax",
+          "m_ok"
+        ],
+        "note": "Ghi nhận bình thường, chênh lệch tách riêng."
+      },
+      {
+        "title": "Dùng bản nháp AI",
+        "path": [
+          "d_ai",
+          "s_ai",
+          "a_edit",
+          "m_pub"
+        ],
+        "note": "Finance sửa trước khi phát hành."
+      }
+    ],
+    "unhappy": [
+      {
+        "title": "Lệch số lượng/đơn giá — mua đã duyệt chưa ghi",
+        "path": [
+          "d_var",
+          "s_disc",
+          "f_disc",
+          "c_inv",
+          "d_ver",
+          "d_cause",
+          "a_updsub",
+          "m_disc",
+          "ff_disc"
+        ],
+        "note": "IT Admin cập nhật thuê bao theo căn cứ; Finance đính chứng từ (QĐ-62b)."
+      },
+      {
+        "title": "Nhà cung cấp tính sai",
+        "path": [
+          "d_cause",
+          "a_billerr",
+          "m_disc",
+          "ff_disc"
+        ],
+        "note": "Hóa đơn vẫn tính như đã nhận; điều chỉnh đến sau bằng hóa đơn mới."
+      },
+      {
+        "title": "Quyền cấp ngoài quy trình",
+        "path": [
+          "d_cause",
+          "c_leg",
+          "m_disc",
+          "ff_disc"
+        ],
+        "note": "Người duyệt chi quyết hợp thức hóa; không duyệt thì IT thu hồi."
+      },
+      {
+        "title": "Chưa xác minh được nguyên nhân sai lệch",
+        "path": [
+          "c_inv",
+          "d_ver",
+          "ff_open"
+        ],
+        "note": "Hồ sơ vẫn mở chờ chứng từ (WF-16, UF-14); kỳ vẫn khép vì hóa đơn đã tính như đã nhận, hồ sơ hiện là ngoại lệ đang mở."
+      }
+    ],
+    "relations": [
+      "Cấp trên: Context (G22, G23, G25, G26), FDD Feature 9, 10, 15.2",
+      "`WF-16` — điều tra sai lệch hóa đơn và đối soát nhà cung cấp",
+      "`WF-17`, `WF-17a` — đối soát khoản chi trên sao kê, hợp thức hóa (MF-6 cũ)",
+      "`WF-19` — phân bổ và báo cáo kỳ; `WF-20` — ngân sách và gắn ngược cam kết",
+      "`MF-2` — nơi khoản cam kết được tạo; `MF-4` — dùng tổng chi khi quyết gia hạn",
+      "User flow: `UF-19`, `UF-12`, `UF-14`, `UF-11`"
+    ],
+    "open": [
+      "(DEFERRED/OUT · DOI-03, QĐ-49e, QĐ-61e) Hai tính năng AI là phạm vi cam kết nhưng chưa hiện thực, chưa kiểm chứng model; chưa gửi dữ liệu thật tới model (`OQ-26`).",
+      "(DEFERRED/OUT · DOI-07, QĐ-59e) ERD chưa có hồ sơ thuế và dòng thuế có cờ được khấu trừ (`QĐ-60`) — giai đoạn ERD.",
+      "(LIMIT · DOI-08, QĐ-32c) Không có dữ liệu ngân hàng thật để kiểm mẫu CSV."
+    ]
+  }
+}

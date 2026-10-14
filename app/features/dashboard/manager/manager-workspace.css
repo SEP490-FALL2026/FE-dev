@@ -1,0 +1,117 @@
+.manager-workspace {
+  min-width: 0;
+}
+
+.manager-workspace > div {
+  min-width: 0;
+}
+
+.manager-workspace h1 {
+  line-height: 1.16;
+  text-wrap: balance;
+}
+
+.manager-workspace :is(button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--theme-primary);
+  outline-offset: 2px;
+}
+
+.manager-workspace button {
+  min-height: 44px;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.manager-workspace button:disabled {
+  cursor: not-allowed;
+}
+
+.manager-workspace button.bg-primary {
+  color: var(--theme-foreground);
+}
+
+.manager-workspace button.bg-danger {
+  background: var(--theme-danger-ink);
+  color: var(--theme-background);
+}
+
+.manager-workspace button.bg-success {
+  color: var(--theme-foreground);
+}
+
+[data-theme='dark'] .manager-workspace button.bg-success {
+  color: var(--theme-background);
+}
+
+.manager-workspace .text-success {
+  color: var(--theme-success-ink);
+}
+
+.manager-workspace .text-warning {
+  color: var(--theme-warning-ink);
+}
+
+.manager-workspace .text-danger {
+  color: var(--theme-danger-ink);
+}
+
+.manager-workspace :is(input, select, textarea) {
+  min-height: 44px;
+  font-size: 0.875rem;
+}
+
+.manager-workspace :is(p, label).text-xs {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.manager-workspace table {
+  min-width: 780px;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.manager-workspace table thead {
+  background: var(--theme-surface-subtle);
+}
+
+.manager-workspace table th {
+  padding-block: 0.875rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.manager-workspace table td {
+  padding-block: 0.875rem;
+  vertical-align: middle;
+}
+
+.manager-workspace table td p + p {
+  margin-top: 0.125rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.manager-workspace table tbody tr:hover {
+  background: var(--theme-surface-subtle);
+}
+
+.manager-workspace table button {
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .manager-workspace > div {
+    gap: 1.25rem;
+  }
+
+  .manager-workspace table {
+    min-width: 720px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .manager-workspace :is(button, input, select, textarea, tr) {
+    transition-duration: 0.01ms;
+  }
+}
