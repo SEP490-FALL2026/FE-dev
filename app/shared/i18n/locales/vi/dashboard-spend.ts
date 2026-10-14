@@ -283,6 +283,11 @@ export const spendDashboard = {
       seats: '{{count}} giấy phép',
       spendHint: 'Chi phí theo kỳ trên chi phí thực chịu, theo trung tâm chi phí.',
       spendTitle: 'Tổng chi {{spend}} / ngân sách {{budget}}',
+      spendChart: {
+        nearLimit: 'Đã dùng trên 90% ngân sách',
+        noBudget: 'Không thuộc ngân sách nào',
+        usedShare: 'Đã dùng'
+      },
       step: {
         itReview: 'CNTT đánh giá',
         need: 'Bước nhu cầu',

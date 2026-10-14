@@ -280,6 +280,11 @@ export const spendDashboard = {
       seats: '{{count}} seats',
       spendHint: 'Period-basis borne cost by Cost Center.',
       spendTitle: 'Spend {{spend}} / budget {{budget}}',
+      spendChart: {
+        nearLimit: 'Above 90% of budget',
+        noBudget: 'Outside every budget',
+        usedShare: 'Used'
+      },
       step: {
         itReview: 'IT review',
         need: 'Need step',
