@@ -243,12 +243,12 @@ export function ItProvisioningView({ initialTaskId, onSelectTab }: ItProvisionin
         <div>
           <div className='inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-soft px-3 py-1 text-xs font-semibold text-primary'>
             <span className='size-2 rounded-full bg-primary' />
-            Cấp phát & Thu hồi tài khoản AI
+            ITA-05 · Cấp phát & Thu hồi AI
           </div>
           <h1 className='mt-3 text-2xl font-bold tracking-tight sm:text-3xl'>
-            Hàng đợi cấp phát tài khoản AI
+            {t('itAdmin.provisioning.title')}
           </h1>
-          <p className='mt-1 text-sm text-muted-foreground'>Quản lý việc tạo mới, phân quyền và thu hồi tài khoản các dịch vụ AI doanh nghiệp</p>
+          <p className='mt-1 text-sm text-muted-foreground'>{t('itAdmin.provisioning.subtitle')}</p>
         </div>
 
         {/* Metric Cards */}
@@ -359,7 +359,7 @@ export function ItProvisioningView({ initialTaskId, onSelectTab }: ItProvisionin
                     <td className='p-3 text-muted-foreground'>{task.channel}</td>
                     <td className='p-3'>
                       <span className='rounded-md border border-border bg-surface-subtle px-1.5 py-0.5 text-[0.65rem] font-bold text-muted-foreground'>
-                        {task.planType}
+                        {task.planTypeCode ? `${task.planTypeCode} · ` : ''}{task.planType}
                       </span>
                     </td>
                     <td className='p-3'>

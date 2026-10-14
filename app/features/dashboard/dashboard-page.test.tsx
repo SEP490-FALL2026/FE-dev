@@ -400,6 +400,12 @@ describe('DashboardPage', () => {
     expect(provisioningBtn).not.toHaveClass('bg-primary')
     expect(screen.getByText('Bảng tối ưu bản quyền & Giảm chi phí')).toBeInTheDocument()
 
+    // Click sub-menu "Gia hạn AI"
+    const renewalsBtn = screen.getByRole('button', { name: /Gia hạn AI/i })
+    fireEvent.click(renewalsBtn)
+    expect(renewalsBtn).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByText('Đề xuất gia hạn & Đàm phán hợp đồng AI')).toBeInTheDocument()
+
     // Return to default dashboard home
     fireEvent.click(overviewBtn)
     expect(overviewBtn).toHaveAttribute('aria-current', 'page')

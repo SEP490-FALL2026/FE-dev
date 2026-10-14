@@ -40,17 +40,17 @@ export const alerts = [
 ] as const
 
 export const topSoftware = [
-  { cost: 320_000_000, name: 'Microsoft 365' },
-  { cost: 230_000_000, name: 'Adobe Creative Cloud' },
-  { cost: 150_000_000, name: 'Autodesk AutoCAD' },
-  { cost: 120_000_000, name: 'Slack' },
-  { cost: 90_000_000, name: 'Zoom' }
+  { cost: 450_000_000, name: 'ChatGPT Enterprise (OpenAI)' },
+  { cost: 320_000_000, name: 'Claude Enterprise (Anthropic)' },
+  { cost: 230_000_000, name: 'GitHub Copilot (OpenAI Codex)' },
+  { cost: 180_000_000, name: 'Google Gemini Business (Workspace)' },
+  { cost: 120_000_000, name: 'Google Gemini Code Assist' }
 ] as const
 
 export const recentSoftware = [
-  { addedAt: '2026-09-25', name: 'Figma Professional', seats: 10 },
-  { addedAt: '2026-09-22', name: 'JetBrains All Products Pack', seats: 5 },
-  { addedAt: '2026-09-18', name: 'Tableau Creator', seats: 3 },
-  { addedAt: '2026-09-15', name: 'Dropbox Business', seats: 15 },
-  { addedAt: '2026-09-11', name: 'Notion Business', seats: 8 }
+  { addedAt: '2026-10-10', name: 'OpenAI Codex & API Access', seats: 25 },
+  { addedAt: '2026-10-08', name: 'Claude Code (Anthropic Terminal Agent)', seats: 15 },
+  { addedAt: '2026-10-05', name: 'Google Gemini Code Assist', seats: 40 },
+  { addedAt: '2026-09-28', name: 'ChatGPT Enterprise (OpenAI)', seats: 50 },
+  { addedAt: '2026-09-20', name: 'Claude Enterprise 3.7 Sonnet', seats: 30 }
 ] as const

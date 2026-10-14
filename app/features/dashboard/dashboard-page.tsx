@@ -43,6 +43,7 @@ import { ItOptimizationView } from './it-admin/views/it-optimization-view'
 import { ItOverviewView } from './it-admin/views/it-overview-view'
 import { ItProvisioningView } from './it-admin/views/it-provisioning-view'
 import { ItReconciliationView } from './it-admin/views/it-reconciliation-view'
+import { ItRenewalsView } from './it-admin/views/it-renewals-view'
 import { ItShadowItView } from './it-admin/views/it-shadow-it-view'
 import { ItUnmatchedIdentitiesView } from './it-admin/views/it-unmatched-identities-view'
 import { ItUsageImportView } from './it-admin/views/it-usage-import-view'
@@ -757,6 +758,8 @@ export function DashboardPage({ role }: { role: UserRole }) {
               />
             ) : activeTab === 'reconciliation' ? (
               <ItReconciliationView onSelectTab={handleSelectTab} />
+            ) : activeTab === 'renewals' ? (
+              <ItRenewalsView formatCurrency={formatCurrency} onSelectTab={handleSelectTab} />
             ) : activeTab === 'usage-import' ? (
               <ItUsageImportView onSelectTab={handleSelectTab} />
             ) : activeTab === 'unmatched-identities' ? (

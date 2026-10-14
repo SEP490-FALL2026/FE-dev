@@ -1,6 +1,7 @@
 import {
   ArrowRight,
   Boxes,
+  CalendarClock,
   ChevronRight,
   CircleDollarSign,
   Clock,
@@ -76,7 +77,7 @@ export function ItOverviewView({
   const quickQueues: {
     count: number
     desc: string
-    icon: typeof PackageCheck
+    icon: typeof PackageCheck | typeof CalendarClock
     key: ItAdminTabKey
     title: string
     tone: 'danger' | 'warning' | 'info' | 'primary'
@@ -95,6 +96,14 @@ export function ItOverviewView({
       icon: UserX,
       key: 'unmatched-identities',
       title: t('itAdmin.nav.unmatchedIdentities'),
+      tone: 'warning'
+    },
+    {
+      count: 2,
+      desc: 'Quét mốc hạn chót báo hủy T-15/T-7 và checklist 6 điều khoản nhà cung cấp AI (UF-20)',
+      icon: CalendarClock,
+      key: 'renewals',
+      title: t('itAdmin.nav.renewals', 'Gia hạn AI (ITA-53)'),
       tone: 'warning'
     },
     {
@@ -272,7 +281,7 @@ export function ItOverviewView({
             },
             {
               action: 'Cấp quyền mới',
-              app: 'Cursor AI Pro',
+              app: 'Google Gemini Code Assist (Google Cloud)',
               channel: 'Khóa bản quyền & Token API',
               dept: 'Thiết kế sản phẩm',
               id: 'PV-2043',

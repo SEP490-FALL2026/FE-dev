@@ -54,12 +54,12 @@ export function ItUsageImportView({ onSelectTab }: ItUsageImportViewProps = {}) 
   }
 
   const appOptions = [
-    { comm: false, id: 'openai', name: 'OpenAI Admin Center (ChatGPT & Codex)', type: 'Báo cáo sử dụng CSV' },
-    { comm: false, id: 'anthropic', name: 'Anthropic Console (Claude Enterprise)', type: 'Kết nối tự động API' },
-    { comm: false, id: 'gemini', name: 'Google Gemini & Vertex AI Workspace', type: 'Kết nối tự động API' },
-    { comm: false, id: 'copilot', name: 'GitHub Copilot Organization Metrics', type: 'Nhật ký Git & Tiện ích IDE' },
-    { comm: false, id: 'cursor', name: 'Cursor AI Workspace Analytics', type: 'Báo cáo sử dụng CSV' },
-    { comm: true, id: 'chatbot', name: 'Chatbot AI hội thoại nội bộ', type: 'Chỉ theo dõi thành viên (Bảo vệ riêng tư)' }
+    { comm: false, id: 'openai', name: 'OpenAI Admin Center (ChatGPT Enterprise & Codex)', type: 'Báo cáo sử dụng CSV' },
+    { comm: false, id: 'anthropic', name: 'Anthropic Console (Claude Enterprise & Claude Code)', type: 'Kết nối tự động API' },
+    { comm: false, id: 'gemini', name: 'Google Gemini Business & Vertex AI', type: 'Kết nối tự động API' },
+    { comm: false, id: 'copilot', name: 'GitHub Copilot Organization Metrics (Codex)', type: 'Nhật ký Git & Tiện ích IDE' },
+    { comm: false, id: 'gemini-code', name: 'Google Gemini Code Assist Metrics', type: 'Báo cáo sử dụng CSV' },
+    { comm: true, id: 'chatbot', name: 'Chatbot AI hội thoại nội bộ (Internal Bot)', type: 'Chỉ theo dõi thành viên (Bảo vệ riêng tư)' }
   ]
 
   const handleAppChange = (appName: string) => {
@@ -485,7 +485,17 @@ export function ItUsageImportView({ onSelectTab }: ItUsageImportViewProps = {}) 
                   <div className='rounded-xl border border-warning/30 bg-warning/5 p-3.5 text-center'>
                     <span className='text-[0.7rem] text-muted-foreground'>Định danh chưa khớp</span>
                     <p className='text-xl font-bold text-warning'>3</p>
-                    <span className='text-[0.65rem] text-muted-foreground'>Chuyển sang hàng đợi đối chiếu</span>
+                    {onSelectTab ? (
+                      <button
+                        className='mt-0.5 inline-flex items-center gap-1 text-[0.65rem] font-bold text-warning hover:underline'
+                        onClick={() => onSelectTab('unmatched-identities')}
+                        type='button'
+                      >
+                        Khớp danh tính (UF-07) →
+                      </button>
+                    ) : (
+                      <span className='text-[0.65rem] text-muted-foreground'>Chuyển sang hàng đợi đối chiếu</span>
+                    )}
                   </div>
                   <div className='rounded-xl border border-danger/30 bg-danger/5 p-3.5 text-center'>
                     <span className='text-[0.7rem] text-muted-foreground'>Dòng lỗi cú pháp</span>

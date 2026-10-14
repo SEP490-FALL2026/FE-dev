@@ -110,6 +110,7 @@ export const dashboard = {
       offboarding: 'Xử lý nghỉ việc',
       shadowIt: 'Phần mềm ngoài danh mục',
       reconciliation: 'Đối soát dữ liệu',
+      renewals: 'Đề xuất gia hạn AI',
       deviceCollectors: 'Bộ thu thập thiết bị'
     },
     overview: {
@@ -261,9 +262,9 @@ export const dashboard = {
       title: 'Bàn làm việc đối soát dữ liệu',
       subtitle: 'So sánh ý định nội bộ với thực tế nhà cung cấp và hóa đơn để tìm ra sai lệch có chủ sở hữu (UF-14)',
       threeNumbersTitle: 'So sánh ba con số cạnh nhau (Hóa đơn vs Khai báo vs Thực tế)',
-      mismatchSlack: 'Phát hiện chênh lệch hóa đơn (+5 seat thừa so với hợp đồng)',
-      mismatchGithub: 'Tài khoản ngoài quy trình (Có quyền admin nhưng nội bộ không có Assignment)',
-      mismatchFigma: 'Tác vụ đang chờ chấp nhận (Kiểm tra lời mời đã được kích hoạt)',
+      mismatchChatGPT: 'Phát hiện chênh lệch hóa đơn (+5 seat thừa so với hợp đồng)',
+      mismatchClaude: 'Tài khoản ngoài quy trình (Có quyền admin nhưng nội bộ không có Assignment)',
+      mismatchGemini: 'Tác vụ đang chờ chấp nhận (Kiểm tra lời mời đã được kích hoạt)',
       actUpdateContract: 'Điều chỉnh hợp đồng nội bộ',
       actInvestigate: 'Điều tra & Thu hồi',
       actCompletePending: 'Xác nhận hoàn tất task',
@@ -271,6 +272,13 @@ export const dashboard = {
       colDeclared: 'Khai báo (Declared)',
       colActive: 'Thực tế (Active)',
       diffMatched: 'Khớp hoàn toàn'
+    },
+    renewals: {
+      title: 'Đề xuất gia hạn & Đàm phán hợp đồng AI',
+      subtitle: 'Rà soát hạn chót báo hủy, đối chiếu checklist 6 điều khoản nhà cung cấp và lập đề xuất (UF-20)',
+      alertNoticeDeadline: 'Cảnh báo tính từ hạn chót báo hủy (Notice Deadline Window)',
+      proposalTitle: 'Lập đề xuất gia hạn chuyển Người duyệt chi',
+      outcomeTitle: 'Ghi nhận kết quả đàm phán với Vendor'
     },
     deviceCollectors: {
       title: 'Bộ thu thập tiện ích thiết bị',

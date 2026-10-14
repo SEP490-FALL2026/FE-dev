@@ -35,15 +35,21 @@ export function ItOptimizationView({ formatCurrency, onSelectTab }: ItOptimizati
   const handleGroupAction = () => {
     if (activeGroup === 'g2') {
       setProcessedStatus((prev) => ({ ...prev, g2: 'Đã tạo tác vụ thu hồi sang Hàng đợi cấp phát' }))
-      setToastMessage('Đã tạo 3 tác vụ thu hồi tài khoản AI người nghỉ việc sang Hàng đợi cấp phát!')
+      setToastMessage('Đã tạo 3 tác vụ thu hồi tài khoản AI người nghỉ việc sang Hàng đợi cấp phát (UF-08)!')
+      if (onSelectTab) {
+        setTimeout(() => onSelectTab('provisioning'), 1800)
+      }
     } else if (activeGroup === 'g3') {
       setProcessedStatus((prev) => ({ ...prev, g3: 'Đã gửi Trưởng phòng thẩm tra' }))
-      setToastMessage('Đã chuyển 2 khuyến nghị lãng phí sang Trưởng phòng xác nhận tiếp tục cấp hay thu hồi!')
+      setToastMessage('Đã chuyển khuyến nghị lãng phí sang Trưởng phòng xác nhận Keep / Reclaim (UF-05)!')
     } else if (activeGroup === 'g1') {
       setProcessedStatus((prev) => ({ ...prev, g1: 'Đã đưa vào hồ sơ gia hạn hợp đồng' }))
-      setToastMessage('Đã ghi nhận đề xuất giảm 14 tài khoản thừa vào hồ sơ đàm phán hợp đồng AI!')
+      setToastMessage('Đã chuyển 14 tài khoản mua dư sang Chu kỳ gia hạn & đàm phán hợp đồng AI (UF-20)!')
+      if (onSelectTab) {
+        setTimeout(() => onSelectTab('renewals'), 1800)
+      }
     } else {
-      setToastMessage('Nhóm này thuộc diện chỉ theo dõi nội bộ IT (30–59 ngày) — Không gửi cảnh báo vi mô.')
+      setToastMessage('Nhóm G4 thuộc diện chỉ theo dõi nội bộ IT (30–59 ngày) — Không gửi cảnh báo vi mô.')
     }
     setTimeout(() => setToastMessage(null), 3500)
   }
@@ -51,22 +57,22 @@ export function ItOptimizationView({ formatCurrency, onSelectTab }: ItOptimizati
   const groups = [
     {
       actionIcon: ExternalLink,
-      actionLabel: 'Đưa vào hồ sơ gia hạn hợp đồng',
+      actionLabel: 'Đưa vào hồ sơ gia hạn hợp đồng (UF-20)',
       badge: '14 tài khoản thừa',
       cost: 191_600_000,
       desc: 'Tài khoản AI doanh nghiệp đã mua gói năm nhưng chưa gán cho nhân sự nào, đề xuất giảm số lượng khi tái ký.',
       icon: Layers,
       id: 'g1' as const,
       items: [
-        { app: 'ChatGPT Enterprise (OpenAI)', cost: 112_000_000, deadline: '15/04/2026', seats: 8 },
-        { app: 'Claude Enterprise (Anthropic)', cost: 79_600_000, deadline: '30/05/2026', seats: 6 }
+        { app: 'ChatGPT Enterprise (OpenAI)', cost: 112_000_000, deadline: '31/03/2026', seats: 8 },
+        { app: 'Claude Enterprise (Anthropic)', cost: 79_600_000, deadline: '30/04/2026', seats: 6 }
       ],
-      title: 'Tài khoản mua chưa sử dụng',
+      title: 'Tài khoản mua chưa sử dụng (G1)',
       tone: 'border-info/30 text-info'
     },
     {
       actionIcon: Trash2,
-      actionLabel: 'Thu hồi toàn bộ tài khoản ngay',
+      actionLabel: 'Thu hồi toàn bộ tài khoản ngay (UF-08)',
       badge: '5 tài khoản',
       cost: 28_400_000,
       desc: 'Tài khoản AI vẫn đang được gán cho nhân sự đã nghỉ việc, cần thu hồi ngay về kho để cấp cho người khác.',
@@ -75,24 +81,24 @@ export function ItOptimizationView({ formatCurrency, onSelectTab }: ItOptimizati
       items: [
         { app: 'ChatGPT Enterprise (OpenAI)', cost: 12_000_000, employee: 'Trần Minh (NV-0174)', seats: 1 },
         { app: 'GitHub Copilot (OpenAI Codex)', cost: 6_400_000, employee: 'Đỗ Hoàng Long (NV-0082)', seats: 1 },
-        { app: 'Cursor AI Pro', cost: 10_000_000, employee: 'Lê Thu Hà (NV-0099)', seats: 1 }
+        { app: 'Google Gemini Business (Workspace)', cost: 10_000_000, employee: 'Lê Thu Hà (NV-0099)', seats: 1 }
       ],
-      title: 'Tài khoản nhân sự đã nghỉ việc',
+      title: 'Tài khoản nhân sự đã nghỉ việc (G2)',
       tone: 'border-danger/30 text-danger'
     },
     {
       actionIcon: Send,
-      actionLabel: 'Gửi Trưởng phòng thẩm tra',
+      actionLabel: 'Gửi Trưởng phòng thẩm tra (UF-05)',
       badge: '7 tài khoản',
       cost: 15_800_000,
       desc: 'Tài khoản AI được cấp nhưng nhân sự không đăng nhập hoặc không phát sinh thao tác trong hơn 60 ngày.',
       icon: AlertTriangle,
       id: 'g3' as const,
       items: [
-        { app: 'Google Gemini Business', cost: 3_800_000, daysUnused: 105, employee: 'Phạm Thanh Thảo', seats: 1 },
+        { app: 'Google Gemini Code Assist (Google Cloud)', cost: 3_800_000, daysUnused: 105, employee: 'Phạm Thanh Thảo', seats: 1 },
         { app: 'Claude Enterprise (Anthropic)', cost: 12_000_000, daysUnused: 94, employee: 'Vũ Quốc Bảo', seats: 2 }
       ],
-      title: 'Tài khoản không dùng (>60 ngày)',
+      title: 'Tài khoản không dùng (>60 ngày) (G3)',
       tone: 'border-warning/30 text-warning'
     },
     {
@@ -105,9 +111,9 @@ export function ItOptimizationView({ formatCurrency, onSelectTab }: ItOptimizati
       id: 'g4' as const,
       items: [
         { app: 'ChatGPT Team (OpenAI)', cost: 5_200_000, daysInactive: 48, department: 'Marketing', seats: 4 },
-        { app: 'Perplexity Pro Enterprise', cost: 4_800_000, daysInactive: 52, department: 'Nghiên cứu thị trường', seats: 2 }
+        { app: 'Google Gemini Business', cost: 4_800_000, daysInactive: 52, department: 'Nghiên cứu thị trường', seats: 2 }
       ],
-      title: 'Tài khoản ít hoạt động (30–59 ngày)',
+      title: 'Tài khoản ít hoạt động (30–59 ngày) (G4)',
       tone: 'border-primary/30 text-primary'
     }
   ]

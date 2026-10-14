@@ -37,8 +37,8 @@ export function ItDeviceCollectorsView({ onSelectTab }: ItDeviceCollectorsViewPr
     { domain: 'chatgpt.com (OpenAI Workspace)', minMinutes: 15 },
     { domain: 'claude.ai (Anthropic Console)', minMinutes: 10 },
     { domain: 'gemini.google.com (Gemini Workspace)', minMinutes: 5 },
-    { domain: 'github.com/copilot (Copilot IDE Extension)', minMinutes: 15 },
-    { domain: 'cursor.com (Cursor AI IDE)', minMinutes: 10 }
+    { domain: 'github.com/copilot (Copilot IDE Extension & Codex)', minMinutes: 15 },
+    { domain: 'cloud.google.com/gemini (Gemini Code Assist)', minMinutes: 10 }
   ]
 
   const handleRegisterDevice = () => {
@@ -65,7 +65,7 @@ export function ItDeviceCollectorsView({ onSelectTab }: ItDeviceCollectorsViewPr
         <div>
           <div className='inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-soft px-3 py-1 text-xs font-semibold text-primary'>
             <span className='size-2 rounded-full bg-primary' />
-            Giám sát tiện ích AI trên máy trạm
+            ITA-16 · Giám sát tiện ích AI trên máy trạm
           </div>
           <h1 className='mt-2 text-2xl font-bold tracking-tight sm:text-3xl'>{t('itAdmin.deviceCollectors.title')}</h1>
           <p className='mt-1 text-sm text-muted-foreground'>{t('itAdmin.deviceCollectors.subtitle')}</p>

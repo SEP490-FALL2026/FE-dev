@@ -81,7 +81,7 @@ export function ItShadowItView({ onSelectTab }: ItShadowItViewProps = {}) {
       <div>
         <div className='inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-soft px-3 py-1 text-xs font-semibold text-primary'>
           <span className='size-2 rounded-full bg-primary' />
-          Giám sát ứng dụng AI ngoài luồng
+          ITA-12 · Giám sát ứng dụng AI ngoài luồng (Shadow AI)
         </div>
         <h1 className='mt-2 text-2xl font-bold tracking-tight sm:text-3xl'>{t('itAdmin.shadowIt.title')}</h1>
         <p className='mt-1 text-sm text-muted-foreground'>{t('itAdmin.shadowIt.subtitle')}</p>

@@ -110,6 +110,7 @@ export const dashboard = {
       offboarding: 'Offboarding',
       shadowIt: 'Shadow IT Discovery',
       reconciliation: 'Data Reconciliation',
+      renewals: 'AI Renewal Proposals',
       deviceCollectors: 'Device Collectors'
     },
     overview: {
@@ -262,9 +263,9 @@ export const dashboard = {
       subtitle:
         'Compare internal intent against provider reality and invoices to assign actionable discrepancy owners (UF-14)',
       threeNumbersTitle: 'Three Numbers Side-by-Side (Invoice vs Internal vs Actual)',
-      mismatchSlack: 'Invoice Mismatch (+5 extra seats billed vs internal contract)',
-      mismatchGithub: 'Shadow Access (Admin membership on GitHub without internal Assignment)',
-      mismatchFigma: 'Pending Acceptance Task (Verify invitation has been activated)',
+      mismatchChatGPT: 'Invoice Mismatch (+5 extra seats billed vs internal contract)',
+      mismatchClaude: 'Shadow Access (Admin membership in Claude console without internal Assignment)',
+      mismatchGemini: 'Pending Acceptance Task (Verify invitation has been activated)',
       actUpdateContract: 'Update Internal Contract',
       actInvestigate: 'Investigate & Deprovision',
       actCompletePending: 'Confirm Task Completion',
@@ -272,6 +273,13 @@ export const dashboard = {
       colDeclared: 'Declared',
       colActive: 'Active',
       diffMatched: 'Fully Matched'
+    },
+    renewals: {
+      title: 'AI License Renewals & Vendor Terms',
+      subtitle: 'Review cancellation deadlines, audit 6-point vendor terms, and prepare renewal proposals (UF-20)',
+      alertNoticeDeadline: 'Notice Deadline Window Alerts',
+      proposalTitle: 'Prepare Renewal Proposal for Approver',
+      outcomeTitle: 'Record Vendor Negotiation Outcome'
     },
     deviceCollectors: {
       title: 'Device Endpoint Collectors',
