@@ -65,7 +65,6 @@ export const spendDashboard = {
       charges: 'Khoản chi và hợp thức hóa',
       chargesHint: 'Khoản chi chưa có căn cứ và bản ghi phát hiện (BM-07)',
       nearestDeadline: 'Gần nhất: {{name}} — hạn báo hủy {{date}}',
-      openQueue: 'Mở hàng chờ →',
       overdueHint: '{{count}} việc đã quá SLA',
       renewals: 'Đề xuất gia hạn / giảm / hủy',
       requests: 'Yêu cầu chờ duyệt chi',
@@ -98,8 +97,32 @@ export const spendDashboard = {
       title: 'Hàng chờ phê duyệt'
     },
     request: {
+      askMore: 'Hỏi thêm Finance',
+      costTitle: 'Chi phí và ngân sách',
+      fact: {
+        cost: 'Chi phí ước tính (thực chịu)',
+        costCenter: 'Cost Center · kỳ',
+        remainingAfter: 'Còn lại nếu duyệt'
+      },
+      financeName: 'Finance',
+      financePending: 'Đang chờ Finance trả lời — SLA của bạn vẫn chạy.',
+      questionPlaceholder:
+        'Ví dụ: Nếu duyệt thêm khoản này, Cost Center còn đủ cho các yêu cầu đang chờ trong quý không?',
+      questionRequired: 'Nhập câu hỏi hoặc ý kiến cho Finance.',
+      questionLabel: 'Câu hỏi / ý kiến của bạn',
+      slaNotPaused: 'Gửi câu hỏi không dừng đồng hồ SLA; bạn vẫn quyết được trước khi Finance trả lời.',
+      summaryLabel: 'Tóm tắt yêu cầu',
+      topic: {
+        BUDGET_TIMING: 'Khi nào có ngân sách',
+        ENOUGH_BUDGET: 'Còn đủ ngân sách?',
+        PENDING_IMPACT: 'Ảnh hưởng yêu cầu đang chờ',
+        SUGGESTION: 'Gợi ý số tiền / thời điểm'
+      },
+      topicLegend: 'Muốn Finance xem gì',
+      urgency: { BEFORE_SLA: 'Trước hạn SLA của tôi', NOT_URGENT: 'Không gấp', TODAY: 'Trong hôm nay' },
+      urgencyLabel: 'Cần trả lời',
+      you: 'Bạn hỏi',
       approve: 'Duyệt',
-      askFinance: 'Hỏi Finance thông tin ngân sách',
       beneficiary: 'Người thụ hưởng',
       branch: {
         b: 'Nhánh (b) — mua thêm / nâng gói',
@@ -107,7 +130,6 @@ export const spendDashboard = {
       },
       confirmReject: 'Xác nhận từ chối',
       financeHint: 'Tùy chọn. Đồng hồ SLA không dừng khi hỏi; bạn quyết được cả khi Finance chưa trả lời.',
-      financePending: 'Đã hỏi Finance lúc {{time}} — đang chờ trả lời. SLA vẫn chạy.',
       financeTitle: 'Ý kiến ngân sách của Finance',
       itAssessment: 'Đánh giá của IT Admin',
       needApproved:
@@ -116,7 +138,6 @@ export const spendDashboard = {
       needStepHint:
         'Trưởng phòng tự gửi yêu cầu nên bước nhu cầu do Người duyệt chi giữ (QĐ-52c). Hai bước vẫn tách riêng.',
       needTitle: 'Nhu cầu và lý do',
-      questionLabel: 'Câu hỏi cho Finance',
       referenceOnly: 'Ý kiến tham khảo — không phải phê duyệt, không chặn quyết định.',
       reject: 'Từ chối',
       rejectReason: 'Lý do từ chối (bắt buộc)',
@@ -135,8 +156,7 @@ export const spendDashboard = {
         needStep: 'Bước nhu cầu',
         spendStep: 'Bước duyệt chi'
       },
-      trailTitle: 'Lịch sử phê duyệt',
-      yourStep: '— bước của bạn'
+      trailTitle: 'Lịch sử phê duyệt'
     },
     renewal: {
       action: {
@@ -171,7 +191,7 @@ export const spendDashboard = {
       ownerOpinion: 'Ý kiến Business Owner',
       pickInvalid: 'Chọn đúng {{count}} seat cần thu hồi.',
       purchased: 'Seat đã mua',
-      quantityInvalid: 'Số lượng phải lớn hơn 0 và nhỏ hơn {{purchased}}.',
+      quantityInvalid: 'Số lượng mới phải từ {{min}} đến {{max}} seat.',
       reasonLabel: 'Lý do khác đề xuất của IT (bắt buộc)',
       reclaimHint: 'Hệ thống xếp sẵn: đã quyết thu hồi → G2 → G3/G4 → hoạt động cuối cũ nhất.',
       reclaimTitle: 'Giảm dưới số seat đang gán — chọn {{count}} seat thu hồi',
@@ -274,6 +294,40 @@ export const spendDashboard = {
     }
   },
   finance: {
+    charts: {
+      bva: {
+        hint: 'Từng Cost Center: cột xám là ngân sách, cột xanh là thực chi (chi phí thực chịu).',
+        title: 'Ngân sách và thực chi {{period}}'
+      },
+      filter: {
+        granularityLabel: 'Xem biểu đồ theo',
+        month: 'Tháng',
+        note: {
+          month: 'Ngân sách tháng = ngân sách quý ÷ 3, chỉ để tham chiếu (kỳ ngân sách của tổ chức là quý).',
+          year: 'Lũy kế từ đầu năm tới tháng hiện tại; ngân sách năm = tổng ngân sách các quý.'
+        },
+        periodLabel: 'Chọn kỳ',
+        quarter: 'Quý',
+        title: 'Xem theo',
+        year: 'Năm',
+        yearValue: 'Năm {{year}}'
+      },
+      regionLabel: 'Biểu đồ tài chính',
+      share: {
+        hint: 'Tỷ trọng thực chi của từng Cost Center; dòng Chưa phân bổ hiện riêng màu xám.',
+        title: 'Cơ cấu thực chi {{period}} theo Cost Center'
+      },
+      shareColumn: 'Tỷ trọng',
+      structure: {
+        basis: 'Cách phân bổ',
+        hint: 'Chi phí của kỳ chia theo quy tắc phân bổ đã áp dụng.',
+        title: 'Cơ cấu chi phí {{period}} theo cách phân bổ'
+      },
+      usage: {
+        hint: 'Mỗi thanh là ngân sách của một Cost Center: thực chi + cam kết đang giữ + phần còn lại. Cost Center chưa có ngân sách chỉ có phần đã chi và đã cam kết.',
+        title: 'Ngân sách {{period}} đang được dùng thế nào'
+      }
+    },
     nav: {
       budgetQuestions: 'Câu hỏi ngân sách',
       budgets: 'Cost Center & ngân sách',
@@ -317,6 +371,19 @@ export const spendDashboard = {
       workRegion: 'Việc ngân sách đang mở'
     },
     questions: {
+      answerTitle: 'Câu trả lời đã gửi',
+      backToList: 'Quay lại danh sách câu hỏi',
+      colAsked: 'Người hỏi · thời gian',
+      colRequest: 'Yêu cầu',
+      colStatus: 'Trạng thái',
+      contextTitle: 'Số liệu để trả lời',
+      factCostCenter: 'Cost Center · kỳ',
+      factRemainingAfter: 'Còn lại nếu duyệt',
+      factRemainingNow: 'Còn lại hiện tại',
+      questionTitle: 'Câu hỏi của Người duyệt chi',
+      replyTitle: 'Trả lời của bạn',
+      suggestedTag: 'Gợi ý',
+      summaryLabel: 'Tóm tắt câu hỏi',
       answeredNotice:
         'Câu trả lời đã hiện trên màn hình quyết định của Người duyệt chi. SLA của bước duyệt chi không dừng.',
       askedBy: '{{name}} hỏi lúc {{time}}',

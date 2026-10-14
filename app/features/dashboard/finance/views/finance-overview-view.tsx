@@ -15,6 +15,7 @@ import {
   heldRemainders
 } from '../finance-data'
 import type { FinanceTabKey } from '../finance-nav'
+import { FinanceOverviewCharts } from './finance-overview-charts'
 
 interface FinanceOverviewViewProps {
   formatCurrency: (value: number) => string
@@ -52,7 +53,6 @@ export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOver
 
       <section aria-label={t('finance.overview.workRegion')} className='grid gap-4 sm:grid-cols-2 xl:grid-cols-5'>
         <StatTile
-          action={t('finance.overview.openAction')}
           hint={t('finance.overview.questionsHint')}
           icon={MessageSquareText}
           label={t('finance.overview.openQuestions')}
@@ -61,7 +61,6 @@ export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOver
           value={String(openQuestions.length)}
         />
         <StatTile
-          action={t('finance.overview.openAction')}
           hint={t('finance.overview.recordingHint', { count: overdueRecordings.length })}
           icon={BookCheck}
           label={t('finance.overview.commitmentsToRecord')}
@@ -70,7 +69,6 @@ export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOver
           value={String(commitmentsToRecord.length)}
         />
         <StatTile
-          action={t('finance.overview.openAction')}
           hint={withoutBudget.map((line) => line.costCenter).join(', ')}
           icon={Wallet}
           label={t('finance.overview.withoutBudget')}
@@ -79,7 +77,6 @@ export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOver
           value={String(withoutBudget.length)}
         />
         <StatTile
-          action={t('finance.overview.openAction')}
           hint={t('finance.overview.exceptionsHint')}
           icon={TriangleAlert}
           label={t('finance.overview.openExceptions')}
@@ -88,7 +85,6 @@ export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOver
           value={String(openExceptions.length)}
         />
         <StatTile
-          action={t('finance.overview.openAction')}
           hint={t('finance.overview.closeHint', { count: remaindersToReview.length })}
           icon={ClipboardList}
           label={t('finance.overview.periodClose', { period: closingPeriod })}
@@ -97,6 +93,8 @@ export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOver
           value={t('finance.overview.closeStatus')}
         />
       </section>
+
+      <FinanceOverviewCharts formatCurrency={formatCurrency} />
 
       <Panel>
         <PanelTitle

@@ -77,7 +77,10 @@ export function ApprovalRenewalView({ formatCurrency, itemId, onSelectTab }: App
   const togglePick = (id: string) =>
     setPicked((current) => (current.includes(id) ? current.filter((value) => value !== id) : [...current, id]))
 
-  const quantityInvalid = action === 'REDUCE' && (parsedQuantity <= 0 || parsedQuantity >= detail.purchased)
+  // Reclaims can only come from the system-ranked seat list, so it bounds how far the quantity can drop.
+  const minQuantity = Math.max(1, detail.assigned - detail.reclaimCandidates.length)
+  const maxQuantity = detail.purchased - 1
+  const quantityInvalid = action === 'REDUCE' && (parsedQuantity < minQuantity || parsedQuantity > maxQuantity)
   const pickInvalid = action === 'REDUCE' && seatsToReclaim > 0 && picked.length !== seatsToReclaim
   const reasonInvalid = differsFromIt && reason.trim().length === 0
 
@@ -257,7 +260,7 @@ export function ApprovalRenewalView({ formatCurrency, itemId, onSelectTab }: App
                       />
                       {showErrors && quantityInvalid && (
                         <p className='mt-1 text-[0.7rem] font-semibold text-danger' role='alert'>
-                          {t('approvals.renewal.quantityInvalid', { purchased: detail.purchased })}
+                          {t('approvals.renewal.quantityInvalid', { max: maxQuantity, min: minQuantity })}
                         </p>
                       )}
                       {!quantityInvalid && (

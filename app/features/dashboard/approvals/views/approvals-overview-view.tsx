@@ -35,7 +35,6 @@ export function ApprovalsOverviewView({ displayName, formatCurrency, onSelectTab
 
       <section aria-label={t('approvals.overview.workRegion')} className='grid gap-4 sm:grid-cols-2 xl:grid-cols-3'>
         <StatTile
-          action={t('approvals.overview.openQueue')}
           hint={t('approvals.overview.overdueHint', { count: overdue.length })}
           icon={Wallet}
           label={t('approvals.overview.requests')}
@@ -44,7 +43,6 @@ export function ApprovalsOverviewView({ displayName, formatCurrency, onSelectTab
           value={String(requests.length)}
         />
         <StatTile
-          action={t('approvals.overview.openQueue')}
           hint={t('approvals.overview.nearestDeadline', {
             name: approvalQueue.find((item) => item.id === nearestDeadline.id)?.software ?? nearestDeadline.vendor,
             date: formatDate(nearestDeadline.cancellationDeadline)
@@ -56,7 +54,6 @@ export function ApprovalsOverviewView({ displayName, formatCurrency, onSelectTab
           value={String(renewals.length)}
         />
         <StatTile
-          action={t('approvals.overview.openQueue')}
           hint={t('approvals.overview.chargesHint')}
           icon={FileWarning}
           label={t('approvals.overview.charges')}

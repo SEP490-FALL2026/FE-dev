@@ -26,6 +26,8 @@ export function useDashboardFormat() {
   const locale = i18n.resolvedLanguage === 'en' ? 'en-US' : 'vi-VN'
 
   return {
+    formatCompact: (value: number) =>
+      new Intl.NumberFormat(locale, { maximumFractionDigits: 1, notation: 'compact' }).format(value),
     formatDate: (value: string) =>
       new Intl.DateTimeFormat(locale, { day: '2-digit', month: '2-digit', year: 'numeric' }).format(
         new Date(value.length === 10 ? `${value}T00:00:00` : value)

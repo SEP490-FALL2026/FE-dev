@@ -72,7 +72,26 @@ describe('DashboardPage', () => {
     view.unmount()
   })
 
-  it('requires an opinion and a note before Finance answers a budget question', () => {
+  it('filters the finance dashboard charts by month, quarter or year', () => {
+    renderDashboard('finance')
+
+    const charts = screen.getByRole('region', { name: 'Biểu đồ tài chính' })
+    expect(within(charts).getByRole('img', { name: 'Ngân sách Q4-2026 đang được dùng thế nào' })).toBeInTheDocument()
+    expect(within(charts).getByRole('img', { name: 'Cơ cấu thực chi Q4-2026 theo Cost Center' })).toBeInTheDocument()
+    expect(within(charts).queryByText('Diễn giải')).not.toBeInTheDocument()
+
+    fireEvent.change(within(charts).getByRole('combobox', { name: 'Chọn kỳ' }), { target: { value: 'Q3-2026' } })
+    expect(within(charts).getByRole('img', { name: 'Ngân sách và thực chi Q3-2026' })).toBeInTheDocument()
+    expect(within(charts).getByText('182.400.000 ₫')).toBeInTheDocument()
+
+    fireEvent.click(within(charts).getByRole('button', { name: 'Năm' }))
+    expect(within(charts).getByRole('img', { name: 'Cơ cấu chi phí Năm 2026 theo cách phân bổ' })).toBeInTheDocument()
+
+    fireEvent.click(within(charts).getByRole('button', { name: 'Tháng' }))
+    expect(within(charts).getByRole('combobox', { name: 'Chọn kỳ' })).toHaveValue('2026-10')
+  })
+
+  it('lists budget questions and lets Finance open one to answer it', () => {
     renderDashboard('finance')
     fireEvent.click(
       within(screen.getByRole('navigation', { name: 'Điều hướng dashboard' })).getByRole('button', {
@@ -80,11 +99,21 @@ describe('DashboardPage', () => {
       })
     )
 
+    expect(screen.getByRole('button', { name: /REQ-2026-089/ })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /REQ-2026-078/ })).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /Đã trả lời/ }))
+    fireEvent.click(screen.getByRole('button', { name: /REQ-2026-078/ }))
+    expect(screen.getByRole('heading', { name: 'Câu trả lời đã gửi' })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Quay lại danh sách câu hỏi' }))
+
+    fireEvent.click(screen.getByRole('button', { name: /Đang mở/ }))
+    fireEvent.click(screen.getByRole('button', { name: /REQ-2026-089/ }))
     fireEvent.click(screen.getByRole('button', { name: 'Gửi câu trả lời' }))
     expect(screen.getByText('Chọn một ý kiến.')).toBeInTheDocument()
     expect(screen.getByText('Bắt buộc nhập ghi chú.')).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('radio', { name: 'Trong hạn mức' }))
+    fireEvent.click(screen.getByRole('radio', { name: /Trong hạn mức/ }))
     fireEvent.change(screen.getByLabelText('Ghi chú cho Người duyệt chi'), { target: { value: 'Còn đủ ngân sách.' } })
     fireEvent.click(screen.getByRole('button', { name: 'Gửi câu trả lời' }))
 
@@ -129,6 +158,51 @@ describe('DashboardPage', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Báo cáo của Người duyệt chi' })).toBeInTheDocument()
 
     view.unmount()
+  })
+
+  it('lets the spending approver ask Finance a structured budget question', () => {
+    renderDashboard('spending-approver')
+    fireEvent.click(
+      within(screen.getByRole('navigation', { name: 'Điều hướng dashboard' })).getByRole('button', {
+        name: /Hàng chờ duyệt/i
+      })
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Mở REQ-2026-089' }))
+
+    expect(screen.getByText('Phòng Thiết kế còn đủ ngân sách Q4 để mua thêm 15 seat Figma không?')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Hỏi thêm Finance' }))
+
+    fireEvent.click(screen.getByRole('button', { name: 'Gửi câu hỏi' }))
+    expect(screen.getByText('Nhập câu hỏi hoặc ý kiến cho Finance.')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Gợi ý số tiền / thời điểm' }))
+    fireEvent.change(screen.getByLabelText('Câu hỏi / ý kiến của bạn'), {
+      target: { value: 'Có nên dời sang tháng 11?' }
+    })
+    fireEvent.change(screen.getByLabelText('Cần trả lời'), { target: { value: 'TODAY' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Gửi câu hỏi' }))
+
+    expect(screen.getByText('Có nên dời sang tháng 11?')).toBeInTheDocument()
+    expect(screen.getAllByText('Trong hôm nay').length).toBeGreaterThan(0)
+  })
+
+  it('bounds a renewal reduction by the ranked reclaim list and records the decision', () => {
+    renderDashboard('spending-approver')
+    fireEvent.click(
+      within(screen.getByRole('navigation', { name: 'Điều hướng dashboard' })).getByRole('button', {
+        name: /Hàng chờ duyệt/i
+      })
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Mở SUB-GITHUB-ENT' }))
+
+    fireEvent.click(screen.getByRole('radio', { name: /Giảm số lượng/ }))
+    fireEvent.change(screen.getByLabelText(/Số lượng mới/), { target: { value: '30' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Ghi quyết định' }))
+    expect(screen.getByText('Số lượng mới phải từ 38 đến 49 seat.')).toBeInTheDocument()
+
+    fireEvent.change(screen.getByLabelText(/Số lượng mới/), { target: { value: '40' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Ghi quyết định' }))
+    expect(screen.getByText(/Đã ghi quyết định: Giảm số lượng/)).toBeInTheDocument()
   })
 
   it('requires a reason before the spending approver rejects a request', () => {

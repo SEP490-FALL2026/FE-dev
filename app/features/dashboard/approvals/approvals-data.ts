@@ -178,11 +178,18 @@ export interface TrailStep {
   status: 'current' | 'done' | 'next'
 }
 
+/** What the Spending Approver wants Finance to look at when asking for budget information (FR-3.14 (2)). */
+export type FinanceTopic = 'ENOUGH_BUDGET' | 'PENDING_IMPACT' | 'BUDGET_TIMING' | 'SUGGESTION'
+export type FinanceUrgency = 'BEFORE_SLA' | 'TODAY' | 'NOT_URGENT'
+
 export interface FinanceAnswer {
   answeredAt?: string
   askedAt: string
   note?: string
   opinion?: 'NO_BUDGET' | 'OVER' | 'WITHIN'
+  question: string
+  topics: FinanceTopic[]
+  urgency: FinanceUrgency
 }
 
 export interface RequestDetail {
@@ -204,7 +211,12 @@ export const requestDetails: RequestDetail[] = [
     branch: 'b',
     costCenter: 'CC-DES',
     estimate: { deductibleVat: 1_350_000, nonDeductibleTax: 675_000, preTax: 13_500_000 },
-    financeAnswer: { askedAt: '2026-10-12T09:10:00+07:00' },
+    financeAnswer: {
+      askedAt: '2026-10-12T09:10:00+07:00',
+      question: 'Phòng Thiết kế còn đủ ngân sách Q4 để mua thêm 15 seat Figma không?',
+      topics: ['ENOUGH_BUDGET', 'PENDING_IMPACT'],
+      urgency: 'BEFORE_SLA'
+    },
     id: 'req-089',
     justification: 'Dự án Fintech Redesign cần thêm 15 designer cộng tác trên cùng thư viện thành phần trong Q4.',
     requester: 'Trần Vũ Bảo',
@@ -223,7 +235,10 @@ export const requestDetails: RequestDetail[] = [
       answeredAt: '2026-10-11T17:05:00+07:00',
       askedAt: '2026-10-11T16:40:00+07:00',
       note: 'Marketing chưa có ngân sách Q4; Finance dự kiến lập trước 15/10. Ý kiến tham khảo, không chặn.',
-      opinion: 'NO_BUDGET'
+      opinion: 'NO_BUDGET',
+      question: 'Marketing chưa có ngân sách Q4 — Finance có dự kiến lập trong tuần này không?',
+      topics: ['BUDGET_TIMING'],
+      urgency: 'TODAY'
     },
     id: 'req-101',
     itAssessment: {
