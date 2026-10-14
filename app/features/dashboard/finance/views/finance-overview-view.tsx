@@ -1,7 +1,7 @@
 import { BookCheck, ClipboardList, Clock, MessageSquareText, TriangleAlert, Wallet } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { RemainingValue, getRemaining } from '../../budget-figures'
+import { RemainingValue, getRemaining, useFormatPeriod } from '../../budget-figures'
 import { PageHeader, Panel, PanelTitle, Pill, StatTile, useDashboardFormat } from '../../dashboard-ui'
 import {
   budgetQuestions,
@@ -27,6 +27,7 @@ interface FinanceOverviewViewProps {
 
 export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOverviewViewProps) {
   const { t } = useTranslation('dashboard')
+  const formatPeriod = useFormatPeriod()
   const { formatDateTime } = useDashboardFormat()
 
   const openQuestions = budgetQuestions.filter((question) => question.status === 'OPEN')
@@ -57,8 +58,7 @@ export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOver
   return (
     <div className='space-y-6'>
       <PageHeader
-        code='UF-11 · FIN-01'
-        subtitle={t('finance.overview.subtitle', { period: currentPeriod })}
+        subtitle={t('finance.overview.subtitle', { period: formatPeriod(currentPeriod) })}
         title={t('finance.overview.title')}
       />
 
@@ -98,7 +98,7 @@ export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOver
         <StatTile
           hint={t('finance.overview.closeHint', { count: remaindersToReview.length })}
           icon={ClipboardList}
-          label={t('finance.overview.periodClose', { period: closingPeriod })}
+          label={t('finance.overview.periodClose', { period: formatPeriod(closingPeriod) })}
           onClick={() => onSelectTab('period-close')}
           tone='neutral'
           value={t('finance.overview.closeStatus')}
@@ -121,7 +121,7 @@ export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOver
             </span>
           }
           hint={t('finance.overview.budgetTableHint')}
-          title={t('finance.overview.budgetTableTitle', { period: currentPeriod })}
+          title={t('finance.overview.budgetTableTitle', { period: formatPeriod(currentPeriod) })}
         />
 
         <div className='mt-4 overflow-x-auto'>

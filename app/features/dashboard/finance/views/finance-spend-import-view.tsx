@@ -53,7 +53,7 @@ export function FinanceSpendImportView({ formatCurrency, onSelectTab }: FinanceS
 
   return (
     <div className='space-y-6'>
-      <PageHeader code='UF-12 · FIN-04' subtitle={t('finance.import.subtitle')} title={t('finance.import.title')} />
+      <PageHeader subtitle={t('finance.import.subtitle')} title={t('finance.import.title')} />
 
       <ol aria-label={t('finance.import.stepsLabel')} className='grid gap-2 sm:grid-cols-3'>
         {(['upload', 'preview', 'done'] as const).map((step, index) => {

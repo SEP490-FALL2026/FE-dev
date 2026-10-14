@@ -10,7 +10,7 @@ import { DashboardPage } from './dashboard-page'
 
 const roleLabels: Record<UserRole, string> = {
   employee: 'Nhân viên',
-  finance: 'Finance',
+  finance: 'Tài chính',
   'it-admin': 'Quản trị viên CNTT',
   manager: 'Quản lý trực tiếp',
   'spending-approver': 'Người duyệt chi',
@@ -52,7 +52,7 @@ describe('DashboardPage', () => {
     const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
 
     expect(screen.getByRole('heading', { level: 1, name: 'Bảng điều khiển Tài chính' })).toBeInTheDocument()
-    expect(screen.getByTestId('dashboard-role')).toHaveTextContent('Finance')
+    expect(screen.getByTestId('dashboard-role')).toHaveTextContent('Tài chính')
 
     const questionsBtn = within(nav).getByRole('button', { name: /Yêu cầu ngân sách/i })
     expect(questionsBtn).not.toHaveClass('bg-primary')
@@ -69,7 +69,7 @@ describe('DashboardPage', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Khoản cam kết chờ ghi nhận' })).toBeInTheDocument()
 
     fireEvent.click(within(nav).getByRole('button', { name: /Báo cáo kỳ/i }))
-    expect(screen.getByRole('heading', { level: 1, name: 'Báo cáo kỳ Q3-2026' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Báo cáo kỳ Quý 3/2026' })).toBeInTheDocument()
 
     view.unmount()
   })
@@ -90,7 +90,7 @@ describe('DashboardPage', () => {
     expect(screen.getAllByRole('button', { name: /^Xem chi tiết REQ-/ })).toHaveLength(1)
 
     fireEvent.click(screen.getByRole('button', { name: 'Xem chi tiết REQ-2026-078' }))
-    expect(screen.getByRole('heading', { level: 1, name: 'Cursor Pro · 10 seat' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Cursor Pro · 10 suất' })).toBeInTheDocument()
     expect(screen.queryByRole('group', { name: 'Lọc yêu cầu theo trạng thái' })).not.toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Quay lại danh sách' }))
@@ -129,7 +129,7 @@ describe('DashboardPage', () => {
     expect(within(tiles).queryByText('Mở →')).not.toBeInTheDocument()
 
     expect(
-      screen.getByRole('img', { name: 'Ngân sách và mức sử dụng theo Cost Center — Quý 4/2026' })
+      screen.getByRole('img', { name: 'Ngân sách và mức sử dụng theo trung tâm chi phí — Quý 4/2026' })
     ).toBeInTheDocument()
     expect(screen.getByRole('img', { name: 'Cơ cấu thực chi — Quý 4/2026' })).toBeInTheDocument()
 
@@ -147,7 +147,7 @@ describe('DashboardPage', () => {
     expect(screen.getAllByRole('button', { name: /^Ghi nhận CMT-/ })).toHaveLength(3)
     fireEvent.click(screen.getByRole('button', { name: 'Ghi nhận CMT-2026-049' }))
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Adobe Creative Cloud · 3 seat' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Adobe Creative Cloud · 3 suất' })).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'Hàng đợi ghi nhận' })).not.toBeInTheDocument()
     expect(screen.getByRole('radio', { name: /^Chưa có ngân sách/ })).toBeChecked()
 
@@ -186,7 +186,7 @@ describe('DashboardPage', () => {
     renderDashboard('finance')
     fireEvent.click(
       within(screen.getByRole('navigation', { name: 'Điều hướng dashboard' })).getByRole('button', {
-        name: /Cost Center & ngân sách/i
+        name: /Trung tâm chi phí và ngân sách/i
       })
     )
 
@@ -204,24 +204,24 @@ describe('DashboardPage', () => {
   it('switches the budget view between month, quarter and year and adds a Cost Center in a pop-up', () => {
     renderDashboard('finance', '/?tab=budgets')
 
-    expect(screen.getByRole('heading', { name: 'Ngân sách theo Cost Center — Quý 4/2026' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Ngân sách theo trung tâm chi phí — Quý 4/2026' })).toBeInTheDocument()
     const granularity = screen.getByRole('group', { name: 'Xem theo' })
 
     fireEvent.click(within(granularity).getByRole('button', { name: 'Tháng' }))
     expect(screen.getByLabelText('Kỳ')).toHaveValue('2026-10')
     fireEvent.change(screen.getByLabelText('Kỳ'), { target: { value: '2026-07' } })
-    expect(screen.getByRole('heading', { name: 'Ngân sách theo Cost Center — Tháng 7/2026' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Ngân sách theo trung tâm chi phí — Tháng 7/2026' })).toBeInTheDocument()
     expect(screen.getByText('Kỳ đã qua')).toBeInTheDocument()
 
     fireEvent.click(within(granularity).getByRole('button', { name: 'Năm' }))
-    expect(screen.getByRole('heading', { name: 'Ngân sách theo Cost Center — Năm 2026' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Ngân sách theo trung tâm chi phí — Năm 2026' })).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Thêm Cost Center' }))
-    const dialog = screen.getByRole('dialog', { name: 'Thêm Cost Center' })
+    fireEvent.click(screen.getByRole('button', { name: 'Thêm trung tâm chi phí' }))
+    const dialog = screen.getByRole('dialog', { name: 'Thêm trung tâm chi phí' })
     fireEvent.click(within(dialog).getByRole('button', { name: 'Lưu' }))
-    expect(within(dialog).getByRole('alert')).toHaveTextContent('Nhập mã và tên Cost Center.')
+    expect(within(dialog).getByRole('alert')).toHaveTextContent('Nhập mã và tên trung tâm chi phí.')
 
-    fireEvent.change(within(dialog).getByLabelText('Mã Cost Center'), { target: { value: 'cc-legal' } })
+    fireEvent.change(within(dialog).getByLabelText('Mã trung tâm chi phí'), { target: { value: 'cc-legal' } })
     fireEvent.change(within(dialog).getByLabelText('Tên'), { target: { value: 'Pháp chế' } })
     fireEvent.click(within(dialog).getByRole('button', { name: 'Lưu' }))
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
@@ -250,17 +250,17 @@ describe('DashboardPage', () => {
     const savings = screen.getByRole('region', { name: 'Tiết kiệm' })
     const periodFilter = screen.getByRole('group', { name: 'Xem theo' })
     const spendChart = screen.getByRole('img', {
-      name: 'Biểu đồ cột ngân sách và chi phí theo Cost Center — Quý 3/2026'
+      name: 'Biểu đồ cột ngân sách và chi phí theo trung tâm chi phí — Quý 3/2026'
     })
     expect(savings.compareDocumentPosition(periodFilter) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(periodFilter.compareDocumentPosition(spendChart) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-    expect(screen.getByText('Chưa phân bổ Cost Center')).toBeInTheDocument()
+    expect(screen.getByText('Chưa phân bổ trung tâm chi phí')).toBeInTheDocument()
 
     fireEvent.click(within(periodFilter).getByRole('button', { name: 'Năm' }))
     expect(
-      screen.getByRole('img', { name: 'Biểu đồ cột ngân sách và chi phí theo Cost Center — Năm 2026' })
+      screen.getByRole('img', { name: 'Biểu đồ cột ngân sách và chi phí theo trung tâm chi phí — Năm 2026' })
     ).toBeInTheDocument()
-    expect(screen.queryByText('Chưa phân bổ Cost Center')).not.toBeInTheDocument()
+    expect(screen.queryByText('Chưa phân bổ trung tâm chi phí')).not.toBeInTheDocument()
 
     view.unmount()
   })
@@ -274,7 +274,7 @@ describe('DashboardPage', () => {
     )
     fireEvent.click(screen.getByRole('button', { name: 'Mở REQ-2026-089' }))
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Figma Organization · 15 seat' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Figma Organization · 15 suất' })).toBeInTheDocument()
     expect(
       within(screen.getByRole('navigation', { name: 'Điều hướng dashboard' })).getByRole('button', {
         name: /Hàng chờ duyệt/i
@@ -293,12 +293,12 @@ describe('DashboardPage', () => {
   it('shows the Finance budget opinion thread on the request detail', () => {
     renderDashboard('spending-approver', '/?tab=request&id=req-101')
     expect(
-      screen.getByText('Marketing chưa có ngân sách Q4 — Finance có dự kiến lập trong tuần này không?')
+      screen.getByText('Marketing chưa có ngân sách quý 4 — Tài chính có dự kiến lập trong tuần này không?')
     ).toBeInTheDocument()
-    expect(screen.getByText(/Ngọc Lan \(Finance\) trả lời/)).toBeInTheDocument()
+    expect(screen.getByText(/Ngọc Lan \(Tài chính\) trả lời/)).toBeInTheDocument()
 
     renderDashboard('spending-approver', '/?tab=request&id=req-089')
-    expect(screen.getByText(/Đang chờ Finance trả lời/)).toBeInTheDocument()
+    expect(screen.getByText(/Đang chờ Tài chính trả lời/)).toBeInTheDocument()
   })
 
   it('renders the manager dashboard shell and navigates tabs', () => {

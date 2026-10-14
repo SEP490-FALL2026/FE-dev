@@ -94,11 +94,7 @@ function ChargeExceptionList({
 
   return (
     <div className='space-y-6'>
-      <PageHeader
-        code='UF-12 · FIN-07'
-        subtitle={t('finance.exceptions.subtitle')}
-        title={t('finance.exceptions.title')}
-      />
+      <PageHeader subtitle={t('finance.exceptions.subtitle')} title={t('finance.exceptions.title')} />
 
       <Notice icon={ShieldAlert} tone='info'>
         {t('finance.exceptions.ruleNotice')}
@@ -214,7 +210,6 @@ function ChargeExceptionDetail({
 
       <PageHeader
         actions={<Pill tone={statusTones[item.status]}>{t(`finance.exceptions.status.${item.status}`)}</Pill>}
-        code={`UF-12 · FIN-07 · ${item.code}`}
         subtitle={`${item.code} · ${formatDate(item.date)} · ${t('finance.exceptions.card', { last4: item.cardLast4 })}`}
         title={item.vendor}
       />

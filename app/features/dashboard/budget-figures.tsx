@@ -26,6 +26,20 @@ export interface CostEstimate {
   preTax: number
 }
 
+/** Turns a period key (`Q4-2026`, `2026-10`, `2026`) into words (`Quý 4/2026`); unknown keys pass through. */
+export function useFormatPeriod() {
+  const { t } = useTranslation('dashboard')
+
+  return (key: string) => {
+    const quarter = /^Q([1-4])-(\d{4})$/.exec(key)
+    if (quarter) return t('finance.budgets.periodName.QUARTER', { number: Number(quarter[1]), year: quarter[2] })
+    const month = /^(\d{4})-(\d{2})$/.exec(key)
+    if (month) return t('finance.budgets.periodName.MONTH', { number: Number(month[2]), year: month[1] })
+    if (/^\d{4}$/.test(key)) return t('finance.budgets.periodName.YEAR', { year: key })
+    return key
+  }
+}
+
 export function getRemaining(snapshot: Pick<BudgetSnapshot, 'actual' | 'budget' | 'held'>): number | null {
   return snapshot.budget === null ? null : snapshot.budget - snapshot.actual - snapshot.held
 }
@@ -74,6 +88,7 @@ export function BudgetSnapshotPanel({
 }) {
   const { t } = useTranslation('dashboard')
   const { formatDateTime } = useDashboardFormat()
+  const formatPeriod = useFormatPeriod()
   const remaining = getRemaining(snapshot)
   const usedRatio =
     snapshot.budget && snapshot.budget > 0 ? Math.min(1, (snapshot.actual + snapshot.held) / snapshot.budget) : 0
@@ -83,7 +98,7 @@ export function BudgetSnapshotPanel({
       <div className='flex flex-wrap items-center justify-between gap-2'>
         <p className='text-xs font-bold text-foreground'>{title ?? t('budget.snapshotTitle')}</p>
         <span className='font-mono text-[0.7rem] font-semibold text-muted-foreground'>
-          {snapshot.costCenter} · {snapshot.period}
+          {snapshot.costCenter} · {formatPeriod(snapshot.period)}
         </span>
       </div>
 

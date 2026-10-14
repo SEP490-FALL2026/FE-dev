@@ -1,6 +1,7 @@
 import { Gauge, Sparkles, Timer } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
+import { useFormatPeriod } from '../../budget-figures'
 import { PageHeader, Panel, PanelTitle, StatTile, useDashboardFormat } from '../../dashboard-ui'
 import { sumPeriod } from '../../finance/budget-periods'
 import { currentBudgetLines, monthlyBudgetLines } from '../../finance/finance-data'
@@ -13,6 +14,7 @@ const reportedQuarterKey = approverReport.period
 
 export function ApproverReportsView({ formatCurrency }: { formatCurrency: (value: number) => string }) {
   const { t } = useTranslation('dashboard')
+  const formatPeriod = useFormatPeriod()
   const { formatNumber, formatPercent } = useDashboardFormat()
   const report = approverReport
   const usage = report.usage
@@ -38,8 +40,7 @@ export function ApproverReportsView({ formatCurrency }: { formatCurrency: (value
   return (
     <div className='space-y-6'>
       <PageHeader
-        code='UF-15 · FR-5.9 → FR-5.11'
-        subtitle={t('approvals.reports.subtitle', { period: report.period })}
+        subtitle={t('approvals.reports.subtitle', { period: formatPeriod(report.period) })}
         title={t('approvals.reports.title')}
       />
 

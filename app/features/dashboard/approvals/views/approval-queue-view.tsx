@@ -75,7 +75,7 @@ export function ApprovalQueueView({ formatCurrency, onSelectTab }: ApprovalQueue
 
   return (
     <div className='space-y-6'>
-      <PageHeader code='UF-15 · APV-01' subtitle={t('approvals.queue.subtitle')} title={t('approvals.queue.title')} />
+      <PageHeader subtitle={t('approvals.queue.subtitle')} title={t('approvals.queue.title')} />
 
       <Notice icon={Info} tone='info'>
         {t('approvals.queue.slaRule')}

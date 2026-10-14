@@ -2,7 +2,13 @@ import { ArrowLeft, BellRing, CheckCircle2, ChevronRight, Clock, Info, Save } fr
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { BudgetSnapshotPanel, CostEstimatePanel, getBorneCost, getRemaining } from '../../budget-figures'
+import {
+  BudgetSnapshotPanel,
+  CostEstimatePanel,
+  getBorneCost,
+  getRemaining,
+  useFormatPeriod
+} from '../../budget-figures'
 import {
   Notice,
   PageHeader,
@@ -89,16 +95,13 @@ function CommitmentQueue({
   recorded: RecordedCommitment[]
 }) {
   const { t } = useTranslation('dashboard')
+  const formatPeriod = useFormatPeriod()
   const { formatDateTime } = useDashboardFormat()
   const lastRecorded = recorded.at(-1)
 
   return (
     <div className='space-y-6'>
-      <PageHeader
-        code='UF-11 · FIN-20 → FIN-21'
-        subtitle={t('finance.commitments.subtitle')}
-        title={t('finance.commitments.title')}
-      />
+      <PageHeader subtitle={t('finance.commitments.subtitle')} title={t('finance.commitments.title')} />
 
       <Notice icon={Info} tone='info'>
         {t('finance.commitments.ruleNotice')}
@@ -150,7 +153,7 @@ function CommitmentQueue({
                       </p>
                     </td>
                     <td className='py-3 font-mono'>
-                      {item.costCenter} · {currentPeriod}
+                      {item.costCenter} · {formatPeriod(currentPeriod)}
                     </td>
                     <td className='py-3 text-right font-bold'>{formatCurrency(getBorneCost(item.estimate))}</td>
                     <td className='py-3 pl-6'>
@@ -273,7 +276,6 @@ function CommitmentDetail({
               : t('finance.commitments.dueAt', { time: formatDateTime(commitment.recordingDueAt) })}
           </Pill>
         }
-        code={`UF-11 · FIN-21 · ${commitment.code}`}
         subtitle={`${commitment.requestCode} · ${t('finance.commitments.approvedBy', { name: commitment.approvedBy })} · ${formatDateTime(commitment.approvedAt)}`}
         title={commitment.software}
       />

@@ -103,7 +103,7 @@ export const approvalQueue: QueueItem[] = [
     reference: 'REQ-2026-089',
     reminders: 0,
     slaDueAt: '2026-10-12T16:00:00+07:00',
-    software: 'Figma Organization · 15 seat',
+    software: 'Figma Organization · 15 suất',
     subtitle: 'Trần Vũ Bảo · Phòng Thiết kế'
   },
   {
@@ -115,7 +115,7 @@ export const approvalQueue: QueueItem[] = [
     reference: 'REQ-2026-104',
     reminders: 0,
     slaDueAt: '2026-10-14T08:15:00+07:00',
-    software: 'Datadog APM Pro · 5 host',
+    software: 'Datadog APM Pro · 5 máy chủ',
     subtitle: 'Đặng Thanh Hà · Trưởng phòng Vận hành'
   },
   {
@@ -128,7 +128,7 @@ export const approvalQueue: QueueItem[] = [
     reminders: 1,
     slaDueAt: '2026-10-13T09:00:00+07:00',
     software: 'Slack Enterprise Grid',
-    subtitle: 'Salesforce · 120 seat'
+    subtitle: 'Salesforce · 120 suất'
   },
   {
     amount: 45_000_000,
@@ -140,7 +140,7 @@ export const approvalQueue: QueueItem[] = [
     reminders: 0,
     slaDueAt: '2026-10-14T09:00:00+07:00',
     software: 'GitHub Enterprise & Copilot',
-    subtitle: 'GitHub · 50 seat'
+    subtitle: 'GitHub · 50 suất'
   },
   {
     amount: 2_400_000,
@@ -160,7 +160,7 @@ export const approvalQueue: QueueItem[] = [
     id: 'fnd-07',
     kind: 'FINDING',
     receivedAt: '2026-10-11T11:00:00+07:00',
-    reference: 'FND-2026-07 · BM-07',
+    reference: 'FND-2026-07',
     reminders: 0,
     slaDueAt: '2026-10-15T11:00:00+07:00',
     software: 'OpenAI ChatGPT Plus',
@@ -208,10 +208,11 @@ export const requestDetails: RequestDetail[] = [
     estimate: { deductibleVat: 1_350_000, nonDeductibleTax: 675_000, preTax: 13_500_000 },
     financeAnswer: {
       askedAt: '2026-10-12T09:10:00+07:00',
-      question: 'Phòng Thiết kế còn đủ ngân sách Q4 để mua thêm 15 seat Figma không?'
+      question: 'Phòng Thiết kế còn đủ ngân sách quý 4 để mua thêm 15 suất Figma không?'
     },
     id: 'req-089',
-    justification: 'Dự án Fintech Redesign cần thêm 15 designer cộng tác trên cùng thư viện thành phần trong Q4.',
+    justification:
+      'Dự án Fintech Redesign cần thêm 15 nhà thiết kế cộng tác trên cùng thư viện thành phần trong quý 4.',
     requester: 'Trần Vũ Bảo',
     trail: [
       { actor: 'Trần Vũ Bảo', at: '2026-10-10T09:20:00+07:00', key: 'created', status: 'done' },
@@ -226,15 +227,15 @@ export const requestDetails: RequestDetail[] = [
     estimate: { deductibleVat: 400_000, nonDeductibleTax: 200_000, preTax: 4_000_000 },
     financeAnswer: {
       answeredAt: '2026-10-11T17:05:00+07:00',
-      answeredBy: 'Ngọc Lan (Finance)',
+      answeredBy: 'Ngọc Lan (Tài chính)',
       askedAt: '2026-10-11T16:40:00+07:00',
-      note: 'Marketing chưa có ngân sách Q4; Finance dự kiến lập trước 15/10. Ý kiến tham khảo, không chặn.',
+      note: 'Marketing chưa có ngân sách quý 4; Tài chính dự kiến lập trước 15/10. Ý kiến tham khảo, không chặn.',
       opinion: 'NO_BUDGET',
-      question: 'Marketing chưa có ngân sách Q4 — Finance có dự kiến lập trong tuần này không?'
+      question: 'Marketing chưa có ngân sách quý 4 — Tài chính có dự kiến lập trong tuần này không?'
     },
     id: 'req-101',
     itAssessment: {
-      controlLevel: 'Kiểm soát được — đăng nhập SSO, quản trị tập trung',
+      controlLevel: 'Kiểm soát được — đăng nhập một lần, quản trị tập trung',
       risk: 'LOW',
       summary: 'Không trùng chức năng với công cụ trong danh mục; dữ liệu khách hàng tiềm năng mức trung bình.'
     },
@@ -248,7 +249,7 @@ export const requestDetails: RequestDetail[] = [
         key: 'needStep',
         status: 'done'
       },
-      { actor: 'Quang Huy (IT Admin)', at: '2026-10-08T10:00:00+07:00', key: 'itReview', status: 'done' },
+      { actor: 'Quang Huy (Quản trị CNTT)', at: '2026-10-08T10:00:00+07:00', key: 'itReview', status: 'done' },
       { actor: 'Phạm Hoàng Nam', key: 'spendStep', status: 'current' }
     ]
   },
@@ -297,14 +298,14 @@ export const renewalDetails: RenewalDetail[] = [
   {
     annualCost: 45_000_000,
     assigned: 44,
-    businessOwnerOpinion: 'Nhóm Backend chỉ cần khoảng 40 seat cho năm tới. (Ý kiến tham khảo, không chặn.)',
+    businessOwnerOpinion: 'Nhóm lập trình máy chủ chỉ cần khoảng 40 suất cho năm tới. (Ý kiến tham khảo, không chặn.)',
     cancellationDeadline: '2026-10-20',
     costCenter: 'CC-ENG',
     id: 'ren-github',
     itProposal: {
       action: 'REDUCE',
       quantity: 40,
-      rationale: '6 seat chưa gán, 1 seat của người đã nghỉ việc, 3 seat không hoạt động trên 60 ngày.'
+      rationale: '6 suất chưa gán, 1 suất của người đã nghỉ việc, 3 suất không hoạt động trên 60 ngày.'
     },
     purchased: 50,
     reclaimCandidates: [
@@ -330,7 +331,7 @@ export const renewalDetails: RenewalDetail[] = [
     itProposal: {
       action: 'RENEW',
       quantity: 120,
-      rationale: 'Tỷ lệ hoạt động cao; 2 seat trống dành cho nhân sự mới tháng 11.'
+      rationale: 'Tỷ lệ hoạt động cao; 2 suất trống dành cho nhân sự mới tháng 11.'
     },
     purchased: 120,
     reclaimCandidates: [
@@ -379,7 +380,7 @@ export const chargeDetails: ChargeDetail[] = [
     ],
     date: '2026-09-12',
     evidence: ['sao-ke-vcb-09-2026-dong-12.pdf'],
-    financeNote: 'Thẻ ••3341 do Phòng Marketing giữ. Finance đã đối soát, không tìm thấy căn cứ.',
+    financeNote: 'Thẻ ••3341 do Phòng Marketing giữ. Tài chính đã đối soát, không tìm thấy căn cứ.',
     id: 'chg-0979',
     reason: 'NO_BASIS',
     statementLine: 'CANVA* PRO ANNUAL — 12/09/2026',
@@ -390,16 +391,16 @@ export const chargeDetails: ChargeDetail[] = [
 export const findingDetails: FindingDetail[] = [
   {
     assessment: {
-      control: 'Kiểm soát một phần — có gói Team với SSO và tắt huấn luyện trên dữ liệu',
+      control: 'Kiểm soát một phần — có gói Team có đăng nhập một lần và tắt huấn luyện trên dữ liệu',
       risk: 'MEDIUM',
-      technical: 'Dùng cho thử nghiệm prompt; có thể chuyển sang gói Team quản trị tập trung.'
+      technical: 'Dùng cho thử nghiệm câu lệnh AI; có thể chuyển sang gói Team quản trị tập trung.'
     },
     charges: [
       { amount: 520_000, date: '2026-08-03', line: 'OPENAI *CHATGPT PLUS' },
       { amount: 520_000, date: '2026-09-03', line: 'OPENAI *CHATGPT PLUS' },
       { amount: 520_000, date: '2026-10-03', line: 'OPENAI *CHATGPT PLUS' }
     ],
-    headContext: 'Đội AI cần ChatGPT để thử nghiệm prompt cho trợ lý chăm sóc khách hàng. — Trưởng phòng Kỹ thuật',
+    headContext: 'Đội AI cần ChatGPT để thử nghiệm câu lệnh AI cho trợ lý chăm sóc khách hàng. — Trưởng phòng Kỹ thuật',
     id: 'fnd-07',
     payer: 'Thẻ công ty ••8812 (Phòng Kỹ thuật)',
     responsible: 'Lê Hoàng Anh',
@@ -412,7 +413,7 @@ export const findingDetails: FindingDetail[] = [
 
 export const approverAlerts = [
   { key: 'financeOver', reference: 'CMT-2026-047 · CC-OPS', tone: 'danger' },
-  { key: 'budgetChanged', reference: 'CC-ENG · Q4-2026', tone: 'warning' },
+  { key: 'budgetChanged', reference: 'CC-ENG · Quý 4/2026', tone: 'warning' },
   { key: 'deadlineSoon', reference: 'Slack Enterprise Grid · 15/10/2026', tone: 'warning' },
   { key: 'lateExecution', reference: 'Zoom Business · 30/09/2026', tone: 'info' }
 ] as const

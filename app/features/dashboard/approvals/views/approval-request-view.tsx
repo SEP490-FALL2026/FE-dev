@@ -7,7 +7,8 @@ import {
   CostEstimatePanel,
   RemainingValue,
   getBorneCost,
-  getRemaining
+  getRemaining,
+  useFormatPeriod
 } from '../../budget-figures'
 import {
   InfoRow,
@@ -46,6 +47,7 @@ function SummaryFact({ label, value }: { label: string; value: React.ReactNode }
 
 export function ApprovalRequestView({ formatCurrency, itemId, onSelectTab }: ApprovalRequestViewProps) {
   const { t } = useTranslation('dashboard')
+  const formatPeriod = useFormatPeriod()
   const { formatDateTime } = useDashboardFormat()
   const detail = requestDetails.find((item) => item.id === itemId) ?? requestDetails[0]
   const queueItem = approvalQueue.find((item) => item.id === detail.id) ?? approvalQueue[0]
@@ -73,7 +75,6 @@ export function ApprovalRequestView({ formatCurrency, itemId, onSelectTab }: App
 
       <PageHeader
         actions={<SlaBadge item={queueItem} />}
-        code='UF-15 · APV-02'
         subtitle={`${queueItem.reference} · ${t(`approvals.kind.${queueItem.kind}`)} · ${t(`approvals.request.branch.${detail.branch}`)}`}
         title={queueItem.software}
       />
@@ -82,7 +83,7 @@ export function ApprovalRequestView({ formatCurrency, itemId, onSelectTab }: App
         <SummaryFact label={t('budget.borneCost')} value={formatCurrency(borneCost)} />
         <SummaryFact
           label={t('approvals.request.summaryCostCenter')}
-          value={`${detail.costCenter} · ${snapshot.period}`}
+          value={`${detail.costCenter} · ${formatPeriod(snapshot.period)}`}
         />
         <SummaryFact
           label={t('budget.remaining')}

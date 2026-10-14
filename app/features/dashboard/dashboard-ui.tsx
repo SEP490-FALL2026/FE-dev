@@ -61,17 +61,20 @@ export function PageHeader({
   title
 }: {
   actions?: React.ReactNode
-  code: string
+  /** Spec reference badge; omitted on screens shown to business users. */
+  code?: string
   subtitle: string
   title: string
 }) {
   return (
     <div className='flex flex-wrap items-start justify-between gap-4'>
       <div className='min-w-0'>
-        <span className='inline-flex rounded-md border border-primary/20 bg-primary-soft px-2 py-0.5 font-mono text-[0.7rem] font-bold text-primary'>
-          {code}
-        </span>
-        <h1 className='mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl'>{title}</h1>
+        {code && (
+          <span className='mb-2 inline-flex rounded-md border border-primary/20 bg-primary-soft px-2 py-0.5 font-mono text-[0.7rem] font-bold text-primary'>
+            {code}
+          </span>
+        )}
+        <h1 className='text-2xl font-bold tracking-tight text-foreground sm:text-3xl'>{title}</h1>
         <p className='mt-1 max-w-3xl text-sm text-muted-foreground'>{subtitle}</p>
       </div>
       {actions}

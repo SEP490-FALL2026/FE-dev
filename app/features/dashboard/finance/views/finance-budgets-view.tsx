@@ -100,11 +100,7 @@ export function FinanceBudgetsView({ formatCurrency }: { formatCurrency: (value:
 
   return (
     <div className='space-y-6'>
-      <PageHeader
-        code='UF-11 · FIN-22 → FIN-06'
-        subtitle={t('finance.budgets.subtitle')}
-        title={t('finance.budgets.title')}
-      />
+      <PageHeader subtitle={t('finance.budgets.subtitle')} title={t('finance.budgets.title')} />
 
       {result && (
         <Notice icon={result.negative ? TriangleAlert : CheckCircle2} tone={result.negative ? 'danger' : 'success'}>

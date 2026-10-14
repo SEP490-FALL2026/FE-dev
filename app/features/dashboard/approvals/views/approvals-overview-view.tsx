@@ -28,7 +28,6 @@ export function ApprovalsOverviewView({ displayName, formatCurrency, onSelectTab
   return (
     <div className='space-y-6'>
       <PageHeader
-        code='UF-15 · FR-5.14'
         subtitle={t('approvals.overview.subtitle')}
         title={t('approvals.overview.title', { name: displayName })}
       />
