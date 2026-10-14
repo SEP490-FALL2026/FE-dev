@@ -12,9 +12,13 @@ import {
   currentBudgetLines,
   currentPeriod,
   financeDataAsOf,
-  heldRemainders
+  heldRemainders,
+  monthlyBudgetLines
 } from '../finance-data'
+import { sumPeriod } from '../budget-periods'
 import type { FinanceTabKey } from '../finance-nav'
+import { BudgetPeriodFilter, useBudgetPeriod } from './budget-period-filter'
+import { BudgetUsageBarChart, SpendShareDonut, type CostCenterPeriodRow } from './finance-overview-charts'
 
 interface FinanceOverviewViewProps {
   formatCurrency: (value: number) => string
@@ -42,6 +46,14 @@ export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOver
 
   const costCenterName = (code: string) => costCenters.find((cc) => cc.code === code)?.name ?? code
 
+  const periodState = useBudgetPeriod()
+  const chartPeriodLabel = periodState.periodLabel(periodState.period)
+  const chartRows: CostCenterPeriodRow[] = currentBudgetLines.map(({ costCenter }) => ({
+    code: costCenter,
+    name: costCenterName(costCenter),
+    ...sumPeriod(monthlyBudgetLines, costCenter, periodState.period.months)
+  }))
+
   return (
     <div className='space-y-6'>
       <PageHeader
@@ -52,7 +64,6 @@ export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOver
 
       <section aria-label={t('finance.overview.workRegion')} className='grid gap-4 sm:grid-cols-2 xl:grid-cols-5'>
         <StatTile
-          action={t('finance.overview.openAction')}
           hint={t('finance.overview.questionsHint')}
           icon={MessageSquareText}
           label={t('finance.overview.openQuestions')}
@@ -61,7 +72,6 @@ export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOver
           value={String(openQuestions.length)}
         />
         <StatTile
-          action={t('finance.overview.openAction')}
           hint={t('finance.overview.recordingHint', { count: overdueRecordings.length })}
           icon={BookCheck}
           label={t('finance.overview.commitmentsToRecord')}
@@ -70,7 +80,6 @@ export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOver
           value={String(commitmentsToRecord.length)}
         />
         <StatTile
-          action={t('finance.overview.openAction')}
           hint={withoutBudget.map((line) => line.costCenter).join(', ')}
           icon={Wallet}
           label={t('finance.overview.withoutBudget')}
@@ -79,7 +88,6 @@ export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOver
           value={String(withoutBudget.length)}
         />
         <StatTile
-          action={t('finance.overview.openAction')}
           hint={t('finance.overview.exceptionsHint')}
           icon={TriangleAlert}
           label={t('finance.overview.openExceptions')}
@@ -88,7 +96,6 @@ export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOver
           value={String(openExceptions.length)}
         />
         <StatTile
-          action={t('finance.overview.openAction')}
           hint={t('finance.overview.closeHint', { count: remaindersToReview.length })}
           icon={ClipboardList}
           label={t('finance.overview.periodClose', { period: closingPeriod })}
@@ -97,6 +104,13 @@ export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOver
           value={t('finance.overview.closeStatus')}
         />
       </section>
+
+      <BudgetPeriodFilter {...periodState} />
+
+      <div className='grid gap-6 xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]'>
+        <BudgetUsageBarChart formatCurrency={formatCurrency} periodLabel={chartPeriodLabel} rows={chartRows} />
+        <SpendShareDonut formatCurrency={formatCurrency} periodLabel={chartPeriodLabel} rows={chartRows} />
+      </div>
 
       <Panel>
         <PanelTitle

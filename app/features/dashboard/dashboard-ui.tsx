@@ -1,4 +1,5 @@
-import type { LucideIcon } from 'lucide-react'
+import { X, type LucideIcon } from 'lucide-react'
+import { useEffect, useId, useRef, type KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 
 export type Tone = 'danger' | 'info' | 'neutral' | 'primary' | 'success' | 'warning'
@@ -40,6 +41,13 @@ export function useDashboardFormat() {
       }).format(new Date(value)),
     formatMonthYear: (value: string) =>
       new Intl.DateTimeFormat(locale, { month: '2-digit', year: 'numeric' }).format(new Date(`${value}T00:00:00`)),
+    formatCompactCurrency: (value: number) =>
+      new Intl.NumberFormat(locale, {
+        currency: 'VND',
+        maximumFractionDigits: 1,
+        notation: 'compact',
+        style: 'currency'
+      }).format(value),
     formatNumber: (value: number) => new Intl.NumberFormat(locale).format(value),
     formatPercent: (value: number) =>
       new Intl.NumberFormat(locale, { maximumFractionDigits: 0, style: 'percent' }).format(value)
@@ -210,6 +218,97 @@ export function FilterChips<T extends string>({
           </button>
         )
       })}
+    </div>
+  )
+}
+
+const focusableSelector =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+
+/** Modal dialog: focus moves inside, Tab stays inside, Escape or the backdrop closes, focus returns on close. */
+export function Dialog({
+  children,
+  hint,
+  onClose,
+  size = 'md',
+  title
+}: {
+  children: React.ReactNode
+  hint?: string
+  onClose: () => void
+  size?: 'lg' | 'md'
+  title: string
+}) {
+  const { t } = useTranslation('dashboard')
+  const titleId = useId()
+  const panelRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    const first = panelRef.current?.querySelector<HTMLElement>(
+      'input:not([disabled]), select:not([disabled]), textarea:not([disabled])'
+    )
+    ;(first ?? panelRef.current)?.focus()
+    return () => previousFocus?.focus()
+  }, [])
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Escape') {
+      event.preventDefault()
+      onClose()
+      return
+    }
+    if (event.key !== 'Tab' || !panelRef.current) return
+
+    const focusable = Array.from(panelRef.current.querySelectorAll<HTMLElement>(focusableSelector))
+    if (focusable.length === 0) return
+    const first = focusable[0]
+    const last = focusable[focusable.length - 1]
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault()
+      last.focus()
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault()
+      first.focus()
+    }
+  }
+
+  return (
+    <div
+      className='fixed inset-0 z-50 flex items-center justify-center bg-foreground/45 p-4 backdrop-blur-[2px]'
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose()
+      }}
+    >
+      <div
+        aria-labelledby={titleId}
+        aria-modal='true'
+        className={`max-h-[calc(100dvh-2rem)] w-full overflow-y-auto rounded-2xl border border-border bg-surface p-6 shadow-2xl outline-none ${
+          size === 'lg' ? 'max-w-3xl' : 'max-w-lg'
+        }`}
+        onKeyDown={handleKeyDown}
+        ref={panelRef}
+        role='dialog'
+        tabIndex={-1}
+      >
+        <div className='flex items-start justify-between gap-3'>
+          <div className='min-w-0'>
+            <h2 className='text-base font-bold text-foreground' id={titleId}>
+              {title}
+            </h2>
+            {hint && <p className='mt-0.5 text-xs text-muted-foreground'>{hint}</p>}
+          </div>
+          <button
+            aria-label={t('ui.close')}
+            className='grid size-8 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-surface-subtle'
+            onClick={onClose}
+            type='button'
+          >
+            <X aria-hidden='true' className='size-4' />
+          </button>
+        </div>
+        <div className='mt-5'>{children}</div>
+      </div>
     </div>
   )
 }

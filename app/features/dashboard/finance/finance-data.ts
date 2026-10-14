@@ -8,8 +8,6 @@ import type { BudgetSnapshot, CostEstimate } from '../budget-figures'
 
 export const financeDataAsOf = '2026-10-12T08:30:00+07:00'
 
-/** One period type for the whole organization, set once by Super Admin (FR-5.1, OI-11b). */
-export const budgetPeriodType = 'QUARTER' as const
 export const currentPeriod = 'Q4-2026'
 export const closingPeriod = 'Q3-2026'
 
@@ -109,6 +107,57 @@ export const currentBudgetLines: BudgetSnapshot[] = [
 export function findBudgetLine(costCenter: string) {
   return currentBudgetLines.find((line) => line.costCenter === costCenter)
 }
+
+// ---------------------------------------------------------------- Budget by month (FIN-06 period views)
+
+/** The month that contains `financeDataAsOf`; later months have no actual spend yet. */
+export const currentMonth = '2026-10'
+export const budgetYear = 2026
+
+/** One Cost Center and month. Quarter and year views add months up; `budget === null` means no Budget. */
+export interface MonthlyBudgetLine {
+  actual: number
+  budget: number | null
+  costCenter: string
+  held: number
+  month: string
+}
+
+const M = 1_000_000
+
+/** Splits a whole-VND amount into `parts` shares that add up exactly; the last share takes the remainder. */
+export function splitEvenly(amount: number, parts: number) {
+  const share = Math.floor(amount / parts)
+  return Array.from({ length: parts }, (_, index) => (index === parts - 1 ? amount - share * (parts - 1) : share))
+}
+
+/** Quarter budgets Q1–Q4 and actual spend Jan–Oct, in million VND (borne cost). */
+const budgetPlan: Record<string, { actual: number[]; quarters: (number | null)[] }> = {
+  'CC-COMPANY': { actual: [13, 14, 14, 15, 15, 16, 13.8, 13.8, 13.9, 22], quarters: [45, 48, 50, 60] },
+  'CC-DES': { actual: [30, 31, 32, 33, 34, 35, 26, 26.3, 26.3, 41], quarters: [100, 105, 110, 120] },
+  'CC-ENG': { actual: [70, 72, 74, 75, 76, 78, 60.2, 61, 61.2, 96], quarters: [230, 235, 240, 250] },
+  'CC-MKT': { actual: [7, 7.5, 8, 8, 9, 9, 7, 7.2, 7.5, 6.2], quarters: [25, 28, 30, null] },
+  'CC-OPS': { actual: [20, 21, 21, 22, 22, 23, 21, 21, 21.1, 48], quarters: [65, 68, 70, 80] },
+  'CC-SAL': { actual: [5, 5, 5, 5.5, 5.5, 6, 4.7, 4.7, 4.8, 0], quarters: [18, 18, 20, null] }
+}
+
+export const monthlyBudgetLines: MonthlyBudgetLine[] = currentBudgetLines.flatMap(({ costCenter, held }) => {
+  const plan = budgetPlan[costCenter]
+
+  return Array.from({ length: 12 }, (_, index) => {
+    const month = `${budgetYear}-${String(index + 1).padStart(2, '0')}`
+    const quarterBudget = plan.quarters[Math.floor(index / 3)]
+    const budget = quarterBudget === null ? null : splitEvenly(Math.round(quarterBudget * M), 3)[index % 3]
+
+    return {
+      actual: Math.round((plan.actual[index] ?? 0) * M),
+      budget,
+      costCenter,
+      held: month === currentMonth ? held : 0,
+      month
+    }
+  })
+})
 
 // ---------------------------------------------------------------- Budget questions (FIN-05)
 

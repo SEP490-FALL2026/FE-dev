@@ -120,6 +120,68 @@ describe('DashboardPage', () => {
     expect(screen.getByRole('button', { name: /Đã trả lời/ })).toHaveTextContent('2')
   })
 
+  it('shows period-filtered charts below the finance overview tiles', () => {
+    renderDashboard('finance')
+
+    const tiles = screen.getByRole('region', { name: 'Việc ngân sách đang mở' })
+    const filter = screen.getByRole('group', { name: 'Xem theo' })
+    expect(tiles.compareDocumentPosition(filter) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(within(tiles).queryByText('Mở →')).not.toBeInTheDocument()
+
+    expect(
+      screen.getByRole('img', { name: 'Ngân sách và mức sử dụng theo Cost Center — Quý 4/2026' })
+    ).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'Cơ cấu thực chi — Quý 4/2026' })).toBeInTheDocument()
+
+    fireEvent.click(within(filter).getByRole('button', { name: 'Tháng' }))
+    fireEvent.change(screen.getByLabelText('Kỳ'), { target: { value: '2026-12' } })
+    expect(screen.getByText('Chưa có thực chi trong kỳ này.')).toBeInTheDocument()
+
+    fireEvent.click(within(filter).getByRole('button', { name: 'Năm' }))
+    expect(screen.getByRole('img', { name: 'Cơ cấu thực chi — Năm 2026' })).toBeInTheDocument()
+  })
+
+  it('lists commitments to record and records one on its own detail screen', () => {
+    renderDashboard('finance', '/?tab=commitments')
+
+    expect(screen.getAllByRole('button', { name: /^Ghi nhận CMT-/ })).toHaveLength(3)
+    fireEvent.click(screen.getByRole('button', { name: 'Ghi nhận CMT-2026-049' }))
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Adobe Creative Cloud · 3 seat' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Hàng đợi ghi nhận' })).not.toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: /^Chưa có ngân sách/ })).toBeChecked()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Ghi nhận' }))
+    expect(screen.getByRole('heading', { name: 'Hàng đợi ghi nhận' })).toBeInTheDocument()
+    expect(screen.getByText(/Đã ghi nhận CMT-2026-049 và thông báo Người duyệt chi/)).toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: /^Ghi nhận CMT-/ })).toHaveLength(2)
+  })
+
+  it('lists charge exceptions first and closes one as a billing error from a pop-up on its detail screen', () => {
+    renderDashboard('finance', '/?tab=charge-exceptions')
+
+    const filters = screen.getByRole('group', { name: 'Lọc ngoại lệ theo trạng thái' })
+    expect(within(filters).getAllByRole('button')[0]).toHaveTextContent('Tất cả')
+    expect(within(filters).getByRole('button', { name: /Tất cả/ })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getAllByRole('button', { name: /^Xem chi tiết CHG-/ })).toHaveLength(5)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Xem chi tiết CHG-1003' }))
+    expect(screen.getByRole('heading', { level: 1, name: 'OpenAI' })).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Nhà cung cấp tính sai' }))
+    const dialog = screen.getByRole('dialog', { name: 'Đóng CHG-1003 là lỗi tính tiền' })
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Đóng là lỗi tính tiền' }))
+    expect(within(dialog).getByRole('alert')).toHaveTextContent('Bắt buộc nhập ghi chú.')
+
+    fireEvent.change(within(dialog).getByLabelText('Ghi chú (bắt buộc)'), { target: { value: 'Trừ trùng hai lần.' } })
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Đóng là lỗi tính tiền' }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.getByText(/Đã đóng là lỗi tính tiền của nhà cung cấp/)).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Quay lại danh sách ngoại lệ' }))
+    expect(screen.getByRole('button', { name: /Lỗi tính tiền/ })).toHaveTextContent('1')
+  })
+
   it('shows a negative remaining with the over-committed label when a budget is smaller than back-filled commitments', () => {
     renderDashboard('finance')
     fireEvent.click(
@@ -134,8 +196,36 @@ describe('DashboardPage', () => {
     })
     expect(screen.getByText(/Còn lại âm: cam kết tạo trước khi có ngân sách vượt hạn mức vừa lập/)).toBeInTheDocument()
 
-    fireEvent.click(screen.getAllByRole('button', { name: 'Lập ngân sách' }).at(-1)!)
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Lập ngân sách' }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(screen.getByText(/đã gắn ngược 2 khoản cam kết/)).toBeInTheDocument()
+  })
+
+  it('switches the budget view between month, quarter and year and adds a Cost Center in a pop-up', () => {
+    renderDashboard('finance', '/?tab=budgets')
+
+    expect(screen.getByRole('heading', { name: 'Ngân sách theo Cost Center — Quý 4/2026' })).toBeInTheDocument()
+    const granularity = screen.getByRole('group', { name: 'Xem theo' })
+
+    fireEvent.click(within(granularity).getByRole('button', { name: 'Tháng' }))
+    expect(screen.getByLabelText('Kỳ')).toHaveValue('2026-10')
+    fireEvent.change(screen.getByLabelText('Kỳ'), { target: { value: '2026-07' } })
+    expect(screen.getByRole('heading', { name: 'Ngân sách theo Cost Center — Tháng 7/2026' })).toBeInTheDocument()
+    expect(screen.getByText('Kỳ đã qua')).toBeInTheDocument()
+
+    fireEvent.click(within(granularity).getByRole('button', { name: 'Năm' }))
+    expect(screen.getByRole('heading', { name: 'Ngân sách theo Cost Center — Năm 2026' })).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Thêm Cost Center' }))
+    const dialog = screen.getByRole('dialog', { name: 'Thêm Cost Center' })
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Lưu' }))
+    expect(within(dialog).getByRole('alert')).toHaveTextContent('Nhập mã và tên Cost Center.')
+
+    fireEvent.change(within(dialog).getByLabelText('Mã Cost Center'), { target: { value: 'cc-legal' } })
+    fireEvent.change(within(dialog).getByLabelText('Tên'), { target: { value: 'Pháp chế' } })
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Lưu' }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.getAllByText('CC-LEGAL')).toHaveLength(2)
   })
 
   it('renders the spending approver dashboard and navigates the UF-15 screens', () => {

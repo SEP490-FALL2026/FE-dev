@@ -927,13 +927,21 @@ export function DashboardPage({ role }: { role: UserRole }) {
                 questionId={searchParams.get('id') || undefined}
               />
             ) : activeFinanceTab === 'commitments' ? (
-              <FinanceCommitmentsView formatCurrency={formatCurrency} />
+              <FinanceCommitmentsView
+                commitmentId={searchParams.get('id') || undefined}
+                formatCurrency={formatCurrency}
+                onSelectTab={handleSelectFinanceTab}
+              />
             ) : activeFinanceTab === 'budgets' ? (
               <FinanceBudgetsView formatCurrency={formatCurrency} />
             ) : activeFinanceTab === 'spend-import' ? (
               <FinanceSpendImportView formatCurrency={formatCurrency} onSelectTab={handleSelectFinanceTab} />
             ) : activeFinanceTab === 'charge-exceptions' ? (
-              <FinanceChargeExceptionsView formatCurrency={formatCurrency} />
+              <FinanceChargeExceptionsView
+                exceptionId={searchParams.get('id') || undefined}
+                formatCurrency={formatCurrency}
+                onSelectTab={handleSelectFinanceTab}
+              />
             ) : activeFinanceTab === 'period-close' ? (
               <FinancePeriodCloseView formatCurrency={formatCurrency} onSelectTab={handleSelectFinanceTab} />
             ) : activeFinanceTab === 'cost-analysis' ? (
