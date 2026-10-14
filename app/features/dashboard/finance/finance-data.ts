@@ -124,7 +124,7 @@ export interface BudgetQuestion {
   question: string
   requestCode: string
   requester: string
-  /** SoD-8: the Finance user is the (substitute) Spending Approver of this request and must not answer. */
+  /** SoD-8: the Finance user is also the Spending Approver of this request and must not answer. */
   responderIsApprover?: boolean
   software: string
   status: 'ANSWERED' | 'CLOSED_CANCELLED' | 'OPEN'
@@ -174,14 +174,13 @@ export const budgetQuestions: BudgetQuestion[] = [
   },
   {
     askedAt: '2026-10-10T10:05:00+07:00',
-    askedBy: 'Nguyễn Minh Khôi (Người duyệt chi thay thế)',
+    askedBy: 'Phạm Hoàng Nam',
     costCenter: 'CC-COMPANY',
     estimate: { deductibleVat: 2_880_000, nonDeductibleTax: 1_440_000, preTax: 28_800_000 },
     id: 'bq-04',
     question: 'Ngân sách Toàn công ty cho gói Notion AI 40 seat?',
     requestCode: 'REQ-2026-097',
-    requester: 'Phạm Hoàng Nam',
-    responderIsApprover: true,
+    requester: 'Nguyễn Minh Khôi',
     software: 'Notion AI Business · 40 seat',
     status: 'OPEN'
   },

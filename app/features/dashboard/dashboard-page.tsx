@@ -921,7 +921,11 @@ export function DashboardPage({ role }: { role: UserRole }) {
             activeFinanceTab === 'overview' ? (
               <FinanceOverviewView formatCurrency={formatCurrency} onSelectTab={handleSelectFinanceTab} />
             ) : activeFinanceTab === 'budget-questions' ? (
-              <FinanceBudgetQuestionsView formatCurrency={formatCurrency} />
+              <FinanceBudgetQuestionsView
+                formatCurrency={formatCurrency}
+                onSelectTab={handleSelectFinanceTab}
+                questionId={searchParams.get('id') || undefined}
+              />
             ) : activeFinanceTab === 'commitments' ? (
               <FinanceCommitmentsView formatCurrency={formatCurrency} />
             ) : activeFinanceTab === 'budgets' ? (

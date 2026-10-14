@@ -54,11 +54,13 @@ describe('DashboardPage', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Bảng điều khiển Tài chính' })).toBeInTheDocument()
     expect(screen.getByTestId('dashboard-role')).toHaveTextContent('Finance')
 
-    const questionsBtn = within(nav).getByRole('button', { name: /Câu hỏi ngân sách/i })
+    const questionsBtn = within(nav).getByRole('button', { name: /Yêu cầu ngân sách/i })
     expect(questionsBtn).not.toHaveClass('bg-primary')
     fireEvent.click(questionsBtn)
     expect(questionsBtn).toHaveClass('bg-primary')
-    expect(screen.getByRole('heading', { level: 1, name: 'Câu hỏi ngân sách từ Người duyệt chi' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Yêu cầu thông tin ngân sách từ Người duyệt chi' })
+    ).toBeInTheDocument()
 
     const commitmentsBtn = within(nav).getByRole('button', { name: /Cam kết chờ ghi nhận/i })
     fireEvent.click(commitmentsBtn)
@@ -72,13 +74,37 @@ describe('DashboardPage', () => {
     view.unmount()
   })
 
+  it('lists budget info requests first, filters them in order, and opens a separate detail screen', () => {
+    renderDashboard('finance', '/?tab=budget-questions')
+
+    const filters = screen.getByRole('group', { name: 'Lọc yêu cầu theo trạng thái' })
+    expect(
+      within(filters)
+        .getAllByRole('button')
+        .map((button) => button.textContent?.replace(/\d+$/, ''))
+    ).toEqual(['Tất cả', 'Đang mở', 'Đã trả lời', 'Đóng — yêu cầu bị hủy'])
+    expect(within(filters).getByRole('button', { name: /Tất cả/ })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getAllByRole('button', { name: /^Xem chi tiết REQ-/ })).toHaveLength(5)
+
+    fireEvent.click(within(filters).getByRole('button', { name: /Đã trả lời/ }))
+    expect(screen.getAllByRole('button', { name: /^Xem chi tiết REQ-/ })).toHaveLength(1)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Xem chi tiết REQ-2026-078' }))
+    expect(screen.getByRole('heading', { level: 1, name: 'Cursor Pro · 10 seat' })).toBeInTheDocument()
+    expect(screen.queryByRole('group', { name: 'Lọc yêu cầu theo trạng thái' })).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Quay lại danh sách' }))
+    expect(screen.getByRole('button', { name: /Đã trả lời/, pressed: true })).toBeInTheDocument()
+  })
+
   it('requires an opinion and a note before Finance answers a budget question', () => {
     renderDashboard('finance')
     fireEvent.click(
       within(screen.getByRole('navigation', { name: 'Điều hướng dashboard' })).getByRole('button', {
-        name: /Câu hỏi ngân sách/i
+        name: /Yêu cầu ngân sách/i
       })
     )
+    fireEvent.click(screen.getByRole('button', { name: 'Xem chi tiết REQ-2026-089' }))
 
     fireEvent.click(screen.getByRole('button', { name: 'Gửi câu trả lời' }))
     expect(screen.getByText('Chọn một ý kiến.')).toBeInTheDocument()
@@ -89,6 +115,9 @@ describe('DashboardPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Gửi câu trả lời' }))
 
     expect(screen.getByText(/Câu trả lời đã hiện trên màn hình quyết định của Người duyệt chi/)).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Quay lại danh sách' }))
+    expect(screen.getByRole('button', { name: /Đã trả lời/ })).toHaveTextContent('2')
   })
 
   it('shows a negative remaining with the over-committed label when a budget is smaller than back-filled commitments', () => {

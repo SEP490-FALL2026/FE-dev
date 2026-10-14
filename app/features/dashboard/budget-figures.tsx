@@ -144,17 +144,19 @@ export function BudgetSnapshotPanel({
 
 export function CostEstimatePanel({
   estimate,
-  formatCurrency
+  formatCurrency,
+  title
 }: {
   estimate: CostEstimate
   formatCurrency: (value: number) => string
+  title?: string
 }) {
   const { t } = useTranslation('dashboard')
 
   return (
     <div className='rounded-xl border border-border bg-background p-4'>
       <div className='flex items-center justify-between gap-2'>
-        <p className='text-xs font-bold text-foreground'>{t('budget.estimateTitle')}</p>
+        <p className='text-xs font-bold text-foreground'>{title ?? t('budget.estimateTitle')}</p>
         <Pill>{t('budget.estimated')}</Pill>
       </div>
       <div className='mt-3 divide-y divide-border'>

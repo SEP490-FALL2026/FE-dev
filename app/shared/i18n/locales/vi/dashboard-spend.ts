@@ -275,7 +275,7 @@ export const spendDashboard = {
   },
   finance: {
     nav: {
-      budgetQuestions: 'Câu hỏi ngân sách',
+      budgetQuestions: 'Yêu cầu ngân sách',
       budgets: 'Cost Center & ngân sách',
       chargeExceptions: 'Ngoại lệ khoản chi',
       commitments: 'Cam kết chờ ghi nhận',
@@ -306,7 +306,7 @@ export const spendDashboard = {
         'Finance không nằm trên đường duyệt chi: trả lời khi được hỏi và ghi nhận sau khi Người duyệt chi duyệt.',
       openAction: 'Mở →',
       openExceptions: 'Ngoại lệ khoản chi',
-      openQuestions: 'Câu hỏi ngân sách đang mở',
+      openQuestions: 'Yêu cầu ngân sách đang mở',
       periodClose: 'Đóng kỳ {{period}}',
       questionsHint: 'Từ Người duyệt chi — tham khảo, không chặn',
       recordingHint: '{{count}} khoản đã tới hạn ghi nhận',
@@ -319,30 +319,43 @@ export const spendDashboard = {
     questions: {
       answeredNotice:
         'Câu trả lời đã hiện trên màn hình quyết định của Người duyệt chi. SLA của bước duyệt chi không dừng.',
-      askedBy: '{{name}} hỏi lúc {{time}}',
-      cancelledNotice: 'Yêu cầu đã bị hủy nên câu hỏi đóng theo.',
-      empty: 'Không có câu hỏi nào.',
-      filterLabel: 'Lọc câu hỏi theo trạng thái',
+      backToList: 'Quay lại danh sách',
+      cancelledNotice: 'Request mua đã bị hủy nên yêu cầu thông tin ngân sách đóng theo.',
+      colRequest: 'Request',
+      colSentBy: 'Người gửi',
+      colStatus: 'Trạng thái',
+      dossierBudget: '1. Ngân sách hiện tại',
+      dossierCost: '2. Tổng chi phí của yêu cầu này',
+      dossierHint: 'Số liệu theo Cost Center và kỳ của yêu cầu; mọi số tiền là chi phí thực chịu.',
+      dossierTitle: 'Hồ sơ kèm theo',
+      empty: 'Không có yêu cầu nào.',
+      filterLabel: 'Lọc yêu cầu theo trạng thái',
+      from: 'Từ {{name}} · Người duyệt chi',
       noteLabel: 'Ghi chú cho Người duyệt chi',
       notePlaceholder: 'Ví dụ: còn khoảng 50 triệu sau khi trừ cam kết đang giữ.',
       noteRequired: 'Bắt buộc nhập ghi chú.',
+      openDetail: 'Xem chi tiết',
+      openDetailFor: 'Xem chi tiết {{code}}',
+      opinionLegend: 'Ý kiến ngân sách',
       opinionRequired: 'Chọn một ý kiến.',
       replyLegend: 'Trả lời',
+      requestKicker: 'Yêu cầu thông tin ngân sách',
       requester: 'người yêu cầu {{name}}',
       ruleNotice:
         'Câu trả lời là ý kiến tham khảo — không phải phê duyệt, không chặn. Người duyệt chi quyết được bất cứ lúc nào, kể cả khi Finance chưa trả lời.',
       slaNote: 'Thời gian Finance phản hồi được đo riêng.',
       sodBlocked:
-        'Bạn là Người duyệt chi (thay thế) của yêu cầu này nên không được trả lời câu hỏi ngân sách của chính nó (SoD-8).',
+        'Bạn là Người duyệt chi của request này nên không được trả lời yêu cầu thông tin ngân sách của chính nó (SoD-8).',
       status: {
         ANSWERED: 'Đã trả lời',
         CLOSED_CANCELLED: 'Đóng — yêu cầu bị hủy',
         OPEN: 'Đang mở'
       },
       submit: 'Gửi câu trả lời',
-      subtitle: 'Người duyệt chi hỏi thông tin ngân sách của Cost Center và kỳ trước khi quyết.',
+      subtitle:
+        'Người duyệt chi gửi yêu cầu kèm hồ sơ ngân sách của Cost Center và kỳ; Finance trả lời để tham khảo trước khi quyết.',
       suggested: 'Gợi ý theo snapshot: {{opinion}}',
-      title: 'Câu hỏi ngân sách từ Người duyệt chi'
+      title: 'Yêu cầu thông tin ngân sách từ Người duyệt chi'
     },
     commitments: {
       approvedBy: 'duyệt bởi {{name}}',
