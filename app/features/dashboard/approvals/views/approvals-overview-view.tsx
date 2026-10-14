@@ -14,7 +14,7 @@ interface ApprovalsOverviewViewProps {
 
 export function ApprovalsOverviewView({ displayName, formatCurrency, onSelectTab }: ApprovalsOverviewViewProps) {
   const { t } = useTranslation('dashboard')
-  const { formatDate } = useDashboardFormat()
+  const { formatDate, formatPeriod } = useDashboardFormat()
 
   const requests = approvalQueue.filter((item) => item.kind === 'SPEND_STEP' || item.kind === 'NEED_STEP')
   const renewals = approvalQueue.filter((item) => item.kind === 'RENEWAL')
@@ -67,7 +67,7 @@ export function ApprovalsOverviewView({ displayName, formatCurrency, onSelectTab
         <StatTile
           hint={t('finance.report.ofBudget', { budget: formatCurrency(approverReport.totalBudget) })}
           icon={CircleDollarSign}
-          label={t('approvals.overview.totalSpend', { period: approverReport.period })}
+          label={t('approvals.overview.totalSpend', { period: formatPeriod(approverReport.period) })}
           onClick={() => onSelectTab('reports')}
           tone='primary'
           value={formatCurrency(approverReport.totalSpend)}

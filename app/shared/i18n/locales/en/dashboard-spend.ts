@@ -446,6 +446,25 @@ export const spendDashboard = {
       title: 'Commitments awaiting recording'
     },
     budgets: {
+      breakdown: 'Actual {{actual}} · Held {{held}}',
+      centerRequired: 'Enter the Cost Center code and name.',
+      currentBudget: 'Current budget: {{budget}}',
+      monthLabel: 'View by month',
+      newCodePlaceholder: 'E.g. CC-HR',
+      ofBudget: 'of {{budget}}',
+      periodInfo: 'Budget period {{quarter}} · figures to date up to {{month}}',
+      readOnly: 'Past period — view only',
+      retireBody:
+        'The Cost Center becomes Retired and takes no new cost; history and earlier reports stay unchanged. Splitting or merging departments creates a replacement Cost Center.',
+      retireTitle: 'Retire {{code}}?',
+      summary: {
+        total: '{{quarter}} total budget',
+        totalHint: '{{count}} Cost Centers have a budget',
+        used: 'Spent and committed'
+      },
+      summaryLabel: 'Budget summary',
+      unbudgetedExposure: '{{amount}} already spent and committed',
+      usedPercent: '{{percent}} used',
       addCenter: 'Add Cost Center',
       amountLabel: 'Budget limit (borne cost, VND)',
       amountPlaceholder: 'E.g. 20000000',

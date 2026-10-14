@@ -50,7 +50,7 @@ function KeyFact({ label, value }: { label: string; value: React.ReactNode }) {
 
 export function FinanceBudgetQuestionsView({ formatCurrency }: { formatCurrency: (value: number) => string }) {
   const { t } = useTranslation('dashboard')
-  const { formatDateTime } = useDashboardFormat()
+  const { formatDateTime, formatPeriod } = useDashboardFormat()
   const [questions, setQuestions] = useState(budgetQuestions)
   const [filter, setFilter] = useState<QuestionFilter>('OPEN')
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -195,7 +195,10 @@ export function FinanceBudgetQuestionsView({ formatCurrency }: { formatCurrency:
 
       <section aria-label={t('finance.questions.summaryLabel')} className='grid gap-3 sm:grid-cols-2 xl:grid-cols-4'>
         <KeyFact label={t('budget.borneCost')} value={formatCurrency(borneCost)} />
-        <KeyFact label={t('finance.questions.factCostCenter')} value={`${selected.costCenter} · ${currentPeriod}`} />
+        <KeyFact
+          label={t('finance.questions.factCostCenter')}
+          value={`${selected.costCenter} · ${formatPeriod(currentPeriod)}`}
+        />
         <KeyFact
           label={t('finance.questions.factRemainingNow')}
           value={<RemainingValue formatCurrency={formatCurrency} remaining={remaining} />}

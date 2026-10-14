@@ -103,7 +103,7 @@ export const approvalQueue: QueueItem[] = [
     reference: 'REQ-2026-089',
     reminders: 0,
     slaDueAt: '2026-10-12T16:00:00+07:00',
-    software: 'Figma Organization · 15 seat',
+    software: 'Figma Organization · 15 giấy phép',
     subtitle: 'Trần Vũ Bảo · Phòng Thiết kế'
   },
   {
@@ -128,7 +128,7 @@ export const approvalQueue: QueueItem[] = [
     reminders: 1,
     slaDueAt: '2026-10-13T09:00:00+07:00',
     software: 'Slack Enterprise Grid',
-    subtitle: 'Salesforce · 120 seat'
+    subtitle: 'Salesforce · 120 giấy phép'
   },
   {
     amount: 45_000_000,
@@ -140,7 +140,7 @@ export const approvalQueue: QueueItem[] = [
     reminders: 0,
     slaDueAt: '2026-10-14T09:00:00+07:00',
     software: 'GitHub Enterprise & Copilot',
-    subtitle: 'GitHub · 50 seat'
+    subtitle: 'GitHub · 50 giấy phép'
   },
   {
     amount: 2_400_000,
@@ -160,7 +160,7 @@ export const approvalQueue: QueueItem[] = [
     id: 'fnd-07',
     kind: 'FINDING',
     receivedAt: '2026-10-11T11:00:00+07:00',
-    reference: 'FND-2026-07 · BM-07',
+    reference: 'FND-2026-07',
     reminders: 0,
     slaDueAt: '2026-10-15T11:00:00+07:00',
     software: 'OpenAI ChatGPT Plus',
@@ -213,7 +213,7 @@ export const requestDetails: RequestDetail[] = [
     estimate: { deductibleVat: 1_350_000, nonDeductibleTax: 675_000, preTax: 13_500_000 },
     financeAnswer: {
       askedAt: '2026-10-12T09:10:00+07:00',
-      question: 'Phòng Thiết kế còn đủ ngân sách Q4 để mua thêm 15 seat Figma không?',
+      question: 'Phòng Thiết kế còn đủ ngân sách quý 4 để mua thêm 15 giấy phép Figma không?',
       topics: ['ENOUGH_BUDGET', 'PENDING_IMPACT'],
       urgency: 'BEFORE_SLA'
     },
@@ -242,7 +242,7 @@ export const requestDetails: RequestDetail[] = [
     },
     id: 'req-101',
     itAssessment: {
-      controlLevel: 'Kiểm soát được — đăng nhập SSO, quản trị tập trung',
+      controlLevel: 'Kiểm soát được — đăng nhập một lần bằng tài khoản công ty, quản trị tập trung',
       risk: 'LOW',
       summary: 'Không trùng chức năng với công cụ trong danh mục; dữ liệu khách hàng tiềm năng mức trung bình.'
     },
@@ -256,7 +256,7 @@ export const requestDetails: RequestDetail[] = [
         key: 'needStep',
         status: 'done'
       },
-      { actor: 'Quang Huy (IT Admin)', at: '2026-10-08T10:00:00+07:00', key: 'itReview', status: 'done' },
+      { actor: 'Quang Huy (Quản trị viên CNTT)', at: '2026-10-08T10:00:00+07:00', key: 'itReview', status: 'done' },
       { actor: 'Phạm Hoàng Nam', key: 'spendStep', status: 'current' }
     ]
   },
@@ -305,14 +305,15 @@ export const renewalDetails: RenewalDetail[] = [
   {
     annualCost: 45_000_000,
     assigned: 44,
-    businessOwnerOpinion: 'Nhóm Backend chỉ cần khoảng 40 seat cho năm tới. (Ý kiến tham khảo, không chặn.)',
+    businessOwnerOpinion:
+      'Nhóm phát triển hệ thống chỉ cần khoảng 40 giấy phép cho năm tới. (Ý kiến tham khảo, không chặn.)',
     cancellationDeadline: '2026-10-20',
     costCenter: 'CC-ENG',
     id: 'ren-github',
     itProposal: {
       action: 'REDUCE',
       quantity: 40,
-      rationale: '6 seat chưa gán, 1 seat của người đã nghỉ việc, 3 seat không hoạt động trên 60 ngày.'
+      rationale: '6 giấy phép chưa cấp, 1 giấy phép của người đã nghỉ việc, 3 giấy phép không hoạt động trên 60 ngày.'
     },
     purchased: 50,
     reclaimCandidates: [
@@ -338,7 +339,7 @@ export const renewalDetails: RenewalDetail[] = [
     itProposal: {
       action: 'RENEW',
       quantity: 120,
-      rationale: 'Tỷ lệ hoạt động cao; 2 seat trống dành cho nhân sự mới tháng 11.'
+      rationale: 'Tỷ lệ hoạt động cao; 2 giấy phép trống dành cho nhân sự mới tháng 11.'
     },
     purchased: 120,
     reclaimCandidates: [
@@ -398,7 +399,8 @@ export const chargeDetails: ChargeDetail[] = [
 export const findingDetails: FindingDetail[] = [
   {
     assessment: {
-      control: 'Kiểm soát một phần — có gói Team với SSO và tắt huấn luyện trên dữ liệu',
+      control:
+        'Kiểm soát một phần — có gói nhóm hỗ trợ đăng nhập bằng tài khoản công ty và tắt huấn luyện trên dữ liệu',
       risk: 'MEDIUM',
       technical: 'Dùng cho thử nghiệm prompt; có thể chuyển sang gói Team quản trị tập trung.'
     },
@@ -420,7 +422,7 @@ export const findingDetails: FindingDetail[] = [
 
 export const approverAlerts = [
   { key: 'financeOver', reference: 'CMT-2026-047 · CC-OPS', tone: 'danger' },
-  { key: 'budgetChanged', reference: 'CC-ENG · Q4-2026', tone: 'warning' },
+  { key: 'budgetChanged', reference: 'CC-ENG · quý 4/2026', tone: 'warning' },
   { key: 'deadlineSoon', reference: 'Slack Enterprise Grid · 15/10/2026', tone: 'warning' },
   { key: 'lateExecution', reference: 'Zoom Business · 30/09/2026', tone: 'info' }
 ] as const

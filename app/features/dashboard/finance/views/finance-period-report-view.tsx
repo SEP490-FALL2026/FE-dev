@@ -35,7 +35,7 @@ const visibility = [
 
 export function FinancePeriodReportView({ formatCurrency }: { formatCurrency: (value: number) => string }) {
   const { t } = useTranslation('dashboard')
-  const { formatDateTime } = useDashboardFormat()
+  const { formatDateTime, formatPeriod } = useDashboardFormat()
   const [mode, setMode] = useState<NarrativeMode>(aiNarrativeAvailable ? 'ai' : 'manual')
   const [narrative, setNarrative] = useState('')
   const [draftGenerated, setDraftGenerated] = useState(false)
@@ -61,7 +61,7 @@ export function FinancePeriodReportView({ formatCurrency }: { formatCurrency: (v
       <PageHeader
         code='UF-19 · FIN-34'
         subtitle={t('finance.report.subtitle')}
-        title={t('finance.report.title', { period: closingPeriod })}
+        title={t('finance.report.title', { period: formatPeriod(closingPeriod) })}
       />
 
       <section aria-label={t('finance.report.figuresLabel')} className='grid gap-4 sm:grid-cols-2 xl:grid-cols-4'>

@@ -6,7 +6,7 @@ import { approverReport } from '../approvals-data'
 
 export function ApproverReportsView({ formatCurrency }: { formatCurrency: (value: number) => string }) {
   const { t } = useTranslation('dashboard')
-  const { formatNumber, formatPercent } = useDashboardFormat()
+  const { formatNumber, formatPercent, formatPeriod } = useDashboardFormat()
   const report = approverReport
   const usage = report.usage
 
@@ -20,7 +20,7 @@ export function ApproverReportsView({ formatCurrency }: { formatCurrency: (value
     <div className='space-y-6'>
       <PageHeader
         code='UF-15 · FR-5.9 → FR-5.11'
-        subtitle={t('approvals.reports.subtitle', { period: report.period })}
+        subtitle={t('approvals.reports.subtitle', { period: formatPeriod(report.period) })}
         title={t('approvals.reports.title')}
       />
 

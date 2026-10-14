@@ -161,7 +161,6 @@ export function ApprovalRenewalView({ formatCurrency, itemId, onSelectTab }: App
             <div className='mt-4 grid grid-cols-4 gap-2 text-center text-xs'>
               {(['g1', 'g2', 'g3', 'g4'] as const).map((group) => (
                 <div className='rounded-xl border border-border p-2' key={group}>
-                  <p className='font-mono font-bold text-muted-foreground'>{group.toUpperCase()}</p>
                   <p className='mt-1 text-base font-extrabold'>{detail.waste[group]}</p>
                   <p className='text-[0.65rem] text-muted-foreground'>{t(`approvals.renewal.waste.${group}`)}</p>
                 </div>

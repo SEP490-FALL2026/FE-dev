@@ -137,10 +137,10 @@ export const budgetQuestions: BudgetQuestion[] = [
     costCenter: 'CC-DES',
     estimate: { deductibleVat: 1_350_000, nonDeductibleTax: 675_000, preTax: 13_500_000 },
     id: 'bq-01',
-    question: 'Phòng Thiết kế còn đủ ngân sách Q4 để mua thêm 15 seat Figma không?',
+    question: 'Phòng Thiết kế còn đủ ngân sách quý 4 để mua thêm 15 giấy phép Figma không?',
     requestCode: 'REQ-2026-089',
     requester: 'Trần Vũ Bảo',
-    software: 'Figma Organization · 15 seat',
+    software: 'Figma Organization · 15 giấy phép',
     status: 'OPEN'
   },
   {
@@ -161,7 +161,7 @@ export const budgetQuestions: BudgetQuestion[] = [
     costCenter: 'CC-ENG',
     estimate: { deductibleVat: 820_000, nonDeductibleTax: 410_000, preTax: 8_200_000 },
     id: 'bq-03',
-    question: 'Kiểm tra giúp ngân sách Kỹ thuật cho 10 seat Cursor Pro.',
+    question: 'Kiểm tra giúp ngân sách Kỹ thuật cho 10 giấy phép Cursor Pro.',
     requestCode: 'REQ-2026-078',
     requester: 'Lê Hoàng Anh',
     answer: {
@@ -169,7 +169,7 @@ export const budgetQuestions: BudgetQuestion[] = [
       note: 'Còn khoảng 115 triệu sau khi trừ cam kết đang giữ. Ý kiến tham khảo, không chặn.',
       opinion: 'WITHIN'
     },
-    software: 'Cursor Pro · 10 seat',
+    software: 'Cursor Pro · 10 giấy phép',
     status: 'ANSWERED'
   },
   {
@@ -178,11 +178,11 @@ export const budgetQuestions: BudgetQuestion[] = [
     costCenter: 'CC-COMPANY',
     estimate: { deductibleVat: 2_880_000, nonDeductibleTax: 1_440_000, preTax: 28_800_000 },
     id: 'bq-04',
-    question: 'Ngân sách Toàn công ty cho gói Notion AI 40 seat?',
+    question: 'Ngân sách Toàn công ty cho gói Notion AI 40 giấy phép?',
     requestCode: 'REQ-2026-097',
     requester: 'Phạm Hoàng Nam',
     responderIsApprover: true,
-    software: 'Notion AI Business · 40 seat',
+    software: 'Notion AI Business · 40 giấy phép',
     status: 'OPEN'
   },
   {
@@ -225,7 +225,7 @@ export const commitmentsToRecord: CommitmentToRecord[] = [
     id: 'cmt-51',
     recordingDueAt: '2026-10-14T15:00:00+07:00',
     requestCode: 'REQ-2026-078',
-    software: 'Cursor Pro · 10 seat'
+    software: 'Cursor Pro · 10 giấy phép'
   },
   {
     approvedAt: '2026-10-08T10:20:00+07:00',
@@ -237,7 +237,7 @@ export const commitmentsToRecord: CommitmentToRecord[] = [
     id: 'cmt-49',
     recordingDueAt: '2026-10-12T10:20:00+07:00',
     requestCode: 'REQ-2026-090',
-    software: 'Adobe Creative Cloud · 3 seat'
+    software: 'Adobe Creative Cloud · 3 giấy phép'
   },
   {
     approvedAt: '2026-10-09T09:45:00+07:00',
@@ -317,7 +317,7 @@ export const chargeExceptions: ChargeException[] = [
     date: '2026-10-03',
     evidence: ['sao-ke-vcb-10-2026-dong-4.pdf'],
     id: 'chg-1003',
-    itNote: 'IT đang xác minh người dùng thẻ 8812 (Phòng Kỹ thuật).',
+    itNote: 'Bộ phận CNTT đang xác minh người dùng thẻ 8812 (Phòng Kỹ thuật).',
     reason: 'NO_BASIS',
     status: 'CHECKING',
     vendor: 'OpenAI'
@@ -399,7 +399,7 @@ export const heldRemainders: HeldRemainder[] = [
     lastInvoiceAt: '2026-09-20',
     moreInvoicesExpected: false,
     requestCode: 'REQ-2026-041',
-    software: 'Jira Service Management · 20 agent'
+    software: 'Jira Service Management · 20 tài khoản hỗ trợ'
   },
   {
     code: 'CMT-2026-036',
@@ -410,7 +410,7 @@ export const heldRemainders: HeldRemainder[] = [
     lastInvoiceAt: '2026-09-02',
     moreInvoicesExpected: true,
     requestCode: 'REQ-2026-052',
-    software: 'Figma Organization · 10 seat'
+    software: 'Figma Organization · 10 giấy phép'
   },
   {
     code: 'CMT-2026-039',
@@ -435,7 +435,12 @@ export interface InternalCost {
 
 export const internalCosts: InternalCost[] = [
   { amount: 12_000_000, costCenter: 'CC-COMPANY', description: 'Hệ thống chấm công nội bộ — máy chủ Q3', id: 'int-1' },
-  { amount: 7_500_000, costCenter: 'CC-ENG', description: 'CI runner nội bộ — phần Phòng Kỹ thuật', id: 'int-2' }
+  {
+    amount: 7_500_000,
+    costCenter: 'CC-ENG',
+    description: 'Máy chạy kiểm thử tự động nội bộ — phần Phòng Kỹ thuật',
+    id: 'int-2'
+  }
 ]
 
 // ---------------------------------------------------------------- Allocation and budget vs actual (FIN-32/33)
@@ -570,15 +575,15 @@ export const periodSavings = { immediate: 18_400_000, nextRenewal: 41_200_000, r
 export const aiNarrativeAvailable = true
 
 export const aiDraftNarrative =
-  'Chi phí phần mềm Q3-2026 theo kỳ là 408,1 triệu đồng [1], thấp hơn tổng ngân sách 520 triệu đồng [2]. ' +
+  'Chi phí phần mềm quý 3/2026 theo kỳ là 408,1 triệu đồng [1], thấp hơn tổng ngân sách 520 triệu đồng [2]. ' +
   'Phòng Vận hành dùng 93,6% ngân sách, cao nhất công ty [3]. ' +
-  'Dòng Chưa phân bổ Cost Center còn 6,62 triệu đồng với 3 ngoại lệ đang chờ Người duyệt chi [4]. ' +
+  'Dòng Chưa phân bổ còn 6,62 triệu đồng với 3 ngoại lệ đang chờ Người duyệt chi [4]. ' +
   'Tiết kiệm thực hiện ngay 18,4 triệu đồng; tiết kiệm tại kỳ gia hạn kế tiếp 41,2 triệu đồng — hai con số tách riêng [5].'
 
 export const aiDraftSources = [
-  '[1] Budget vs Actual · cơ sở theo kỳ · tổng',
-  '[2] Ngân sách Q3-2026 · 6 Cost Center',
-  '[3] CC-OPS · thực chi theo kỳ ÷ ngân sách',
+  '[1] Ngân sách so với thực chi · cơ sở theo kỳ · tổng',
+  '[2] Ngân sách quý 3/2026 · 6 trung tâm chi phí',
+  '[3] CC-OPS · thực chi theo kỳ chia ngân sách',
   '[4] Phân bổ · dòng Chưa phân bổ',
-  '[5] Báo cáo tiết kiệm · FR-5.9'
+  '[5] Báo cáo tiết kiệm'
 ]

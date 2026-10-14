@@ -72,7 +72,7 @@ interface ApprovalRequestViewProps {
 
 export function ApprovalRequestView({ formatCurrency, itemId, onSelectTab }: ApprovalRequestViewProps) {
   const { t } = useTranslation('dashboard')
-  const { formatDateTime } = useDashboardFormat()
+  const { formatDateTime, formatPeriod } = useDashboardFormat()
   const detail = requestDetails.find((item) => item.id === itemId) ?? requestDetails[0]
   const queueItem = approvalQueue.find((item) => item.id === detail.id) ?? approvalQueue[0]
   const snapshot = approverSnapshots[detail.costCenter]
@@ -141,7 +141,10 @@ export function ApprovalRequestView({ formatCurrency, itemId, onSelectTab }: App
 
       <section aria-label={t('approvals.request.summaryLabel')} className='grid gap-3 sm:grid-cols-2 xl:grid-cols-4'>
         <KeyFact label={t('approvals.request.fact.cost')} value={formatCurrency(borneCost)} />
-        <KeyFact label={t('approvals.request.fact.costCenter')} value={`${detail.costCenter} · ${snapshot.period}`} />
+        <KeyFact
+          label={t('approvals.request.fact.costCenter')}
+          value={`${detail.costCenter} · ${formatPeriod(snapshot.period)}`}
+        />
         <KeyFact
           label={t('approvals.request.fact.remainingAfter')}
           value={<RemainingValue formatCurrency={formatCurrency} remaining={remainingAfter} />}

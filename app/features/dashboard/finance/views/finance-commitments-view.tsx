@@ -33,7 +33,7 @@ const opinionTones: Record<BudgetOpinion, Tone> = { NO_BUDGET: 'warning', OVER: 
 
 export function FinanceCommitmentsView({ formatCurrency }: { formatCurrency: (value: number) => string }) {
   const { t } = useTranslation('dashboard')
-  const { formatDateTime } = useDashboardFormat()
+  const { formatDateTime, formatPeriod } = useDashboardFormat()
   const [queue, setQueue] = useState(commitmentsToRecord)
   const [recorded, setRecorded] = useState<RecordedCommitment[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(commitmentsToRecord[0]?.id ?? null)
@@ -138,7 +138,7 @@ export function FinanceCommitmentsView({ formatCurrency }: { formatCurrency: (va
                       </p>
                     </td>
                     <td className='py-3 font-mono'>
-                      {item.costCenter} · {currentPeriod}
+                      {item.costCenter} · {formatPeriod(currentPeriod)}
                     </td>
                     <td className='py-3 text-right font-bold'>{formatCurrency(getBorneCost(item.estimate))}</td>
                     <td className='py-3'>

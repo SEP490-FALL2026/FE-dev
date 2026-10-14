@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { getRemaining } from '../../budget-figures'
-import { FilterChips, Panel, PanelTitle, inputClassName, useDashboardFormat } from '../../dashboard-ui'
+import { FilterChips, Panel, PanelTitle, compactSelectClassName, useDashboardFormat } from '../../dashboard-ui'
 import {
   ChartLegend,
   DonutChart,
@@ -27,7 +27,7 @@ const costCenterColors: Record<string, string> = {
 
 export function FinanceOverviewCharts({ formatCurrency }: { formatCurrency: (value: number) => string }) {
   const { t } = useTranslation('dashboard')
-  const { formatCompact, formatMonthYear, formatPercent } = useDashboardFormat()
+  const { formatCompact, formatMonthYear, formatPercent, formatPeriod } = useDashboardFormat()
   const [granularity, setGranularity] = useState<Granularity>('quarter')
   const [period, setPeriod] = useState(defaultPeriod.quarter)
 
@@ -36,7 +36,7 @@ export function FinanceOverviewCharts({ formatCurrency }: { formatCurrency: (val
       ? formatMonthYear(`${value}-01`)
       : granularity === 'year'
         ? t('finance.charts.filter.yearValue', { year: value })
-        : value
+        : formatPeriod(value)
   const label = periodLabel(period)
 
   const changeGranularity = (value: Granularity) => {
@@ -106,7 +106,7 @@ export function FinanceOverviewCharts({ formatCurrency }: { formatCurrency: (val
         />
         <select
           aria-label={t('finance.charts.filter.periodLabel')}
-          className={`${inputClassName} w-auto py-1.5 text-xs`}
+          className={compactSelectClassName}
           onChange={(event) => setPeriod(event.target.value)}
           value={period}
         >

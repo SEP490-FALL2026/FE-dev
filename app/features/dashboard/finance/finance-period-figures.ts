@@ -181,3 +181,26 @@ export function getPeriodFigures(granularity: Granularity, period: string): Peri
 
   return { lines, structure }
 }
+
+export const currentQuarter = `Q4-${periodYear}`
+
+/**
+ * Budget position for a month: the budget of the quarter that contains it (the organization budgets
+ * per quarter) with actuals accumulated from the start of that quarter up to the month.
+ */
+export function getQuarterToDateFigures(month: string) {
+  const monthIndex = Number(month.slice(5)) - 1
+  const quarter = quarters[Math.floor(monthIndex / 3)]
+  const position = monthIndex % 3
+  const share = monthWeights[quarter].slice(0, position + 1).reduce((sum, weight) => sum + weight, 0)
+
+  return {
+    lines: costCenterCodes.map((code) => ({
+      actual: Math.round(quarterActuals[quarter][code] * share),
+      budget: quarterBudgets[quarter][code],
+      costCenter: code,
+      held: quarterHeld[quarter][code] ?? 0
+    })),
+    quarter: `${quarter}-${periodYear}`
+  }
+}

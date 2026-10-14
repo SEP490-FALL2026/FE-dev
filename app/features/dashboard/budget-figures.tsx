@@ -73,7 +73,7 @@ export function BudgetSnapshotPanel({
   title?: string
 }) {
   const { t } = useTranslation('dashboard')
-  const { formatDateTime } = useDashboardFormat()
+  const { formatDateTime, formatPeriod } = useDashboardFormat()
   const remaining = getRemaining(snapshot)
   const usedRatio =
     snapshot.budget && snapshot.budget > 0 ? Math.min(1, (snapshot.actual + snapshot.held) / snapshot.budget) : 0
@@ -83,7 +83,7 @@ export function BudgetSnapshotPanel({
       <div className='flex flex-wrap items-center justify-between gap-2'>
         <p className='text-xs font-bold text-foreground'>{title ?? t('budget.snapshotTitle')}</p>
         <span className='font-mono text-[0.7rem] font-semibold text-muted-foreground'>
-          {snapshot.costCenter} · {snapshot.period}
+          {snapshot.costCenter} · {formatPeriod(snapshot.period)}
         </span>
       </div>
 
