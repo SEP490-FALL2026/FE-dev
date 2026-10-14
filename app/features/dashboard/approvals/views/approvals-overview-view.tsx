@@ -14,7 +14,7 @@ interface ApprovalsOverviewViewProps {
 
 export function ApprovalsOverviewView({ displayName, formatCurrency, onSelectTab }: ApprovalsOverviewViewProps) {
   const { t } = useTranslation('dashboard')
-  const { formatDate } = useDashboardFormat()
+  const { formatDate, formatPeriod } = useDashboardFormat()
 
   const requests = approvalQueue.filter((item) => item.kind === 'SPEND_STEP' || item.kind === 'NEED_STEP')
   const renewals = approvalQueue.filter((item) => item.kind === 'RENEWAL')
@@ -35,7 +35,6 @@ export function ApprovalsOverviewView({ displayName, formatCurrency, onSelectTab
 
       <section aria-label={t('approvals.overview.workRegion')} className='grid gap-4 sm:grid-cols-2 xl:grid-cols-3'>
         <StatTile
-          action={t('approvals.overview.openQueue')}
           hint={t('approvals.overview.overdueHint', { count: overdue.length })}
           icon={Wallet}
           label={t('approvals.overview.requests')}
@@ -44,7 +43,6 @@ export function ApprovalsOverviewView({ displayName, formatCurrency, onSelectTab
           value={String(requests.length)}
         />
         <StatTile
-          action={t('approvals.overview.openQueue')}
           hint={t('approvals.overview.nearestDeadline', {
             name: approvalQueue.find((item) => item.id === nearestDeadline.id)?.software ?? nearestDeadline.vendor,
             date: formatDate(nearestDeadline.cancellationDeadline)
@@ -56,7 +54,6 @@ export function ApprovalsOverviewView({ displayName, formatCurrency, onSelectTab
           value={String(renewals.length)}
         />
         <StatTile
-          action={t('approvals.overview.openQueue')}
           hint={t('approvals.overview.chargesHint')}
           icon={FileWarning}
           label={t('approvals.overview.charges')}
@@ -70,7 +67,7 @@ export function ApprovalsOverviewView({ displayName, formatCurrency, onSelectTab
         <StatTile
           hint={t('finance.report.ofBudget', { budget: formatCurrency(approverReport.totalBudget) })}
           icon={CircleDollarSign}
-          label={t('approvals.overview.totalSpend', { period: approverReport.period })}
+          label={t('approvals.overview.totalSpend', { period: formatPeriod(approverReport.period) })}
           onClick={() => onSelectTab('reports')}
           tone='primary'
           value={formatCurrency(approverReport.totalSpend)}

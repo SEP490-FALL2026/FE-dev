@@ -39,7 +39,7 @@ const allocationTotal = (line: AllocationLine) =>
 
 export function FinanceCostAnalysisView({ formatCurrency, onSelectTab }: FinanceCostAnalysisViewProps) {
   const { t } = useTranslation('dashboard')
-  const { formatDate, formatMonthYear } = useDashboardFormat()
+  const { formatDate, formatMonthYear, formatPeriod } = useDashboardFormat()
   const [basis, setBasis] = useState<Basis>('period')
   const [assumptions, setAssumptions] = useState(scenarioDefaults)
 
@@ -73,8 +73,8 @@ export function FinanceCostAnalysisView({ formatCurrency, onSelectTab }: Finance
           </button>
         }
         code='UF-19 · FIN-32 → FIN-33'
-        subtitle={t('finance.analysis.subtitle', { period: closingPeriod })}
-        title={t('finance.analysis.title', { period: closingPeriod })}
+        subtitle={t('finance.analysis.subtitle', { period: formatPeriod(closingPeriod) })}
+        title={t('finance.analysis.title', { period: formatPeriod(closingPeriod) })}
       />
 
       <Panel>
@@ -198,7 +198,7 @@ export function FinanceCostAnalysisView({ formatCurrency, onSelectTab }: Finance
               <tr className='text-muted-foreground'>
                 <td className='py-3' colSpan={2}>
                   <Pill tone='info'>
-                    {t('finance.analysis.priorAdjustment', { period: priorPeriodAdjustment.period })}
+                    {t('finance.analysis.priorAdjustment', { period: formatPeriod(priorPeriodAdjustment.period) })}
                   </Pill>
                 </td>
                 <td className='py-3 text-right'>{formatCurrency(priorPeriodAdjustment.amount)}</td>

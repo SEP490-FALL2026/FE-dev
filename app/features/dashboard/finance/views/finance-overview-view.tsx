@@ -15,6 +15,7 @@ import {
   heldRemainders
 } from '../finance-data'
 import type { FinanceTabKey } from '../finance-nav'
+import { FinanceOverviewCharts } from './finance-overview-charts'
 
 interface FinanceOverviewViewProps {
   formatCurrency: (value: number) => string
@@ -23,7 +24,7 @@ interface FinanceOverviewViewProps {
 
 export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOverviewViewProps) {
   const { t } = useTranslation('dashboard')
-  const { formatDateTime } = useDashboardFormat()
+  const { formatDateTime, formatPeriod } = useDashboardFormat()
 
   const openQuestions = budgetQuestions.filter((question) => question.status === 'OPEN')
   const overdueRecordings = commitmentsToRecord.filter((item) => item.recordingDueAt <= financeDataAsOf)
@@ -46,13 +47,12 @@ export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOver
     <div className='space-y-6'>
       <PageHeader
         code='UF-11 · FIN-01'
-        subtitle={t('finance.overview.subtitle', { period: currentPeriod })}
+        subtitle={t('finance.overview.subtitle', { period: formatPeriod(currentPeriod) })}
         title={t('finance.overview.title')}
       />
 
       <section aria-label={t('finance.overview.workRegion')} className='grid gap-4 sm:grid-cols-2 xl:grid-cols-5'>
         <StatTile
-          action={t('finance.overview.openAction')}
           hint={t('finance.overview.questionsHint')}
           icon={MessageSquareText}
           label={t('finance.overview.openQuestions')}
@@ -61,7 +61,6 @@ export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOver
           value={String(openQuestions.length)}
         />
         <StatTile
-          action={t('finance.overview.openAction')}
           hint={t('finance.overview.recordingHint', { count: overdueRecordings.length })}
           icon={BookCheck}
           label={t('finance.overview.commitmentsToRecord')}
@@ -70,7 +69,6 @@ export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOver
           value={String(commitmentsToRecord.length)}
         />
         <StatTile
-          action={t('finance.overview.openAction')}
           hint={withoutBudget.map((line) => line.costCenter).join(', ')}
           icon={Wallet}
           label={t('finance.overview.withoutBudget')}
@@ -79,7 +77,6 @@ export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOver
           value={String(withoutBudget.length)}
         />
         <StatTile
-          action={t('finance.overview.openAction')}
           hint={t('finance.overview.exceptionsHint')}
           icon={TriangleAlert}
           label={t('finance.overview.openExceptions')}
@@ -88,15 +85,16 @@ export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOver
           value={String(openExceptions.length)}
         />
         <StatTile
-          action={t('finance.overview.openAction')}
           hint={t('finance.overview.closeHint', { count: remaindersToReview.length })}
           icon={ClipboardList}
-          label={t('finance.overview.periodClose', { period: closingPeriod })}
+          label={t('finance.overview.periodClose', { period: formatPeriod(closingPeriod) })}
           onClick={() => onSelectTab('period-close')}
           tone='neutral'
           value={t('finance.overview.closeStatus')}
         />
       </section>
+
+      <FinanceOverviewCharts formatCurrency={formatCurrency} />
 
       <Panel>
         <PanelTitle
@@ -107,7 +105,7 @@ export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOver
             </span>
           }
           hint={t('finance.overview.budgetTableHint')}
-          title={t('finance.overview.budgetTableTitle', { period: currentPeriod })}
+          title={t('finance.overview.budgetTableTitle', { period: formatPeriod(currentPeriod) })}
         />
 
         <div className='mt-4 overflow-x-auto'>

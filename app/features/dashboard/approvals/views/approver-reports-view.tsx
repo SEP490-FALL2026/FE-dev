@@ -1,14 +1,27 @@
-import { Gauge, Sparkles, Timer } from 'lucide-react'
+import { CalendarRange, Gauge, Sparkles, Timer } from 'lucide-react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { PageHeader, Panel, PanelTitle, StatTile, useDashboardFormat } from '../../dashboard-ui'
+import {
+  FilterChips,
+  PageHeader,
+  Panel,
+  PanelTitle,
+  StatTile,
+  compactSelectClassName,
+  useDashboardFormat
+} from '../../dashboard-ui'
+import { defaultPeriod, getPeriodFigures, periodOptions, type Granularity } from '../../finance/finance-period-figures'
 import { approverReport } from '../approvals-data'
+import { ApproverSpendChart } from './approver-spend-chart'
 
 export function ApproverReportsView({ formatCurrency }: { formatCurrency: (value: number) => string }) {
   const { t } = useTranslation('dashboard')
-  const { formatNumber, formatPercent } = useDashboardFormat()
+  const { formatMonthYear, formatNumber, formatPercent, formatPeriod } = useDashboardFormat()
   const report = approverReport
   const usage = report.usage
+  const [granularity, setGranularity] = useState<Granularity>('quarter')
+  const [period, setPeriod] = useState(report.period)
 
   const usageIndicators = [
     { key: 'kpi3', value: usage.active / usage.purchased },
@@ -16,49 +29,44 @@ export function ApproverReportsView({ formatCurrency }: { formatCurrency: (value
     { key: 'activeInEvaluated', value: usage.active / usage.evaluated }
   ] as const
 
+  const periodLabel = (value: string) =>
+    granularity === 'month'
+      ? formatMonthYear(`${value}-01`)
+      : granularity === 'year'
+        ? t('finance.charts.filter.yearValue', { year: value })
+        : formatPeriod(value)
+
+  const changeGranularity = (value: Granularity) => {
+    setGranularity(value)
+    setPeriod(value === 'quarter' ? report.period : defaultPeriod[value])
+  }
+
+  const { lines } = getPeriodFigures(granularity, period)
+  const costCenters = lines.flatMap((line) =>
+    line.costCenter !== null && line.budget !== null
+      ? [{ budget: line.budget, code: line.costCenter, spend: line.actual }]
+      : []
+  )
+  const unallocated = lines.find((line) => line.costCenter === null)?.actual ?? 0
+
+  const spendTitle = t('approvals.reports.spendTitle', {
+    budget: formatCurrency(costCenters.reduce((sum, cc) => sum + cc.budget, 0)),
+    spend: formatCurrency(lines.reduce((sum, line) => sum + line.actual, 0))
+  })
+  const spendLegend = [
+    { color: 'var(--theme-primary)', key: 'actual', label: t('budget.actual') },
+    { color: 'var(--theme-warning)', key: 'nearLimit', label: t('approvals.reports.spendChart.nearLimit') },
+    { color: 'var(--chart-track)', key: 'remaining', label: t('budget.remaining') },
+    { color: 'var(--chart-neutral)', key: 'unallocated', label: t('finance.analysis.unallocated') }
+  ]
+
   return (
     <div className='space-y-6'>
       <PageHeader
         code='UF-15 · FR-5.9 → FR-5.11'
-        subtitle={t('approvals.reports.subtitle', { period: report.period })}
+        subtitle={t('approvals.reports.subtitle', { period: formatPeriod(report.period) })}
         title={t('approvals.reports.title')}
       />
-
-      <Panel>
-        <PanelTitle
-          hint={t('approvals.reports.spendHint')}
-          title={t('approvals.reports.spendTitle', {
-            budget: formatCurrency(report.totalBudget),
-            spend: formatCurrency(report.totalSpend)
-          })}
-        />
-        <ul className='mt-4 space-y-3'>
-          {report.costCenters.map((cc) => {
-            const ratio = cc.spend / cc.budget
-
-            return (
-              <li key={cc.code}>
-                <div className='flex justify-between gap-2 text-xs'>
-                  <span className='font-mono font-bold'>{cc.code}</span>
-                  <span className='text-muted-foreground'>
-                    {formatCurrency(cc.spend)} / {formatCurrency(cc.budget)} · {formatPercent(ratio)}
-                  </span>
-                </div>
-                <div className='mt-1 h-2 overflow-hidden rounded-full bg-surface-subtle'>
-                  <div
-                    className={`h-full rounded-full ${ratio > 0.9 ? 'bg-warning' : 'bg-primary'}`}
-                    style={{ width: `${Math.min(1, ratio) * 100}%` }}
-                  />
-                </div>
-              </li>
-            )
-          })}
-          <li className='flex justify-between gap-2 border-t border-dashed border-warning/50 pt-3 text-xs'>
-            <span className='font-bold text-warning'>{t('finance.analysis.unallocated')}</span>
-            <span className='font-bold text-warning'>{formatCurrency(report.unallocated)}</span>
-          </li>
-        </ul>
-      </Panel>
 
       <section aria-label={t('approvals.reports.savingsLabel')} className='grid gap-4 sm:grid-cols-3'>
         <StatTile
@@ -82,6 +90,58 @@ export function ApproverReportsView({ formatCurrency }: { formatCurrency: (value
           value={formatNumber(report.savings.reclaimedSeats)}
         />
       </section>
+
+      <div className='flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-surface px-4 py-3 shadow-sm'>
+        <span className='flex items-center gap-1.5 text-xs font-bold text-foreground'>
+          <CalendarRange aria-hidden='true' className='size-4 text-primary' />
+          {t('finance.charts.filter.title')}
+        </span>
+        <FilterChips<Granularity>
+          label={t('finance.charts.filter.granularityLabel')}
+          onChange={changeGranularity}
+          options={[
+            { label: t('finance.charts.filter.month'), value: 'month' },
+            { label: t('finance.charts.filter.quarter'), value: 'quarter' },
+            { label: t('finance.charts.filter.year'), value: 'year' }
+          ]}
+          value={granularity}
+        />
+        <select
+          aria-label={t('finance.charts.filter.periodLabel')}
+          className={compactSelectClassName}
+          onChange={(event) => setPeriod(event.target.value)}
+          value={period}
+        >
+          {periodOptions[granularity].map((option) => (
+            <option key={option} value={option}>
+              {periodLabel(option)}
+            </option>
+          ))}
+        </select>
+        {granularity !== 'quarter' && (
+          <span className='text-[0.7rem] text-muted-foreground'>{t(`finance.charts.filter.note.${granularity}`)}</span>
+        )}
+      </div>
+
+      <Panel>
+        <PanelTitle hint={t('approvals.reports.spendHint')} title={spendTitle} />
+        <ul className='mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-muted-foreground'>
+          {spendLegend.map((item) => (
+            <li className='flex items-center gap-1.5' key={item.key}>
+              <span className='size-2.5 rounded-sm' style={{ backgroundColor: item.color }} />
+              {item.label}
+            </li>
+          ))}
+        </ul>
+        <div className='mt-4'>
+          <ApproverSpendChart
+            costCenters={costCenters}
+            formatCurrency={formatCurrency}
+            label={spendTitle}
+            unallocated={unallocated}
+          />
+        </div>
+      </Panel>
 
       <div className='grid gap-6 lg:grid-cols-2'>
         <Panel>

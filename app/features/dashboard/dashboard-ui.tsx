@@ -1,4 +1,6 @@
-import type { LucideIcon } from 'lucide-react'
+import { X, type LucideIcon } from 'lucide-react'
+import { useEffect, useId, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 
 export type Tone = 'danger' | 'info' | 'neutral' | 'primary' | 'success' | 'warning'
@@ -21,11 +23,35 @@ const iconToneClasses: Record<Tone, string> = {
   warning: 'bg-warning/15 text-warning'
 }
 
+/** Vietnamese compact amounts read as words ("96 triệu", "1,2 tỷ") instead of Intl's "Tr"/"T" abbreviations. */
+function formatCompactVi(value: number) {
+  const abs = Math.abs(value)
+  const number = (amount: number) => new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 1 }).format(amount)
+  if (abs >= 1_000_000_000) return `${number(value / 1_000_000_000)} tỷ`
+  if (abs >= 1_000_000) return `${number(value / 1_000_000)} triệu`
+  if (abs >= 1_000) return `${number(value / 1_000)} nghìn`
+  return number(value)
+}
+
 export function useDashboardFormat() {
   const { i18n } = useTranslation()
-  const locale = i18n.resolvedLanguage === 'en' ? 'en-US' : 'vi-VN'
+  const isVi = i18n.resolvedLanguage !== 'en'
+  const locale = isVi ? 'vi-VN' : 'en-US'
 
   return {
+    formatCompact: (value: number) =>
+      isVi
+        ? formatCompactVi(value)
+        : new Intl.NumberFormat(locale, { maximumFractionDigits: 1, notation: 'compact' }).format(value),
+    formatCompactCurrency: (value: number) =>
+      isVi
+        ? `${formatCompactVi(value)} ₫`
+        : new Intl.NumberFormat(locale, {
+            currency: 'VND',
+            maximumFractionDigits: 1,
+            notation: 'compact',
+            style: 'currency'
+          }).format(value),
     formatDate: (value: string) =>
       new Intl.DateTimeFormat(locale, { day: '2-digit', month: '2-digit', year: 'numeric' }).format(
         new Date(value.length === 10 ? `${value}T00:00:00` : value)
@@ -41,6 +67,12 @@ export function useDashboardFormat() {
     formatMonthYear: (value: string) =>
       new Intl.DateTimeFormat(locale, { month: '2-digit', year: 'numeric' }).format(new Date(`${value}T00:00:00`)),
     formatNumber: (value: number) => new Intl.NumberFormat(locale).format(value),
+    /** Budget period codes such as "Q4-2026" read as "Quý 4/2026" (vi) or "Q4 2026" (en). */
+    formatPeriod: (code: string) => {
+      const match = /^Q(\d)-(\d{4})$/.exec(code)
+      if (!match) return code
+      return isVi ? `Quý ${match[1]}/${match[2]}` : `Q${match[1]} ${match[2]}`
+    },
     formatPercent: (value: number) =>
       new Intl.NumberFormat(locale, { maximumFractionDigits: 0, style: 'percent' }).format(value)
   }
@@ -59,11 +91,8 @@ export function PageHeader({
 }) {
   return (
     <div className='flex flex-wrap items-start justify-between gap-4'>
-      <div className='min-w-0'>
-        <span className='inline-flex rounded-md border border-primary/20 bg-primary-soft px-2 py-0.5 font-mono text-[0.7rem] font-bold text-primary'>
-          {code}
-        </span>
-        <h1 className='mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl'>{title}</h1>
+      <div className='min-w-0' data-screen-code={code}>
+        <h1 className='text-2xl font-bold tracking-tight text-foreground sm:text-3xl'>{title}</h1>
         <p className='mt-1 max-w-3xl text-sm text-muted-foreground'>{subtitle}</p>
       </div>
       {actions}
@@ -217,6 +246,9 @@ export function FilterChips<T extends string>({
 export const inputClassName =
   'w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-3 focus:ring-primary-soft'
 
+export const compactSelectClassName =
+  'w-auto min-w-40 rounded-xl border border-border bg-background px-3 py-1.5 text-xs font-semibold outline-none transition focus:border-primary focus:ring-3 focus:ring-primary-soft'
+
 export const primaryButtonClassName =
   'inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-primary-foreground shadow-sm transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50'
 
@@ -225,3 +257,87 @@ export const secondaryButtonClassName =
 
 export const dangerButtonClassName =
   'inline-flex items-center justify-center gap-2 rounded-xl border border-danger/30 bg-danger/10 px-4 py-2.5 text-xs font-bold text-danger transition hover:bg-danger hover:text-white disabled:cursor-not-allowed disabled:opacity-50'
+
+/**
+ * Centered pop-up for create/edit forms. Closes on Escape or a backdrop click, moves focus into
+ * the dialog on open and gives it back to the opener on close.
+ */
+export function Modal({
+  children,
+  closeLabel,
+  description,
+  onClose,
+  open,
+  size = 'md',
+  title
+}: {
+  children: React.ReactNode
+  closeLabel: string
+  description?: string
+  onClose: () => void
+  open: boolean
+  size?: 'lg' | 'md'
+  title: string
+}) {
+  const titleId = useId()
+  const panelRef = useRef<HTMLDivElement>(null)
+  const onCloseRef = useRef(onClose)
+
+  useEffect(() => {
+    onCloseRef.current = onClose
+  }, [onClose])
+
+  useEffect(() => {
+    if (!open) return
+    const opener = document.activeElement as HTMLElement | null
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onCloseRef.current()
+    }
+    document.addEventListener('keydown', onKeyDown)
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    panelRef.current?.querySelector<HTMLElement>('input, select, textarea, button[type="submit"]')?.focus()
+
+    return () => {
+      document.removeEventListener('keydown', onKeyDown)
+      document.body.style.overflow = previousOverflow
+      opener?.focus()
+    }
+  }, [open])
+
+  if (!open) return null
+
+  return createPortal(
+    <div className='fixed inset-0 z-[60] flex items-center justify-center p-4'>
+      <div aria-hidden='true' className='absolute inset-0 bg-foreground/40 backdrop-blur-[2px]' onClick={onClose} />
+      <div
+        aria-labelledby={titleId}
+        aria-modal='true'
+        className={`relative flex max-h-[90vh] w-full flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-2xl ${
+          size === 'lg' ? 'max-w-3xl' : 'max-w-lg'
+        }`}
+        ref={panelRef}
+        role='dialog'
+      >
+        <div className='flex items-start justify-between gap-4 border-b border-border px-5 py-4'>
+          <div className='min-w-0'>
+            <h2 className='text-base font-bold text-foreground' id={titleId}>
+              {title}
+            </h2>
+            {description && <p className='mt-0.5 text-xs text-muted-foreground'>{description}</p>}
+          </div>
+          <button
+            aria-label={closeLabel}
+            className='grid size-8 shrink-0 place-items-center rounded-lg text-muted-foreground transition hover:bg-surface-subtle hover:text-foreground'
+            onClick={onClose}
+            type='button'
+          >
+            <X aria-hidden='true' className='size-4' />
+          </button>
+        </div>
+        <div className='overflow-y-auto px-5 py-4'>{children}</div>
+      </div>
+    </div>,
+    document.body
+  )
+}

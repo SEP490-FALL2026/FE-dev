@@ -77,7 +77,10 @@ export function ApprovalRenewalView({ formatCurrency, itemId, onSelectTab }: App
   const togglePick = (id: string) =>
     setPicked((current) => (current.includes(id) ? current.filter((value) => value !== id) : [...current, id]))
 
-  const quantityInvalid = action === 'REDUCE' && (parsedQuantity <= 0 || parsedQuantity >= detail.purchased)
+  // Reclaims can only come from the system-ranked seat list, so it bounds how far the quantity can drop.
+  const minQuantity = Math.max(1, detail.assigned - detail.reclaimCandidates.length)
+  const maxQuantity = detail.purchased - 1
+  const quantityInvalid = action === 'REDUCE' && (parsedQuantity < minQuantity || parsedQuantity > maxQuantity)
   const pickInvalid = action === 'REDUCE' && seatsToReclaim > 0 && picked.length !== seatsToReclaim
   const reasonInvalid = differsFromIt && reason.trim().length === 0
 
@@ -158,7 +161,6 @@ export function ApprovalRenewalView({ formatCurrency, itemId, onSelectTab }: App
             <div className='mt-4 grid grid-cols-4 gap-2 text-center text-xs'>
               {(['g1', 'g2', 'g3', 'g4'] as const).map((group) => (
                 <div className='rounded-xl border border-border p-2' key={group}>
-                  <p className='font-mono font-bold text-muted-foreground'>{group.toUpperCase()}</p>
                   <p className='mt-1 text-base font-extrabold'>{detail.waste[group]}</p>
                   <p className='text-[0.65rem] text-muted-foreground'>{t(`approvals.renewal.waste.${group}`)}</p>
                 </div>
@@ -257,7 +259,7 @@ export function ApprovalRenewalView({ formatCurrency, itemId, onSelectTab }: App
                       />
                       {showErrors && quantityInvalid && (
                         <p className='mt-1 text-[0.7rem] font-semibold text-danger' role='alert'>
-                          {t('approvals.renewal.quantityInvalid', { purchased: detail.purchased })}
+                          {t('approvals.renewal.quantityInvalid', { max: maxQuantity, min: minQuantity })}
                         </p>
                       )}
                       {!quantityInvalid && (

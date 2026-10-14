@@ -65,7 +65,6 @@ export const spendDashboard = {
       charges: 'Charges and legitimization',
       chargesHint: 'Charges without basis and vendor findings (BM-07)',
       nearestDeadline: 'Next: {{name}} — cancel by {{date}}',
-      openQueue: 'Open queue →',
       overdueHint: '{{count}} items past SLA',
       renewals: 'Renew / reduce / cancel proposals',
       requests: 'Requests awaiting spend decision',
@@ -99,8 +98,32 @@ export const spendDashboard = {
       title: 'Approval queue'
     },
     request: {
+      askMore: 'Ask Finance more',
+      costTitle: 'Cost and budget',
+      fact: {
+        cost: 'Estimated cost (borne)',
+        costCenter: 'Cost Center · period',
+        remainingAfter: 'Remaining if approved'
+      },
+      financeName: 'Finance',
+      financePending: 'Waiting for Finance — your SLA keeps running.',
+      questionPlaceholder:
+        'E.g. If I approve this, does the Cost Center still cover the other pending requests this quarter?',
+      questionRequired: 'Enter a question or comment for Finance.',
+      questionLabel: 'Your question / comment',
+      slaNotPaused: 'Asking does not pause the SLA clock; you can still decide before Finance answers.',
+      summaryLabel: 'Request summary',
+      topic: {
+        BUDGET_TIMING: 'When a budget will exist',
+        ENOUGH_BUDGET: 'Enough budget?',
+        PENDING_IMPACT: 'Impact on pending requests',
+        SUGGESTION: 'Suggested amount / timing'
+      },
+      topicLegend: 'What should Finance look at',
+      urgency: { BEFORE_SLA: 'Before my SLA', NOT_URGENT: 'Not urgent', TODAY: 'Today' },
+      urgencyLabel: 'Answer needed',
+      you: 'You asked',
       approve: 'Approve',
-      askFinance: 'Ask Finance for budget information',
       beneficiary: 'Beneficiary',
       branch: {
         b: 'Branch (b) — more seats / upgrade',
@@ -108,7 +131,6 @@ export const spendDashboard = {
       },
       confirmReject: 'Confirm rejection',
       financeHint: 'Optional. The SLA clock keeps running; you can decide before Finance answers.',
-      financePending: 'Asked Finance at {{time}} — awaiting answer. SLA keeps running.',
       financeTitle: 'Finance budget input',
       itAssessment: 'IT Admin assessment',
       needApproved: 'Need step approved. The request moves to the spend step — still yours, logged as the same person.',
@@ -116,7 +138,6 @@ export const spendDashboard = {
       needStepHint:
         'The department head filed this request, so the need step is held by the Spending Approver (QĐ-52c). The two steps stay separate.',
       needTitle: 'Need and justification',
-      questionLabel: 'Question for Finance',
       referenceOnly: 'For reference only — not an approval and never blocks your decision.',
       reject: 'Reject',
       rejectReason: 'Rejection reason (required)',
@@ -136,8 +157,7 @@ export const spendDashboard = {
         needStep: 'Need step',
         spendStep: 'Spend step'
       },
-      trailTitle: 'Approval trail',
-      yourStep: '— your step'
+      trailTitle: 'Approval trail'
     },
     renewal: {
       action: {
@@ -174,7 +194,7 @@ export const spendDashboard = {
       ownerOpinion: 'Business Owner opinion',
       pickInvalid: 'Select exactly {{count}} seats to reclaim.',
       purchased: 'Purchased seats',
-      quantityInvalid: 'Quantity must be above 0 and below {{purchased}}.',
+      quantityInvalid: 'New quantity must be between {{min}} and {{max}} seats.',
       reasonLabel: 'Reason for differing from IT (required)',
       reclaimHint: 'System ranking: already decided → G2 → G3/G4 → oldest last activity.',
       reclaimTitle: 'Below assigned seats — pick {{count}} seats to reclaim',
@@ -260,6 +280,11 @@ export const spendDashboard = {
       seats: '{{count}} seats',
       spendHint: 'Period-basis borne cost by Cost Center.',
       spendTitle: 'Spend {{spend}} / budget {{budget}}',
+      spendChart: {
+        nearLimit: 'Above 90% of budget',
+        noBudget: 'Outside every budget',
+        usedShare: 'Used'
+      },
       step: {
         itReview: 'IT review',
         need: 'Need step',
@@ -279,6 +304,40 @@ export const spendDashboard = {
     }
   },
   finance: {
+    charts: {
+      bva: {
+        hint: 'Per Cost Center: the gray column is budget, the blue column is actual (borne cost).',
+        title: 'Budget and actual {{period}}'
+      },
+      filter: {
+        granularityLabel: 'View charts by',
+        month: 'Month',
+        note: {
+          month: 'Monthly budget = quarter budget ÷ 3, for reference only (the organization budgets per quarter).',
+          year: 'Year to date up to the current month; the yearly budget is the sum of the quarter budgets.'
+        },
+        periodLabel: 'Pick a period',
+        quarter: 'Quarter',
+        title: 'View by',
+        year: 'Year',
+        yearValue: 'Year {{year}}'
+      },
+      regionLabel: 'Finance charts',
+      share: {
+        hint: 'Share of actual spend by Cost Center; the Unallocated line stays gray.',
+        title: '{{period}} actual spend by Cost Center'
+      },
+      shareColumn: 'Share',
+      structure: {
+        basis: 'Allocation basis',
+        hint: 'Period cost split by the allocation rule that was applied.',
+        title: '{{period}} cost structure by allocation basis'
+      },
+      usage: {
+        hint: 'Each bar is one Cost Center budget: actual + held commitments + remaining. Cost Centers without a budget show only spent and committed amounts.',
+        title: 'How the {{period}} budget is being used'
+      }
+    },
     nav: {
       budgetQuestions: 'Budget questions',
       budgets: 'Cost Centers & budgets',
@@ -322,6 +381,19 @@ export const spendDashboard = {
       workRegion: 'Open budget work'
     },
     questions: {
+      answerTitle: 'Answer sent',
+      backToList: 'Back to question list',
+      colAsked: 'Asked by · time',
+      colRequest: 'Request',
+      colStatus: 'Status',
+      contextTitle: 'Figures to answer with',
+      factCostCenter: 'Cost Center · period',
+      factRemainingAfter: 'Remaining if approved',
+      factRemainingNow: 'Remaining now',
+      questionTitle: "Spending Approver's question",
+      replyTitle: 'Your answer',
+      suggestedTag: 'Suggested',
+      summaryLabel: 'Question summary',
       answeredNotice:
         "The answer now shows on the Spending Approver's decision screen. The spend step SLA was not paused.",
       askedBy: 'Asked by {{name}} at {{time}}',
@@ -379,6 +451,25 @@ export const spendDashboard = {
       title: 'Commitments awaiting recording'
     },
     budgets: {
+      breakdown: 'Actual {{actual}} · Held {{held}}',
+      centerRequired: 'Enter the Cost Center code and name.',
+      currentBudget: 'Current budget: {{budget}}',
+      monthLabel: 'View by month',
+      newCodePlaceholder: 'E.g. CC-HR',
+      ofBudget: 'of {{budget}}',
+      periodInfo: 'Budget period {{quarter}} · figures to date up to {{month}}',
+      readOnly: 'Past period — view only',
+      retireBody:
+        'The Cost Center becomes Retired and takes no new cost; history and earlier reports stay unchanged. Splitting or merging departments creates a replacement Cost Center.',
+      retireTitle: 'Retire {{code}}?',
+      summary: {
+        total: '{{quarter}} total budget',
+        totalHint: '{{count}} Cost Centers have a budget',
+        used: 'Spent and committed'
+      },
+      summaryLabel: 'Budget summary',
+      unbudgetedExposure: '{{amount}} already spent and committed',
+      usedPercent: '{{percent}} used',
       addCenter: 'Add Cost Center',
       amountLabel: 'Budget limit (borne cost, VND)',
       amountPlaceholder: 'E.g. 20000000',

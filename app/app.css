@@ -50,6 +50,15 @@
   --theme-warning: #ffc070;
   --theme-danger: #e84840;
   --theme-info: #2888d8;
+  /* Validated categorical chart slots (fixed order; dataviz validator vs #fefbf6). */
+  --chart-1: #2a78d6;
+  --chart-2: #eb6834;
+  --chart-3: #1baf7a;
+  --chart-4: #eda100;
+  --chart-5: #e87ba4;
+  --chart-6: #008300;
+  --chart-neutral: #b5b0a6;
+  --chart-track: #ece6dc;
 }
 
 [data-theme='dark'] {
@@ -75,6 +84,15 @@
   --theme-warning: #f0a830;
   --theme-danger: #f04850;
   --theme-info: #2888ff;
+  /* Same hues stepped for the dark surface (validated vs #0d1c33). */
+  --chart-1: #3987e5;
+  --chart-2: #d95926;
+  --chart-3: #199e70;
+  --chart-4: #c98500;
+  --chart-5: #d55181;
+  --chart-6: #008300;
+  --chart-neutral: #5d6f88;
+  --chart-track: #1d3150;
 }
 
 html,
