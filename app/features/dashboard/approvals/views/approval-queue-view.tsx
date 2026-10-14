@@ -102,7 +102,7 @@ export function ApprovalQueueView({ formatCurrency, onSelectTab }: ApprovalQueue
                 <th className='py-2.5 font-semibold'>{t('approvals.queue.colItem')}</th>
                 <th className='py-2.5 font-semibold'>{t('budget.costCenter')}</th>
                 <th className='py-2.5 text-right font-semibold'>{t('approvals.queue.colAmount')}</th>
-                <th className='py-2.5 font-semibold'>{t('approvals.queue.colSla')}</th>
+                <th className='py-2.5 pl-8 font-semibold'>{t('approvals.queue.colSla')}</th>
                 <th className='py-2.5' />
               </tr>
             </thead>
@@ -119,7 +119,7 @@ export function ApprovalQueueView({ formatCurrency, onSelectTab }: ApprovalQueue
                   </td>
                   <td className='py-3 font-mono'>{item.costCenter}</td>
                   <td className='py-3 text-right font-bold'>{formatCurrency(item.amount)}</td>
-                  <td className='py-3'>
+                  <td className='py-3 pl-8'>
                     <SlaBadge item={item} />
                   </td>
                   <td className='py-3 text-right'>

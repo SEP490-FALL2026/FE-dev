@@ -180,9 +180,11 @@ export interface TrailStep {
 
 export interface FinanceAnswer {
   answeredAt?: string
+  answeredBy?: string
   askedAt: string
   note?: string
   opinion?: 'NO_BUDGET' | 'OVER' | 'WITHIN'
+  question?: string
 }
 
 export interface RequestDetail {
@@ -204,7 +206,10 @@ export const requestDetails: RequestDetail[] = [
     branch: 'b',
     costCenter: 'CC-DES',
     estimate: { deductibleVat: 1_350_000, nonDeductibleTax: 675_000, preTax: 13_500_000 },
-    financeAnswer: { askedAt: '2026-10-12T09:10:00+07:00' },
+    financeAnswer: {
+      askedAt: '2026-10-12T09:10:00+07:00',
+      question: 'Phòng Thiết kế còn đủ ngân sách Q4 để mua thêm 15 seat Figma không?'
+    },
     id: 'req-089',
     justification: 'Dự án Fintech Redesign cần thêm 15 designer cộng tác trên cùng thư viện thành phần trong Q4.',
     requester: 'Trần Vũ Bảo',
@@ -221,9 +226,11 @@ export const requestDetails: RequestDetail[] = [
     estimate: { deductibleVat: 400_000, nonDeductibleTax: 200_000, preTax: 4_000_000 },
     financeAnswer: {
       answeredAt: '2026-10-11T17:05:00+07:00',
+      answeredBy: 'Ngọc Lan (Finance)',
       askedAt: '2026-10-11T16:40:00+07:00',
       note: 'Marketing chưa có ngân sách Q4; Finance dự kiến lập trước 15/10. Ý kiến tham khảo, không chặn.',
-      opinion: 'NO_BUDGET'
+      opinion: 'NO_BUDGET',
+      question: 'Marketing chưa có ngân sách Q4 — Finance có dự kiến lập trong tuần này không?'
     },
     id: 'req-101',
     itAssessment: {

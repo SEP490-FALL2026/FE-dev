@@ -14,11 +14,14 @@ import {
 
 const timingTones: Record<PeriodTiming, Tone> = { CURRENT: 'primary', FUTURE: 'info', PAST: 'neutral' }
 
-/** Month / quarter / year selection; switching the granularity jumps to the period holding the current month. */
-export function useBudgetPeriod(initial: PeriodGranularity = 'QUARTER') {
+/**
+ * Month / quarter / year selection; switching the granularity jumps to the period holding the current month.
+ * `initialKey` opens on another period of the initial granularity (e.g. the reported quarter).
+ */
+export function useBudgetPeriod(initial: PeriodGranularity = 'QUARTER', initialKey?: string) {
   const { t } = useTranslation('dashboard')
   const [granularity, setGranularity] = useState<PeriodGranularity>(initial)
-  const [periodKey, setPeriodKey] = useState(currentPeriodOf(initial).key)
+  const [periodKey, setPeriodKey] = useState(initialKey ?? currentPeriodOf(initial).key)
 
   const periods = listPeriods(granularity)
   const period = periods.find((item) => item.key === periodKey) ?? currentPeriodOf(granularity)

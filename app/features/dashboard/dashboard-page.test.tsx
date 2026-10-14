@@ -234,6 +234,7 @@ describe('DashboardPage', () => {
 
     expect(screen.getByRole('heading', { level: 1, name: 'Chào Hoàng Nam' })).toBeInTheDocument()
     expect(screen.getByTestId('dashboard-role')).toHaveTextContent(roleLabels['spending-approver'])
+    expect(screen.queryByText(/Mở hàng chờ/)).not.toBeInTheDocument()
 
     const queueBtn = within(nav).getByRole('button', { name: /Hàng chờ duyệt/i })
     expect(queueBtn).not.toHaveClass('bg-primary')
@@ -246,6 +247,20 @@ describe('DashboardPage', () => {
     expect(reportsBtn).toHaveClass('bg-primary')
     expect(queueBtn).not.toHaveClass('bg-primary')
     expect(screen.getByRole('heading', { level: 1, name: 'Báo cáo của Người duyệt chi' })).toBeInTheDocument()
+    const savings = screen.getByRole('region', { name: 'Tiết kiệm' })
+    const periodFilter = screen.getByRole('group', { name: 'Xem theo' })
+    const spendChart = screen.getByRole('img', {
+      name: 'Biểu đồ cột ngân sách và chi phí theo Cost Center — Quý 3/2026'
+    })
+    expect(savings.compareDocumentPosition(periodFilter) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(periodFilter.compareDocumentPosition(spendChart) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(screen.getByText('Chưa phân bổ Cost Center')).toBeInTheDocument()
+
+    fireEvent.click(within(periodFilter).getByRole('button', { name: 'Năm' }))
+    expect(
+      screen.getByRole('img', { name: 'Biểu đồ cột ngân sách và chi phí theo Cost Center — Năm 2026' })
+    ).toBeInTheDocument()
+    expect(screen.queryByText('Chưa phân bổ Cost Center')).not.toBeInTheDocument()
 
     view.unmount()
   })
@@ -273,6 +288,17 @@ describe('DashboardPage', () => {
     fireEvent.change(screen.getByLabelText('Lý do từ chối (bắt buộc)'), { target: { value: 'Chưa cần trong Q4.' } })
     fireEvent.click(screen.getByRole('button', { name: 'Xác nhận từ chối' }))
     expect(screen.getByText(/không tạo khoản cam kết/)).toBeInTheDocument()
+  })
+
+  it('shows the Finance budget opinion thread on the request detail', () => {
+    renderDashboard('spending-approver', '/?tab=request&id=req-101')
+    expect(
+      screen.getByText('Marketing chưa có ngân sách Q4 — Finance có dự kiến lập trong tuần này không?')
+    ).toBeInTheDocument()
+    expect(screen.getByText(/Ngọc Lan \(Finance\) trả lời/)).toBeInTheDocument()
+
+    renderDashboard('spending-approver', '/?tab=request&id=req-089')
+    expect(screen.getByText(/Đang chờ Finance trả lời/)).toBeInTheDocument()
   })
 
   it('renders the manager dashboard shell and navigates tabs', () => {

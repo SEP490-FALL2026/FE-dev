@@ -2,13 +2,32 @@ import { Gauge, Sparkles, Timer } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { PageHeader, Panel, PanelTitle, StatTile, useDashboardFormat } from '../../dashboard-ui'
+import { sumPeriod } from '../../finance/budget-periods'
+import { currentBudgetLines, monthlyBudgetLines } from '../../finance/finance-data'
+import { BudgetPeriodFilter, useBudgetPeriod } from '../../finance/views/budget-period-filter'
 import { approverReport } from '../approvals-data'
+import { ApproverSpendChart, type CostCenterSpend } from './approver-spend-chart'
+
+/** The report period (`Q3-2026`) already uses the period filter's quarter key format. */
+const reportedQuarterKey = approverReport.period
 
 export function ApproverReportsView({ formatCurrency }: { formatCurrency: (value: number) => string }) {
   const { t } = useTranslation('dashboard')
   const { formatNumber, formatPercent } = useDashboardFormat()
   const report = approverReport
   const usage = report.usage
+
+  // The report opens on its own closed quarter; the filter re-reads the same monthly figures Finance uses.
+  const periodState = useBudgetPeriod('QUARTER', reportedQuarterKey)
+  const chartPeriodLabel = periodState.periodLabel(periodState.period)
+  const spendRows: CostCenterSpend[] = currentBudgetLines.map(({ costCenter }) => {
+    const figures = sumPeriod(monthlyBudgetLines, costCenter, periodState.period.months)
+    return { budget: figures.budget, code: costCenter, spend: figures.actual }
+  })
+  // The unallocated line is only known for the reported quarter; it still counts in that period's total spend.
+  const showUnallocated = periodState.period.key === reportedQuarterKey
+  const totalSpend = spendRows.reduce((sum, row) => sum + row.spend, 0) + (showUnallocated ? report.unallocated : 0)
+  const totalBudget = spendRows.reduce((sum, row) => sum + (row.budget ?? 0), 0)
 
   const usageIndicators = [
     { key: 'kpi3', value: usage.active / usage.purchased },
@@ -23,42 +42,6 @@ export function ApproverReportsView({ formatCurrency }: { formatCurrency: (value
         subtitle={t('approvals.reports.subtitle', { period: report.period })}
         title={t('approvals.reports.title')}
       />
-
-      <Panel>
-        <PanelTitle
-          hint={t('approvals.reports.spendHint')}
-          title={t('approvals.reports.spendTitle', {
-            budget: formatCurrency(report.totalBudget),
-            spend: formatCurrency(report.totalSpend)
-          })}
-        />
-        <ul className='mt-4 space-y-3'>
-          {report.costCenters.map((cc) => {
-            const ratio = cc.spend / cc.budget
-
-            return (
-              <li key={cc.code}>
-                <div className='flex justify-between gap-2 text-xs'>
-                  <span className='font-mono font-bold'>{cc.code}</span>
-                  <span className='text-muted-foreground'>
-                    {formatCurrency(cc.spend)} / {formatCurrency(cc.budget)} · {formatPercent(ratio)}
-                  </span>
-                </div>
-                <div className='mt-1 h-2 overflow-hidden rounded-full bg-surface-subtle'>
-                  <div
-                    className={`h-full rounded-full ${ratio > 0.9 ? 'bg-warning' : 'bg-primary'}`}
-                    style={{ width: `${Math.min(1, ratio) * 100}%` }}
-                  />
-                </div>
-              </li>
-            )
-          })}
-          <li className='flex justify-between gap-2 border-t border-dashed border-warning/50 pt-3 text-xs'>
-            <span className='font-bold text-warning'>{t('finance.analysis.unallocated')}</span>
-            <span className='font-bold text-warning'>{formatCurrency(report.unallocated)}</span>
-          </li>
-        </ul>
-      </Panel>
 
       <section aria-label={t('approvals.reports.savingsLabel')} className='grid gap-4 sm:grid-cols-3'>
         <StatTile
@@ -82,6 +65,29 @@ export function ApproverReportsView({ formatCurrency }: { formatCurrency: (value
           value={formatNumber(report.savings.reclaimedSeats)}
         />
       </section>
+
+      <BudgetPeriodFilter {...periodState} />
+
+      <Panel>
+        <PanelTitle
+          hint={t('approvals.reports.spendHint')}
+          title={t('approvals.reports.spendTitle', {
+            budget: formatCurrency(totalBudget),
+            spend: formatCurrency(totalSpend)
+          })}
+        />
+        <ApproverSpendChart
+          costCenters={spendRows}
+          formatCurrency={formatCurrency}
+          label={t('approvals.reports.spendChartLabel', { period: chartPeriodLabel })}
+        />
+        {showUnallocated && (
+          <p className='mt-3 flex justify-between gap-2 border-t border-dashed border-warning/50 pt-3 text-xs'>
+            <span className='font-bold text-warning'>{t('finance.analysis.unallocated')}</span>
+            <span className='font-bold text-warning'>{formatCurrency(report.unallocated)}</span>
+          </p>
+        )}
+      </Panel>
 
       <div className='grid gap-6 lg:grid-cols-2'>
         <Panel>
