@@ -1,4 +1,4 @@
-# SaaS-Sentry Web architecture
+# SaaS-Sentry Web architectures
 
 Status: accepted foundation, 2026-08-11.
 
