@@ -2,6 +2,7 @@ import { ArrowRight, Building2, CheckCircle2, FileCheck2, Plus, Unlock } from 'l
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { useFormatPeriod } from '../../budget-figures'
 import {
   PageHeader,
   Panel,
@@ -30,6 +31,7 @@ interface FinancePeriodCloseViewProps {
 
 export function FinancePeriodCloseView({ formatCurrency, onSelectTab }: FinancePeriodCloseViewProps) {
   const { t } = useTranslation('dashboard')
+  const formatPeriod = useFormatPeriod()
   const { formatDate, formatNumber } = useDashboardFormat()
   const [released, setReleased] = useState<Record<string, string>>({})
   const [releasingId, setReleasingId] = useState<string | null>(null)
@@ -81,9 +83,8 @@ export function FinancePeriodCloseView({ formatCurrency, onSelectTab }: FinanceP
             <ArrowRight aria-hidden='true' className='size-3.5' />
           </button>
         }
-        code='UF-19 · FIN-30 → FIN-31'
-        subtitle={t('finance.close.subtitle', { period: closingPeriod })}
-        title={t('finance.close.title', { period: closingPeriod })}
+        subtitle={t('finance.close.subtitle', { period: formatPeriod(closingPeriod) })}
+        title={t('finance.close.title', { period: formatPeriod(closingPeriod) })}
       />
 
       <section aria-label={t('finance.close.summaryLabel')} className='grid gap-4 sm:grid-cols-3'>

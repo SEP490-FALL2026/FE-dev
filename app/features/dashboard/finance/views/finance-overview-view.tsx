@@ -1,7 +1,7 @@
 import { BookCheck, ClipboardList, Clock, MessageSquareText, TriangleAlert, Wallet } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { RemainingValue, getRemaining } from '../../budget-figures'
+import { RemainingValue, getRemaining, useFormatPeriod } from '../../budget-figures'
 import { PageHeader, Panel, PanelTitle, Pill, StatTile, useDashboardFormat } from '../../dashboard-ui'
 import {
   budgetQuestions,
@@ -12,9 +12,13 @@ import {
   currentBudgetLines,
   currentPeriod,
   financeDataAsOf,
-  heldRemainders
+  heldRemainders,
+  monthlyBudgetLines
 } from '../finance-data'
+import { sumPeriod } from '../budget-periods'
 import type { FinanceTabKey } from '../finance-nav'
+import { BudgetPeriodFilter, useBudgetPeriod } from './budget-period-filter'
+import { BudgetUsageBarChart, SpendShareDonut, type CostCenterPeriodRow } from './finance-overview-charts'
 
 interface FinanceOverviewViewProps {
   formatCurrency: (value: number) => string
@@ -23,6 +27,7 @@ interface FinanceOverviewViewProps {
 
 export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOverviewViewProps) {
   const { t } = useTranslation('dashboard')
+  const formatPeriod = useFormatPeriod()
   const { formatDateTime } = useDashboardFormat()
 
   const openQuestions = budgetQuestions.filter((question) => question.status === 'OPEN')
@@ -42,17 +47,23 @@ export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOver
 
   const costCenterName = (code: string) => costCenters.find((cc) => cc.code === code)?.name ?? code
 
+  const periodState = useBudgetPeriod()
+  const chartPeriodLabel = periodState.periodLabel(periodState.period)
+  const chartRows: CostCenterPeriodRow[] = currentBudgetLines.map(({ costCenter }) => ({
+    code: costCenter,
+    name: costCenterName(costCenter),
+    ...sumPeriod(monthlyBudgetLines, costCenter, periodState.period.months)
+  }))
+
   return (
     <div className='space-y-6'>
       <PageHeader
-        code='UF-11 · FIN-01'
-        subtitle={t('finance.overview.subtitle', { period: currentPeriod })}
+        subtitle={t('finance.overview.subtitle', { period: formatPeriod(currentPeriod) })}
         title={t('finance.overview.title')}
       />
 
       <section aria-label={t('finance.overview.workRegion')} className='grid gap-4 sm:grid-cols-2 xl:grid-cols-5'>
         <StatTile
-          action={t('finance.overview.openAction')}
           hint={t('finance.overview.questionsHint')}
           icon={MessageSquareText}
           label={t('finance.overview.openQuestions')}
@@ -61,7 +72,6 @@ export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOver
           value={String(openQuestions.length)}
         />
         <StatTile
-          action={t('finance.overview.openAction')}
           hint={t('finance.overview.recordingHint', { count: overdueRecordings.length })}
           icon={BookCheck}
           label={t('finance.overview.commitmentsToRecord')}
@@ -70,7 +80,6 @@ export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOver
           value={String(commitmentsToRecord.length)}
         />
         <StatTile
-          action={t('finance.overview.openAction')}
           hint={withoutBudget.map((line) => line.costCenter).join(', ')}
           icon={Wallet}
           label={t('finance.overview.withoutBudget')}
@@ -79,7 +88,6 @@ export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOver
           value={String(withoutBudget.length)}
         />
         <StatTile
-          action={t('finance.overview.openAction')}
           hint={t('finance.overview.exceptionsHint')}
           icon={TriangleAlert}
           label={t('finance.overview.openExceptions')}
@@ -88,15 +96,21 @@ export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOver
           value={String(openExceptions.length)}
         />
         <StatTile
-          action={t('finance.overview.openAction')}
           hint={t('finance.overview.closeHint', { count: remaindersToReview.length })}
           icon={ClipboardList}
-          label={t('finance.overview.periodClose', { period: closingPeriod })}
+          label={t('finance.overview.periodClose', { period: formatPeriod(closingPeriod) })}
           onClick={() => onSelectTab('period-close')}
           tone='neutral'
           value={t('finance.overview.closeStatus')}
         />
       </section>
+
+      <BudgetPeriodFilter {...periodState} />
+
+      <div className='grid gap-6 xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]'>
+        <BudgetUsageBarChart formatCurrency={formatCurrency} periodLabel={chartPeriodLabel} rows={chartRows} />
+        <SpendShareDonut formatCurrency={formatCurrency} periodLabel={chartPeriodLabel} rows={chartRows} />
+      </div>
 
       <Panel>
         <PanelTitle
@@ -107,7 +121,7 @@ export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOver
             </span>
           }
           hint={t('finance.overview.budgetTableHint')}
-          title={t('finance.overview.budgetTableTitle', { period: currentPeriod })}
+          title={t('finance.overview.budgetTableTitle', { period: formatPeriod(currentPeriod) })}
         />
 
         <div className='mt-4 overflow-x-auto'>

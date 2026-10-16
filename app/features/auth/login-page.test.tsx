@@ -50,7 +50,7 @@ describe('LoginPage', () => {
   it('fills the form from a selected demo account', () => {
     renderLoginPage()
 
-    fireEvent.click(screen.getByRole('button', { name: /Dùng tài khoản Finance/ }))
+    fireEvent.click(screen.getByRole('button', { name: /Dùng tài khoản Tài chính/ }))
 
     expect(screen.getByLabelText('Email')).toHaveValue('finance@saas-sentry.test')
     expect(screen.getByLabelText('Mật khẩu')).toHaveValue('Demo@123')

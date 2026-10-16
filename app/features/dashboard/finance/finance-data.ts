@@ -8,8 +8,6 @@ import type { BudgetSnapshot, CostEstimate } from '../budget-figures'
 
 export const financeDataAsOf = '2026-10-12T08:30:00+07:00'
 
-/** One period type for the whole organization, set once by Super Admin (FR-5.1, OI-11b). */
-export const budgetPeriodType = 'QUARTER' as const
 export const currentPeriod = 'Q4-2026'
 export const closingPeriod = 'Q3-2026'
 
@@ -110,6 +108,57 @@ export function findBudgetLine(costCenter: string) {
   return currentBudgetLines.find((line) => line.costCenter === costCenter)
 }
 
+// ---------------------------------------------------------------- Budget by month (FIN-06 period views)
+
+/** The month that contains `financeDataAsOf`; later months have no actual spend yet. */
+export const currentMonth = '2026-10'
+export const budgetYear = 2026
+
+/** One Cost Center and month. Quarter and year views add months up; `budget === null` means no Budget. */
+export interface MonthlyBudgetLine {
+  actual: number
+  budget: number | null
+  costCenter: string
+  held: number
+  month: string
+}
+
+const M = 1_000_000
+
+/** Splits a whole-VND amount into `parts` shares that add up exactly; the last share takes the remainder. */
+export function splitEvenly(amount: number, parts: number) {
+  const share = Math.floor(amount / parts)
+  return Array.from({ length: parts }, (_, index) => (index === parts - 1 ? amount - share * (parts - 1) : share))
+}
+
+/** Quarter budgets Q1–Q4 and actual spend Jan–Oct, in million VND (borne cost). */
+const budgetPlan: Record<string, { actual: number[]; quarters: (number | null)[] }> = {
+  'CC-COMPANY': { actual: [13, 14, 14, 15, 15, 16, 13.8, 13.8, 13.9, 22], quarters: [45, 48, 50, 60] },
+  'CC-DES': { actual: [30, 31, 32, 33, 34, 35, 26, 26.3, 26.3, 41], quarters: [100, 105, 110, 120] },
+  'CC-ENG': { actual: [70, 72, 74, 75, 76, 78, 60.2, 61, 61.2, 96], quarters: [230, 235, 240, 250] },
+  'CC-MKT': { actual: [7, 7.5, 8, 8, 9, 9, 7, 7.2, 7.5, 6.2], quarters: [25, 28, 30, null] },
+  'CC-OPS': { actual: [20, 21, 21, 22, 22, 23, 21, 21, 21.1, 48], quarters: [65, 68, 70, 80] },
+  'CC-SAL': { actual: [5, 5, 5, 5.5, 5.5, 6, 4.7, 4.7, 4.8, 0], quarters: [18, 18, 20, null] }
+}
+
+export const monthlyBudgetLines: MonthlyBudgetLine[] = currentBudgetLines.flatMap(({ costCenter, held }) => {
+  const plan = budgetPlan[costCenter]
+
+  return Array.from({ length: 12 }, (_, index) => {
+    const month = `${budgetYear}-${String(index + 1).padStart(2, '0')}`
+    const quarterBudget = plan.quarters[Math.floor(index / 3)]
+    const budget = quarterBudget === null ? null : splitEvenly(Math.round(quarterBudget * M), 3)[index % 3]
+
+    return {
+      actual: Math.round((plan.actual[index] ?? 0) * M),
+      budget,
+      costCenter,
+      held: month === currentMonth ? held : 0,
+      month
+    }
+  })
+})
+
 // ---------------------------------------------------------------- Budget questions (FIN-05)
 
 export type BudgetOpinion = 'NO_BUDGET' | 'OVER' | 'WITHIN'
@@ -137,10 +186,10 @@ export const budgetQuestions: BudgetQuestion[] = [
     costCenter: 'CC-DES',
     estimate: { deductibleVat: 1_350_000, nonDeductibleTax: 675_000, preTax: 13_500_000 },
     id: 'bq-01',
-    question: 'Phòng Thiết kế còn đủ ngân sách Q4 để mua thêm 15 seat Figma không?',
+    question: 'Phòng Thiết kế còn đủ ngân sách quý 4 để mua thêm 15 suất Figma không?',
     requestCode: 'REQ-2026-089',
     requester: 'Trần Vũ Bảo',
-    software: 'Figma Organization · 15 seat',
+    software: 'Figma Organization · 15 suất',
     status: 'OPEN'
   },
   {
@@ -149,7 +198,7 @@ export const budgetQuestions: BudgetQuestion[] = [
     costCenter: 'CC-MKT',
     estimate: { deductibleVat: 400_000, nonDeductibleTax: 200_000, preTax: 4_000_000 },
     id: 'bq-02',
-    question: 'Marketing chưa có ngân sách Q4 — Finance có dự kiến lập trong tuần này không?',
+    question: 'Marketing chưa có ngân sách quý 4 — Tài chính có dự kiến lập trong tuần này không?',
     requestCode: 'REQ-2026-101',
     requester: 'Lý Thu Trang',
     software: 'HubSpot Marketing Starter',
@@ -161,7 +210,7 @@ export const budgetQuestions: BudgetQuestion[] = [
     costCenter: 'CC-ENG',
     estimate: { deductibleVat: 820_000, nonDeductibleTax: 410_000, preTax: 8_200_000 },
     id: 'bq-03',
-    question: 'Kiểm tra giúp ngân sách Kỹ thuật cho 10 seat Cursor Pro.',
+    question: 'Kiểm tra giúp ngân sách Kỹ thuật cho 10 suất Cursor Pro.',
     requestCode: 'REQ-2026-078',
     requester: 'Lê Hoàng Anh',
     answer: {
@@ -169,7 +218,7 @@ export const budgetQuestions: BudgetQuestion[] = [
       note: 'Còn khoảng 115 triệu sau khi trừ cam kết đang giữ. Ý kiến tham khảo, không chặn.',
       opinion: 'WITHIN'
     },
-    software: 'Cursor Pro · 10 seat',
+    software: 'Cursor Pro · 10 suất',
     status: 'ANSWERED'
   },
   {
@@ -178,7 +227,7 @@ export const budgetQuestions: BudgetQuestion[] = [
     costCenter: 'CC-COMPANY',
     estimate: { deductibleVat: 2_880_000, nonDeductibleTax: 1_440_000, preTax: 28_800_000 },
     id: 'bq-04',
-    question: 'Ngân sách Toàn công ty cho gói Notion AI 40 seat?',
+    question: 'Ngân sách Toàn công ty cho gói Notion AI 40 suất?',
     requestCode: 'REQ-2026-097',
     requester: 'Nguyễn Minh Khôi',
     software: 'Notion AI Business · 40 seat',
@@ -224,7 +273,7 @@ export const commitmentsToRecord: CommitmentToRecord[] = [
     id: 'cmt-51',
     recordingDueAt: '2026-10-14T15:00:00+07:00',
     requestCode: 'REQ-2026-078',
-    software: 'Cursor Pro · 10 seat'
+    software: 'Cursor Pro · 10 suất'
   },
   {
     approvedAt: '2026-10-08T10:20:00+07:00',
@@ -236,7 +285,7 @@ export const commitmentsToRecord: CommitmentToRecord[] = [
     id: 'cmt-49',
     recordingDueAt: '2026-10-12T10:20:00+07:00',
     requestCode: 'REQ-2026-090',
-    software: 'Adobe Creative Cloud · 3 seat'
+    software: 'Adobe Creative Cloud · 3 suất'
   },
   {
     approvedAt: '2026-10-09T09:45:00+07:00',
@@ -316,7 +365,7 @@ export const chargeExceptions: ChargeException[] = [
     date: '2026-10-03',
     evidence: ['sao-ke-vcb-10-2026-dong-4.pdf'],
     id: 'chg-1003',
-    itNote: 'IT đang xác minh người dùng thẻ 8812 (Phòng Kỹ thuật).',
+    itNote: 'Quản trị CNTT đang xác minh người dùng thẻ 8812 (Phòng Kỹ thuật).',
     reason: 'NO_BASIS',
     status: 'CHECKING',
     vendor: 'OpenAI'
@@ -409,7 +458,7 @@ export const heldRemainders: HeldRemainder[] = [
     lastInvoiceAt: '2026-09-02',
     moreInvoicesExpected: true,
     requestCode: 'REQ-2026-052',
-    software: 'Figma Organization · 10 seat'
+    software: 'Figma Organization · 10 suất'
   },
   {
     code: 'CMT-2026-039',
@@ -433,7 +482,12 @@ export interface InternalCost {
 }
 
 export const internalCosts: InternalCost[] = [
-  { amount: 12_000_000, costCenter: 'CC-COMPANY', description: 'Hệ thống chấm công nội bộ — máy chủ Q3', id: 'int-1' },
+  {
+    amount: 12_000_000,
+    costCenter: 'CC-COMPANY',
+    description: 'Hệ thống chấm công nội bộ — máy chủ quý 3',
+    id: 'int-1'
+  },
   { amount: 7_500_000, costCenter: 'CC-ENG', description: 'CI runner nội bộ — phần Phòng Kỹ thuật', id: 'int-2' }
 ]
 
@@ -569,15 +623,15 @@ export const periodSavings = { immediate: 18_400_000, nextRenewal: 41_200_000, r
 export const aiNarrativeAvailable = true
 
 export const aiDraftNarrative =
-  'Chi phí phần mềm Q3-2026 theo kỳ là 408,1 triệu đồng [1], thấp hơn tổng ngân sách 520 triệu đồng [2]. ' +
+  'Chi phí phần mềm quý 3/2026 theo kỳ là 408,1 triệu đồng [1], thấp hơn tổng ngân sách 520 triệu đồng [2]. ' +
   'Phòng Vận hành dùng 93,6% ngân sách, cao nhất công ty [3]. ' +
-  'Dòng Chưa phân bổ Cost Center còn 6,62 triệu đồng với 3 ngoại lệ đang chờ Người duyệt chi [4]. ' +
+  'Dòng chưa phân bổ trung tâm chi phí còn 6,62 triệu đồng với 3 ngoại lệ đang chờ Người duyệt chi [4]. ' +
   'Tiết kiệm thực hiện ngay 18,4 triệu đồng; tiết kiệm tại kỳ gia hạn kế tiếp 41,2 triệu đồng — hai con số tách riêng [5].'
 
 export const aiDraftSources = [
-  '[1] Budget vs Actual · cơ sở theo kỳ · tổng',
-  '[2] Ngân sách Q3-2026 · 6 Cost Center',
+  '[1] Ngân sách so với thực chi · cơ sở theo kỳ · tổng',
+  '[2] Ngân sách quý 3/2026 · 6 trung tâm chi phí',
   '[3] CC-OPS · thực chi theo kỳ ÷ ngân sách',
-  '[4] Phân bổ · dòng Chưa phân bổ',
-  '[5] Báo cáo tiết kiệm · FR-5.9'
+  '[4] Phân bổ · dòng chưa phân bổ',
+  '[5] Báo cáo tiết kiệm'
 ]

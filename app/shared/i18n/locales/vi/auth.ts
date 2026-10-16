@@ -31,7 +31,7 @@ export const auth = {
     },
     finance: {
       description: 'Kiểm soát ngân sách, cam kết, hóa đơn và dự báo.',
-      label: 'Finance'
+      label: 'Tài chính'
     },
     'it-admin': {
       description: 'Vận hành danh mục, license, import usage và discovery.',

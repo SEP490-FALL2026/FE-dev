@@ -2,6 +2,7 @@ import { Check, Lock, Minus, Send, Sparkles } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { useFormatPeriod } from '../../budget-figures'
 import {
   Notice,
   PageHeader,
@@ -35,6 +36,7 @@ const visibility = [
 
 export function FinancePeriodReportView({ formatCurrency }: { formatCurrency: (value: number) => string }) {
   const { t } = useTranslation('dashboard')
+  const formatPeriod = useFormatPeriod()
   const { formatDateTime } = useDashboardFormat()
   const [mode, setMode] = useState<NarrativeMode>(aiNarrativeAvailable ? 'ai' : 'manual')
   const [narrative, setNarrative] = useState('')
@@ -59,9 +61,8 @@ export function FinancePeriodReportView({ formatCurrency }: { formatCurrency: (v
   return (
     <div className='space-y-6'>
       <PageHeader
-        code='UF-19 · FIN-34'
         subtitle={t('finance.report.subtitle')}
-        title={t('finance.report.title', { period: closingPeriod })}
+        title={t('finance.report.title', { period: formatPeriod(closingPeriod) })}
       />
 
       <section aria-label={t('finance.report.figuresLabel')} className='grid gap-4 sm:grid-cols-2 xl:grid-cols-4'>

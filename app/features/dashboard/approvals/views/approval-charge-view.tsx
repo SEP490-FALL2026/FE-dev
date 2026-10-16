@@ -81,7 +81,6 @@ export function ApprovalChargeView({ formatCurrency, itemId, onSelectTab }: Appr
 
       <PageHeader
         actions={<SlaBadge item={queueItem} />}
-        code={isFinding ? 'UF-15 · APV-02 · BM-07' : 'UF-15 · APV-02'}
         subtitle={isFinding ? t('approvals.charge.findingSubtitle') : t('approvals.charge.chargeSubtitle')}
         title={`${queueItem.reference} · ${queueItem.software}`}
       />

@@ -50,6 +50,13 @@
   --theme-warning: #ffc070;
   --theme-danger: #e84840;
   --theme-info: #2888d8;
+  /* Categorical chart slots, validated for CVD separation on --theme-surface (dataviz validator). */
+  --theme-chart-1: #2a78d6;
+  --theme-chart-2: #eb6834;
+  --theme-chart-3: #1baf7a;
+  --theme-chart-4: #eda100;
+  --theme-chart-5: #e87ba4;
+  --theme-chart-6: #008300;
 }
 
 [data-theme='dark'] {
@@ -75,6 +82,12 @@
   --theme-warning: #f0a830;
   --theme-danger: #f04850;
   --theme-info: #2888ff;
+  --theme-chart-1: #3987e5;
+  --theme-chart-2: #d95926;
+  --theme-chart-3: #199e70;
+  --theme-chart-4: #c98500;
+  --theme-chart-5: #d55181;
+  --theme-chart-6: #008300;
 }
 
 html,

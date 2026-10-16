@@ -14,7 +14,7 @@ interface ApprovalsOverviewViewProps {
 
 export function ApprovalsOverviewView({ displayName, formatCurrency, onSelectTab }: ApprovalsOverviewViewProps) {
   const { t } = useTranslation('dashboard')
-  const { formatDate } = useDashboardFormat()
+  const { formatCompactCurrency, formatDate } = useDashboardFormat()
 
   const requests = approvalQueue.filter((item) => item.kind === 'SPEND_STEP' || item.kind === 'NEED_STEP')
   const renewals = approvalQueue.filter((item) => item.kind === 'RENEWAL')
@@ -28,94 +28,92 @@ export function ApprovalsOverviewView({ displayName, formatCurrency, onSelectTab
   return (
     <div className='space-y-6'>
       <PageHeader
-        code='UF-15 · FR-5.14'
         subtitle={t('approvals.overview.subtitle')}
         title={t('approvals.overview.title', { name: displayName })}
       />
 
-      <section aria-label={t('approvals.overview.workRegion')} className='grid gap-4 sm:grid-cols-2 xl:grid-cols-3'>
-        <StatTile
-          action={t('approvals.overview.openQueue')}
-          hint={t('approvals.overview.overdueHint', { count: overdue.length })}
-          icon={Wallet}
-          label={t('approvals.overview.requests')}
-          onClick={() => onSelectTab('queue')}
-          tone={overdue.length > 0 ? 'danger' : 'primary'}
-          value={String(requests.length)}
-        />
-        <StatTile
-          action={t('approvals.overview.openQueue')}
-          hint={t('approvals.overview.nearestDeadline', {
-            name: approvalQueue.find((item) => item.id === nearestDeadline.id)?.software ?? nearestDeadline.vendor,
-            date: formatDate(nearestDeadline.cancellationDeadline)
-          })}
-          icon={RefreshCw}
-          label={t('approvals.overview.renewals')}
-          onClick={() => onSelectTab('queue')}
-          tone='warning'
-          value={String(renewals.length)}
-        />
-        <StatTile
-          action={t('approvals.overview.openQueue')}
-          hint={t('approvals.overview.chargesHint')}
-          icon={FileWarning}
-          label={t('approvals.overview.charges')}
-          onClick={() => onSelectTab('queue')}
-          tone='info'
-          value={String(charges.length)}
-        />
-      </section>
+      <div className='grid gap-4 xl:grid-cols-2'>
+        <section aria-label={t('approvals.overview.workRegion')} className='grid gap-4 sm:grid-cols-3'>
+          <StatTile
+            hint={t('approvals.overview.overdueHint', { count: overdue.length })}
+            icon={Wallet}
+            label={t('approvals.overview.requests')}
+            onClick={() => onSelectTab('queue')}
+            tone={overdue.length > 0 ? 'danger' : 'primary'}
+            value={String(requests.length)}
+          />
+          <StatTile
+            hint={t('approvals.overview.nearestDeadline', {
+              name: approvalQueue.find((item) => item.id === nearestDeadline.id)?.software ?? nearestDeadline.vendor,
+              date: formatDate(nearestDeadline.cancellationDeadline)
+            })}
+            icon={RefreshCw}
+            label={t('approvals.overview.renewals')}
+            onClick={() => onSelectTab('queue')}
+            tone='warning'
+            value={String(renewals.length)}
+          />
+          <StatTile
+            hint={t('approvals.overview.chargesHint')}
+            icon={FileWarning}
+            label={t('approvals.overview.charges')}
+            onClick={() => onSelectTab('queue')}
+            tone='info'
+            value={String(charges.length)}
+          />
+        </section>
 
-      <section aria-label={t('approvals.overview.spendRegion')} className='grid gap-4 sm:grid-cols-3'>
-        <StatTile
-          hint={t('finance.report.ofBudget', { budget: formatCurrency(approverReport.totalBudget) })}
-          icon={CircleDollarSign}
-          label={t('approvals.overview.totalSpend', { period: approverReport.period })}
-          onClick={() => onSelectTab('reports')}
-          tone='primary'
-          value={formatCurrency(approverReport.totalSpend)}
-        />
-        <StatTile
-          icon={Sparkles}
-          label={t('finance.report.savingsImmediate')}
-          onClick={() => onSelectTab('reports')}
-          tone='success'
-          value={formatCurrency(approverReport.savings.immediate)}
-        />
-        <StatTile
-          hint={t('finance.report.savingsSeparate')}
-          icon={Sparkles}
-          label={t('finance.report.savingsNextRenewal')}
-          onClick={() => onSelectTab('reports')}
-          tone='info'
-          value={formatCurrency(approverReport.savings.nextRenewal)}
-        />
-      </section>
+        <section aria-label={t('approvals.overview.spendRegion')} className='grid gap-4 sm:grid-cols-3'>
+          <StatTile
+            hint={t('finance.report.ofBudget', { budget: formatCompactCurrency(approverReport.totalBudget) })}
+            icon={CircleDollarSign}
+            label={t('approvals.overview.totalSpend', { period: approverReport.period })}
+            onClick={() => onSelectTab('reports')}
+            tone='primary'
+            value={formatCompactCurrency(approverReport.totalSpend)}
+          />
+          <StatTile
+            icon={Sparkles}
+            label={t('finance.report.savingsImmediate')}
+            onClick={() => onSelectTab('reports')}
+            tone='success'
+            value={formatCompactCurrency(approverReport.savings.immediate)}
+          />
+          <StatTile
+            hint={t('finance.report.savingsSeparate')}
+            icon={Sparkles}
+            label={t('finance.report.savingsNextRenewal')}
+            onClick={() => onSelectTab('reports')}
+            tone='info'
+            value={formatCompactCurrency(approverReport.savings.nextRenewal)}
+          />
+        </section>
+      </div>
 
       <div className='grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]'>
         <Panel>
           <PanelTitle hint={t('approvals.overview.urgentHint')} title={t('approvals.overview.urgentTitle')} />
-          <ul className='mt-4 divide-y divide-border'>
+          <ul className='mt-3 divide-y divide-border'>
             {mostUrgent.map((item) => (
-              <li className='flex flex-wrap items-center justify-between gap-3 py-3' key={item.id}>
-                <div className='min-w-0'>
-                  <p className='text-[0.7rem] font-bold text-muted-foreground'>
-                    {t(`approvals.kind.${item.kind}`)} · <span className='font-mono'>{item.reference}</span>
-                  </p>
-                  <p className='truncate text-sm font-bold'>{item.software}</p>
-                  <p className='text-xs text-muted-foreground'>{formatCurrency(item.amount)}</p>
-                </div>
-                <div className='flex items-center gap-3'>
-                  <SlaBadge item={item} />
-                  <button
-                    aria-label={t('approvals.queue.openItem', { reference: item.reference })}
-                    className='grid size-8 place-items-center rounded-lg border border-border text-primary transition hover:border-primary'
-                    onClick={() => onSelectTab(tabForKind(item.kind), { id: item.id })}
-                    type='button'
-                  >
-                    <ChevronRight aria-hidden='true' className='size-4' />
-                  </button>
-                </div>
+              <li key={item.id}>
+                <button
+                  aria-label={t('approvals.queue.openItem', { reference: item.reference })}
+                  className='-mx-2 flex w-[calc(100%+1rem)] items-center justify-between gap-3 rounded-lg px-2 py-2.5 text-left transition hover:bg-surface-subtle/70'
+                  onClick={() => onSelectTab(tabForKind(item.kind), { id: item.id })}
+                  type='button'
+                >
+                  <span className='min-w-0'>
+                    <span className='block text-[0.7rem] font-bold text-muted-foreground'>
+                      {t(`approvals.kind.${item.kind}`)} · <span className='font-mono'>{item.reference}</span>
+                    </span>
+                    <span className='block truncate text-sm font-bold'>{item.software}</span>
+                    <span className='block text-xs text-muted-foreground'>{formatCurrency(item.amount)}</span>
+                  </span>
+                  <span className='flex shrink-0 items-center gap-2'>
+                    <SlaBadge item={item} />
+                    <ChevronRight aria-hidden='true' className='size-4 text-muted-foreground' />
+                  </span>
+                </button>
               </li>
             ))}
           </ul>

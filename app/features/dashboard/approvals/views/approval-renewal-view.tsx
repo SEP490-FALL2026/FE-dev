@@ -102,7 +102,6 @@ export function ApprovalRenewalView({ formatCurrency, itemId, onSelectTab }: App
 
       <PageHeader
         actions={<SlaBadge item={queueItem} />}
-        code='UF-15 · APV-03'
         subtitle={`${queueItem.reference} · ${detail.vendor}`}
         title={t('approvals.renewal.title', { software: queueItem.software })}
       />

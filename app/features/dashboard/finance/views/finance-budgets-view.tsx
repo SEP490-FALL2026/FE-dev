@@ -1,83 +1,97 @@
-import { Archive, CalendarRange, CheckCircle2, Link2, Pencil, Plus, TriangleAlert, X } from 'lucide-react'
+import { Archive, CheckCircle2, Lock, Pencil, PiggyBank, Plus, Receipt, TriangleAlert, Wallet } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { RemainingValue, getRemaining, type BudgetSnapshot } from '../../budget-figures'
+import { RemainingValue, getRemaining } from '../../budget-figures'
 import {
   Notice,
   PageHeader,
   Panel,
   PanelTitle,
   Pill,
-  inputClassName,
-  primaryButtonClassName,
-  secondaryButtonClassName
+  StatTile,
+  secondaryButtonClassName,
+  useDashboardFormat
 } from '../../dashboard-ui'
+import { sumPeriod, yearMonths } from '../budget-periods'
 import {
-  budgetPeriodType,
   commitmentsToRecord,
   costCenters,
-  currentBudgetLines,
-  currentPeriod,
-  type CostCenter
+  currentMonth,
+  monthlyBudgetLines,
+  splitEvenly,
+  type CostCenter,
+  type MonthlyBudgetLine
 } from '../finance-data'
+import { BudgetPeriodFilter, useBudgetPeriod } from './budget-period-filter'
+import { BudgetEditorDialog, NewCostCenterDialog } from './finance-budget-dialogs'
 
 type Editor = { costCenter: string; mode: 'create' | 'edit' } | null
-type Result = { backfilled: number; costCenter: string; mode: 'create' | 'edit'; negative: boolean } | null
+type Result = {
+  backfilled: number
+  costCenter: string
+  mode: 'create' | 'edit'
+  negative: boolean
+  periodLabel: string
+} | null
 
 export function FinanceBudgetsView({ formatCurrency }: { formatCurrency: (value: number) => string }) {
   const { t } = useTranslation('dashboard')
+  const { formatCompactCurrency, formatPercent } = useDashboardFormat()
   const [centers, setCenters] = useState(costCenters)
-  const [lines, setLines] = useState<BudgetSnapshot[]>(currentBudgetLines)
+  const [lines, setLines] = useState<MonthlyBudgetLine[]>(monthlyBudgetLines)
+  const periodState = useBudgetPeriod()
+  const { period, periodLabel } = periodState
   const [editor, setEditor] = useState<Editor>(null)
-  const [amount, setAmount] = useState('')
-  const [reason, setReason] = useState('')
-  const [showErrors, setShowErrors] = useState(false)
   const [result, setResult] = useState<Result>(null)
   const [showNewCenter, setShowNewCenter] = useState(false)
-  const [newCenter, setNewCenter] = useState({ code: '', kind: 'UNIT' as CostCenter['kind'], name: '' })
 
-  const editingLine = editor ? lines.find((line) => line.costCenter === editor.costCenter) : undefined
-  const parsedAmount = Number(amount.replace(/\D/g, ''))
-  const unattached = editor
-    ? commitmentsToRecord.filter((item) => item.costCenter === editor.costCenter && !item.budgetAttached)
-    : []
-  const previewRemaining =
-    editingLine && parsedAmount > 0 ? getRemaining({ ...editingLine, budget: parsedAmount }) : null
-
-  const openEditor = (costCenter: string, mode: 'create' | 'edit') => {
-    setEditor({ costCenter, mode })
-    setAmount('')
-    setReason('')
-    setShowErrors(false)
-    setResult(null)
+  const budgetCenters = [...new Set(lines.map((line) => line.costCenter))]
+  const rows = budgetCenters.map((costCenter) => ({
+    center: centers.find((cc) => cc.code === costCenter),
+    costCenter,
+    ...sumPeriod(lines, costCenter, period.months)
+  }))
+  const budgetedRows = rows.filter((row) => row.budget !== null)
+  const totals = {
+    actual: rows.reduce((sum, row) => sum + row.actual, 0),
+    budget: budgetedRows.reduce((sum, row) => sum + (row.budget ?? 0), 0),
+    held: rows.reduce((sum, row) => sum + row.held, 0),
+    remaining: budgetedRows.reduce((sum, row) => sum + (getRemaining(row) ?? 0), 0)
   }
 
-  const saveBudget = () => {
-    if (!editor || !editingLine) return
-    if (parsedAmount <= 0 || (editor.mode === 'edit' && reason.trim().length === 0)) {
-      setShowErrors(true)
-      return
-    }
+  const editingRow = editor ? rows.find((row) => row.costCenter === editor.costCenter) : undefined
+  const unattached =
+    editor?.mode === 'create' && period.months.includes(currentMonth)
+      ? commitmentsToRecord.filter((item) => item.costCenter === editor.costCenter && !item.budgetAttached)
+      : []
+
+  const saveBudget = (amount: number, previewRemaining: number) => {
+    if (!editor) return
+    const shares = splitEvenly(amount, period.months.length)
     setLines((current) =>
-      current.map((line) => (line.costCenter === editor.costCenter ? { ...line, budget: parsedAmount } : line))
+      current.map((line) =>
+        line.costCenter === editor.costCenter && period.months.includes(line.month)
+          ? { ...line, budget: shares[period.months.indexOf(line.month)] }
+          : line
+      )
     )
     setResult({
-      backfilled: editor.mode === 'create' ? unattached.length : 0,
+      backfilled: unattached.length,
       costCenter: editor.costCenter,
       mode: editor.mode,
-      negative: (previewRemaining ?? 0) < 0
+      negative: previewRemaining < 0,
+      periodLabel: periodLabel(period)
     })
     setEditor(null)
   }
 
-  const addCenter = () => {
-    if (!newCenter.code.trim() || !newCenter.name.trim()) return
-    setCenters((current) => [
+  const addCenter = (center: Pick<CostCenter, 'code' | 'kind' | 'name'>) => {
+    setCenters((current) => [...current, { ...center, status: 'ACTIVE' }])
+    setLines((current) => [
       ...current,
-      { code: newCenter.code.trim().toUpperCase(), kind: newCenter.kind, name: newCenter.name.trim(), status: 'ACTIVE' }
+      ...yearMonths.map((month) => ({ actual: 0, budget: null, costCenter: center.code, held: 0, month }))
     ])
-    setNewCenter({ code: '', kind: 'UNIT', name: '' })
     setShowNewCenter(false)
   }
 
@@ -86,39 +100,78 @@ export function FinanceBudgetsView({ formatCurrency }: { formatCurrency: (value:
 
   return (
     <div className='space-y-6'>
-      <PageHeader
-        actions={
-          <span className='inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-semibold text-muted-foreground'>
-            <CalendarRange aria-hidden='true' className='size-4 text-primary' />
-            {t('finance.budgets.periodType', { type: t(`finance.budgets.periodTypes.${budgetPeriodType}`) })}
-          </span>
-        }
-        code='UF-11 · FIN-22 → FIN-06'
-        subtitle={t('finance.budgets.subtitle')}
-        title={t('finance.budgets.title')}
-      />
+      <PageHeader subtitle={t('finance.budgets.subtitle')} title={t('finance.budgets.title')} />
 
       {result && (
         <Notice icon={result.negative ? TriangleAlert : CheckCircle2} tone={result.negative ? 'danger' : 'success'}>
           <p>
             {result.mode === 'create'
-              ? t('finance.budgets.createdResult', { costCenter: result.costCenter, count: result.backfilled })
-              : t('finance.budgets.editedResult', { costCenter: result.costCenter })}
+              ? t('finance.budgets.createdResult', {
+                  costCenter: result.costCenter,
+                  count: result.backfilled,
+                  period: result.periodLabel
+                })
+              : t('finance.budgets.editedResult', { costCenter: result.costCenter, period: result.periodLabel })}
           </p>
           {result.negative && <p className='mt-1'>{t('finance.budgets.negativeResult')}</p>}
         </Notice>
       )}
 
+      <section aria-label={t('finance.budgets.summaryRegion')} className='grid gap-4 sm:grid-cols-2 xl:grid-cols-4'>
+        <StatTile
+          hint={t('finance.budgets.tileBudgetHint', { count: budgetedRows.length, total: rows.length })}
+          icon={Wallet}
+          label={t('finance.budgets.tileBudget')}
+          value={formatCompactCurrency(totals.budget)}
+        />
+        <StatTile
+          hint={t('finance.budgets.tileActualHint')}
+          icon={Receipt}
+          label={t('budget.actual')}
+          tone='info'
+          value={formatCompactCurrency(totals.actual)}
+        />
+        <StatTile
+          hint={t('finance.budgets.tileHeldHint')}
+          icon={Lock}
+          label={t('budget.held')}
+          tone='warning'
+          value={formatCompactCurrency(totals.held)}
+        />
+        <StatTile
+          hint={t('finance.budgets.tileRemainingHint')}
+          icon={PiggyBank}
+          label={t('budget.remaining')}
+          tone={totals.remaining < 0 ? 'danger' : 'success'}
+          value={formatCompactCurrency(totals.remaining)}
+        />
+      </section>
+
+      <BudgetPeriodFilter {...periodState} />
+
       <Panel>
         <PanelTitle
           hint={t('finance.budgets.budgetsHint')}
-          title={t('finance.budgets.budgetsTitle', { period: currentPeriod })}
+          title={t('finance.budgets.budgetsTitle', { period: periodLabel(period) })}
         />
-        <div className='mt-4 overflow-x-auto'>
-          <table className='w-full min-w-184 text-left text-xs'>
+        <div className='mt-3 flex flex-wrap items-center gap-4 text-[0.7rem] text-muted-foreground'>
+          <span className='inline-flex items-center gap-1.5'>
+            <span aria-hidden='true' className='size-2.5 rounded-sm bg-primary' />
+            {t('budget.actual')}
+          </span>
+          <span className='inline-flex items-center gap-1.5'>
+            <span aria-hidden='true' className='size-2.5 rounded-sm bg-warning' />
+            {t('budget.held')}
+          </span>
+          <span>{t('finance.budgets.compactNote')}</span>
+        </div>
+
+        <div className='mt-3 overflow-x-auto'>
+          <table className='w-full min-w-200 text-left text-xs'>
             <thead>
               <tr className='border-b border-border text-muted-foreground'>
                 <th className='py-2.5 font-semibold'>{t('budget.costCenter')}</th>
+                <th className='w-[32%] py-2.5 pl-4 font-semibold'>{t('finance.budgets.colUsage')}</th>
                 <th className='py-2.5 text-right font-semibold'>{t('budget.budget')}</th>
                 <th className='py-2.5 text-right font-semibold'>{t('budget.actual')}</th>
                 <th className='py-2.5 text-right font-semibold'>{t('budget.held')}</th>
@@ -127,168 +180,101 @@ export function FinanceBudgetsView({ formatCurrency }: { formatCurrency: (value:
               </tr>
             </thead>
             <tbody className='divide-y divide-border'>
-              {lines.map((line) => (
-                <tr key={line.costCenter}>
-                  <td className='py-3 font-mono font-bold'>{line.costCenter}</td>
-                  <td className='py-3 text-right'>
-                    {line.budget === null ? (
-                      <Pill tone='warning'>{t('budget.noBudget')}</Pill>
-                    ) : (
-                      formatCurrency(line.budget)
-                    )}
-                  </td>
-                  <td className='py-3 text-right'>{formatCurrency(line.actual)}</td>
-                  <td className='py-3 text-right text-warning'>{formatCurrency(line.held)}</td>
-                  <td className='py-3 text-right'>
-                    <RemainingValue formatCurrency={formatCurrency} remaining={getRemaining(line)} />
-                  </td>
-                  <td className='py-3 text-right'>
-                    {line.budget === null ? (
-                      <button
-                        className='inline-flex items-center gap-1 font-bold text-primary hover:underline'
-                        onClick={() => openEditor(line.costCenter, 'create')}
-                        type='button'
-                      >
-                        <Plus aria-hidden='true' className='size-3.5' />
-                        {t('finance.budgets.create')}
-                      </button>
-                    ) : (
-                      <button
-                        className='inline-flex items-center gap-1 font-semibold text-muted-foreground hover:text-primary'
-                        onClick={() => openEditor(line.costCenter, 'edit')}
-                        type='button'
-                      >
-                        <Pencil aria-hidden='true' className='size-3.5' />
-                        {t('finance.budgets.edit')}
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
+              {rows.map((row) => {
+                const remaining = getRemaining(row)
+                const used = row.budget ? (row.actual + row.held) / row.budget : null
+                const scale = Math.max(row.budget ?? 0, row.actual + row.held) || 1
+
+                return (
+                  <tr key={row.costCenter}>
+                    <td className='py-3'>
+                      <p className='font-mono font-bold'>{row.costCenter}</p>
+                      {row.center && <p className='text-[0.7rem] text-muted-foreground'>{row.center.name}</p>}
+                    </td>
+                    <td className='py-3 pl-4'>
+                      {used === null ? (
+                        <Pill tone='warning'>{t('budget.noBudget')}</Pill>
+                      ) : (
+                        <div className='flex items-center gap-3'>
+                          <div
+                            aria-label={t('finance.budgets.usageAria', { percent: formatPercent(used) })}
+                            className='relative h-2.5 flex-1 overflow-hidden rounded-full bg-surface-subtle'
+                            role='img'
+                          >
+                            <div
+                              className='absolute inset-y-0 left-0 bg-primary'
+                              style={{ width: `${(row.actual / scale) * 100}%` }}
+                            />
+                            <div
+                              className='absolute inset-y-0 bg-warning'
+                              style={{ left: `${(row.actual / scale) * 100}%`, width: `${(row.held / scale) * 100}%` }}
+                            />
+                          </div>
+                          <span
+                            className={`w-10 text-right font-bold tabular-nums ${
+                              used > 1 ? 'text-danger' : used > 0.85 ? 'text-warning' : 'text-foreground'
+                            }`}
+                          >
+                            {formatPercent(used)}
+                          </span>
+                        </div>
+                      )}
+                    </td>
+                    <td
+                      className='py-3 text-right tabular-nums'
+                      title={row.budget === null ? undefined : formatCurrency(row.budget)}
+                    >
+                      {row.budget === null ? '—' : formatCompactCurrency(row.budget)}
+                    </td>
+                    <td className='py-3 text-right tabular-nums' title={formatCurrency(row.actual)}>
+                      {formatCompactCurrency(row.actual)}
+                    </td>
+                    <td className='py-3 text-right text-warning tabular-nums' title={formatCurrency(row.held)}>
+                      {formatCompactCurrency(row.held)}
+                    </td>
+                    <td
+                      className='py-3 text-right tabular-nums'
+                      title={remaining === null ? undefined : formatCurrency(remaining)}
+                    >
+                      {remaining === null ? (
+                        '—'
+                      ) : (
+                        <RemainingValue formatCurrency={formatCompactCurrency} remaining={remaining} />
+                      )}
+                    </td>
+                    <td className='py-3 text-right'>
+                      {row.budget === null ? (
+                        <button
+                          className='inline-flex items-center gap-1 font-bold text-primary hover:underline'
+                          onClick={() => setEditor({ costCenter: row.costCenter, mode: 'create' })}
+                          type='button'
+                        >
+                          <Plus aria-hidden='true' className='size-3.5' />
+                          {t('finance.budgets.create')}
+                        </button>
+                      ) : (
+                        <button
+                          className='inline-flex items-center gap-1 font-semibold text-muted-foreground hover:text-primary'
+                          onClick={() => setEditor({ costCenter: row.costCenter, mode: 'edit' })}
+                          type='button'
+                        >
+                          <Pencil aria-hidden='true' className='size-3.5' />
+                          {t('finance.budgets.edit')}
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>
       </Panel>
 
-      {editor && editingLine && (
-        <Panel className='border-primary/40'>
-          <PanelTitle
-            action={
-              <button
-                aria-label={t('ui.close')}
-                className='grid size-8 place-items-center rounded-lg text-muted-foreground hover:bg-surface-subtle'
-                onClick={() => setEditor(null)}
-                type='button'
-              >
-                <X aria-hidden='true' className='size-4' />
-              </button>
-            }
-            hint={editor.mode === 'create' ? t('finance.budgets.createHint') : t('finance.budgets.editHint')}
-            title={
-              editor.mode === 'create'
-                ? t('finance.budgets.createTitle', { costCenter: editor.costCenter, period: currentPeriod })
-                : t('finance.budgets.editTitle', { costCenter: editor.costCenter, period: currentPeriod })
-            }
-          />
-
-          <form
-            className='mt-4 grid gap-5 lg:grid-cols-2'
-            onSubmit={(event) => {
-              event.preventDefault()
-              saveBudget()
-            }}
-          >
-            <div className='space-y-4'>
-              <div>
-                <label className='text-xs font-bold text-foreground' htmlFor='budget-amount'>
-                  {t('finance.budgets.amountLabel')}
-                </label>
-                <input
-                  className={`${inputClassName} mt-2`}
-                  id='budget-amount'
-                  inputMode='numeric'
-                  onChange={(event) => setAmount(event.target.value)}
-                  placeholder={t('finance.budgets.amountPlaceholder')}
-                  value={amount}
-                />
-                {showErrors && parsedAmount <= 0 && (
-                  <p className='mt-1 text-[0.7rem] font-semibold text-danger' role='alert'>
-                    {t('finance.budgets.amountRequired')}
-                  </p>
-                )}
-              </div>
-
-              {editor.mode === 'edit' && (
-                <div>
-                  <label className='text-xs font-bold text-foreground' htmlFor='budget-reason'>
-                    {t('finance.budgets.reasonLabel')}
-                  </label>
-                  <textarea
-                    className={`${inputClassName} mt-2 min-h-20`}
-                    id='budget-reason'
-                    onChange={(event) => setReason(event.target.value)}
-                    value={reason}
-                  />
-                  {showErrors && reason.trim().length === 0 && (
-                    <p className='mt-1 text-[0.7rem] font-semibold text-danger' role='alert'>
-                      {t('finance.budgets.reasonRequired')}
-                    </p>
-                  )}
-                </div>
-              )}
-
-              <button className={primaryButtonClassName} type='submit'>
-                <CheckCircle2 aria-hidden='true' className='size-3.5' />
-                {editor.mode === 'create' ? t('finance.budgets.submitCreate') : t('finance.budgets.submitEdit')}
-              </button>
-            </div>
-
-            <div className='space-y-3 rounded-xl border border-border bg-background p-4 text-xs'>
-              {editor.mode === 'create' && (
-                <div>
-                  <p className='flex items-center gap-1.5 font-bold text-foreground'>
-                    <Link2 aria-hidden='true' className='size-3.5 text-primary' />
-                    {t('finance.budgets.backfillTitle', { count: unattached.length })}
-                  </p>
-                  <ul className='mt-2 space-y-1 text-muted-foreground'>
-                    {unattached.map((item) => (
-                      <li className='flex justify-between gap-2' key={item.id}>
-                        <span>
-                          {item.code} · {item.software}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                  <p className='mt-2 text-[0.7rem] text-muted-foreground'>{t('finance.budgets.backfillNote')}</p>
-                </div>
-              )}
-              <div className='flex items-center justify-between border-t border-border pt-3'>
-                <span className='font-semibold text-muted-foreground'>{t('finance.budgets.previewRemaining')}</span>
-                {previewRemaining === null ? (
-                  <span className='text-muted-foreground'>—</span>
-                ) : (
-                  <RemainingValue formatCurrency={formatCurrency} remaining={previewRemaining} />
-                )}
-              </div>
-              {previewRemaining !== null && previewRemaining < 0 && (
-                <p className='text-[0.7rem] font-semibold text-danger'>{t('finance.budgets.negativeExplain')}</p>
-              )}
-              {editor.mode === 'edit' && (
-                <p className='text-[0.7rem] text-muted-foreground'>{t('finance.budgets.editNote')}</p>
-              )}
-            </div>
-          </form>
-        </Panel>
-      )}
-
       <Panel>
         <PanelTitle
           action={
-            <button
-              className={secondaryButtonClassName}
-              onClick={() => setShowNewCenter((open) => !open)}
-              type='button'
-            >
+            <button className={secondaryButtonClassName} onClick={() => setShowNewCenter(true)} type='button'>
               <Plus aria-hidden='true' className='size-3.5' />
               {t('finance.budgets.addCenter')}
             </button>
@@ -296,45 +282,6 @@ export function FinanceBudgetsView({ formatCurrency }: { formatCurrency: (value:
           hint={t('finance.budgets.catalogHint')}
           title={t('finance.budgets.catalogTitle')}
         />
-
-        {showNewCenter && (
-          <form
-            className='mt-4 grid gap-3 rounded-xl border border-border bg-background p-4 sm:grid-cols-[1fr_1.5fr_1fr_auto]'
-            onSubmit={(event) => {
-              event.preventDefault()
-              addCenter()
-            }}
-          >
-            <input
-              aria-label={t('finance.budgets.newCode')}
-              className={inputClassName}
-              onChange={(event) => setNewCenter((current) => ({ ...current, code: event.target.value }))}
-              placeholder={t('finance.budgets.newCode')}
-              value={newCenter.code}
-            />
-            <input
-              aria-label={t('finance.budgets.newName')}
-              className={inputClassName}
-              onChange={(event) => setNewCenter((current) => ({ ...current, name: event.target.value }))}
-              placeholder={t('finance.budgets.newName')}
-              value={newCenter.name}
-            />
-            <select
-              aria-label={t('finance.budgets.colKind')}
-              className={inputClassName}
-              onChange={(event) =>
-                setNewCenter((current) => ({ ...current, kind: event.target.value as CostCenter['kind'] }))
-              }
-              value={newCenter.kind}
-            >
-              <option value='UNIT'>{t('finance.budgets.kind.UNIT')}</option>
-              <option value='COMPANY'>{t('finance.budgets.kind.COMPANY')}</option>
-            </select>
-            <button className={primaryButtonClassName} type='submit'>
-              {t('ui.save')}
-            </button>
-          </form>
-        )}
 
         <div className='mt-4 overflow-x-auto'>
           <table className='w-full min-w-160 text-left text-xs'>
@@ -393,6 +340,28 @@ export function FinanceBudgetsView({ formatCurrency }: { formatCurrency: (value:
         </div>
         <p className='mt-3 text-[0.7rem] text-muted-foreground'>{t('finance.budgets.catalogNote')}</p>
       </Panel>
+
+      {editor && editingRow && (
+        <BudgetEditorDialog
+          costCenter={editor.costCenter}
+          figures={editingRow}
+          formatCurrency={formatCurrency}
+          key={`${editor.costCenter}-${period.key}`}
+          mode={editor.mode}
+          onClose={() => setEditor(null)}
+          onSave={saveBudget}
+          periodLabel={periodLabel(period)}
+          unattached={unattached}
+        />
+      )}
+
+      {showNewCenter && (
+        <NewCostCenterDialog
+          existingCodes={centers.map((cc) => cc.code)}
+          onClose={() => setShowNewCenter(false)}
+          onSave={addCenter}
+        />
+      )}
     </div>
   )
 }

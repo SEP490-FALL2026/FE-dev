@@ -1,8 +1,14 @@
-import { BellRing, CheckCircle2, Clock, Info, Save } from 'lucide-react'
+import { ArrowLeft, BellRing, CheckCircle2, ChevronRight, Clock, Info, Save } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { BudgetSnapshotPanel, CostEstimatePanel, getBorneCost, getRemaining } from '../../budget-figures'
+import {
+  BudgetSnapshotPanel,
+  CostEstimatePanel,
+  getBorneCost,
+  getRemaining,
+  useFormatPeriod
+} from '../../budget-figures'
 import {
   Notice,
   PageHeader,
@@ -22,6 +28,7 @@ import {
   type BudgetOpinion,
   type CommitmentToRecord
 } from '../finance-data'
+import type { FinanceTabKey } from '../finance-nav'
 
 interface RecordedCommitment {
   commitment: CommitmentToRecord
@@ -31,56 +38,70 @@ interface RecordedCommitment {
 
 const opinionTones: Record<BudgetOpinion, Tone> = { NO_BUDGET: 'warning', OVER: 'danger', WITHIN: 'success' }
 
-export function FinanceCommitmentsView({ formatCurrency }: { formatCurrency: (value: number) => string }) {
-  const { t } = useTranslation('dashboard')
-  const { formatDateTime } = useDashboardFormat()
+/**
+ * FIN-20 → FIN-21: the queue opens first; choosing a commitment opens its own recording screen (`id` search param).
+ * The view stays mounted while switching between the two, so the queue and recorded items survive the round trip.
+ */
+export function FinanceCommitmentsView({
+  commitmentId,
+  formatCurrency,
+  onSelectTab
+}: {
+  commitmentId?: string
+  formatCurrency: (value: number) => string
+  onSelectTab: (tab: FinanceTabKey, extraParams?: Record<string, string>) => void
+}) {
   const [queue, setQueue] = useState(commitmentsToRecord)
   const [recorded, setRecorded] = useState<RecordedCommitment[]>([])
-  const [selectedId, setSelectedId] = useState<string | null>(commitmentsToRecord[0]?.id ?? null)
-  const [opinion, setOpinion] = useState<BudgetOpinion | null>(null)
-  const [note, setNote] = useState('')
-  const [showError, setShowError] = useState(false)
+  const selected = queue.find((item) => item.id === commitmentId)
 
-  const selected = queue.find((item) => item.id === selectedId) ?? null
-  const snapshot = selected ? findBudgetLine(selected.costCenter) : undefined
-  const effectiveOpinion: BudgetOpinion | null = selected && !selected.budgetAttached ? 'NO_BUDGET' : opinion
-  const lastRecorded = recorded.at(-1)
-
-  const selectItem = (id: string) => {
-    setSelectedId(id)
-    setOpinion(null)
-    setNote('')
-    setShowError(false)
+  const record = (entry: RecordedCommitment) => {
+    setRecorded((current) => [...current, entry])
+    setQueue((current) => current.filter((item) => item.id !== entry.commitment.id))
+    onSelectTab('commitments')
   }
 
-  const record = () => {
-    if (!selected || !effectiveOpinion) {
-      setShowError(true)
-      return
-    }
-    const nextQueue = queue.filter((item) => item.id !== selected.id)
-    setRecorded((current) => [...current, { commitment: selected, note: note.trim(), opinion: effectiveOpinion }])
-    setQueue(nextQueue)
-    setSelectedId(nextQueue[0]?.id ?? null)
-    setOpinion(null)
-    setNote('')
-    setShowError(false)
-  }
-
-  const suggestedFor = (item: CommitmentToRecord): BudgetOpinion => {
-    const line = findBudgetLine(item.costCenter)
-    const remaining = line ? getRemaining(line) : null
-    if (!item.budgetAttached || remaining === null) return 'NO_BUDGET'
-    return remaining >= 0 ? 'WITHIN' : 'OVER'
+  if (selected) {
+    return (
+      <CommitmentDetail
+        commitment={selected}
+        formatCurrency={formatCurrency}
+        key={selected.id}
+        onBack={() => onSelectTab('commitments')}
+        onRecord={record}
+      />
+    )
   }
 
   return (
+    <CommitmentQueue
+      formatCurrency={formatCurrency}
+      onOpen={(id) => onSelectTab('commitments', { id })}
+      queue={queue}
+      recorded={recorded}
+    />
+  )
+}
+
+function CommitmentQueue({
+  formatCurrency,
+  onOpen,
+  queue,
+  recorded
+}: {
+  formatCurrency: (value: number) => string
+  onOpen: (id: string) => void
+  queue: CommitmentToRecord[]
+  recorded: RecordedCommitment[]
+}) {
+  const { t } = useTranslation('dashboard')
+  const formatPeriod = useFormatPeriod()
+  const { formatDateTime } = useDashboardFormat()
+  const lastRecorded = recorded.at(-1)
+
+  return (
     <div className='space-y-6'>
-      <PageHeader
-        code='UF-11 · FIN-20 → FIN-21'
-        subtitle={t('finance.commitments.subtitle')}
-        title={t('finance.commitments.title')}
-      />
+      <PageHeader subtitle={t('finance.commitments.subtitle')} title={t('finance.commitments.title')} />
 
       <Notice icon={Info} tone='info'>
         {t('finance.commitments.ruleNotice')}
@@ -100,15 +121,18 @@ export function FinanceCommitmentsView({ formatCurrency }: { formatCurrency: (va
       <Panel>
         <PanelTitle hint={t('finance.commitments.queueHint')} title={t('finance.commitments.queueTitle')} />
         <div className='mt-4 overflow-x-auto'>
-          <table className='w-full min-w-184 text-left text-xs'>
+          <table className='w-full min-w-200 text-left text-xs'>
             <thead>
               <tr className='border-b border-border text-muted-foreground'>
                 <th className='py-2.5 font-semibold'>{t('finance.commitments.colCommitment')}</th>
                 <th className='py-2.5 font-semibold'>{t('finance.commitments.colRequest')}</th>
                 <th className='py-2.5 font-semibold'>{t('budget.costCenter')}</th>
                 <th className='py-2.5 text-right font-semibold'>{t('budget.borneCost')}</th>
-                <th className='py-2.5 font-semibold'>{t('finance.commitments.colBudget')}</th>
+                <th className='py-2.5 pl-6 font-semibold'>{t('finance.commitments.colBudget')}</th>
                 <th className='py-2.5 font-semibold'>{t('finance.commitments.colDue')}</th>
+                <th className='py-2.5'>
+                  <span className='sr-only'>{t('finance.commitments.openDetail')}</span>
+                </th>
               </tr>
             </thead>
             <tbody className='divide-y divide-border'>
@@ -117,20 +141,11 @@ export function FinanceCommitmentsView({ formatCurrency }: { formatCurrency: (va
 
                 return (
                   <tr
-                    aria-selected={item.id === selectedId}
-                    className={`cursor-pointer transition hover:bg-surface-subtle/60 ${item.id === selectedId ? 'bg-primary-soft/30' : ''}`}
+                    className='cursor-pointer transition hover:bg-surface-subtle/60'
                     key={item.id}
-                    onClick={() => selectItem(item.id)}
+                    onClick={() => onOpen(item.id)}
                   >
-                    <td className='py-3'>
-                      <button
-                        className='font-mono font-bold text-primary hover:underline'
-                        onClick={() => selectItem(item.id)}
-                        type='button'
-                      >
-                        {item.code}
-                      </button>
-                    </td>
+                    <td className='py-3 font-mono font-bold text-primary'>{item.code}</td>
                     <td className='py-3'>
                       <p className='font-semibold text-foreground'>{item.software}</p>
                       <p className='text-[0.7rem] text-muted-foreground'>
@@ -138,10 +153,10 @@ export function FinanceCommitmentsView({ formatCurrency }: { formatCurrency: (va
                       </p>
                     </td>
                     <td className='py-3 font-mono'>
-                      {item.costCenter} · {currentPeriod}
+                      {item.costCenter} · {formatPeriod(currentPeriod)}
                     </td>
                     <td className='py-3 text-right font-bold'>{formatCurrency(getBorneCost(item.estimate))}</td>
-                    <td className='py-3'>
+                    <td className='py-3 pl-6'>
                       {item.budgetAttached ? (
                         <Pill tone='success'>{t('finance.commitments.attached')}</Pill>
                       ) : (
@@ -156,12 +171,26 @@ export function FinanceCommitmentsView({ formatCurrency }: { formatCurrency: (va
                         {isOverdue ? t('finance.commitments.overdue') : formatDateTime(item.recordingDueAt)}
                       </span>
                     </td>
+                    <td className='py-3 text-right'>
+                      <button
+                        aria-label={t('finance.commitments.openDetailFor', { code: item.code })}
+                        className='inline-flex items-center gap-1 font-bold text-primary hover:underline'
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          onOpen(item.id)
+                        }}
+                        type='button'
+                      >
+                        {t('finance.commitments.openDetail')}
+                        <ChevronRight aria-hidden='true' className='size-3.5' />
+                      </button>
+                    </td>
                   </tr>
                 )
               })}
               {queue.length === 0 && (
                 <tr>
-                  <td className='py-8 text-center text-muted-foreground' colSpan={6}>
+                  <td className='py-8 text-center text-muted-foreground' colSpan={7}>
                     {t('finance.commitments.emptyQueue')}
                   </td>
                 </tr>
@@ -171,99 +200,18 @@ export function FinanceCommitmentsView({ formatCurrency }: { formatCurrency: (va
         </div>
       </Panel>
 
-      {selected && snapshot && (
-        <Panel>
-          <PanelTitle
-            hint={`${selected.code} · ${selected.requestCode} · ${formatDateTime(selected.approvedAt)}`}
-            title={t('finance.commitments.recordTitle', { software: selected.software })}
-          />
-          <div className='mt-4 grid gap-4 lg:grid-cols-[1fr_1fr_1.1fr]'>
-            <BudgetSnapshotPanel formatCurrency={formatCurrency} snapshot={snapshot} />
-            <CostEstimatePanel estimate={selected.estimate} formatCurrency={formatCurrency} />
-
-            <form
-              className='space-y-4 rounded-xl border border-border p-4'
-              onSubmit={(event) => {
-                event.preventDefault()
-                record()
-              }}
-            >
-              <fieldset>
-                <legend className='text-xs font-bold text-foreground'>{t('finance.commitments.opinionLegend')}</legend>
-                <p className='mt-0.5 text-[0.7rem] text-muted-foreground'>
-                  {t('finance.questions.suggested', { opinion: t(`finance.opinion.${suggestedFor(selected)}`) })}
-                </p>
-                <div className='mt-2 space-y-2'>
-                  {(['WITHIN', 'OVER', 'NO_BUDGET'] as const).map((value) => {
-                    const disabled = !selected.budgetAttached && value !== 'NO_BUDGET'
-
-                    return (
-                      <label
-                        className={`flex items-center gap-2 rounded-xl border p-2.5 text-xs font-semibold transition ${
-                          effectiveOpinion === value ? 'border-primary bg-primary-soft/40' : 'border-border'
-                        } ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:border-primary/40'}`}
-                        key={value}
-                      >
-                        <input
-                          checked={effectiveOpinion === value}
-                          className='accent-primary'
-                          disabled={disabled}
-                          name='commitment-opinion'
-                          onChange={() => setOpinion(value)}
-                          type='radio'
-                        />
-                        <span className='flex-1'>{t(`finance.opinion.${value}`)}</span>
-                        {value !== 'WITHIN' && (
-                          <Pill tone={opinionTones[value]}>{t('finance.commitments.notifies')}</Pill>
-                        )}
-                      </label>
-                    )
-                  })}
-                </div>
-                {!selected.budgetAttached && (
-                  <p className='mt-2 text-[0.7rem] text-muted-foreground'>{t('finance.commitments.noBudgetLocked')}</p>
-                )}
-                {showError && !effectiveOpinion && (
-                  <p className='mt-1 text-[0.7rem] font-semibold text-danger' role='alert'>
-                    {t('finance.questions.opinionRequired')}
-                  </p>
-                )}
-              </fieldset>
-
-              <div>
-                <label className='text-xs font-bold text-foreground' htmlFor='commitment-note'>
-                  {t('finance.commitments.noteLabel')}
-                </label>
-                <textarea
-                  className={`${inputClassName} mt-2 min-h-20`}
-                  id='commitment-note'
-                  onChange={(event) => setNote(event.target.value)}
-                  value={note}
-                />
-              </div>
-
-              <button className={`${primaryButtonClassName} w-full`} type='submit'>
-                <Save aria-hidden='true' className='size-3.5' />
-                {t('finance.commitments.submit')}
-              </button>
-              <p className='text-[0.7rem] text-muted-foreground'>{t('finance.commitments.sodNote')}</p>
-            </form>
-          </div>
-        </Panel>
-      )}
-
       {recorded.length > 0 && (
         <Panel>
           <PanelTitle title={t('finance.commitments.recordedTitle')} />
           <ul className='mt-3 divide-y divide-border text-xs'>
-            {recorded.map(({ commitment, opinion: recordedOpinion }) => (
+            {recorded.map(({ commitment, opinion }) => (
               <li className='flex flex-wrap items-center justify-between gap-2 py-2.5' key={commitment.id}>
                 <span>
                   <span className='font-mono font-bold text-primary'>{commitment.code}</span>
                   <span className='ml-2 text-foreground'>{commitment.software}</span>
                 </span>
                 <span className='flex flex-wrap items-center gap-2'>
-                  <Pill tone={opinionTones[recordedOpinion]}>{t(`finance.opinion.${recordedOpinion}`)}</Pill>
+                  <Pill tone={opinionTones[opinion]}>{t(`finance.opinion.${opinion}`)}</Pill>
                   {!commitment.budgetAttached && (
                     <Pill tone='neutral'>{t('finance.commitments.awaitingBackfill')}</Pill>
                   )}
@@ -273,6 +221,144 @@ export function FinanceCommitmentsView({ formatCurrency }: { formatCurrency: (va
           </ul>
         </Panel>
       )}
+    </div>
+  )
+}
+
+function CommitmentDetail({
+  commitment,
+  formatCurrency,
+  onBack,
+  onRecord
+}: {
+  commitment: CommitmentToRecord
+  formatCurrency: (value: number) => string
+  onBack: () => void
+  onRecord: (entry: RecordedCommitment) => void
+}) {
+  const { t } = useTranslation('dashboard')
+  const { formatDateTime } = useDashboardFormat()
+  const [opinion, setOpinion] = useState<BudgetOpinion | null>(null)
+  const [note, setNote] = useState('')
+  const [showError, setShowError] = useState(false)
+
+  const snapshot = findBudgetLine(commitment.costCenter)
+  const remaining = snapshot ? getRemaining(snapshot) : null
+  const suggested: BudgetOpinion =
+    !commitment.budgetAttached || remaining === null ? 'NO_BUDGET' : remaining >= 0 ? 'WITHIN' : 'OVER'
+  const effectiveOpinion: BudgetOpinion | null = commitment.budgetAttached ? opinion : 'NO_BUDGET'
+  const isOverdue = commitment.recordingDueAt <= financeDataAsOf
+
+  const record = () => {
+    if (!effectiveOpinion) {
+      setShowError(true)
+      return
+    }
+    onRecord({ commitment, note: note.trim(), opinion: effectiveOpinion })
+  }
+
+  return (
+    <div className='space-y-6'>
+      <button
+        className='inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground transition hover:text-foreground'
+        onClick={onBack}
+        type='button'
+      >
+        <ArrowLeft aria-hidden='true' className='size-4' />
+        {t('finance.commitments.backToList')}
+      </button>
+
+      <PageHeader
+        actions={
+          <Pill tone={isOverdue ? 'danger' : 'neutral'}>
+            {isOverdue
+              ? t('finance.commitments.overdue')
+              : t('finance.commitments.dueAt', { time: formatDateTime(commitment.recordingDueAt) })}
+          </Pill>
+        }
+        subtitle={`${commitment.requestCode} · ${t('finance.commitments.approvedBy', { name: commitment.approvedBy })} · ${formatDateTime(commitment.approvedAt)}`}
+        title={commitment.software}
+      />
+
+      <div className='grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]'>
+        <Panel>
+          <PanelTitle title={t('finance.commitments.figuresTitle')} />
+          <div className='mt-4 space-y-3'>
+            {snapshot && <BudgetSnapshotPanel formatCurrency={formatCurrency} snapshot={snapshot} />}
+            <CostEstimatePanel estimate={commitment.estimate} formatCurrency={formatCurrency} />
+          </div>
+        </Panel>
+
+        <Panel className='h-fit xl:sticky xl:top-0'>
+          <form
+            className='space-y-4'
+            onSubmit={(event) => {
+              event.preventDefault()
+              record()
+            }}
+          >
+            <fieldset>
+              <legend className='text-sm font-bold text-foreground'>{t('finance.commitments.opinionLegend')}</legend>
+              <p className='mt-0.5 text-[0.7rem] text-muted-foreground'>
+                {t('finance.questions.suggested', { opinion: t(`finance.opinion.${suggested}`) })}
+              </p>
+              <div className='mt-3 space-y-2'>
+                {(['WITHIN', 'OVER', 'NO_BUDGET'] as const).map((value) => {
+                  const disabled = !commitment.budgetAttached && value !== 'NO_BUDGET'
+
+                  return (
+                    <label
+                      className={`flex items-center gap-2 rounded-xl border p-2.5 text-xs font-semibold transition ${
+                        effectiveOpinion === value ? 'border-primary bg-primary-soft/40' : 'border-border'
+                      } ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:border-primary/40'}`}
+                      key={value}
+                    >
+                      <input
+                        checked={effectiveOpinion === value}
+                        className='accent-primary'
+                        disabled={disabled}
+                        name='commitment-opinion'
+                        onChange={() => setOpinion(value)}
+                        type='radio'
+                      />
+                      <span className='flex-1'>{t(`finance.opinion.${value}`)}</span>
+                      {value !== 'WITHIN' && (
+                        <Pill tone={opinionTones[value]}>{t('finance.commitments.notifies')}</Pill>
+                      )}
+                    </label>
+                  )
+                })}
+              </div>
+              {!commitment.budgetAttached && (
+                <p className='mt-2 text-[0.7rem] text-muted-foreground'>{t('finance.commitments.noBudgetLocked')}</p>
+              )}
+              {showError && !effectiveOpinion && (
+                <p className='mt-1 text-[0.7rem] font-semibold text-danger' role='alert'>
+                  {t('finance.questions.opinionRequired')}
+                </p>
+              )}
+            </fieldset>
+
+            <div>
+              <label className='text-xs font-bold text-foreground' htmlFor='commitment-note'>
+                {t('finance.commitments.noteLabel')}
+              </label>
+              <textarea
+                className={`${inputClassName} mt-2 min-h-20`}
+                id='commitment-note'
+                onChange={(event) => setNote(event.target.value)}
+                value={note}
+              />
+            </div>
+
+            <button className={`${primaryButtonClassName} w-full`} type='submit'>
+              <Save aria-hidden='true' className='size-3.5' />
+              {t('finance.commitments.submit')}
+            </button>
+            <p className='text-[0.7rem] text-muted-foreground'>{t('finance.commitments.sodNote')}</p>
+          </form>
+        </Panel>
+      </div>
     </div>
   )
 }
