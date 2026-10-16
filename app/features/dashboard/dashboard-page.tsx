@@ -158,7 +158,9 @@ export function DashboardPage({ role }: { role: UserRole }) {
   const activeEmployeeParent = isEmployee ? getParentEmployeeMenuKey(activeEmployeeTab) : 'overview'
 
   const activeManagerTab: ManagerTabKey = isManager && isValidManagerTab(tabParam) ? tabParam : 'overview'
-  const activeManagerParent = isManager ? getParentManagerMenuKey(activeManagerTab) : 'overview'
+  const activeManagerParent = isManager
+    ? getParentManagerMenuKey(activeManagerTab, searchParams.get('from'))
+    : 'overview'
   const managerRequestScope = searchParams.get('scope') === 'team' ? 'team' : 'individual'
   const [managerCreateMenuOpen, setManagerCreateMenuOpen] = useState(activeManagerTab === 'create-employee-request')
   const [managerPreviewRequests, setManagerPreviewRequests] = useState<ManagerPreviewRequest[]>([])
@@ -752,10 +754,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
                 onSelectTab={handleSelectTab}
               />
             ) : activeTab === 'provisioning' ? (
-              <ItProvisioningView
-                initialTaskId={searchParams.get('id') || undefined}
-                onSelectTab={handleSelectTab}
-              />
+              <ItProvisioningView initialTaskId={searchParams.get('id') || undefined} onSelectTab={handleSelectTab} />
             ) : activeTab === 'reconciliation' ? (
               <ItReconciliationView onSelectTab={handleSelectTab} />
             ) : activeTab === 'renewals' ? (
@@ -847,6 +846,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
               <ManagerMyTeamView onSelectTab={handleSelectManagerTab} />
             ) : activeManagerTab === 'employee-detail' ? (
               <ManagerEmployeeDetailView
+                backToReview={searchParams.get('from') === 'access-review'}
                 employeeId={searchParams.get('id') || undefined}
                 formatCurrency={formatCurrency}
                 onSelectTab={handleSelectManagerTab}
@@ -885,7 +885,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
                 onSelectTab={handleSelectManagerTab}
               />
             ) : (
-              <ManagerAccessReviewView />
+              <ManagerAccessReviewView onSelectTab={handleSelectManagerTab} />
             )
           ) : isApprover ? (
             activeApprovalTab === 'overview' ? (

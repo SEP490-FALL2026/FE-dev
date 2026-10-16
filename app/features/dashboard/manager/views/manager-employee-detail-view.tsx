@@ -1,253 +1,270 @@
-import { ArrowLeft, DollarSign, Plus, ShieldCheck, Sparkles, User } from 'lucide-react'
-import { useState } from 'react'
+import { AppWindow, ArrowLeft, Download, Plus, ShieldAlert, UserRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { MOCK_TEAM_MEMBERS } from '../manager-data'
-import { ManagerIdentityMark } from '../manager-identity-mark'
+import { MOCK_ACCESS_REVIEW, MOCK_TEAM_MEMBERS } from '../manager-data'
 import type { ManagerTabKey } from '../manager-nav'
+import { downloadUsageWorkbook } from '../usage-workbook'
 
-interface ManagerEmployeeDetailViewProps {
+interface Props {
+  backToReview?: boolean
   employeeId?: string
   formatCurrency: (value: number) => string
   onSelectTab: (tab: ManagerTabKey, params?: Record<string, string>) => void
 }
 
 export function ManagerEmployeeDetailView({
+  backToReview = false,
   employeeId = 'EMP-01',
   formatCurrency,
   onSelectTab
-}: ManagerEmployeeDetailViewProps) {
-  const { t } = useTranslation('dashboard')
-  const [successMsg, setSuccessMsg] = useState<string | null>(null)
+}: Props) {
+  const { t, i18n } = useTranslation('dashboard')
+  const member = MOCK_TEAM_MEMBERS.find((person) => person.id === employeeId)
+  const backLabel = t(backToReview ? 'manager.employeeDetail.backToReview' : 'manager.employeeDetail.backToTeam')
+  const back = () => onSelectTab(backToReview ? 'access-review' : 'my-team')
 
-  const member = MOCK_TEAM_MEMBERS.find((m) => m.id === employeeId) || MOCK_TEAM_MEMBERS[0]
-
-  const totalCost = member.assignedSoftware.reduce((sum, s) => sum + s.monthlyCost, 0)
-  const inactiveCount = member.assignedSoftware.filter((s) => s.status === 'INACTIVE').length
-
-  const handleRequestRevoke = (softwareName: string) => {
-    setSuccessMsg(t('manager.employeeDetail.revokeRequestedMsg', { software: softwareName }))
-    setTimeout(() => setSuccessMsg(null), 3000)
+  if (!member) {
+    return (
+      <div className='space-y-4'>
+        <h1 className='text-2xl font-bold text-foreground'>{t('manager.employeeDetail.notFound')}</h1>
+        <button className='rounded-xl border border-border px-4 py-2 text-foreground' onClick={back} type='button'>
+          {backLabel}
+        </button>
+      </div>
+    )
   }
+
+  const locale = i18n.language === 'en' ? 'en-US' : 'vi-VN'
+  const date = (value: string) => new Intl.DateTimeFormat(locale).format(new Date(`${value}T00:00:00`))
+  const number = new Intl.NumberFormat(locale)
+  const tools = [...member.assignedSoftware].sort((a, b) => a.activeMinutes30d - b.activeMinutes30d)
+  const inactiveTools = tools.filter((tool) => tool.activeMinutes30d === 0)
+  const totalCost = tools.reduce((sum, tool) => sum + tool.monthlyCost, 0)
+  const reviewCost = inactiveTools.reduce((sum, tool) => sum + tool.monthlyCost, 0)
+
+  const exportUsage = () =>
+    downloadUsageWorkbook(member, {
+      activeMinutes: t('manager.accessReview.exportMinutes'),
+      plan: t('manager.accessReview.colPlan'),
+      sheetName: t('manager.accessReview.exportSheet'),
+      software: t('manager.accessReview.colSoftware'),
+      status: t('manager.accessReview.exportStatus'),
+      title: t('manager.accessReview.exportTitle'),
+      usageActive: t('manager.employeeDetail.usageActive'),
+      usageInactive: t('manager.employeeDetail.usageInactive'),
+      usageLow: t('manager.employeeDetail.usageLow')
+    })
 
   return (
     <div className='space-y-6'>
-      {/* Header & Back Button */}
-      <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
-        <div className='flex items-center gap-3'>
+      <header className='flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between'>
+        <div className='flex items-start gap-3'>
           <button
-            aria-label={t('manager.employeeDetail.backToTeam')}
-            className='inline-flex items-center justify-center rounded-xl border border-border bg-surface p-2 text-muted-foreground transition hover:bg-surface-subtle hover:text-foreground'
-            onClick={() => onSelectTab('my-team')}
+            aria-label={backLabel}
+            className='grid size-11 shrink-0 place-items-center rounded-xl border border-border bg-surface text-muted-foreground hover:bg-surface-subtle hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
+            onClick={back}
             type='button'
           >
-            <ArrowLeft className='size-5' />
+            <ArrowLeft aria-hidden='true' className='size-5' />
           </button>
           <div>
             <h1 className='text-2xl font-bold tracking-tight text-foreground sm:text-3xl'>
-              {t('manager.employeeDetail.title')}
+              {t('manager.employeeDetail.usageTitle', { name: member.name })}
             </h1>
-            <p className='mt-0.5 text-xs text-muted-foreground'>
-              {t('manager.employeeDetail.subtitle', { name: member.name, code: member.code })}
-            </p>
+            <p className='mt-1 text-sm text-muted-foreground'>{t('manager.employeeDetail.usageSubtitle')}</p>
           </div>
         </div>
-
-        <div className='flex items-center gap-2'>
+        <div className='flex flex-wrap gap-2 sm:justify-end'>
           <button
-            className='inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-sm transition hover:bg-primary/90'
-            onClick={() => onSelectTab('create-employee-request', { employeeId: member.id })}
+            className='inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
+            onClick={exportUsage}
             type='button'
           >
-            <Plus className='size-4' />
-            <span>{t('manager.employeeDetail.assignBtn')}</span>
+            <Download aria-hidden='true' className='size-4' />
+            {t('manager.accessReview.exportUsage')}
           </button>
-        </div>
-      </div>
-
-      {successMsg && (
-        <div
-          role='status'
-          className='flex items-center gap-2 rounded-xl border border-success/30 bg-success/10 p-3 text-xs font-medium text-success'
-        >
-          <ShieldCheck className='size-4 shrink-0' />
-          <span>{successMsg}</span>
-        </div>
-      )}
-
-      {/* Member Profile & KPI Card */}
-      <div className='grid grid-cols-1 gap-6 lg:grid-cols-3'>
-        <div className='rounded-2xl border border-border bg-surface p-5 shadow-sm space-y-4'>
-          <div className='flex items-center gap-3 border-b border-border pb-4'>
-            <ManagerIdentityMark className='size-14 rounded-2xl text-base' name={member.name} person />
-            <div className='min-w-0'>
-              <h2 className='truncate font-bold text-base text-foreground'>{member.name}</h2>
-              <p className='truncate text-xs text-muted-foreground'>{member.jobTitle}</p>
-              <span className='mt-1 inline-block rounded-md bg-success/10 px-2 py-0.5 text-[10px] font-bold text-success'>
-                {member.status === 'ACTIVE'
-                  ? t('manager.team.statusActive')
-                  : member.status === 'ON_LEAVE'
-                    ? t('manager.team.statusOnLeave')
-                    : t('manager.team.statusOffboarding')}
-              </span>
-            </div>
-          </div>
-
-          <div className='space-y-2.5 text-xs'>
-            <div className='flex justify-between py-1'>
-              <span className='text-muted-foreground'>{t('manager.employeeDetail.labelEmail')}:</span>
-              <span className='font-mono font-medium text-foreground'>{member.email}</span>
-            </div>
-            <div className='flex justify-between py-1'>
-              <span className='text-muted-foreground'>{t('manager.employeeDetail.labelCode')}:</span>
-              <span className='font-mono font-bold text-foreground'>{member.code}</span>
-            </div>
-            <div className='flex justify-between py-1'>
-              <span className='text-muted-foreground'>{t('manager.employeeDetail.labelDepartment')}:</span>
-              <span className='font-medium text-foreground'>{member.department}</span>
-            </div>
-            <div className='flex justify-between py-1'>
-              <span className='text-muted-foreground'>{t('manager.employeeDetail.labelTeam')}:</span>
-              <span className='font-medium text-foreground'>{member.team}</span>
-            </div>
-            <div className='flex justify-between py-1'>
-              <span className='text-muted-foreground'>{t('manager.employeeDetail.labelCostCenter')}:</span>
-              <span className='font-mono font-bold text-foreground'>{member.costCenter}</span>
-            </div>
-            <div className='flex justify-between py-1'>
-              <span className='text-muted-foreground'>{t('manager.employeeDetail.labelJoined')}:</span>
-              <span className='font-mono text-muted-foreground'>{member.joined}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* 2 Summary KPI Cards */}
-        <div className='lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4'>
-          <div className='rounded-2xl border border-border bg-surface p-5 shadow-sm space-y-3'>
-            <div className='flex items-center justify-between'>
-              <span className='text-xs font-semibold uppercase tracking-wider text-muted-foreground'>
-                {t('manager.employeeDetail.kpiLicenses')}
-              </span>
-              <div className='rounded-lg bg-primary-soft p-2 text-primary'>
-                <User className='size-5' />
-              </div>
-            </div>
-            <p className='text-3xl font-extrabold text-foreground'>{member.assignedSoftware.length}</p>
-            <p className='text-xs text-muted-foreground'>
-              {t('manager.employeeDetail.kpiLicensesSub', { count: member.assignedSoftware.length })}
-            </p>
-          </div>
-
-          <div className='rounded-2xl border border-border bg-surface p-5 shadow-sm space-y-3'>
-            <div className='flex items-center justify-between'>
-              <span className='text-xs font-semibold uppercase tracking-wider text-muted-foreground'>
-                {t('manager.employeeDetail.kpiMonthlySpend')}
-              </span>
-              <div className='rounded-lg bg-warning/10 p-2 text-warning'>
-                <DollarSign className='size-5' />
-              </div>
-            </div>
-            <p className='text-3xl font-extrabold text-foreground'>{formatCurrency(totalCost)}</p>
-            <p className='text-xs text-muted-foreground'>
-              {inactiveCount > 0 ? (
-                <span className='text-danger font-medium'>
-                  {t('manager.employeeDetail.kpiInactiveAlert', { count: inactiveCount })}
-                </span>
-              ) : (
-                <span>{t('manager.employeeDetail.kpiSpendHealthy')}</span>
-              )}
-            </p>
-          </div>
-
-          {/* Underutilized Warning Banner if any */}
-          {inactiveCount > 0 && (
-            <div className='sm:col-span-2 rounded-2xl border border-warning/30 bg-warning/10 p-4 text-xs flex items-start gap-3'>
-              <Sparkles className='size-5 text-warning shrink-0 mt-0.5' />
-              <div>
-                <p className='font-bold text-foreground'>{t('manager.employeeDetail.wasteBannerTitle')}</p>
-                <p className='mt-0.5 text-muted-foreground leading-relaxed'>
-                  {t('manager.employeeDetail.wasteBannerDesc', { count: inactiveCount })}
-                </p>
-              </div>
-            </div>
+          {!backToReview && (
+            <button
+              className='inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border bg-surface px-4 py-2 text-sm font-semibold text-foreground hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
+              onClick={() => onSelectTab('create-employee-request', { employeeId: member.id })}
+              type='button'
+            >
+              <Plus aria-hidden='true' className='size-4' />
+              {t('manager.employeeDetail.assignBtn')}
+            </button>
           )}
         </div>
-      </div>
+      </header>
 
-      {/* Assigned Software List */}
-      <div className='rounded-2xl border border-border bg-surface p-5 shadow-sm space-y-4'>
-        <h2 className='text-sm font-bold text-foreground'>{t('manager.employeeDetail.softwareTableTitle')}</h2>
+      <section
+        aria-labelledby='usage-heading'
+        className='space-y-4 rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-5'
+      >
+        <div className='flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between'>
+          <div>
+            <h2 className='text-lg font-bold text-foreground' id='usage-heading'>
+              {t('manager.employeeDetail.softwareTableTitle')}
+            </h2>
+            <p className='mt-1 text-sm text-muted-foreground'>{t('manager.employeeDetail.usageDataNote')}</p>
+          </div>
+          <span className='w-fit rounded-full bg-primary-soft px-3 py-1 text-sm font-semibold text-primary-ink'>
+            {t('manager.employeeDetail.toolsCount', { count: tools.length })}
+          </span>
+        </div>
+
+        {inactiveTools.length > 0 && (
+          <div className='flex items-start gap-3 rounded-xl border border-warning/30 bg-warning/10 p-4'>
+            <ShieldAlert aria-hidden='true' className='mt-0.5 size-5 shrink-0 text-warning' />
+            <div>
+              <p className='font-semibold text-foreground'>{t('manager.employeeDetail.reviewNoticeTitle')}</p>
+              <p className='mt-1 text-sm text-muted-foreground'>
+                {t('manager.employeeDetail.reviewNoticeDesc', { count: inactiveTools.length })}
+              </p>
+            </div>
+          </div>
+        )}
 
         <div className='overflow-x-auto'>
-          <table className='w-full text-left text-xs'>
+          <table className='w-full min-w-[880px] text-left text-sm'>
+            <caption className='sr-only'>{t('manager.employeeDetail.usageTitle', { name: member.name })}</caption>
             <thead>
               <tr className='border-b border-border text-muted-foreground'>
-                <th className='py-3 px-4 font-semibold'>{t('manager.employeeDetail.colSoftware')}</th>
-                <th className='py-3 px-4 font-semibold'>{t('manager.employeeDetail.colPlan')}</th>
-                <th className='py-3 px-4 font-semibold'>{t('manager.employeeDetail.colAssignedDate')}</th>
-                <th className='py-3 px-4 text-center font-semibold'>{t('manager.employeeDetail.colUsageStatus')}</th>
-                <th className='py-3 px-4 text-right font-semibold'>{t('manager.employeeDetail.colActiveMinutes')}</th>
-                <th className='py-3 px-4 text-right font-semibold'>{t('manager.employeeDetail.colCost')}</th>
-                <th className='py-3 px-4 text-right font-semibold'>{t('manager.employeeDetail.colActions')}</th>
+                <th className='px-3 py-3 font-semibold'>{t('manager.employeeDetail.colSoftware')}</th>
+                <th className='px-3 py-3 font-semibold'>{t('manager.employeeDetail.colPlan')}</th>
+                <th className='px-3 py-3 text-right font-semibold'>{t('manager.employeeDetail.colActiveMinutes')}</th>
+                <th className='px-3 py-3 font-semibold'>{t('manager.employeeDetail.colLastActive')}</th>
+                <th className='px-3 py-3 font-semibold'>{t('manager.employeeDetail.colUsageStatus')}</th>
+                <th className='px-3 py-3 text-right font-semibold'>{t('manager.employeeDetail.colCost')}</th>
+                <th className='px-3 py-3 text-right font-semibold'>{t('manager.employeeDetail.colActions')}</th>
               </tr>
             </thead>
             <tbody className='divide-y divide-border'>
-              {member.assignedSoftware.map((item) => (
-                <tr key={item.id} className='transition hover:bg-surface-subtle/50'>
-                  <td className='py-3 px-4'>
-                    <div className='flex items-center gap-2.5'>
-                      <ManagerIdentityMark className='size-8 rounded-lg' name={item.name} />
-                      <span className='font-bold text-foreground'>{item.name}</span>
-                    </div>
-                  </td>
-
-                  <td className='py-3 px-4 text-muted-foreground'>{item.plan}</td>
-                  <td className='py-3 px-4 font-mono text-muted-foreground'>{item.assignedDate}</td>
-
-                  <td className='py-3 px-4 text-center'>
-                    <span
-                      className={`rounded-md px-2 py-0.5 text-[11px] font-bold ${
-                        item.status === 'ACTIVE'
-                          ? 'bg-success/10 text-success'
-                          : item.status === 'LOW_USAGE'
-                            ? 'bg-warning/10 text-warning'
-                            : 'bg-danger/10 text-danger'
-                      }`}
-                    >
-                      {item.status === 'ACTIVE'
-                        ? t('manager.employeeDetail.usageActive')
-                        : item.status === 'LOW_USAGE'
-                          ? t('manager.employeeDetail.usageLow')
-                          : t('manager.employeeDetail.usageInactive')}
-                    </span>
-                  </td>
-
-                  <td className='py-3 px-4 text-right font-mono font-medium text-foreground'>
-                    {t('manager.employeeDetail.minutesUnit', { count: item.activeMinutes30d })}
-                  </td>
-
-                  <td className='py-3 px-4 text-right font-bold text-foreground'>{formatCurrency(item.monthlyCost)}</td>
-
-                  <td className='py-3 px-4 text-right'>
-                    {item.status === 'INACTIVE' ? (
-                      <button
-                        className='rounded-lg bg-danger/10 px-2.5 py-1 text-xs font-bold text-danger transition hover:bg-danger hover:text-white'
-                        onClick={() => handleRequestRevoke(item.name)}
-                        type='button'
-                      >
-                        {t('manager.employeeDetail.actRevoke')}
-                      </button>
-                    ) : (
-                      <span className='text-[11px] text-muted-foreground italic'>
-                        {t('manager.employeeDetail.actNormal')}
+              {tools.map((tool) => {
+                const lastActive = MOCK_ACCESS_REVIEW.find(
+                  (item) => item.employeeId === member.id && item.softwareName === tool.name
+                )?.lastActiveDate
+                return (
+                  <tr key={tool.id} className='hover:bg-surface-subtle/50'>
+                    <td className='px-3 py-4'>
+                      <span className='flex items-center gap-2'>
+                        <AppWindow
+                          aria-hidden='true'
+                          className='size-9 shrink-0 rounded-lg border border-primary/20 bg-primary-soft/60 p-2 text-primary'
+                        />
+                        <span>
+                          <span className='block font-semibold text-foreground'>{tool.name}</span>
+                          <span className='block text-xs text-muted-foreground'>
+                            {t('manager.employeeDetail.assignedOn', { date: date(tool.assignedDate) })}
+                          </span>
+                        </span>
                       </span>
-                    )}
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className='px-3 py-4 text-muted-foreground'>{tool.plan}</td>
+                    <td className='px-3 py-4 text-right font-semibold text-foreground'>
+                      {t('manager.employeeDetail.minutesDisplay', { value: number.format(tool.activeMinutes30d) })}
+                    </td>
+                    <td className='px-3 py-4 text-muted-foreground'>
+                      {lastActive ? (
+                        <time dateTime={lastActive}>{date(lastActive)}</time>
+                      ) : (
+                        t('manager.employeeDetail.noLastActiveData')
+                      )}
+                    </td>
+                    <td className='px-3 py-4'>
+                      <span
+                        className={`rounded-md px-2 py-1 text-xs font-semibold ${tool.status === 'ACTIVE' ? 'bg-success/10 text-success' : tool.status === 'LOW_USAGE' ? 'bg-warning/10 text-warning' : 'bg-danger/10 text-danger'}`}
+                      >
+                        {t(
+                          tool.status === 'ACTIVE'
+                            ? 'manager.employeeDetail.usageActive'
+                            : tool.status === 'LOW_USAGE'
+                              ? 'manager.employeeDetail.usageLow'
+                              : 'manager.employeeDetail.usageInactive'
+                        )}
+                      </span>
+                    </td>
+                    <td className='px-3 py-4 text-right font-semibold text-foreground'>
+                      {formatCurrency(tool.monthlyCost)}
+                    </td>
+                    <td className='px-3 py-4 text-right'>
+                      {tool.activeMinutes30d === 0 ? (
+                        <button
+                          className='rounded-lg border border-border px-3 py-2 text-xs font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-60'
+                          disabled
+                          type='button'
+                        >
+                          {t('manager.employeeDetail.actRevoke')}
+                        </button>
+                      ) : (
+                        <span className='text-xs text-muted-foreground'>{t('manager.employeeDetail.actNormal')}</span>
+                      )}
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>
+        <p className='text-xs text-muted-foreground'>{t('manager.employeeDetail.usageLimitNote')}</p>
+        {inactiveTools.length > 0 && (
+          <p className='text-xs text-muted-foreground'>{t('manager.accessReview.requestUnavailable')}</p>
+        )}
+      </section>
+
+      <div className='grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]'>
+        <section
+          aria-labelledby='employee-profile-heading'
+          className='rounded-2xl border border-border bg-surface p-5 shadow-sm'
+        >
+          <div className='flex items-center gap-3 border-b border-border pb-4'>
+            <UserRound
+              aria-hidden='true'
+              className='size-11 rounded-xl border border-primary/20 bg-primary-soft/60 p-2.5 text-primary'
+            />
+            <div>
+              <h2 className='font-bold text-foreground' id='employee-profile-heading'>
+                {t('manager.employeeDetail.profileTitle')}
+              </h2>
+              <p className='text-sm text-muted-foreground'>
+                {member.name} · {member.jobTitle}
+              </p>
+            </div>
+          </div>
+          <dl className='mt-4 grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2'>
+            <div>
+              <dt className='text-muted-foreground'>{t('manager.employeeDetail.labelEmail')}</dt>
+              <dd className='break-all font-medium text-foreground'>{member.email}</dd>
+            </div>
+            <div>
+              <dt className='text-muted-foreground'>{t('manager.employeeDetail.labelDepartment')}</dt>
+              <dd className='font-medium text-foreground'>{member.department}</dd>
+            </div>
+            <div>
+              <dt className='text-muted-foreground'>{t('manager.employeeDetail.labelTeam')}</dt>
+              <dd className='font-medium text-foreground'>{member.team}</dd>
+            </div>
+            <div>
+              <dt className='text-muted-foreground'>{t('manager.employeeDetail.labelCode')}</dt>
+              <dd className='font-medium text-foreground'>{member.code}</dd>
+            </div>
+            <div>
+              <dt className='text-muted-foreground'>{t('manager.employeeDetail.labelCostCenter')}</dt>
+              <dd className='font-medium text-foreground'>{member.costCenter}</dd>
+            </div>
+            <div>
+              <dt className='text-muted-foreground'>{t('manager.employeeDetail.labelJoined')}</dt>
+              <dd className='font-medium text-foreground'>{date(member.joined)}</dd>
+            </div>
+          </dl>
+        </section>
+        <aside className='rounded-2xl border border-border bg-surface p-5 shadow-sm'>
+          <h2 className='font-bold text-foreground'>{t('manager.employeeDetail.costSummaryTitle')}</h2>
+          <p className='mt-3 text-sm text-muted-foreground'>{t('manager.employeeDetail.kpiMonthlySpend')}</p>
+          <p className='mt-1 text-2xl font-bold text-foreground'>{formatCurrency(totalCost)}</p>
+          <p className='mt-4 text-sm text-muted-foreground'>{t('manager.employeeDetail.reviewCostLabel')}</p>
+          <p className='mt-1 text-xl font-semibold text-foreground'>{formatCurrency(reviewCost)}</p>
+          <p className='mt-2 text-xs text-muted-foreground'>{t('manager.employeeDetail.reviewCostNote')}</p>
+        </aside>
       </div>
     </div>
   )

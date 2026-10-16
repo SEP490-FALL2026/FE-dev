@@ -1,6 +1,6 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { UserRole } from '~/entities/user-role/user-role'
 import { AppProviders } from '~/providers/app-providers'
@@ -191,7 +191,7 @@ describe('DashboardPage', () => {
     expect(ghostSeatBtn).toHaveClass('bg-primary')
     expect(teamRequestsBtn).not.toHaveClass('bg-primary')
     expect(
-      screen.getByRole('heading', { level: 1, name: 'Rà soát tài khoản lãng phí (Ghost Seats)' })
+      screen.getByRole('heading', { level: 1, name: 'Rà soát mức sử dụng phần mềm của nhân viên' })
     ).toBeInTheDocument()
 
     view.unmount()
@@ -304,7 +304,7 @@ describe('DashboardPage', () => {
     expect(screen.getByRole('heading', { name: 'No previews yet' })).toBeInTheDocument()
   })
 
-  it('keeps Manager filters and access-review progress available to assistive technology', () => {
+  it('groups access review by employee and opens usage details without a revocation decision', () => {
     renderDashboard('manager')
     const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
 
@@ -315,28 +315,79 @@ describe('DashboardPage', () => {
     expect(screen.getByRole('table', { name: 'Thành viên trong nhóm' })).toBeInTheDocument()
 
     fireEvent.click(within(nav).getByRole('button', { name: /Đợt tái chứng nhận quyền/i }))
-    const progress = screen.getByRole('progressbar', { name: 'Tiến độ hoàn thành chiến dịch' })
-    expect(progress).toHaveAttribute('aria-valuenow', '3')
-    const pendingRow = screen.getByText('AutoCAD').closest('tr')
-    expect(pendingRow).not.toBeNull()
-    fireEvent.click(within(pendingRow!).getByRole('button', { name: 'Duy trì' }))
-    expect(progress).toHaveAttribute('aria-valuenow', '4')
+    expect(screen.getByRole('region', { name: 'Danh sách nhân viên trong đợt tái chứng nhận' })).toBeInTheDocument()
+    expect(screen.queryByText('AutoCAD')).not.toBeInTheDocument()
+    const employee = screen.getByRole('button', { name: /Mai Thị Lan.*2 công cụ/i })
+    fireEvent.click(employee)
+    expect(employee).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByRole('table', { name: 'Công cụ của Mai Thị Lan' })).toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: 'Gửi yêu cầu thu hồi' })[0]).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Xuất Excel sử dụng' })).toBeEnabled()
+    fireEvent.click(screen.getByRole('button', { name: 'Xem tần suất sử dụng' }))
+    expect(screen.getByRole('heading', { level: 1, name: 'Mức sử dụng phần mềm của Mai Thị Lan' })).toBeInTheDocument()
+    expect(within(nav).getByRole('button', { name: /Đợt tái chứng nhận quyền/i })).toHaveAttribute(
+      'aria-current',
+      'page'
+    )
+    expect(screen.getByRole('columnheader', { name: 'Số phút sử dụng trong 30 ngày' })).toBeInTheDocument()
+    expect(screen.getByRole('columnheader', { name: 'Hoạt động gần nhất' })).toBeInTheDocument()
+    expect(screen.getByText('Cần xác minh mức sử dụng')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Xuất Excel sử dụng' })).toBeEnabled()
+    expect(screen.queryByRole('button', { name: 'Cấp thêm phần mềm' })).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Quay lại đợt tái chứng nhận quyền truy cập' }))
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Đợt tái chứng nhận quyền truy cập định kỳ' })
+    ).toBeInTheDocument()
   })
 
-  it('confirms a Manager bulk ghost-seat decision before changing the preview', () => {
+  it('downloads the selected employee usage as an Excel file', async () => {
+    const originalCreateObjectURL = Object.getOwnPropertyDescriptor(URL, 'createObjectURL')
+    const originalRevokeObjectURL = Object.getOwnPropertyDescriptor(URL, 'revokeObjectURL')
+    const createObjectURL = vi.fn(() => 'blob:usage')
+    const revokeObjectURL = vi.fn()
+    Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: createObjectURL })
+    Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: revokeObjectURL })
+    let filename = ''
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+      filename = this.download
+    })
+
+    renderDashboard('manager', '/?tab=access-review')
+    fireEvent.click(screen.getByRole('button', { name: /Mai Thị Lan.*2 công cụ/i }))
+    fireEvent.click(screen.getByRole('button', { name: 'Xem tần suất sử dụng' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Xuất Excel sử dụng' }))
+
+    expect(createObjectURL).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+    )
+    expect(filename).toBe('usage-EMP-01.xlsx')
+    await waitFor(() => expect(revokeObjectURL).toHaveBeenCalledWith('blob:usage'))
+    click.mockRestore()
+    if (originalCreateObjectURL) Object.defineProperty(URL, 'createObjectURL', originalCreateObjectURL)
+    else Reflect.deleteProperty(URL, 'createObjectURL')
+    if (originalRevokeObjectURL) Object.defineProperty(URL, 'revokeObjectURL', originalRevokeObjectURL)
+    else Reflect.deleteProperty(URL, 'revokeObjectURL')
+  })
+
+  it('keeps the team context for a directly opened employee detail', () => {
+    renderDashboard('manager', '/?tab=employee-detail&id=EMP-01')
+    const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
+    expect(within(nav).getByRole('button', { name: /Nhân viên của tôi/i })).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByRole('button', { name: 'Cấp thêm phần mềm' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Mức sử dụng phần mềm của Mai Thị Lan' })).toBeInTheDocument()
+  })
+
+  it('shows tool usage without manager revocation controls and explains request availability', () => {
     renderDashboard('manager')
     const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
     fireEvent.click(within(nav).getByRole('button', { name: /Rà soát tài khoản lãng phí/i }))
-
-    fireEvent.click(screen.getByRole('button', { name: 'Đánh dấu thu hồi G3' }))
-    const dialog = screen.getByRole('dialog', { name: 'Xác nhận rà soát hàng loạt' })
-    expect(dialog).toHaveTextContent('chưa gửi đến IT Admin')
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Hủy' }))
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-
-    fireEvent.click(screen.getByRole('button', { name: 'Đánh dấu thu hồi G3' }))
-    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Đánh dấu thu hồi G3' }))
-    expect(screen.getByRole('status')).toHaveTextContent('trong bản xem trước')
+    expect(screen.getByRole('columnheader', { name: 'Mức độ sử dụng' })).toBeInTheDocument()
+    expect(screen.queryByText('G3')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /thu hồi|giữ lại/i })).not.toBeInTheDocument()
+    fireEvent.click(screen.getAllByRole('button', { name: 'Xem chi tiết' })[0])
+    expect(screen.getByRole('heading', { level: 1, name: 'Chi tiết sử dụng phần mềm' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Gửi yêu cầu kiểm tra' })).toBeDisabled()
+    expect(screen.getByText(/chưa có kết nối tiếp nhận/)).toBeInTheDocument()
   })
 
   it('renders the employee dashboard shell', () => {

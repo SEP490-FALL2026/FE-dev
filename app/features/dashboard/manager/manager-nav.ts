@@ -104,9 +104,9 @@ export function isValidManagerTab(value: string | null): value is ManagerTabKey 
   return value !== null && validTabs.has(value)
 }
 
-export function getParentManagerMenuKey(tab: ManagerTabKey): ManagerTabKey {
+export function getParentManagerMenuKey(tab: ManagerTabKey, from?: string | null): ManagerTabKey {
   if (tab === 'employee-detail') {
-    return 'my-team'
+    return from === 'access-review' ? 'access-review' : 'my-team'
   }
   if (tab === 'request-approval') {
     return 'team-requests'

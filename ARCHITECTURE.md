@@ -72,6 +72,28 @@ approval workflow responsibilities remain unchanged.
 
 ### Manager Ghost Seat Review preview
 
+The dashboard Manager tab also has an illustrative usage review. It presents each
+employee's assigned tool, recorded inactive days, and estimated monthly cost. The
+Manager can inspect a record but cannot mark a seat as revoked or retained. Its
+request-to-IT control stays unavailable until the backend provides a request
+operation and authorization contract; the preview must not report that a request
+was sent. Inactive days are a tool-usage signal, not a measure of employee work
+performance. Internal waste-rule codes are not shown to Managers.
+
+### Dashboard Manager access review preview
+
+The dashboard access-review tab groups sample access records by employee. Expanding
+an employee reveals the tools in the review. Its usage link opens that employee's
+existing detail view, which shows sample active minutes per tool over 30 days. A
+local Excel export includes that employee's assigned tools and the same sample
+usage figures. The detail places usage evidence before profile and cost summaries,
+offers the same export, and keeps the access-review navigation context through the
+URL's `from` parameter. Last activity appears only for exact matching review data;
+missing values are labeled explicitly. The Manager does not directly revoke access or mark licenses as
+retained here. Revocation requests remain unavailable until the backend publishes
+a request operation and authorization contract; the UI does not claim a request
+was sent or access changed. Usage signals are not employee productivity scores.
+
 `/manager/ghost-seat-review` composes the private Manager ghost-seat-review feature
 inside the shared warm orange Manager shell. Search, tier, recommendation,
 application, critical view, sorting and pagination belong to
