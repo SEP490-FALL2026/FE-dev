@@ -298,7 +298,7 @@ export const spendDashboard = {
   finance: {
     nav: {
       budgetQuestions: 'Yêu cầu ngân sách',
-      budgets: 'Trung tâm chi phí và ngân sách',
+      budgets: 'Cost Center & ngân sách',
       chargeExceptions: 'Ngoại lệ khoản chi',
       commitments: 'Cam kết chờ ghi nhận',
       costAnalysis: 'Phân bổ và so sánh ngân sách',
@@ -349,15 +349,15 @@ export const spendDashboard = {
     },
     questions: {
       answeredNotice:
-        'Câu trả lời đã hiện trên màn hình quyết định của Người duyệt chi. Hạn xử lý của bước duyệt chi không dừng.',
+        'Câu trả lời đã hiện trên màn hình quyết định của Người duyệt chi. SLA của bước duyệt chi không dừng.',
       backToList: 'Quay lại danh sách',
-      cancelledNotice: 'Yêu cầu mua đã bị hủy nên yêu cầu thông tin ngân sách đóng theo.',
-      colRequest: 'Yêu cầu',
+      cancelledNotice: 'Request mua đã bị hủy nên yêu cầu thông tin ngân sách đóng theo.',
+      colRequest: 'Request',
       colSentBy: 'Người gửi',
       colStatus: 'Trạng thái',
       dossierBudget: '1. Ngân sách hiện tại',
       dossierCost: '2. Tổng chi phí của yêu cầu này',
-      dossierHint: 'Số liệu theo trung tâm chi phí và kỳ của yêu cầu; mọi số tiền là chi phí thực chịu.',
+      dossierHint: 'Số liệu theo Cost Center và kỳ của yêu cầu; mọi số tiền là chi phí thực chịu.',
       dossierTitle: 'Hồ sơ kèm theo',
       empty: 'Không có yêu cầu nào.',
       filterLabel: 'Lọc yêu cầu theo trạng thái',
@@ -376,7 +376,7 @@ export const spendDashboard = {
         'Câu trả lời là ý kiến tham khảo — không phải phê duyệt, không chặn. Người duyệt chi quyết được bất cứ lúc nào, kể cả khi Tài chính chưa trả lời.',
       slaNote: 'Thời gian Tài chính phản hồi được đo riêng.',
       sodBlocked:
-        'Bạn cũng là Người duyệt chi của yêu cầu này nên không được trả lời yêu cầu thông tin ngân sách của chính nó.',
+        'Bạn là Người duyệt chi của request này nên không được trả lời yêu cầu thông tin ngân sách của chính nó (SoD-8).',
       status: {
         ANSWERED: 'Đã trả lời',
         CLOSED_CANCELLED: 'Đóng — yêu cầu bị hủy',
@@ -384,8 +384,8 @@ export const spendDashboard = {
       },
       submit: 'Gửi câu trả lời',
       subtitle:
-        'Người duyệt chi gửi yêu cầu kèm hồ sơ ngân sách của trung tâm chi phí trong kỳ; Tài chính trả lời để tham khảo trước khi quyết.',
-      suggested: 'Gợi ý theo bản chụp ngân sách: {{opinion}}',
+        'Người duyệt chi gửi yêu cầu kèm hồ sơ ngân sách của Cost Center và kỳ; Finance trả lời để tham khảo trước khi quyết.',
+      suggested: 'Gợi ý theo snapshot: {{opinion}}',
       title: 'Yêu cầu thông tin ngân sách từ Người duyệt chi'
     },
     commitments: {

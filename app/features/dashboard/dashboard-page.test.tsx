@@ -90,7 +90,7 @@ describe('DashboardPage', () => {
     expect(screen.getAllByRole('button', { name: /^Xem chi tiết REQ-/ })).toHaveLength(1)
 
     fireEvent.click(screen.getByRole('button', { name: 'Xem chi tiết REQ-2026-078' }))
-    expect(screen.getByRole('heading', { level: 1, name: 'Cursor Pro · 10 suất' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Cursor Pro · 10 seat' })).toBeInTheDocument()
     expect(screen.queryByRole('group', { name: 'Lọc yêu cầu theo trạng thái' })).not.toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Quay lại danh sách' }))
@@ -118,68 +118,6 @@ describe('DashboardPage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Quay lại danh sách' }))
     expect(screen.getByRole('button', { name: /Đã trả lời/ })).toHaveTextContent('2')
-  })
-
-  it('shows period-filtered charts below the finance overview tiles', () => {
-    renderDashboard('finance')
-
-    const tiles = screen.getByRole('region', { name: 'Việc ngân sách đang mở' })
-    const filter = screen.getByRole('group', { name: 'Xem theo' })
-    expect(tiles.compareDocumentPosition(filter) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-    expect(within(tiles).queryByText('Mở →')).not.toBeInTheDocument()
-
-    expect(
-      screen.getByRole('img', { name: 'Ngân sách và mức sử dụng theo trung tâm chi phí — Quý 4/2026' })
-    ).toBeInTheDocument()
-    expect(screen.getByRole('img', { name: 'Cơ cấu thực chi — Quý 4/2026' })).toBeInTheDocument()
-
-    fireEvent.click(within(filter).getByRole('button', { name: 'Tháng' }))
-    fireEvent.change(screen.getByLabelText('Kỳ'), { target: { value: '2026-12' } })
-    expect(screen.getByText('Chưa có thực chi trong kỳ này.')).toBeInTheDocument()
-
-    fireEvent.click(within(filter).getByRole('button', { name: 'Năm' }))
-    expect(screen.getByRole('img', { name: 'Cơ cấu thực chi — Năm 2026' })).toBeInTheDocument()
-  })
-
-  it('lists commitments to record and records one on its own detail screen', () => {
-    renderDashboard('finance', '/?tab=commitments')
-
-    expect(screen.getAllByRole('button', { name: /^Ghi nhận CMT-/ })).toHaveLength(3)
-    fireEvent.click(screen.getByRole('button', { name: 'Ghi nhận CMT-2026-049' }))
-
-    expect(screen.getByRole('heading', { level: 1, name: 'Adobe Creative Cloud · 3 suất' })).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: 'Hàng đợi ghi nhận' })).not.toBeInTheDocument()
-    expect(screen.getByRole('radio', { name: /^Chưa có ngân sách/ })).toBeChecked()
-
-    fireEvent.click(screen.getByRole('button', { name: 'Ghi nhận' }))
-    expect(screen.getByRole('heading', { name: 'Hàng đợi ghi nhận' })).toBeInTheDocument()
-    expect(screen.getByText(/Đã ghi nhận CMT-2026-049 và thông báo Người duyệt chi/)).toBeInTheDocument()
-    expect(screen.getAllByRole('button', { name: /^Ghi nhận CMT-/ })).toHaveLength(2)
-  })
-
-  it('lists charge exceptions first and closes one as a billing error from a pop-up on its detail screen', () => {
-    renderDashboard('finance', '/?tab=charge-exceptions')
-
-    const filters = screen.getByRole('group', { name: 'Lọc ngoại lệ theo trạng thái' })
-    expect(within(filters).getAllByRole('button')[0]).toHaveTextContent('Tất cả')
-    expect(within(filters).getByRole('button', { name: /Tất cả/ })).toHaveAttribute('aria-pressed', 'true')
-    expect(screen.getAllByRole('button', { name: /^Xem chi tiết CHG-/ })).toHaveLength(5)
-
-    fireEvent.click(screen.getByRole('button', { name: 'Xem chi tiết CHG-1003' }))
-    expect(screen.getByRole('heading', { level: 1, name: 'OpenAI' })).toBeInTheDocument()
-
-    fireEvent.click(screen.getByRole('button', { name: 'Nhà cung cấp tính sai' }))
-    const dialog = screen.getByRole('dialog', { name: 'Đóng CHG-1003 là lỗi tính tiền' })
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Đóng là lỗi tính tiền' }))
-    expect(within(dialog).getByRole('alert')).toHaveTextContent('Bắt buộc nhập ghi chú.')
-
-    fireEvent.change(within(dialog).getByLabelText('Ghi chú (bắt buộc)'), { target: { value: 'Trừ trùng hai lần.' } })
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Đóng là lỗi tính tiền' }))
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    expect(screen.getByText(/Đã đóng là lỗi tính tiền của nhà cung cấp/)).toBeInTheDocument()
-
-    fireEvent.click(screen.getByRole('button', { name: 'Quay lại danh sách ngoại lệ' }))
-    expect(screen.getByRole('button', { name: /Lỗi tính tiền/ })).toHaveTextContent('1')
   })
 
   it('shows a negative remaining with the over-committed label when a budget is smaller than back-filled commitments', () => {

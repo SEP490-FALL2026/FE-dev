@@ -97,7 +97,20 @@ function BudgetQuestionList({
 
   return (
     <div className='space-y-6'>
-      <PageHeader subtitle={t('finance.questions.subtitle')} title={t('finance.questions.title')} />
+      <button
+        className='inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground transition hover:text-foreground'
+        onClick={onBack}
+        type='button'
+      >
+        <ArrowLeft aria-hidden='true' className='size-4' />
+        {t('finance.questions.backToList')}
+      </button>
+
+      <PageHeader
+        actions={<Pill tone={statusTones[question.status]}>{t(`finance.questions.status.${question.status}`)}</Pill>}
+        subtitle={`${question.requestCode} · ${t('finance.questions.requester', { name: question.requester })}`}
+        title={question.software}
+      />
 
       <Notice icon={Info} tone='info'>
         {t('finance.questions.ruleNotice')}
@@ -224,6 +237,7 @@ function BudgetQuestionDetail({
 
       <PageHeader
         actions={<Pill tone={statusTones[question.status]}>{t(`finance.questions.status.${question.status}`)}</Pill>}
+        code={`UF-11 · FIN-05 · ${question.requestCode}`}
         subtitle={`${question.requestCode} · ${t('finance.questions.requester', { name: question.requester })}`}
         title={question.software}
       />

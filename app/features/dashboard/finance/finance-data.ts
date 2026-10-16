@@ -230,7 +230,7 @@ export const budgetQuestions: BudgetQuestion[] = [
     question: 'Ngân sách Toàn công ty cho gói Notion AI 40 suất?',
     requestCode: 'REQ-2026-097',
     requester: 'Nguyễn Minh Khôi',
-    software: 'Notion AI Business · 40 suất',
+    software: 'Notion AI Business · 40 seat',
     status: 'OPEN'
   },
   {
