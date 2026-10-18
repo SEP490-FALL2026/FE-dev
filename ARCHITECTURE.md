@@ -32,16 +32,50 @@ and all decisions that affect money or access.
 
 ## Key decisions
 
+### Employee overview preview
+
+The Employee overview chart compares the six illustrative assigned-software
+usage percentages and calculates their average from those same records. These
+figures are labeled as sample per-tool usage, not employee performance or an
+authoritative activity timeline.
+
+### Employee profile and privacy preview
+
+The Employee dashboard uses `tab=profile` for the personal and organization
+record opened from the header avatar. The sidebar's Privacy item uses
+`tab=privacy` for the separate data transparency preview. Its export and usage
+screens return to Privacy, and their sidebar selection stays on Privacy. The
+profile and privacy figures are illustrative local data; this split changes
+navigation and presentation only, not account identity, telemetry collection, or
+backend authorization.
+
+The employee can choose a JPG, PNG, or WebP avatar up to 2 MB. The dashboard
+holds an object URL for a session-only preview on the profile and header, and
+revokes it when replaced or unmounted. No file is uploaded or persisted until
+the backend provides an authorized avatar endpoint.
+
 ### Employee software request preview
 
 The employee software request preview now uses separate catalog selection and
 registration screens. The `request-new-software` tab selects a catalog item and
-`request-software-details` collects the plan, individual or shared-team usage type,
-project, reason, and a name when
-"Other software" is selected. URL parameters carry the draft through the review
+`request-software-details` collects a plan from the illustrative Standard or
+Professional choices,
+individual or shared-team usage type, a reason, and a name when "Other software"
+is selected. The employee does not enter a project or department. URL parameters
+carry the draft through the review
 screen and back navigation. This request type shows four steps; renewal and return
 requests retain their three-step previews. Submission remains unavailable until a
 backend contract and authorization flow are connected.
+
+For shared-team requests, the employee is the representative and selects colleagues
+from the active members of their own department. The representative is included by
+default; the maximum is the available department roster size. The preview treats
+this as one subscription request with individual access for every listed person.
+Only selected member IDs are carried in URL parameters, then resolved against the
+same eligible roster in the review. The review shows the full group and explains
+the intended manager approval, IT provisioning, and shared status.
+Actual submission, per-person provisioning, and status synchronization require a
+backend request model, authorization, and notification contract.
 
 ### Manager request creation preview
 
@@ -71,6 +105,14 @@ request is created, no remote cache is introduced, and backend authorization and
 approval workflow responsibilities remain unchanged.
 
 ### Manager Ghost Seat Review preview
+
+The dashboard Manager overview visualizes only the six available illustrative
+software records. Its seat-allocation bars show assigned versus available seats,
+and its cost ring shows each record's share of that six-record sample. The
+independent summary figures describe eight applications and VND 54.8 million in
+monthly spend, so the sample ring is explicitly labeled and is never presented
+as a breakdown of the summary total. Pending requests and flagged seats retain
+their navigation to review screens.
 
 The dashboard Manager tab also has an illustrative usage review. It presents each
 employee's assigned tool, recorded inactive days, and estimated monthly cost. The

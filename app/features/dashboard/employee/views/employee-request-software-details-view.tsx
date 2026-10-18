@@ -4,7 +4,10 @@ import { useTranslation } from 'react-i18next'
 
 import { catalogSoftwareList } from '../employee-data'
 import type { EmployeeTabKey } from '../employee-nav'
+import { employeeRequestPlanOptions } from '../employee-request-plan-options'
 import { EmployeeRequestStepper } from '../employee-request-stepper'
+import { EmployeeTeamRequestFields } from '../employee-team-request-fields'
+import { parseTeamMemberIds } from '../employee-team-request-draft'
 
 interface EmployeeRequestSoftwareDetailsViewProps {
   onSelectTab: (tab: EmployeeTabKey, params?: Record<string, string>) => void
@@ -17,28 +20,35 @@ export function EmployeeRequestSoftwareDetailsView({
 }: EmployeeRequestSoftwareDetailsViewProps) {
   const { t } = useTranslation('dashboard')
   const [otherSoftwareName, setOtherSoftwareName] = useState(initialParams.otherSoftwareName || '')
-  const [plan, setPlan] = useState(initialParams.plan || '')
+  const [plan, setPlan] = useState(
+    employeeRequestPlanOptions.some((option) => option.value === initialParams.plan) ? initialParams.plan : ''
+  )
   const [usageMode, setUsageMode] = useState<'personal' | 'team' | ''>(
     initialParams.usageMode === 'personal' || initialParams.usageMode === 'team' ? initialParams.usageMode : ''
   )
-  const [project, setProject] = useState(initialParams.project || '')
   const [reason, setReason] = useState(initialParams.reason || '')
+  const [selectedTeamMemberIds, setSelectedTeamMemberIds] = useState(() =>
+    parseTeamMemberIds(initialParams.teamMemberIds)
+  )
   const selectedSoftware = catalogSoftwareList.find((software) => software.id === initialParams.softwareId)
   const isOtherSoftware = initialParams.softwareId === 'other'
   const requestType = initialParams.type === 'changePlan' ? 'changePlan' : 'newSoftware'
   const selectionParams = {
-    ...Object.fromEntries(Object.entries(initialParams).filter(([key]) => key !== 'tab')),
+    ...Object.fromEntries(
+      Object.entries(initialParams).filter(
+        ([key]) => key !== 'tab' && key !== 'project' && key !== 'teamDraft' && key !== 'teamMemberIds'
+      )
+    ),
     otherSoftwareName,
     plan,
     usageMode,
-    project,
     reason,
-    type: requestType
+    type: requestType,
+    ...(usageMode === 'team' ? { teamMemberIds: selectedTeamMemberIds.join(',') } : {})
   }
   const canContinue =
     plan.trim().length > 0 &&
     usageMode !== '' &&
-    project.trim().length > 0 &&
     reason.trim().length > 0 &&
     (!isOtherSoftware || otherSoftwareName.trim().length > 0)
 
@@ -67,12 +77,16 @@ export function EmployeeRequestSoftwareDetailsView({
     })
   }
 
+  const handleBackToSoftware = () => {
+    onSelectTab('request-new-software', selectionParams)
+  }
+
   return (
     <div className='mx-auto max-w-4xl space-y-6'>
       <div>
         <button
           className='inline-flex items-center gap-2 text-xs font-bold text-muted-foreground transition hover:text-foreground'
-          onClick={() => onSelectTab('request-new-software', selectionParams)}
+          onClick={handleBackToSoftware}
           type='button'
         >
           <ArrowLeft aria-hidden='true' className='size-4' />
@@ -135,12 +149,21 @@ export function EmployeeRequestSoftwareDetailsView({
           <label className='mb-1.5 block text-sm font-semibold text-foreground' htmlFor='employee-request-plan'>
             {t('employee.requestNewSoftware.fieldPlan')}
           </label>
-          <input
+          <select
             className='h-11 w-full rounded-xl border border-border bg-background px-3 text-base text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action sm:text-sm'
             id='employee-request-plan'
             onChange={(event) => setPlan(event.target.value)}
             value={plan}
-          />
+          >
+            <option disabled value=''>
+              {t('employee.requestNewSoftware.selectPlan')}
+            </option>
+            {employeeRequestPlanOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {t(option.labelKey)}
+              </option>
+            ))}
+          </select>
         </div>
 
         <fieldset>
@@ -177,17 +200,9 @@ export function EmployeeRequestSoftwareDetailsView({
           </div>
         </fieldset>
 
-        <div>
-          <label className='mb-1.5 block text-sm font-semibold text-foreground' htmlFor='employee-request-project'>
-            {t('employee.requestNewSoftware.fieldProject')}
-          </label>
-          <input
-            className='h-11 w-full rounded-xl border border-border bg-background px-3 text-base text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action sm:text-sm'
-            id='employee-request-project'
-            onChange={(event) => setProject(event.target.value)}
-            value={project}
-          />
-        </div>
+        {usageMode === 'team' && (
+          <EmployeeTeamRequestFields selectedMemberIds={selectedTeamMemberIds} onChange={setSelectedTeamMemberIds} />
+        )}
 
         <div>
           <label className='mb-1.5 block text-sm font-semibold text-foreground' htmlFor='employee-request-reason'>
@@ -206,7 +221,7 @@ export function EmployeeRequestSoftwareDetailsView({
         {!canContinue && (
           <p className='text-sm text-danger-ink' role='status'>
             {t(
-              !plan.trim() || !project.trim() || !reason.trim()
+              !plan.trim() || !reason.trim()
                 ? 'employee.requestNewSoftware.completeFields'
                 : !usageMode
                   ? 'employee.requestNewSoftware.usageModeRequired'
@@ -218,7 +233,7 @@ export function EmployeeRequestSoftwareDetailsView({
         <div className='flex items-center justify-between gap-3 border-t border-border pt-5'>
           <button
             className='min-h-11 rounded-xl border border-border px-4 text-sm font-semibold text-muted-foreground transition hover:text-foreground'
-            onClick={() => onSelectTab('request-new-software', selectionParams)}
+            onClick={handleBackToSoftware}
             type='button'
           >
             {t('employee.requestNewSoftware.backToSoftware')}

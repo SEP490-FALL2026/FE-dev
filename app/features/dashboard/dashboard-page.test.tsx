@@ -502,20 +502,101 @@ describe('DashboardPage', () => {
     expect(myRequestsBtn).not.toHaveClass('bg-primary')
     expect(screen.getByText('Trung tâm tạo yêu cầu phần mềm')).toBeInTheDocument()
 
-    // Click "Hồ sơ & Quyền riêng tư"
-    const profileBtn = within(nav).getByRole('button', { name: /Hồ sơ & Quyền riêng tư/i })
-    expect(profileBtn).not.toHaveClass('bg-primary')
-    fireEvent.click(profileBtn)
-    expect(profileBtn).toHaveClass('bg-primary')
+    // Click "Quyền riêng tư"
+    const privacyBtn = within(nav).getByRole('button', { name: 'Quyền riêng tư' })
+    expect(privacyBtn).not.toHaveClass('bg-primary')
+    fireEvent.click(privacyBtn)
+    expect(privacyBtn).toHaveClass('bg-primary')
     expect(createRequestBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByText('Hồ sơ cá nhân & Quyền riêng tư')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Quyền riêng tư' })).toBeInTheDocument()
+    expect(screen.queryByText('Thông tin cá nhân')).not.toBeInTheDocument()
 
     // Return to Overview
     fireEvent.click(overviewBtn)
     expect(overviewBtn).toHaveClass('bg-primary')
-    expect(profileBtn).not.toHaveClass('bg-primary')
+    expect(privacyBtn).not.toHaveClass('bg-primary')
     expect(screen.getByText('Bảng điều khiển Nhân viên')).toBeInTheDocument()
 
     view.unmount()
+  })
+
+  it('opens the separate employee profile from the header avatar', () => {
+    renderDashboard('employee')
+    const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
+    const avatar = screen.getByRole('button', { name: 'Mở hồ sơ cá nhân' })
+
+    fireEvent.click(avatar)
+
+    expect(avatar).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByRole('heading', { level: 1, name: 'Hồ sơ cá nhân' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Thông tin cá nhân' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Thông tin tổ chức' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Bảo vệ quyền riêng tư & Minh bạch dữ liệu' })).not.toBeInTheDocument()
+    expect(within(nav).getByRole('button', { name: 'Quyền riêng tư' })).not.toHaveAttribute('aria-current')
+
+    fireEvent.click(within(nav).getByRole('button', { name: 'Quyền riêng tư' }))
+    expect(screen.getByRole('button', { name: 'Xuất dữ liệu của tôi' })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Xuất dữ liệu của tôi' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Quay lại Quyền riêng tư' }))
+    expect(screen.getByRole('heading', { level: 1, name: 'Quyền riêng tư' })).toBeInTheDocument()
+  })
+
+  it('previews a selected employee avatar in the profile and header', () => {
+    const createDescriptor = Object.getOwnPropertyDescriptor(URL, 'createObjectURL')
+    const revokeDescriptor = Object.getOwnPropertyDescriptor(URL, 'revokeObjectURL')
+    const createObjectURL = vi.fn(() => 'blob:employee-avatar')
+    const revokeObjectURL = vi.fn()
+    Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: createObjectURL })
+    Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: revokeObjectURL })
+
+    try {
+      const view = renderDashboard('employee', '/?tab=profile')
+      const avatarButton = screen.getByRole('button', { name: 'Mở hồ sơ cá nhân' })
+      const fileInput = screen.getByLabelText('Chọn ảnh đại diện')
+
+      fireEvent.change(fileInput, {
+        target: { files: [new File(['invalid'], 'avatar.svg', { type: 'image/svg+xml' })] }
+      })
+      expect(screen.getByRole('alert')).toHaveTextContent('Chỉ hỗ trợ ảnh JPG, PNG hoặc WebP.')
+      expect(createObjectURL).not.toHaveBeenCalled()
+
+      fireEvent.change(fileInput, {
+        target: { files: [new File([new Uint8Array(2 * 1024 * 1024 + 1)], 'large.png', { type: 'image/png' })] }
+      })
+      expect(screen.getByRole('alert')).toHaveTextContent('Ảnh phải có dung lượng tối đa 2 MB.')
+      expect(createObjectURL).not.toHaveBeenCalled()
+
+      fireEvent.change(fileInput, {
+        target: { files: [new File(['valid'], 'avatar.png', { type: 'image/png' })] }
+      })
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+      expect(screen.getByRole('img', { name: 'Ảnh đại diện của Nguyễn Văn An' })).toHaveAttribute(
+        'src',
+        'blob:employee-avatar'
+      )
+      expect(avatarButton.querySelector('img')).toHaveAttribute('src', 'blob:employee-avatar')
+      expect(screen.getByRole('button', { name: 'Đổi ảnh đại diện' })).toBeInTheDocument()
+
+      view.unmount()
+      expect(revokeObjectURL).toHaveBeenCalledWith('blob:employee-avatar')
+    } finally {
+      if (createDescriptor) Object.defineProperty(URL, 'createObjectURL', createDescriptor)
+      else Reflect.deleteProperty(URL, 'createObjectURL')
+      if (revokeDescriptor) Object.defineProperty(URL, 'revokeObjectURL', revokeDescriptor)
+      else Reflect.deleteProperty(URL, 'revokeObjectURL')
+    }
+  })
+
+  it('shows usage from the assigned software samples and opens the software list', () => {
+    renderDashboard('employee')
+
+    const usage = screen.getByRole('region', { name: 'Mức độ sử dụng phần mềm' })
+    expect(within(usage).getByText('74%')).toBeInTheDocument()
+    expect(within(usage).getByText('95%')).toBeInTheDocument()
+    expect(within(usage).getByText('42%')).toBeInTheDocument()
+    expect(within(usage).getByText(/không đo hiệu suất làm việc của nhân viên/)).toBeInTheDocument()
+
+    fireEvent.click(within(usage).getByRole('button', { name: 'Tất cả' }))
+    expect(screen.getByRole('heading', { level: 1, name: 'Bản quyền phần mềm của tôi' })).toBeInTheDocument()
   })
 })

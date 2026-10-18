@@ -24,7 +24,7 @@ import {
   type LucideIcon
 } from 'lucide-react'
 import { motion, useReducedMotion } from 'motion/react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useSearchParams } from 'react-router'
 
@@ -60,6 +60,7 @@ import { EmployeeMyRequestsView } from './employee/views/employee-my-requests-vi
 import { EmployeeMySoftwareView } from './employee/views/employee-my-software-view'
 import { EmployeeOverviewView } from './employee/views/employee-overview-view'
 import { EmployeeProfileView } from './employee/views/employee-profile-view'
+import { EmployeePrivacyView } from './employee/views/employee-privacy-view'
 import { EmployeeRequestDetailView } from './employee/views/employee-request-detail-view'
 import { EmployeeRequestNewSoftwareView } from './employee/views/employee-request-new-software-view'
 import { EmployeeRequestSoftwareDetailsView } from './employee/views/employee-request-software-details-view'
@@ -141,6 +142,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
   const { t: tCommon } = useTranslation('common')
   const shouldReduceMotion = useReducedMotion()
   const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false)
+  const [employeeAvatarUrl, setEmployeeAvatarUrl] = useState<string | null>(null)
   const profile = roleProfiles[role]
   const locale = i18n.resolvedLanguage === 'en' ? 'en-US' : 'vi-VN'
 
@@ -149,6 +151,15 @@ export function DashboardPage({ role }: { role: UserRole }) {
   const isFinance = role === 'finance'
   const isManager = role === 'manager'
   const isApprover = role === 'spending-approver'
+  useEffect(() => {
+    return () => {
+      if (employeeAvatarUrl) URL.revokeObjectURL(employeeAvatarUrl)
+    }
+  }, [employeeAvatarUrl])
+
+  const handleEmployeeAvatarSelect = (file: File) => {
+    setEmployeeAvatarUrl(URL.createObjectURL(file))
+  }
   const [searchParams, setSearchParams] = useSearchParams()
   const tabParam = searchParams.get('tab')
   const activeTab: ItAdminTabKey = isItAdmin && isValidItAdminTab(tabParam) ? tabParam : 'overview'
@@ -713,9 +724,20 @@ export function DashboardPage({ role }: { role: UserRole }) {
               </span>
             </button>
 
-            <div className='flex min-w-0 items-center gap-2.5 rounded-xl border border-border bg-surface py-1.5 pr-3 pl-1.5'>
-              <span className='grid size-8 shrink-0 place-items-center rounded-lg bg-primary text-xs font-bold text-primary-foreground'>
-                {profile.initials}
+            <button
+              aria-current={isEmployee && activeEmployeeTab === 'profile' ? 'page' : undefined}
+              aria-label={isEmployee ? t('employee.profile.openProfile') : undefined}
+              className='flex min-w-0 items-center gap-2.5 rounded-xl border border-border bg-surface py-1.5 pr-3 pl-1.5 text-left transition enabled:hover:border-primary enabled:hover:bg-primary-soft/30 enabled:focus-visible:outline-2 enabled:focus-visible:outline-offset-2 enabled:focus-visible:outline-primary'
+              disabled={!isEmployee}
+              onClick={() => handleSelectEmployeeTab('profile')}
+              type='button'
+            >
+              <span className='grid size-8 shrink-0 place-items-center overflow-hidden rounded-lg bg-primary text-xs font-bold text-primary-foreground'>
+                {isEmployee && employeeAvatarUrl ? (
+                  <img alt='' className='size-full object-cover' src={employeeAvatarUrl} />
+                ) : (
+                  profile.initials
+                )}
               </span>
               <div className='hidden min-w-0 md:block'>
                 <p className='truncate text-xs font-bold'>{profile.displayName}</p>
@@ -723,7 +745,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
                   {tAuth(`roles.${role}.label`)}
                 </p>
               </div>
-            </div>
+            </button>
           </div>
         </header>
 
@@ -829,7 +851,9 @@ export function DashboardPage({ role }: { role: UserRole }) {
             ) : activeEmployeeTab === 'submission-success' ? (
               <EmployeeSubmissionSuccessView onSelectTab={handleSelectEmployeeTab} />
             ) : activeEmployeeTab === 'profile' ? (
-              <EmployeeProfileView onSelectTab={handleSelectEmployeeTab} />
+              <EmployeeProfileView avatarUrl={employeeAvatarUrl} onAvatarSelect={handleEmployeeAvatarSelect} />
+            ) : activeEmployeeTab === 'privacy' ? (
+              <EmployeePrivacyView onSelectTab={handleSelectEmployeeTab} />
             ) : activeEmployeeTab === 'data-export' ? (
               <EmployeeDataExportView onSelectTab={handleSelectEmployeeTab} />
             ) : (

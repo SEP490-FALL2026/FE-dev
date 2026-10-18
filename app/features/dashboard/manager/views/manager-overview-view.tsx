@@ -19,10 +19,32 @@ export function ManagerOverviewView({
   formatNumber = (val) => String(val),
   onSelectTab
 }: ManagerOverviewViewProps) {
-  const { t } = useTranslation('dashboard')
+  const { i18n, t } = useTranslation('dashboard')
 
   const pendingRequests = MOCK_TEAM_REQUESTS.filter((r) => r.status === 'PENDING')
   const flaggedGhostSeats = MOCK_GHOST_SEATS.filter((g) => g.status === 'FLAGGED')
+  const sampleSpend = MOCK_TEAM_SOFTWARE.reduce((sum, app) => sum + app.monthlyCost, 0)
+  const assignedSeats = MOCK_TEAM_SOFTWARE.reduce((sum, app) => sum + app.inUseSeats, 0)
+  const totalSeats = MOCK_TEAM_SOFTWARE.reduce((sum, app) => sum + app.totalSeats, 0)
+  const chartColors = [
+    'var(--theme-primary)',
+    'var(--theme-info)',
+    'var(--theme-warning)',
+    'var(--theme-success)',
+    'var(--theme-danger)',
+    'var(--theme-muted-foreground)'
+  ]
+  const costGradient = `conic-gradient(${MOCK_TEAM_SOFTWARE.map((app, index) => {
+    const previousCost = MOCK_TEAM_SOFTWARE.slice(0, index).reduce((sum, item) => sum + item.monthlyCost, 0)
+    const start = (previousCost / sampleSpend) * 100
+    const end = ((previousCost + app.monthlyCost) / sampleSpend) * 100
+    return `${chartColors[index]} ${start}% ${end}%`
+  }).join(', ')})`
+  const formatPercent = (value: number) =>
+    new Intl.NumberFormat(i18n.resolvedLanguage === 'en' ? 'en-US' : 'vi-VN', {
+      maximumFractionDigits: 0,
+      style: 'percent'
+    }).format(value)
 
   return (
     <div className='space-y-6'>
@@ -120,6 +142,126 @@ export function ManagerOverviewView({
         </div>
       </section>
 
+      <section aria-label={t('manager.overview.chartsRegion')} className='space-y-4'>
+        <p className='rounded-xl border border-primary/20 bg-primary-soft/30 px-4 py-3 text-sm text-primary-ink'>
+          {t('manager.overview.chartSampleNote', {
+            count: MOCK_TEAM_SOFTWARE.length,
+            total: managerMetrics.activeSoftware
+          })}
+        </p>
+
+        <div className='grid gap-5 xl:grid-cols-2'>
+          <div className='rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-6'>
+            <div className='flex flex-wrap items-start justify-between gap-3'>
+              <div>
+                <h2 className='text-lg font-bold text-foreground'>{t('manager.overview.seatAllocationTitle')}</h2>
+                <p className='mt-1 text-sm text-muted-foreground'>{t('manager.overview.seatAllocationSubtitle')}</p>
+              </div>
+              <button
+                className='inline-flex min-h-10 items-center gap-1 text-sm font-semibold text-primary-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
+                onClick={() => onSelectTab('team-software')}
+                type='button'
+              >
+                {t('manager.overview.viewAll')}
+                <ArrowRight aria-hidden='true' className='size-4' />
+              </button>
+            </div>
+
+            <div className='mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs text-muted-foreground'>
+              <span className='inline-flex items-center gap-2'>
+                <span aria-hidden='true' className='size-2.5 rounded-full bg-primary' />
+                {t('manager.overview.assignedSeats')}
+              </span>
+              <span className='inline-flex items-center gap-2'>
+                <span aria-hidden='true' className='size-2.5 rounded-full bg-border' />
+                {t('manager.overview.availableSeats')}
+              </span>
+              <span className='font-semibold text-foreground'>
+                {t('manager.overview.sampleSeats', {
+                  assigned: formatNumber(assignedSeats),
+                  total: formatNumber(totalSeats)
+                })}
+              </span>
+            </div>
+
+            <div className='mt-5 space-y-4'>
+              {MOCK_TEAM_SOFTWARE.map((app) => (
+                <div key={app.id}>
+                  <div className='mb-1.5 flex items-center justify-between gap-3 text-sm'>
+                    <span className='min-w-0 truncate font-semibold text-foreground'>{app.name}</span>
+                    <span className='shrink-0 tabular-nums text-muted-foreground'>
+                      {formatNumber(app.inUseSeats)} / {formatNumber(app.totalSeats)}
+                    </span>
+                  </div>
+                  <div
+                    aria-label={t('manager.overview.seatChartRowLabel', {
+                      name: app.name,
+                      used: formatNumber(app.inUseSeats),
+                      total: formatNumber(app.totalSeats)
+                    })}
+                    className='flex h-3 overflow-hidden rounded-full bg-border'
+                    role='img'
+                  >
+                    <span
+                      aria-hidden='true'
+                      className='h-full rounded-full bg-primary'
+                      style={{ width: `${(app.inUseSeats / app.totalSeats) * 100}%` }}
+                    />
+                  </div>
+                  <p className='mt-1 text-xs text-muted-foreground'>
+                    {t('manager.overview.activityRate', { rate: formatPercent(app.activeRate / 100) })}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className='rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-6'>
+            <div>
+              <h2 className='text-lg font-bold text-foreground'>{t('manager.overview.costDistributionTitle')}</h2>
+              <p className='mt-1 text-sm text-muted-foreground'>{t('manager.overview.costDistributionSubtitle')}</p>
+            </div>
+
+            <div className='mt-6 flex flex-col items-center gap-6 sm:flex-row'>
+              <div
+                aria-label={t('manager.overview.costChartLabel', { amount: formatCurrency(sampleSpend) })}
+                className='relative grid size-48 shrink-0 place-items-center rounded-full'
+                role='img'
+                style={{ background: costGradient }}
+              >
+                <div
+                  aria-hidden='true'
+                  className='grid size-32 place-content-center rounded-full bg-surface text-center'
+                >
+                  <span className='text-xs text-muted-foreground'>{t('manager.overview.costSampleTotal')}</span>
+                  <strong className='mt-1 text-base text-foreground'>{formatCurrency(sampleSpend)}</strong>
+                </div>
+              </div>
+              <ul className='grid w-full gap-2.5'>
+                {MOCK_TEAM_SOFTWARE.map((app, index) => (
+                  <li className='flex items-center justify-between gap-3 text-sm' key={app.id}>
+                    <span className='flex min-w-0 items-center gap-2.5'>
+                      <span
+                        aria-hidden='true'
+                        className='size-2.5 shrink-0 rounded-full'
+                        style={{ backgroundColor: chartColors[index] }}
+                      />
+                      <span className='truncate text-foreground'>{app.name}</span>
+                    </span>
+                    <span className='flex shrink-0 flex-col items-end tabular-nums'>
+                      <span className='font-semibold text-foreground'>
+                        {formatPercent(app.monthlyCost / sampleSpend)}
+                      </span>
+                      <span className='text-xs text-muted-foreground'>{formatCurrency(app.monthlyCost)}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Two Column Grid: Pending Requests & Ghost Seats */}
       <div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
         {/* Pending Requests Card */}
@@ -206,9 +348,6 @@ export function ManagerOverviewView({
                 </div>
 
                 <div className='text-right'>
-                  <p className='font-bold text-xs text-danger'>
-                    {t('manager.overview.costPerMonth', { amount: formatCurrency(ghost.monthlyCost) })}
-                  </p>
                   <button
                     className='text-[11px] font-semibold text-primary transition hover:underline'
                     onClick={() => onSelectTab('ghost-seat-detail', { id: ghost.id })}
@@ -220,56 +359,6 @@ export function ManagerOverviewView({
               </div>
             ))}
           </div>
-        </div>
-      </div>
-
-      {/* Team Software Utilization Table */}
-      <div className='rounded-2xl border border-border bg-surface p-5 shadow-sm space-y-4'>
-        <div className='flex items-center justify-between'>
-          <div>
-            <h2 className='text-sm font-bold text-foreground'>{t('manager.overview.teamSoftwareTitle')}</h2>
-            <p className='text-xs text-muted-foreground'>{t('manager.overview.teamSoftwareSub')}</p>
-          </div>
-          <button
-            className='inline-flex items-center gap-1 text-xs font-semibold text-primary transition hover:underline'
-            onClick={() => onSelectTab('team-software')}
-            type='button'
-          >
-            <span>{t('manager.overview.viewAll')}</span>
-            <ArrowRight className='size-3.5' />
-          </button>
-        </div>
-
-        <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
-          {MOCK_TEAM_SOFTWARE.slice(0, 6).map((app) => (
-            <div key={app.id} className='rounded-xl border border-border bg-surface-subtle/50 p-4 space-y-3'>
-              <div className='flex items-center justify-between'>
-                <div className='flex items-center gap-2 min-w-0'>
-                  <ManagerIdentityMark className='size-8 rounded-lg' name={app.name} />
-                  <div className='min-w-0'>
-                    <h3 className='truncate font-bold text-xs text-foreground'>{app.name}</h3>
-                    <p className='truncate text-[10px] text-muted-foreground'>{app.category}</p>
-                  </div>
-                </div>
-                <span className='font-mono font-bold text-xs text-foreground'>{app.activeRate}%</span>
-              </div>
-
-              <div>
-                <div className='flex items-center justify-between text-[11px] text-muted-foreground mb-1'>
-                  <span>{t('manager.overview.seatsInUse', { inUse: app.inUseSeats, total: app.totalSeats })}</span>
-                  <span>{formatCurrency(app.monthlyCost)}</span>
-                </div>
-                <div className='h-1.5 w-full overflow-hidden rounded-full bg-border'>
-                  <div
-                    className={`h-full rounded-full ${
-                      app.activeRate >= 80 ? 'bg-success' : app.activeRate >= 50 ? 'bg-warning' : 'bg-danger'
-                    }`}
-                    style={{ width: `${app.activeRate}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
         </div>
       </div>
     </div>
