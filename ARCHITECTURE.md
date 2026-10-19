@@ -77,6 +77,27 @@ the intended manager approval, IT provisioning, and shared status.
 Actual submission, per-person provisioning, and status synchronization require a
 backend request model, authorization, and notification contract.
 
+The Employee My Requests preview labels each illustrative record as individual or
+shared instead of showing its current approval stage in the list. Three shared
+records (one existing Notion example and two additional samples) show the request
+representative and the registered colleagues in detail. These participant lists
+are local fixture data from the same Engineering roster used by the draft selector;
+they do not prove that a group request was submitted or provisioned by the backend.
+
+The Manager Team Requests preview uses the same individual/shared form labels in
+place of its estimated-cost list column. Two sample Manager requests are shared;
+their detail resolves registered colleagues by ID from the existing Manager team
+roster and shows the requester as representative. This is illustrative display
+data and does not submit or provision access for those colleagues.
+
+Manager request approval marks an illustrative employee request and opens the
+`weekly-batch` route, presented as Marked Requests. This page lists all unsent
+marked requests directly and offers one action for the full list, with no weekly
+schedule or intermediate form. The action records a sent-preview state in the
+dashboard session and removes those items from the pending list. No request is
+actually transmitted to the CEO: backend submission, authorization, and
+persistence require an authoritative API contract. Session state is lost on reload.
+
 ### Manager request creation preview
 
 In the dashboard Manager shell, the create-request sidebar item expands to team
@@ -126,15 +147,19 @@ performance. Internal waste-rule codes are not shown to Managers.
 
 The dashboard access-review tab groups sample access records by employee. Expanding
 an employee reveals the tools in the review. Its usage link opens that employee's
-existing detail view, which shows sample active minutes per tool over 30 days. A
-local Excel export includes that employee's assigned tools and the same sample
-usage figures. The detail places usage evidence before profile and cost summaries,
+existing detail view, which shows sample active minutes for software plans and
+credit consumption for AI agents. Every illustrative software assignment has an
+explicit recent session start and end; these timestamps are not inferred from
+aggregate minutes. AI agents show credits used against a daily or request
+allocation, with Codex as a request-based sample. A local Excel export uses
+separate minute, credit, and session-time columns for those assigned tools. The
+detail places usage evidence before profile information, shows no monetary amounts,
 offers the same export, and keeps the access-review navigation context through the
-URL's `from` parameter. Last activity appears only for exact matching review data;
-missing values are labeled explicitly. The Manager does not directly revoke access or mark licenses as
-retained here. Revocation requests remain unavailable until the backend publishes
-a request operation and authorization contract; the UI does not claim a request
-was sent or access changed. Usage signals are not employee productivity scores.
+URL's `from` parameter. The Manager detail has no assign-software control and does
+not directly revoke access or mark licenses as retained here. Revocation requests remain unavailable
+until the backend publishes a request operation and authorization contract; the UI
+does not claim a request was sent or access changed. Usage signals are not employee
+productivity scores.
 
 `/manager/ghost-seat-review` composes the private Manager ghost-seat-review feature
 inside the shared warm orange Manager shell. Search, tier, recommendation,

@@ -2,12 +2,20 @@ import type { TeamMember } from './manager-data'
 
 export type UsageLabels = {
   activeMinutes: string
+  creditsConsumed: string
+  creditsLimit: string
+  dayPeriod: string
   plan: string
+  period: string
+  requestPeriod: string
+  sessionEnd: string
+  sessionStart: string
   sheetName: string
   software: string
   status: string
   title: string
   usageActive: string
+  usageAgentActive: string
   usageInactive: string
   usageLow: string
 }
@@ -85,16 +93,37 @@ export function createUsageWorkbook(member: TeamMember, labels: UsageLabels) {
   const rows: (string | number)[][] = [
     [labels.title, member.name],
     [],
-    [labels.software, labels.plan, labels.activeMinutes, labels.status],
+    [
+      labels.software,
+      labels.plan,
+      labels.activeMinutes,
+      labels.creditsConsumed,
+      labels.creditsLimit,
+      labels.period,
+      labels.sessionStart,
+      labels.sessionEnd,
+      labels.status
+    ],
     ...member.assignedSoftware.map((item) => [
       item.name,
       item.plan,
-      item.activeMinutes30d,
-      item.status === 'ACTIVE'
-        ? labels.usageActive
-        : item.status === 'LOW_USAGE'
-          ? labels.usageLow
-          : labels.usageInactive
+      item.kind === 'ai-agent' ? '' : item.activeMinutes30d,
+      item.kind === 'ai-agent' ? item.creditUsage.consumed : '',
+      item.kind === 'ai-agent' ? item.creditUsage.limit : '',
+      item.kind === 'ai-agent'
+        ? item.creditUsage.period.kind === 'day'
+          ? `${labels.dayPeriod}: ${item.creditUsage.period.date}`
+          : `${labels.requestPeriod}: ${item.creditUsage.period.requestCode}`
+        : '',
+      item.kind === 'ai-agent' ? '' : item.latestSession.startedAt,
+      item.kind === 'ai-agent' ? '' : item.latestSession.endedAt,
+      item.kind === 'ai-agent'
+        ? labels.usageAgentActive
+        : item.status === 'ACTIVE'
+          ? labels.usageActive
+          : item.status === 'LOW_USAGE'
+            ? labels.usageLow
+            : labels.usageInactive
     ])
   ]
   const sheetRows = rows.map((row, rowIndex) => {

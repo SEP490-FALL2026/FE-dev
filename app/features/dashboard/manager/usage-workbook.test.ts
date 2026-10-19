@@ -7,12 +7,20 @@ describe('createUsageWorkbook', () => {
   it('exports the selected employee usage as an Excel workbook', async () => {
     const workbook = createUsageWorkbook(MOCK_TEAM_MEMBERS[0], {
       activeMinutes: 'Active minutes',
+      creditsConsumed: 'Credits used',
+      creditsLimit: 'Credit limit',
+      dayPeriod: 'Daily',
       plan: 'Plan',
+      period: 'Period',
+      requestPeriod: 'By request',
+      sessionEnd: 'Session end',
+      sessionStart: 'Session start',
       sheetName: 'Usage',
       software: 'Software',
       status: 'Status',
       title: 'Usage over 30 days',
       usageActive: 'Active',
+      usageAgentActive: 'Allocated',
       usageInactive: 'Inactive',
       usageLow: 'Low usage'
     })
@@ -25,6 +33,10 @@ describe('createUsageWorkbook', () => {
     expect(contents).toContain('Mai Thị Lan')
     expect(contents).toContain('AutoCAD')
     expect(contents).toContain('<v>1420</v>')
+    expect(contents).toContain('2026-09-30T09:15:00')
+    expect(contents).toContain('Research Agent')
+    expect(contents).toContain('<v>420</v>')
+    expect(contents).toContain('Daily: 2026-10-18')
     expect(contents).not.toContain('Trần Văn Tuấn')
   })
 })

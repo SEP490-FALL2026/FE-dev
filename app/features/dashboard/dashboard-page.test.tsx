@@ -304,6 +304,33 @@ describe('DashboardPage', () => {
     expect(screen.getByRole('heading', { name: 'No previews yet' })).toBeInTheDocument()
   })
 
+  it('collects marked employee requests directly and sends the full list in the preview', async () => {
+    localStorage.setItem('saas-sentry.language', 'en')
+    await setAppLanguage('en', false)
+    renderDashboard('manager', '/?tab=team-requests')
+
+    fireEvent.click(
+      within(screen.getByRole('row', { name: /REQ-M01/ })).getByRole('button', { name: 'Review & Decide' })
+    )
+    expect(screen.getByRole('heading', { name: 'Registered participants' })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Mark request' }))
+    expect(screen.getByRole('heading', { name: 'Marked requests' })).toBeInTheDocument()
+    expect(screen.getByText('1 marked requests')).toBeInTheDocument()
+    expect(screen.getByText(/REQ-M01/)).toBeInTheDocument()
+    expect(screen.queryByRole('textbox', { name: 'Desired license plan' })).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Review more requests' }))
+    fireEvent.click(
+      within(screen.getByRole('row', { name: /REQ-M02/ })).getByRole('button', { name: 'Review & Decide' })
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Mark request' }))
+    expect(screen.getByText('2 marked requests')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Send all to CEO' }))
+    expect(screen.getByText(/Send recorded for 2 requests in this preview/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Send all to CEO' })).toBeDisabled()
+    expect(screen.getByRole('heading', { name: 'No marked requests awaiting send' })).toBeInTheDocument()
+  })
   it('groups access review by employee and opens usage details without a revocation decision', () => {
     renderDashboard('manager')
     const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
@@ -329,11 +356,24 @@ describe('DashboardPage', () => {
       'aria-current',
       'page'
     )
-    expect(screen.getByRole('columnheader', { name: 'Số phút sử dụng trong 30 ngày' })).toBeInTheDocument()
-    expect(screen.getByRole('columnheader', { name: 'Hoạt động gần nhất' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Xem chi tiết sử dụng Figma' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Xem chi tiết sử dụng Research Agent' })).toBeInTheDocument()
     expect(screen.getByText('Cần xác minh mức sử dụng')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Xuất Excel sử dụng' })).toBeEnabled()
     expect(screen.queryByRole('button', { name: 'Cấp thêm phần mềm' })).not.toBeInTheDocument()
+    expect(screen.queryByText(/₫/)).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Xem chi tiết sử dụng Figma' }))
+    expect(screen.getByRole('heading', { name: 'Phiên sử dụng gần nhất' })).toBeInTheDocument()
+    expect(screen.getByText('Bắt đầu')).toBeInTheDocument()
+    expect(screen.getByText('Kết thúc gần nhất')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Xem chi tiết sử dụng Slack' }))
+    expect(screen.getByRole('heading', { name: 'Phiên sử dụng gần nhất' })).toBeInTheDocument()
+    expect(screen.getByText('Bắt đầu')).toBeInTheDocument()
+    expect(screen.queryByText('Chưa có dữ liệu')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Xem chi tiết sử dụng Research Agent' }))
+    expect(screen.getByRole('heading', { name: 'Credit sử dụng theo kỳ được cấp' })).toBeInTheDocument()
+    expect(screen.getByText('420')).toBeInTheDocument()
+    expect(screen.getByText('600')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Quay lại đợt tái chứng nhận quyền truy cập' }))
     expect(
       screen.getByRole('heading', { level: 1, name: 'Đợt tái chứng nhận quyền truy cập định kỳ' })
@@ -369,11 +409,26 @@ describe('DashboardPage', () => {
     else Reflect.deleteProperty(URL, 'revokeObjectURL')
   })
 
+  it('shows credit consumption against an AI agent request allocation', () => {
+    renderDashboard('manager', '/?tab=employee-detail&id=EMP-02')
+    fireEvent.click(screen.getByRole('button', { name: 'Xem chi tiết sử dụng GitHub' }))
+    expect(screen.getByRole('heading', { name: 'Phiên sử dụng gần nhất' })).toBeInTheDocument()
+    expect(screen.getByText('Bắt đầu')).toBeInTheDocument()
+    expect(screen.getByText('Kết thúc gần nhất')).toBeInTheDocument()
+    expect(screen.queryByText('Chưa có dữ liệu')).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Xem chi tiết sử dụng Codex' }))
+
+    expect(screen.getByText('1.450')).toBeInTheDocument()
+    expect(screen.getByText('2.000')).toBeInTheDocument()
+    expect(screen.getByText('Theo yêu cầu AI-REQ-014')).toBeInTheDocument()
+  })
+
   it('keeps the team context for a directly opened employee detail', () => {
     renderDashboard('manager', '/?tab=employee-detail&id=EMP-01')
     const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
     expect(within(nav).getByRole('button', { name: /Nhân viên của tôi/i })).toHaveAttribute('aria-current', 'page')
-    expect(screen.getByRole('button', { name: 'Cấp thêm phần mềm' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Cấp thêm phần mềm' })).not.toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 1, name: 'Mức sử dụng phần mềm của Mai Thị Lan' })).toBeInTheDocument()
   })
 

@@ -1,24 +1,20 @@
-import { AppWindow, ArrowLeft, Download, Plus, ShieldAlert, UserRound } from 'lucide-react'
+import { AppWindow, ArrowLeft, Bot, ChevronDown, Download, ShieldAlert, UserRound } from 'lucide-react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { MOCK_ACCESS_REVIEW, MOCK_TEAM_MEMBERS } from '../manager-data'
+import { MOCK_TEAM_MEMBERS } from '../manager-data'
 import type { ManagerTabKey } from '../manager-nav'
 import { downloadUsageWorkbook } from '../usage-workbook'
 
 interface Props {
   backToReview?: boolean
   employeeId?: string
-  formatCurrency: (value: number) => string
   onSelectTab: (tab: ManagerTabKey, params?: Record<string, string>) => void
 }
 
-export function ManagerEmployeeDetailView({
-  backToReview = false,
-  employeeId = 'EMP-01',
-  formatCurrency,
-  onSelectTab
-}: Props) {
+export function ManagerEmployeeDetailView({ backToReview = false, employeeId = 'EMP-01', onSelectTab }: Props) {
   const { t, i18n } = useTranslation('dashboard')
+  const [openToolId, setOpenToolId] = useState<string | null>(null)
   const member = MOCK_TEAM_MEMBERS.find((person) => person.id === employeeId)
   const backLabel = t(backToReview ? 'manager.employeeDetail.backToReview' : 'manager.employeeDetail.backToTeam')
   const back = () => onSelectTab(backToReview ? 'access-review' : 'my-team')
@@ -36,21 +32,29 @@ export function ManagerEmployeeDetailView({
 
   const locale = i18n.language === 'en' ? 'en-US' : 'vi-VN'
   const date = (value: string) => new Intl.DateTimeFormat(locale).format(new Date(`${value}T00:00:00`))
+  const dateTime = (value: string) =>
+    new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value))
   const number = new Intl.NumberFormat(locale)
-  const tools = [...member.assignedSoftware].sort((a, b) => a.activeMinutes30d - b.activeMinutes30d)
-  const inactiveTools = tools.filter((tool) => tool.activeMinutes30d === 0)
-  const totalCost = tools.reduce((sum, tool) => sum + tool.monthlyCost, 0)
-  const reviewCost = inactiveTools.reduce((sum, tool) => sum + tool.monthlyCost, 0)
+  const tools = member.assignedSoftware
+  const inactiveTools = tools.filter((tool) => tool.kind !== 'ai-agent' && tool.activeMinutes30d === 0)
 
   const exportUsage = () =>
     downloadUsageWorkbook(member, {
       activeMinutes: t('manager.accessReview.exportMinutes'),
+      creditsConsumed: t('manager.employeeDetail.creditsConsumed'),
+      creditsLimit: t('manager.employeeDetail.creditsLimit'),
+      dayPeriod: t('manager.employeeDetail.periodDayLabel'),
+      period: t('manager.employeeDetail.periodLabel'),
       plan: t('manager.accessReview.colPlan'),
+      requestPeriod: t('manager.employeeDetail.periodRequestLabel'),
+      sessionEnd: t('manager.employeeDetail.sessionEnd'),
+      sessionStart: t('manager.employeeDetail.sessionStart'),
       sheetName: t('manager.accessReview.exportSheet'),
       software: t('manager.accessReview.colSoftware'),
       status: t('manager.accessReview.exportStatus'),
       title: t('manager.accessReview.exportTitle'),
       usageActive: t('manager.employeeDetail.usageActive'),
+      usageAgentActive: t('manager.employeeDetail.agentAllocated'),
       usageInactive: t('manager.employeeDetail.usageInactive'),
       usageLow: t('manager.employeeDetail.usageLow')
     })
@@ -83,16 +87,6 @@ export function ManagerEmployeeDetailView({
             <Download aria-hidden='true' className='size-4' />
             {t('manager.accessReview.exportUsage')}
           </button>
-          {!backToReview && (
-            <button
-              className='inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border bg-surface px-4 py-2 text-sm font-semibold text-foreground hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
-              onClick={() => onSelectTab('create-employee-request', { employeeId: member.id })}
-              type='button'
-            >
-              <Plus aria-hidden='true' className='size-4' />
-              {t('manager.employeeDetail.assignBtn')}
-            </button>
-          )}
         </div>
       </header>
 
@@ -124,55 +118,53 @@ export function ManagerEmployeeDetailView({
           </div>
         )}
 
-        <div className='overflow-x-auto'>
-          <table className='w-full min-w-[880px] text-left text-sm'>
-            <caption className='sr-only'>{t('manager.employeeDetail.usageTitle', { name: member.name })}</caption>
-            <thead>
-              <tr className='border-b border-border text-muted-foreground'>
-                <th className='px-3 py-3 font-semibold'>{t('manager.employeeDetail.colSoftware')}</th>
-                <th className='px-3 py-3 font-semibold'>{t('manager.employeeDetail.colPlan')}</th>
-                <th className='px-3 py-3 text-right font-semibold'>{t('manager.employeeDetail.colActiveMinutes')}</th>
-                <th className='px-3 py-3 font-semibold'>{t('manager.employeeDetail.colLastActive')}</th>
-                <th className='px-3 py-3 font-semibold'>{t('manager.employeeDetail.colUsageStatus')}</th>
-                <th className='px-3 py-3 text-right font-semibold'>{t('manager.employeeDetail.colCost')}</th>
-                <th className='px-3 py-3 text-right font-semibold'>{t('manager.employeeDetail.colActions')}</th>
-              </tr>
-            </thead>
-            <tbody className='divide-y divide-border'>
-              {tools.map((tool) => {
-                const lastActive = MOCK_ACCESS_REVIEW.find(
-                  (item) => item.employeeId === member.id && item.softwareName === tool.name
-                )?.lastActiveDate
-                return (
-                  <tr key={tool.id} className='hover:bg-surface-subtle/50'>
-                    <td className='px-3 py-4'>
-                      <span className='flex items-center gap-2'>
-                        <AppWindow
-                          aria-hidden='true'
-                          className='size-9 shrink-0 rounded-lg border border-primary/20 bg-primary-soft/60 p-2 text-primary'
-                        />
-                        <span>
-                          <span className='block font-semibold text-foreground'>{tool.name}</span>
-                          <span className='block text-xs text-muted-foreground'>
-                            {t('manager.employeeDetail.assignedOn', { date: date(tool.assignedDate) })}
-                          </span>
-                        </span>
-                      </span>
-                    </td>
-                    <td className='px-3 py-4 text-muted-foreground'>{tool.plan}</td>
-                    <td className='px-3 py-4 text-right font-semibold text-foreground'>
-                      {t('manager.employeeDetail.minutesDisplay', { value: number.format(tool.activeMinutes30d) })}
-                    </td>
-                    <td className='px-3 py-4 text-muted-foreground'>
-                      {lastActive ? (
-                        <time dateTime={lastActive}>{date(lastActive)}</time>
+        <div className='space-y-3'>
+          {tools.map((tool) => {
+            const isAgent = tool.kind === 'ai-agent'
+            const toolKey = `${member.id}:${tool.id}`
+            const open = openToolId === toolKey
+            return (
+              <article className='overflow-hidden rounded-xl border border-border bg-surface' key={tool.id}>
+                <div className='flex flex-col gap-4 p-4 lg:flex-row lg:items-center lg:justify-between'>
+                  <div className='flex min-w-0 items-start gap-3'>
+                    <span className='grid size-11 shrink-0 place-items-center rounded-xl border border-primary/20 bg-primary-soft/60 text-primary'>
+                      {isAgent ? (
+                        <Bot aria-hidden='true' className='size-5' />
                       ) : (
-                        t('manager.employeeDetail.noLastActiveData')
+                        <AppWindow aria-hidden='true' className='size-5' />
                       )}
-                    </td>
-                    <td className='px-3 py-4'>
+                    </span>
+                    <div className='min-w-0'>
+                      <div className='flex flex-wrap items-center gap-2'>
+                        <h3 className='font-bold text-foreground'>{tool.name}</h3>
+                        <span className='rounded-full bg-primary-soft px-2 py-0.5 text-xs font-semibold text-primary-ink'>
+                          {t(isAgent ? 'manager.employeeDetail.typeAgent' : 'manager.employeeDetail.typeSoftware')}
+                        </span>
+                      </div>
+                      <p className='mt-1 text-sm text-muted-foreground'>{tool.plan}</p>
+                      <p className='mt-1 text-xs text-muted-foreground'>
+                        {t('manager.employeeDetail.assignedOn', { date: date(tool.assignedDate) })}
+                      </p>
+                    </div>
+                  </div>
+                  <div className='flex flex-wrap items-center gap-x-5 gap-y-3 lg:justify-end'>
+                    <div className='min-w-32'>
+                      <p className='text-xs text-muted-foreground'>
+                        {t(
+                          isAgent ? 'manager.employeeDetail.creditsConsumed' : 'manager.employeeDetail.colActiveMinutes'
+                        )}
+                      </p>
+                      <p className='mt-1 text-base font-bold tabular-nums text-foreground'>
+                        {isAgent
+                          ? t('manager.employeeDetail.creditsDisplay', {
+                              value: number.format(tool.creditUsage.consumed)
+                            })
+                          : t('manager.employeeDetail.minutesDisplay', { value: number.format(tool.activeMinutes30d) })}
+                      </p>
+                    </div>
+                    {!isAgent && (
                       <span
-                        className={`rounded-md px-2 py-1 text-xs font-semibold ${tool.status === 'ACTIVE' ? 'bg-success/10 text-success' : tool.status === 'LOW_USAGE' ? 'bg-warning/10 text-warning' : 'bg-danger/10 text-danger'}`}
+                        className={`rounded-md px-2.5 py-1 text-xs font-semibold ${tool.status === 'ACTIVE' ? 'bg-success/10 text-success' : tool.status === 'LOW_USAGE' ? 'bg-warning/10 text-warning' : 'bg-danger/10 text-danger'}`}
                       >
                         {t(
                           tool.status === 'ACTIVE'
@@ -182,28 +174,100 @@ export function ManagerEmployeeDetailView({
                               : 'manager.employeeDetail.usageInactive'
                         )}
                       </span>
-                    </td>
-                    <td className='px-3 py-4 text-right font-semibold text-foreground'>
-                      {formatCurrency(tool.monthlyCost)}
-                    </td>
-                    <td className='px-3 py-4 text-right'>
-                      {tool.activeMinutes30d === 0 ? (
-                        <button
-                          className='rounded-lg border border-border px-3 py-2 text-xs font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-60'
-                          disabled
-                          type='button'
-                        >
-                          {t('manager.employeeDetail.actRevoke')}
-                        </button>
-                      ) : (
-                        <span className='text-xs text-muted-foreground'>{t('manager.employeeDetail.actNormal')}</span>
+                    )}
+                    <button
+                      aria-controls={`usage-detail-${member.id}-${tool.id}`}
+                      aria-expanded={open}
+                      aria-label={t(
+                        open ? 'manager.employeeDetail.hideDetailFor' : 'manager.employeeDetail.viewDetailFor',
+                        { name: tool.name }
                       )}
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+                      className='inline-flex min-h-11 items-center gap-2 rounded-lg border border-primary/25 bg-primary-soft/40 px-3 text-sm font-semibold text-primary-ink transition hover:border-primary hover:bg-primary-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
+                      onClick={() => setOpenToolId(open ? null : toolKey)}
+                      type='button'
+                    >
+                      {t(open ? 'manager.employeeDetail.hideDetail' : 'manager.employeeDetail.viewDetail')}
+                      <ChevronDown
+                        aria-hidden='true'
+                        className={`size-4 transition-transform ${open ? 'rotate-180' : ''}`}
+                      />
+                    </button>
+                  </div>
+                </div>
+
+                {open && (
+                  <div
+                    className='border-t border-border bg-surface-subtle/40 p-4 sm:p-5'
+                    id={`usage-detail-${member.id}-${tool.id}`}
+                  >
+                    {isAgent ? (
+                      <div className='space-y-4'>
+                        <h4 className='font-bold text-foreground'>{t('manager.employeeDetail.agentDetailTitle')}</h4>
+                        <dl className='grid gap-3 sm:grid-cols-3'>
+                          <div className='rounded-xl border border-border bg-surface p-3'>
+                            <dt className='text-xs text-muted-foreground'>
+                              {t('manager.employeeDetail.creditsConsumed')}
+                            </dt>
+                            <dd className='mt-1 text-lg font-bold tabular-nums text-foreground'>
+                              {number.format(tool.creditUsage.consumed)}
+                            </dd>
+                          </div>
+                          <div className='rounded-xl border border-border bg-surface p-3'>
+                            <dt className='text-xs text-muted-foreground'>
+                              {t('manager.employeeDetail.creditsLimit')}
+                            </dt>
+                            <dd className='mt-1 text-lg font-bold tabular-nums text-foreground'>
+                              {number.format(tool.creditUsage.limit)}
+                            </dd>
+                          </div>
+                          <div className='rounded-xl border border-border bg-surface p-3'>
+                            <dt className='text-xs text-muted-foreground'>{t('manager.employeeDetail.periodLabel')}</dt>
+                            <dd className='mt-1 text-sm font-semibold text-foreground'>
+                              {tool.creditUsage.period.kind === 'day'
+                                ? t('manager.employeeDetail.periodDay', { date: date(tool.creditUsage.period.date) })
+                                : t('manager.employeeDetail.periodRequest', {
+                                    code: tool.creditUsage.period.requestCode
+                                  })}
+                            </dd>
+                          </div>
+                        </dl>
+                        <div aria-hidden='true' className='h-2.5 overflow-hidden rounded-full bg-primary-soft'>
+                          <div
+                            className='h-full rounded-full bg-primary'
+                            style={{
+                              width: `${tool.creditUsage.limit > 0 ? Math.min(100, (tool.creditUsage.consumed / tool.creditUsage.limit) * 100) : 0}%`
+                            }}
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className='space-y-3'>
+                        <h4 className='font-bold text-foreground'>{t('manager.employeeDetail.sessionDetailTitle')}</h4>
+                        <dl className='grid gap-3 sm:grid-cols-2'>
+                          <div className='rounded-xl border border-border bg-surface p-3'>
+                            <dt className='text-xs text-muted-foreground'>
+                              {t('manager.employeeDetail.sessionStart')}
+                            </dt>
+                            <dd className='mt-1 font-semibold text-foreground'>
+                              <time dateTime={tool.latestSession.startedAt}>
+                                {dateTime(tool.latestSession.startedAt)}
+                              </time>
+                            </dd>
+                          </div>
+                          <div className='rounded-xl border border-border bg-surface p-3'>
+                            <dt className='text-xs text-muted-foreground'>{t('manager.employeeDetail.sessionEnd')}</dt>
+                            <dd className='mt-1 font-semibold text-foreground'>
+                              <time dateTime={tool.latestSession.endedAt}>{dateTime(tool.latestSession.endedAt)}</time>
+                            </dd>
+                          </div>
+                        </dl>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </article>
+            )
+          })}
         </div>
         <p className='text-xs text-muted-foreground'>{t('manager.employeeDetail.usageLimitNote')}</p>
         {inactiveTools.length > 0 && (
@@ -211,61 +275,51 @@ export function ManagerEmployeeDetailView({
         )}
       </section>
 
-      <div className='grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]'>
-        <section
-          aria-labelledby='employee-profile-heading'
-          className='rounded-2xl border border-border bg-surface p-5 shadow-sm'
-        >
-          <div className='flex items-center gap-3 border-b border-border pb-4'>
-            <UserRound
-              aria-hidden='true'
-              className='size-11 rounded-xl border border-primary/20 bg-primary-soft/60 p-2.5 text-primary'
-            />
-            <div>
-              <h2 className='font-bold text-foreground' id='employee-profile-heading'>
-                {t('manager.employeeDetail.profileTitle')}
-              </h2>
-              <p className='text-sm text-muted-foreground'>
-                {member.name} · {member.jobTitle}
-              </p>
-            </div>
+      <section
+        aria-labelledby='employee-profile-heading'
+        className='rounded-2xl border border-border bg-surface p-5 shadow-sm'
+      >
+        <div className='flex items-center gap-3 border-b border-border pb-4'>
+          <UserRound
+            aria-hidden='true'
+            className='size-11 rounded-xl border border-primary/20 bg-primary-soft/60 p-2.5 text-primary'
+          />
+          <div>
+            <h2 className='font-bold text-foreground' id='employee-profile-heading'>
+              {t('manager.employeeDetail.profileTitle')}
+            </h2>
+            <p className='text-sm text-muted-foreground'>
+              {member.name} · {member.jobTitle}
+            </p>
           </div>
-          <dl className='mt-4 grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2'>
-            <div>
-              <dt className='text-muted-foreground'>{t('manager.employeeDetail.labelEmail')}</dt>
-              <dd className='break-all font-medium text-foreground'>{member.email}</dd>
-            </div>
-            <div>
-              <dt className='text-muted-foreground'>{t('manager.employeeDetail.labelDepartment')}</dt>
-              <dd className='font-medium text-foreground'>{member.department}</dd>
-            </div>
-            <div>
-              <dt className='text-muted-foreground'>{t('manager.employeeDetail.labelTeam')}</dt>
-              <dd className='font-medium text-foreground'>{member.team}</dd>
-            </div>
-            <div>
-              <dt className='text-muted-foreground'>{t('manager.employeeDetail.labelCode')}</dt>
-              <dd className='font-medium text-foreground'>{member.code}</dd>
-            </div>
-            <div>
-              <dt className='text-muted-foreground'>{t('manager.employeeDetail.labelCostCenter')}</dt>
-              <dd className='font-medium text-foreground'>{member.costCenter}</dd>
-            </div>
-            <div>
-              <dt className='text-muted-foreground'>{t('manager.employeeDetail.labelJoined')}</dt>
-              <dd className='font-medium text-foreground'>{date(member.joined)}</dd>
-            </div>
-          </dl>
-        </section>
-        <aside className='rounded-2xl border border-border bg-surface p-5 shadow-sm'>
-          <h2 className='font-bold text-foreground'>{t('manager.employeeDetail.costSummaryTitle')}</h2>
-          <p className='mt-3 text-sm text-muted-foreground'>{t('manager.employeeDetail.kpiMonthlySpend')}</p>
-          <p className='mt-1 text-2xl font-bold text-foreground'>{formatCurrency(totalCost)}</p>
-          <p className='mt-4 text-sm text-muted-foreground'>{t('manager.employeeDetail.reviewCostLabel')}</p>
-          <p className='mt-1 text-xl font-semibold text-foreground'>{formatCurrency(reviewCost)}</p>
-          <p className='mt-2 text-xs text-muted-foreground'>{t('manager.employeeDetail.reviewCostNote')}</p>
-        </aside>
-      </div>
+        </div>
+        <dl className='mt-4 grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2 lg:grid-cols-3'>
+          <div>
+            <dt className='text-muted-foreground'>{t('manager.employeeDetail.labelEmail')}</dt>
+            <dd className='break-all font-medium text-foreground'>{member.email}</dd>
+          </div>
+          <div>
+            <dt className='text-muted-foreground'>{t('manager.employeeDetail.labelDepartment')}</dt>
+            <dd className='font-medium text-foreground'>{member.department}</dd>
+          </div>
+          <div>
+            <dt className='text-muted-foreground'>{t('manager.employeeDetail.labelTeam')}</dt>
+            <dd className='font-medium text-foreground'>{member.team}</dd>
+          </div>
+          <div>
+            <dt className='text-muted-foreground'>{t('manager.employeeDetail.labelCode')}</dt>
+            <dd className='font-medium text-foreground'>{member.code}</dd>
+          </div>
+          <div>
+            <dt className='text-muted-foreground'>{t('manager.employeeDetail.labelCostCenter')}</dt>
+            <dd className='font-medium text-foreground'>{member.costCenter}</dd>
+          </div>
+          <div>
+            <dt className='text-muted-foreground'>{t('manager.employeeDetail.labelJoined')}</dt>
+            <dd className='font-medium text-foreground'>{date(member.joined)}</dd>
+          </div>
+        </dl>
+      </section>
     </div>
   )
 }

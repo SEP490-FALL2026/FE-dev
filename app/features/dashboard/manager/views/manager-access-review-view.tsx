@@ -24,12 +24,20 @@ export function ManagerAccessReviewView({ onSelectTab }: Props) {
     if (!member) return
     downloadUsageWorkbook(member, {
       activeMinutes: t('manager.accessReview.exportMinutes'),
+      creditsConsumed: t('manager.employeeDetail.creditsConsumed'),
+      creditsLimit: t('manager.employeeDetail.creditsLimit'),
+      dayPeriod: t('manager.employeeDetail.periodDayLabel'),
       plan: t('manager.accessReview.colPlan'),
+      period: t('manager.employeeDetail.periodLabel'),
+      requestPeriod: t('manager.employeeDetail.periodRequestLabel'),
+      sessionEnd: t('manager.employeeDetail.sessionEnd'),
+      sessionStart: t('manager.employeeDetail.sessionStart'),
       sheetName: t('manager.accessReview.exportSheet'),
       software: t('manager.accessReview.colSoftware'),
       status: t('manager.accessReview.exportStatus'),
       title: t('manager.accessReview.exportTitle'),
       usageActive: t('manager.employeeDetail.usageActive'),
+      usageAgentActive: t('manager.employeeDetail.agentAllocated'),
       usageInactive: t('manager.employeeDetail.usageInactive'),
       usageLow: t('manager.employeeDetail.usageLow')
     })

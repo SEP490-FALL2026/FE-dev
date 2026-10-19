@@ -105,6 +105,12 @@ export function EmployeeRequestDetailView({ onSelectTab, requestId = 'REQ-1024' 
                 <span className='font-medium text-foreground'>{request.plan}</span>
               </div>
               <div className='flex flex-wrap items-center justify-between gap-1 border-b border-border/70 pb-3'>
+                <span className='text-muted-foreground'>{t('employee.myRequests.colForm')}</span>
+                <span className='font-semibold text-foreground'>
+                  {t(`employee.myRequests.${request.form === 'shared' ? 'formShared' : 'formPersonal'}`)}
+                </span>
+              </div>
+              <div className='flex flex-wrap items-center justify-between gap-1 border-b border-border/70 pb-3'>
                 <span className='text-muted-foreground'>{t('employee.requestDetail.project')}</span>
                 <span className='font-medium text-foreground'>{request.project}</span>
               </div>
@@ -119,6 +125,46 @@ export function EmployeeRequestDetailView({ onSelectTab, requestId = 'REQ-1024' 
                 </p>
               </div>
             </div>
+            {request.form === 'shared' && request.sharedParticipants && (
+              <section
+                aria-labelledby='shared-participants-title'
+                className='mt-6 rounded-xl border border-primary/20 bg-primary-soft/30 p-4'
+              >
+                <div className='flex flex-wrap items-baseline justify-between gap-2'>
+                  <h3 className='font-bold text-foreground' id='shared-participants-title'>
+                    {t('employee.requestDetail.sharedParticipantsTitle')}
+                  </h3>
+                  <span className='text-xs font-semibold text-primary-ink'>
+                    {t('employee.requestDetail.participantCount', {
+                      count: request.sharedParticipants.colleagues.length + 1
+                    })}
+                  </span>
+                </div>
+                <p className='mt-1 text-sm text-muted-foreground'>
+                  {t('employee.requestDetail.sharedParticipantsHint')}
+                </p>
+                <div className='mt-4 rounded-lg border border-border bg-surface p-3'>
+                  <p className='text-xs font-semibold text-muted-foreground'>
+                    {t('employee.requestDetail.representative')}
+                  </p>
+                  <p className='mt-1 font-semibold text-foreground'>{request.sharedParticipants.requester.name}</p>
+                  <p className='break-all text-xs text-muted-foreground'>
+                    {request.sharedParticipants.requester.email}
+                  </p>
+                </div>
+                <h4 className='mt-4 text-xs font-semibold text-muted-foreground'>
+                  {t('employee.requestDetail.registeredColleagues')}
+                </h4>
+                <ul className='mt-2 grid gap-2 sm:grid-cols-2'>
+                  {request.sharedParticipants.colleagues.map((colleague) => (
+                    <li className='rounded-lg border border-border bg-surface p-3' key={colleague.email}>
+                      <p className='font-semibold text-foreground'>{colleague.name}</p>
+                      <p className='break-all text-xs text-muted-foreground'>{colleague.email}</p>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
           </div>
 
           {/* History / Audit Log */}

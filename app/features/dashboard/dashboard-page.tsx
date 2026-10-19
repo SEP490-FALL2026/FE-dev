@@ -92,6 +92,7 @@ import { FinancePeriodCloseView } from './finance/views/finance-period-close-vie
 import { FinancePeriodReportView } from './finance/views/finance-period-report-view'
 import { FinanceSpendImportView } from './finance/views/finance-spend-import-view'
 import { managerNavItems, getParentManagerMenuKey, isValidManagerTab, type ManagerTabKey } from './manager/manager-nav'
+import { MOCK_TEAM_REQUESTS } from './manager/manager-data'
 import { ManagerAccessReviewView } from './manager/views/manager-access-review-view'
 import { ManagerCreateEmployeeRequestView } from './manager/views/manager-create-employee-request-view'
 import { ManagerEmployeeDetailView } from './manager/views/manager-employee-detail-view'
@@ -103,6 +104,7 @@ import { ManagerOverviewView } from './manager/views/manager-overview-view'
 import { ManagerRequestApprovalView } from './manager/views/manager-request-approval-view'
 import { ManagerTeamRequestsView } from './manager/views/manager-team-requests-view'
 import { ManagerTeamSoftwareView } from './manager/views/manager-team-software-view'
+import { ManagerWeeklyBatchView } from './manager/views/manager-weekly-batch-view'
 import type { ManagerPreviewRequest, ManagerPreviewRequestInput } from './manager/manager-preview-request'
 import './manager/manager-workspace.css'
 
@@ -172,9 +174,11 @@ export function DashboardPage({ role }: { role: UserRole }) {
   const activeManagerParent = isManager
     ? getParentManagerMenuKey(activeManagerTab, searchParams.get('from'))
     : 'overview'
+  const [managerPreviewRequests, setManagerPreviewRequests] = useState<ManagerPreviewRequest[]>([])
+  const [managerMarkedRequestIds, setManagerMarkedRequestIds] = useState<string[]>([])
+  const [managerSentRequestIds, setManagerSentRequestIds] = useState<string[]>([])
   const managerRequestScope = searchParams.get('scope') === 'team' ? 'team' : 'individual'
   const [managerCreateMenuOpen, setManagerCreateMenuOpen] = useState(activeManagerTab === 'create-employee-request')
-  const [managerPreviewRequests, setManagerPreviewRequests] = useState<ManagerPreviewRequest[]>([])
 
   const activeApprovalTab: ApprovalTabKey = isApprover && isValidApprovalTab(tabParam) ? tabParam : 'overview'
   const activeApprovalParent = isApprover ? getParentApprovalMenuKey(activeApprovalTab) : 'overview'
@@ -236,6 +240,15 @@ export function DashboardPage({ role }: { role: UserRole }) {
       ...current
     ])
     handleSelectManagerTab('my-requests')
+  }
+
+  const handleMarkManagerRequest = (requestId: string) => {
+    setManagerMarkedRequestIds((current) => (current.includes(requestId) ? current : [...current, requestId]))
+    handleSelectManagerTab('weekly-batch')
+  }
+
+  const handleSendMarkedRequests = () => {
+    setManagerSentRequestIds((current) => [...new Set([...current, ...managerMarkedRequestIds])])
   }
 
   const handleSelectApprovalTab = (tab: ApprovalTabKey, extraParams?: Record<string, string>) => {
@@ -530,7 +543,14 @@ export function DashboardPage({ role }: { role: UserRole }) {
                             isCurrent ? 'bg-white/20 text-white' : 'bg-surface-subtle text-muted-foreground'
                           }`}
                         >
-                          {item.badge}
+                          {item.key === 'team-requests'
+                            ? MOCK_TEAM_REQUESTS.filter(
+                                (request) =>
+                                  request.status === 'PENDING' && !managerMarkedRequestIds.includes(request.id)
+                              ).length
+                            : item.key === 'weekly-batch'
+                              ? managerMarkedRequestIds.filter((id) => !managerSentRequestIds.includes(id)).length
+                              : item.badge}
                         </span>
                       )}
                     </button>
@@ -872,13 +892,16 @@ export function DashboardPage({ role }: { role: UserRole }) {
               <ManagerEmployeeDetailView
                 backToReview={searchParams.get('from') === 'access-review'}
                 employeeId={searchParams.get('id') || undefined}
-                formatCurrency={formatCurrency}
                 onSelectTab={handleSelectManagerTab}
               />
             ) : activeManagerTab === 'team-software' ? (
               <ManagerTeamSoftwareView formatCurrency={formatCurrency} onSelectTab={handleSelectManagerTab} />
             ) : activeManagerTab === 'team-requests' ? (
-              <ManagerTeamRequestsView formatCurrency={formatCurrency} onSelectTab={handleSelectManagerTab} />
+              <ManagerTeamRequestsView
+                markedRequestIds={managerMarkedRequestIds}
+                sentRequestIds={managerSentRequestIds}
+                onSelectTab={handleSelectManagerTab}
+              />
             ) : activeManagerTab === 'my-requests' ? (
               <ManagerMyRequestsView
                 managerName={profile.displayName}
@@ -888,6 +911,9 @@ export function DashboardPage({ role }: { role: UserRole }) {
             ) : activeManagerTab === 'request-approval' ? (
               <ManagerRequestApprovalView
                 formatCurrency={formatCurrency}
+                isMarked={managerMarkedRequestIds.includes(searchParams.get('id') || '')}
+                isSent={managerSentRequestIds.includes(searchParams.get('id') || '')}
+                onMarkForPreparation={handleMarkManagerRequest}
                 onSelectTab={handleSelectManagerTab}
                 requestId={searchParams.get('id') || undefined}
               />
@@ -899,6 +925,15 @@ export function DashboardPage({ role }: { role: UserRole }) {
                 onSelectTab={handleSelectManagerTab}
                 onSavePreview={handleSaveManagerPreview}
                 scope={managerRequestScope}
+              />
+            ) : activeManagerTab === 'weekly-batch' ? (
+              <ManagerWeeklyBatchView
+                onSelectTab={handleSelectManagerTab}
+                onSendAll={handleSendMarkedRequests}
+                requests={MOCK_TEAM_REQUESTS.filter(
+                  (item) => managerMarkedRequestIds.includes(item.id) && !managerSentRequestIds.includes(item.id)
+                )}
+                sentCount={managerSentRequestIds.length}
               />
             ) : activeManagerTab === 'ghost-seat-review' ? (
               <ManagerGhostSeatReviewView formatCurrency={formatCurrency} onSelectTab={handleSelectManagerTab} />

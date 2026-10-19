@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { setAppLanguage } from '~/shared/i18n/i18n'
@@ -76,6 +76,32 @@ describe('Employee software and request states', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Clear filters' }))
 
     expect(screen.queryByRole('heading', { name: 'No requests found' })).not.toBeInTheDocument()
+  })
+
+  it('shows the request form in place of the current stage and opens a shared request', () => {
+    const onSelectTab = vi.fn()
+    render(<EmployeeMyRequestsView onSelectTab={onSelectTab} />)
+
+    expect(screen.getByRole('columnheader', { name: 'Form' })).toBeInTheDocument()
+    expect(screen.queryByRole('columnheader', { name: 'Current Stage' })).not.toBeInTheDocument()
+    const sharedRow = screen.getByRole('row', { name: /REQ-1025/ })
+    expect(within(sharedRow).getByText('Shared')).toBeInTheDocument()
+    expect(screen.getAllByRole('row').filter((row) => within(row).queryByText('Shared'))).toHaveLength(3)
+    fireEvent.click(within(sharedRow).getByRole('button', { name: 'Action' }))
+    expect(onSelectTab).toHaveBeenCalledWith('request-detail', { id: 'REQ-1025' })
+  })
+
+  it('shows the representative and same-department colleagues only for shared requests', () => {
+    const view = render(<EmployeeRequestDetailView onSelectTab={vi.fn()} requestId='REQ-1025' />)
+
+    expect(screen.getByRole('heading', { name: 'Registered participants' })).toBeInTheDocument()
+    expect(screen.getByText('Nguyễn Văn An')).toBeInTheDocument()
+    expect(screen.getByText('Lê Cường')).toBeInTheDocument()
+    expect(screen.getByText('Phạm Minh Hoàng')).toBeInTheDocument()
+    expect(screen.getByText('3 people')).toBeInTheDocument()
+
+    view.rerender(<EmployeeRequestDetailView onSelectTab={vi.fn()} requestId='REQ-1024' />)
+    expect(screen.queryByRole('heading', { name: 'Registered participants' })).not.toBeInTheDocument()
   })
 
   it('does not show another employee record for an unknown detail ID', () => {
