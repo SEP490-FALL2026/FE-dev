@@ -2,8 +2,11 @@ import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { EmployeePreviewNotice } from '../employee-preview-notice'
+import { roleProfiles } from '../../dashboard-data'
 import type { EmployeeTabKey } from '../employee-nav'
+import { employeeRequestPlanOptions } from '../employee-request-plan-options'
 import { EmployeeRequestStepper } from '../employee-request-stepper'
+import { eligibleTeamMembers, parseTeamMemberIds } from '../employee-team-request-draft'
 
 interface EmployeeReviewRequestViewProps {
   onSelectTab: (tab: EmployeeTabKey, params?: Record<string, string>) => void
@@ -15,10 +18,14 @@ export function EmployeeReviewRequestView({ onSelectTab, requestParams = {} }: E
 
   const hasDraft = Boolean(requestParams.type && requestParams.softwareName)
   const softwareName = requestParams.softwareName || t('employee.reviewRequest.notProvided')
-  const plan = requestParams.plan || t('employee.reviewRequest.notProvided')
+  const planOption = employeeRequestPlanOptions.find((option) => option.value === requestParams.plan)
+  const plan = planOption ? t(planOption.labelKey) : t('employee.reviewRequest.notProvided')
   const reason = requestParams.reason || requestParams.note || t('employee.reviewRequest.notProvided')
-  const project = requestParams.project || t('employee.reviewRequest.notProvided')
   const requestType = requestParams.type || 'newSoftware'
+  const isTeamRequest =
+    (requestType === 'newSoftware' || requestType === 'changePlan') && requestParams.usageMode === 'team'
+  const selectedTeamMemberIds = isTeamRequest ? parseTeamMemberIds(requestParams.teamMemberIds) : []
+  const selectedTeamMembers = eligibleTeamMembers.filter((member) => selectedTeamMemberIds.includes(member.id))
   const duration =
     requestParams.duration === '1month'
       ? t('employee.temporaryRenewal.duration1Month')
@@ -38,6 +45,10 @@ export function EmployeeReviewRequestView({ onSelectTab, requestParams = {} }: E
 
   const handleBack = () => {
     const draft = Object.fromEntries(Object.entries(requestParams).filter(([key]) => key !== 'tab'))
+    if (requestType === 'newSoftware' || requestType === 'changePlan') {
+      delete draft.project
+      delete draft.teamDraft
+    }
     if (requestType === 'renewal') {
       onSelectTab('temporary-renewal', draft)
     } else if (requestType === 'returnLicense') {
@@ -127,11 +138,32 @@ export function EmployeeReviewRequestView({ onSelectTab, requestParams = {} }: E
                           : t('employee.reviewRequest.notProvided')}
                     </span>
                   </div>
-                  <div className='flex flex-wrap items-start justify-between gap-x-4 gap-y-1 py-2.5'>
-                    <span className='text-muted-foreground'>{t('employee.requestDetail.project')}</span>
-                    <span className='font-medium text-foreground'>{project}</span>
-                  </div>
                 </>
+              )}
+              {isTeamRequest && (
+                <div className='space-y-3 py-4'>
+                  <div>
+                    <h3 className='font-semibold text-foreground'>
+                      {t('employee.reviewRequest.teamRecipients', { count: selectedTeamMembers.length + 1 })}
+                    </h3>
+                    <ul className='mt-2 space-y-2'>
+                      <li className='rounded-xl border border-border bg-surface-subtle/50 p-3'>
+                        <span className='block font-semibold text-foreground'>
+                          {roleProfiles.employee.displayName} · {t('employee.requestNewSoftware.teamRepresentative')}
+                        </span>
+                        <span className='text-muted-foreground'>
+                          {t('employee.requestNewSoftware.teamRepresentativeHint')}
+                        </span>
+                      </li>
+                      {selectedTeamMembers.map((member) => (
+                        <li className='rounded-xl border border-border bg-surface-subtle/50 p-3' key={member.id}>
+                          <span className='block font-semibold text-foreground'>{member.name}</span>
+                          <span className='text-muted-foreground'>{member.email}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
               )}
               {requestType === 'renewal' && (
                 <div className='flex flex-wrap items-start justify-between gap-x-4 gap-y-1 py-2.5'>
@@ -181,6 +213,12 @@ export function EmployeeReviewRequestView({ onSelectTab, requestParams = {} }: E
 
         {/* Right Column: Approval Path Preview */}
         <div className='space-y-6 lg:col-span-5'>
+          {isTeamRequest && (
+            <div className='rounded-2xl border border-primary/25 bg-primary-soft/20 p-5 text-sm'>
+              <h2 className='font-bold text-foreground'>{t('employee.reviewRequest.teamFlowTitle')}</h2>
+              <p className='mt-2 text-muted-foreground'>{t('employee.reviewRequest.teamFlowDescription')}</p>
+            </div>
+          )}
           <div className='rounded-2xl border border-border bg-surface p-6 shadow-sm'>
             <h2 className='text-sm font-bold text-foreground'>{t('employee.reviewRequest.approvalFlowTitle')}</h2>
             <div className='mt-4 space-y-4 border-l-2 border-border/80 pl-4 ml-2 text-xs'>
@@ -190,11 +228,19 @@ export function EmployeeReviewRequestView({ onSelectTab, requestParams = {} }: E
               </div>
               <div>
                 <p className='font-bold text-foreground'>{t('employee.reviewRequest.flowStep2Title')}</p>
-                <p className='text-muted-foreground text-[0.7rem]'>{t('employee.reviewRequest.flowStep2Desc')}</p>
+                <p className='text-muted-foreground text-[0.7rem]'>
+                  {t(
+                    isTeamRequest ? 'employee.reviewRequest.teamFlowStep2Desc' : 'employee.reviewRequest.flowStep2Desc'
+                  )}
+                </p>
               </div>
               <div>
                 <p className='font-bold text-muted-foreground'>{t('employee.reviewRequest.flowStep3Title')}</p>
-                <p className='text-muted-foreground text-[0.7rem]'>{t('employee.reviewRequest.flowStep3Desc')}</p>
+                <p className='text-muted-foreground text-[0.7rem]'>
+                  {t(
+                    isTeamRequest ? 'employee.reviewRequest.teamFlowStep3Desc' : 'employee.reviewRequest.flowStep3Desc'
+                  )}
+                </p>
               </div>
             </div>
           </div>

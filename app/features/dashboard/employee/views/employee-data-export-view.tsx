@@ -39,11 +39,11 @@ export function EmployeeDataExportView({ onSelectTab }: EmployeeDataExportViewPr
       <div>
         <button
           className='inline-flex min-h-11 items-center gap-2 text-sm font-bold text-foreground hover:text-primary-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action'
-          onClick={() => onSelectTab('profile')}
+          onClick={() => onSelectTab('privacy')}
           type='button'
         >
           <ArrowLeft aria-hidden='true' className='size-4' />
-          {t('employee.dataExport.backToProfile')}
+          {t('employee.dataExport.backToPrivacy')}
         </button>
         <h1 className='mt-2 text-2xl font-bold tracking-tight sm:text-3xl'>{t('employee.dataExport.title')}</h1>
         <p className='mt-1 text-sm text-muted-foreground'>{t('employee.dataExport.subtitle')}</p>

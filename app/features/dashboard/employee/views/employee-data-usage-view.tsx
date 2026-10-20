@@ -32,11 +32,11 @@ export function EmployeeDataUsageView({ onSelectTab }: EmployeeDataUsageViewProp
       <div>
         <button
           className='inline-flex items-center gap-2 text-xs font-bold text-muted-foreground transition hover:text-foreground'
-          onClick={() => onSelectTab('profile')}
+          onClick={() => onSelectTab('privacy')}
           type='button'
         >
           <ArrowLeft aria-hidden='true' className='size-4' />
-          <span>{t('employee.dataUsage.backToProfile')}</span>
+          <span>{t('employee.dataUsage.backToPrivacy')}</span>
         </button>
         <h1 className='mt-2 text-2xl font-bold tracking-tight sm:text-3xl'>{t('employee.dataUsage.title')}</h1>
         <p className='mt-1 text-sm text-muted-foreground'>{t('employee.dataUsage.subtitle')}</p>

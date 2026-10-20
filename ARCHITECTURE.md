@@ -32,16 +32,71 @@ and all decisions that affect money or access.
 
 ## Key decisions
 
+### Employee overview preview
+
+The Employee overview chart compares the six illustrative assigned-software
+usage percentages and calculates their average from those same records. These
+figures are labeled as sample per-tool usage, not employee performance or an
+authoritative activity timeline.
+
+### Employee profile and privacy preview
+
+The Employee dashboard uses `tab=profile` for the personal and organization
+record opened from the header avatar. The sidebar's Privacy item uses
+`tab=privacy` for the separate data transparency preview. Its export and usage
+screens return to Privacy, and their sidebar selection stays on Privacy. The
+profile and privacy figures are illustrative local data; this split changes
+navigation and presentation only, not account identity, telemetry collection, or
+backend authorization.
+
+The employee can choose a JPG, PNG, or WebP avatar up to 2 MB. The dashboard
+holds an object URL for a session-only preview on the profile and header, and
+revokes it when replaced or unmounted. No file is uploaded or persisted until
+the backend provides an authorized avatar endpoint.
+
 ### Employee software request preview
 
 The employee software request preview now uses separate catalog selection and
 registration screens. The `request-new-software` tab selects a catalog item and
-`request-software-details` collects the plan, individual or shared-team usage type,
-project, reason, and a name when
-"Other software" is selected. URL parameters carry the draft through the review
+`request-software-details` collects a plan from the illustrative Standard or
+Professional choices,
+individual or shared-team usage type, a reason, and a name when "Other software"
+is selected. The employee does not enter a project or department. URL parameters
+carry the draft through the review
 screen and back navigation. This request type shows four steps; renewal and return
 requests retain their three-step previews. Submission remains unavailable until a
 backend contract and authorization flow are connected.
+
+For shared-team requests, the employee is the representative and selects colleagues
+from the active members of their own department. The representative is included by
+default; the maximum is the available department roster size. The preview treats
+this as one subscription request with individual access for every listed person.
+Only selected member IDs are carried in URL parameters, then resolved against the
+same eligible roster in the review. The review shows the full group and explains
+the intended manager approval, IT provisioning, and shared status.
+Actual submission, per-person provisioning, and status synchronization require a
+backend request model, authorization, and notification contract.
+
+The Employee My Requests preview labels each illustrative record as individual or
+shared instead of showing its current approval stage in the list. Three shared
+records (one existing Notion example and two additional samples) show the request
+representative and the registered colleagues in detail. These participant lists
+are local fixture data from the same Engineering roster used by the draft selector;
+they do not prove that a group request was submitted or provisioned by the backend.
+
+The Manager Team Requests preview uses the same individual/shared form labels in
+place of its estimated-cost list column. Two sample Manager requests are shared;
+their detail resolves registered colleagues by ID from the existing Manager team
+roster and shows the requester as representative. This is illustrative display
+data and does not submit or provision access for those colleagues.
+
+Manager request approval marks an illustrative employee request and opens the
+`weekly-batch` route, presented as Marked Requests. This page lists all unsent
+marked requests directly and offers one action for the full list, with no weekly
+schedule or intermediate form. The action records a sent-preview state in the
+dashboard session and removes those items from the pending list. No request is
+actually transmitted to the CEO: backend submission, authorization, and
+persistence require an authoritative API contract. Session state is lost on reload.
 
 ### Manager request creation preview
 
@@ -71,6 +126,40 @@ request is created, no remote cache is introduced, and backend authorization and
 approval workflow responsibilities remain unchanged.
 
 ### Manager Ghost Seat Review preview
+
+The dashboard Manager overview visualizes only the six available illustrative
+software records. Its seat-allocation bars show assigned versus available seats,
+and its cost ring shows each record's share of that six-record sample. The
+independent summary figures describe eight applications and VND 54.8 million in
+monthly spend, so the sample ring is explicitly labeled and is never presented
+as a breakdown of the summary total. Pending requests and flagged seats retain
+their navigation to review screens.
+
+The dashboard Manager tab also has an illustrative usage review. It presents each
+employee's assigned tool, recorded inactive days, and estimated monthly cost. The
+Manager can inspect a record but cannot mark a seat as revoked or retained. Its
+request-to-IT control stays unavailable until the backend provides a request
+operation and authorization contract; the preview must not report that a request
+was sent. Inactive days are a tool-usage signal, not a measure of employee work
+performance. Internal waste-rule codes are not shown to Managers.
+
+### Dashboard Manager access review preview
+
+The dashboard access-review tab groups sample access records by employee. Expanding
+an employee reveals the tools in the review. Its usage link opens that employee's
+existing detail view, which shows sample active minutes for software plans and
+credit consumption for AI agents. Every illustrative software assignment has an
+explicit recent session start and end; these timestamps are not inferred from
+aggregate minutes. AI agents show credits used against a daily or request
+allocation, with Codex as a request-based sample. A local Excel export uses
+separate minute, credit, and session-time columns for those assigned tools. The
+detail places usage evidence before profile information, shows no monetary amounts,
+offers the same export, and keeps the access-review navigation context through the
+URL's `from` parameter. The Manager detail has no assign-software control and does
+not directly revoke access or mark licenses as retained here. Revocation requests remain unavailable
+until the backend publishes a request operation and authorization contract; the UI
+does not claim a request was sent or access changed. Usage signals are not employee
+productivity scores.
 
 `/manager/ghost-seat-review` composes the private Manager ghost-seat-review feature
 inside the shared warm orange Manager shell. Search, tier, recommendation,

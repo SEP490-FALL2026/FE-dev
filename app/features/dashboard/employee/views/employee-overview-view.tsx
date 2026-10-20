@@ -7,7 +7,6 @@ import {
   ChevronRight,
   Clock,
   Laptop,
-  Lightbulb,
   Plus,
   RotateCcw,
   Sparkles,
@@ -28,7 +27,7 @@ interface EmployeeOverviewViewProps {
 
 const ASSIGNED_SOFTWARE_PAGE_SIZE = 4
 
-export function EmployeeOverviewView({ displayName, onSelectTab }: EmployeeOverviewViewProps) {
+export function EmployeeOverviewView({ displayName, formatNumber, onSelectTab }: EmployeeOverviewViewProps) {
   const { t } = useTranslation('dashboard')
   const [softwarePage, setSoftwarePage] = useState(1)
   const softwarePageCount = Math.ceil(employeeSoftwareItems.length / ASSIGNED_SOFTWARE_PAGE_SIZE)
@@ -45,6 +44,10 @@ export function EmployeeOverviewView({ displayName, onSelectTab }: EmployeeOverv
   }
 
   const upcomingExpiring = employeeSoftwareItems.filter((item) => item.status === 'expiringSoon')
+  const usageChartItems = [...employeeSoftwareItems].sort((a, b) => b.usage - a.usage)
+  const averageUsage = employeeSoftwareItems.length
+    ? Math.round(employeeSoftwareItems.reduce((total, item) => total + item.usage, 0) / employeeSoftwareItems.length)
+    : 0
 
   const cardContent = [
     {
@@ -66,10 +69,14 @@ export function EmployeeOverviewView({ displayName, onSelectTab }: EmployeeOverv
   ]
 
   return (
-    <div className='space-y-8'>
+    <div className='space-y-6'>
       {/* Header Greeting Banner */}
-      <div className='flex flex-wrap items-start justify-between gap-4'>
-        <div>
+      <div className='relative flex flex-wrap items-center justify-between gap-5 overflow-hidden rounded-3xl border border-primary/20 bg-primary-soft/35 p-6 sm:p-8'>
+        <div
+          aria-hidden='true'
+          className='absolute -right-12 -top-20 size-64 rounded-full border-[36px] border-primary/5'
+        />
+        <div className='relative'>
           <div className='inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-soft px-3 py-1 text-xs font-semibold text-primary'>
             <span className='size-2 rounded-full bg-primary' />
             {t('employee.overview.badge')}
@@ -81,8 +88,8 @@ export function EmployeeOverviewView({ displayName, onSelectTab }: EmployeeOverv
         </div>
 
         <button
-          className='inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary-action px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action'
-          onClick={() => onSelectTab('create-request')}
+          className='relative inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary-action px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action'
+          onClick={() => onSelectTab('request-new-software')}
           type='button'
         >
           <Plus aria-hidden='true' className='size-4' />
@@ -91,7 +98,7 @@ export function EmployeeOverviewView({ displayName, onSelectTab }: EmployeeOverv
       </div>
 
       {/* Metric / Summary Cards */}
-      <section aria-label={t('metrics.regionLabel')} className='grid gap-4 sm:grid-cols-2 xl:grid-cols-4'>
+      <section aria-label={t('metrics.regionLabel')} className='grid gap-3 sm:grid-cols-2 xl:grid-cols-4'>
         {employeeSummaryCards.map((card, idx) => {
           const Icon = cardIcons[idx as keyof typeof cardIcons] ?? Laptop
           const content = cardContent[idx]
@@ -105,19 +112,11 @@ export function EmployeeOverviewView({ displayName, onSelectTab }: EmployeeOverv
                   : 'border-info/25 bg-info/10 text-info'
 
           return (
-            <div
-              className='relative overflow-hidden rounded-2xl border border-border bg-surface p-5 shadow-sm transition hover:shadow-md'
-              key={card.titleKey}
-            >
+            <div className='rounded-2xl border border-border bg-surface p-5 shadow-sm' key={card.titleKey}>
               <div className='flex items-center justify-between'>
                 <span className={`grid size-11 place-items-center rounded-xl border ${toneClass}`}>
                   <Icon aria-hidden='true' className='size-5' />
                 </span>
-                {card.change !== undefined && card.change > 0 && (
-                  <span className='rounded-md bg-success/10 px-2 py-0.5 text-xs font-semibold text-success'>
-                    +{card.change}
-                  </span>
-                )}
               </div>
               <p className='mt-4 text-xs font-semibold text-muted-foreground'>{content?.title}</p>
               <p className='mt-1 text-2xl font-bold text-foreground'>{card.value}</p>
@@ -125,6 +124,82 @@ export function EmployeeOverviewView({ displayName, onSelectTab }: EmployeeOverv
             </div>
           )
         })}
+      </section>
+
+      <section
+        aria-labelledby='employee-usage-title'
+        className='rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-6'
+      >
+        <div className='flex flex-wrap items-start justify-between gap-3 border-b border-border pb-5'>
+          <div>
+            <div className='flex items-center gap-2'>
+              <span className='grid size-9 place-items-center rounded-lg bg-primary-soft text-primary'>
+                <Sparkles aria-hidden='true' className='size-4' />
+              </span>
+              <h2 className='text-lg font-bold text-foreground' id='employee-usage-title'>
+                {t('employee.overview.usageSummary.title')}
+              </h2>
+            </div>
+            <p className='mt-2 text-sm text-muted-foreground'>{t('employee.overview.usageSummary.description')}</p>
+          </div>
+          <button
+            className='inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold text-primary-ink transition hover:border-primary hover:bg-primary-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
+            onClick={() => onSelectTab('my-software')}
+            type='button'
+          >
+            {t('employee.mySoftware.filterAll')}
+            <ArrowRight aria-hidden='true' className='size-4' />
+          </button>
+        </div>
+
+        <div className='grid gap-6 pt-6 xl:grid-cols-[minmax(0,1fr)_17rem] xl:gap-10'>
+          <figure aria-labelledby='employee-usage-title' className='min-w-0'>
+            <div className='space-y-4'>
+              {usageChartItems.map((item) => (
+                <div
+                  className='grid grid-cols-[6.5rem_minmax(0,1fr)_3rem] items-center gap-3 sm:grid-cols-[9rem_minmax(0,1fr)_3.5rem]'
+                  key={item.id}
+                >
+                  <span className='truncate text-sm font-semibold text-foreground' title={item.name}>
+                    {item.name}
+                  </span>
+                  <div aria-hidden='true' className='h-4 overflow-hidden rounded-full bg-primary-soft/60'>
+                    <div
+                      className='h-full rounded-full bg-primary'
+                      style={{ width: `${Math.max(0, Math.min(item.usage, 100))}%` }}
+                    />
+                  </div>
+                  <span className='text-right text-sm font-bold tabular-nums text-foreground'>
+                    {t('employee.overview.usageSummary.percentFormat', { value: formatNumber(item.usage) })}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div
+              aria-hidden='true'
+              className='ml-[7.25rem] mt-3 flex justify-between text-xs text-muted-foreground sm:ml-[9.75rem]'
+            >
+              {[0, 50, 100].map((value) => (
+                <span key={value}>
+                  {t('employee.overview.usageSummary.percentFormat', { value: formatNumber(value) })}
+                </span>
+              ))}
+            </div>
+            <figcaption className='mt-4 text-xs leading-relaxed text-muted-foreground'>
+              {t('employee.overview.usageSummary.sampleNote')}
+            </figcaption>
+          </figure>
+
+          <div className='flex flex-col justify-center rounded-2xl border border-primary/20 bg-primary-soft/40 p-5'>
+            <p className='text-sm font-semibold text-primary-ink'>{t('employee.overview.usageSummary.averageLabel')}</p>
+            <p className='mt-2 text-5xl font-bold tracking-tight tabular-nums text-foreground'>
+              {t('employee.overview.usageSummary.percentFormat', { value: formatNumber(averageUsage) })}
+            </p>
+            <p className='mt-3 text-sm leading-relaxed text-muted-foreground'>
+              {t('employee.overview.usageSummary.averageContext', { count: employeeSoftwareItems.length })}
+            </p>
+          </div>
+        </div>
       </section>
 
       {/* Main Grid: Left (8 cols) & Right (4 cols) */}
@@ -334,18 +409,6 @@ export function EmployeeOverviewView({ displayName, onSelectTab }: EmployeeOverv
             </div>
             <div className='space-y-2'>
               <button
-                className='flex min-h-11 w-full items-center justify-between rounded-xl bg-primary-action px-3.5 py-2.5 text-left text-sm font-bold text-white shadow-sm transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action'
-                onClick={() => onSelectTab('request-new-software')}
-                type='button'
-              >
-                <div className='flex items-center gap-2.5'>
-                  <Plus aria-hidden='true' className='size-4' />
-                  <span>{t('employee.overview.quickActions.requestSoftware')}</span>
-                </div>
-                <ChevronRight aria-hidden='true' className='size-3.5 opacity-80' />
-              </button>
-
-              <button
                 className='flex min-h-11 w-full items-center justify-between rounded-xl border border-border bg-surface px-3.5 py-2.5 text-left text-sm font-semibold text-foreground transition hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action'
                 onClick={() => onSelectTab('create-request')}
                 type='button'
@@ -421,69 +484,6 @@ export function EmployeeOverviewView({ displayName, onSelectTab }: EmployeeOverv
               ))}
             </div>
           )}
-
-          {/* Utilization Summary */}
-          <div className='rounded-2xl border border-border bg-surface p-5 shadow-sm'>
-            <h2 className='text-xs font-bold text-foreground'>{t('employee.overview.usageSummary.title')}</h2>
-            <p className='mt-1 text-xs text-muted-foreground'>
-              {t('employee.overview.usageSummary.average', { percent: 78 })}
-            </p>
-            <div className='mt-3 flex h-2.5 overflow-hidden rounded-full bg-border'>
-              <div className='bg-primary' style={{ width: '67%' }} />
-              <div className='bg-warning' style={{ width: '17%' }} />
-              <div className='bg-muted-foreground/30' style={{ width: '16%' }} />
-            </div>
-            <div className='mt-3 space-y-1.5 text-[0.7rem] text-muted-foreground'>
-              <div className='flex items-center justify-between'>
-                <div className='flex items-center gap-1.5'>
-                  <span className='size-2 rounded-full bg-primary' />
-                  <span>{t('employee.overview.usageSummary.activelyUsedCount', { count: 4 })}</span>
-                </div>
-                <span className='font-semibold'>
-                  {t('employee.overview.usageSummary.percentFormat', { value: 67 })}
-                </span>
-              </div>
-              <div className='flex items-center justify-between'>
-                <div className='flex items-center gap-1.5'>
-                  <span className='size-2 rounded-full bg-warning' />
-                  <span>{t('employee.overview.usageSummary.lowUsageCount', { count: 1 })}</span>
-                </div>
-                <span className='font-semibold'>
-                  {t('employee.overview.usageSummary.percentFormat', { value: 17 })}
-                </span>
-              </div>
-              <div className='flex items-center justify-between'>
-                <div className='flex items-center gap-1.5'>
-                  <span className='size-2 rounded-full bg-muted-foreground/40' />
-                  <span>{t('employee.overview.usageSummary.notUsedCount', { count: 1 })}</span>
-                </div>
-                <span className='font-semibold'>
-                  {t('employee.overview.usageSummary.percentFormat', { value: 16 })}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Productivity Tip Card */}
-          <div className='rounded-2xl border border-primary/20 bg-primary-soft/40 p-4'>
-            <div className='flex gap-3'>
-              <span className='grid size-8 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground'>
-                <Lightbulb aria-hidden='true' className='size-4' />
-              </span>
-              <div>
-                <p className='text-xs font-bold text-foreground'>{t('employee.overview.tips.title')}</p>
-                <p className='mt-1 text-[0.72rem] text-muted-foreground'>{t('employee.overview.tips.description')}</p>
-                <button
-                  className='mt-2 inline-flex min-h-11 items-center gap-1 text-sm font-bold text-primary-ink transition hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action'
-                  onClick={() => onSelectTab('return-license')}
-                  type='button'
-                >
-                  <span>{t('employee.overview.tips.action')}</span>
-                  <ArrowRight aria-hidden='true' className='size-3' />
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { CirclePlus, FileText, Laptop, LayoutDashboard, User, type LucideIcon } from 'lucide-react'
+import { CirclePlus, FileText, Laptop, LayoutDashboard, ShieldCheck, type LucideIcon } from 'lucide-react'
 
 export const EMPLOYEE_TAB_KEYS = [
   'overview',
@@ -14,6 +14,7 @@ export const EMPLOYEE_TAB_KEYS = [
   'review-request',
   'submission-success',
   'profile',
+  'privacy',
   'data-export',
   'data-usage'
 ] as const
@@ -37,7 +38,7 @@ export type EmployeeMenuItem = {
   directTabKey?: EmployeeTabKey
   icon: LucideIcon
   key: string
-  translationKey: 'overview' | 'mySoftware' | 'myRequests' | 'createRequest' | 'profile'
+  translationKey: 'overview' | 'mySoftware' | 'myRequests' | 'createRequest' | 'privacy'
 }
 
 export const employeeMenuItems: readonly EmployeeMenuItem[] = [
@@ -68,10 +69,10 @@ export const employeeMenuItems: readonly EmployeeMenuItem[] = [
     translationKey: 'createRequest'
   },
   {
-    directTabKey: 'profile',
-    icon: User,
-    key: 'profile',
-    translationKey: 'profile'
+    directTabKey: 'privacy',
+    icon: ShieldCheck,
+    key: 'privacy',
+    translationKey: 'privacy'
   }
 ]
 
@@ -89,6 +90,7 @@ export function getParentEmployeeMenuKey(tabKey: EmployeeTabKey): string {
     tabKey === 'submission-success'
   )
     return 'create-request'
-  if (tabKey === 'profile' || tabKey === 'data-export' || tabKey === 'data-usage') return 'profile'
+  if (tabKey === 'profile') return ''
+  if (tabKey === 'privacy' || tabKey === 'data-export' || tabKey === 'data-usage') return 'privacy'
   return 'overview'
 }
