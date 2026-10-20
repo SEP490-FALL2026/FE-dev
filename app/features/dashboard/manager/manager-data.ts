@@ -1,13 +1,27 @@
-export interface AssignedSoftware {
-  activeMinutes30d: number
+interface AssignedToolBase {
   assignedDate: string
   id: string
   logo: string
-  monthlyCost: number
+  monthlyCost?: number
   name: string
   plan: string
   status: 'ACTIVE' | 'LOW_USAGE' | 'INACTIVE'
 }
+
+export type AssignedSoftware =
+  | (AssignedToolBase & {
+      activeMinutes30d: number
+      kind?: 'software'
+      latestSession: { startedAt: string; endedAt: string }
+    })
+  | (AssignedToolBase & {
+      kind: 'ai-agent'
+      creditUsage: {
+        consumed: number
+        limit: number
+        period: { kind: 'day'; date: string } | { kind: 'request'; requestCode: string }
+      }
+    })
 
 export interface TeamMember {
   activeLicensesCount: number
@@ -42,7 +56,7 @@ export interface TeamSoftwareItem {
   vendor: string
 }
 
-export interface TeamRequestItem {
+interface TeamRequestBase {
   code: string
   estimatedMonthlyCost: number
   id: string
@@ -60,6 +74,8 @@ export interface TeamRequestItem {
   type: 'NEW_ACCESS' | 'CHANGE_PLAN' | 'RENEWAL'
   urgency: 'LOW' | 'MEDIUM' | 'HIGH'
 }
+
+export type TeamRequestItem = TeamRequestBase & ({ form: 'personal' } | { form: 'shared'; colleagueIds: string[] })
 
 export interface GhostSeatItem {
   assignedDate: string
@@ -103,7 +119,7 @@ export const managerMetrics = {
 
 export const MOCK_TEAM_MEMBERS: TeamMember[] = [
   {
-    activeLicensesCount: 5,
+    activeLicensesCount: 6,
     assignedSoftware: [
       {
         activeMinutes30d: 1420,
@@ -113,6 +129,7 @@ export const MOCK_TEAM_MEMBERS: TeamMember[] = [
         monthlyCost: 350_000,
         name: 'Figma',
         plan: 'Professional',
+        latestSession: { startedAt: '2026-09-30T09:15:00', endedAt: '2026-09-30T10:32:00' },
         status: 'ACTIVE'
       },
       {
@@ -123,6 +140,7 @@ export const MOCK_TEAM_MEMBERS: TeamMember[] = [
         monthlyCost: 520_000,
         name: 'GitHub',
         plan: 'Enterprise',
+        latestSession: { startedAt: '2026-10-17T09:40:00', endedAt: '2026-10-17T11:05:00' },
         status: 'ACTIVE'
       },
       {
@@ -133,6 +151,7 @@ export const MOCK_TEAM_MEMBERS: TeamMember[] = [
         monthlyCost: 200_000,
         name: 'Jira Software',
         plan: 'Standard',
+        latestSession: { startedAt: '2026-10-16T14:10:00', endedAt: '2026-10-16T14:52:00' },
         status: 'ACTIVE'
       },
       {
@@ -143,6 +162,7 @@ export const MOCK_TEAM_MEMBERS: TeamMember[] = [
         monthlyCost: 180_000,
         name: 'Slack',
         plan: 'Business Pro',
+        latestSession: { startedAt: '2026-10-09T10:15:00', endedAt: '2026-10-09T10:25:00' },
         status: 'LOW_USAGE'
       },
       {
@@ -153,7 +173,18 @@ export const MOCK_TEAM_MEMBERS: TeamMember[] = [
         monthlyCost: 720_000,
         name: 'AutoCAD',
         plan: 'Commercial',
+        latestSession: { startedAt: '2026-07-12T13:40:00', endedAt: '2026-07-12T14:05:00' },
         status: 'INACTIVE'
+      },
+      {
+        assignedDate: '2026-10-01',
+        creditUsage: { consumed: 420, limit: 600, period: { kind: 'day', date: '2026-10-18' } },
+        id: 'ai-research-01',
+        kind: 'ai-agent',
+        logo: 'AI',
+        name: 'Research Agent',
+        plan: 'Team credits',
+        status: 'ACTIVE'
       }
     ],
     avatar: '👩‍💻',
@@ -171,7 +202,7 @@ export const MOCK_TEAM_MEMBERS: TeamMember[] = [
     team: 'Product Core'
   },
   {
-    activeLicensesCount: 4,
+    activeLicensesCount: 5,
     assignedSoftware: [
       {
         activeMinutes30d: 1890,
@@ -181,6 +212,7 @@ export const MOCK_TEAM_MEMBERS: TeamMember[] = [
         monthlyCost: 520_000,
         name: 'GitHub',
         plan: 'Enterprise',
+        latestSession: { startedAt: '2026-09-29T09:10:00', endedAt: '2026-09-29T10:45:00' },
         status: 'ACTIVE'
       },
       {
@@ -191,6 +223,7 @@ export const MOCK_TEAM_MEMBERS: TeamMember[] = [
         monthlyCost: 200_000,
         name: 'Jira Software',
         plan: 'Standard',
+        latestSession: { startedAt: '2026-10-17T13:20:00', endedAt: '2026-10-17T14:02:00' },
         status: 'ACTIVE'
       },
       {
@@ -201,6 +234,7 @@ export const MOCK_TEAM_MEMBERS: TeamMember[] = [
         monthlyCost: 450_000,
         name: 'JetBrains All Pack',
         plan: 'Team',
+        latestSession: { startedAt: '2026-10-15T08:50:00', endedAt: '2026-10-15T09:36:00' },
         status: 'ACTIVE'
       },
       {
@@ -211,7 +245,18 @@ export const MOCK_TEAM_MEMBERS: TeamMember[] = [
         monthlyCost: 650_000,
         name: 'Tableau Desktop',
         plan: 'Creator',
+        latestSession: { startedAt: '2026-07-28T15:05:00', endedAt: '2026-07-28T15:27:00' },
         status: 'INACTIVE'
+      },
+      {
+        assignedDate: '2026-09-15',
+        creditUsage: { consumed: 1450, limit: 2000, period: { kind: 'request', requestCode: 'AI-REQ-014' } },
+        id: 'ai-code-02',
+        kind: 'ai-agent',
+        logo: 'AI',
+        name: 'Codex',
+        plan: 'Request credits',
+        status: 'ACTIVE'
       }
     ],
     avatar: '👨‍💻',
@@ -239,6 +284,7 @@ export const MOCK_TEAM_MEMBERS: TeamMember[] = [
         monthlyCost: 350_000,
         name: 'Figma',
         plan: 'Professional',
+        latestSession: { startedAt: '2026-09-30T10:10:00', endedAt: '2026-09-30T11:24:00' },
         status: 'ACTIVE'
       },
       {
@@ -249,6 +295,7 @@ export const MOCK_TEAM_MEMBERS: TeamMember[] = [
         monthlyCost: 240_000,
         name: 'Notion',
         plan: 'Business',
+        latestSession: { startedAt: '2026-10-18T13:05:00', endedAt: '2026-10-18T13:49:00' },
         status: 'ACTIVE'
       },
       {
@@ -259,6 +306,7 @@ export const MOCK_TEAM_MEMBERS: TeamMember[] = [
         monthlyCost: 580_000,
         name: 'Adobe After Effects',
         plan: 'Individual',
+        latestSession: { startedAt: '2026-07-26T14:00:00', endedAt: '2026-07-26T14:38:00' },
         status: 'INACTIVE'
       }
     ],
@@ -287,6 +335,7 @@ export const MOCK_TEAM_MEMBERS: TeamMember[] = [
         monthlyCost: 200_000,
         name: 'Jira Software',
         plan: 'Standard',
+        latestSession: { startedAt: '2026-10-17T09:05:00', endedAt: '2026-10-17T09:52:00' },
         status: 'ACTIVE'
       },
       {
@@ -297,6 +346,7 @@ export const MOCK_TEAM_MEMBERS: TeamMember[] = [
         monthlyCost: 240_000,
         name: 'Notion',
         plan: 'Business',
+        latestSession: { startedAt: '2026-10-16T11:20:00', endedAt: '2026-10-16T12:10:00' },
         status: 'ACTIVE'
       },
       {
@@ -307,6 +357,7 @@ export const MOCK_TEAM_MEMBERS: TeamMember[] = [
         monthlyCost: 350_000,
         name: 'Figma',
         plan: 'Viewer-Restricted',
+        latestSession: { startedAt: '2026-10-15T15:00:00', endedAt: '2026-10-15T15:22:00' },
         status: 'ACTIVE'
       },
       {
@@ -317,6 +368,7 @@ export const MOCK_TEAM_MEMBERS: TeamMember[] = [
         monthlyCost: 400_000,
         name: 'Miro Business',
         plan: 'Team',
+        latestSession: { startedAt: '2026-06-28T14:10:00', endedAt: '2026-06-28T14:42:00' },
         status: 'INACTIVE'
       }
     ],
@@ -345,6 +397,7 @@ export const MOCK_TEAM_MEMBERS: TeamMember[] = [
         monthlyCost: 520_000,
         name: 'GitHub',
         plan: 'Enterprise',
+        latestSession: { startedAt: '2026-09-28T09:00:00', endedAt: '2026-09-28T10:15:00' },
         status: 'ACTIVE'
       },
       {
@@ -355,6 +408,7 @@ export const MOCK_TEAM_MEMBERS: TeamMember[] = [
         monthlyCost: 200_000,
         name: 'Jira Software',
         plan: 'Standard',
+        latestSession: { startedAt: '2026-09-28T13:30:00', endedAt: '2026-09-28T14:05:00' },
         status: 'ACTIVE'
       }
     ],
@@ -464,6 +518,8 @@ export const MOCK_TEAM_SOFTWARE: TeamSoftwareItem[] = [
 export const MOCK_TEAM_REQUESTS: TeamRequestItem[] = [
   {
     code: 'REQ-M01',
+    form: 'shared',
+    colleagueIds: ['EMP-03', 'EMP-04'],
     estimatedMonthlyCost: 350_000,
     id: 'req-01',
     justification: 'Cần license chỉnh sửa trực tiếp thiết kế giao diện cho dự án Sprint 4.',
@@ -482,6 +538,8 @@ export const MOCK_TEAM_REQUESTS: TeamRequestItem[] = [
   },
   {
     code: 'REQ-M02',
+    form: 'shared',
+    colleagueIds: ['EMP-01'],
     estimatedMonthlyCost: 450_000,
     id: 'req-02',
     justification: 'Nâng cấp lên gói Team để hỗ trợ đồng bộ plugin debug nội bộ.',
@@ -500,6 +558,7 @@ export const MOCK_TEAM_REQUESTS: TeamRequestItem[] = [
   },
   {
     code: 'REQ-M03',
+    form: 'personal',
     estimatedMonthlyCost: 200_000,
     id: 'req-03',
     justification: 'Gia hạn gói Jira cho quý tiếp theo để tiếp tục quản lý backlog sản phẩm.',

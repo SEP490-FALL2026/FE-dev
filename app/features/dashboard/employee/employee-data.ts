@@ -26,6 +26,11 @@ export interface EmployeeSoftwareItem {
 
 export interface EmployeeRequestItem {
   businessReason: string
+  form: 'personal' | 'shared'
+  sharedParticipants?: {
+    requester: { name: string; email: string }
+    colleagues: { name: string; email: string }[]
+  }
   currentApprover: string
   currentStep: {
     descriptionKey: string
@@ -204,6 +209,7 @@ export const employeeRequestItems: EmployeeRequestItem[] = [
   {
     businessReason:
       'Cần nâng cấp gói Figma Enterprise để sử dụng tính năng Branching và Design Tokens cho team 15 người.',
+    form: 'personal',
     currentApprover: 'Lê Hoàng Nam (IT Admin)',
     currentStep: {
       descriptionKey: 'myRequests.steps.itReviewDesc',
@@ -248,6 +254,14 @@ export const employeeRequestItems: EmployeeRequestItem[] = [
   },
   {
     businessReason: 'Cần license Notion Team để tổng hợp tài liệu kiến trúc và hướng dẫn onboarding thành viên mới.',
+    form: 'shared',
+    sharedParticipants: {
+      requester: { name: 'Nguyễn Văn An', email: 'an.nguyen@saas-sentry.internal' },
+      colleagues: [
+        { name: 'Lê Cường', email: 'cuong.le@company.com' },
+        { name: 'Phạm Minh Hoàng', email: 'hoang.pham@company.com' }
+      ]
+    },
     currentApprover: 'Trần Thị Mai (Line Manager)',
     currentStep: {
       descriptionKey: 'myRequests.steps.managerReviewDesc',
@@ -285,6 +299,7 @@ export const employeeRequestItems: EmployeeRequestItem[] = [
   },
   {
     businessReason: 'Gia hạn tạm thời Zoom Pro thêm 3 tháng để phối hợp chạy thử nghiệm với đối tác Singapore.',
+    form: 'personal',
     currentApprover: 'Hoàn tất',
     currentStep: {
       descriptionKey: 'myRequests.steps.completedDesc',
@@ -329,6 +344,7 @@ export const employeeRequestItems: EmployeeRequestItem[] = [
   },
   {
     businessReason: 'Trả lại bản quyền Tableau Desktop do team đã chuyển sang dùng Power BI của công ty.',
+    form: 'personal',
     currentApprover: 'Đã thu hồi',
     currentStep: {
       descriptionKey: 'myRequests.steps.completedDesc',
@@ -363,6 +379,71 @@ export const employeeRequestItems: EmployeeRequestItem[] = [
     status: 'completed',
     submittedDate: '02/09/2026',
     submittedTime: '14:00'
+  },
+  {
+    businessReason: 'Cấp GitHub cho nhóm Engineering để cùng quản lý mã nguồn và quy trình rà soát thay đổi.',
+    form: 'shared',
+    sharedParticipants: {
+      requester: { name: 'Nguyễn Văn An', email: 'an.nguyen@saas-sentry.internal' },
+      colleagues: [
+        { name: 'Lê Cường', email: 'cuong.le@company.com' },
+        { name: 'Phạm Minh Hoàng', email: 'hoang.pham@company.com' }
+      ]
+    },
+    currentApprover: 'Hoàn tất',
+    currentStep: {
+      descriptionKey: 'myRequests.steps.completedDesc',
+      nameKey: 'myRequests.steps.completed',
+      status: 'completed',
+      stepIndex: 3,
+      totalSteps: 3
+    },
+    history: [
+      { actor: 'Nguyễn Văn An', date: '20/09/2026 08:45', stage: 'Khởi tạo', status: 'completed' },
+      { actor: 'Trần Thị Mai', date: '20/09/2026 11:00', stage: 'Quản lý duyệt', status: 'approved' },
+      { actor: 'Lê Hoàng Nam', date: '21/09/2026 09:20', stage: 'IT Admin cấp phát', status: 'completed' }
+    ],
+    id: 'REQ-1022',
+    plan: 'Professional',
+    priority: 'normal',
+    project: 'Phát triển nền tảng',
+    requestType: 'newSoftware',
+    softwareLogoUrl: employeeSoftwareItems[1].logoUrl,
+    softwareName: 'GitHub',
+    status: 'approved',
+    submittedDate: '20/09/2026',
+    submittedTime: '08:45'
+  },
+  {
+    businessReason: 'Cấp Microsoft 365 cho nhóm Engineering để cùng biên soạn tài liệu kỹ thuật.',
+    form: 'shared',
+    sharedParticipants: {
+      requester: { name: 'Nguyễn Văn An', email: 'an.nguyen@saas-sentry.internal' },
+      colleagues: [{ name: 'Lê Cường', email: 'cuong.le@company.com' }]
+    },
+    currentApprover: 'Hoàn tất',
+    currentStep: {
+      descriptionKey: 'myRequests.steps.completedDesc',
+      nameKey: 'myRequests.steps.completed',
+      status: 'completed',
+      stepIndex: 3,
+      totalSteps: 3
+    },
+    history: [
+      { actor: 'Nguyễn Văn An', date: '15/09/2026 13:10', stage: 'Khởi tạo', status: 'completed' },
+      { actor: 'Trần Thị Mai', date: '16/09/2026 09:00', stage: 'Quản lý duyệt', status: 'approved' },
+      { actor: 'Lê Hoàng Nam', date: '16/09/2026 14:00', stage: 'IT Admin cấp phát', status: 'completed' }
+    ],
+    id: 'REQ-1021',
+    plan: 'Standard',
+    priority: 'normal',
+    project: 'Tài liệu kỹ thuật',
+    requestType: 'newSoftware',
+    softwareLogoUrl: employeeSoftwareItems[4].logoUrl,
+    softwareName: 'Microsoft 365',
+    status: 'completed',
+    submittedDate: '15/09/2026',
+    submittedTime: '13:10'
   }
 ]
 

@@ -8,11 +8,16 @@ import type { ManagerTabKey } from '../manager-nav'
 import { ManagerSummaryStrip } from '../manager-summary-strip'
 
 interface ManagerTeamRequestsViewProps {
-  formatCurrency: (value: number) => string
+  markedRequestIds?: readonly string[]
+  sentRequestIds?: readonly string[]
   onSelectTab: (tab: ManagerTabKey, params?: Record<string, string>) => void
 }
 
-export function ManagerTeamRequestsView({ formatCurrency, onSelectTab }: ManagerTeamRequestsViewProps) {
+export function ManagerTeamRequestsView({
+  markedRequestIds = [],
+  sentRequestIds = [],
+  onSelectTab
+}: ManagerTeamRequestsViewProps) {
   const { i18n, t } = useTranslation('dashboard')
   const formatCount = new Intl.NumberFormat(i18n.resolvedLanguage ?? 'vi').format
   const [searchTerm, setSearchTerm] = useState('')
@@ -24,12 +29,15 @@ export function ManagerTeamRequestsView({ formatCurrency, onSelectTab }: Manager
       req.requesterName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       req.saasName.toLowerCase().includes(searchTerm.toLowerCase())
 
-    const matchesStatus = statusFilter === 'ALL' || req.status === statusFilter
+    const displayStatus = markedRequestIds.includes(req.id) ? 'APPROVED' : req.status
+    const matchesStatus = statusFilter === 'ALL' || displayStatus === statusFilter
 
     return matchesSearch && matchesStatus
   })
 
-  const pendingCount = MOCK_TEAM_REQUESTS.filter((request) => request.status === 'PENDING').length
+  const pendingCount = MOCK_TEAM_REQUESTS.filter(
+    (request) => request.status === 'PENDING' && !markedRequestIds.includes(request.id)
+  ).length
   const urgentCount = MOCK_TEAM_REQUESTS.filter((request) => request.urgency === 'HIGH').length
 
   return (
@@ -113,7 +121,7 @@ export function ManagerTeamRequestsView({ formatCurrency, onSelectTab }: Manager
                 <th className='py-3 px-4 font-semibold'>{t('manager.requests.colRequester')}</th>
                 <th className='py-3 px-4 font-semibold'>{t('manager.requests.colType')}</th>
                 <th className='py-3 px-4 font-semibold'>{t('manager.requests.colUrgency')}</th>
-                <th className='py-3 px-4 text-right font-semibold'>{t('manager.requests.colEstimatedCost')}</th>
+                <th className='py-3 px-4 font-semibold'>{t('manager.requests.colForm')}</th>
                 <th className='py-3 px-4 text-center font-semibold'>{t('manager.requests.colStatus')}</th>
                 <th className='py-3 px-4 text-right font-semibold'>{t('manager.requests.colAction')}</th>
               </tr>
@@ -174,25 +182,39 @@ export function ManagerTeamRequestsView({ formatCurrency, onSelectTab }: Manager
                       </span>
                     </td>
 
-                    <td className='py-3.5 px-4 text-right font-bold text-foreground'>
-                      {formatCurrency(item.estimatedMonthlyCost)}
+                    <td className='py-3.5 px-4'>
+                      <span
+                        className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold ${
+                          item.form === 'shared'
+                            ? 'border-primary/25 bg-primary-soft text-primary-ink'
+                            : 'border-border bg-surface-subtle text-foreground'
+                        }`}
+                      >
+                        {t(`manager.requests.${item.form === 'shared' ? 'formShared' : 'formPersonal'}`)}
+                      </span>
                     </td>
 
                     <td className='py-3.5 px-4 text-center'>
                       <span
                         className={`rounded-md px-2 py-0.5 text-[11px] font-bold ${
-                          item.status === 'PENDING'
-                            ? 'bg-warning/10 text-warning'
-                            : item.status === 'APPROVED'
-                              ? 'bg-success/10 text-success'
-                              : 'bg-danger/10 text-danger'
+                          markedRequestIds.includes(item.id)
+                            ? 'bg-success/10 text-success'
+                            : item.status === 'PENDING'
+                              ? 'bg-warning/10 text-warning'
+                              : item.status === 'APPROVED'
+                                ? 'bg-success/10 text-success'
+                                : 'bg-danger/10 text-danger'
                         }`}
                       >
-                        {item.status === 'PENDING'
-                          ? t('manager.requests.statusPending')
-                          : item.status === 'APPROVED'
-                            ? t('manager.requests.statusApproved')
-                            : t('manager.requests.statusRejected')}
+                        {sentRequestIds.includes(item.id)
+                          ? t('manager.requests.statusSentPreview')
+                          : markedRequestIds.includes(item.id)
+                            ? t('manager.requests.statusMarked')
+                            : item.status === 'PENDING'
+                              ? t('manager.requests.statusPending')
+                              : item.status === 'APPROVED'
+                                ? t('manager.requests.statusApproved')
+                                : t('manager.requests.statusRejected')}
                       </span>
                     </td>
 
