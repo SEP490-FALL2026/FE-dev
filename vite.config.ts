@@ -14,6 +14,9 @@ export default defineConfig(({ mode }) => {
     css: {
       devSourcemap: true
     },
+    optimizeDeps: {
+      include: ['@tanstack/react-query', 'i18next', 'react-i18next', 'lucide-react', 'motion/react', 'recharts']
+    },
     server: {
       proxy: {
         '/api': {

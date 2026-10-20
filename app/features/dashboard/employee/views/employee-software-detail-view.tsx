@@ -1,4 +1,15 @@
-import { AlertCircle, ArrowLeft, ArrowRightLeft, CalendarPlus, Check, Copy, Key, RotateCcw } from 'lucide-react'
+import {
+  AlertCircle,
+  ArrowLeft,
+  ArrowRightLeft,
+  CalendarPlus,
+  Check,
+  Copy,
+  Eye,
+  EyeOff,
+  Key,
+  RotateCcw
+} from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -18,6 +29,7 @@ export function EmployeeSoftwareDetailView({
 }: EmployeeSoftwareDetailViewProps) {
   const { t } = useTranslation('dashboard')
   const [copied, setCopied] = useState(false)
+  const [revealedSoftwareId, setRevealedSoftwareId] = useState<string | null>(null)
 
   const software = employeeSoftwareItems.find((s) => s.id === softwareId)
 
@@ -36,6 +48,8 @@ export function EmployeeSoftwareDetailView({
       </div>
     )
   }
+
+  const keyVisible = revealedSoftwareId === software.id
 
   const handleCopyKey = () => {
     navigator.clipboard?.writeText(software.licenseKey)
@@ -115,7 +129,7 @@ export function EmployeeSoftwareDetailView({
             <h2 className='text-sm font-bold text-foreground'>{t('employee.softwareDetail.tabGeneral')}</h2>
             <p className='mt-2 text-xs leading-relaxed text-muted-foreground'>{software.description}</p>
 
-            <div className='mt-6 grid gap-4 sm:grid-cols-2'>
+            <div className='mt-6 grid gap-4 sm:grid-cols-3'>
               <div className='rounded-xl border border-border/70 bg-surface-subtle/40 p-3.5'>
                 <p className='text-[0.7rem] font-semibold text-muted-foreground'>
                   {t('employee.softwareDetail.assignedDate')}
@@ -136,19 +150,7 @@ export function EmployeeSoftwareDetailView({
                 <p className='text-[0.7rem] font-semibold text-muted-foreground'>
                   {t('employee.softwareDetail.costPerMonth')}
                 </p>
-                <p className='mt-1 text-sm font-bold text-primary'>{formatCurrency(software.costPerMonth)}</p>
-              </div>
-
-              <div className='rounded-xl border border-border/70 bg-surface-subtle/40 p-3.5'>
-                <p className='text-[0.7rem] font-semibold text-muted-foreground'>
-                  {t('employee.overview.usageSummary.title')}
-                </p>
-                <div className='mt-1 flex items-center gap-2'>
-                  <div className='h-2 flex-1 overflow-hidden rounded-full bg-border'>
-                    <div className='h-full bg-primary' style={{ width: `${software.usage}%` }} />
-                  </div>
-                  <span className='text-xs font-bold text-foreground'>{software.usage}%</span>
-                </div>
+                <p className='mt-1 text-sm font-bold text-primary-ink'>{formatCurrency(software.costPerMonth)}</p>
               </div>
             </div>
           </div>
@@ -160,25 +162,50 @@ export function EmployeeSoftwareDetailView({
               <h2 className='text-sm font-bold text-foreground'>{t('employee.softwareDetail.licenseKey')}</h2>
             </div>
             <div className='mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface-subtle/70 px-4 py-3 font-mono text-sm font-bold text-foreground'>
-              <span className='min-w-0 break-all'>{software.licenseKey}</span>
-              <button
-                aria-label={t(copied ? 'employee.softwareDetail.copySuccess' : 'employee.softwareDetail.copyAction')}
-                className='inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1 text-sm font-sans font-semibold text-foreground transition hover:bg-primary-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
-                onClick={handleCopyKey}
-                type='button'
-              >
-                {copied ? (
-                  <>
-                    <Check aria-hidden='true' className='size-3.5 text-success' />
-                    <span className='text-success'>{t('employee.softwareDetail.copySuccess')}</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy aria-hidden='true' className='size-3.5' />
-                    <span>{t('employee.softwareDetail.copyAction')}</span>
-                  </>
-                )}
-              </button>
+              {keyVisible ? (
+                <span className='min-w-0 break-all'>{software.licenseKey}</span>
+              ) : (
+                <span
+                  aria-label={t('employee.softwareDetail.keyHidden')}
+                  className='min-w-0 tracking-widest'
+                  role='status'
+                >
+                  •••• •••• •••• ••••
+                </span>
+              )}
+              <div className='flex flex-wrap items-center gap-2'>
+                <button
+                  aria-pressed={keyVisible}
+                  className='inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1 text-sm font-sans font-semibold text-foreground transition hover:bg-primary-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
+                  onClick={() => setRevealedSoftwareId(keyVisible ? null : software.id)}
+                  type='button'
+                >
+                  {keyVisible ? (
+                    <EyeOff aria-hidden='true' className='size-4' />
+                  ) : (
+                    <Eye aria-hidden='true' className='size-4' />
+                  )}
+                  {t(keyVisible ? 'employee.softwareDetail.hideKey' : 'employee.softwareDetail.showKey')}
+                </button>
+                <button
+                  aria-label={t(copied ? 'employee.softwareDetail.copySuccess' : 'employee.softwareDetail.copyAction')}
+                  className='inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1 text-sm font-sans font-semibold text-foreground transition hover:bg-primary-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
+                  onClick={handleCopyKey}
+                  type='button'
+                >
+                  {copied ? (
+                    <>
+                      <Check aria-hidden='true' className='size-3.5 text-success' />
+                      <span className='text-success'>{t('employee.softwareDetail.copySuccess')}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy aria-hidden='true' className='size-3.5' />
+                      <span>{t('employee.softwareDetail.copyAction')}</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>

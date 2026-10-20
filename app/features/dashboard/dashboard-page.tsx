@@ -24,7 +24,7 @@ import {
   type LucideIcon
 } from 'lucide-react'
 import { motion, useReducedMotion } from 'motion/react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useSearchParams } from 'react-router'
 
@@ -60,6 +60,7 @@ import { EmployeeMyRequestsView } from './employee/views/employee-my-requests-vi
 import { EmployeeMySoftwareView } from './employee/views/employee-my-software-view'
 import { EmployeeOverviewView } from './employee/views/employee-overview-view'
 import { EmployeeProfileView } from './employee/views/employee-profile-view'
+import { EmployeePrivacyView } from './employee/views/employee-privacy-view'
 import { EmployeeRequestDetailView } from './employee/views/employee-request-detail-view'
 import { EmployeeRequestNewSoftwareView } from './employee/views/employee-request-new-software-view'
 import { EmployeeRequestSoftwareDetailsView } from './employee/views/employee-request-software-details-view'
@@ -91,6 +92,7 @@ import { FinancePeriodCloseView } from './finance/views/finance-period-close-vie
 import { FinancePeriodReportView } from './finance/views/finance-period-report-view'
 import { FinanceSpendImportView } from './finance/views/finance-spend-import-view'
 import { managerNavItems, getParentManagerMenuKey, isValidManagerTab, type ManagerTabKey } from './manager/manager-nav'
+import { MOCK_TEAM_REQUESTS } from './manager/manager-data'
 import { ManagerAccessReviewView } from './manager/views/manager-access-review-view'
 import { ManagerCreateEmployeeRequestView } from './manager/views/manager-create-employee-request-view'
 import { ManagerEmployeeDetailView } from './manager/views/manager-employee-detail-view'
@@ -102,6 +104,7 @@ import { ManagerOverviewView } from './manager/views/manager-overview-view'
 import { ManagerRequestApprovalView } from './manager/views/manager-request-approval-view'
 import { ManagerTeamRequestsView } from './manager/views/manager-team-requests-view'
 import { ManagerTeamSoftwareView } from './manager/views/manager-team-software-view'
+import { ManagerWeeklyBatchView } from './manager/views/manager-weekly-batch-view'
 import type { ManagerPreviewRequest, ManagerPreviewRequestInput } from './manager/manager-preview-request'
 import './manager/manager-workspace.css'
 
@@ -141,6 +144,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
   const { t: tCommon } = useTranslation('common')
   const shouldReduceMotion = useReducedMotion()
   const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false)
+  const [employeeAvatarUrl, setEmployeeAvatarUrl] = useState<string | null>(null)
   const profile = roleProfiles[role]
   const locale = i18n.resolvedLanguage === 'en' ? 'en-US' : 'vi-VN'
 
@@ -149,6 +153,15 @@ export function DashboardPage({ role }: { role: UserRole }) {
   const isFinance = role === 'finance'
   const isManager = role === 'manager'
   const isApprover = role === 'spending-approver'
+  useEffect(() => {
+    return () => {
+      if (employeeAvatarUrl) URL.revokeObjectURL(employeeAvatarUrl)
+    }
+  }, [employeeAvatarUrl])
+
+  const handleEmployeeAvatarSelect = (file: File) => {
+    setEmployeeAvatarUrl(URL.createObjectURL(file))
+  }
   const [searchParams, setSearchParams] = useSearchParams()
   const tabParam = searchParams.get('tab')
   const activeTab: ItAdminTabKey = isItAdmin && isValidItAdminTab(tabParam) ? tabParam : 'overview'
@@ -158,10 +171,14 @@ export function DashboardPage({ role }: { role: UserRole }) {
   const activeEmployeeParent = isEmployee ? getParentEmployeeMenuKey(activeEmployeeTab) : 'overview'
 
   const activeManagerTab: ManagerTabKey = isManager && isValidManagerTab(tabParam) ? tabParam : 'overview'
-  const activeManagerParent = isManager ? getParentManagerMenuKey(activeManagerTab) : 'overview'
+  const activeManagerParent = isManager
+    ? getParentManagerMenuKey(activeManagerTab, searchParams.get('from'))
+    : 'overview'
+  const [managerPreviewRequests, setManagerPreviewRequests] = useState<ManagerPreviewRequest[]>([])
+  const [managerMarkedRequestIds, setManagerMarkedRequestIds] = useState<string[]>([])
+  const [managerSentRequestIds, setManagerSentRequestIds] = useState<string[]>([])
   const managerRequestScope = searchParams.get('scope') === 'team' ? 'team' : 'individual'
   const [managerCreateMenuOpen, setManagerCreateMenuOpen] = useState(activeManagerTab === 'create-employee-request')
-  const [managerPreviewRequests, setManagerPreviewRequests] = useState<ManagerPreviewRequest[]>([])
 
   const activeApprovalTab: ApprovalTabKey = isApprover && isValidApprovalTab(tabParam) ? tabParam : 'overview'
   const activeApprovalParent = isApprover ? getParentApprovalMenuKey(activeApprovalTab) : 'overview'
@@ -223,6 +240,15 @@ export function DashboardPage({ role }: { role: UserRole }) {
       ...current
     ])
     handleSelectManagerTab('my-requests')
+  }
+
+  const handleMarkManagerRequest = (requestId: string) => {
+    setManagerMarkedRequestIds((current) => (current.includes(requestId) ? current : [...current, requestId]))
+    handleSelectManagerTab('weekly-batch')
+  }
+
+  const handleSendMarkedRequests = () => {
+    setManagerSentRequestIds((current) => [...new Set([...current, ...managerMarkedRequestIds])])
   }
 
   const handleSelectApprovalTab = (tab: ApprovalTabKey, extraParams?: Record<string, string>) => {
@@ -517,7 +543,14 @@ export function DashboardPage({ role }: { role: UserRole }) {
                             isCurrent ? 'bg-white/20 text-white' : 'bg-surface-subtle text-muted-foreground'
                           }`}
                         >
-                          {item.badge}
+                          {item.key === 'team-requests'
+                            ? MOCK_TEAM_REQUESTS.filter(
+                                (request) =>
+                                  request.status === 'PENDING' && !managerMarkedRequestIds.includes(request.id)
+                              ).length
+                            : item.key === 'weekly-batch'
+                              ? managerMarkedRequestIds.filter((id) => !managerSentRequestIds.includes(id)).length
+                              : item.badge}
                         </span>
                       )}
                     </button>
@@ -711,9 +744,20 @@ export function DashboardPage({ role }: { role: UserRole }) {
               </span>
             </button>
 
-            <div className='flex min-w-0 items-center gap-2.5 rounded-xl border border-border bg-surface py-1.5 pr-3 pl-1.5'>
-              <span className='grid size-8 shrink-0 place-items-center rounded-lg bg-primary text-xs font-bold text-primary-foreground'>
-                {profile.initials}
+            <button
+              aria-current={isEmployee && activeEmployeeTab === 'profile' ? 'page' : undefined}
+              aria-label={isEmployee ? t('employee.profile.openProfile') : undefined}
+              className='flex min-w-0 items-center gap-2.5 rounded-xl border border-border bg-surface py-1.5 pr-3 pl-1.5 text-left transition enabled:hover:border-primary enabled:hover:bg-primary-soft/30 enabled:focus-visible:outline-2 enabled:focus-visible:outline-offset-2 enabled:focus-visible:outline-primary'
+              disabled={!isEmployee}
+              onClick={() => handleSelectEmployeeTab('profile')}
+              type='button'
+            >
+              <span className='grid size-8 shrink-0 place-items-center overflow-hidden rounded-lg bg-primary text-xs font-bold text-primary-foreground'>
+                {isEmployee && employeeAvatarUrl ? (
+                  <img alt='' className='size-full object-cover' src={employeeAvatarUrl} />
+                ) : (
+                  profile.initials
+                )}
               </span>
               <div className='hidden min-w-0 md:block'>
                 <p className='truncate text-xs font-bold'>{profile.displayName}</p>
@@ -721,7 +765,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
                   {tAuth(`roles.${role}.label`)}
                 </p>
               </div>
-            </div>
+            </button>
           </div>
         </header>
 
@@ -752,10 +796,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
                 onSelectTab={handleSelectTab}
               />
             ) : activeTab === 'provisioning' ? (
-              <ItProvisioningView
-                initialTaskId={searchParams.get('id') || undefined}
-                onSelectTab={handleSelectTab}
-              />
+              <ItProvisioningView initialTaskId={searchParams.get('id') || undefined} onSelectTab={handleSelectTab} />
             ) : activeTab === 'reconciliation' ? (
               <ItReconciliationView onSelectTab={handleSelectTab} />
             ) : activeTab === 'renewals' ? (
@@ -830,7 +871,9 @@ export function DashboardPage({ role }: { role: UserRole }) {
             ) : activeEmployeeTab === 'submission-success' ? (
               <EmployeeSubmissionSuccessView onSelectTab={handleSelectEmployeeTab} />
             ) : activeEmployeeTab === 'profile' ? (
-              <EmployeeProfileView onSelectTab={handleSelectEmployeeTab} />
+              <EmployeeProfileView avatarUrl={employeeAvatarUrl} onAvatarSelect={handleEmployeeAvatarSelect} />
+            ) : activeEmployeeTab === 'privacy' ? (
+              <EmployeePrivacyView onSelectTab={handleSelectEmployeeTab} />
             ) : activeEmployeeTab === 'data-export' ? (
               <EmployeeDataExportView onSelectTab={handleSelectEmployeeTab} />
             ) : (
@@ -847,14 +890,18 @@ export function DashboardPage({ role }: { role: UserRole }) {
               <ManagerMyTeamView onSelectTab={handleSelectManagerTab} />
             ) : activeManagerTab === 'employee-detail' ? (
               <ManagerEmployeeDetailView
+                backToReview={searchParams.get('from') === 'access-review'}
                 employeeId={searchParams.get('id') || undefined}
-                formatCurrency={formatCurrency}
                 onSelectTab={handleSelectManagerTab}
               />
             ) : activeManagerTab === 'team-software' ? (
               <ManagerTeamSoftwareView formatCurrency={formatCurrency} onSelectTab={handleSelectManagerTab} />
             ) : activeManagerTab === 'team-requests' ? (
-              <ManagerTeamRequestsView formatCurrency={formatCurrency} onSelectTab={handleSelectManagerTab} />
+              <ManagerTeamRequestsView
+                markedRequestIds={managerMarkedRequestIds}
+                sentRequestIds={managerSentRequestIds}
+                onSelectTab={handleSelectManagerTab}
+              />
             ) : activeManagerTab === 'my-requests' ? (
               <ManagerMyRequestsView
                 managerName={profile.displayName}
@@ -864,6 +911,9 @@ export function DashboardPage({ role }: { role: UserRole }) {
             ) : activeManagerTab === 'request-approval' ? (
               <ManagerRequestApprovalView
                 formatCurrency={formatCurrency}
+                isMarked={managerMarkedRequestIds.includes(searchParams.get('id') || '')}
+                isSent={managerSentRequestIds.includes(searchParams.get('id') || '')}
+                onMarkForPreparation={handleMarkManagerRequest}
                 onSelectTab={handleSelectManagerTab}
                 requestId={searchParams.get('id') || undefined}
               />
@@ -876,6 +926,15 @@ export function DashboardPage({ role }: { role: UserRole }) {
                 onSavePreview={handleSaveManagerPreview}
                 scope={managerRequestScope}
               />
+            ) : activeManagerTab === 'weekly-batch' ? (
+              <ManagerWeeklyBatchView
+                onSelectTab={handleSelectManagerTab}
+                onSendAll={handleSendMarkedRequests}
+                requests={MOCK_TEAM_REQUESTS.filter(
+                  (item) => managerMarkedRequestIds.includes(item.id) && !managerSentRequestIds.includes(item.id)
+                )}
+                sentCount={managerSentRequestIds.length}
+              />
             ) : activeManagerTab === 'ghost-seat-review' ? (
               <ManagerGhostSeatReviewView formatCurrency={formatCurrency} onSelectTab={handleSelectManagerTab} />
             ) : activeManagerTab === 'ghost-seat-detail' ? (
@@ -885,7 +944,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
                 onSelectTab={handleSelectManagerTab}
               />
             ) : (
-              <ManagerAccessReviewView />
+              <ManagerAccessReviewView onSelectTab={handleSelectManagerTab} />
             )
           ) : isApprover ? (
             activeApprovalTab === 'overview' ? (

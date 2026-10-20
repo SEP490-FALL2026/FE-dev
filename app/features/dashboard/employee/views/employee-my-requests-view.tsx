@@ -1,4 +1,4 @@
-import { CheckCircle2, ChevronRight, Clock, Plus, Search, XCircle } from 'lucide-react'
+import { ChevronRight, Plus, Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -164,8 +164,10 @@ export function EmployeeMyRequestsView({ onSelectTab }: EmployeeMyRequestsViewPr
                     <dd className='mt-1 text-foreground'>{item.submittedDate}</dd>
                   </div>
                   <div>
-                    <dt className='text-muted-foreground'>{t('employee.myRequests.colStep')}</dt>
-                    <dd className='mt-1 text-foreground'>{item.currentApprover}</dd>
+                    <dt className='text-muted-foreground'>{t('employee.myRequests.colForm')}</dt>
+                    <dd className='mt-1 font-semibold text-foreground'>
+                      {t(`employee.myRequests.${item.form === 'shared' ? 'formShared' : 'formPersonal'}`)}
+                    </dd>
                   </div>
                 </dl>
                 <button
@@ -190,7 +192,7 @@ export function EmployeeMyRequestsView({ onSelectTab }: EmployeeMyRequestsViewPr
                     <th className='py-3.5 px-4 font-semibold'>{t('employee.myRequests.colSoftware')}</th>
                     <th className='py-3.5 px-4 font-semibold'>{t('employee.myRequests.colType')}</th>
                     <th className='py-3.5 px-4 font-semibold'>{t('employee.myRequests.colSubmitted')}</th>
-                    <th className='py-3.5 px-4 font-semibold'>{t('employee.myRequests.colStep')}</th>
+                    <th className='py-3.5 px-4 font-semibold'>{t('employee.myRequests.colForm')}</th>
                     <th className='py-3.5 px-4 font-semibold'>{t('employee.myRequests.colStatus')}</th>
                     <th className='py-3.5 px-6 text-right font-semibold'>{t('employee.myRequests.colActions')}</th>
                   </tr>
@@ -237,21 +239,15 @@ export function EmployeeMyRequestsView({ onSelectTab }: EmployeeMyRequestsViewPr
                       </td>
 
                       <td className='py-4 px-4'>
-                        <div className='flex items-center gap-2'>
-                          {item.status === 'approved' || item.status === 'completed' ? (
-                            <CheckCircle2 aria-hidden='true' className='size-4 text-success' />
-                          ) : item.status === 'rejected' ? (
-                            <XCircle aria-hidden='true' className='size-4 text-danger' />
-                          ) : (
-                            <Clock aria-hidden='true' className='size-4 text-warning' />
-                          )}
-                          <div>
-                            <p className='font-semibold text-foreground'>{item.currentApprover}</p>
-                            <p className='text-[0.65rem] text-muted-foreground'>
-                              {item.currentStep.stepIndex}/{item.currentStep.totalSteps}
-                            </p>
-                          </div>
-                        </div>
+                        <span
+                          className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${
+                            item.form === 'shared'
+                              ? 'border-primary/25 bg-primary-soft text-primary-ink'
+                              : 'border-border bg-surface-subtle text-foreground'
+                          }`}
+                        >
+                          {t(`employee.myRequests.${item.form === 'shared' ? 'formShared' : 'formPersonal'}`)}
+                        </span>
                       </td>
 
                       <td className='py-4 px-4'>

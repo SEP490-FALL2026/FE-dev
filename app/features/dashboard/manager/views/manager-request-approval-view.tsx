@@ -2,25 +2,38 @@ import { ArrowLeft, CheckCircle2, MessageSquare, X, XCircle } from 'lucide-react
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { MOCK_TEAM_REQUESTS, type TeamRequestItem } from '../manager-data'
+import { MOCK_TEAM_MEMBERS, MOCK_TEAM_REQUESTS, type TeamRequestItem } from '../manager-data'
 import { handleManagerDialogKeyDown } from '../manager-dialog-keyboard'
 import { ManagerIdentityMark } from '../manager-identity-mark'
 import type { ManagerTabKey } from '../manager-nav'
 
 interface ManagerRequestApprovalViewProps {
   formatCurrency: (value: number) => string
+  isMarked?: boolean
+  isSent?: boolean
+  onMarkForPreparation?: (requestId: string) => void
   onSelectTab: (tab: ManagerTabKey, params?: Record<string, string>) => void
   requestId?: string
 }
 
 export function ManagerRequestApprovalView({
   formatCurrency,
+  isMarked = false,
+  isSent = false,
+  onMarkForPreparation,
   onSelectTab,
   requestId = 'req-01'
 }: ManagerRequestApprovalViewProps) {
   const { t } = useTranslation('dashboard')
 
   const request = MOCK_TEAM_REQUESTS.find((r) => r.id === requestId) || MOCK_TEAM_REQUESTS[0]
+  const requester = MOCK_TEAM_MEMBERS.find((member) => member.id === request.requesterId)
+  const colleagues =
+    request.form === 'shared'
+      ? MOCK_TEAM_MEMBERS.filter(
+          (member) => request.colleagueIds.includes(member.id) && member.department === requester?.department
+        )
+      : []
 
   const [status, setStatus] = useState<TeamRequestItem['status']>(request.status)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
@@ -30,6 +43,10 @@ export function ManagerRequestApprovalView({
   const [clarifyMsg, setClarifyMsg] = useState('')
 
   const handleApprove = () => {
+    if (onMarkForPreparation) {
+      onMarkForPreparation(request.id)
+      return
+    }
     setStatus('APPROVED')
     setSuccessMsg(t('manager.approval.approveSuccessMsg'))
   }
@@ -91,7 +108,18 @@ export function ManagerRequestApprovalView({
             <div className='flex items-center gap-3 border-b border-border pb-4'>
               <ManagerIdentityMark className='size-12 rounded-2xl text-base' name={request.saasName} />
               <div>
-                <h2 className='text-base font-bold text-foreground'>{request.saasName}</h2>
+                <div className='flex flex-wrap items-center gap-2'>
+                  <h2 className='text-base font-bold text-foreground'>{request.saasName}</h2>
+                  <span
+                    className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${
+                      request.form === 'shared'
+                        ? 'border-primary/25 bg-primary-soft text-primary-ink'
+                        : 'border-border bg-surface-subtle text-foreground'
+                    }`}
+                  >
+                    {t(`manager.requests.${request.form === 'shared' ? 'formShared' : 'formPersonal'}`)}
+                  </span>
+                </div>
                 <p className='text-xs text-muted-foreground'>{request.plan}</p>
               </div>
             </div>
@@ -136,6 +164,39 @@ export function ManagerRequestApprovalView({
               </div>
             </div>
 
+            {request.form === 'shared' && (
+              <section
+                aria-labelledby='manager-shared-participants-title'
+                className='rounded-xl border border-primary/20 bg-primary-soft/30 p-4'
+              >
+                <div className='flex flex-wrap items-baseline justify-between gap-2'>
+                  <h3 className='text-sm font-bold text-foreground' id='manager-shared-participants-title'>
+                    {t('manager.approval.sharedParticipantsTitle')}
+                  </h3>
+                  <span className='text-xs font-semibold text-primary-ink'>
+                    {t('manager.approval.participantCount', { count: colleagues.length + 1 })}
+                  </span>
+                </div>
+                <p className='mt-1 text-xs text-muted-foreground'>{t('manager.approval.sharedParticipantsHint')}</p>
+                <div className='mt-4 rounded-lg border border-border bg-surface p-3'>
+                  <p className='text-xs font-semibold text-muted-foreground'>{t('manager.approval.representative')}</p>
+                  <p className='mt-1 text-sm font-semibold text-foreground'>{request.requesterName}</p>
+                  <p className='break-all text-xs text-muted-foreground'>{request.requesterEmail}</p>
+                </div>
+                <h4 className='mt-4 text-xs font-semibold text-muted-foreground'>
+                  {t('manager.approval.registeredColleagues')}
+                </h4>
+                <ul className='mt-2 grid gap-2 sm:grid-cols-2'>
+                  {colleagues.map((colleague) => (
+                    <li className='rounded-lg border border-border bg-surface p-3' key={colleague.id}>
+                      <p className='text-sm font-semibold text-foreground'>{colleague.name}</p>
+                      <p className='break-all text-xs text-muted-foreground'>{colleague.email}</p>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
             <div className='space-y-2 pt-2 border-t border-border'>
               <h3 className='text-xs font-bold text-foreground'>{t('manager.approval.justificationTitle')}</h3>
               <p className='rounded-xl border border-border bg-surface-subtle/40 p-4 text-xs text-foreground/90 leading-relaxed'>
@@ -154,11 +215,22 @@ export function ManagerRequestApprovalView({
             </div>
 
             <div className='space-y-2.5 pt-2 border-t border-border'>
-              {status === 'APPROVED' ? (
+              {status === 'APPROVED' || isMarked ? (
                 <div className='rounded-xl border border-success/30 bg-success/10 p-4 text-center space-y-2'>
                   <CheckCircle2 className='size-8 text-success mx-auto' />
-                  <p className='font-bold text-xs text-success'>{t('manager.approval.badgeApproved')}</p>
+                  <p className='font-bold text-xs text-success'>
+                    {t(isSent ? 'manager.approval.badgeSentPreview' : 'manager.approval.badgeApproved')}
+                  </p>
                   <p className='text-[11px] text-muted-foreground'>{t('manager.approval.forwardedNotice')}</p>
+                  {isMarked && (
+                    <button
+                      className='mt-2 min-h-10 rounded-xl border border-success/30 bg-surface px-3 text-xs font-semibold text-foreground hover:bg-surface-subtle'
+                      onClick={() => onSelectTab('weekly-batch')}
+                      type='button'
+                    >
+                      {t('manager.approval.viewMarkedRequests')}
+                    </button>
+                  )}
                 </div>
               ) : status === 'REJECTED' ? (
                 <div className='rounded-xl border border-danger/30 bg-danger/10 p-4 text-center space-y-2'>
@@ -174,7 +246,7 @@ export function ManagerRequestApprovalView({
                     type='button'
                   >
                     <CheckCircle2 className='size-4' />
-                    <span>{t('manager.approval.actApprove')}</span>
+                    <span>{t('manager.approval.actMarkForPreparation')}</span>
                   </button>
 
                   <button

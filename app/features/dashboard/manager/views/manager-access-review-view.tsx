@@ -1,204 +1,178 @@
-import { CheckCircle2, FileCheck2, ShieldCheck } from 'lucide-react'
+import { AppWindow, ChevronDown, Download, ExternalLink, Users } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { type AccessReviewItem, MOCK_ACCESS_REVIEW } from '../manager-data'
-import { ManagerConfirmDialog } from '../manager-confirm-dialog'
-import { ManagerIdentityMark } from '../manager-identity-mark'
+import { MOCK_ACCESS_REVIEW, MOCK_TEAM_MEMBERS } from '../manager-data'
+import type { ManagerTabKey } from '../manager-nav'
+import { downloadUsageWorkbook } from '../usage-workbook'
 
-export function ManagerAccessReviewView() {
-  const { t } = useTranslation('dashboard')
-  const [items, setItems] = useState<AccessReviewItem[]>(MOCK_ACCESS_REVIEW)
-  const [completedNotice, setCompletedNotice] = useState<string | null>(null)
-  const [retainConfirmOpen, setRetainConfirmOpen] = useState(false)
+interface Props {
+  onSelectTab: (tab: ManagerTabKey, params?: Record<string, string>) => void
+}
 
-  const reviewedCount = items.filter((i) => i.status !== 'PENDING').length
-  const pendingCount = items.length - reviewedCount
-  const progressPercent = Math.round((reviewedCount / items.length) * 100)
+export function ManagerAccessReviewView({ onSelectTab }: Props) {
+  const { t, i18n } = useTranslation('dashboard')
+  const [openEmployeeId, setOpenEmployeeId] = useState<string | null>(null)
+  const employees = Array.from(new Set(MOCK_ACCESS_REVIEW.map((item) => item.employeeId))).map((id) => ({
+    id,
+    items: MOCK_ACCESS_REVIEW.filter((item) => item.employeeId === id),
+    member: MOCK_TEAM_MEMBERS.find((member) => member.id === id)
+  }))
 
-  const handleDecision = (id: string, decision: 'RETAIN' | 'REVOKE') => {
-    setItems((prev) => prev.map((item) => (item.id === id ? { ...item, status: decision } : item)))
-  }
-
-  const handleRetainAllActive = () => {
-    setRetainConfirmOpen(false)
-    setItems((prev) => prev.map((item) => (item.status === 'PENDING' ? { ...item, status: 'RETAIN' } : item)))
-    setCompletedNotice(t('manager.accessReview.retainedAllMsg'))
-    setTimeout(() => setCompletedNotice(null), 3000)
-  }
-
-  const handleCompleteCampaign = () => {
-    setCompletedNotice(t('manager.accessReview.campaignCompletedMsg'))
+  const exportUsage = (employeeId: string) => {
+    const member = MOCK_TEAM_MEMBERS.find((person) => person.id === employeeId)
+    if (!member) return
+    downloadUsageWorkbook(member, {
+      activeMinutes: t('manager.accessReview.exportMinutes'),
+      creditsConsumed: t('manager.employeeDetail.creditsConsumed'),
+      creditsLimit: t('manager.employeeDetail.creditsLimit'),
+      dayPeriod: t('manager.employeeDetail.periodDayLabel'),
+      plan: t('manager.accessReview.colPlan'),
+      period: t('manager.employeeDetail.periodLabel'),
+      requestPeriod: t('manager.employeeDetail.periodRequestLabel'),
+      sessionEnd: t('manager.employeeDetail.sessionEnd'),
+      sessionStart: t('manager.employeeDetail.sessionStart'),
+      sheetName: t('manager.accessReview.exportSheet'),
+      software: t('manager.accessReview.colSoftware'),
+      status: t('manager.accessReview.exportStatus'),
+      title: t('manager.accessReview.exportTitle'),
+      usageActive: t('manager.employeeDetail.usageActive'),
+      usageAgentActive: t('manager.employeeDetail.agentAllocated'),
+      usageInactive: t('manager.employeeDetail.usageInactive'),
+      usageLow: t('manager.employeeDetail.usageLow')
+    })
   }
 
   return (
     <div className='space-y-6'>
-      {/* Header */}
-      <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
-        <div>
-          <h1 className='text-2xl font-bold tracking-tight text-foreground sm:text-3xl'>
-            {t('manager.accessReview.title')}
-          </h1>
-          <p className='mt-1 text-sm text-muted-foreground'>{t('manager.accessReview.subtitle')}</p>
-        </div>
+      <header>
+        <h1 className='text-2xl font-bold tracking-tight text-foreground sm:text-3xl'>
+          {t('manager.accessReview.title')}
+        </h1>
+        <p className='mt-1 text-sm text-muted-foreground'>{t('manager.accessReview.subtitle')}</p>
+      </header>
 
-        <div className='flex w-full flex-wrap items-center gap-2 sm:w-auto'>
-          <button
-            className='inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-4 py-2 text-xs font-semibold text-foreground transition hover:bg-surface-subtle shadow-xs'
-            disabled={pendingCount === 0}
-            onClick={() => setRetainConfirmOpen(true)}
-            type='button'
-          >
-            <CheckCircle2 className='size-3.5 text-success' />
-            <span>{t('manager.accessReview.retainActiveBtn')}</span>
-          </button>
-          <button
-            className='inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-sm transition hover:bg-primary/90 disabled:opacity-50'
-            disabled={reviewedCount < items.length}
-            onClick={handleCompleteCampaign}
-            type='button'
-          >
-            <FileCheck2 className='size-3.5' />
-            <span>{t('manager.accessReview.submitCampaignBtn')}</span>
-          </button>
+      <div className='grid gap-4 sm:grid-cols-2'>
+        <div className='rounded-2xl border border-border bg-surface p-5 shadow-sm'>
+          <p className='text-sm text-muted-foreground'>{t('manager.accessReview.employeeCount')}</p>
+          <p className='mt-2 text-3xl font-bold text-foreground'>{employees.length}</p>
+        </div>
+        <div className='rounded-2xl border border-border bg-surface p-5 shadow-sm'>
+          <p className='text-sm text-muted-foreground'>{t('manager.accessReview.toolCount')}</p>
+          <p className='mt-2 text-3xl font-bold text-foreground'>{MOCK_ACCESS_REVIEW.length}</p>
         </div>
       </div>
 
-      {retainConfirmOpen && (
-        <ManagerConfirmDialog
-          cancelLabel={t('manager.accessReview.cancelBtn')}
-          confirmLabel={t('manager.accessReview.retainActiveBtn')}
-          description={t('manager.accessReview.retainConfirmDesc', { count: pendingCount })}
-          onCancel={() => setRetainConfirmOpen(false)}
-          onConfirm={handleRetainAllActive}
-          title={t('manager.accessReview.retainConfirmTitle')}
-        />
-      )}
+      <section className='space-y-3' aria-label={t('manager.accessReview.employeeList')}>
+        {employees.map(({ id, items, member }) => {
+          const open = openEmployeeId === id
+          return (
+            <article className='overflow-hidden rounded-2xl border border-border bg-surface shadow-sm' key={id}>
+              <button
+                aria-controls={`access-review-${id}`}
+                aria-expanded={open}
+                className='flex w-full items-center justify-between gap-4 px-5 py-5 text-left hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary'
+                onClick={() => setOpenEmployeeId(open ? null : id)}
+                type='button'
+              >
+                <span className='flex min-w-0 items-center gap-3'>
+                  <span className='grid size-11 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary'>
+                    <Users aria-hidden='true' className='size-5' />
+                  </span>
+                  <span className='min-w-0'>
+                    <span className='block font-bold text-foreground'>{items[0].employeeName}</span>
+                    <span className='block text-sm text-muted-foreground'>{items[0].jobTitle}</span>
+                  </span>
+                </span>
+                <span className='flex shrink-0 items-center gap-3 text-sm text-muted-foreground'>
+                  <span>{t('manager.accessReview.toolsForEmployee', { count: items.length })}</span>
+                  <ChevronDown
+                    aria-hidden='true'
+                    className={`size-5 transition-transform ${open ? 'rotate-180' : ''}`}
+                  />
+                </span>
+              </button>
 
-      {completedNotice && (
-        <div
-          role='status'
-          className='flex items-center gap-2 rounded-xl border border-success/30 bg-success/10 p-4 text-xs font-medium text-success shadow-xs'
-        >
-          <ShieldCheck className='size-5 shrink-0' />
-          <span>{completedNotice}</span>
-        </div>
-      )}
-
-      {/* Progress Bar Card */}
-      <div className='rounded-2xl border border-border bg-surface p-5 shadow-sm space-y-3'>
-        <div className='flex items-center justify-between text-xs'>
-          <div>
-            <span className='font-bold text-foreground'>{t('manager.accessReview.progressTitle')}</span>
-            <span className='text-muted-foreground ml-2'>
-              {t('manager.accessReview.progressStats', { reviewed: reviewedCount, total: items.length })}
-            </span>
-          </div>
-          <span className='font-mono font-bold text-foreground'>{progressPercent}%</span>
-        </div>
-        <div
-          aria-label={t('manager.accessReview.progressTitle')}
-          aria-valuemax={items.length}
-          aria-valuemin={0}
-          aria-valuenow={reviewedCount}
-          className='h-2 w-full overflow-hidden rounded-full bg-border'
-          role='progressbar'
-        >
-          <div
-            className='h-full rounded-full bg-primary transition-all duration-300'
-            style={{ width: `${progressPercent}%` }}
-          />
-        </div>
-      </div>
-
-      {/* Access Review Table */}
-      <div className='rounded-2xl border border-border bg-surface p-5 shadow-sm space-y-4'>
-        <h2 className='text-sm font-bold text-foreground'>{t('manager.accessReview.tableTitle')}</h2>
-
-        <div className='overflow-x-auto'>
-          <table className='w-full text-left text-xs'>
-            <caption className='sr-only'>{t('manager.accessReview.tableTitle')}</caption>
-            <thead>
-              <tr className='border-b border-border text-muted-foreground'>
-                <th className='py-3 px-4 font-semibold'>{t('manager.accessReview.colEmployee')}</th>
-                <th className='py-3 px-4 font-semibold'>{t('manager.accessReview.colSoftware')}</th>
-                <th className='py-3 px-4 font-semibold'>{t('manager.accessReview.colPlan')}</th>
-                <th className='py-3 px-4 font-semibold'>{t('manager.accessReview.colLastActive')}</th>
-                <th className='py-3 px-4 text-center font-semibold'>{t('manager.accessReview.colStatus')}</th>
-                <th className='py-3 px-4 text-right font-semibold'>{t('manager.accessReview.colActions')}</th>
-              </tr>
-            </thead>
-            <tbody className='divide-y divide-border'>
-              {items.map((item) => (
-                <tr key={item.id} className='transition hover:bg-surface-subtle/50'>
-                  <td className='py-3.5 px-4'>
-                    <p className='font-bold text-foreground'>{item.employeeName}</p>
-                    <p className='text-[11px] text-muted-foreground'>{item.jobTitle}</p>
-                  </td>
-
-                  <td className='py-3.5 px-4'>
-                    <div className='flex items-center gap-2'>
-                      <ManagerIdentityMark className='size-8 rounded-lg' name={item.softwareName} />
-                      <span className='font-bold text-foreground'>{item.softwareName}</span>
-                    </div>
-                  </td>
-
-                  <td className='py-3.5 px-4 text-muted-foreground'>{item.plan}</td>
-
-                  <td className='py-3.5 px-4 font-mono text-muted-foreground'>{item.lastActiveDate}</td>
-
-                  <td className='py-3.5 px-4 text-center'>
-                    <span
-                      className={`rounded-md px-2 py-0.5 text-[11px] font-bold ${
-                        item.status === 'PENDING'
-                          ? 'bg-warning/10 text-warning'
-                          : item.status === 'RETAIN'
-                            ? 'bg-success/10 text-success'
-                            : 'bg-danger/10 text-danger'
-                      }`}
+              {open && (
+                <div className='space-y-4 border-t border-border p-5' id={`access-review-${id}`}>
+                  <div className='flex flex-wrap gap-2'>
+                    <button
+                      className='inline-flex items-center gap-2 rounded-xl border border-border px-3 py-2 text-sm font-semibold text-foreground hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
+                      onClick={() => onSelectTab('employee-detail', { id, from: 'access-review' })}
+                      type='button'
                     >
-                      {item.status === 'PENDING'
-                        ? t('manager.accessReview.statusPending')
-                        : item.status === 'RETAIN'
-                          ? t('manager.accessReview.statusRetained')
-                          : t('manager.accessReview.statusRevoked')}
-                    </span>
-                  </td>
-
-                  <td className='py-3.5 px-4 text-right'>
-                    <div className='flex items-center justify-end gap-1.5'>
-                      <button
-                        aria-pressed={item.status === 'RETAIN'}
-                        className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
-                          item.status === 'RETAIN'
-                            ? 'bg-success text-white shadow-xs'
-                            : 'border border-border bg-surface text-foreground hover:bg-success/10 hover:text-success'
-                        }`}
-                        onClick={() => handleDecision(item.id, 'RETAIN')}
-                        type='button'
-                      >
-                        {t('manager.accessReview.actRetain')}
-                      </button>
-                      <button
-                        aria-pressed={item.status === 'REVOKE'}
-                        className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
-                          item.status === 'REVOKE'
-                            ? 'bg-danger text-white shadow-xs'
-                            : 'border border-border bg-surface text-foreground hover:bg-danger/10 hover:text-danger'
-                        }`}
-                        onClick={() => handleDecision(item.id, 'REVOKE')}
-                        type='button'
-                      >
-                        {t('manager.accessReview.actRevoke')}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                      <ExternalLink aria-hidden='true' className='size-4' />
+                      {t('manager.accessReview.viewFrequency')}
+                    </button>
+                    <button
+                      className='inline-flex items-center gap-2 rounded-xl border border-border px-3 py-2 text-sm font-semibold text-foreground hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-50'
+                      disabled={!member}
+                      onClick={() => exportUsage(id)}
+                      type='button'
+                    >
+                      <Download aria-hidden='true' className='size-4' />
+                      {t('manager.accessReview.exportUsage')}
+                    </button>
+                  </div>
+                  <p className='text-xs text-muted-foreground'>{t('manager.accessReview.usageDataLimit')}</p>
+                  <div className='overflow-x-auto'>
+                    <table className='w-full min-w-[640px] text-left text-sm'>
+                      <caption className='sr-only'>
+                        {t('manager.accessReview.toolsCaption', { name: items[0].employeeName })}
+                      </caption>
+                      <thead>
+                        <tr className='border-b border-border text-muted-foreground'>
+                          <th className='px-3 py-3 font-semibold'>{t('manager.accessReview.colSoftware')}</th>
+                          <th className='px-3 py-3 font-semibold'>{t('manager.accessReview.colPlan')}</th>
+                          <th className='px-3 py-3 font-semibold'>{t('manager.accessReview.colLastActive')}</th>
+                          <th className='px-3 py-3 text-right font-semibold'>{t('manager.accessReview.colActions')}</th>
+                        </tr>
+                      </thead>
+                      <tbody className='divide-y divide-border'>
+                        {items.map((item) => (
+                          <tr key={item.id}>
+                            <td className='px-3 py-4'>
+                              <span className='flex items-center gap-2 font-semibold text-foreground'>
+                                <AppWindow
+                                  aria-hidden='true'
+                                  className='size-8 rounded-lg border border-primary/20 bg-primary-soft/60 p-1.5 text-primary'
+                                />
+                                {item.softwareName}
+                              </span>
+                            </td>
+                            <td className='px-3 py-4 text-muted-foreground'>{item.plan}</td>
+                            <td className='px-3 py-4 text-muted-foreground'>
+                              <time dateTime={item.lastActiveDate}>
+                                {new Intl.DateTimeFormat(i18n.language === 'en' ? 'en-US' : 'vi-VN').format(
+                                  new Date(`${item.lastActiveDate}T00:00:00`)
+                                )}
+                              </time>
+                            </td>
+                            <td className='px-3 py-4 text-right'>
+                              <button
+                                aria-describedby={`revoke-help-${id}`}
+                                className='rounded-lg border border-border px-3 py-2 font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-60'
+                                disabled
+                                type='button'
+                              >
+                                {t('manager.accessReview.requestRevoke')}
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <p className='text-xs text-muted-foreground' id={`revoke-help-${id}`}>
+                    {t('manager.accessReview.requestUnavailable')}
+                  </p>
+                  <p className='text-xs text-muted-foreground'>{t('manager.accessReview.usageNote')}</p>
+                </div>
+              )}
+            </article>
+          )
+        })}
+      </section>
     </div>
   )
 }
