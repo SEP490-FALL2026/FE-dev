@@ -3,16 +3,22 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { FilterChips, Notice, PageHeader, Panel, Pill, type Tone } from '../../dashboard-ui'
-import { approvalQueue, approverNow, type QueueItem, type QueueItemKind } from '../approvals-data'
+import { useAnnualBudgetState } from '../../finance/annual-budget-store'
+import { budgetCheckTones, queueBudgetCheck } from '../approval-budget-check'
+import { approvalQueue, type QueueItem, type QueueItemKind } from '../approvals-data'
 import type { ApprovalTabKey } from '../approvals-nav'
+import {
+  ApprovalQueueFiltersPanel,
+  defaultApprovalQueueFilters,
+  getSlaHoursLeft,
+  matchesApprovalQueueFilters
+} from './approval-queue-filters'
+import { ApprovalQueueAnnual } from './approval-queue-annual'
 
-type QueueFilter = 'all' | 'charges' | 'renewals' | 'requests'
+export { getSlaHoursLeft }
 
-const filterKinds: Record<Exclude<QueueFilter, 'all'>, readonly QueueItemKind[]> = {
-  charges: ['CHARGE', 'FINDING'],
-  renewals: ['RENEWAL'],
-  requests: ['SPEND_STEP', 'NEED_STEP']
-}
+/** Annual budget files and in-year SaaS spend are listed apart so the two never mix. */
+type QueueType = 'annual' | 'spend'
 
 const kindTones: Record<QueueItemKind, Tone> = {
   CHARGE: 'danger',
@@ -26,10 +32,6 @@ export function tabForKind(kind: QueueItemKind): ApprovalTabKey {
   if (kind === 'RENEWAL') return 'renewal'
   if (kind === 'CHARGE' || kind === 'FINDING') return 'charge'
   return 'request'
-}
-
-export function getSlaHoursLeft(item: Pick<QueueItem, 'slaDueAt'>) {
-  return Math.round((new Date(item.slaDueAt).getTime() - new Date(approverNow).getTime()) / 3_600_000)
 }
 
 export function SlaBadge({ item }: { item: Pick<QueueItem, 'reminders' | 'slaDueAt'> }) {
@@ -66,79 +68,94 @@ interface ApprovalQueueViewProps {
 
 export function ApprovalQueueView({ formatCurrency, onSelectTab }: ApprovalQueueViewProps) {
   const { t } = useTranslation('dashboard')
-  const [filter, setFilter] = useState<QueueFilter>('all')
+  const [queueType, setQueueType] = useState<QueueType>('spend')
+  const [filters, setFilters] = useState(defaultApprovalQueueFilters)
+  const sentProposals = useAnnualBudgetState().proposals.filter((proposal) => proposal.stage === 'SENT')
 
   const sorted = [...approvalQueue].sort((a, b) => a.slaDueAt.localeCompare(b.slaDueAt))
-  const visible = filter === 'all' ? sorted : sorted.filter((item) => filterKinds[filter].includes(item.kind))
-  const count = (key: Exclude<QueueFilter, 'all'>) =>
-    approvalQueue.filter((item) => filterKinds[key].includes(item.kind)).length
+  const visible = sorted.filter((item) => matchesApprovalQueueFilters(item, filters))
 
   return (
     <div className='space-y-6'>
       <PageHeader subtitle={t('approvals.queue.subtitle')} title={t('approvals.queue.title')} />
 
-      <Notice icon={Info} tone='info'>
-        {t('approvals.queue.slaRule')}
-      </Notice>
+      <FilterChips<QueueType>
+        label={t('budgetPlan.approverSpend.queue.typeLabel')}
+        onChange={setQueueType}
+        options={[
+          { count: approvalQueue.length, label: t('budgetPlan.approverSpend.queue.typeSpend'), value: 'spend' },
+          { count: sentProposals.length, label: t('budgetPlan.approverSpend.queue.typeAnnual'), value: 'annual' }
+        ]}
+        value={queueType}
+      />
 
-      <Panel>
-        <FilterChips<QueueFilter>
-          label={t('approvals.queue.filterLabel')}
-          onChange={setFilter}
-          options={[
-            { count: approvalQueue.length, label: t('ui.all'), value: 'all' },
-            { count: count('requests'), label: t('approvals.queue.filter.requests'), value: 'requests' },
-            { count: count('renewals'), label: t('approvals.queue.filter.renewals'), value: 'renewals' },
-            { count: count('charges'), label: t('approvals.queue.filter.charges'), value: 'charges' }
-          ]}
-          value={filter}
-        />
+      {queueType === 'annual' ? (
+        <ApprovalQueueAnnual formatCurrency={formatCurrency} onSelectTab={onSelectTab} proposals={sentProposals} />
+      ) : (
+        <>
+          <Notice icon={Info} tone='info'>
+            {t('approvals.queue.slaRule')}
+          </Notice>
 
-        <div className='mt-4 overflow-x-auto'>
-          <table className='w-full min-w-200 text-left text-xs'>
-            <thead>
-              <tr className='border-b border-border text-muted-foreground'>
-                <th className='py-2.5 font-semibold'>{t('approvals.queue.colType')}</th>
-                <th className='py-2.5 font-semibold'>{t('approvals.queue.colItem')}</th>
-                <th className='py-2.5 font-semibold'>{t('budget.costCenter')}</th>
-                <th className='py-2.5 text-right font-semibold'>{t('approvals.queue.colAmount')}</th>
-                <th className='py-2.5 pl-8 font-semibold'>{t('approvals.queue.colSla')}</th>
-                <th className='py-2.5' />
-              </tr>
-            </thead>
-            <tbody className='divide-y divide-border'>
-              {visible.map((item) => (
-                <tr className='transition hover:bg-surface-subtle/50' key={item.id}>
-                  <td className='py-3'>
-                    <Pill tone={kindTones[item.kind]}>{t(`approvals.kind.${item.kind}`)}</Pill>
-                  </td>
-                  <td className='py-3'>
-                    <p className='font-mono text-[0.7rem] font-bold text-primary'>{item.reference}</p>
-                    <p className='font-bold text-foreground'>{item.software}</p>
-                    <p className='text-[0.7rem] text-muted-foreground'>{item.subtitle}</p>
-                  </td>
-                  <td className='py-3 font-mono'>{item.costCenter}</td>
-                  <td className='py-3 text-right font-bold'>{formatCurrency(item.amount)}</td>
-                  <td className='py-3 pl-8'>
-                    <SlaBadge item={item} />
-                  </td>
-                  <td className='py-3 text-right'>
-                    <button
-                      aria-label={t('approvals.queue.openItem', { reference: item.reference })}
-                      className='inline-flex items-center gap-1 rounded-lg border border-border px-2.5 py-1.5 font-bold text-primary transition hover:border-primary'
-                      onClick={() => onSelectTab(tabForKind(item.kind), { id: item.id })}
-                      type='button'
-                    >
-                      {t('approvals.queue.open')}
-                      <ChevronRight aria-hidden='true' className='size-3.5' />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Panel>
+          <ApprovalQueueFiltersPanel applied={filters} items={approvalQueue} onApply={setFilters} />
+
+          <Panel>
+            <div className='overflow-x-auto'>
+              <table className='w-full min-w-200 text-left text-xs'>
+                <thead>
+                  <tr className='border-b border-border text-muted-foreground'>
+                    <th className='py-2.5 font-semibold'>{t('approvals.queue.colType')}</th>
+                    <th className='py-2.5 font-semibold'>{t('approvals.queue.colItem')}</th>
+                    <th className='py-2.5 font-semibold'>{t('budget.costCenter')}</th>
+                    <th className='py-2.5 text-right font-semibold'>{t('approvals.queue.colAmount')}</th>
+                    <th className='py-2.5 pl-6 font-semibold'>{t('budgetPlan.approverSpend.queue.colCheck')}</th>
+                    <th className='py-2.5 pl-8 font-semibold'>{t('approvals.queue.colSla')}</th>
+                    <th className='py-2.5' />
+                  </tr>
+                </thead>
+                <tbody className='divide-y divide-border'>
+                  {visible.map((item) => (
+                    <tr className='transition hover:bg-surface-subtle/50' key={item.id}>
+                      <td className='py-3'>
+                        <Pill tone={kindTones[item.kind]}>{t(`approvals.kind.${item.kind}`)}</Pill>
+                      </td>
+                      <td className='py-3'>
+                        <p className='font-mono text-[0.7rem] font-bold text-primary'>{item.reference}</p>
+                        <p className='font-bold text-foreground'>{item.software}</p>
+                        <p className='text-[0.7rem] text-muted-foreground'>{item.subtitle}</p>
+                      </td>
+                      <td className='py-3 font-mono'>{item.costCenter}</td>
+                      <td className='py-3 text-right font-bold'>{formatCurrency(item.amount)}</td>
+                      <td className='py-3 pl-6'>
+                        <Pill tone={budgetCheckTones[queueBudgetCheck(item)]}>
+                          {t(`budgetPlan.approverSpend.result.${queueBudgetCheck(item)}`)}
+                        </Pill>
+                      </td>
+                      <td className='py-3 pl-8'>
+                        <SlaBadge item={item} />
+                      </td>
+                      <td className='py-3 text-right'>
+                        <button
+                          aria-label={t('approvals.queue.openItem', { reference: item.reference })}
+                          className='inline-flex items-center gap-1 rounded-lg border border-border px-2.5 py-1.5 font-bold text-primary transition hover:border-primary'
+                          onClick={() => onSelectTab(tabForKind(item.kind), { id: item.id })}
+                          type='button'
+                        >
+                          {t('approvals.queue.open')}
+                          <ChevronRight aria-hidden='true' className='size-3.5' />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {visible.length === 0 && (
+                <p className='py-4 text-xs text-muted-foreground'>{t('budgetPlan.approverSpend.queue.empty')}</p>
+              )}
+            </div>
+          </Panel>
+        </>
+      )}
     </div>
   )
 }

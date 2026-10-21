@@ -1,5 +1,8 @@
+import { budgetPlan } from './dashboard-budget-plan'
+
 /** Finance (UF-11, UF-12, UF-19) and Spending Approver (UF-15) screens, plus shared budget wording. */
 export const spendDashboard = {
+  budgetPlan,
   ui: {
     all: 'All',
     cancel: 'Cancel',
@@ -30,6 +33,10 @@ export const spendDashboard = {
   },
   approvals: {
     nav: {
+      annualBudget: 'Annual budget approval',
+      decisionHistory: 'Decision history',
+      exceptionApproval: 'Exceptions & adjustments',
+      optimization: 'Optimization proposals',
       overview: 'Overview',
       queue: 'Approval queue',
       reports: 'Reports'
@@ -62,21 +69,11 @@ export const spendDashboard = {
     },
     overview: {
       alertsTitle: 'Alerts for me',
-      charges: 'Charges and legitimization',
-      chargesHint: 'Charges without basis and vendor findings (BM-07)',
-      nearestDeadline: 'Next: {{name}} — cancel by {{date}}',
-      overdueHint: '{{count}} items past SLA',
-      renewals: 'Renew / reduce / cancel proposals',
-      requests: 'Requests awaiting spend decision',
-      spendRegion: 'Spend and savings',
-      subtitle:
-        'What is waiting for your decision, plus total spend and savings. Finance only gives budget input for reference.',
+      subtitle: 'What is waiting for your decision. Finance only gives budget input for reference.',
       title: 'Hello {{name}}',
-      totalSpend: 'Total spend {{period}}',
       urgentHint:
         'Sorted by SLA — when overdue the system reminds you and alerts Super Admin; it never reassigns or decides for you.',
-      urgentTitle: 'Decide first',
-      workRegion: 'Decisions waiting'
+      urgentTitle: 'Decide first'
     },
     queue: {
       colAmount: 'Amount',
@@ -260,16 +257,36 @@ export const spendDashboard = {
       users: '{{count}} current users',
       vendor: 'Vendor'
     },
+    optimization: {
+      annualPending: 'Annual saving awaiting your decision',
+      approve: 'Approve proposal',
+      approvedSaving: 'Approved saving this period',
+      backToList: 'Back to proposals',
+      confirmReject: 'Confirm rejection',
+      decisionHint:
+        'If approved, IT Admin reclaims the seats or changes the plan; rejecting needs a reason and Finance is notified.',
+      decisionTitle: 'Your decision',
+      filterLabel: 'Filter proposals by status',
+      noNote: 'Finance left no note.',
+      pending: 'Proposals awaiting you',
+      pendingHint: 'Saves {{amount}} this period if all are approved',
+      reasonRequired: 'A reason is required.',
+      reject: 'Reject',
+      rejectReason: 'Reason for rejection (required)',
+      sentBy: 'Sent by Finance on {{time}}',
+      subtitle:
+        'Finance proposes lowering next period’s forecast cost through ghost seats, plan downgrades or duplicate plans. You approve or reject; IT Admin executes after approval.',
+      summaryLabel: 'Optimization proposal summary',
+      title: 'Cost optimization proposals'
+    },
     reports: {
-      branchATitle: 'Seats granted via branch (a) this period — summary',
+      branchATitle: 'Seats granted without the spend step ({{count}} apps)',
       days: '{{value}} days',
       financeRecording: 'Finance recording after approval (measured separately)',
       financeResponse: 'Finance answering questions (measured separately)',
       myOverdue: 'Share of my steps past SLA',
       processHint: 'KPI-2 split per step; Finance time is not added to the waiting path.',
-      processTitle: 'Process performance — summary',
-      reclaimedHint: 'Basis only — reclaiming does not add to savings by itself.',
-      reclaimedSeats: 'Seats reclaimed',
+      processTitle: 'Processing time',
       savingsLabel: 'Savings',
       seats: '{{count}} seats',
       spendChartLabel: 'Bar chart of budget and spend by Cost Center — {{period}}',
@@ -291,24 +308,41 @@ export const spendDashboard = {
       },
       usageHint: 'Three ratios answering three different questions — never merged.',
       usageNote: '{{purchased}} seats purchased · {{evaluated}} evaluated · {{active}} active.',
-      usageTitle: 'Usage performance — summary'
+      usageTitle: 'License usage',
+      ofBudget: 'Of the {{budget}} budget · {{share}} used',
+      reclaimedCount: '{{count}} seats reclaimed — evidence only, not added to savings',
+      totalSpend: 'Total spend {{period}}'
     }
   },
   finance: {
     nav: {
+      annualProposals: 'Annual budget proposals',
+      areas: {
+        budget: 'Cost Centers & Budget',
+        close: 'Period Close & Reports',
+        overview: 'Overview',
+        planning: 'Planning & Forecast',
+        spend: 'Spend & Reconciliation'
+      },
+      budgetAllocation: 'Budget allocation',
+      budgetCheck: 'Budget check',
+      budgetExceptions: 'Budget exceptions',
+      budgetNegotiation: 'Review & negotiation',
+      budgetPeriods: 'Budget periods',
       budgetQuestions: 'Budget info requests',
-      budgets: 'Cost Centers & budgets',
+      budgets: 'Cost Centers',
       chargeExceptions: 'Charge exceptions',
-      commitments: 'Commitments to record',
+      commitments: 'Commitments',
       costAnalysis: 'Allocation & budget vs actual',
+      costForecast: 'Cost forecast',
+      costOptimization: 'Cost optimization',
+      decisionHistory: 'Decision history',
+      departmentBudget: 'By department',
+      departmentSummary: 'Department summary',
       overview: 'Overview',
       periodClose: 'Period close',
       periodReport: 'Period report',
-      sections: {
-        budget: 'Budget',
-        periodClose: 'Period close',
-        reconciliation: 'Spend reconciliation'
-      },
+      saasCost: 'Software & cost',
       spendImport: 'Import statements / invoices'
     },
     opinion: {
@@ -337,7 +371,6 @@ export const spendDashboard = {
       openQuestions: 'Open budget info requests',
       periodClose: 'Close {{period}}',
       questionsHint: 'From the Spending Approver — reference only, non-blocking',
-      shareOfTotal: 'Share',
       recordingHint: '{{count}} past their recording due time',
       subtitle: 'Open budget work for {{period}}. Each tile is the entry point to one task.',
       title: 'Finance dashboard',
@@ -613,37 +646,66 @@ export const spendDashboard = {
     close: {
       addInternal: 'Record cost',
       auditNote: 'This action is logged in the Audit Trail.',
-      committed: 'Committed',
+      backToList: 'Back to Cost Centers',
+      checkCarried: '{{count}} still expect invoices — their remainder stays held into the next period.',
+      checkReleased: 'No remainder left to release.',
+      checkReviewed: 'I have reviewed this Cost Center’s internal costs and allocation.',
+      checkToRelease: '{{count}} remainders expect no more invoices — release them.',
+      checklistHint: 'Close each Cost Center once remainders are handled and internal costs are recorded.',
+      checklistTitle: 'Close the Cost Center',
+      closeBlocked: 'Release remainders that expect no more invoices before closing.',
+      closeCostCenter: 'Close {{code}}',
+      closed: 'Closed by {{name}} on {{time}}. Late items appear in the next report as a prior-period adjustment.',
+      closedCount: 'Cost Centers closed',
+      closedHint: 'Each Cost Center is closed on its own',
+      colStatus: 'Status',
       confirmRelease: 'Release',
       convertedHint: 'Each invoice converts exactly its amount from commitment to cost',
       convertedToCost: 'Converted to cost',
+      detailSubtitle: '{{name}} — release commitment remainders, record internal costs, then close the Cost Center.',
+      detailTitle: 'Close {{period}} · {{code}}',
       heldRemainder: 'Held remainder',
       internalAmount: 'Amount (VND)',
       internalDescription: 'Cost description',
       internalHint:
-        'No invoice or vendor needed. Each cost goes to exactly one Cost Center; to split, record several — no allocation ratios.',
-      internalRequired: 'Enter a description, an amount above 0 and pick one Cost Center.',
-      internalTitle: 'Internal software costs (FIN-31)',
-      invoiceOutlook: 'Invoices',
-      invoiced: 'Invoiced',
-      matchedInvoices: 'Matched invoices',
+        'No invoice or vendor needed. Costs recorded here belong to this Cost Center; to split, record them in each Cost Center — no allocation ratios.',
+      internalRequired: 'Enter a description and an amount above 0.',
+      internalTitle: 'Internal software costs',
+      listHint:
+        'Open each Cost Center to handle remainders and internal costs, then close it. The period is not locked: late items appear in the next report.',
+      listTitle: 'Cost Centers in the period',
       moreExpected: 'More invoices expected',
+      noInternal: 'No internal cost recorded this period.',
       noInvoice: 'No invoice expected',
+      noLockNote:
+        'Closing does not lock the period; late items are booked as a prior-period adjustment in the next report.',
       noMoreInvoices: 'No more invoices — last {{date}}',
+      noRemainders: 'This Cost Center has no commitment with a remainder.',
+      open: 'Open',
+      openFor: 'Close {{code}}',
+      periodCost: 'Period cost (allocated)',
       pickCostCenter: 'Pick a Cost Center',
       release: 'Release remainder',
       releaseDisabled: 'Invoices still expected — cannot release yet',
       releaseReason: 'Reason for releasing the remainder of {{code}} (required)',
       releaseReasonRequired: 'A reason is required.',
       released: 'Released',
-      remainders: 'Remainders still held',
+      remainderFigures: 'Committed {{committed}} · invoiced {{invoiced}}',
       remaindersHint: 'Release a remainder only when no further invoice will arrive.',
       remaindersTitle: 'Commitments with a remainder',
-      subtitle:
-        'Step 1 of closing {{period}}: convert commitments to cost from matched invoices and record internal costs.',
+      status: {
+        BLOCKED: 'Remainder to release',
+        CLOSED: 'Closed',
+        READY: 'Ready to close'
+      },
+      subtitle: 'Step 1 of closing {{period}}: close costs one Cost Center at a time.',
       summaryLabel: 'Period close summary',
-      title: 'Close {{period}}',
-      toAllocation: 'Allocate costs'
+      title: 'Close {{period}} by Cost Center',
+      toAllocation: 'Allocate costs',
+      toExceptions: 'View exceptions',
+      toReleaseCount: 'Remainders to release',
+      unallocatedRow:
+        'Unallocated to a Cost Center: {{amount}} — not closed here; waits for the Spending Approver on {{count}} exceptions.'
     },
     analysis: {
       allocationHint:
@@ -677,7 +739,7 @@ export const spendDashboard = {
       },
       sharedAccounts: 'Shared accounts',
       sharedByRatio: 'Shared plans (ratio)',
-      subtitle: 'Step 2 of closing {{period}}: review allocation, compare budget with actuals and forecast.',
+      subtitle: 'Step 2 of closing {{period}}: review allocation and compare budget with actuals per Cost Center.',
       title: 'Allocation and budget vs actual {{period}}',
       toReport: 'Prepare period report',
       total: 'Total',
@@ -690,6 +752,104 @@ export const spendDashboard = {
         newHires: 'New hires',
         newProjects: 'New projects (VND)'
       }
+    },
+    forecast: {
+      approvedLine: 'Approved saving',
+      baseAfterAll: 'Base if every proposal is approved',
+      baseAfterApproved: 'Base after approved saving',
+      optimizedHint: 'The base scenario minus the in-period saving of cost optimization proposals.',
+      optimizedTitle: 'Base scenario after optimization',
+      pendingLine: 'Draft and pending proposals',
+      subtitle:
+        'Committed cost from contracts and assumption-based scenarios — the basis for optimizing forecast cost.',
+      title: 'Cost forecast {{period}}',
+      toOptimization: 'Optimize forecast cost'
+    },
+    optimization: {
+      afterHint: 'If every proposal not rejected is approved',
+      afterOptimization: 'Forecast after optimization',
+      annualSaving: 'Annual saving',
+      approved: 'Approved by {{name}} on {{time}}. IT Admin executes; the saving is taken off the forecast.',
+      approvedHint: '{{count}} approved proposals',
+      approvedSaving: 'Approved saving',
+      backToList: 'Back to proposals',
+      basis: {
+        CANCEL: '{{active}}/{{purchased}} seats still active',
+        DOWNGRADE: '{{current}} → {{proposed}}',
+        GHOST_SEAT: '{{count}}/{{purchased}} seats unused'
+      },
+      budgetImpact: '{{costCenter}} budget · {{period}}',
+      colBasis: 'Type and basis',
+      colMonthly: 'Saving / month',
+      colProposal: 'Proposal',
+      colStatus: 'Status',
+      colWindow: 'Saving this period',
+      colLastActivity: 'Last activity',
+      colSignal: 'Signal',
+      colUser: 'Seat holder',
+      currentMonthly: 'Current cost / month',
+      currentPlan: 'Current plan',
+      empty: 'No proposal matches the filters.',
+      evidenceHint: {
+        CANCEL: 'Few users, and another catalog tool already covers the same need.',
+        DOWNGRADE: 'Very few users touch features only the current plan has.',
+        GHOST_SEAT: 'Seats bought but unused for over 60 days, held by leavers, or never signed in.'
+      },
+      evidenceTitle: 'Usage evidence',
+      featuresLost: 'Features lost by downgrading',
+      financeNote: 'Finance note',
+      forecast: 'Committed forecast cost',
+      forecastHint: 'Layer 1 — {{period}}',
+      ghostTitle: 'Seats proposed for reclaim ({{count}})',
+      kind: {
+        CANCEL: 'Cancel duplicate plan',
+        DOWNGRADE: 'Downgrade plan',
+        GHOST_SEAT: 'Reclaim ghost seats'
+      },
+      monthlySaving: 'Saving / month',
+      noteLabel: 'Note for the Spending Approver (optional)',
+      openDetail: 'View',
+      openDetailFor: 'View details of {{code}}',
+      overlapWith: 'Overlaps with',
+      potential: 'Potential saving this period',
+      potentialHint: '{{count}} proposals not rejected',
+      premiumUsage: 'Users of current-plan features (90 days)',
+      proposedMonthly: 'Cost after optimization / month',
+      proposedPlan: 'Proposed plan',
+      rejected: 'Rejected by {{name}} on {{time}}: {{reason}}',
+      remainingAfter: 'Remaining if applied',
+      remainingBefore: 'Remaining now',
+      savingsHint: 'Borne cost per month; the in-period saving counts only months from the effective date.',
+      savingsTitle: 'Cost impact',
+      seatsActive: 'Active seats',
+      seatsPurchased: 'Seats purchased',
+      send: 'Send to Spending Approver',
+      sendHint: 'Finance only proposes; the Spending Approver decides and IT Admin reclaims seats or changes the plan.',
+      sendTitle: 'Send proposal',
+      sent: 'Sent on {{time}} — awaiting the Spending Approver’s decision.',
+      signal: {
+        INACTIVE: 'Inactive for {{days}} days',
+        LEFT_COMPANY: 'Left the company',
+        NEVER_USED: 'Never signed in'
+      },
+      status: {
+        APPROVED: 'Approved',
+        DRAFT: 'Draft',
+        REJECTED: 'Rejected',
+        SENT: 'Awaiting Spending Approver'
+      },
+      subtitle:
+        'Lower next period’s committed cost by reclaiming ghost seats, downgrading plans whose features go unused, or cancelling duplicate plans. Finance proposes — the Spending Approver decides — IT Admin executes.',
+      summaryLabel: 'Cost optimization summary',
+      timing: {
+        IMMEDIATE: 'Effective from {{month}}',
+        NEXT_RENEWAL: 'At the renewal on {{date}}'
+      },
+      timingLabel: 'Effective',
+      title: 'Forecast cost optimization {{period}}',
+      usageNote: 'Inactive days are a tool-usage signal supplied by IT Admin, not a measure of work performance.',
+      vendor: 'Vendor',
+      windowSaving: 'Saving in {{period}}'
     },
     report: {
       colNarrative: 'Narrative',
@@ -717,7 +877,7 @@ export const spendDashboard = {
       ofBudget: 'of {{budget}} budget',
       ownDepartment: 'Own department',
       publish: 'Publish period report',
-      published: 'Published at {{time}}.',
+      published: 'Published on {{time}}.',
       reviewFirst: 'Mark the draft as reviewed and edited before publishing.',
       reviewedCheck: 'I have reviewed and edited the draft',
       roles: {

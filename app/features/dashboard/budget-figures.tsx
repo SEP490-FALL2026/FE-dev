@@ -87,7 +87,7 @@ export function BudgetSnapshotPanel({
   title?: string
 }) {
   const { t } = useTranslation('dashboard')
-  const { formatDateTime } = useDashboardFormat()
+  const { formatDate } = useDashboardFormat()
   const formatPeriod = useFormatPeriod()
   const remaining = getRemaining(snapshot)
   const usedRatio =
@@ -147,7 +147,7 @@ export function BudgetSnapshotPanel({
 
       <p className='mt-3 flex items-center gap-1.5 text-[0.7rem] text-muted-foreground'>
         <Clock aria-hidden='true' className='size-3.5' />
-        {t('budget.asOf', { time: formatDateTime(snapshot.asOf) })}
+        {t('budget.asOf', { time: formatDate(snapshot.asOf) })}
       </p>
       <p className='mt-1 flex items-start gap-1.5 text-[0.7rem] text-muted-foreground'>
         <CircleAlert aria-hidden='true' className='mt-px size-3.5 shrink-0' />

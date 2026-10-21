@@ -1,5 +1,8 @@
+import { budgetPlan } from './dashboard-budget-plan'
+
 /** Finance (UF-11, UF-12, UF-19) and Spending Approver (UF-15) screens, plus shared budget wording. */
 export const spendDashboard = {
+  budgetPlan,
   ui: {
     all: 'Tất cả',
     cancel: 'Hủy',
@@ -8,7 +11,7 @@ export const spendDashboard = {
   },
   budget: {
     actual: 'Thực chi',
-    asOf: 'Số liệu tại {{time}}',
+    asOf: 'Số liệu ngày {{time}}',
     borneCost: 'Chi phí thực chịu',
     borneCostNote:
       'Mọi số tiền tính trên chi phí thực chịu; thuế GTGT được khấu trừ hiển thị ở cột riêng, không trừ vào ngân sách.',
@@ -31,6 +34,10 @@ export const spendDashboard = {
   },
   approvals: {
     nav: {
+      annualBudget: 'Duyệt ngân sách năm',
+      decisionHistory: 'Lịch sử quyết định',
+      exceptionApproval: 'Duyệt ngoại lệ & điều chỉnh',
+      optimization: 'Đề xuất tối ưu',
       overview: 'Tổng quan',
       queue: 'Hàng chờ duyệt',
       reports: 'Báo cáo'
@@ -62,20 +69,11 @@ export const spendDashboard = {
     },
     overview: {
       alertsTitle: 'Cảnh báo gửi tôi',
-      charges: 'Khoản chi và hợp thức hóa',
-      chargesHint: 'Khoản chi chưa có căn cứ và hồ sơ phát hiện phần mềm ngoài danh mục',
-      nearestDeadline: 'Gần nhất: {{name}} — hạn báo hủy {{date}}',
-      overdueHint: '{{count}} việc đã quá hạn xử lý',
-      renewals: 'Đề xuất gia hạn / giảm / hủy',
-      requests: 'Yêu cầu chờ duyệt chi',
-      spendRegion: 'Tổng chi và tiết kiệm',
-      subtitle: 'Việc đang chờ bạn quyết, tổng chi và tiết kiệm. Tài chính chỉ cung cấp ý kiến ngân sách để tham khảo.',
+      subtitle: 'Việc đang chờ bạn quyết. Tài chính chỉ cung cấp ý kiến ngân sách để tham khảo.',
       title: 'Chào {{name}}',
-      totalSpend: 'Tổng chi {{period}}',
       urgentHint:
         'Sắp xếp theo hạn xử lý — quá hạn thì hệ thống nhắc bạn và báo Quản trị hệ thống, không đổi người, không tự quyết.',
-      urgentTitle: 'Cần quyết sớm nhất',
-      workRegion: 'Việc chờ quyết'
+      urgentTitle: 'Cần quyết sớm nhất'
     },
     queue: {
       colAmount: 'Số tiền',
@@ -260,16 +258,36 @@ export const spendDashboard = {
       users: '{{count}} người đang dùng',
       vendor: 'Nhà cung cấp'
     },
+    optimization: {
+      annualPending: 'Tiết kiệm cả năm đang chờ quyết',
+      approve: 'Duyệt đề xuất',
+      approvedSaving: 'Tiết kiệm đã duyệt trong kỳ',
+      backToList: 'Quay lại danh sách đề xuất',
+      confirmReject: 'Xác nhận từ chối',
+      decisionHint:
+        'Duyệt thì Quản trị CNTT thu hồi suất hoặc đổi gói; từ chối bắt buộc có lý do và Tài chính được báo.',
+      decisionTitle: 'Quyết định của bạn',
+      filterLabel: 'Lọc đề xuất theo trạng thái',
+      noNote: 'Tài chính không để lại ghi chú.',
+      pending: 'Đề xuất chờ bạn quyết',
+      pendingHint: 'Tiết kiệm {{amount}} trong kỳ nếu duyệt hết',
+      reasonRequired: 'Bắt buộc nhập lý do.',
+      reject: 'Từ chối',
+      rejectReason: 'Lý do từ chối (bắt buộc)',
+      sentBy: 'Tài chính gửi ngày {{time}}',
+      subtitle:
+        'Tài chính đề xuất giảm chi phí dự trù kỳ tới từ ghost seat, hạ gói hoặc hủy gói trùng. Bạn duyệt hoặc từ chối; Quản trị CNTT thực hiện sau khi duyệt.',
+      summaryLabel: 'Tóm tắt đề xuất tối ưu',
+      title: 'Đề xuất tối ưu chi phí'
+    },
     reports: {
-      branchATitle: 'Suất cấp thẳng không qua duyệt chi trong kỳ — tóm tắt',
+      branchATitle: 'Suất cấp thẳng không qua duyệt chi ({{count}} ứng dụng)',
       days: '{{value}} ngày',
       financeRecording: 'Tài chính ghi nhận sau khi duyệt (đo riêng)',
       financeResponse: 'Tài chính trả lời câu hỏi (đo riêng)',
       myOverdue: 'Tỷ lệ bước của tôi quá hạn xử lý',
       processHint: 'Thời gian xử lý tách theo từng bước; thời gian của Tài chính không cộng vào thời gian chờ.',
-      processTitle: 'Hiệu suất quy trình — tóm tắt',
-      reclaimedHint: 'Chỉ là căn cứ — thu hồi không tự cộng vào tiết kiệm.',
-      reclaimedSeats: 'Suất đã thu hồi',
+      processTitle: 'Thời gian xử lý',
       savingsLabel: 'Tiết kiệm',
       seats: '{{count}} suất',
       spendChartLabel: 'Biểu đồ cột ngân sách và chi phí theo trung tâm chi phí — {{period}}',
@@ -292,24 +310,41 @@ export const spendDashboard = {
       },
       usageHint: 'Ba tỷ lệ, ba câu hỏi khác nhau — không gộp làm một.',
       usageNote: '{{purchased}} suất đã mua · {{evaluated}} suất đánh giá được · {{active}} suất có hoạt động.',
-      usageTitle: 'Hiệu suất sử dụng — tóm tắt'
+      usageTitle: 'Sử dụng license',
+      ofBudget: 'Trên ngân sách {{budget}} · đã dùng {{share}}',
+      reclaimedCount: '{{count}} suất đã thu hồi — chỉ là căn cứ, không tự cộng vào tiết kiệm',
+      totalSpend: 'Tổng chi {{period}}'
     }
   },
   finance: {
     nav: {
+      annualProposals: 'Đề xuất ngân sách năm',
+      areas: {
+        budget: 'Trung tâm chi phí & Ngân sách',
+        close: 'Đóng kỳ & Báo cáo',
+        overview: 'Tổng quan',
+        planning: 'Lập kế hoạch & Dự trù',
+        spend: 'Chi phí & Đối soát'
+      },
+      budgetAllocation: 'Phân bổ ngân sách',
+      budgetCheck: 'Kiểm tra ngân sách',
+      budgetExceptions: 'Ngoại lệ ngân sách',
+      budgetNegotiation: 'Phân tích & thương lượng',
+      budgetPeriods: 'Kỳ ngân sách',
       budgetQuestions: 'Yêu cầu ngân sách',
-      budgets: 'Cost Center & ngân sách',
-      chargeExceptions: 'Ngoại lệ khoản chi',
-      commitments: 'Cam kết chờ ghi nhận',
-      costAnalysis: 'Phân bổ và so sánh ngân sách',
+      budgets: 'Trung tâm chi phí',
+      chargeExceptions: 'Xử lý ngoại lệ khoản chi',
+      commitments: 'Cam kết chi',
+      costAnalysis: 'Phân bổ & so sánh ngân sách',
+      costForecast: 'Dự báo chi phí',
+      costOptimization: 'Tối ưu chi phí',
+      decisionHistory: 'Lịch sử quyết định',
+      departmentBudget: 'Theo phòng ban',
+      departmentSummary: 'Tổng hợp phòng ban',
       overview: 'Tổng quan',
       periodClose: 'Đóng kỳ',
       periodReport: 'Báo cáo kỳ',
-      sections: {
-        budget: 'Ngân sách',
-        periodClose: 'Đóng kỳ',
-        reconciliation: 'Đối soát khoản chi'
-      },
+      saasCost: 'Phần mềm & chi phí',
       spendImport: 'Nhập sao kê / hóa đơn'
     },
     opinion: {
@@ -338,7 +373,6 @@ export const spendDashboard = {
       openQuestions: 'Yêu cầu ngân sách đang mở',
       periodClose: 'Đóng kỳ {{period}}',
       questionsHint: 'Từ Người duyệt chi — tham khảo, không chặn',
-      shareOfTotal: 'Tỷ trọng',
       recordingHint: '{{count}} khoản đã tới hạn ghi nhận',
       subtitle: 'Việc ngân sách đang mở của {{period}}. Mỗi ô là điểm vào của một việc.',
       title: 'Bảng điều khiển Tài chính',
@@ -607,37 +641,66 @@ export const spendDashboard = {
     close: {
       addInternal: 'Ghi khoản',
       auditNote: 'Thao tác được lưu vào nhật ký.',
-      committed: 'Đã cam kết',
+      backToList: 'Quay lại danh sách trung tâm chi phí',
+      checkCarried: '{{count}} khoản còn chờ hóa đơn — phần dư tiếp tục giữ sang kỳ sau.',
+      checkReleased: 'Không còn phần dư nào cần giải phóng.',
+      checkReviewed: 'Tôi đã rà soát chi phí nội bộ và phân bổ của trung tâm chi phí này.',
+      checkToRelease: 'Còn {{count}} phần dư không còn hóa đơn — cần giải phóng.',
+      checklistHint: 'Chốt từng trung tâm chi phí khi đã xử lý phần dư và ghi đủ chi phí nội bộ.',
+      checklistTitle: 'Chốt trung tâm chi phí',
+      closeBlocked: 'Giải phóng phần dư không còn hóa đơn trước khi chốt.',
+      closeCostCenter: 'Chốt {{code}}',
+      closed:
+        'Đã chốt bởi {{name}} ngày {{time}}. Khoản đến muộn sẽ hiện ở báo cáo kỳ sau dưới nhãn điều chỉnh kỳ trước.',
+      closedCount: 'Trung tâm chi phí đã chốt',
+      closedHint: 'Mỗi trung tâm chi phí được chốt riêng',
+      colStatus: 'Trạng thái',
       confirmRelease: 'Giải phóng',
       convertedHint: 'Mỗi hóa đơn chuyển đúng số tiền của nó từ cam kết thành chi phí',
       convertedToCost: 'Đã chuyển thành chi phí',
+      detailSubtitle: '{{name}} — giải phóng phần dư cam kết, ghi chi phí nội bộ rồi chốt trung tâm chi phí.',
+      detailTitle: 'Đóng kỳ {{period}} · {{code}}',
       heldRemainder: 'Phần dư đang giữ',
       internalAmount: 'Số tiền (VND)',
       internalDescription: 'Mô tả khoản chi phí',
       internalHint:
-        'Không cần hóa đơn hay nhà cung cấp. Mỗi khoản gán đúng một trung tâm chi phí; muốn chia thì ghi nhiều khoản — không áp tỷ lệ phân bổ.',
-      internalRequired: 'Nhập mô tả, số tiền lớn hơn 0 và chọn một trung tâm chi phí.',
+        'Không cần hóa đơn hay nhà cung cấp. Khoản ghi ở đây thuộc trung tâm chi phí này; muốn chia thì ghi ở từng trung tâm chi phí — không áp tỷ lệ phân bổ.',
+      internalRequired: 'Nhập mô tả và số tiền lớn hơn 0.',
       internalTitle: 'Chi phí phần mềm nội bộ',
-      invoiceOutlook: 'Hóa đơn',
-      invoiced: 'Đã có hóa đơn',
-      matchedInvoices: 'Hóa đơn đã khớp',
+      listHint:
+        'Mở từng trung tâm chi phí để xử lý phần dư và chi phí nội bộ rồi chốt. Không khóa kỳ: khoản đến muộn hiện ở báo cáo kỳ sau.',
+      listTitle: 'Trung tâm chi phí trong kỳ',
       moreExpected: 'Còn chờ hóa đơn',
+      noInternal: 'Chưa có chi phí nội bộ trong kỳ.',
       noInvoice: 'Không còn hóa đơn',
+      noLockNote: 'Chốt không khóa kỳ; khoản đến muộn được ghi là điều chỉnh kỳ trước ở báo cáo sau.',
       noMoreInvoices: 'Hết hóa đơn — lần cuối {{date}}',
+      noRemainders: 'Trung tâm chi phí này không có khoản cam kết còn phần dư.',
+      open: 'Mở',
+      openFor: 'Đóng kỳ {{code}}',
+      periodCost: 'Chi phí kỳ (đã phân bổ)',
       pickCostCenter: 'Chọn trung tâm chi phí',
       release: 'Giải phóng phần dư',
       releaseDisabled: 'Còn chờ hóa đơn — chưa giải phóng',
       releaseReason: 'Lý do giải phóng phần dư {{code}} (bắt buộc)',
       releaseReasonRequired: 'Bắt buộc nhập lý do.',
       released: 'Đã giải phóng',
-      remainders: 'Phần dư còn giữ',
+      remainderFigures: 'Đã cam kết {{committed}} · đã có hóa đơn {{invoiced}}',
       remaindersHint: 'Chỉ giải phóng phần dư khi không còn hóa đơn nào sẽ đến.',
       remaindersTitle: 'Khoản cam kết còn phần dư',
-      subtitle:
-        'Bước 1 của đóng kỳ {{period}}: chuyển cam kết thành chi phí theo hóa đơn đã khớp và ghi chi phí nội bộ.',
+      status: {
+        BLOCKED: 'Cần giải phóng phần dư',
+        CLOSED: 'Đã chốt',
+        READY: 'Sẵn sàng chốt'
+      },
+      subtitle: 'Bước 1 của đóng kỳ {{period}}: đóng chi phí theo từng trung tâm chi phí.',
       summaryLabel: 'Tóm tắt đóng kỳ',
-      title: 'Đóng kỳ {{period}}',
-      toAllocation: 'Phân bổ chi phí'
+      title: 'Đóng kỳ {{period}} theo trung tâm chi phí',
+      toAllocation: 'Phân bổ chi phí',
+      toExceptions: 'Xem ngoại lệ',
+      toReleaseCount: 'Phần dư cần giải phóng',
+      unallocatedRow:
+        'Chưa phân bổ trung tâm chi phí: {{amount}} — không chốt ở đây, chờ Người duyệt chi quyết {{count}} ngoại lệ.'
     },
     analysis: {
       allocationHint:
@@ -671,7 +734,7 @@ export const spendDashboard = {
       },
       sharedAccounts: 'Tài khoản dùng chung',
       sharedByRatio: 'Gói dùng chung (theo tỷ lệ)',
-      subtitle: 'Bước 2 của đóng kỳ {{period}}: xem phân bổ, so ngân sách với thực chi và dự báo.',
+      subtitle: 'Bước 2 của đóng kỳ {{period}}: xem phân bổ và so ngân sách với thực chi theo trung tâm chi phí.',
       title: 'Phân bổ và so sánh ngân sách {{period}}',
       toReport: 'Lập báo cáo kỳ',
       total: 'Tổng',
@@ -684,6 +747,104 @@ export const spendDashboard = {
         newHires: 'Nhân sự mới',
         newProjects: 'Dự án mới (VND)'
       }
+    },
+    forecast: {
+      approvedLine: 'Tiết kiệm đã được duyệt',
+      baseAfterAll: 'Cơ sở nếu mọi đề xuất được duyệt',
+      baseAfterApproved: 'Cơ sở sau tiết kiệm đã duyệt',
+      optimizedHint: 'Kịch bản cơ sở trừ tiết kiệm trong kỳ của các đề xuất tối ưu chi phí.',
+      optimizedTitle: 'Kịch bản cơ sở sau tối ưu',
+      pendingLine: 'Đề xuất nháp và đang chờ duyệt',
+      subtitle: 'Chi phí đã cam kết từ hợp đồng và kịch bản theo giả định — nền để tối ưu chi phí dự trù.',
+      title: 'Dự báo chi phí {{period}}',
+      toOptimization: 'Tối ưu chi phí dự trù'
+    },
+    optimization: {
+      afterHint: 'Nếu mọi đề xuất chưa bị từ chối được duyệt',
+      afterOptimization: 'Dự trù sau tối ưu',
+      annualSaving: 'Tiết kiệm cả năm',
+      approved: '{{name}} đã duyệt ngày {{time}}. Quản trị CNTT thực hiện; khoản tiết kiệm được trừ vào dự trù.',
+      approvedHint: '{{count}} đề xuất đã duyệt',
+      approvedSaving: 'Tiết kiệm đã duyệt',
+      backToList: 'Quay lại danh sách đề xuất',
+      basis: {
+        CANCEL: '{{active}}/{{purchased}} suất còn hoạt động',
+        DOWNGRADE: '{{current}} → {{proposed}}',
+        GHOST_SEAT: '{{count}}/{{purchased}} suất không dùng'
+      },
+      budgetImpact: 'Ngân sách {{costCenter}} · {{period}}',
+      colBasis: 'Loại và căn cứ',
+      colMonthly: 'Tiết kiệm / tháng',
+      colProposal: 'Đề xuất',
+      colStatus: 'Trạng thái',
+      colWindow: 'Tiết kiệm trong kỳ',
+      colLastActivity: 'Hoạt động gần nhất',
+      colSignal: 'Tín hiệu',
+      colUser: 'Người giữ suất',
+      currentMonthly: 'Chi phí hiện tại / tháng',
+      currentPlan: 'Gói hiện tại',
+      empty: 'Không có đề xuất phù hợp bộ lọc.',
+      evidenceHint: {
+        CANCEL: 'Ít người dùng và đã có công cụ khác trong danh mục đáp ứng cùng nhu cầu.',
+        DOWNGRADE: 'Rất ít người dùng tính năng chỉ gói hiện tại mới có.',
+        GHOST_SEAT: 'Suất đã mua nhưng người giữ không dùng trên 60 ngày, đã nghỉ việc hoặc chưa từng đăng nhập.'
+      },
+      evidenceTitle: 'Căn cứ sử dụng',
+      featuresLost: 'Tính năng sẽ mất khi hạ gói',
+      financeNote: 'Ghi chú của Tài chính',
+      forecast: 'Chi phí dự trù đã cam kết',
+      forecastHint: 'Lớp 1 — {{period}}',
+      ghostTitle: 'Suất đề xuất thu hồi ({{count}})',
+      kind: {
+        CANCEL: 'Hủy gói trùng',
+        DOWNGRADE: 'Hạ gói',
+        GHOST_SEAT: 'Thu hồi ghost seat'
+      },
+      monthlySaving: 'Tiết kiệm / tháng',
+      noteLabel: 'Ghi chú cho Người duyệt chi (không bắt buộc)',
+      openDetail: 'Xem',
+      openDetailFor: 'Xem chi tiết {{code}}',
+      overlapWith: 'Trùng chức năng với',
+      potential: 'Tiết kiệm tiềm năng trong kỳ',
+      potentialHint: '{{count}} đề xuất chưa bị từ chối',
+      premiumUsage: 'Người dùng tính năng của gói hiện tại (90 ngày)',
+      proposedMonthly: 'Chi phí sau tối ưu / tháng',
+      proposedPlan: 'Gói đề xuất',
+      rejected: '{{name}} từ chối ngày {{time}}: {{reason}}',
+      remainingAfter: 'Còn lại nếu áp dụng',
+      remainingBefore: 'Còn lại hiện tại',
+      savingsHint: 'Chi phí thực chịu mỗi tháng; tiết kiệm trong kỳ chỉ tính các tháng từ khi áp dụng.',
+      savingsTitle: 'Tác động chi phí',
+      seatsActive: 'Suất đang hoạt động',
+      seatsPurchased: 'Suất đã mua',
+      send: 'Gửi Người duyệt chi',
+      sendHint: 'Tài chính chỉ đề xuất; Người duyệt chi quyết, Quản trị CNTT thu hồi suất hoặc đổi gói.',
+      sendTitle: 'Gửi đề xuất',
+      sent: 'Đã gửi ngày {{time}} — đang chờ Người duyệt chi quyết.',
+      signal: {
+        INACTIVE: 'Không hoạt động {{days}} ngày',
+        LEFT_COMPANY: 'Đã nghỉ việc',
+        NEVER_USED: 'Chưa từng đăng nhập'
+      },
+      status: {
+        APPROVED: 'Đã duyệt',
+        DRAFT: 'Nháp',
+        REJECTED: 'Bị từ chối',
+        SENT: 'Chờ Người duyệt chi'
+      },
+      subtitle:
+        'Giảm chi phí cam kết kỳ tới bằng cách thu hồi ghost seat, hạ gói ít dùng tính năng hoặc hủy gói trùng chức năng. Tài chính đề xuất — Người duyệt chi quyết — Quản trị CNTT thực hiện.',
+      summaryLabel: 'Tóm tắt tối ưu chi phí',
+      timing: {
+        IMMEDIATE: 'Áp dụng từ {{month}}',
+        NEXT_RENEWAL: 'Tại kỳ gia hạn {{date}}'
+      },
+      timingLabel: 'Thời điểm áp dụng',
+      title: 'Tối ưu chi phí dự trù {{period}}',
+      usageNote:
+        'Số ngày không hoạt động là tín hiệu sử dụng công cụ do Quản trị CNTT cung cấp, không phải đánh giá hiệu suất làm việc.',
+      vendor: 'Nhà cung cấp',
+      windowSaving: 'Tiết kiệm trong {{period}}'
     },
     report: {
       colNarrative: 'Diễn giải',
@@ -711,7 +872,7 @@ export const spendDashboard = {
       ofBudget: 'trên ngân sách {{budget}}',
       ownDepartment: 'Phòng mình',
       publish: 'Phát hành báo cáo kỳ',
-      published: 'Đã phát hành lúc {{time}}.',
+      published: 'Đã phát hành ngày {{time}}.',
       reviewFirst: 'Đánh dấu đã xem và sửa bản nháp trước khi phát hành.',
       reviewedCheck: 'Tôi đã xem và sửa bản nháp',
       roles: {

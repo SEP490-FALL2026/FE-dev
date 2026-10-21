@@ -1,78 +1,84 @@
-import { ArrowRight, Building2, CheckCircle2, FileCheck2, Plus, Unlock } from 'lucide-react'
+import { ArrowRight, Building2, CheckCircle2, ChevronRight, TriangleAlert, Unlock } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useFormatPeriod } from '../../budget-figures'
+import { PageHeader, Panel, PanelTitle, Pill, StatTile, primaryButtonClassName, type Tone } from '../../dashboard-ui'
 import {
-  PageHeader,
-  Panel,
-  PanelTitle,
-  Pill,
-  StatTile,
-  inputClassName,
-  primaryButtonClassName,
-  secondaryButtonClassName,
-  useDashboardFormat
-} from '../../dashboard-ui'
-import {
+  allocationLines,
   closingPeriod,
-  costCenters,
-  heldRemainders,
   internalCosts,
   periodCloseSummary,
+  unallocatedOpenExceptions,
   type InternalCost
 } from '../finance-data'
 import type { FinanceTabKey } from '../finance-nav'
+import {
+  allocationTotal,
+  closeableCostCenters,
+  initialClosures,
+  summarizeCostCenterClose,
+  type CloseStatus,
+  type CostCenterClosure
+} from '../period-close-data'
+import { FinancePeriodCloseDetail } from './finance-period-close-detail'
+import {
+  FinancePeriodCloseFilters,
+  defaultPeriodCloseFilters,
+  matchesPeriodCloseFilters,
+  type PeriodCloseFilters
+} from './finance-period-close-filters'
 
-interface FinancePeriodCloseViewProps {
+const statusTones: Record<CloseStatus, Tone> = { BLOCKED: 'warning', CLOSED: 'success', READY: 'info' }
+
+/**
+ * FIN-30: the period is closed one Cost Center at a time. The list opens first; choosing a Cost Center
+ * opens its close screen (`id` search param). Releases, internal costs and closures live here so they
+ * survive the round trip between the two screens.
+ */
+export function FinancePeriodCloseView({
+  costCenterId,
+  formatCurrency,
+  onSelectTab
+}: {
+  costCenterId?: string
   formatCurrency: (value: number) => string
-  onSelectTab: (tab: FinanceTabKey) => void
-}
-
-export function FinancePeriodCloseView({ formatCurrency, onSelectTab }: FinancePeriodCloseViewProps) {
+  onSelectTab: (tab: FinanceTabKey, extraParams?: Record<string, string>) => void
+}) {
   const { t } = useTranslation('dashboard')
   const formatPeriod = useFormatPeriod()
-  const { formatDate, formatNumber } = useDashboardFormat()
   const [released, setReleased] = useState<Record<string, string>>({})
-  const [releasingId, setReleasingId] = useState<string | null>(null)
-  const [releaseReason, setReleaseReason] = useState('')
-  const [showReasonError, setShowReasonError] = useState(false)
   const [costs, setCosts] = useState<InternalCost[]>(internalCosts)
-  const [draft, setDraft] = useState({ amount: '', costCenter: '', description: '' })
-  const [showCostErrors, setShowCostErrors] = useState(false)
+  const [closures, setClosures] = useState<Record<string, CostCenterClosure>>(initialClosures)
+  const [filters, setFilters] = useState<PeriodCloseFilters>(defaultPeriodCloseFilters)
+  const selected = closeableCostCenters.find((cc) => cc.code === costCenterId)
 
-  const activeCenters = costCenters.filter((cc) => cc.status === 'ACTIVE')
-  const draftAmount = Number(draft.amount.replace(/\D/g, ''))
-
-  const confirmRelease = () => {
-    if (!releasingId) return
-    if (releaseReason.trim().length === 0) {
-      setShowReasonError(true)
-      return
-    }
-    setReleased((current) => ({ ...current, [releasingId]: releaseReason.trim() }))
-    setReleasingId(null)
-    setReleaseReason('')
-    setShowReasonError(false)
+  if (selected) {
+    return (
+      <FinancePeriodCloseDetail
+        closures={closures}
+        costCenter={selected}
+        costs={costs}
+        formatCurrency={formatCurrency}
+        key={selected.code}
+        onAddCost={(cost) => setCosts((current) => [...current, { ...cost, id: `int-${current.length + 1}` }])}
+        onBack={() => onSelectTab('period-close')}
+        onClose={(closure) => setClosures((current) => ({ ...current, [selected.code]: closure }))}
+        onRelease={(id, reason) => setReleased((current) => ({ ...current, [id]: reason }))}
+        released={released}
+      />
+    )
   }
 
-  const addCost = () => {
-    if (!draft.description.trim() || draftAmount <= 0 || !draft.costCenter) {
-      setShowCostErrors(true)
-      return
-    }
-    setCosts((current) => [
-      ...current,
-      {
-        amount: draftAmount,
-        costCenter: draft.costCenter,
-        description: draft.description.trim(),
-        id: `int-${current.length + 1}`
-      }
-    ])
-    setDraft({ amount: '', costCenter: '', description: '' })
-    setShowCostErrors(false)
-  }
+  const rows = closeableCostCenters.map((cc) => ({
+    cc,
+    summary: summarizeCostCenterClose(cc.code, released, costs, closures)
+  }))
+  const visible = rows.filter((row) => matchesPeriodCloseFilters(row, filters))
+  const closedCount = rows.filter((row) => row.summary.status === 'CLOSED').length
+  const toRelease = rows.reduce((sum, row) => sum + row.summary.toRelease.length, 0)
+  const unallocated = allocationLines.find((line) => line.costCenter === null)
+  const period = formatPeriod(closingPeriod)
 
   return (
     <div className='space-y-6'>
@@ -83,201 +89,115 @@ export function FinancePeriodCloseView({ formatCurrency, onSelectTab }: FinanceP
             <ArrowRight aria-hidden='true' className='size-3.5' />
           </button>
         }
-        subtitle={t('finance.close.subtitle', { period: formatPeriod(closingPeriod) })}
-        title={t('finance.close.title', { period: formatPeriod(closingPeriod) })}
+        subtitle={t('finance.close.subtitle', { period })}
+        title={t('finance.close.title', { period })}
       />
 
       <section aria-label={t('finance.close.summaryLabel')} className='grid gap-4 sm:grid-cols-3'>
         <StatTile
-          hint={t('finance.close.convertedHint')}
-          icon={FileCheck2}
-          label={t('finance.close.matchedInvoices')}
+          hint={t('finance.close.closedHint')}
+          icon={CheckCircle2}
+          label={t('finance.close.closedCount')}
           tone='success'
-          value={formatNumber(periodCloseSummary.matchedInvoices)}
+          value={`${closedCount}/${rows.length}`}
         />
         <StatTile
-          icon={CheckCircle2}
+          hint={t('finance.close.convertedHint')}
+          icon={Building2}
           label={t('finance.close.convertedToCost')}
           tone='primary'
           value={formatCurrency(periodCloseSummary.convertedToCost)}
         />
-        <StatTile
-          icon={Unlock}
-          label={t('finance.close.remainders')}
-          tone='warning'
-          value={String(heldRemainders.length - Object.keys(released).length)}
-        />
+        <StatTile icon={Unlock} label={t('finance.close.toReleaseCount')} tone='warning' value={String(toRelease)} />
       </section>
 
+      <FinancePeriodCloseFilters applied={filters} onApply={setFilters} />
+
       <Panel>
-        <PanelTitle hint={t('finance.close.remaindersHint')} title={t('finance.close.remaindersTitle')} />
+        <PanelTitle hint={t('finance.close.listHint')} title={t('finance.close.listTitle')} />
         <div className='mt-4 overflow-x-auto'>
           <table className='w-full min-w-184 text-left text-xs'>
             <thead>
               <tr className='border-b border-border text-muted-foreground'>
-                <th className='py-2.5 font-semibold'>{t('finance.commitments.colCommitment')}</th>
                 <th className='py-2.5 font-semibold'>{t('budget.costCenter')}</th>
-                <th className='py-2.5 text-right font-semibold'>{t('finance.close.committed')}</th>
-                <th className='py-2.5 text-right font-semibold'>{t('finance.close.invoiced')}</th>
+                <th className='py-2.5 text-right font-semibold'>{t('finance.close.periodCost')}</th>
                 <th className='py-2.5 text-right font-semibold'>{t('finance.close.heldRemainder')}</th>
-                <th className='py-2.5 font-semibold'>{t('finance.close.invoiceOutlook')}</th>
-                <th className='py-2.5 text-right font-semibold'>{t('finance.budgets.colAction')}</th>
+                <th className='py-2.5 text-right font-semibold'>{t('finance.close.internalTitle')}</th>
+                <th className='py-2.5 pl-6 font-semibold'>{t('finance.close.colStatus')}</th>
+                <th className='py-2.5'>
+                  <span className='sr-only'>{t('finance.close.open')}</span>
+                </th>
               </tr>
             </thead>
             <tbody className='divide-y divide-border'>
-              {heldRemainders.map((item) => {
-                const releaseReasonText = released[item.id]
-
-                return (
-                  <tr key={item.id}>
-                    <td className='py-3'>
-                      <p className='font-mono font-bold text-primary'>{item.code}</p>
-                      <p className='text-[0.7rem] text-muted-foreground'>
-                        {item.requestCode} · {item.software}
-                      </p>
-                    </td>
-                    <td className='py-3 font-mono'>{item.costCenter}</td>
-                    <td className='py-3 text-right'>{formatCurrency(item.committed)}</td>
-                    <td className='py-3 text-right'>{formatCurrency(item.invoiced)}</td>
-                    <td className='py-3 text-right font-bold text-warning'>
-                      {releaseReasonText ? '—' : formatCurrency(item.committed - item.invoiced)}
-                    </td>
-                    <td className='py-3'>
-                      {item.moreInvoicesExpected ? (
-                        <Pill tone='info'>{t('finance.close.moreExpected')}</Pill>
-                      ) : (
-                        <Pill tone='neutral'>
-                          {item.lastInvoiceAt
-                            ? t('finance.close.noMoreInvoices', { date: formatDate(item.lastInvoiceAt) })
-                            : t('finance.close.noInvoice')}
-                        </Pill>
-                      )}
-                    </td>
-                    <td className='py-3 text-right'>
-                      {releaseReasonText ? (
-                        <Pill tone='success'>{t('finance.close.released')}</Pill>
-                      ) : (
-                        <button
-                          className='inline-flex items-center gap-1 font-bold text-primary hover:underline disabled:text-muted-foreground disabled:no-underline'
-                          disabled={item.moreInvoicesExpected}
-                          onClick={() => {
-                            setReleasingId(item.id)
-                            setReleaseReason('')
-                            setShowReasonError(false)
-                          }}
-                          title={item.moreInvoicesExpected ? t('finance.close.releaseDisabled') : undefined}
-                          type='button'
-                        >
-                          <Unlock aria-hidden='true' className='size-3.5' />
-                          {t('finance.close.release')}
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                )
-              })}
+              {visible.map(({ cc, summary }) => (
+                <tr
+                  className='cursor-pointer transition hover:bg-surface-subtle/60'
+                  key={cc.code}
+                  onClick={() => onSelectTab('period-close', { id: cc.code })}
+                >
+                  <td className='py-3'>
+                    <p className='font-mono font-bold text-primary'>{cc.code}</p>
+                    <p className='mt-0.5 font-semibold text-foreground'>{cc.name}</p>
+                  </td>
+                  <td className='py-3 text-right font-semibold'>{formatCurrency(summary.periodCost)}</td>
+                  <td className='py-3 text-right'>
+                    {summary.heldAmount > 0 ? (
+                      <span className='font-bold text-warning'>{formatCurrency(summary.heldAmount)}</span>
+                    ) : (
+                      '—'
+                    )}
+                  </td>
+                  <td className='py-3 text-right'>
+                    {summary.internalTotal > 0 ? formatCurrency(summary.internalTotal) : '—'}
+                  </td>
+                  <td className='py-3 pl-6'>
+                    <Pill tone={statusTones[summary.status]}>{t(`finance.close.status.${summary.status}`)}</Pill>
+                  </td>
+                  <td className='py-3 text-right'>
+                    <button
+                      aria-label={t('finance.close.openFor', { code: cc.code })}
+                      className='inline-flex items-center gap-1 font-bold text-primary hover:underline'
+                      onClick={(event) => {
+                        event.stopPropagation()
+                        onSelectTab('period-close', { id: cc.code })
+                      }}
+                      type='button'
+                    >
+                      {t('finance.close.open')}
+                      <ChevronRight aria-hidden='true' className='size-3.5' />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {visible.length === 0 && (
+                <tr>
+                  <td className='py-8 text-center text-muted-foreground' colSpan={6}>
+                    {t('budgetPlan.filtersPlanning.periodClose.empty')}
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
 
-        {releasingId && (
-          <form
-            className='mt-4 space-y-2 rounded-xl border border-primary/40 bg-background p-4'
-            onSubmit={(event) => {
-              event.preventDefault()
-              confirmRelease()
-            }}
-          >
-            <label className='text-xs font-bold' htmlFor='release-reason'>
-              {t('finance.close.releaseReason', {
-                code: heldRemainders.find((item) => item.id === releasingId)?.code ?? ''
+        {unallocated && (
+          <div className='mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-dashed border-warning/50 bg-warning/5 p-3 text-xs'>
+            <span className='flex items-center gap-2 font-bold text-warning'>
+              <TriangleAlert aria-hidden='true' className='size-4' />
+              {t('finance.close.unallocatedRow', {
+                amount: formatCurrency(allocationTotal(unallocated)),
+                count: unallocatedOpenExceptions
               })}
-            </label>
-            <textarea
-              className={`${inputClassName} min-h-20`}
-              id='release-reason'
-              onChange={(event) => setReleaseReason(event.target.value)}
-              value={releaseReason}
-            />
-            {showReasonError && (
-              <p className='text-[0.7rem] font-semibold text-danger' role='alert'>
-                {t('finance.close.releaseReasonRequired')}
-              </p>
-            )}
-            <div className='flex gap-2'>
-              <button className={primaryButtonClassName} type='submit'>
-                {t('finance.close.confirmRelease')}
-              </button>
-              <button className={secondaryButtonClassName} onClick={() => setReleasingId(null)} type='button'>
-                {t('ui.cancel')}
-              </button>
-            </div>
-            <p className='text-[0.7rem] text-muted-foreground'>{t('finance.close.auditNote')}</p>
-          </form>
-        )}
-      </Panel>
-
-      <Panel>
-        <PanelTitle hint={t('finance.close.internalHint')} title={t('finance.close.internalTitle')} />
-        <ul className='mt-4 divide-y divide-border text-xs'>
-          {costs.map((cost) => (
-            <li className='flex flex-wrap items-center justify-between gap-2 py-2.5' key={cost.id}>
-              <span className='flex items-center gap-2'>
-                <Building2 aria-hidden='true' className='size-3.5 text-muted-foreground' />
-                <span className='font-semibold text-foreground'>{cost.description}</span>
-              </span>
-              <span className='flex items-center gap-3'>
-                <span className='font-mono text-muted-foreground'>{cost.costCenter}</span>
-                <span className='font-bold'>{formatCurrency(cost.amount)}</span>
-              </span>
-            </li>
-          ))}
-        </ul>
-
-        <form
-          className='mt-4 grid gap-3 rounded-xl border border-border bg-background p-4 md:grid-cols-[2fr_1fr_1fr_auto]'
-          onSubmit={(event) => {
-            event.preventDefault()
-            addCost()
-          }}
-        >
-          <input
-            aria-label={t('finance.close.internalDescription')}
-            className={inputClassName}
-            onChange={(event) => setDraft((current) => ({ ...current, description: event.target.value }))}
-            placeholder={t('finance.close.internalDescription')}
-            value={draft.description}
-          />
-          <input
-            aria-label={t('finance.close.internalAmount')}
-            className={inputClassName}
-            inputMode='numeric'
-            onChange={(event) => setDraft((current) => ({ ...current, amount: event.target.value }))}
-            placeholder={t('finance.close.internalAmount')}
-            value={draft.amount}
-          />
-          <select
-            aria-label={t('budget.costCenter')}
-            className={inputClassName}
-            onChange={(event) => setDraft((current) => ({ ...current, costCenter: event.target.value }))}
-            value={draft.costCenter}
-          >
-            <option value=''>{t('finance.close.pickCostCenter')}</option>
-            {activeCenters.map((cc) => (
-              <option key={cc.code} value={cc.code}>
-                {cc.code} · {cc.name}
-              </option>
-            ))}
-          </select>
-          <button className={primaryButtonClassName} type='submit'>
-            <Plus aria-hidden='true' className='size-3.5' />
-            {t('finance.close.addInternal')}
-          </button>
-        </form>
-        {showCostErrors && (
-          <p className='mt-2 text-[0.7rem] font-semibold text-danger' role='alert'>
-            {t('finance.close.internalRequired')}
-          </p>
+            </span>
+            <button
+              className='font-bold text-primary hover:underline'
+              onClick={() => onSelectTab('charge-exceptions')}
+              type='button'
+            >
+              {t('finance.close.toExceptions')}
+            </button>
+          </div>
         )}
       </Panel>
     </div>

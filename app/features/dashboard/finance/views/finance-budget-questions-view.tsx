@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 
 import { BudgetSnapshotPanel, CostEstimatePanel, getBorneCost, getRemaining } from '../../budget-figures'
 import {
-  FilterChips,
   Notice,
   PageHeader,
   Panel,
@@ -17,8 +16,13 @@ import {
 } from '../../dashboard-ui'
 import { budgetQuestions, findBudgetLine, type BudgetOpinion, type BudgetQuestion } from '../finance-data'
 import type { FinanceTabKey } from '../finance-nav'
+import {
+  FinanceBudgetQuestionFilters,
+  defaultBudgetQuestionFilters,
+  matchesBudgetQuestionFilters,
+  type BudgetQuestionFilters
+} from './finance-budget-questions-filters'
 
-type QuestionFilter = 'all' | BudgetQuestion['status']
 type QuestionAnswer = NonNullable<BudgetQuestion['answer']>
 
 const opinionTones: Record<BudgetOpinion, Tone> = { NO_BUDGET: 'warning', OVER: 'danger', WITHIN: 'success' }
@@ -43,7 +47,7 @@ export function FinanceBudgetQuestionsView({
   questionId?: string
 }) {
   const [questions, setQuestions] = useState(budgetQuestions)
-  const [filter, setFilter] = useState<QuestionFilter>('all')
+  const [filters, setFilters] = useState<BudgetQuestionFilters>(defaultBudgetQuestionFilters)
   const selected = questions.find((question) => question.id === questionId)
 
   const answerQuestion = (id: string, answer: QuestionAnswer) => {
@@ -66,9 +70,9 @@ export function FinanceBudgetQuestionsView({
 
   return (
     <BudgetQuestionList
-      filter={filter}
+      filters={filters}
       formatCurrency={formatCurrency}
-      onFilterChange={setFilter}
+      onFiltersChange={setFilters}
       onOpen={(id) => onSelectTab('budget-questions', { id })}
       questions={questions}
     />
@@ -76,23 +80,22 @@ export function FinanceBudgetQuestionsView({
 }
 
 function BudgetQuestionList({
-  filter,
+  filters,
   formatCurrency,
-  onFilterChange,
+  onFiltersChange,
   onOpen,
   questions
 }: {
-  filter: QuestionFilter
+  filters: BudgetQuestionFilters
   formatCurrency: (value: number) => string
-  onFilterChange: (filter: QuestionFilter) => void
+  onFiltersChange: (filters: BudgetQuestionFilters) => void
   onOpen: (id: string) => void
   questions: BudgetQuestion[]
 }) {
   const { t } = useTranslation('dashboard')
-  const { formatDateTime } = useDashboardFormat()
+  const { formatDate } = useDashboardFormat()
 
-  const visible = questions.filter((question) => filter === 'all' || question.status === filter)
-  const count = (status: BudgetQuestion['status']) => questions.filter((question) => question.status === status).length
+  const visible = questions.filter((question) => matchesBudgetQuestionFilters(question, filters))
   const statusLabel = (status: BudgetQuestion['status']) => t(`finance.questions.status.${status}`)
 
   return (
@@ -103,20 +106,10 @@ function BudgetQuestionList({
         {t('finance.questions.ruleNotice')}
       </Notice>
 
-      <Panel>
-        <FilterChips<QuestionFilter>
-          label={t('finance.questions.filterLabel')}
-          onChange={onFilterChange}
-          options={[
-            { count: questions.length, label: t('ui.all'), value: 'all' },
-            { count: count('OPEN'), label: statusLabel('OPEN'), value: 'OPEN' },
-            { count: count('ANSWERED'), label: statusLabel('ANSWERED'), value: 'ANSWERED' },
-            { count: count('CLOSED_CANCELLED'), label: statusLabel('CLOSED_CANCELLED'), value: 'CLOSED_CANCELLED' }
-          ]}
-          value={filter}
-        />
+      <FinanceBudgetQuestionFilters applied={filters} onApply={onFiltersChange} questions={questions} />
 
-        <div className='mt-4 overflow-x-auto'>
+      <Panel>
+        <div className='overflow-x-auto'>
           <table className='w-full min-w-184 text-left text-xs'>
             <thead>
               <tr className='border-b border-border text-muted-foreground'>
@@ -145,7 +138,7 @@ function BudgetQuestionList({
                   <td className='py-3 text-right font-bold'>{formatCurrency(getBorneCost(question.estimate))}</td>
                   <td className='py-3 pl-6'>
                     <p className='font-semibold text-foreground'>{question.askedBy}</p>
-                    <p className='text-[0.7rem] text-muted-foreground'>{formatDateTime(question.askedAt)}</p>
+                    <p className='text-[0.7rem] text-muted-foreground'>{formatDate(question.askedAt)}</p>
                   </td>
                   <td className='py-3'>
                     <Pill tone={statusTones[question.status]}>{statusLabel(question.status)}</Pill>
@@ -193,7 +186,7 @@ function BudgetQuestionDetail({
   question: BudgetQuestion
 }) {
   const { t } = useTranslation('dashboard')
-  const { formatDateTime } = useDashboardFormat()
+  const { formatDate } = useDashboardFormat()
   const [opinion, setOpinion] = useState<BudgetOpinion | null>(null)
   const [note, setNote] = useState('')
   const [showErrors, setShowErrors] = useState(false)
@@ -240,7 +233,7 @@ function BudgetQuestionDetail({
               <p className='text-xs font-semibold text-foreground'>
                 {t('finance.questions.from', { name: question.askedBy })}
               </p>
-              <span className='text-[0.7rem] text-muted-foreground'>{formatDateTime(question.askedAt)}</span>
+              <span className='text-[0.7rem] text-muted-foreground'>{formatDate(question.askedAt)}</span>
             </div>
             <p className='mt-3 rounded-lg border-l-4 border-info bg-info/5 p-3 text-sm text-foreground'>
               {question.question}
@@ -291,7 +284,7 @@ function BudgetQuestionDetail({
                     <Pill tone={opinionTones[question.answer.opinion]}>
                       {t(`finance.opinion.${question.answer.opinion}`)}
                     </Pill>
-                    <span className='text-muted-foreground'>{formatDateTime(question.answer.answeredAt)}</span>
+                    <span className='text-muted-foreground'>{formatDate(question.answer.answeredAt)}</span>
                   </div>
                   <p className='mt-2 text-foreground'>{question.answer.note}</p>
                 </div>
