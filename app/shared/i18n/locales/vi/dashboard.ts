@@ -732,6 +732,7 @@ export const dashboard = {
       accessReview: 'Đợt tái chứng nhận quyền',
       createEmployeeRequest: 'Tạo yêu cầu cấp quyền',
       weeklyBatch: 'Đơn đã đánh dấu',
+      annualBudget: 'Đề xuất ngân sách năm',
       requestForTeam: 'Yêu cầu cho team',
       requestForIndividual: 'Yêu cầu cho cá nhân'
     },
@@ -1011,6 +1012,41 @@ export const dashboard = {
       sentPreviewNotice:
         'Đã ghi nhận gửi {{count}} đơn trong bản minh họa. Chưa có dữ liệu nào được chuyển tới CEO vì chưa có API tiếp nhận.',
       sendAction: 'Gửi toàn bộ cho CEO'
+    },
+    annualBudget: {
+      eyebrow: 'Kế hoạch ngân sách phòng ban',
+      title: 'Đề xuất ngân sách năm tới',
+      subtitle: 'Tập hợp tài liệu của phòng ban để kế toán định giá trước khi trình duyệt chi.',
+      previewBadge: 'Bản nháp minh họa',
+      workflowLabel: 'Luồng phê duyệt ngân sách năm',
+      stepManager: 'Manager đề xuất',
+      stepManagerDetail: 'Chọn kỳ ngân sách và đính kèm tài liệu nhân viên.',
+      stepFinance: 'Kế toán định giá',
+      stepFinanceDetail: 'Tính chi phí dự kiến và khoản dự phòng.',
+      stepApprover: 'Duyệt chi',
+      stepApproverDetail: 'Xem xét đề xuất của kế toán.',
+      stepBudget: 'Ngân sách phòng ban',
+      stepBudgetDetail: 'Số tiền được duyệt thành ngân sách năm tới để đối chiếu các yêu cầu phần mềm mới.',
+      contextTitle: 'Phòng ban và kỳ ngân sách',
+      contextDescription: 'Đề xuất này được chuẩn bị cho phòng ban của bạn.',
+      department: 'Phòng ban',
+      budgetDate: 'Ngày bắt đầu kỳ ngân sách',
+      budgetDateHint: 'Chọn đầy đủ ngày, tháng, năm.',
+      dateNotSelected: 'Chưa chọn ngày',
+      documentsTitle: 'Tài liệu từ nhân viên',
+      documentsDescription:
+        'Chọn tài liệu đã nhận để kế toán xem xét. Tệp chỉ nằm trong bản xem trước trên trình duyệt.',
+      attachFiles: 'Chọn tệp đính kèm',
+      noDocuments: 'Chưa chọn tệp tài liệu nào.',
+      documentCountValue: '{{count}} tệp',
+      removeFile: 'Bỏ tệp {{name}}',
+      summaryTitle: 'Tóm tắt đề xuất',
+      documentCount: 'Tài liệu',
+      financeOwnsCost: 'Kế toán sẽ tính chi phí dự kiến và khoản dự phòng. Ở bước này chưa xác lập số tiền ngân sách.',
+      submit: 'Gửi đề xuất cho kế toán',
+      submitHint: 'Chọn ngày bắt đầu kỳ ngân sách và ít nhất một tệp tài liệu.',
+      submittedPreview:
+        'Đã ghi nhận thao tác gửi cho kế toán trong bản minh họa. Chưa có đề xuất hay tệp nào được tải lên hoặc gửi đi vì chưa kết nối luồng backend.'
     },
     myRequests: {
       title: 'Yêu cầu của tôi',

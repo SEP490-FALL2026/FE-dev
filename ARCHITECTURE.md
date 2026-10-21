@@ -100,6 +100,20 @@ persistence require an authoritative API contract. Session state is lost on relo
 
 ### Manager request creation preview
 
+The dashboard Manager shell exposes one annual budget proposal tab for the
+department. The Manager selects an exact budget period start date,
+then selects supporting staff documents received outside the system. The document
+section and proposal summary replace the former per-software needs form; the
+summary shows the date and document count. The Manager does
+not calculate or enter a budget:
+Finance would price the proposal and add a contingency buffer, then a spending
+approver would authorize the resulting department budget. The step display is
+explanatory only. Submitting currently records a session-only preview state;
+attachments are not uploaded and no proposal reaches Finance. Backend contracts
+must own file storage, pricing, approvals, future request budget checks, and
+authorization before this becomes an operational workflow. No other role UI is
+changed by this tab.
+
 In the dashboard Manager shell, the create-request sidebar item expands to team
 and individual choices. Both open the existing `create-employee-request` preview
 tab with `scope=team|individual` in the URL. Individual mode keeps the single

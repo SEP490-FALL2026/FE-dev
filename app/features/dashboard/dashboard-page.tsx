@@ -94,6 +94,7 @@ import { FinanceSpendImportView } from './finance/views/finance-spend-import-vie
 import { managerNavItems, getParentManagerMenuKey, isValidManagerTab, type ManagerTabKey } from './manager/manager-nav'
 import { MOCK_TEAM_REQUESTS } from './manager/manager-data'
 import { ManagerAccessReviewView } from './manager/views/manager-access-review-view'
+import { ManagerAnnualBudgetView } from './manager/views/manager-annual-budget-view'
 import { ManagerCreateEmployeeRequestView } from './manager/views/manager-create-employee-request-view'
 import { ManagerEmployeeDetailView } from './manager/views/manager-employee-detail-view'
 import { ManagerGhostSeatDetailView } from './manager/views/manager-ghost-seat-detail-view'
@@ -935,6 +936,8 @@ export function DashboardPage({ role }: { role: UserRole }) {
                 )}
                 sentCount={managerSentRequestIds.length}
               />
+            ) : activeManagerTab === 'annual-budget' ? (
+              <ManagerAnnualBudgetView />
             ) : activeManagerTab === 'ghost-seat-review' ? (
               <ManagerGhostSeatReviewView formatCurrency={formatCurrency} onSelectTab={handleSelectManagerTab} />
             ) : activeManagerTab === 'ghost-seat-detail' ? (
