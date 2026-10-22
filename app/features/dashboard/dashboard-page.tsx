@@ -107,6 +107,17 @@ import { ManagerTeamSoftwareView } from './manager/views/manager-team-software-v
 import { ManagerWeeklyBatchView } from './manager/views/manager-weekly-batch-view'
 import type { ManagerPreviewRequest, ManagerPreviewRequestInput } from './manager/manager-preview-request'
 import './manager/manager-workspace.css'
+import {
+  superAdminNavItems,
+  isValidSuperAdminTab,
+  type SuperAdminTabKey
+} from './super-admin/super-admin-nav'
+import { SuperAdminOverviewView } from './super-admin/views/super-admin-overview-view'
+import { SuperAdminAccountsView } from './super-admin/views/super-admin-accounts-view'
+import { SuperAdminSettingsView } from './super-admin/views/super-admin-settings-view'
+import { SuperAdminTransferView } from './super-admin/views/super-admin-transfer-view'
+import { SuperAdminAuditView } from './super-admin/views/super-admin-audit-view'
+
 
 const navigationItems = [
   { icon: Grid2X2, key: 'overview' },
@@ -153,6 +164,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
   const isFinance = role === 'finance'
   const isManager = role === 'manager'
   const isApprover = role === 'spending-approver'
+  const isSuperAdmin = role === 'super-admin'
   useEffect(() => {
     return () => {
       if (employeeAvatarUrl) URL.revokeObjectURL(employeeAvatarUrl)
@@ -184,6 +196,9 @@ export function DashboardPage({ role }: { role: UserRole }) {
   const activeApprovalParent = isApprover ? getParentApprovalMenuKey(activeApprovalTab) : 'overview'
 
   const activeFinanceTab: FinanceTabKey = isFinance && isValidFinanceTab(tabParam) ? tabParam : 'overview'
+
+  const activeSuperAdminTab: SuperAdminTabKey =
+    isSuperAdmin && isValidSuperAdminTab(tabParam) ? tabParam : 'overview'
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     licenses: true,
@@ -264,6 +279,18 @@ export function DashboardPage({ role }: { role: UserRole }) {
   }
 
   const handleSelectFinanceTab = (tab: FinanceTabKey, extraParams?: Record<string, string>) => {
+    const nextParams = new URLSearchParams()
+    if (tab !== 'overview') {
+      nextParams.set('tab', tab)
+    }
+    if (extraParams) {
+      Object.entries(extraParams).forEach(([k, v]) => nextParams.set(k, v))
+    }
+    setSearchParams(nextParams)
+    setMobileNavigationOpen(false)
+  }
+
+  const handleSelectSuperAdminTab = (tab: SuperAdminTabKey, extraParams?: Record<string, string>) => {
     const nextParams = new URLSearchParams()
     if (tab !== 'overview') {
       nextParams.set('tab', tab)
@@ -661,6 +688,45 @@ export function DashboardPage({ role }: { role: UserRole }) {
                 </div>
               ))}
             </div>
+          ) : isSuperAdmin ? (
+            <ul className='space-y-1.5'>
+              {superAdminNavItems.map((item) => {
+                const isCurrent = activeSuperAdminTab === item.key
+                const Icon = item.icon
+
+                return (
+                  <li key={item.key}>
+                    <button
+                      aria-current={isCurrent ? 'page' : undefined}
+                      className={`flex w-full items-center justify-between gap-2 rounded-xl px-3.5 py-2.5 text-left text-sm font-semibold transition ${
+                        isCurrent
+                          ? 'bg-primary text-primary-foreground shadow-[0_10px_25px_var(--theme-primary-soft)]'
+                          : 'text-muted-foreground hover:bg-surface hover:text-foreground'
+                      }`}
+                      onClick={() => handleSelectSuperAdminTab(item.key)}
+                      type='button'
+                    >
+                      <span className='flex min-w-0 items-center gap-3'>
+                        <Icon aria-hidden='true' className='size-[1.125rem] shrink-0' />
+                        <span className='truncate'>{item.title}</span>
+                      </span>
+                      <div className='flex items-center gap-1.5'>
+                        <span className='font-mono text-[0.65rem] opacity-75'>{item.screenCode}</span>
+                        {item.badge !== undefined && (
+                          <span
+                            className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[0.65rem] font-bold ${
+                              isCurrent ? 'bg-white/20 text-white' : 'bg-surface-subtle text-muted-foreground'
+                            }`}
+                          >
+                            {item.badge}
+                          </span>
+                        )}
+                      </div>
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
           ) : (
             <ul className='space-y-1.5'>
               {navigationItems.map(({ icon: Icon, key }) => {
@@ -1007,6 +1073,18 @@ export function DashboardPage({ role }: { role: UserRole }) {
               <FinanceCostAnalysisView formatCurrency={formatCurrency} onSelectTab={handleSelectFinanceTab} />
             ) : (
               <FinancePeriodReportView formatCurrency={formatCurrency} />
+            )
+          ) : isSuperAdmin ? (
+            activeSuperAdminTab === 'overview' ? (
+              <SuperAdminOverviewView onSelectTab={handleSelectSuperAdminTab} />
+            ) : activeSuperAdminTab === 'accounts' ? (
+              <SuperAdminAccountsView />
+            ) : activeSuperAdminTab === 'settings' ? (
+              <SuperAdminSettingsView />
+            ) : activeSuperAdminTab === 'transfer' ? (
+              <SuperAdminTransferView />
+            ) : (
+              <SuperAdminAuditView />
             )
           ) : (
             <>
