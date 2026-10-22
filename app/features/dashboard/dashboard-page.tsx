@@ -96,6 +96,17 @@ import { ManagerTeamSoftwareView } from './manager/views/manager-team-software-v
 import { ManagerWeeklyBatchView } from './manager/views/manager-weekly-batch-view'
 import type { ManagerPreviewRequest, ManagerPreviewRequestInput } from './manager/manager-preview-request'
 import './manager/manager-workspace.css'
+import {
+  superAdminNavItems,
+  isValidSuperAdminTab,
+  type SuperAdminTabKey
+} from './super-admin/super-admin-nav'
+import { SuperAdminOverviewView } from './super-admin/views/super-admin-overview-view'
+import { SuperAdminAccountsView } from './super-admin/views/super-admin-accounts-view'
+import { SuperAdminSettingsView } from './super-admin/views/super-admin-settings-view'
+import { SuperAdminTransferView } from './super-admin/views/super-admin-transfer-view'
+import { SuperAdminAuditView } from './super-admin/views/super-admin-audit-view'
+
 
 const navigationItems = [
   { icon: Grid2X2, key: 'overview' },
@@ -142,6 +153,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
   const isFinance = role === 'finance'
   const isManager = role === 'manager'
   const isApprover = role === 'spending-approver'
+  const isSuperAdmin = role === 'super-admin'
   useEffect(() => {
     return () => {
       if (employeeAvatarUrl) URL.revokeObjectURL(employeeAvatarUrl)
@@ -173,6 +185,9 @@ export function DashboardPage({ role }: { role: UserRole }) {
   const activeApprovalParent = isApprover ? getParentApprovalMenuKey(activeApprovalTab) : 'overview'
 
   const activeFinanceTab: FinanceTabKey = isFinance && isValidFinanceTab(tabParam) ? tabParam : 'overview'
+
+  const activeSuperAdminTab: SuperAdminTabKey =
+    isSuperAdmin && isValidSuperAdminTab(tabParam) ? tabParam : 'overview'
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     licenses: true,
@@ -253,6 +268,18 @@ export function DashboardPage({ role }: { role: UserRole }) {
   }
 
   const handleSelectFinanceTab = (tab: FinanceTabKey, extraParams?: Record<string, string>) => {
+    const nextParams = new URLSearchParams()
+    if (tab !== 'overview') {
+      nextParams.set('tab', tab)
+    }
+    if (extraParams) {
+      Object.entries(extraParams).forEach(([k, v]) => nextParams.set(k, v))
+    }
+    setSearchParams(nextParams)
+    setMobileNavigationOpen(false)
+  }
+
+  const handleSelectSuperAdminTab = (tab: SuperAdminTabKey, extraParams?: Record<string, string>) => {
     const nextParams = new URLSearchParams()
     if (tab !== 'overview') {
       nextParams.set('tab', tab)

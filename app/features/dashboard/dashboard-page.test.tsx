@@ -34,15 +34,17 @@ describe('DashboardPage', () => {
     await setAppLanguage('vi', false)
   })
 
-  it('renders the shared dashboard shell for super-admin', () => {
+  it('renders the super-admin dashboard and navigates the UF-13 screens', () => {
     const view = renderDashboard('super-admin')
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Tổng quan' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Tổng quan Quản trị Hệ thống' })).toBeInTheDocument()
     expect(screen.getByRole('navigation', { name: 'Điều hướng dashboard' })).toBeInTheDocument()
-    expect(screen.getByRole('region', { name: 'Chỉ số tổng quan' })).toBeInTheDocument()
-    expect(screen.getByRole('region', { name: 'Chi phí phần mềm theo tháng' })).toBeInTheDocument()
-    expect(screen.getByRole('region', { name: 'Chi phí theo danh mục' })).toBeInTheDocument()
     expect(screen.getByTestId('dashboard-role')).toHaveTextContent(roleLabels['super-admin'])
+
+    const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
+    const accountsBtn = within(nav).getByRole('button', { name: /Tài khoản & Phân quyền/i })
+    fireEvent.click(accountsBtn)
+    expect(screen.getByRole('heading', { level: 1, name: 'Tài khoản & Phân quyền Hệ thống' })).toBeInTheDocument()
 
     view.unmount()
   })
