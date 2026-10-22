@@ -727,6 +727,7 @@ export const dashboard = {
       accessReview: 'Access Review',
       createEmployeeRequest: 'Create Request',
       weeklyBatch: 'Marked requests',
+      annualBudget: 'Annual budget proposal',
       requestForTeam: 'Request for team',
       requestForIndividual: 'Request for individual'
     },
@@ -1006,6 +1007,42 @@ export const dashboard = {
       sentPreviewNotice:
         'Send recorded for {{count}} requests in this preview. No data was transmitted to the CEO because the backend endpoint is not available.',
       sendAction: 'Send all to CEO'
+    },
+    annualBudget: {
+      eyebrow: 'Department budget planning',
+      title: 'Next year budget proposal',
+      subtitle: 'Gather department documents for Finance to price before spending approval.',
+      previewBadge: 'Illustrative draft',
+      workflowLabel: 'Annual budget approval flow',
+      stepManager: 'Manager proposal',
+      stepManagerDetail: 'Choose the budget period and attach staff documents.',
+      stepFinance: 'Finance pricing',
+      stepFinanceDetail: 'Estimate costs and a contingency buffer.',
+      stepApprover: 'Spending approval',
+      stepApproverDetail: 'Review the Finance proposal.',
+      stepBudget: 'Department budget',
+      stepBudgetDetail: 'Approved amount becomes next year’s budget for checking future software requests.',
+      contextTitle: 'Department and budget period',
+      contextDescription: 'This proposal is prepared for your department.',
+      department: 'Department',
+      budgetDate: 'Budget period start date',
+      budgetDateHint: 'Choose the day, month and year.',
+      dateNotSelected: 'No date selected',
+      documentsTitle: 'Staff documents',
+      documentsDescription:
+        'Attach the materials you received for Finance to review. Files stay in this browser preview.',
+      attachFiles: 'Choose supporting files',
+      noDocuments: 'No supporting files selected.',
+      documentCountValue: '{{count}} files',
+      removeFile: 'Remove {{name}}',
+      summaryTitle: 'Proposal summary',
+      documentCount: 'Documents',
+      financeOwnsCost:
+        'Finance will determine the estimated cost and contingency buffer. No budget amount is set at this stage.',
+      submit: 'Send proposal to Finance',
+      submitHint: 'Choose a budget period start date and at least one supporting file.',
+      submittedPreview:
+        'Finance submission recorded in this preview only. No files or proposal were uploaded or sent; backend workflow is not connected.'
     },
     myRequests: {
       title: 'My Requests',

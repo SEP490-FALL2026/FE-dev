@@ -290,6 +290,18 @@ describe('DashboardPage', () => {
     view.unmount()
   })
 
+  it('opens the annual budget proposal only from Manager navigation', async () => {
+    localStorage.setItem('saas-sentry.language', 'en')
+    await setAppLanguage('en', false)
+    const manager = renderDashboard('manager')
+    fireEvent.click(screen.getByRole('button', { name: 'Annual budget proposal' }))
+    expect(screen.getByRole('heading', { level: 1, name: 'Next year budget proposal' })).toBeInTheDocument()
+    manager.unmount()
+
+    renderDashboard('employee')
+    expect(screen.queryByRole('button', { name: 'Annual budget proposal' })).not.toBeInTheDocument()
+  })
+
   it('opens team and individual request forms from the Manager sidebar', async () => {
     localStorage.setItem('saas-sentry.language', 'en')
     await setAppLanguage('en', false)
