@@ -17,6 +17,7 @@ import {
 } from '../finance-data'
 import { sumPeriod } from '../budget-periods'
 import type { FinanceTabKey } from '../finance-nav'
+import { AnnualBudgetOverview } from './annual-budget-overview'
 import { BudgetPeriodFilter, useBudgetPeriod } from './budget-period-filter'
 import { BudgetUsageBarChart, SpendShareDonut, type CostCenterPeriodRow } from './finance-overview-charts'
 
@@ -28,7 +29,7 @@ interface FinanceOverviewViewProps {
 export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOverviewViewProps) {
   const { t } = useTranslation('dashboard')
   const formatPeriod = useFormatPeriod()
-  const { formatDateTime } = useDashboardFormat()
+  const { formatDate } = useDashboardFormat()
 
   const openQuestions = budgetQuestions.filter((question) => question.status === 'OPEN')
   const overdueRecordings = commitmentsToRecord.filter((item) => item.recordingDueAt <= financeDataAsOf)
@@ -112,12 +113,14 @@ export function FinanceOverviewView({ formatCurrency, onSelectTab }: FinanceOver
         <SpendShareDonut formatCurrency={formatCurrency} periodLabel={chartPeriodLabel} rows={chartRows} />
       </div>
 
+      <AnnualBudgetOverview formatCurrency={formatCurrency} onSelectTab={onSelectTab} />
+
       <Panel>
         <PanelTitle
           action={
             <span className='flex items-center gap-1.5 text-[0.7rem] text-muted-foreground'>
               <Clock aria-hidden='true' className='size-3.5' />
-              {t('budget.asOf', { time: formatDateTime(financeDataAsOf) })}
+              {t('budget.asOf', { time: formatDate(financeDataAsOf) })}
             </span>
           }
           hint={t('finance.overview.budgetTableHint')}

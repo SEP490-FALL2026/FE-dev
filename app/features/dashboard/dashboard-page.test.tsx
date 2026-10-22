@@ -34,15 +34,17 @@ describe('DashboardPage', () => {
     await setAppLanguage('vi', false)
   })
 
-  it('renders the shared dashboard shell for super-admin', () => {
+  it('renders the super-admin dashboard and navigates the UF-13 screens', () => {
     const view = renderDashboard('super-admin')
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Tổng quan' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Tổng quan Quản trị Hệ thống' })).toBeInTheDocument()
     expect(screen.getByRole('navigation', { name: 'Điều hướng dashboard' })).toBeInTheDocument()
-    expect(screen.getByRole('region', { name: 'Chỉ số tổng quan' })).toBeInTheDocument()
-    expect(screen.getByRole('region', { name: 'Chi phí phần mềm theo tháng' })).toBeInTheDocument()
-    expect(screen.getByRole('region', { name: 'Chi phí theo danh mục' })).toBeInTheDocument()
     expect(screen.getByTestId('dashboard-role')).toHaveTextContent(roleLabels['super-admin'])
+
+    const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
+    const accountsBtn = within(nav).getByRole('button', { name: /Tài khoản & Phân quyền/i })
+    fireEvent.click(accountsBtn)
+    expect(screen.getByRole('heading', { level: 1, name: 'Tài khoản & Phân quyền Hệ thống' })).toBeInTheDocument()
 
     view.unmount()
   })
@@ -54,21 +56,36 @@ describe('DashboardPage', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Bảng điều khiển Tài chính' })).toBeInTheDocument()
     expect(screen.getByTestId('dashboard-role')).toHaveTextContent('Tài chính')
 
-    const questionsBtn = within(nav).getByRole('button', { name: /Yêu cầu ngân sách/i })
-    expect(questionsBtn).not.toHaveClass('bg-primary')
+    // Five areas like the IT Admin menu: the overview is a direct link, the others expand in place.
+    const areaButtons = within(nav).getAllByRole('button', { expanded: false })
+    expect(areaButtons.map((button) => button.textContent?.replace(/\d+$/, ''))).toEqual([
+      'Trung tâm chi phí & Ngân sách',
+      'Lập kế hoạch & Dự trù',
+      'Chi phí & Đối soát',
+      'Đóng kỳ & Báo cáo'
+    ])
+    expect(within(nav).getByRole('button', { current: 'page' })).toHaveTextContent('Tổng quan')
+
+    const budgetArea = within(nav).getByRole('button', { name: /Trung tâm chi phí & Ngân sách/ })
+    expect(within(nav).queryByRole('button', { name: /Theo phòng ban/ })).not.toBeInTheDocument()
+    fireEvent.click(budgetArea)
+    expect(budgetArea).toHaveAttribute('aria-expanded', 'true')
+
+    const questionsBtn = within(nav).getByRole('button', { name: /Yêu cầu ngân sách/ })
     fireEvent.click(questionsBtn)
     expect(questionsBtn).toHaveClass('bg-primary')
     expect(
       screen.getByRole('heading', { level: 1, name: 'Yêu cầu thông tin ngân sách từ Người duyệt chi' })
     ).toBeInTheDocument()
 
-    const commitmentsBtn = within(nav).getByRole('button', { name: /Cam kết chờ ghi nhận/i })
+    const commitmentsBtn = within(nav).getByRole('button', { name: /Cam kết chi/ })
     fireEvent.click(commitmentsBtn)
     expect(commitmentsBtn).toHaveClass('bg-primary')
     expect(questionsBtn).not.toHaveClass('bg-primary')
     expect(screen.getByRole('heading', { level: 1, name: 'Khoản cam kết chờ ghi nhận' })).toBeInTheDocument()
 
-    fireEvent.click(within(nav).getByRole('button', { name: /Báo cáo kỳ/i }))
+    fireEvent.click(within(nav).getByRole('button', { name: /Đóng kỳ & Báo cáo/ }))
+    fireEvent.click(within(nav).getByRole('button', { name: 'Báo cáo kỳ' }))
     expect(screen.getByRole('heading', { level: 1, name: 'Báo cáo kỳ Quý 3/2026' })).toBeInTheDocument()
 
     view.unmount()
@@ -77,33 +94,30 @@ describe('DashboardPage', () => {
   it('lists budget info requests first, filters them in order, and opens a separate detail screen', () => {
     renderDashboard('finance', '/?tab=budget-questions')
 
-    const filters = screen.getByRole('group', { name: 'Lọc yêu cầu theo trạng thái' })
+    const filter = screen.getByRole('combobox', { name: 'Trạng thái' })
     expect(
-      within(filters)
-        .getAllByRole('button')
-        .map((button) => button.textContent?.replace(/\d+$/, ''))
+      within(filter)
+        .getAllByRole('option')
+        .map((option) => option.textContent)
     ).toEqual(['Tất cả', 'Đang mở', 'Đã trả lời', 'Đóng — yêu cầu bị hủy'])
-    expect(within(filters).getByRole('button', { name: /Tất cả/ })).toHaveAttribute('aria-pressed', 'true')
+    expect(filter).toHaveValue('all')
     expect(screen.getAllByRole('button', { name: /^Xem chi tiết REQ-/ })).toHaveLength(5)
 
-    fireEvent.click(within(filters).getByRole('button', { name: /Đã trả lời/ }))
+    fireEvent.change(filter, { target: { value: 'ANSWERED' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Áp dụng bộ lọc' }))
     expect(screen.getAllByRole('button', { name: /^Xem chi tiết REQ-/ })).toHaveLength(1)
 
     fireEvent.click(screen.getByRole('button', { name: 'Xem chi tiết REQ-2026-078' }))
-    expect(screen.getByRole('heading', { level: 1, name: 'Cursor Pro · 10 seat' })).toBeInTheDocument()
-    expect(screen.queryByRole('group', { name: 'Lọc yêu cầu theo trạng thái' })).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Cursor Pro · 10 suất' })).toBeInTheDocument()
+    expect(screen.queryByRole('combobox', { name: 'Trạng thái' })).not.toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Quay lại danh sách' }))
-    expect(screen.getByRole('button', { name: /Đã trả lời/, pressed: true })).toBeInTheDocument()
+    expect(screen.getByRole('combobox', { name: 'Trạng thái' })).toHaveValue('ANSWERED')
+    expect(screen.getAllByRole('button', { name: /^Xem chi tiết REQ-/ })).toHaveLength(1)
   })
 
   it('requires an opinion and a note before Finance answers a budget question', () => {
-    renderDashboard('finance')
-    fireEvent.click(
-      within(screen.getByRole('navigation', { name: 'Điều hướng dashboard' })).getByRole('button', {
-        name: /Yêu cầu ngân sách/i
-      })
-    )
+    renderDashboard('finance', '/?tab=budget-questions')
     fireEvent.click(screen.getByRole('button', { name: 'Xem chi tiết REQ-2026-089' }))
 
     fireEvent.click(screen.getByRole('button', { name: 'Gửi câu trả lời' }))
@@ -117,16 +131,14 @@ describe('DashboardPage', () => {
     expect(screen.getByText(/Câu trả lời đã hiện trên màn hình quyết định của Người duyệt chi/)).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Quay lại danh sách' }))
-    expect(screen.getByRole('button', { name: /Đã trả lời/ })).toHaveTextContent('2')
+    fireEvent.change(screen.getByRole('combobox', { name: 'Trạng thái' }), { target: { value: 'ANSWERED' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Áp dụng bộ lọc' }))
+    expect(screen.getAllByRole('button', { name: /^Xem chi tiết REQ-/ })).toHaveLength(2)
+    expect(screen.getByRole('button', { name: 'Xem chi tiết REQ-2026-089' })).toBeInTheDocument()
   })
 
   it('shows a negative remaining with the over-committed label when a budget is smaller than back-filled commitments', () => {
-    renderDashboard('finance')
-    fireEvent.click(
-      within(screen.getByRole('navigation', { name: 'Điều hướng dashboard' })).getByRole('button', {
-        name: /Trung tâm chi phí và ngân sách/i
-      })
-    )
+    renderDashboard('finance', '/?tab=budgets')
 
     fireEvent.click(screen.getAllByRole('button', { name: 'Lập ngân sách' })[0])
     fireEvent.change(screen.getByLabelText('Hạn mức ngân sách (chi phí thực chịu, VND)'), {
@@ -278,6 +290,18 @@ describe('DashboardPage', () => {
     ).toBeInTheDocument()
 
     view.unmount()
+  })
+
+  it('opens the annual budget proposal only from Manager navigation', async () => {
+    localStorage.setItem('saas-sentry.language', 'en')
+    await setAppLanguage('en', false)
+    const manager = renderDashboard('manager')
+    fireEvent.click(screen.getByRole('button', { name: 'Annual budget proposal' }))
+    expect(screen.getByRole('heading', { level: 1, name: 'Next year budget proposal' })).toBeInTheDocument()
+    manager.unmount()
+
+    renderDashboard('employee')
+    expect(screen.queryByRole('button', { name: 'Annual budget proposal' })).not.toBeInTheDocument()
   })
 
   it('opens team and individual request forms from the Manager sidebar', async () => {

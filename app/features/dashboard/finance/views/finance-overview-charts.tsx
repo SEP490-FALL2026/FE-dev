@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
@@ -176,6 +177,16 @@ export function SpendShareDonut({
   const { formatCompactCurrency, formatPercent } = useDashboardFormat()
   const slices = rows.map((row, index) => ({ ...row, color: sliceColors[index % sliceColors.length] }))
   const total = slices.reduce((sum, slice) => sum + slice.actual, 0)
+  // Hovering or focusing a slice or legend row shows its details in the hole, so no tooltip covers the chart.
+  const [activeCode, setActiveCode] = useState<string | null>(null)
+  const active = slices.find((slice) => slice.code === activeCode)
+  const pieSlices = slices.filter((slice) => slice.actual > 0)
+  const hoverProps = (code: string) => ({
+    onBlur: () => setActiveCode(null),
+    onFocus: () => setActiveCode(code),
+    onMouseEnter: () => setActiveCode(code),
+    onMouseLeave: () => setActiveCode(null)
+  })
 
   return (
     <Panel>
@@ -199,61 +210,63 @@ export function SpendShareDonut({
                 <Pie
                   cx='50%'
                   cy='50%'
-                  data={slices.filter((slice) => slice.actual > 0)}
+                  data={pieSlices}
                   dataKey='actual'
                   innerRadius={62}
                   isAnimationActive={false}
                   nameKey='code'
+                  onMouseEnter={(_, index) => setActiveCode(pieSlices[index]?.code ?? null)}
+                  onMouseLeave={() => setActiveCode(null)}
                   outerRadius={92}
                   paddingAngle={1}
                   stroke='var(--theme-surface)'
                   strokeWidth={2}
                 >
-                  {slices
-                    .filter((slice) => slice.actual > 0)
-                    .map((slice) => (
-                      <Cell fill={slice.color} key={slice.code} />
-                    ))}
+                  {pieSlices.map((slice) => (
+                    <Cell
+                      className='cursor-pointer transition-opacity'
+                      fill={slice.color}
+                      fillOpacity={activeCode === null || activeCode === slice.code ? 1 : 0.3}
+                      key={slice.code}
+                    />
+                  ))}
                 </Pie>
-                <Tooltip
-                  content={({ active, payload }) => {
-                    const slice = payload?.[0]?.payload as (typeof slices)[number] | undefined
-                    if (!active || !slice) return null
-
-                    return (
-                      <div className={tooltipClassName}>
-                        <p className='flex items-center gap-1.5 font-bold'>
-                          <span
-                            aria-hidden='true'
-                            className='size-2.5 rounded-sm'
-                            style={{ background: slice.color }}
-                          />
-                          {slice.code} · {slice.name}
-                        </p>
-                        <div className='mt-1.5'>
-                          <TooltipRow label={t('budget.actual')} value={formatCurrency(slice.actual)} />
-                          <TooltipRow
-                            label={t('finance.overview.shareOfTotal')}
-                            value={formatPercent(slice.actual / total)}
-                          />
-                        </div>
-                      </div>
-                    )
-                  }}
-                />
               </PieChart>
             </ResponsiveContainer>
-            <div className='pointer-events-none absolute inset-0 grid place-items-center text-center'>
-              <div>
-                <p className='text-[0.7rem] text-muted-foreground'>{t('finance.overview.donutTotal')}</p>
-                <p className='text-base font-extrabold tabular-nums'>{formatCompactCurrency(total)}</p>
+            <div className='pointer-events-none absolute inset-0 grid place-items-center'>
+              <div aria-live='polite' className='max-w-[7.5rem] text-center'>
+                {active ? (
+                  <>
+                    <p className='line-clamp-2 text-[0.7rem] leading-tight text-muted-foreground'>
+                      <span className='font-mono font-bold text-foreground'>{active.code}</span> {active.name}
+                    </p>
+                    <p className='mt-0.5 text-base font-extrabold tabular-nums'>
+                      {formatCompactCurrency(active.actual)}
+                    </p>
+                    <p className='text-[0.7rem] font-semibold text-muted-foreground tabular-nums'>
+                      {formatPercent(active.actual / total)}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className='text-[0.7rem] text-muted-foreground'>{t('finance.overview.donutTotal')}</p>
+                    <p className='text-base font-extrabold tabular-nums'>{formatCompactCurrency(total)}</p>
+                  </>
+                )}
               </div>
             </div>
           </div>
 
-          <ul className='space-y-1.5 text-xs'>
+          <ul className='space-y-0.5 text-xs'>
             {slices.map((slice) => (
-              <li className='flex items-center justify-between gap-3' key={slice.code}>
+              <li
+                className={`flex cursor-default items-center justify-between gap-3 rounded-lg px-2 py-1 transition outline-none focus-visible:ring-2 focus-visible:ring-primary-soft ${
+                  activeCode === slice.code ? 'bg-surface-subtle' : ''
+                }`}
+                key={slice.code}
+                tabIndex={0}
+                {...hoverProps(slice.code)}
+              >
                 <span className='flex min-w-0 items-center gap-2'>
                   <span
                     aria-hidden='true'

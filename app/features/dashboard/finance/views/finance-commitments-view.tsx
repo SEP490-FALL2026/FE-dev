@@ -23,12 +23,19 @@ import {
 import {
   commitmentsToRecord,
   currentPeriod,
-  financeDataAsOf,
   findBudgetLine,
   type BudgetOpinion,
   type CommitmentToRecord
 } from '../finance-data'
 import type { FinanceTabKey } from '../finance-nav'
+import {
+  FinanceCommitmentFilters,
+  defaultCommitmentFilters,
+  isCommitmentOverdue,
+  matchesCommitmentFilters,
+  type CommitmentFilters
+} from './finance-commitments-filters'
+import { UnpaidCommitmentsPanel } from './unpaid-commitments-panel'
 
 interface RecordedCommitment {
   commitment: CommitmentToRecord
@@ -53,6 +60,7 @@ export function FinanceCommitmentsView({
 }) {
   const [queue, setQueue] = useState(commitmentsToRecord)
   const [recorded, setRecorded] = useState<RecordedCommitment[]>([])
+  const [filters, setFilters] = useState<CommitmentFilters>(defaultCommitmentFilters)
   const selected = queue.find((item) => item.id === commitmentId)
 
   const record = (entry: RecordedCommitment) => {
@@ -75,7 +83,9 @@ export function FinanceCommitmentsView({
 
   return (
     <CommitmentQueue
+      filters={filters}
       formatCurrency={formatCurrency}
+      onFiltersChange={setFilters}
       onOpen={(id) => onSelectTab('commitments', { id })}
       queue={queue}
       recorded={recorded}
@@ -84,20 +94,25 @@ export function FinanceCommitmentsView({
 }
 
 function CommitmentQueue({
+  filters,
   formatCurrency,
+  onFiltersChange,
   onOpen,
   queue,
   recorded
 }: {
+  filters: CommitmentFilters
   formatCurrency: (value: number) => string
+  onFiltersChange: (filters: CommitmentFilters) => void
   onOpen: (id: string) => void
   queue: CommitmentToRecord[]
   recorded: RecordedCommitment[]
 }) {
   const { t } = useTranslation('dashboard')
   const formatPeriod = useFormatPeriod()
-  const { formatDateTime } = useDashboardFormat()
+  const { formatDate } = useDashboardFormat()
   const lastRecorded = recorded.at(-1)
+  const visible = queue.filter((item) => matchesCommitmentFilters(item, filters))
 
   return (
     <div className='space-y-6'>
@@ -118,6 +133,8 @@ function CommitmentQueue({
         </Notice>
       )}
 
+      <FinanceCommitmentFilters applied={filters} onApply={onFiltersChange} queue={queue} />
+
       <Panel>
         <PanelTitle hint={t('finance.commitments.queueHint')} title={t('finance.commitments.queueTitle')} />
         <div className='mt-4 overflow-x-auto'>
@@ -136,8 +153,8 @@ function CommitmentQueue({
               </tr>
             </thead>
             <tbody className='divide-y divide-border'>
-              {queue.map((item) => {
-                const isOverdue = item.recordingDueAt <= financeDataAsOf
+              {visible.map((item) => {
+                const isOverdue = isCommitmentOverdue(item)
 
                 return (
                   <tr
@@ -168,7 +185,7 @@ function CommitmentQueue({
                         className={`flex items-center gap-1 ${isOverdue ? 'font-bold text-danger' : 'text-muted-foreground'}`}
                       >
                         <Clock aria-hidden='true' className='size-3.5' />
-                        {isOverdue ? t('finance.commitments.overdue') : formatDateTime(item.recordingDueAt)}
+                        {isOverdue ? t('finance.commitments.overdue') : formatDate(item.recordingDueAt)}
                       </span>
                     </td>
                     <td className='py-3 text-right'>
@@ -188,10 +205,12 @@ function CommitmentQueue({
                   </tr>
                 )
               })}
-              {queue.length === 0 && (
+              {visible.length === 0 && (
                 <tr>
                   <td className='py-8 text-center text-muted-foreground' colSpan={7}>
-                    {t('finance.commitments.emptyQueue')}
+                    {queue.length === 0
+                      ? t('finance.commitments.emptyQueue')
+                      : t('budgetPlan.filtersSpend.commitments.empty')}
                   </td>
                 </tr>
               )}
@@ -199,6 +218,8 @@ function CommitmentQueue({
           </table>
         </div>
       </Panel>
+
+      <UnpaidCommitmentsPanel formatCurrency={formatCurrency} />
 
       {recorded.length > 0 && (
         <Panel>
@@ -237,7 +258,7 @@ function CommitmentDetail({
   onRecord: (entry: RecordedCommitment) => void
 }) {
   const { t } = useTranslation('dashboard')
-  const { formatDateTime } = useDashboardFormat()
+  const { formatDate } = useDashboardFormat()
   const [opinion, setOpinion] = useState<BudgetOpinion | null>(null)
   const [note, setNote] = useState('')
   const [showError, setShowError] = useState(false)
@@ -247,7 +268,7 @@ function CommitmentDetail({
   const suggested: BudgetOpinion =
     !commitment.budgetAttached || remaining === null ? 'NO_BUDGET' : remaining >= 0 ? 'WITHIN' : 'OVER'
   const effectiveOpinion: BudgetOpinion | null = commitment.budgetAttached ? opinion : 'NO_BUDGET'
-  const isOverdue = commitment.recordingDueAt <= financeDataAsOf
+  const isOverdue = isCommitmentOverdue(commitment)
 
   const record = () => {
     if (!effectiveOpinion) {
@@ -273,10 +294,10 @@ function CommitmentDetail({
           <Pill tone={isOverdue ? 'danger' : 'neutral'}>
             {isOverdue
               ? t('finance.commitments.overdue')
-              : t('finance.commitments.dueAt', { time: formatDateTime(commitment.recordingDueAt) })}
+              : t('finance.commitments.dueAt', { time: formatDate(commitment.recordingDueAt) })}
           </Pill>
         }
-        subtitle={`${commitment.requestCode} · ${t('finance.commitments.approvedBy', { name: commitment.approvedBy })} · ${formatDateTime(commitment.approvedAt)}`}
+        subtitle={`${commitment.requestCode} · ${t('finance.commitments.approvedBy', { name: commitment.approvedBy })} · ${formatDate(commitment.approvedAt)}`}
         title={commitment.software}
       />
 

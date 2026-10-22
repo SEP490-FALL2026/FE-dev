@@ -33,7 +33,7 @@ export function FinanceOpinionPanel({
   onAsk: () => void
 }) {
   const { t } = useTranslation('dashboard')
-  const { formatDateTime } = useDashboardFormat()
+  const { formatDate } = useDashboardFormat()
 
   return (
     <Panel>
@@ -49,7 +49,7 @@ export function FinanceOpinionPanel({
         <ol className='mt-4 space-y-3 text-xs'>
           <li className='rounded-xl border border-border bg-background p-3'>
             <p className='text-[0.7rem] font-bold text-muted-foreground'>
-              {t('approvals.request.yourQuestion', { time: formatDateTime(answer.askedAt) })}
+              {t('approvals.request.yourQuestion', { time: formatDate(answer.askedAt) })}
             </p>
             {answer.question && <p className='mt-1 text-foreground'>{answer.question}</p>}
           </li>
@@ -58,7 +58,7 @@ export function FinanceOpinionPanel({
               <p className='text-[0.7rem] font-bold text-info'>
                 {t('approvals.request.financeReplied', {
                   name: answer.answeredBy ?? t('approvals.request.financeTeam'),
-                  time: answer.answeredAt ? formatDateTime(answer.answeredAt) : ''
+                  time: answer.answeredAt ? formatDate(answer.answeredAt) : ''
                 })}
               </p>
               <p className='mt-1.5'>

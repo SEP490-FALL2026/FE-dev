@@ -21,8 +21,11 @@ import {
   primaryButtonClassName,
   useDashboardFormat
 } from '../../dashboard-ui'
+import { recordSpendDecision } from '../../finance/annual-budget-store'
+import { queueBudgetCheck } from '../approval-budget-check'
 import { approvalQueue, approverSnapshots, requestDetails, type FinanceAnswer } from '../approvals-data'
 import type { ApprovalTabKey } from '../approvals-nav'
+import { ApprovalBudgetCheckPanel } from './approval-budget-check-panel'
 import { AskFinanceDialog, FinanceOpinionPanel, RejectDialog } from './approval-request-parts'
 import { SlaBadge } from './approval-queue-view'
 
@@ -48,10 +51,11 @@ function SummaryFact({ label, value }: { label: string; value: React.ReactNode }
 export function ApprovalRequestView({ formatCurrency, itemId, onSelectTab }: ApprovalRequestViewProps) {
   const { t } = useTranslation('dashboard')
   const formatPeriod = useFormatPeriod()
-  const { formatDateTime } = useDashboardFormat()
+  const { formatDate } = useDashboardFormat()
   const detail = requestDetails.find((item) => item.id === itemId) ?? requestDetails[0]
   const queueItem = approvalQueue.find((item) => item.id === detail.id) ?? approvalQueue[0]
-  const snapshot = approverSnapshots[detail.costCenter]
+  // A retired Cost Center (REQ-2026-107 on CC-PRD) has no quarterly snapshot: show no budget instead.
+  const snapshot = approverSnapshots[detail.costCenter] as (typeof approverSnapshots)[string] | undefined
   const isNeedStep = queueItem.kind === 'NEED_STEP'
 
   const [financeAnswer, setFinanceAnswer] = useState<FinanceAnswer | undefined>(detail.financeAnswer)
@@ -59,7 +63,13 @@ export function ApprovalRequestView({ formatCurrency, itemId, onSelectTab }: App
   const [outcome, setOutcome] = useState<Outcome>(null)
 
   const borneCost = getBorneCost(detail.estimate)
-  const remaining = getRemaining(snapshot)
+  const remaining = snapshot ? getRemaining(snapshot) : null
+  const spendEntry = {
+    amount: queueItem.amount,
+    costCenter: detail.costCenter,
+    reference: queueItem.reference,
+    software: queueItem.software
+  }
   const remainingAfter = remaining === null ? null : remaining - borneCost
 
   return (
@@ -83,7 +93,7 @@ export function ApprovalRequestView({ formatCurrency, itemId, onSelectTab }: App
         <SummaryFact label={t('budget.borneCost')} value={formatCurrency(borneCost)} />
         <SummaryFact
           label={t('approvals.request.summaryCostCenter')}
-          value={`${detail.costCenter} · ${formatPeriod(snapshot.period)}`}
+          value={snapshot ? `${detail.costCenter} · ${formatPeriod(snapshot.period)}` : detail.costCenter}
         />
         <SummaryFact
           label={t('budget.remaining')}
@@ -126,9 +136,22 @@ export function ApprovalRequestView({ formatCurrency, itemId, onSelectTab }: App
             <PanelTitle hint={t('approvals.request.budgetHint')} title={t('approvals.request.budgetTitle')} />
             <div className='mt-4 grid gap-4 md:grid-cols-2'>
               <CostEstimatePanel estimate={detail.estimate} formatCurrency={formatCurrency} />
-              <BudgetSnapshotPanel formatCurrency={formatCurrency} snapshot={snapshot} />
+              {snapshot ? (
+                <BudgetSnapshotPanel formatCurrency={formatCurrency} snapshot={snapshot} />
+              ) : (
+                <Notice icon={Info} tone='warning'>
+                  {t('budgetPlan.approverSpend.noSnapshot', { costCenter: detail.costCenter })}
+                </Notice>
+              )}
             </div>
           </Panel>
+
+          <ApprovalBudgetCheckPanel
+            amount={queueItem.amount}
+            costCenter={detail.costCenter}
+            formatCurrency={formatCurrency}
+            result={queueBudgetCheck(queueItem)}
+          />
 
           <details className='group rounded-2xl border border-border bg-surface p-5 shadow-sm'>
             <summary className='flex cursor-pointer list-none items-center justify-between gap-2 text-sm font-bold text-foreground'>
@@ -163,7 +186,7 @@ export function ApprovalRequestView({ formatCurrency, itemId, onSelectTab }: App
                       </p>
                       <p className='text-muted-foreground'>
                         {step.actor}
-                        {step.at && ` · ${formatDateTime(step.at)}`}
+                        {step.at && ` · ${formatDate(step.at)}`}
                       </p>
                       {step.sameAsApprover && (
                         <p className='mt-0.5'>
@@ -206,7 +229,10 @@ export function ApprovalRequestView({ formatCurrency, itemId, onSelectTab }: App
                 <div className='grid grid-cols-2 gap-2'>
                   <button
                     className={primaryButtonClassName}
-                    onClick={() => setOutcome({ kind: 'approved' })}
+                    onClick={() => {
+                      setOutcome({ kind: 'approved' })
+                      if (!isNeedStep) recordSpendDecision({ ...spendEntry, approved: true })
+                    }}
                     type='button'
                   >
                     <CheckCircle2 aria-hidden='true' className='size-3.5' />
@@ -244,6 +270,7 @@ export function ApprovalRequestView({ formatCurrency, itemId, onSelectTab }: App
           onClose={() => setDialog(null)}
           onReject={(reason) => {
             setOutcome({ kind: 'rejected', reason })
+            recordSpendDecision({ ...spendEntry, approved: false, reason })
             setDialog(null)
           }}
           reference={queueItem.reference}

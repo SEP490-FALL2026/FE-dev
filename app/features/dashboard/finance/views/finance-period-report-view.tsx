@@ -37,7 +37,7 @@ const visibility = [
 export function FinancePeriodReportView({ formatCurrency }: { formatCurrency: (value: number) => string }) {
   const { t } = useTranslation('dashboard')
   const formatPeriod = useFormatPeriod()
-  const { formatDateTime } = useDashboardFormat()
+  const { formatDate } = useDashboardFormat()
   const [mode, setMode] = useState<NarrativeMode>(aiNarrativeAvailable ? 'ai' : 'manual')
   const [narrative, setNarrative] = useState('')
   const [draftGenerated, setDraftGenerated] = useState(false)
@@ -212,7 +212,7 @@ export function FinancePeriodReportView({ formatCurrency }: { formatCurrency: (v
           <div className='mt-5 border-t border-border pt-5'>
             {publishedAt ? (
               <Notice icon={Lock} tone='success'>
-                <p>{t('finance.report.published', { time: formatDateTime(publishedAt) })}</p>
+                <p>{t('finance.report.published', { time: formatDate(publishedAt) })}</p>
                 <p className='mt-1'>{t('finance.report.immutable')}</p>
               </Notice>
             ) : (

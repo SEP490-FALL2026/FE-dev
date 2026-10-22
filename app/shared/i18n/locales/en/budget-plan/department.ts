@@ -1,0 +1,30 @@
+export const department = {
+  allocationHint: '{{amount}} is not yet allocated to any software group.',
+  allocationTitle: 'Allocation by software group',
+  approved: 'Approved annual budget',
+  approvedHint: 'Base {{base}} · buffer {{buffer}}',
+  commitmentStage: {
+    NOT_RECORDED: 'Not recorded',
+    RECORDED: 'Not yet paid'
+  },
+  commitmentsHint: '{{count}} waiting for Finance to record.',
+  commitmentsTitle: 'Unpaid commitments',
+  committed: 'Committed',
+  committedHint: 'Approved, not yet recorded or paid',
+  empty: 'Nothing here.',
+  exceptionsTitle: 'Budget exceptions',
+  figuresLabel: 'Department budget figures',
+  open: 'Open',
+  pickLabel: 'Choose a department',
+  remaining: 'Remaining',
+  remainingHint: 'Approved − used − committed',
+  requestsTitle: 'Open budget requests',
+  resolved: 'Resolved',
+  subtitle: 'Choose a department to see its {{year}} budget, allocation, commitments, requests and exceptions at once.',
+  title: '{{department}} budget',
+  unallocated: 'Not allocated',
+  usageHint: 'The approved annual budget split into used, committed and remaining.',
+  usageTitle: 'Budget usage',
+  used: 'Used',
+  viewAll: 'View all'
+} as const

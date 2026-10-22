@@ -24,6 +24,7 @@ import {
   type MonthlyBudgetLine
 } from '../finance-data'
 import { BudgetPeriodFilter, useBudgetPeriod } from './budget-period-filter'
+import { DepartmentAnnualBudgetsPanel } from './department-annual-budgets-panel'
 import { BudgetEditorDialog, NewCostCenterDialog } from './finance-budget-dialogs'
 
 type Editor = { costCenter: string; mode: 'create' | 'edit' } | null
@@ -340,6 +341,8 @@ export function FinanceBudgetsView({ formatCurrency }: { formatCurrency: (value:
         </div>
         <p className='mt-3 text-[0.7rem] text-muted-foreground'>{t('finance.budgets.catalogNote')}</p>
       </Panel>
+
+      <DepartmentAnnualBudgetsPanel formatCurrency={formatCurrency} />
 
       {editor && editingRow && (
         <BudgetEditorDialog

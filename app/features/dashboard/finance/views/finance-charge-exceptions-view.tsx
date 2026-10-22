@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 
 import {
   Dialog,
-  FilterChips,
   InfoRow,
   Notice,
   PageHeader,
@@ -19,8 +18,12 @@ import {
 } from '../../dashboard-ui'
 import { chargeExceptions, type ChargeException, type ExceptionStatus } from '../finance-data'
 import type { FinanceTabKey } from '../finance-nav'
-
-type ExceptionFilter = 'all' | ExceptionStatus
+import {
+  FinanceChargeExceptionFilters,
+  defaultChargeExceptionFilters,
+  matchesChargeExceptionFilters,
+  type ChargeExceptionFilters
+} from './finance-charge-exceptions-filters'
 
 const statusTones: Record<ExceptionStatus, Tone> = {
   BASIS_LINKED: 'success',
@@ -28,7 +31,6 @@ const statusTones: Record<ExceptionStatus, Tone> = {
   CHECKING: 'warning',
   SENT_TO_APPROVER: 'info'
 }
-const statusOrder: readonly ExceptionStatus[] = ['CHECKING', 'SENT_TO_APPROVER', 'BASIS_LINKED', 'BILLING_ERROR']
 
 /**
  * FIN-07: the list opens first; choosing an exception opens its own detail screen (`id` search param).
@@ -44,7 +46,7 @@ export function FinanceChargeExceptionsView({
   onSelectTab: (tab: FinanceTabKey, extraParams?: Record<string, string>) => void
 }) {
   const [items, setItems] = useState<ChargeException[]>(chargeExceptions)
-  const [filter, setFilter] = useState<ExceptionFilter>('all')
+  const [filters, setFilters] = useState<ChargeExceptionFilters>(defaultChargeExceptionFilters)
   const selected = items.find((item) => item.id === exceptionId)
 
   const update = (id: string, patch: Partial<ChargeException>) =>
@@ -64,33 +66,32 @@ export function FinanceChargeExceptionsView({
 
   return (
     <ChargeExceptionList
-      filter={filter}
+      filters={filters}
       formatCurrency={formatCurrency}
       items={items}
-      onFilterChange={setFilter}
+      onFiltersChange={setFilters}
       onOpen={(id) => onSelectTab('charge-exceptions', { id })}
     />
   )
 }
 
 function ChargeExceptionList({
-  filter,
+  filters,
   formatCurrency,
   items,
-  onFilterChange,
+  onFiltersChange,
   onOpen
 }: {
-  filter: ExceptionFilter
+  filters: ChargeExceptionFilters
   formatCurrency: (value: number) => string
   items: ChargeException[]
-  onFilterChange: (filter: ExceptionFilter) => void
+  onFiltersChange: (filters: ChargeExceptionFilters) => void
   onOpen: (id: string) => void
 }) {
   const { t } = useTranslation('dashboard')
   const { formatDate } = useDashboardFormat()
 
-  const visible = items.filter((item) => filter === 'all' || item.status === filter)
-  const count = (status: ExceptionStatus) => items.filter((item) => item.status === status).length
+  const visible = items.filter((item) => matchesChargeExceptionFilters(item, filters))
 
   return (
     <div className='space-y-6'>
@@ -100,22 +101,10 @@ function ChargeExceptionList({
         {t('finance.exceptions.ruleNotice')}
       </Notice>
 
-      <Panel>
-        <FilterChips<ExceptionFilter>
-          label={t('finance.exceptions.filterLabel')}
-          onChange={onFilterChange}
-          options={[
-            { count: items.length, label: t('ui.all'), value: 'all' },
-            ...statusOrder.map((status) => ({
-              count: count(status),
-              label: t(`finance.exceptions.status.${status}`),
-              value: status
-            }))
-          ]}
-          value={filter}
-        />
+      <FinanceChargeExceptionFilters applied={filters} onApply={onFiltersChange} />
 
-        <div className='mt-4 overflow-x-auto'>
+      <Panel>
+        <div className='overflow-x-auto'>
           <table className='w-full min-w-184 text-left text-xs'>
             <thead>
               <tr className='border-b border-border text-muted-foreground'>

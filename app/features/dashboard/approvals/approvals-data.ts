@@ -165,6 +165,18 @@ export const approvalQueue: QueueItem[] = [
     slaDueAt: '2026-10-15T11:00:00+07:00',
     software: 'OpenAI ChatGPT Plus',
     subtitle: '6 người dùng · Phòng Kỹ thuật'
+  },
+  {
+    amount: 5_400_000,
+    costCenter: 'CC-PRD',
+    id: 'req-107',
+    kind: 'SPEND_STEP',
+    receivedAt: '2026-10-12T09:55:00+07:00',
+    reference: 'REQ-2026-107',
+    reminders: 0,
+    slaDueAt: '2026-10-14T09:55:00+07:00',
+    software: 'Maze Starter',
+    subtitle: 'Võ Thanh Nhàn · Phòng Thiết kế'
   }
 ]
 
@@ -265,6 +277,20 @@ export const requestDetails: RequestDetail[] = [
       { actor: 'Đặng Thanh Hà', at: '2026-10-12T08:15:00+07:00', key: 'created', status: 'done' },
       { actor: 'Phạm Hoàng Nam', key: 'needStep', status: 'current' },
       { actor: 'Phạm Hoàng Nam', key: 'spendStep', sameAsApprover: true, status: 'next' }
+    ]
+  },
+  {
+    beneficiary: '3 nhà thiết kế trải nghiệm',
+    branch: 'b',
+    costCenter: 'CC-PRD',
+    estimate: { deductibleVat: 500_000, nonDeductibleTax: 400_000, preTax: 5_000_000 },
+    id: 'req-107',
+    justification: 'Kiểm thử khả dụng cho bản thiết kế ứng dụng thanh toán trước khi bàn giao quý 4.',
+    requester: 'Võ Thanh Nhàn',
+    trail: [
+      { actor: 'Võ Thanh Nhàn', at: '2026-10-11T15:30:00+07:00', key: 'created', status: 'done' },
+      { actor: 'Lê Thu Hà (Trưởng phòng Thiết kế)', at: '2026-10-12T09:55:00+07:00', key: 'needStep', status: 'done' },
+      { actor: 'Phạm Hoàng Nam', key: 'spendStep', status: 'current' }
     ]
   }
 ]

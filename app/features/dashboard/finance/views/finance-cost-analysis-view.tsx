@@ -1,31 +1,18 @@
-import { ArrowRight, Info } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { RemainingValue, getRemaining, useFormatPeriod } from '../../budget-figures'
-import {
-  FilterChips,
-  Notice,
-  PageHeader,
-  Panel,
-  PanelTitle,
-  Pill,
-  inputClassName,
-  primaryButtonClassName,
-  useDashboardFormat
-} from '../../dashboard-ui'
+import { FilterChips, PageHeader, Panel, PanelTitle, Pill, primaryButtonClassName } from '../../dashboard-ui'
 import {
   allocationLines,
   budgetVsActual,
   closingPeriod,
-  committedForecast,
   priorPeriodAdjustment,
-  scenarioDefaults,
-  unallocatedOpenExceptions,
-  upcomingRenewals,
-  type AllocationLine
+  unallocatedOpenExceptions
 } from '../finance-data'
 import type { FinanceTabKey } from '../finance-nav'
+import { allocationTotal } from '../period-close-data'
 
 type Basis = 'cash' | 'period'
 
@@ -34,15 +21,10 @@ interface FinanceCostAnalysisViewProps {
   onSelectTab: (tab: FinanceTabKey) => void
 }
 
-const allocationTotal = (line: AllocationLine) =>
-  line.sharedByRatio + line.personalSeats + line.sharedAccounts + line.internal
-
 export function FinanceCostAnalysisView({ formatCurrency, onSelectTab }: FinanceCostAnalysisViewProps) {
   const { t } = useTranslation('dashboard')
   const formatPeriod = useFormatPeriod()
-  const { formatDate, formatMonthYear } = useDashboardFormat()
   const [basis, setBasis] = useState<Basis>('period')
-  const [assumptions, setAssumptions] = useState(scenarioDefaults)
 
   const allocated = allocationLines.filter((line) => line.costCenter !== null)
   const unallocated = allocationLines.find((line) => line.costCenter === null)
@@ -55,14 +37,6 @@ export function FinanceCostAnalysisView({ formatCurrency, onSelectTab }: Finance
     }),
     { actual: 0, budget: 0, held: 0, vat: 0 }
   )
-
-  const l1Total = committedForecast.reduce((sum, month) => sum + month.value, 0)
-  const variable = assumptions.newHires * assumptions.costPerHire + assumptions.newProjects
-  const scenarios = [
-    { key: 'low', value: l1Total + variable * 0.5 },
-    { key: 'base', value: l1Total + variable },
-    { key: 'high', value: l1Total + variable * 1.5 }
-  ] as const
 
   return (
     <div className='space-y-6'>
@@ -224,82 +198,6 @@ export function FinanceCostAnalysisView({ formatCurrency, onSelectTab }: Finance
         </div>
         <p className='mt-3 text-[0.7rem] text-muted-foreground'>{t('budget.borneCostNote')}</p>
       </Panel>
-
-      <div className='grid gap-6 lg:grid-cols-2'>
-        <Panel>
-          <PanelTitle hint={t('finance.analysis.l1Hint')} title={t('finance.analysis.l1Title')} />
-          <ul className='mt-4 divide-y divide-border text-xs'>
-            {committedForecast.map((month) => (
-              <li className='flex justify-between py-2' key={month.month}>
-                <span className='text-muted-foreground'>{formatMonthYear(month.month)}</span>
-                <span className='font-bold'>{formatCurrency(month.value)}</span>
-              </li>
-            ))}
-            <li className='flex justify-between py-2 font-bold'>
-              <span>{t('finance.analysis.l1Total')}</span>
-              <span className='text-primary'>{formatCurrency(l1Total)}</span>
-            </li>
-          </ul>
-          <p className='mt-4 text-xs font-bold'>{t('finance.analysis.upcomingRenewals')}</p>
-          <ul className='mt-2 space-y-1.5 text-xs'>
-            {upcomingRenewals.map((renewal) => (
-              <li className='flex justify-between gap-2' key={renewal.name}>
-                <span className='text-muted-foreground'>
-                  {renewal.name} · {formatDate(renewal.date)}
-                </span>
-                <span className='font-semibold'>{formatCurrency(renewal.cost)}</span>
-              </li>
-            ))}
-          </ul>
-          <div className='mt-4'>
-            <Notice icon={Info} tone='neutral'>
-              {t('finance.analysis.l2Deferred')}
-            </Notice>
-          </div>
-        </Panel>
-
-        <Panel>
-          <PanelTitle hint={t('finance.analysis.l3Hint')} title={t('finance.analysis.l3Title')} />
-          <div className='mt-4 grid gap-3 sm:grid-cols-3'>
-            {(
-              [
-                ['newHires', 'finance.analysis.assumption.newHires'],
-                ['costPerHire', 'finance.analysis.assumption.costPerHire'],
-                ['newProjects', 'finance.analysis.assumption.newProjects']
-              ] as const
-            ).map(([key, labelKey]) => (
-              <div key={key}>
-                <label className='text-[0.7rem] font-bold text-muted-foreground' htmlFor={`assumption-${key}`}>
-                  {t(labelKey)}
-                </label>
-                <input
-                  className={`${inputClassName} mt-1`}
-                  id={`assumption-${key}`}
-                  inputMode='numeric'
-                  onChange={(event) =>
-                    setAssumptions((current) => ({ ...current, [key]: Number(event.target.value.replace(/\D/g, '')) }))
-                  }
-                  value={String(assumptions[key])}
-                />
-              </div>
-            ))}
-          </div>
-          <div className='mt-4 grid gap-3 sm:grid-cols-3'>
-            {scenarios.map((scenario) => (
-              <div
-                className={`rounded-xl border p-3 ${scenario.key === 'base' ? 'border-primary bg-primary-soft/30' : 'border-border'}`}
-                key={scenario.key}
-              >
-                <p className='text-[0.7rem] font-bold text-muted-foreground'>
-                  {t(`finance.analysis.scenario.${scenario.key}`)}
-                </p>
-                <p className='mt-1 text-base font-extrabold'>{formatCurrency(scenario.value)}</p>
-              </div>
-            ))}
-          </div>
-          <p className='mt-3 text-[0.7rem] text-muted-foreground'>{t('finance.analysis.l3Note')}</p>
-        </Panel>
-      </div>
     </div>
   )
 }

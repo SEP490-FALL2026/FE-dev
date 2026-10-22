@@ -5,6 +5,7 @@ import {
   Files,
   FolderOpen,
   Grid2X2,
+  Landmark,
   Plus,
   Sparkles,
   UsersRound,
@@ -21,6 +22,7 @@ export type ManagerTabKey =
   | 'request-approval'
   | 'create-employee-request'
   | 'weekly-batch'
+  | 'annual-budget'
   | 'ghost-seat-review'
   | 'ghost-seat-detail'
   | 'access-review'
@@ -35,6 +37,7 @@ export type ManagerTranslationKey =
   | 'accessReview'
   | 'createEmployeeRequest'
   | 'weeklyBatch'
+  | 'annualBudget'
 
 export interface ManagerNavItem {
   badge?: number
@@ -92,6 +95,11 @@ export const managerNavItems: ManagerNavItem[] = [
     icon: Files,
     key: 'weekly-batch',
     translationKey: 'weeklyBatch'
+  },
+  {
+    icon: Landmark,
+    key: 'annual-budget',
+    translationKey: 'annualBudget'
   }
 ]
 
@@ -105,6 +113,7 @@ const validTabs = new Set<string>([
   'request-approval',
   'create-employee-request',
   'weekly-batch',
+  'annual-budget',
   'ghost-seat-review',
   'ghost-seat-detail',
   'access-review'

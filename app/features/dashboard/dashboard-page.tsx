@@ -75,25 +75,14 @@ import {
   isValidApprovalTab,
   type ApprovalTabKey
 } from './approvals/approvals-nav'
-import { ApprovalChargeView } from './approvals/views/approval-charge-view'
-import { ApprovalQueueView } from './approvals/views/approval-queue-view'
-import { ApprovalRenewalView } from './approvals/views/approval-renewal-view'
-import { ApprovalRequestView } from './approvals/views/approval-request-view'
-import { ApprovalsOverviewView } from './approvals/views/approvals-overview-view'
-import { ApproverReportsView } from './approvals/views/approver-reports-view'
-import { financeNavSections, isValidFinanceTab, type FinanceTabKey } from './finance/finance-nav'
-import { FinanceBudgetQuestionsView } from './finance/views/finance-budget-questions-view'
-import { FinanceBudgetsView } from './finance/views/finance-budgets-view'
-import { FinanceChargeExceptionsView } from './finance/views/finance-charge-exceptions-view'
-import { FinanceCommitmentsView } from './finance/views/finance-commitments-view'
-import { FinanceCostAnalysisView } from './finance/views/finance-cost-analysis-view'
-import { FinanceOverviewView } from './finance/views/finance-overview-view'
-import { FinancePeriodCloseView } from './finance/views/finance-period-close-view'
-import { FinancePeriodReportView } from './finance/views/finance-period-report-view'
-import { FinanceSpendImportView } from './finance/views/finance-spend-import-view'
+import { ApprovalScreen } from './approvals/approval-screen'
+import { isValidFinanceTab, type FinanceTabKey } from './finance/finance-nav'
+import { FinanceScreen } from './finance/finance-screen'
+import { FinanceSidebarNav } from './finance/finance-sidebar-nav'
 import { managerNavItems, getParentManagerMenuKey, isValidManagerTab, type ManagerTabKey } from './manager/manager-nav'
 import { MOCK_TEAM_REQUESTS } from './manager/manager-data'
 import { ManagerAccessReviewView } from './manager/views/manager-access-review-view'
+import { ManagerAnnualBudgetView } from './manager/views/manager-annual-budget-view'
 import { ManagerCreateEmployeeRequestView } from './manager/views/manager-create-employee-request-view'
 import { ManagerEmployeeDetailView } from './manager/views/manager-employee-detail-view'
 import { ManagerGhostSeatDetailView } from './manager/views/manager-ghost-seat-detail-view'
@@ -107,6 +96,17 @@ import { ManagerTeamSoftwareView } from './manager/views/manager-team-software-v
 import { ManagerWeeklyBatchView } from './manager/views/manager-weekly-batch-view'
 import type { ManagerPreviewRequest, ManagerPreviewRequestInput } from './manager/manager-preview-request'
 import './manager/manager-workspace.css'
+import {
+  superAdminNavItems,
+  isValidSuperAdminTab,
+  type SuperAdminTabKey
+} from './super-admin/super-admin-nav'
+import { SuperAdminOverviewView } from './super-admin/views/super-admin-overview-view'
+import { SuperAdminAccountsView } from './super-admin/views/super-admin-accounts-view'
+import { SuperAdminSettingsView } from './super-admin/views/super-admin-settings-view'
+import { SuperAdminTransferView } from './super-admin/views/super-admin-transfer-view'
+import { SuperAdminAuditView } from './super-admin/views/super-admin-audit-view'
+
 
 const navigationItems = [
   { icon: Grid2X2, key: 'overview' },
@@ -153,6 +153,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
   const isFinance = role === 'finance'
   const isManager = role === 'manager'
   const isApprover = role === 'spending-approver'
+  const isSuperAdmin = role === 'super-admin'
   useEffect(() => {
     return () => {
       if (employeeAvatarUrl) URL.revokeObjectURL(employeeAvatarUrl)
@@ -184,6 +185,9 @@ export function DashboardPage({ role }: { role: UserRole }) {
   const activeApprovalParent = isApprover ? getParentApprovalMenuKey(activeApprovalTab) : 'overview'
 
   const activeFinanceTab: FinanceTabKey = isFinance && isValidFinanceTab(tabParam) ? tabParam : 'overview'
+
+  const activeSuperAdminTab: SuperAdminTabKey =
+    isSuperAdmin && isValidSuperAdminTab(tabParam) ? tabParam : 'overview'
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     licenses: true,
@@ -264,6 +268,18 @@ export function DashboardPage({ role }: { role: UserRole }) {
   }
 
   const handleSelectFinanceTab = (tab: FinanceTabKey, extraParams?: Record<string, string>) => {
+    const nextParams = new URLSearchParams()
+    if (tab !== 'overview') {
+      nextParams.set('tab', tab)
+    }
+    if (extraParams) {
+      Object.entries(extraParams).forEach(([k, v]) => nextParams.set(k, v))
+    }
+    setSearchParams(nextParams)
+    setMobileNavigationOpen(false)
+  }
+
+  const handleSelectSuperAdminTab = (tab: SuperAdminTabKey, extraParams?: Record<string, string>) => {
     const nextParams = new URLSearchParams()
     if (tab !== 'overview') {
       nextParams.set('tab', tab)
@@ -615,52 +631,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
               })}
             </ul>
           ) : isFinance ? (
-            <div className='space-y-4'>
-              {financeNavSections.map((section) => (
-                <div key={section.key}>
-                  {section.titleKey && (
-                    <p className='mb-1.5 px-3.5 text-[0.65rem] font-bold tracking-[0.12em] text-muted-foreground uppercase'>
-                      {t(`finance.nav.sections.${section.titleKey}`)}
-                    </p>
-                  )}
-                  <ul className='space-y-1'>
-                    {section.items.map((item) => {
-                      const isCurrent = activeFinanceTab === item.key
-                      const Icon = item.icon
-
-                      return (
-                        <li key={item.key}>
-                          <button
-                            aria-current={isCurrent ? 'page' : undefined}
-                            className={`flex w-full items-center justify-between gap-2 rounded-xl px-3.5 py-2.5 text-left text-sm font-semibold transition ${
-                              isCurrent
-                                ? 'bg-primary text-primary-foreground shadow-[0_10px_25px_var(--theme-primary-soft)]'
-                                : 'text-muted-foreground hover:bg-surface hover:text-foreground'
-                            }`}
-                            onClick={() => handleSelectFinanceTab(item.key)}
-                            type='button'
-                          >
-                            <span className='flex min-w-0 items-center gap-3'>
-                              <Icon aria-hidden='true' className='size-[1.125rem] shrink-0' />
-                              <span className='truncate'>{t(`finance.nav.${item.translationKey}`)}</span>
-                            </span>
-                            {item.badge !== undefined && (
-                              <span
-                                className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[0.65rem] font-bold ${
-                                  isCurrent ? 'bg-white/20 text-white' : 'bg-surface-subtle text-muted-foreground'
-                                }`}
-                              >
-                                {item.badge}
-                              </span>
-                            )}
-                          </button>
-                        </li>
-                      )
-                    })}
-                  </ul>
-                </div>
-              ))}
-            </div>
+            <FinanceSidebarNav activeTab={activeFinanceTab} onSelectTab={handleSelectFinanceTab} />
           ) : (
             <ul className='space-y-1.5'>
               {navigationItems.map(({ icon: Icon, key }) => {
@@ -935,6 +906,8 @@ export function DashboardPage({ role }: { role: UserRole }) {
                 )}
                 sentCount={managerSentRequestIds.length}
               />
+            ) : activeManagerTab === 'annual-budget' ? (
+              <ManagerAnnualBudgetView />
             ) : activeManagerTab === 'ghost-seat-review' ? (
               <ManagerGhostSeatReviewView formatCurrency={formatCurrency} onSelectTab={handleSelectManagerTab} />
             ) : activeManagerTab === 'ghost-seat-detail' ? (
@@ -947,67 +920,20 @@ export function DashboardPage({ role }: { role: UserRole }) {
               <ManagerAccessReviewView onSelectTab={handleSelectManagerTab} />
             )
           ) : isApprover ? (
-            activeApprovalTab === 'overview' ? (
-              <ApprovalsOverviewView
-                displayName={profile.displayName}
-                formatCurrency={formatCurrency}
-                onSelectTab={handleSelectApprovalTab}
-              />
-            ) : activeApprovalTab === 'queue' ? (
-              <ApprovalQueueView formatCurrency={formatCurrency} onSelectTab={handleSelectApprovalTab} />
-            ) : activeApprovalTab === 'request' ? (
-              <ApprovalRequestView
-                formatCurrency={formatCurrency}
-                itemId={searchParams.get('id') || undefined}
-                onSelectTab={handleSelectApprovalTab}
-              />
-            ) : activeApprovalTab === 'renewal' ? (
-              <ApprovalRenewalView
-                formatCurrency={formatCurrency}
-                itemId={searchParams.get('id') || undefined}
-                onSelectTab={handleSelectApprovalTab}
-              />
-            ) : activeApprovalTab === 'charge' ? (
-              <ApprovalChargeView
-                formatCurrency={formatCurrency}
-                itemId={searchParams.get('id') || undefined}
-                onSelectTab={handleSelectApprovalTab}
-              />
-            ) : (
-              <ApproverReportsView formatCurrency={formatCurrency} />
-            )
+            <ApprovalScreen
+              displayName={profile.displayName}
+              formatCurrency={formatCurrency}
+              itemId={searchParams.get('id') || undefined}
+              onSelectTab={handleSelectApprovalTab}
+              tab={activeApprovalTab}
+            />
           ) : isFinance ? (
-            activeFinanceTab === 'overview' ? (
-              <FinanceOverviewView formatCurrency={formatCurrency} onSelectTab={handleSelectFinanceTab} />
-            ) : activeFinanceTab === 'budget-questions' ? (
-              <FinanceBudgetQuestionsView
-                formatCurrency={formatCurrency}
-                onSelectTab={handleSelectFinanceTab}
-                questionId={searchParams.get('id') || undefined}
-              />
-            ) : activeFinanceTab === 'commitments' ? (
-              <FinanceCommitmentsView
-                commitmentId={searchParams.get('id') || undefined}
-                formatCurrency={formatCurrency}
-                onSelectTab={handleSelectFinanceTab}
-              />
-            ) : activeFinanceTab === 'budgets' ? (
-              <FinanceBudgetsView formatCurrency={formatCurrency} />
-            ) : activeFinanceTab === 'spend-import' ? (
-              <FinanceSpendImportView formatCurrency={formatCurrency} onSelectTab={handleSelectFinanceTab} />
-            ) : activeFinanceTab === 'charge-exceptions' ? (
-              <FinanceChargeExceptionsView
-                exceptionId={searchParams.get('id') || undefined}
-                formatCurrency={formatCurrency}
-                onSelectTab={handleSelectFinanceTab}
-              />
-            ) : activeFinanceTab === 'period-close' ? (
-              <FinancePeriodCloseView formatCurrency={formatCurrency} onSelectTab={handleSelectFinanceTab} />
-            ) : activeFinanceTab === 'cost-analysis' ? (
-              <FinanceCostAnalysisView formatCurrency={formatCurrency} onSelectTab={handleSelectFinanceTab} />
-            ) : (
-              <FinancePeriodReportView formatCurrency={formatCurrency} />
-            )
+            <FinanceScreen
+              formatCurrency={formatCurrency}
+              itemId={searchParams.get('id') || undefined}
+              onSelectTab={handleSelectFinanceTab}
+              tab={activeFinanceTab}
+            />
           ) : (
             <>
               <div className='flex flex-wrap items-start justify-between gap-4'>

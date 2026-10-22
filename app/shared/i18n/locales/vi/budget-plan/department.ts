@@ -1,0 +1,30 @@
+export const department = {
+  allocationHint: 'Còn {{amount}} chưa phân bổ vào nhóm phần mềm nào.',
+  allocationTitle: 'Phân bổ theo nhóm phần mềm',
+  approved: 'Ngân sách năm đã duyệt',
+  approvedHint: 'Cơ sở {{base}} · buffer {{buffer}}',
+  commitmentStage: {
+    NOT_RECORDED: 'Chưa ghi nhận',
+    RECORDED: 'Chưa thanh toán'
+  },
+  commitmentsHint: '{{count}} khoản đang chờ Tài chính ghi nhận.',
+  commitmentsTitle: 'Cam kết chi chưa thanh toán',
+  committed: 'Đã cam kết chi',
+  committedHint: 'Đã duyệt, chưa ghi nhận hoặc chưa thanh toán',
+  empty: 'Không có mục nào.',
+  exceptionsTitle: 'Ngoại lệ ngân sách',
+  figuresLabel: 'Số liệu ngân sách của phòng ban',
+  open: 'Đang mở',
+  pickLabel: 'Chọn phòng ban',
+  remaining: 'Còn lại',
+  remainingHint: 'Đã duyệt − đã sử dụng − đã cam kết',
+  requestsTitle: 'Yêu cầu ngân sách đang mở',
+  resolved: 'Đã xử lý',
+  subtitle: 'Chọn một phòng ban để xem cùng lúc ngân sách, phân bổ, cam kết chi, yêu cầu và ngoại lệ năm {{year}}.',
+  title: 'Ngân sách {{department}}',
+  unallocated: 'Chưa phân bổ',
+  usageHint: 'Ngân sách năm đã duyệt chia theo đã sử dụng, đã cam kết chi và còn lại.',
+  usageTitle: 'Tình hình sử dụng ngân sách',
+  used: 'Đã sử dụng',
+  viewAll: 'Xem tất cả'
+} as const
