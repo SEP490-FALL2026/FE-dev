@@ -37,7 +37,7 @@ export function SuperAdminTransferView() {
     }
 
     if (!selectedCandidate.isEligible) {
-      setTransferError(`Nhân sự ${selectedCandidate.name} không đủ điều kiện kế nhiệm do vi phạm SoD.`)
+      setTransferError(`Nhân sự ${selectedCandidate.name} không đủ điều kiện kế nhiệm do đang nắm giữ vai trò quản trị khác.`)
       return
     }
 
@@ -57,18 +57,18 @@ export function SuperAdminTransferView() {
   return (
     <div className='space-y-6'>
       <PageHeader
-        code='ADM-22'
-        subtitle='Chuyển giao quyền hạn quản trị cao nhất cho nhân sự kế nhiệm đủ điều kiện trong 01 giao dịch duy nhất (FR-8.10, QĐ-44).'
-        title='Chuyển giao Vai trò Super Admin'
+        code='Bàn giao vai trò'
+        subtitle='Chuyển giao quyền hạn quản trị hệ thống cho nhân sự kế nhiệm đủ điều kiện.'
+        title='Chuyển giao Vai trò Quản trị Hệ thống'
       />
 
       {/* Irreversible Action Warning */}
       <div className='flex items-start gap-3 rounded-2xl border border-warning/30 bg-warning/10 p-4 text-warning'>
         <AlertTriangle className='mt-0.5 size-5 shrink-0' />
         <div className='text-xs'>
-          <h2 className='font-bold text-foreground'>Lưu ý Quan trọng trước khi Chuyển giao (QĐ-44)</h2>
+          <h2 className='font-bold text-foreground'>Lưu ý quan trọng trước khi chuyển giao vai trò</h2>
           <p className='mt-1 text-muted-foreground'>
-            Hệ thống tuân thủ nghiêm ngặt nguyên tắc <strong>đúng 01 Super Admin</strong>. Khi giao dịch chuyển giao hoàn tất, tài khoản của bạn sẽ ngay lập tức bị thu hồi vai trò Super Admin và bàn giao cho người kế nhiệm. Thao tác này <strong>không thể tự hoàn tác</strong>.
+            Hệ thống duy trì <strong>đúng 01 Quản trị hệ thống (Super Admin)</strong>. Khi hoàn tất chuyển giao, tài khoản hiện tại sẽ được thu hồi quyền quản trị và chuyển sang cho người kế nhiệm. Thao tác này <strong>không thể tự hoàn tác</strong>.
           </p>
         </div>
       </div>
@@ -80,7 +80,7 @@ export function SuperAdminTransferView() {
           </span>
           <h2 className='mt-4 text-xl font-bold text-foreground'>Chuyển giao Vai trò Thành công!</h2>
           <p className='mt-2 max-w-md mx-auto text-xs text-muted-foreground'>
-            Đã thu hồi vai trò Super Admin từ tài khoản hiện tại và cấp quyền cho <strong>{selectedCandidate?.name}</strong> trong 01 giao dịch nguyên tử. Toàn bộ thông tin đã được ghi vết Audit Trail (FR-8.10, QĐ-44e).
+            Đã chuyển giao vai trò Quản trị hệ thống cho <strong>{selectedCandidate?.name}</strong> thành công. Toàn bộ thông tin đã được ghi nhận vào nhật ký kiểm toán hệ thống.
           </p>
           <div className='mt-6'>
             <a
@@ -103,8 +103,8 @@ export function SuperAdminTransferView() {
           {/* Candidate Selection List */}
           <Panel>
             <PanelTitle
-              hint='Hệ thống tự động kiểm tra điều kiện SoD-1: Người kế nhiệm phải có tài khoản đang kích hoạt và không giữ vai IT Admin / Finance / Người duyệt chi'
-              title='1. Chọn Nhân sự Kế nhiệm đủ điều kiện (FR-8.10)'
+              hint='Người kế nhiệm phải có tài khoản đang hoạt động và không đồng thời nắm giữ các vai trò quản trị khác'
+              title='1. Chọn Nhân sự Kế nhiệm đủ điều kiện'
             />
 
             <div className='mt-4 space-y-3'>
@@ -205,7 +205,7 @@ export function SuperAdminTransferView() {
         <Dialog
           hint='Giao dịch chuyển giao sẽ thực hiện thu hồi quyền của bạn và cấp quyền cho người mới ngay lập tức.'
           onClose={() => setConfirmModalOpen(false)}
-          title='Xác nhận Bàn giao Quyền Super Admin (QĐ-44)'
+          title='Xác nhận Bàn giao Quyền Quản trị Hệ thống'
         >
           <div className='space-y-4 text-xs'>
             <div className='rounded-xl border border-warning/30 bg-warning/10 p-4 text-warning'>

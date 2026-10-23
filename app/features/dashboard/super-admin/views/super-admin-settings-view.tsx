@@ -26,10 +26,10 @@ export function SuperAdminSettingsView() {
     e.preventDefault()
     setErrorMessage(null)
 
-    // Validation 1: Alternate cannot be the same as Primary (FR-3.15)
+    // Validation 1: Alternate cannot be the same as Primary
     if (settings.primaryApproverId === settings.alternateApproverId) {
       setErrorMessage(
-        'Quy tắc SoD (FR-3.15): Người duyệt chi thay thế khi xung đột không được trùng với Người duyệt chi chính.'
+        'Người duyệt chi thay thế khi xung đột không được trùng với Người duyệt chi chính.'
       )
       return
     }
@@ -52,8 +52,8 @@ export function SuperAdminSettingsView() {
   return (
     <div className='space-y-6'>
       <PageHeader
-        code='ADM-02'
-        subtitle='Cấu hình các tham số vận hành cốt lõi, hạn mức phát hiện lãng phí và chỉ định người duyệt chi cấp cao theo quy định SoD.'
+        code='Cấu hình hệ thống'
+        subtitle='Cấu hình các tham số vận hành cốt lõi, hạn mức phát hiện lãng phí và chỉ định người duyệt chi cấp cao.'
         title='Cấu hình Người duyệt & Chính sách Hệ thống'
       />
 
@@ -62,10 +62,10 @@ export function SuperAdminSettingsView() {
           <div className='flex items-center gap-2'>
             <CheckCircle2 className='size-5' />
             <div>
-              <p className='font-bold'>Đã áp dụng cấu hình và ghi một dòng Audit Trail (FR-8.3).</p>
+              <p className='font-bold'>Đã áp dụng cấu hình và cập nhật vào lịch sử hệ thống.</p>
               {reroutedStepsCount !== null && (
                 <p className='mt-0.5 text-[0.7rem]'>
-                  Hệ quả (FR-3.16): Đã tự động tính toán lại và chuyển tiếp {reroutedStepsCount} yêu cầu đang chờ sang người duyệt mới.
+                  Đã tự động tính toán lại và chuyển tiếp {reroutedStepsCount} yêu cầu đang chờ sang người duyệt mới.
                 </p>
               )}
             </div>
@@ -86,7 +86,7 @@ export function SuperAdminSettingsView() {
         <Panel>
           <PanelTitle
             hint='Thiết lập chuỗi người có thẩm quyền ký duyệt ngân sách và chi tiêu phần mềm vượt ngưỡng'
-            title='1. Chỉ định Người duyệt chi & Người thay thế (FR-3.15)'
+            title='1. Chỉ định Người duyệt chi & Người thay thế'
           />
 
           <div className='mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
@@ -249,15 +249,15 @@ export function SuperAdminSettingsView() {
             <div className='rounded-xl border border-border bg-surface-subtle/50 p-4'>
               <div className='flex items-center justify-between'>
                 <label className='block text-xs font-bold text-foreground'>
-                  Loại kỳ ngân sách tổ chức (FR-5.1, OI-11b)
+                  Loại kỳ ngân sách tổ chức
                 </label>
                 <Pill tone='primary'>
-                  <Lock className='size-3' /> Đã khóa một lần
+                  <Lock className='size-3' /> Đã khóa cố định
                 </Pill>
               </div>
               <p className='mt-2 text-sm font-bold text-foreground'>Theo Quý (QUARTERLY - 3 tháng/kỳ)</p>
               <p className='mt-1 text-[0.7rem] text-muted-foreground'>
-                Theo quy định QĐ-47d, loại kỳ ngân sách được Super Admin thiết lập một lần duy nhất lúc khởi tạo và không thể chỉnh sửa để bảo toàn tính toàn vẹn của số liệu kế toán.
+                Loại kỳ ngân sách được thiết lập một lần duy nhất lúc khởi tạo hệ thống để bảo toàn tính toàn vẹn của số liệu kế toán.
               </p>
             </div>
 

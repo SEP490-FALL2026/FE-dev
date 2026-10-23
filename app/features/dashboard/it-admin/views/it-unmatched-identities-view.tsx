@@ -123,7 +123,7 @@ export function ItUnmatchedIdentitiesView({ onSelectTab }: ItUnmatchedIdentities
       <div>
         <div className='inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-soft px-3 py-1 text-xs font-semibold text-primary'>
           <span className='size-2 rounded-full bg-primary' />
-          ITA-09 · Khớp định danh tài khoản AI
+          Khớp định danh tài khoản người dùng
         </div>
         <h1 className='mt-2 text-2xl font-bold tracking-tight sm:text-3xl'>{t('itAdmin.unmatchedIdentities.title')}</h1>
         <p className='mt-1 text-sm text-muted-foreground'>{t('itAdmin.unmatchedIdentities.subtitle')}</p>

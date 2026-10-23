@@ -1,17 +1,21 @@
 import {
+  BellRing,
+  Building2,
   FileText,
   Grid2X2,
-  Lock,
   RotateCcw,
   Settings,
-  ShieldAlert,
+  UserCheck,
   Users
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 export const SUPER_ADMIN_TAB_KEYS = [
   'overview',
+  'departments',
   'accounts',
+  'personnel',
+  'reminders',
   'settings',
   'transfer',
   'audit-trail'
@@ -21,6 +25,7 @@ export type SuperAdminTabKey = (typeof SUPER_ADMIN_TAB_KEYS)[number]
 
 export interface SuperAdminNavItem {
   badge?: number
+  badgeTone?: 'warning' | 'info' | 'neutral'
   icon: LucideIcon
   key: SuperAdminTabKey
   screenCode: string
@@ -32,41 +37,44 @@ export const superAdminNavItems: SuperAdminNavItem[] = [
   {
     icon: Grid2X2,
     key: 'overview',
-    screenCode: 'ADM-20',
-    title: 'Tổng quan quản trị',
+    screenCode: 'Tổng quan',
+    title: 'Tổng quan thiết lập',
     translationKey: 'overview'
   },
   {
-    badge: 2,
+    badge: 2, // 2 phòng chưa có Manager
+    badgeTone: 'warning',
+    icon: Building2,
+    key: 'departments',
+    screenCode: 'Phòng ban',
+    title: 'Phòng ban',
+    translationKey: 'departments'
+  },
+  {
+    badge: 3, // 3 nhân sự chưa xếp phòng
+    badgeTone: 'info',
     icon: Users,
     key: 'accounts',
-    screenCode: 'ADM-21',
+    screenCode: 'Tài khoản',
     title: 'Tài khoản & Phân quyền',
     translationKey: 'accounts'
   },
   {
-    icon: Settings,
-    key: 'settings',
-    screenCode: 'ADM-02',
-    title: 'Cấu hình & Người duyệt',
-    translationKey: 'settings'
+    icon: UserCheck,
+    key: 'personnel',
+    screenCode: 'Nhân sự',
+    title: 'Nhân sự phòng ban',
+    translationKey: 'personnel'
   },
   {
-    icon: RotateCcw,
-    key: 'transfer',
-    screenCode: 'ADM-22',
-    title: 'Chuyển giao vai trò',
-    translationKey: 'transfer'
-  },
-  {
-    icon: FileText,
-    key: 'audit-trail',
-    screenCode: 'WF-03',
-    title: 'Nhật ký & Tác vụ nền',
-    translationKey: 'auditTrail'
+    icon: BellRing,
+    key: 'reminders',
+    screenCode: 'Nhắc xử lý',
+    title: 'Nhắc xử lý Manager',
+    translationKey: 'reminders'
   }
 ]
 
 export function isValidSuperAdminTab(value: string | null): value is SuperAdminTabKey {
-  return value !== null && (SUPER_ADMIN_TAB_KEYS as readonly string[]).includes(value)
+  return value !== null && (SUPER_ADMIN_TAB_KEYS as readonly string[]).includes(value as SuperAdminTabKey)
 }

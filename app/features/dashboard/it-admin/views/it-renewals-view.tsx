@@ -58,7 +58,7 @@ export function ItRenewalsView({
     setSelectedProposal(item)
     setNewSeatCount(item.recommendedSeats)
     setProposalNotes(
-      `Đề xuất giảm ${item.currentSeats - item.recommendedSeats} seat lãng phí (8 seat G1 chưa gán + 7 seat G3 không dùng), duy trì ${item.recommendedSeats} seat cho đội ngũ kỹ thuật chủ lực.`
+      `Đề xuất giảm ${item.currentSeats - item.recommendedSeats} seat lãng phí (seat chưa gán G1 và không sử dụng G3), duy trì ${item.recommendedSeats} seat cho đội ngũ chủ lực.`
     )
     setIsProposalModalOpen(true)
   }
@@ -83,7 +83,7 @@ export function ItRenewalsView({
       )
     )
 
-    setToastMessage(`Đã lập đề xuất gia hạn ${selectedProposal.app} và chuyển Người duyệt chi quyết định (UF-15)!`)
+    setToastMessage(`Đã lập đề xuất gia hạn ${selectedProposal.app} và chuyển Người duyệt chi quyết định!`)
     setIsProposalModalOpen(false)
     setTimeout(() => setToastMessage(null), 4000)
   }
@@ -102,7 +102,7 @@ export function ItRenewalsView({
       )
     )
 
-    setToastMessage(`Đã ghi nhận kết quả đàm phán hợp đồng ${selectedProposal.app} với vendor thành công (ITA-57)!`)
+    setToastMessage(`Đã ghi nhận kết quả đàm phán hợp đồng ${selectedProposal.app} với vendor thành công!`)
     setIsOutcomeModalOpen(false)
     setTimeout(() => setToastMessage(null), 4000)
   }
@@ -121,13 +121,13 @@ export function ItRenewalsView({
       <div>
         <div className='inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-soft px-3 py-1 text-xs font-semibold text-primary'>
           <span className='size-2 rounded-full bg-primary' />
-          ITA-53 · Chu kỳ gia hạn & Điều khoản AI
+          Chu kỳ gia hạn & Điều khoản hợp đồng
         </div>
         <h1 className='mt-2 text-2xl font-bold tracking-tight sm:text-3xl'>
-          Đề xuất gia hạn & Đàm phán hợp đồng AI
+          {t('itAdmin.renewals.title')}
         </h1>
         <p className='mt-1 text-sm text-muted-foreground'>
-          Rà soát cảnh báo tính từ hạn chót báo hủy, đối chiếu checklist 6 điều khoản nhà cung cấp và lập đề xuất (UF-20)
+          {t('itAdmin.renewals.subtitle')}
         </p>
       </div>
 
@@ -147,8 +147,8 @@ export function ItRenewalsView({
               </span>
             </div>
             <p className='mt-1 text-xs text-muted-foreground'>
-              Hệ thống quét mốc cảnh báo tính từ hạn chót báo hủy (Notice Deadline), không tính từ ngày hết hạn hợp đồng.
-              Nếu bỏ lỡ hạn chót, gói AI sẽ tự động gia hạn thêm 12 tháng (FR-1.4, QĐ-49c).
+              Hệ thống quét mốc cảnh báo tính từ hạn chót báo hủy (Notice Deadline), không tính từ ngày kết thúc hợp đồng.
+              Nếu bỏ lỡ hạn chót báo hủy, hợp đồng thuê bao sẽ tự động gia hạn thêm một chu kỳ theo điều khoản nhà cung cấp.
             </p>
           </div>
         </div>
@@ -156,7 +156,7 @@ export function ItRenewalsView({
 
       {/* Renewal Proposals Cards */}
       <div className='space-y-4'>
-        <h2 className='text-lg font-bold text-foreground'>Danh sách thuê bao AI trong kỳ quét gia hạn</h2>
+        <h2 className='text-lg font-bold text-foreground'>Danh sách hợp đồng thuê bao trong chu kỳ rà soát gia hạn</h2>
 
         <div className='grid gap-6 lg:grid-cols-2'>
           {proposals.map((item) => {
@@ -256,7 +256,7 @@ export function ItRenewalsView({
                     type='button'
                   >
                     <ShieldCheck className='size-3.5 text-primary' />
-                    <span>Rà soát 6 điều khoản (ITA-54)</span>
+                    <span>Rà soát 6 điều khoản</span>
                   </button>
 
                   {!isExecuted && !isSubmitted && (
@@ -266,7 +266,7 @@ export function ItRenewalsView({
                       type='button'
                     >
                       <FileSignature className='size-3.5' />
-                      <span>Lập đề xuất (ITA-56)</span>
+                      <span>Lập đề xuất</span>
                     </button>
                   )}
 
@@ -277,7 +277,7 @@ export function ItRenewalsView({
                       type='button'
                     >
                       <CheckCircle2 className='size-3.5' />
-                      <span>Nhập kết quả với Vendor (ITA-57)</span>
+                      <span>Nhập kết quả với Vendor</span>
                     </button>
                   )}
                 </div>
@@ -287,7 +287,7 @@ export function ItRenewalsView({
         </div>
       </div>
 
-      {/* Modal 1: 6-Point Vendor Terms Checklist Review (ITA-54) */}
+      {/* Modal 1: 6-Point Vendor Terms Checklist Review */}
       {isChecklistModalOpen && selectedProposal && (
         <div className='fixed inset-0 z-50 grid place-items-center bg-black/60 p-4 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]'>
           <div className='relative w-full max-w-2xl rounded-2xl border border-border bg-surface p-6 shadow-2xl max-h-[90vh] overflow-y-auto'>
@@ -300,48 +300,48 @@ export function ItRenewalsView({
             </button>
 
             <div className='flex items-center gap-2'>
-              <span className='rounded-full border border-primary/20 bg-primary-soft px-2.5 py-0.5 text-xs font-semibold text-primary font-mono'>
-                ITA-54
+              <span className='rounded-full border border-primary/20 bg-primary-soft px-2.5 py-0.5 text-xs font-semibold text-primary'>
+                Rà soát điều khoản
               </span>
-              <span className='text-xs font-bold text-muted-foreground'>Checklist 6 điểm điều khoản Vendor trước kỳ gia hạn</span>
+              <span className='text-xs font-bold text-muted-foreground'>Bộ 6 điều khoản nhà cung cấp trước kỳ gia hạn</span>
             </div>
 
             <h2 className='mt-2 text-xl font-bold text-foreground'>{selectedProposal.app}</h2>
             <p className='text-xs text-muted-foreground'>
-              Rà soát các cam kết bảo mật AI, quyền sở hữu dữ liệu và điều khoản hủy hợp đồng (FR-1.10, QĐ-54e)
+              Rà soát các cam kết bảo mật, quyền sở hữu dữ liệu và điều khoản hủy/gia hạn hợp đồng
             </p>
 
             <div className='mt-5 space-y-3'>
               {[
                 {
-                  id: 'aiModelTraining',
-                  item: selectedProposal.termsChecklist.aiModelTraining,
-                  title: '1. Dữ liệu huấn luyện AI (AI Model Training Policy)'
-                },
-                {
                   id: 'accountSharing',
                   item: selectedProposal.termsChecklist.accountSharing,
-                  title: '2. Chính sách chia sẻ tài khoản (Account Sharing)'
+                  title: '1. Chính sách chia sẻ tài khoản (Account Sharing)'
+                },
+                {
+                  id: 'commercialUse',
+                  item: selectedProposal.termsChecklist.commercialUse,
+                  title: '2. Quyền sử dụng thương mại (Commercial Use Rights)'
+                },
+                {
+                  id: 'dataAndIpRights',
+                  item: selectedProposal.termsChecklist.dataAndIpRights,
+                  title: '3. Sở hữu trí tuệ & Bảo vệ dữ liệu (Data & IP Ownership)'
                 },
                 {
                   id: 'dataResidency',
                   item: selectedProposal.termsChecklist.dataResidency,
-                  title: '3. Nơi lưu trữ dữ liệu & Bảo mật (Data Residency)'
+                  title: '4. Nơi lưu trữ dữ liệu & Bảo mật (Data Residency)'
                 },
                 {
                   id: 'deviceLimits',
                   item: selectedProposal.termsChecklist.deviceLimits,
-                  title: '4. Giới hạn thiết bị / Phiên làm việc (Device / Session Limits)'
-                },
-                {
-                  id: 'ipIndemnity',
-                  item: selectedProposal.termsChecklist.ipIndemnity,
-                  title: '5. Quyền sở hữu trí tuệ & Bồi thường (IP Indemnity)'
+                  title: '5. Giới hạn thiết bị / Phiên làm việc (Device / Session Limits)'
                 },
                 {
                   id: 'cancellationNotice',
                   item: selectedProposal.termsChecklist.cancellationNotice,
-                  title: '6. Thời hạn báo hủy & Tự gia hạn (Cancellation Notice)'
+                  title: '6. Thời hạn báo hủy & Tự gia hạn (Cancellation Notice & Auto-Renew)'
                 }
               ].map(({ id, item, title }) => (
                 <div className='rounded-xl border border-border bg-surface-subtle p-3.5 text-xs' key={id}>
@@ -383,8 +383,8 @@ export function ItRenewalsView({
             </button>
 
             <div className='flex items-center gap-2'>
-              <span className='rounded-full border border-primary/20 bg-primary-soft px-2.5 py-0.5 text-xs font-semibold text-primary font-mono'>
-                ITA-56
+              <span className='rounded-full border border-primary/20 bg-primary-soft px-2.5 py-0.5 text-xs font-semibold text-primary'>
+                Đề xuất gia hạn
               </span>
               <span className='text-xs font-bold text-muted-foreground'>Lập đề xuất gia hạn chuyển Người duyệt chi</span>
             </div>
@@ -480,14 +480,14 @@ export function ItRenewalsView({
                 type='button'
               >
                 <Send className='size-3.5' />
-                <span>Chuyển Người duyệt chi quyết định (UF-15)</span>
+                <span>Chuyển Người duyệt chi quyết định</span>
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Modal 3: Enter Vendor Outcome (ITA-57) */}
+      {/* Modal 3: Enter Vendor Outcome */}
       {isOutcomeModalOpen && selectedProposal && (
         <div className='fixed inset-0 z-50 grid place-items-center bg-black/60 p-4 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]'>
           <div className='relative w-full max-w-lg rounded-2xl border border-border bg-surface p-6 shadow-2xl'>
@@ -500,10 +500,10 @@ export function ItRenewalsView({
             </button>
 
             <div className='flex items-center gap-2'>
-              <span className='rounded-full border border-primary/20 bg-primary-soft px-2.5 py-0.5 text-xs font-semibold text-primary font-mono'>
-                ITA-57
+              <span className='rounded-full border border-primary/20 bg-primary-soft px-2.5 py-0.5 text-xs font-semibold text-primary'>
+                Kết quả đàm phán
               </span>
-              <span className='text-xs font-bold text-muted-foreground'>Ghi nhận kết quả đàm phán với Vendor</span>
+              <span className='text-xs font-bold text-muted-foreground'>Ghi nhận kết quả làm việc với Nhà cung cấp</span>
             </div>
 
             <h2 className='mt-2 text-xl font-bold text-foreground'>{selectedProposal.app}</h2>
@@ -519,7 +519,7 @@ export function ItRenewalsView({
                   title: 'Nhà cung cấp xác nhận đúng quyết định'
                 },
                 {
-                  desc: 'Vendor đưa ra giá hoặc số lượng khác, mở task theo dõi ITA-65.',
+                  desc: 'Vendor đưa ra giá hoặc số lượng khác, mở tác vụ theo dõi điều chỉnh.',
                   id: 'different' as const,
                   title: 'Kết quả đàm phán khác (Mở theo dõi)'
                 },
@@ -566,7 +566,7 @@ export function ItRenewalsView({
                 type='button'
               >
                 <CheckCircle2 className='size-3.5' />
-                <span>Xác nhận kết quả (ITA-57)</span>
+                <span>Xác nhận kết quả đàm phán</span>
               </button>
             </div>
           </div>
