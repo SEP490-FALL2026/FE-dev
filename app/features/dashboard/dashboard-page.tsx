@@ -38,15 +38,13 @@ import { CategoryChart, CostChart } from './dashboard-charts'
 import { alerts, categoryCosts, notificationCount, recentSoftware, roleProfiles, topSoftware } from './dashboard-data'
 import { getParentMenuKey, itAdminMenuItems, isValidItAdminTab, type ItAdminTabKey } from './it-admin/it-admin-nav'
 import { ItDeviceCollectorsView } from './it-admin/views/it-device-collectors-view'
-import { ItOffboardingView } from './it-admin/views/it-offboarding-view'
 import { ItOptimizationView } from './it-admin/views/it-optimization-view'
 import { ItOverviewView } from './it-admin/views/it-overview-view'
 import { ItProvisioningView } from './it-admin/views/it-provisioning-view'
 import { ItReconciliationView } from './it-admin/views/it-reconciliation-view'
-import { ItRenewalsView } from './it-admin/views/it-renewals-view'
 import { ItShadowItView } from './it-admin/views/it-shadow-it-view'
-import { ItUnmatchedIdentitiesView } from './it-admin/views/it-unmatched-identities-view'
 import { ItUsageImportView } from './it-admin/views/it-usage-import-view'
+import { ItDeptCatalogView } from './it-admin/views/it-dept-catalog-view'
 import {
   employeeMenuItems,
   getParentEmployeeMenuKey,
@@ -102,7 +100,10 @@ import {
   type SuperAdminTabKey
 } from './super-admin/super-admin-nav'
 import { SuperAdminOverviewView } from './super-admin/views/super-admin-overview-view'
+import { SuperAdminDepartmentsView } from './super-admin/views/super-admin-departments-view'
 import { SuperAdminAccountsView } from './super-admin/views/super-admin-accounts-view'
+import { SuperAdminPersonnelView } from './super-admin/views/super-admin-personnel-view'
+import { SuperAdminRemindersView } from './super-admin/views/super-admin-reminders-view'
 import { SuperAdminSettingsView } from './super-admin/views/super-admin-settings-view'
 import { SuperAdminTransferView } from './super-admin/views/super-admin-transfer-view'
 import { SuperAdminAuditView } from './super-admin/views/super-admin-audit-view'
@@ -632,6 +633,42 @@ export function DashboardPage({ role }: { role: UserRole }) {
             </ul>
           ) : isFinance ? (
             <FinanceSidebarNav activeTab={activeFinanceTab} onSelectTab={handleSelectFinanceTab} />
+          ) : isSuperAdmin ? (
+            <ul className='space-y-1.5'>
+              {superAdminNavItems.map((item) => {
+                const isCurrent = activeSuperAdminTab === item.key
+                const Icon = item.icon
+
+                return (
+                  <li key={item.key}>
+                    <button
+                      aria-current={isCurrent ? 'page' : undefined}
+                      className={`flex w-full items-center justify-between rounded-xl px-3.5 py-3 text-left text-sm font-semibold transition ${
+                        isCurrent
+                          ? 'bg-primary text-primary-foreground shadow-[0_10px_25px_var(--theme-primary-soft)]'
+                          : 'text-muted-foreground hover:bg-surface hover:text-foreground'
+                      }`}
+                      onClick={() => handleSelectSuperAdminTab(item.key)}
+                      type='button'
+                    >
+                      <div className='flex items-center gap-3'>
+                        <Icon aria-hidden='true' className='size-[1.125rem] shrink-0' />
+                        <span>{item.title}</span>
+                      </div>
+                      {item.badge !== undefined && (
+                        <span
+                          className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[0.65rem] font-bold ${
+                            isCurrent ? 'bg-white/20 text-white' : 'bg-surface-subtle text-muted-foreground'
+                          }`}
+                        >
+                          {item.badge}
+                        </span>
+                      )}
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
           ) : (
             <ul className='space-y-1.5'>
               {navigationItems.map(({ icon: Icon, key }) => {
@@ -770,20 +807,26 @@ export function DashboardPage({ role }: { role: UserRole }) {
               <ItProvisioningView initialTaskId={searchParams.get('id') || undefined} onSelectTab={handleSelectTab} />
             ) : activeTab === 'reconciliation' ? (
               <ItReconciliationView onSelectTab={handleSelectTab} />
-            ) : activeTab === 'renewals' ? (
-              <ItRenewalsView formatCurrency={formatCurrency} onSelectTab={handleSelectTab} />
             ) : activeTab === 'usage-import' ? (
               <ItUsageImportView onSelectTab={handleSelectTab} />
-            ) : activeTab === 'unmatched-identities' ? (
-              <ItUnmatchedIdentitiesView onSelectTab={handleSelectTab} />
             ) : activeTab === 'device-collectors' ? (
-              <ItDeviceCollectorsView onSelectTab={handleSelectTab} />
+              <ItDeviceCollectorsView
+                alertId={searchParams.get('alertId') || undefined}
+                fromTab={searchParams.get('from') || undefined}
+                initialDeptId={searchParams.get('deptId') || undefined}
+                initialEmployeeId={searchParams.get('employeeId') || undefined}
+                onSelectTab={handleSelectTab}
+              />
             ) : activeTab === 'license-optimization' ? (
-              <ItOptimizationView formatCurrency={formatCurrency} onSelectTab={handleSelectTab} />
+              <ItOptimizationView
+                formatCurrency={formatCurrency}
+                initialAlertId={searchParams.get('alertId') || undefined}
+                onSelectTab={handleSelectTab}
+              />
             ) : activeTab === 'shadow-it' ? (
               <ItShadowItView onSelectTab={handleSelectTab} />
             ) : (
-              <ItOffboardingView onSelectTab={handleSelectTab} />
+              <ItDeptCatalogView onSelectTab={handleSelectTab} />
             )
           ) : isEmployee ? (
             activeEmployeeTab === 'overview' ? (
@@ -934,6 +977,24 @@ export function DashboardPage({ role }: { role: UserRole }) {
               onSelectTab={handleSelectFinanceTab}
               tab={activeFinanceTab}
             />
+          ) : isSuperAdmin ? (
+            activeSuperAdminTab === 'overview' ? (
+              <SuperAdminOverviewView onSelectTab={handleSelectSuperAdminTab} />
+            ) : activeSuperAdminTab === 'departments' ? (
+              <SuperAdminDepartmentsView onSelectTab={handleSelectSuperAdminTab} />
+            ) : activeSuperAdminTab === 'accounts' ? (
+              <SuperAdminAccountsView />
+            ) : activeSuperAdminTab === 'personnel' ? (
+              <SuperAdminPersonnelView onSelectTab={handleSelectSuperAdminTab} />
+            ) : activeSuperAdminTab === 'reminders' ? (
+              <SuperAdminRemindersView />
+            ) : activeSuperAdminTab === 'settings' ? (
+              <SuperAdminRemindersView />
+            ) : activeSuperAdminTab === 'transfer' ? (
+              <SuperAdminPersonnelView onSelectTab={handleSelectSuperAdminTab} />
+            ) : (
+              <SuperAdminAuditView />
+            )
           ) : (
             <>
               <div className='flex flex-wrap items-start justify-between gap-4'>

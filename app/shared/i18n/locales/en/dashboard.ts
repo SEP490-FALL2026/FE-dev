@@ -86,7 +86,8 @@ export const dashboard = {
     settings: 'Settings',
     software: 'Software',
     usageSources: 'Usage Data & Sources',
-    vendors: 'Vendors'
+    vendors: 'Vendors',
+    deptCatalog: 'Department Catalog'
   },
   optimization: {
     action: 'View details',
@@ -109,9 +110,10 @@ export const dashboard = {
       licenseOptimization: 'License Optimization',
       offboarding: 'Offboarding',
       shadowIt: 'Shadow IT Discovery',
-      reconciliation: 'Data Reconciliation',
-      renewals: 'AI Renewal Proposals',
-      deviceCollectors: 'Device Collectors'
+      reconciliation: 'Discrepancy Resolution',
+      renewals: 'Subscription & Contract Renewals',
+      deviceCollectors: 'Device Collectors',
+      deptCatalog: 'Department Catalog'
     },
     overview: {
       badge: 'IT Admin Control Center',
@@ -123,7 +125,7 @@ export const dashboard = {
     },
     provisioning: {
       title: 'Provisioning & Deprovisioning Queue',
-      subtitle: 'Track real account creation and removal via automated API and manual checklists (UF-08)',
+      subtitle: 'Track AI agent account & password provisioning, software license keys, and deprovisioning workflows',
       manualMetric: 'Manual Action',
       autoMetric: 'Auto Processing',
       pendingMetric: 'Pending Acceptance',
@@ -159,7 +161,7 @@ export const dashboard = {
     usageImport: {
       title: 'Usage Data Import Workbench',
       subtitle:
-        'Intake software activity logs, enforce privacy guards, coverage windows, and identity resolution (UF-06)',
+        'Intake software activity logs, enforce privacy guards, coverage windows, and identity resolution',
       metricConnected: 'Connected Sources',
       metricHealthy: 'Healthy Sources',
       metricOutdated: 'Needs Update',
@@ -183,7 +185,7 @@ export const dashboard = {
     },
     unmatchedIdentities: {
       title: 'Identity Resolution Queue',
-      subtitle: 'Map unknown external identifiers to employees with audit trails, or exclude them safely (UF-07)',
+      subtitle: 'Map unknown external identifiers to employees with audit trails, or exclude them safely',
       metricTotal: 'Unmatched Identifiers',
       metricMatched: 'Auto-Matched',
       metricConflict: 'Conflict Profiles',
@@ -202,7 +204,7 @@ export const dashboard = {
     },
     licenseOptimization: {
       title: 'License Optimization & Cost Reduction',
-      subtitle: 'Audit 4 waste groups (G1–G4), clearly separating immediate savings from renewal opportunities (UF-10)',
+      subtitle: 'Audit 4 waste groups (G1–G4), clearly separating immediate savings from renewal opportunities',
       savingsImmediate: 'Immediate Savings (Seat Revocation)',
       savingsRenewal: 'Renewal Savings (Quantity Reduction)',
       groupG1Title: 'G1 · Unassigned Seats at Renewal',
@@ -222,7 +224,7 @@ export const dashboard = {
     },
     offboarding: {
       title: 'Employee Offboarding Lifecycle',
-      subtitle: 'Manage 3 stages: Pre-departure handoff, Evidenced seat revocation, 30-day data retention (UF-09)',
+      subtitle: 'Manage 3 stages: Pre-departure data handoff, software key & service account revocation, and account lock',
       employeeInfo: 'Departing Employee Profile',
       lastDay: 'Last Working Day',
       planCode: 'Plan ID',
@@ -231,7 +233,7 @@ export const dashboard = {
       stage1Title: '1. Pre-Departure Handoff',
       stage1Desc: 'Manager confirms data handoff and assigns successor for Business Owner roles',
       stage2Title: '2. Evidenced Revocation',
-      stage2Desc: 'Generate 5 revocation tasks to UF-08, collect evidence of real account removal',
+      stage2Desc: 'Generate revocation tasks to provisioning queue, collect evidence of real account removal',
       stage3Title: '3. Usage Data Retention Deletion',
       stage3Desc: 'Scheduled retention job permanently deletes activity logs after 30 days',
       badgeCompleted: 'Completed',
@@ -240,7 +242,7 @@ export const dashboard = {
     },
     shadowIt: {
       title: 'Shadow IT Discovery',
-      subtitle: 'Collect evidence from 3 sources (Finance, IdP, Collectors) and review audited findings (UF-12)',
+      subtitle: 'Collect evidence from 3 sources (Finance, IdP, Collectors) and review audited findings',
       channelFinance: 'Finance Source (Card Statements)',
       channelIdp: 'IdP Source (OAuth Logins)',
       channelCollector: 'Collector Source (Endpoint Extension)',
@@ -259,10 +261,10 @@ export const dashboard = {
       riskLow: 'Low Risk'
     },
     reconciliation: {
-      title: 'Data Reconciliation Workbench',
+      title: 'License & Account Discrepancy Resolution',
       subtitle:
-        'Compare internal intent against provider reality and invoices to assign actionable discrepancy owners (UF-14)',
-      threeNumbersTitle: 'Three Numbers Side-by-Side (Invoice vs Internal vs Actual)',
+        'Compare invoices, subscription agreements, and active assignments side by side with audit trail',
+      threeNumbersTitle: 'Three Numbers Side-by-Side (Billed vs Contracted vs Active)',
       mismatchChatGPT: 'Invoice Mismatch (+5 extra seats billed vs internal contract)',
       mismatchClaude: 'Shadow Access (Admin membership in Claude console without internal Assignment)',
       mismatchGemini: 'Pending Acceptance Task (Verify invitation has been activated)',
@@ -275,15 +277,15 @@ export const dashboard = {
       diffMatched: 'Fully Matched'
     },
     renewals: {
-      title: 'AI License Renewals & Vendor Terms',
-      subtitle: 'Review cancellation deadlines, audit 6-point vendor terms, and prepare renewal proposals (UF-20)',
+      title: 'Subscription & Contract Renewal Management',
+      subtitle: 'Track cancellation notice deadlines, audit 6-point vendor terms, and prepare renewal proposals',
       alertNoticeDeadline: 'Notice Deadline Window Alerts',
       proposalTitle: 'Prepare Renewal Proposal for Approver',
       outcomeTitle: 'Record Vendor Negotiation Outcome'
     },
     deviceCollectors: {
       title: 'Device Endpoint Collectors',
-      subtitle: 'Manage enterprise browser extensions, enforce allowlists, and verify transparency gates (UF-16)',
+      subtitle: 'Manage enterprise browser extensions, enforce allowlists, and protect privacy',
       metricRegistered: 'Registered Devices',
       metricConfirmed: 'Confirmed (Gateway Open)',
       metricPendingConfirm: 'Pending Confirmation (Gateway Locked)',
@@ -291,7 +293,7 @@ export const dashboard = {
       privacyRuleTitle: 'Local Privacy Guard & Data Minimization',
       privacyRuleDesc: 'Only transmits device_id, domain, active_minutes. Strips URLs, content, keystrokes, location.',
       blockedAppsTitle: 'Strictly Excluded Communication Apps',
-      blockedAppsDesc: 'Slack, Teams, Zoom, Gmail, Zalo are never collected under ADR-10.',
+      blockedAppsDesc: 'Slack, Teams, Zoom, Gmail, Zalo are never collected under enterprise privacy policy.',
       colDevice: 'Device ID',
       colEmployee: 'Assigned Employee',
       colDepartment: 'Department',
@@ -305,7 +307,7 @@ export const dashboard = {
       actInspect: 'Inspect',
       allowlistTitle: 'Permitted Domains (Auto Allowlist)',
       allowlistDesc: 'Only collect domains in active SaaS catalog: github.com, figma.com, atlassian.net, notion.so',
-      badgeScreenCode: 'UF-16 · ITA-16'
+      badgeScreenCode: 'Endpoint Collectors'
     }
   },
   employee: {

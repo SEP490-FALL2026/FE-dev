@@ -97,8 +97,8 @@ export function SuperAdminAuditView() {
             </button>
           </div>
         }
-        code='WF-03'
-        subtitle='Truy xuất nhật ký kiểm toán bất biến chỉ-ghi-thêm (FR-8.3) và theo dõi tiến trình chạy của các tác vụ hệ thống tự động (FR-8.4).'
+        code='Kiểm toán'
+        subtitle='Truy xuất nhật ký kiểm toán hệ thống và theo dõi tiến trình chạy của các tác vụ tự động.'
         title='Nhật ký Kiểm toán & Quản lý Tác vụ Nền'
       />
 
@@ -117,8 +117,8 @@ export function SuperAdminAuditView() {
               onChange={setStatusFilter}
               options={[
                 { count: logs.length, label: 'Tất cả nhật ký', value: 'ALL' },
-                { count: logs.filter((l) => l.status === 'SUCCESS').length, label: 'Hợp lệ & Ghi nhận', value: 'SUCCESS' },
-                { count: logs.filter((l) => l.status === 'REJECTED').length, label: 'Bị từ chối (SoD Guard)', value: 'REJECTED' }
+                { count: logs.filter((l) => l.status === 'SUCCESS').length, label: 'Thành công & Ghi nhận', value: 'SUCCESS' },
+                { count: logs.filter((l) => l.status === 'REJECTED').length, label: 'Bị từ chối (Xung đột vai trò)', value: 'REJECTED' }
               ]}
               value={statusFilter}
             />
@@ -190,7 +190,7 @@ export function SuperAdminAuditView() {
           <Panel>
             <PanelTitle
               hint='Các tiến trình tự động thực thi định kỳ để thu thập số liệu, đối soát hóa đơn và phát hiện lãng phí license'
-              title='Danh sách Tác vụ Nền Hệ thống (FR-8.4)'
+              title='Danh sách Tác vụ Nền Hệ thống'
             />
 
             <div className='mt-4 divide-y divide-border'>

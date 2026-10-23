@@ -1,13 +1,11 @@
 import {
   AlertTriangle,
   ArrowRight,
-  Calendar,
   CheckCircle2,
   Clock,
-  ExternalLink,
-  FileCheck,
+  Key,
   Lock,
-  ShieldAlert,
+  Sparkles,
   UserCheck,
   UserMinus,
   Users,
@@ -24,16 +22,16 @@ type OffboardingEmployee = {
   email: string
   handoverConfirmed: boolean
   isDeptHead: boolean
-  isSharedAccountLead: boolean
+  isServiceAccountLead: boolean
   isSuperAdmin: boolean
   lastDay: string
-  licenses: string[]
+  licenses: { name: string; type: 'license-key' | 'ai-agent' | 'saas-workspace'; detail: string }[]
   lockedAccount: boolean
   name: string
   newDeptHead?: string
   planCode: string
   role: string
-  sharedAccountName?: string
+  serviceAccountName?: string
   status: 'handover' | 'sudden' | 'left'
   successor: string
 }
@@ -41,49 +39,62 @@ type OffboardingEmployee = {
 const mockLeavers: OffboardingEmployee[] = [
   {
     code: 'NV-0174',
-    department: 'Product Team',
+    department: 'Thiết kế sản phẩm',
     email: 'tran.minh@company.com',
     handoverConfirmed: true,
     isDeptHead: false,
-    isSharedAccountLead: true,
+    isServiceAccountLead: true,
     isSuperAdmin: false,
     lastDay: '31/01/2026',
-    licenses: ['ChatGPT Enterprise (OpenAI)', 'Claude Enterprise (Tài khoản nghiên cứu dùng chung)', 'Claude 3.7 Sonnet Pro', 'OpenAI Codex API'],
+    licenses: [
+      { name: 'Microsoft 365 Enterprise', type: 'license-key', detail: 'Mã khóa KEY-M365-01 (Thu hồi về kho)' },
+      { name: 'Claude Autonomous QA Agent', type: 'ai-agent', detail: 'Tài khoản dịch vụ (Vô hiệu hóa & Hủy Secret Token)' },
+      { name: 'Claude Enterprise', type: 'saas-workspace', detail: 'Workspace Team (Gỡ khỏi tổ chức)' },
+      { name: 'OpenAI Developer API Key', type: 'ai-agent', detail: 'Khóa API phát triển (Thu hồi Token)' }
+    ],
     lockedAccount: false,
     name: 'Trần Minh',
     planCode: 'OFF-2026-044',
     role: 'Product Designer',
-    sharedAccountName: 'Tài khoản Claude Enterprise nghiên cứu chung (claude-research@company.com)',
+    serviceAccountName: 'Tài khoản AI QA Agent (agent-claude-qa@company.ai)',
     status: 'handover',
     successor: 'Đỗ Hoàng Long (NV-0082)'
   },
   {
     code: 'NV-0056',
-    department: 'Infrastructure',
+    department: 'Hạ tầng công nghệ',
     email: 'dang.nguyen@company.com',
     handoverConfirmed: false,
     isDeptHead: true,
-    isSharedAccountLead: false,
+    isServiceAccountLead: false,
     isSuperAdmin: false,
     lastDay: '28/02/2026',
-    licenses: ['Claude Enterprise (Anthropic)', 'GitHub Copilot Business (Codex)', 'Google Gemini Business', 'Google Gemini Code Assist'],
+    licenses: [
+      { name: 'Microsoft 365 Enterprise', type: 'license-key', detail: 'Mã khóa bản quyền trên ThinkPad X1' },
+      { name: 'GitHub Copilot Business', type: 'saas-workspace', detail: 'Workspace GitHub Organization' },
+      { name: 'Google Gemini Business', type: 'saas-workspace', detail: 'Tài khoản Workspace công ty' }
+    ],
     lockedAccount: false,
     name: 'Nguyễn Hải Đăng',
     planCode: 'OFF-2026-045',
-    role: 'Trưởng phòng Hạ tầng (Head of Infra)',
+    role: 'Trưởng phòng Hạ tầng',
     status: 'handover',
     successor: 'Vũ Quang Khang (NV-0091)'
   },
   {
     code: 'NV-0210',
-    department: 'Engineering',
+    department: 'Kỹ thuật phần mềm',
     email: 'nam.le@company.com',
     handoverConfirmed: false,
     isDeptHead: false,
-    isSharedAccountLead: false,
+    isServiceAccountLead: false,
     isSuperAdmin: false,
     lastDay: 'Hôm nay (Đột ngột)',
-    licenses: ['GitHub Copilot Business (OpenAI Codex)', 'ChatGPT Enterprise (OpenAI)', 'Claude Code Terminal Agent'],
+    licenses: [
+      { name: 'JetBrains All Products Pack', type: 'license-key', detail: 'Mã khóa KEY-JB-03 (Cần thu hồi gấp về kho)' },
+      { name: 'GitHub Copilot Business', type: 'saas-workspace', detail: 'Workspace Kỹ thuật' },
+      { name: 'ChatGPT Enterprise', type: 'saas-workspace', detail: 'Tài khoản OpenAI Enterprise' }
+    ],
     lockedAccount: true,
     name: 'Lê Hoàng Nam',
     planCode: 'OFF-2026-046',
@@ -103,7 +114,7 @@ export function ItOffboardingView({ onSelectTab }: ItOffboardingViewProps = {}) 
   const [selectedLeaver, setSelectedLeaver] = useState<OffboardingEmployee>(mockLeavers[0])
   const [isImpactModalOpen, setIsImpactModalOpen] = useState(false)
   const [newHeadInput, setNewHeadInput] = useState('Vũ Quang Khang (NV-0091)')
-  const [newSharedLeadInput, setNewSharedLeadInput] = useState('Đỗ Hoàng Long (NV-0082)')
+  const [newServiceAccountLeadInput, setNewServiceAccountLeadInput] = useState('Đỗ Hoàng Long (NV-0082)')
   const [toastMessage, setToastMessage] = useState<string | null>(null)
 
   const handleLockAccount = () => {
@@ -122,7 +133,7 @@ export function ItOffboardingView({ onSelectTab }: ItOffboardingViewProps = {}) 
           ? {
               ...l,
               newDeptHead: selectedLeaver.isDeptHead ? newHeadInput : l.newDeptHead,
-              successor: newSharedLeadInput
+              successor: newServiceAccountLeadInput
             }
           : l
       )
@@ -130,10 +141,10 @@ export function ItOffboardingView({ onSelectTab }: ItOffboardingViewProps = {}) 
     setSelectedLeaver((prev) => ({
       ...prev,
       newDeptHead: prev.isDeptHead ? newHeadInput : prev.newDeptHead,
-      successor: newSharedLeadInput
+      successor: newServiceAccountLeadInput
     }))
     setIsImpactModalOpen(false)
-    setToastMessage('Đã cập nhật chỉ định Trưởng phòng mới và Người chịu trách nhiệm tài khoản dùng chung thành công!')
+    setToastMessage('Đã cập nhật chỉ định Trưởng phòng mới và Người chịu trách nhiệm tài khoản dịch vụ thành công!')
     setTimeout(() => setToastMessage(null), 3500)
   }
 
@@ -151,11 +162,11 @@ export function ItOffboardingView({ onSelectTab }: ItOffboardingViewProps = {}) 
       <div>
         <div className='inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-soft px-3 py-1 text-xs font-semibold text-primary'>
           <span className='size-2 rounded-full bg-primary' />
-          Thu hồi tài khoản nhân sự nghỉ việc
+          Thu hồi tài nguyên nhân sự nghỉ việc
         </div>
-        <h1 className='mt-2 text-2xl font-bold tracking-tight sm:text-3xl'>{t('itAdmin.offboarding.title')}</h1>
+        <h1 className='mt-2 text-2xl font-bold tracking-tight sm:text-3xl'>{t('itAdmin.offboarding.title', 'Xử lý nhân sự nghỉ việc')}</h1>
         <p className='mt-1 text-sm text-muted-foreground'>
-          Quy trình thu hồi quyền AI cho nhân sự nghỉ việc: Đánh giá vai trò, bàn giao tài nguyên AI và thu hồi quyền theo quy chuẩn 3 bước
+          Quy trình thu hồi 3 bước: Bàn giao dữ liệu, thu hồi mã bản quyền phần mềm & hủy thông tin xác thực tài khoản dịch vụ, và khóa tài khoản đăng nhập công ty
         </p>
       </div>
 
@@ -182,14 +193,14 @@ export function ItOffboardingView({ onSelectTab }: ItOffboardingViewProps = {}) 
                       : 'border-warning/30 bg-warning/15 text-warning'
                   }`}
                 >
-                  {leaver.status === 'sudden' ? 'Nghỉ việc đột xuất' : 'Đang bàn giao công việc'}
+                  {leaver.status === 'sudden' ? 'Nghỉ việc đột ngột' : 'Đang bàn giao công việc'}
                 </span>
               </div>
               <h3 className='mt-2 font-bold text-foreground text-sm'>{leaver.name}</h3>
               <p className='text-xs text-muted-foreground'>{leaver.role} · {leaver.department}</p>
               <div className='mt-3 flex items-center justify-between border-t border-border pt-2 text-[0.7rem] text-muted-foreground'>
                 <span>Ngày cuối: <strong className='text-foreground'>{leaver.lastDay}</strong></span>
-                <span>{leaver.licenses.length} tài khoản AI</span>
+                <span>{leaver.licenses.length} tài nguyên gán</span>
               </div>
             </div>
           )
@@ -229,7 +240,7 @@ export function ItOffboardingView({ onSelectTab }: ItOffboardingViewProps = {}) 
               type='button'
             >
               <AlertTriangle className='size-3.5' />
-              <span>Đánh giá vai trò & Chỉ định người thay thế</span>
+              <span>Chỉ định người kế nhiệm & Chuyển giao</span>
             </button>
           </div>
         </div>
@@ -241,7 +252,7 @@ export function ItOffboardingView({ onSelectTab }: ItOffboardingViewProps = {}) 
               <div className='flex items-start gap-2'>
                 <AlertTriangle className='mt-0.5 size-4 text-warning shrink-0' />
                 <div>
-                  <p className='text-xs font-bold text-warning'>Nhân sự nghỉ là Trưởng phòng!</p>
+                  <p className='text-xs font-bold text-warning'>Nhân sự nghỉ là Trưởng phòng</p>
                   <p className='text-[0.7rem] text-muted-foreground'>
                     Cần chỉ định Trưởng phòng mới có hiệu lực sau ngày làm việc cuối. Hiện tại:{' '}
                     <strong className='text-foreground'>{selectedLeaver.newDeptHead || 'Chưa chỉ định'}</strong>
@@ -251,14 +262,14 @@ export function ItOffboardingView({ onSelectTab }: ItOffboardingViewProps = {}) 
             </div>
           )}
 
-          {selectedLeaver.isSharedAccountLead && (
+          {selectedLeaver.isServiceAccountLead && (
             <div className='rounded-xl border border-info/30 bg-info/10 p-3'>
               <div className='flex items-start gap-2'>
                 <Users className='mt-0.5 size-4 text-info shrink-0' />
                 <div>
-                  <p className='text-xs font-bold text-info'>Chịu trách nhiệm tài khoản dùng chung (Shared Account)</p>
+                  <p className='text-xs font-bold text-info'>Chịu trách nhiệm Tài khoản dịch vụ / AI Agent</p>
                   <p className='text-[0.7rem] text-muted-foreground'>
-                    {selectedLeaver.sharedAccountName} → Đã chuyển giao cho{' '}
+                    {selectedLeaver.serviceAccountName} → Chuyển giao quản trị cho:{' '}
                     <strong className='text-foreground'>{selectedLeaver.successor}</strong>
                   </p>
                 </div>
@@ -267,11 +278,33 @@ export function ItOffboardingView({ onSelectTab }: ItOffboardingViewProps = {}) 
           )}
         </div>
 
+        {/* Resources Assigned List */}
+        <div className='mt-5 rounded-xl border border-border bg-surface-subtle/40 p-4'>
+          <h3 className='text-xs font-bold text-foreground'>Danh mục bản quyền & tài nguyên cần thu hồi:</h3>
+          <div className='mt-2.5 grid gap-2 sm:grid-cols-2'>
+            {selectedLeaver.licenses.map((lic, idx) => (
+              <div className='flex items-center gap-2 rounded-lg border border-border bg-background p-2.5 text-xs' key={idx}>
+                {lic.type === 'license-key' ? (
+                  <Key className='size-4 text-info shrink-0' />
+                ) : lic.type === 'ai-agent' ? (
+                  <Sparkles className='size-4 text-primary shrink-0' />
+                ) : (
+                  <Users className='size-4 text-muted-foreground shrink-0' />
+                )}
+                <div className='min-w-0 flex-1'>
+                  <p className='font-bold text-foreground truncate'>{lic.name}</p>
+                  <p className='text-[0.65rem] text-muted-foreground truncate'>{lic.detail}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* 3-Step Execution Checklist */}
         <div className='mt-6 border-t border-border pt-5'>
-          <h3 className='text-sm font-bold text-foreground'>Quy trình thu hồi quyền truy cập AI 3 bước chuẩn hóa</h3>
+          <h3 className='text-sm font-bold text-foreground'>Quy trình thu hồi quyền truy cập 3 bước chuẩn</h3>
           <p className='text-xs text-muted-foreground mt-0.5'>
-            Thực hiện tuần tự: (1) Bàn giao tài nguyên AI → (2) Thu hồi tài khoản AI khỏi Workspace → (3) Khóa tài khoản
+            Thực hiện tuần tự: (1) Bàn giao tài nguyên & dự án → (2) Thu hồi mã key phần mềm về kho & Hủy token AI Agent → (3) Khóa tài khoản công ty
           </p>
 
           <div className='mt-4 grid gap-4 lg:grid-cols-3'>
@@ -279,7 +312,7 @@ export function ItOffboardingView({ onSelectTab }: ItOffboardingViewProps = {}) 
             <div className='rounded-xl border border-border bg-surface-subtle/40 p-4'>
               <div className='flex items-center justify-between'>
                 <span className='rounded-full bg-surface border px-2 py-0.5 text-xs font-bold text-primary'>
-                  Bước 1: Bàn giao dữ liệu AI
+                  Bước 1: Bàn giao dữ liệu
                 </span>
                 {selectedLeaver.handoverConfirmed ? (
                   <span className='text-xs font-bold text-success inline-flex items-center gap-1'>
@@ -291,9 +324,9 @@ export function ItOffboardingView({ onSelectTab }: ItOffboardingViewProps = {}) 
                   </span>
                 )}
               </div>
-              <h4 className='mt-2 font-bold text-foreground text-sm'>Bàn giao dữ liệu & dự án AI</h4>
+              <h4 className='mt-2 font-bold text-foreground text-sm'>Bàn giao dữ liệu & dự án công việc</h4>
               <p className='mt-1 text-xs text-muted-foreground'>
-                Trưởng phòng xác nhận nhân viên đã chuyển nhượng prompt mẫu, custom GPT, tài nguyên dự án Claude và kho lưu trữ liên quan.
+                Trưởng phòng xác nhận nhân sự đã chuyển giao các tài liệu, prompt mẫu, dự án và mã nguồn liên quan.
               </p>
             </div>
 
@@ -301,15 +334,15 @@ export function ItOffboardingView({ onSelectTab }: ItOffboardingViewProps = {}) 
             <div className='rounded-xl border border-border bg-surface-subtle/40 p-4'>
               <div className='flex items-center justify-between'>
                 <span className='rounded-full bg-surface border px-2 py-0.5 text-xs font-bold text-primary'>
-                  Bước 2: Thu hồi tài khoản AI
+                  Bước 2: Thu hồi tài nguyên
                 </span>
                 <span className='text-xs font-bold text-danger inline-flex items-center gap-1'>
-                  {selectedLeaver.licenses.length} tài khoản cần thu hồi
+                  {selectedLeaver.licenses.length} tài nguyên cần gỡ
                 </span>
               </div>
-              <h4 className='mt-2 font-bold text-foreground text-sm'>Thu hồi quyền theo hình thức cấp phát</h4>
+              <h4 className='mt-2 font-bold text-foreground text-sm'>Thu hồi mã key & Hủy xác thực AI</h4>
               <p className='mt-1 text-xs text-muted-foreground'>
-                Đưa tác vụ vào Hàng đợi cấp phát để thu hồi giấy phép AI hoặc gỡ tài khoản khỏi Workspace doanh nghiệp.
+                Gỡ mã key Office 365 về kho khóa để cấp cho nhân viên khác; vô hiệu hóa tài khoản & hủy mật khẩu/token của AI Agent.
               </p>
               {onSelectTab && (
                 <button
@@ -339,9 +372,9 @@ export function ItOffboardingView({ onSelectTab }: ItOffboardingViewProps = {}) 
                   </span>
                 )}
               </div>
-              <h4 className='mt-2 font-bold text-foreground text-sm'>Khóa tài khoản email đăng nhập</h4>
+              <h4 className='mt-2 font-bold text-foreground text-sm'>Khóa đăng nhập hệ thống công ty</h4>
               <p className='mt-1 text-xs text-muted-foreground'>
-                Khóa đăng nhập hệ thống. Lưu ý: khóa tài khoản không tự dừng tính tiền nếu chưa thu hồi seat AI trên cổng quản trị vendor!
+                Khóa đăng nhập tài khoản email/SSO công ty và thu hồi các phiên truy cập trên thiết bị làm việc.
               </p>
               {!selectedLeaver.lockedAccount && (
                 <button
@@ -368,9 +401,9 @@ export function ItOffboardingView({ onSelectTab }: ItOffboardingViewProps = {}) 
                   Đánh giá ảnh hưởng vai trò
                 </span>
                 <h2 className='mt-1 text-base font-bold text-foreground'>
-                  Đánh giá ảnh hưởng & Chỉ định người thay thế
+                  Chỉ định nhân sự kế nhiệm & Chuyển giao
                 </h2>
-                <p className='text-xs text-muted-foreground'>Nhân sự: {selectedLeaver.name} ({selectedLeaver.code})</p>
+                <p className='text-xs text-muted-foreground'>Nhân sự thôi việc: {selectedLeaver.name} ({selectedLeaver.code})</p>
               </div>
               <button
                 className='rounded-lg p-1.5 text-muted-foreground hover:bg-surface-subtle hover:text-foreground'
@@ -388,7 +421,7 @@ export function ItOffboardingView({ onSelectTab }: ItOffboardingViewProps = {}) 
                     Chỉ định Trưởng phòng mới cho phòng {selectedLeaver.department} *
                   </label>
                   <p className='mt-0.5 text-[0.7rem] text-muted-foreground'>
-                    Hiệu lực từ ngày sau ngày làm việc cuối. Người này không được là Trưởng phòng của phòng khác.
+                    Hiệu lực từ ngày sau ngày làm việc cuối của nhân sự thôi việc.
                   </p>
                   <input
                     className='mt-1.5 w-full rounded-xl border border-border bg-background px-3 py-2 text-xs font-semibold text-foreground outline-none focus:border-primary'
@@ -399,30 +432,30 @@ export function ItOffboardingView({ onSelectTab }: ItOffboardingViewProps = {}) 
                 </div>
               ) : (
                 <div className='rounded-xl border border-border bg-surface-subtle/50 p-3'>
-                  <p className='text-muted-foreground'>Nhân sự này không giữ chức vụ Trưởng phòng.</p>
+                  <p className='text-muted-foreground'>Nhân sự này không giữ vai trò Trưởng phòng.</p>
                 </div>
               )}
 
-              {selectedLeaver.isSharedAccountLead && (
+              {selectedLeaver.isServiceAccountLead && (
                 <div>
                   <label className='block font-bold text-foreground'>
-                    Chỉ định người chịu trách nhiệm mới cho tài khoản dùng chung *
+                    Chỉ định người chịu trách nhiệm mới cho Tài khoản dịch vụ / AI Agent *
                   </label>
                   <p className='mt-0.5 text-[0.7rem] text-muted-foreground'>
-                    {selectedLeaver.sharedAccountName}
+                    {selectedLeaver.serviceAccountName}
                   </p>
                   <input
                     className='mt-1.5 w-full rounded-xl border border-border bg-background px-3 py-2 text-xs font-semibold text-foreground outline-none focus:border-primary'
-                    onChange={(e) => setNewSharedLeadInput(e.target.value)}
+                    onChange={(e) => setNewServiceAccountLeadInput(e.target.value)}
                     type='text'
-                    value={newSharedLeadInput}
+                    value={newServiceAccountLeadInput}
                   />
                 </div>
               )}
 
               <div className='rounded-xl border border-primary/20 bg-primary-soft/30 p-3'>
                 <p className='text-muted-foreground'>
-                  Mọi thao tác thay đổi Trưởng phòng và người chịu trách nhiệm đều được hệ thống ghi vết vào Nhật ký kiểm toán tự động.
+                  Mọi thao tác thay đổi Trưởng phòng và người chịu trách nhiệm tài khoản dịch vụ đều được hệ thống ghi nhận vào Nhật ký kiểm toán tự động.
                 </p>
               </div>
             </div>
@@ -441,7 +474,7 @@ export function ItOffboardingView({ onSelectTab }: ItOffboardingViewProps = {}) 
                 type='button'
               >
                 <CheckCircle2 className='size-3.5' />
-                <span>Lưu chỉ định thay thế</span>
+                <span>Lưu chỉ định chuyển giao</span>
               </button>
             </div>
           </div>

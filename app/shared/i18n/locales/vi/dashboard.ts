@@ -86,7 +86,8 @@ export const dashboard = {
     settings: 'Cài đặt',
     software: 'Phần mềm',
     usageSources: 'Dữ liệu sử dụng',
-    vendors: 'Nhà cung cấp'
+    vendors: 'Nhà cung cấp',
+    deptCatalog: 'Danh mục theo phòng'
   },
   optimization: {
     action: 'Xem chi tiết',
@@ -109,9 +110,10 @@ export const dashboard = {
       licenseOptimization: 'Tối ưu bản quyền',
       offboarding: 'Xử lý nghỉ việc',
       shadowIt: 'Phần mềm ngoài danh mục',
-      reconciliation: 'Đối soát dữ liệu',
-      renewals: 'Đề xuất gia hạn AI',
-      deviceCollectors: 'Bộ thu thập thiết bị'
+      reconciliation: 'Xử lý sai lệch bản quyền',
+      renewals: 'Gia hạn thuê bao & hợp đồng',
+      deviceCollectors: 'Bộ thu thập thiết bị',
+      deptCatalog: 'Danh mục theo phòng'
     },
     overview: {
       badge: 'Bảng điều khiển IT Admin',
@@ -123,7 +125,7 @@ export const dashboard = {
     },
     provisioning: {
       title: 'Hàng đợi cấp phát & thu hồi bản quyền',
-      subtitle: 'Theo dõi tác vụ tạo/xóa tài khoản qua API tự động và checklist thủ công (UF-08)',
+      subtitle: 'Theo dõi tác vụ cấp phát tài khoản AI Agent, mã key bản quyền phần mềm và xử lý thu hồi',
       manualMetric: 'Thao tác thủ công',
       autoMetric: 'Đang xử lý tự động',
       pendingMetric: 'Chờ chấp nhận',
@@ -158,7 +160,7 @@ export const dashboard = {
     },
     usageImport: {
       title: 'Trung tâm nạp dữ liệu hoạt động',
-      subtitle: 'Tiếp nhận log sử dụng, kiểm tra chính sách bảo mật và giải quyết danh tính (UF-06)',
+      subtitle: 'Tiếp nhận log sử dụng, kiểm tra chính sách bảo mật và giải quyết danh tính người dùng',
       metricConnected: 'Nguồn kết nối',
       metricHealthy: 'Nguồn bình thường',
       metricOutdated: 'Cần nạp kỳ mới',
@@ -183,7 +185,7 @@ export const dashboard = {
     unmatchedIdentities: {
       title: 'Hàng đợi định danh chưa khớp',
       subtitle:
-        'Gắn external identifier chưa biết vào nhân viên có kiểm toán, hoặc loại trừ để không kết luận sai (UF-07)',
+        'Gắn định danh bên ngoài chưa biết vào nhân viên có kiểm toán, hoặc loại trừ an toàn',
       metricTotal: 'Định danh chưa khớp',
       metricMatched: 'Đã khớp tự động',
       metricConflict: 'Hồ sơ xung đột',
@@ -202,7 +204,7 @@ export const dashboard = {
     },
     licenseOptimization: {
       title: 'Bảng tối ưu bản quyền & Giảm chi phí',
-      subtitle: 'Phân tách rõ ràng tiết kiệm ngay từ thu hồi suất và tiết kiệm tại kỳ gia hạn (UF-10)',
+      subtitle: 'Phân tách rõ ràng tiết kiệm ngay từ thu hồi suất và tiết kiệm tại kỳ gia hạn',
       savingsImmediate: 'Tiết kiệm ngay (Thu hồi suất)',
       savingsRenewal: 'Tiết kiệm tại gia hạn (Giảm số lượng mua)',
       groupG1Title: 'G1 · Suất mua dư tại kỳ gia hạn',
@@ -222,7 +224,7 @@ export const dashboard = {
     },
     offboarding: {
       title: 'Quy trình nhân sự nghỉ việc',
-      subtitle: 'Quản lý 3 chặng: Bàn giao trước ngày nghỉ, Thu hồi có bằng chứng, Xóa dữ liệu sau 30 ngày (UF-09)',
+      subtitle: 'Quản lý 3 bước: Bàn giao dữ liệu, thu hồi mã key và tài khoản dịch vụ, và khóa tài khoản',
       employeeInfo: 'Hồ sơ nhân sự sắp nghỉ',
       lastDay: 'Ngày làm việc cuối',
       planCode: 'Kế hoạch',
@@ -231,7 +233,7 @@ export const dashboard = {
       stage1Title: '1. Bàn giao trước ngày nghỉ',
       stage1Desc: 'Manager xác nhận bàn giao tài sản và chỉ định người kế nhiệm Business Owner',
       stage2Title: '2. Thu hồi có bằng chứng',
-      stage2Desc: 'Tạo 5 tác vụ thu hồi sang UF-08, thu thập bằng chứng xóa tài khoản thật',
+      stage2Desc: 'Tạo tác vụ thu hồi sang hàng đợi cấp phát, thu thập bằng chứng xóa tài khoản thật',
       stage3Title: '3. Xóa dữ liệu sử dụng',
       stage3Desc: 'Lịch tự động xóa chi tiết nhật ký hoạt động sau 30 ngày theo chính sách lưu giữ',
       badgeCompleted: 'Đã hoàn tất',
@@ -240,7 +242,7 @@ export const dashboard = {
     },
     shadowIt: {
       title: 'Phát hiện phần mềm ngoài danh mục (Shadow IT)',
-      subtitle: 'Thu thập bằng chứng từ 3 nguồn (Sao kê, IdP, Thiết bị) và rà soát finding có kiểm toán (UF-12)',
+      subtitle: 'Thu thập bằng chứng từ 3 nguồn (Sao kê, IdP, Thiết bị) và rà soát các phát hiện có kiểm toán',
       channelFinance: 'Nguồn Tài chính (Sao kê chi tiêu)',
       channelIdp: 'Nguồn Hệ định danh (IdP OAuth)',
       channelCollector: 'Nguồn Thiết bị (Extension thu thập)',
@@ -259,9 +261,9 @@ export const dashboard = {
       riskLow: 'Rủi ro thấp'
     },
     reconciliation: {
-      title: 'Bàn làm việc đối soát dữ liệu',
-      subtitle: 'So sánh ý định nội bộ với thực tế nhà cung cấp và hóa đơn để tìm ra sai lệch có chủ sở hữu (UF-14)',
-      threeNumbersTitle: 'So sánh ba con số cạnh nhau (Hóa đơn vs Khai báo vs Thực tế)',
+      title: 'Xử lý sai lệch bản quyền & tài khoản',
+      subtitle: 'So sánh hóa đơn, hợp đồng thuê bao và thành viên thực tế để xử lý sai lệch theo quy trình kiểm toán',
+      threeNumbersTitle: 'Đối chiếu ba số liệu song song (Hóa đơn vs Hợp đồng vs Kích hoạt thực tế)',
       mismatchChatGPT: 'Phát hiện chênh lệch hóa đơn (+5 seat thừa so với hợp đồng)',
       mismatchClaude: 'Tài khoản ngoài quy trình (Có quyền admin nhưng nội bộ không có Assignment)',
       mismatchGemini: 'Tác vụ đang chờ chấp nhận (Kiểm tra lời mời đã được kích hoạt)',
@@ -274,15 +276,15 @@ export const dashboard = {
       diffMatched: 'Khớp hoàn toàn'
     },
     renewals: {
-      title: 'Đề xuất gia hạn & Đàm phán hợp đồng AI',
-      subtitle: 'Rà soát hạn chót báo hủy, đối chiếu checklist 6 điều khoản nhà cung cấp và lập đề xuất (UF-20)',
+      title: 'Quản lý gia hạn thuê bao & hợp đồng',
+      subtitle: 'Rà soát hạn chót báo hủy, đối chiếu 6 điều khoản nhà cung cấp và lập đề xuất tối ưu số lượng',
       alertNoticeDeadline: 'Cảnh báo tính từ hạn chót báo hủy (Notice Deadline Window)',
       proposalTitle: 'Lập đề xuất gia hạn chuyển Người duyệt chi',
-      outcomeTitle: 'Ghi nhận kết quả đàm phán với Vendor'
+      outcomeTitle: 'Ghi nhận kết quả thực hiện với nhà cung cấp'
     },
     deviceCollectors: {
       title: 'Bộ thu thập tiện ích thiết bị',
-      subtitle: 'Quản lý tiện ích trình duyệt trên máy công ty, thực thi allowlist và kiểm tra cổng minh bạch (UF-16)',
+      subtitle: 'Quản lý tiện ích trình duyệt trên máy công ty, thực thi allowlist và bảo vệ quyền riêng tư',
       metricRegistered: 'Thiết bị đăng ký',
       metricConfirmed: 'Đã xác nhận (Gateway mở)',
       metricPendingConfirm: 'Chờ xác nhận (Gateway khóa)',
@@ -290,7 +292,7 @@ export const dashboard = {
       privacyRuleTitle: 'Rào chắn bảo mật & Tối thiểu hóa dữ liệu tại máy',
       privacyRuleDesc: 'Chỉ gửi device_id, domain, active_minutes. Loại bỏ hoàn toàn URL path, nội dung và vị trí.',
       blockedAppsTitle: 'Ứng dụng liên lạc bị loại trừ tuyệt đối',
-      blockedAppsDesc: 'Slack, Teams, Zoom, Gmail, Zalo không bao giờ được thu thập theo ADR-10.',
+      blockedAppsDesc: 'Slack, Teams, Zoom, Gmail, Zalo không bao giờ được thu thập theo chính sách bảo mật.',
       colDevice: 'Mã thiết bị',
       colEmployee: 'Nhân viên sở hữu',
       colDepartment: 'Phòng ban',
@@ -304,7 +306,7 @@ export const dashboard = {
       actInspect: 'Kiểm tra',
       allowlistTitle: 'Danh sách cho phép (Allowlist tự động)',
       allowlistDesc: 'Chỉ thu thập tên miền thuộc SaaS Catalog: github.com, figma.com, atlassian.net, notion.so',
-      badgeScreenCode: 'UF-16 · ITA-16'
+      badgeScreenCode: 'Thu thập thiết bị'
     }
   },
   employee: {
