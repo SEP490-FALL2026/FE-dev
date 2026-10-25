@@ -1,6 +1,8 @@
 import type { UserRole } from '~/entities/user-role/user-role'
 
-export const roleProfiles: Record<UserRole, { displayName: string; initials: string }> = {
+export type RoleProfile = { displayName: string; initials: string }
+
+export const roleProfiles: Record<UserRole, RoleProfile> = {
   employee: { displayName: 'Đức Anh', initials: 'ĐA' },
   finance: { displayName: 'Ngọc Lan', initials: 'NL' },
   'it-admin': { displayName: 'Quang Huy', initials: 'QH' },

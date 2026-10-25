@@ -14,18 +14,8 @@ import {
   type LucideIcon
 } from 'lucide-react'
 
-export const IT_ADMIN_TAB_KEYS = [
-  'overview',
-  'provisioning',
-  'reconciliation',
-  'usage-import',
-  'device-collectors',
-  'license-optimization',
-  'shadow-it',
-  'dept-catalog'
-] as const
-
-export type ItAdminTabKey = (typeof IT_ADMIN_TAB_KEYS)[number]
+import { IT_ADMIN_TAB_KEYS, type ItAdminTabKey } from './enums'
+export { IT_ADMIN_TAB_KEYS, type ItAdminTabKey }
 
 export function isValidItAdminTab(value: unknown): value is ItAdminTabKey {
   return typeof value === 'string' && IT_ADMIN_TAB_KEYS.includes(value as ItAdminTabKey)
@@ -35,7 +25,6 @@ export type ItAdminSubMenuItem = {
   badge?: number | string
   icon: LucideIcon
   key: ItAdminTabKey
-  screenCode: string
   translationKey:
     | 'provisioning'
     | 'reconciliation'
@@ -67,21 +56,18 @@ export const itAdminMenuItems: readonly ItAdminMenuItem[] = [
         badge: 8,
         icon: PackageCheck,
         key: 'provisioning',
-        screenCode: 'Cấp phát & Thu hồi',
         translationKey: 'provisioning'
       },
       {
         badge: 4,
         icon: Scale,
         key: 'reconciliation',
-        screenCode: 'Kiểm tra sai lệch bản quyền',
         translationKey: 'reconciliation'
       },
       {
         badge: 3,
         icon: UploadCloud,
         key: 'usage-import',
-        screenCode: 'Nhập hóa đơn & hợp đồng',
         translationKey: 'usageImport'
       }
     ],
@@ -95,7 +81,6 @@ export const itAdminMenuItems: readonly ItAdminMenuItem[] = [
         badge: 3,
         icon: Laptop,
         key: 'device-collectors',
-        screenCode: 'Dữ liệu sử dụng theo phòng',
         translationKey: 'deviceCollectors'
       }
     ],
@@ -109,14 +94,12 @@ export const itAdminMenuItems: readonly ItAdminMenuItem[] = [
         badge: 4,
         icon: Sparkles,
         key: 'license-optimization',
-        screenCode: 'Tối ưu bản quyền',
         translationKey: 'licenseOptimization'
       },
       {
         badge: 4,
         icon: ShieldAlert,
         key: 'shadow-it',
-        screenCode: 'Phần mềm ngoài danh mục',
         translationKey: 'shadowIt'
       }
     ],
@@ -140,4 +123,3 @@ export function getParentMenuKey(tabKey: ItAdminTabKey): string {
   if (tabKey === 'dept-catalog') return 'dept-catalog'
   return 'overview'
 }
-

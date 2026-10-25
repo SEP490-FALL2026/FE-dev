@@ -852,6 +852,12 @@ export const spendDashboard = {
       windowSaving: 'Saving in {{period}}'
     },
     report: {
+      aiDraft: 'Software spending for Q3 2026 was 408.1 million ₫ for the period [1], below the total budget of 520 million ₫ [2]. Operations used 93.6% of its budget, the highest in the company [3]. Unallocated cost center spending is 6.62 million ₫, with three exceptions awaiting the Spending Approver [4]. Immediate savings are 18.4 million ₫, and savings at the next renewal are 41.2 million ₫; these are separate figures [5].',
+      aiSource1: '[1] Budget versus actual · period basis · total',
+      aiSource2: '[2] Q3 2026 budget · six cost centers',
+      aiSource3: '[3] CC-OPS · period actual ÷ budget',
+      aiSource4: '[4] Allocation · unallocated lines',
+      aiSource5: '[5] Savings report',
       colNarrative: 'Narrative',
       colRole: 'Role',
       colSavings: 'Savings',
