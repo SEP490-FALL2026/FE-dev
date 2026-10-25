@@ -8,10 +8,37 @@ export type UserAccountRole =
 
 export type AccountStatus = 'ACTIVE' | 'INVITED' | 'LOCKED' | 'DEACTIVATED'
 
+export type DeviceType = 'LAPTOP' | 'DESKTOP' | 'MACBOOK' | 'WORKSTATION'
+export type DeviceTrackingStatus = 'TRACKING' | 'PENDING_PAIR' | 'OFFLINE' | 'UNBOUND'
+
+export interface EmployeeDevice {
+  id: string
+  deviceCode: string // e.g. DEV-WIN-2026-041
+  macAddress: string // e.g. 00:1A:2B:3C:4D:5E
+  os: string // e.g. Windows 11 Pro 64-bit
+  deviceType?: DeviceType | string
+  assignedEmployeeId?: string
+  assignedEmployeeName?: string
+  assignedEmployeeCode?: string
+  departmentName?: string
+  assignedAt?: string
+  hostname?: string
+  manufacturerModel?: string
+  serialNumber?: string
+  trackingStatus?: DeviceTrackingStatus
+  trackingAgentVersion?: string
+  lastTelemetrySync?: string
+  ipAddress?: string
+  pairingToken?: string
+}
+
 export interface UserAccount {
+  assignedDeviceCode?: string
+  assignedDeviceId?: string
   departmentCode?: string
   departmentId?: string
   departmentName?: string
+  deviceTrackingStatus?: DeviceTrackingStatus
   email: string
   employeeCode: string
   id: string
@@ -266,9 +293,12 @@ export const initialUserAccounts: UserAccount[] = [
     status: 'ACTIVE'
   },
   {
+    assignedDeviceCode: 'DEV-WIN-2026-041',
+    assignedDeviceId: 'dev-06',
     departmentCode: 'ENG',
     departmentId: 'dept-01',
     departmentName: 'Khối CNTT & Kỹ thuật',
+    deviceTrackingStatus: 'TRACKING',
     email: 'duc.anh@company.com',
     employeeCode: 'EMP-088',
     id: 'acc-06',
@@ -280,9 +310,12 @@ export const initialUserAccounts: UserAccount[] = [
     status: 'ACTIVE'
   },
   {
+    assignedDeviceCode: 'DEV-WIN-2026-104',
+    assignedDeviceId: 'dev-07',
     departmentCode: 'MKT',
     departmentId: 'dept-04',
     departmentName: 'Phòng Marketing & Tăng trưởng',
+    deviceTrackingStatus: 'TRACKING',
     email: 'tien.dung@company.com',
     employeeCode: 'EMP-104',
     id: 'acc-07',
@@ -294,9 +327,12 @@ export const initialUserAccounts: UserAccount[] = [
     status: 'INVITED'
   },
   {
+    assignedDeviceCode: 'DEV-WIN-2026-092',
+    assignedDeviceId: 'dev-08',
     departmentCode: 'HR',
     departmentId: 'dept-05',
     departmentName: 'Phòng Nhân sự & Đào tạo',
+    deviceTrackingStatus: 'TRACKING',
     email: 'van.kien@company.com',
     employeeCode: 'EMP-092',
     id: 'acc-08',
@@ -308,6 +344,7 @@ export const initialUserAccounts: UserAccount[] = [
     status: 'LOCKED'
   },
   {
+    deviceTrackingStatus: 'UNBOUND',
     email: 'van.binh@company.com',
     employeeCode: 'EMP-112',
     id: 'acc-09',
@@ -316,9 +353,10 @@ export const initialUserAccounts: UserAccount[] = [
     phone: '0989 012 345',
     position: 'Kỹ sư DevOps',
     role: 'EMPLOYEE',
-    status: 'ACTIVE' // Chưa có phòng ban!
+    status: 'ACTIVE' // Chưa có phòng ban và chưa định danh máy!
   },
   {
+    deviceTrackingStatus: 'UNBOUND',
     email: 'thi.mai@company.com',
     employeeCode: 'EMP-115',
     id: 'acc-10',
@@ -327,9 +365,10 @@ export const initialUserAccounts: UserAccount[] = [
     phone: '0990 123 456',
     position: 'Chuyên viên QA/QC',
     role: 'EMPLOYEE',
-    status: 'ACTIVE' // Chưa có phòng ban!
+    status: 'ACTIVE' // Chưa có phòng ban và chưa định danh máy!
   },
   {
+    deviceTrackingStatus: 'UNBOUND',
     email: 'quoc.bao@company.com',
     employeeCode: 'EMP-120',
     id: 'acc-11',
@@ -338,7 +377,84 @@ export const initialUserAccounts: UserAccount[] = [
     phone: '0902 345 678',
     position: 'HR Business Partner',
     role: 'EMPLOYEE',
-    status: 'INVITED' // Chưa có phòng ban!
+    status: 'INVITED' // Chưa có phòng ban và chưa định danh máy!
+  }
+]
+
+export const initialEmployeeDevices: EmployeeDevice[] = [
+  // 1. Máy đã định danh cho nhân viên (Role: Employee)
+  {
+    assignedAt: '2026-08-15 09:30',
+    assignedEmployeeCode: 'EMP-088',
+    assignedEmployeeId: 'acc-06',
+    assignedEmployeeName: 'Đức Anh',
+    departmentName: 'Khối CNTT & Kỹ thuật',
+    deviceCode: 'DEV-WIN-2026-041',
+    deviceType: 'DESKTOP',
+    id: 'dev-06',
+    macAddress: '00:1A:2B:3C:4D:5E',
+    os: 'Windows 11 Pro 64-bit'
+  },
+  {
+    assignedAt: '2026-10-18 10:30',
+    assignedEmployeeCode: 'EMP-104',
+    assignedEmployeeId: 'acc-07',
+    assignedEmployeeName: 'Phạm Tiến Dũng',
+    departmentName: 'Phòng Marketing & Tăng trưởng',
+    deviceCode: 'DEV-WIN-2026-104',
+    deviceType: 'LAPTOP',
+    id: 'dev-07',
+    macAddress: '28:16:A8:DF:49:12',
+    os: 'Windows 11 Pro 64-bit'
+  },
+  {
+    assignedAt: '2026-08-20 09:00',
+    assignedEmployeeCode: 'EMP-092',
+    assignedEmployeeId: 'acc-08',
+    assignedEmployeeName: 'Vũ Văn Kiên',
+    departmentName: 'Phòng Nhân sự & Đào tạo',
+    deviceCode: 'DEV-WIN-2026-092',
+    deviceType: 'LAPTOP',
+    id: 'dev-08',
+    macAddress: '48:2A:E3:6C:99:01',
+    os: 'Windows 10 Pro 64-bit'
+  },
+
+  // 2. Danh sách thiết bị công ty chưa gán (Kho thiết bị Windows sẵn sàng định danh)
+  {
+    deviceCode: 'DEV-WIN-2026-101',
+    deviceType: 'LAPTOP',
+    id: 'dev-101',
+    macAddress: '00:1B:63:84:45:E1',
+    os: 'Windows 11 Pro 64-bit'
+  },
+  {
+    deviceCode: 'DEV-WIN-2026-102',
+    deviceType: 'DESKTOP',
+    id: 'dev-102',
+    macAddress: '70:85:C2:A1:B3:99',
+    os: 'Windows 11 Pro 64-bit'
+  },
+  {
+    deviceCode: 'DEV-WIN-2026-103',
+    deviceType: 'LAPTOP',
+    id: 'dev-103',
+    macAddress: '00:25:B3:98:A1:88',
+    os: 'Windows 10 Pro 64-bit'
+  },
+  {
+    deviceCode: 'DEV-WIN-2026-105',
+    deviceType: 'LAPTOP',
+    id: 'dev-105',
+    macAddress: '3C:D9:2B:77:44:02',
+    os: 'Windows 11 Pro 64-bit'
+  },
+  {
+    deviceCode: 'DEV-WIN-2026-106',
+    deviceType: 'DESKTOP',
+    id: 'dev-106',
+    macAddress: 'A4:BB:6D:90:12:FE',
+    os: 'Windows 11 Pro 64-bit'
   }
 ]
 
@@ -582,3 +698,8 @@ export const availableEmployeesForAccount: AvailableEmployee[] = initialUserAcco
     name: a.name,
     position: a.position
   }))
+
+export const INITIAL_DEPARTMENTS = initialDepartments
+export const INITIAL_USER_ACCOUNTS = initialUserAccounts
+export const INITIAL_EMPLOYEE_DEVICES = initialEmployeeDevices
+

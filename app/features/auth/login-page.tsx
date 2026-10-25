@@ -8,6 +8,7 @@ import { BrandMark } from '~/shared/ui/brand-mark'
 import { LanguageSwitch } from '~/shared/ui/language-switch'
 import { ThemeSwitch } from '~/shared/ui/theme-switch'
 
+import { setAuthSession } from './auth-session'
 import { demoAccounts, matchDemoAccount } from './demo-accounts'
 
 export function LoginPage() {
@@ -36,6 +37,7 @@ export function LoginPage() {
       return
     }
 
+    setAuthSession(account)
     navigate(`/dashboard/${account.role}`)
   }
 

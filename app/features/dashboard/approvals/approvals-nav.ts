@@ -6,20 +6,8 @@ import type { LucideIcon } from 'lucide-react'
  * `optimization` (APV-04) lists Finance's cost optimization proposals and `annual-budget` (APV-05) the department
  * budgets Finance sends for the next fiscal year; an item opens with the `id` param.
  */
-export const APPROVAL_TAB_KEYS = [
-  'overview',
-  'queue',
-  'request',
-  'renewal',
-  'charge',
-  'optimization',
-  'annual-budget',
-  'exception-approval',
-  'decision-history',
-  'reports'
-] as const
-
-export type ApprovalTabKey = (typeof APPROVAL_TAB_KEYS)[number]
+import { APPROVAL_TAB_KEYS, type ApprovalTabKey } from './enums'
+export { APPROVAL_TAB_KEYS, type ApprovalTabKey }
 
 export type ApprovalTranslationKey =
   'annualBudget' | 'decisionHistory' | 'exceptionApproval' | 'optimization' | 'overview' | 'queue' | 'reports'

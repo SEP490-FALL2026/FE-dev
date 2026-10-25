@@ -1,25 +1,7 @@
 import { CirclePlus, FileText, Laptop, LayoutDashboard, ShieldCheck, type LucideIcon } from 'lucide-react'
 
-export const EMPLOYEE_TAB_KEYS = [
-  'overview',
-  'my-software',
-  'software-detail',
-  'my-requests',
-  'request-detail',
-  'create-request',
-  'request-new-software',
-  'request-software-details',
-  'temporary-renewal',
-  'return-license',
-  'review-request',
-  'submission-success',
-  'profile',
-  'privacy',
-  'data-export',
-  'data-usage'
-] as const
-
-export type EmployeeTabKey = (typeof EMPLOYEE_TAB_KEYS)[number]
+import { EMPLOYEE_TAB_KEYS, type EmployeeTabKey } from './enums'
+export { EMPLOYEE_TAB_KEYS, type EmployeeTabKey }
 
 export function isValidEmployeeTab(value: unknown): value is EmployeeTabKey {
   return typeof value === 'string' && EMPLOYEE_TAB_KEYS.includes(value as EmployeeTabKey)

@@ -25,31 +25,8 @@ import {
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
-export const FINANCE_TAB_KEYS = [
-  'overview',
-  'department-budget',
-  'budgets',
-  'budget-allocation',
-  'budget-check',
-  'commitments',
-  'budget-questions',
-  'budget-exceptions',
-  'budget-periods',
-  'decision-history',
-  'department-summary',
-  'annual-proposals',
-  'budget-negotiation',
-  'cost-forecast',
-  'cost-optimization',
-  'saas-cost',
-  'spend-import',
-  'charge-exceptions',
-  'period-close',
-  'cost-analysis',
-  'period-report'
-] as const
-
-export type FinanceTabKey = (typeof FINANCE_TAB_KEYS)[number]
+import { FINANCE_TAB_KEYS, type FinanceTabKey } from './enums'
+export { FINANCE_TAB_KEYS, type FinanceTabKey }
 
 export type FinanceTranslationKey =
   | 'annualProposals'

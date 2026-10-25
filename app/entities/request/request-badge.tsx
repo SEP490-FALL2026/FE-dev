@@ -10,7 +10,7 @@ const tones: Record<RequestStatus, string> = {
   overdue: 'border-danger/20 bg-danger/10 text-danger'
 }
 export function RequestBadge({ status }: { status: RequestStatus }) {
-  const { t } = useTranslation()
+  const { t } = useTranslation('dashboard')
   return (
     <span className={`inline-flex whitespace-nowrap rounded border px-2 py-1 text-[11px] font-medium ${tones[status]}`}>
       {t(`teamRequests.statuses.${status}`)}

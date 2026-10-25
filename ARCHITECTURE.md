@@ -1,36 +1,238 @@
-# SaaS-Sentry Web architectures
+# Kiến Trúc Ứng Dụng Web SaaS-Sentry (Web Architecture)
 
-Status: accepted foundation, 2026-08-11.
+Trạng thái: Nền tảng được phê duyệt, cập nhật chuẩn hoá tháng 10/2026.
 
-## Context
+## 1. Bối cảnh & Phạm vi dự án (Context & Scope)
 
-SaaS-Sentry is an enterprise system for SaaS catalog, contracts, license seats,
-approval workflows, usage optimization, finance reporting, and Shadow IT review.
-Its BRD identifies a responsive web application as the MVP and explicitly excludes
-a mobile application from the current product scope.
+SaaS-Sentry là hệ thống quản trị dành cho doanh nghiệp nhằm quản lý danh mục phần mềm SaaS, hợp đồng bản quyền, quản lý ghế cấp phát (license seats), quy trình phê duyệt chi phí CNTT, tối ưu hoá lãng phí bản quyền (Ghost Seats), báo cáo tài chính và kiểm soát rủi ro Shadow IT.
+Tài liệu yêu cầu nghiệp vụ (BRD) xác định ứng dụng web thích ứng (Responsive Web Application) là trọng tâm của giai đoạn MVP.
 
-The frontend started from the React Router welcome template. This architecture is
-deliberately a modular frontend inside one deployable application: a five-person,
-fourteen-week MVP does not benefit from micro-frontends, a cross-platform UI package,
-or a generic repository layer over a generated HTTP client.
+Frontend được xây dựng theo mô hình **Modular Monolithic Frontend** tích hợp trong một ứng dụng duy nhất sử dụng React Router 7 (Framework Mode, SPA client-side rendering). Kiến trúc này giúp tối ưu hoá năng suất của đội ngũ, không bị phức tạp hoá quá mức bởi micro-frontends hay các lớp trừu tượng dư thừa, đồng thời đảm bảo tính tổ chức chặt chẽ, sạch sẽ (Clean Architecture) và khả năng mở rộng lâu dài.
 
-## Runtime view
+## 2. Mô hình Thực thi Runtime (Runtime View)
 
 ```text
-Browser
-  -> static React Router SPA
-      -> route module
-          -> feature UI/workflow
-              -> generated TanStack Query hook
-                  -> fetch /api/*
-                      -> NestJS REST API
+Trình duyệt (Browser)
+  -> Ứng dụng SPA React Router 7
+      -> Route Controller mỏng (app/routes/*)
+          -> Bộ bảo vệ phân quyền (RoleGuard - RBAC Guard)
+              -> Tính năng giao diện / Workflow nghiệp vụ (app/features/*)
+                  -> Generated TanStack Query Hook (Orval client)
+                      -> REST API request (/api/*)
+                          -> NestJS Backend API (Xác thực, nghiệp vụ, lưu trữ)
 ```
 
-The browser owns presentation, navigation, and ephemeral interaction state. NestJS
-owns validation, authorization, workflow transitions, audit trails, persistence,
-and all decisions that affect money or access.
+- **Trình duyệt (Frontend)**: Chịu trách nhiệm hiển thị giao diện, điều hướng, quản lý trạng thái tương tác tạm thời (ephemeral UI state), kiểm tra phân quyền cục bộ và định dạng hiển thị.
+- **NestJS (Backend)**: Đảm nhiệm tính đúng đắn của dữ liệu, xác thực phiên làm việc, kiểm tra quyền hạn thực tế (authorization), chuyển đổi trạng thái nghiệp vụ, ghi nhận audit trail, đồng bộ cơ sở dữ liệu và mọi quyết định liên quan đến chi phí, tiền bạc hoặc cấp quyền sử dụng phần mềm.
+
+## 3. Kiến trúc Điều hướng & Bảo mật Phân quyền (Routing Architecture & RBAC)
+
+Toàn bộ hệ thống Route được định nghĩa tập trung tại [app/routes.ts](file:///c:/fe_capstone/FE-dev-main/app/routes.ts) và triển khai thành các Route Controller độc lập tại [app/routes/](file:///c:/fe_capstone/FE-dev-main/app/routes), được bảo vệ bởi cơ chế kiểm soát truy cập dựa trên vai trò (Role-Based Access Control - RBAC).
+
+```text
+app/routes/
+├── home.tsx                            # Trang chủ Landing page (/)
+├── login.tsx                           # Trang đăng nhập (/login)
+├── forbidden.tsx                       # Màn hình từ chối truy cập 403 Forbidden (/forbidden)
+│
+├── dashboard.super-admin.tsx           # Route quản trị cấp cao Super Admin (/dashboard/super-admin)
+├── dashboard.it-admin.tsx              # Route quản trị kỹ thuật IT Admin (/dashboard/it-admin)
+├── dashboard.manager.tsx               # Route quản lý phòng ban Manager (/dashboard/manager)
+├── dashboard.finance.tsx               # Route tài chính kế toán Finance (/dashboard/finance)
+├── dashboard.spending-approver.tsx     # Route cấp phê duyệt chi tiêu Spending Approver (/dashboard/spending-approver)
+├── dashboard.employee.tsx              # Route nhân viên Employee (/dashboard/employee)
+│
+├── dashboard.tsx                       # Parameterized Fallback route (/dashboard/:role)
+└── not-found.tsx                       # Route bắt lỗi 404 không tìm thấy trang (*)
+```
+
+### Nguyên tắc Bảo mật Phân quyền RBAC (Security Enforcement):
+1. **Thin Route Controllers**: Mỗi file trong `app/routes/` chỉ đóng vai trò là Controller mỏng, nhận tham số URL, thiết lập metadata trang và bọc giao diện trong bộ bảo vệ `RoleGuard`.
+2. **Bộ bảo vệ `RoleGuard` ([app/features/auth/components/role-guard.tsx](file:///c:/fe_capstone/FE-dev-main/app/features/auth/components/role-guard.tsx))**:
+   - Mọi Route Dashboard của từng vai trò đều bắt buộc phải được bọc bởi `<RoleGuard requiredRole="...">`.
+   - **Xác thực phiên (Authentication Check)**: Nếu người dùng chưa đăng nhập, tự động chuyển hướng ngay về `/login?redirectTo=...`.
+   - **Phân quyền truy cập (Authorization Check)**: Nếu người dùng đang đăng nhập với vai trò A (ví dụ: `employee`) nhưng cố tình truy cập vào URL của vai trò B (ví dụ: `/dashboard/super-admin` hoặc `/dashboard/finance`):
+     - **Hệ thống chặn truy cập ngay lập tức**: Tuyệt đối không khởi tạo hay render các component, hook dữ liệu hoặc bảng biểu bảo mật của vai trò bị cấm.
+     - **Hiển thị màn hình 403 Forbidden**: Giải thích rõ quyền hạn bị giới hạn và cung cấp liên kết điều hướng an toàn trở lại Dashboard đúng vai trò của người dùng.
+
+## 4. Kiến trúc Phân vùng Thư mục & Cắt dọc Nghiệp vụ (Vertical Slice Architecture)
+
+Hệ thống áp dụng chuẩn quốc tế **Vertical Slice Architecture (VSA)** kết hợp **Feature-Driven Design (FDD)**.
+Thư mục `app/features/` được phân tách thành 2 khối lớn: `auth/` (xác thực & phiên làm việc) và `dashboard/` (bàn làm việc của từng vai trò).
+
+Trong mỗi vai trò (Role), thay vì gom toàn bộ file vào các thư mục ngang lớn gây quá tải và xung đột khi dự án mở rộng, toàn bộ mã nguồn được **chia cắt dọc theo từng Phân hệ / Chức năng Nghiệp vụ (Sub-feature / Domain Module)**:
+
+```text
+app/features/
+├── auth/                               # Xác thực, phiên đăng nhập, tài khoản demo
+│   ├── auth-session.ts                 # Quản lý phiên làm việc, lưu trữ sessionStorage
+│   ├── enums.ts                        # Enums trạng thái auth, danh sách role
+│   ├── hooks/                          # Hooks xác thực (useDemoAuth,...)
+│   ├── components/                     # Bộ bảo vệ RoleGuard, form đăng nhập
+│   └── views/                          # Giao diện LoginPage, ForbiddenPage (403)
+│
+└── dashboard/                          # Khung điều phối Dashboard & Workspace của 6 Roles
+    ├── components/                     # Component vỏ khung (DashboardHeader, DashboardSidebar, DefaultView)
+    ├── dashboard-page.tsx              # Component điều phối hiển thị trung tâm (<= 500 dòng)
+    ├── dashboard-ui.tsx                # Primitives định dạng hiển thị dùng chung (tiền tệ, ngày tháng, badge)
+    ├── dashboard-data.ts               # Hồ sơ vai trò (Role profiles) và dữ liệu điều hướng
+    │
+    ├── employee/                       # Role Nhân viên (Employee)
+    │   ├── overview/                   # Chức năng: Dashboard tổng quan mức sử dụng phần mềm
+    │   ├── software-request/           # Chức năng: Đăng ký phần mềm mới & dùng chung theo nhóm
+    │   ├── my-software/                # Chức năng: Phần mềm đang dùng, xem license key, gia hạn, trả lại
+    │   ├── my-requests/                # Chức năng: Theo dõi lịch sử & tiến độ các đơn yêu cầu
+    │   ├── profile-privacy/            # Chức năng: Hồ sơ cá nhân & minh bạch thu thập dữ liệu
+    │   ├── shared/                     # Components, hooks, preview notice dùng chung trong Employee
+    │   ├── employee-data.ts            # Mock data, fixture và contracts của Employee
+    │   ├── employee-nav.ts             # Cấu hình navigation và helper tabs của Employee
+    │   ├── enums.ts                    # Enums và Tab Keys của Employee
+    │   └── index.ts                    # Barrel export duy nhất của Employee ra bên ngoài
+    │
+    ├── super-admin/                    # Role Quản trị cấp cao (Super Admin)
+    │   ├── overview/                   # Chức năng: Bảng chỉ số điều hành cấp cao toàn tổ chức
+    │   ├── accounts/                   # Chức năng: Quản lý tài khoản người dùng & định danh máy tính (Workstation binding)
+    │   ├── departments/                # Chức năng: Cơ cấu tổ chức phòng ban & chỉ số KPI
+    │   ├── personnel/                  # Chức năng: Danh bạ nhân sự toàn công ty
+    │   ├── reminders/                  # Chức năng: Cấu hình chính sách & nhắc nhở tự động
+    │   ├── audit/                      # Chức năng: Nhật ký kiểm toán hệ thống (Audit Trail)
+    │   ├── transfer/                   # Chức năng: Bàn giao và chuyển giao tài sản số
+    │   ├── settings/                   # Chức năng: Cấu hình hệ thống chung
+    │   ├── shared/                     # Hooks tabs dùng chung trong Super Admin
+    │   ├── super-admin-data.ts         # Mock data và contracts của Super Admin
+    │   ├── super-admin-nav.ts          # Cấu hình navigation và helper tabs của Super Admin
+    │   ├── enums.ts                    # Enums và Tab Keys của Super Admin
+    │   └── index.ts                    # Barrel export duy nhất của Super Admin ra bên ngoài
+    │
+    ├── manager/                        # Role Quản lý bộ phận (Manager)
+    │   ├── overview/                   # Chức năng: Thống kê tổng quan phòng ban
+    │   ├── team-requests/              # Chức năng: Xét duyệt & tổng hợp đơn của nhân viên (weekly batch)
+    │   ├── team/                       # Chức năng: Danh sách nhân sự & phần mềm cấp cho nhóm
+    │   ├── access-review/              # Chức năng: Đợt tái chứng nhận quyền truy cập định kỳ
+    │   ├── ghost-seats/                # Chức năng: Rà soát tài khoản lãng phí không hoạt động (Ghost Seats)
+    │   ├── annual-budget/              # Chức năng: Đề xuất ngân sách năm của bộ phận
+    │   ├── shared/                     # Components dùng chung (confirm dialog, summary strip), hook tabs
+    │   ├── manager-data.ts             # Mock data và contracts của Manager
+    │   ├── manager-nav.ts              # Cấu hình navigation và helper tabs của Manager
+    │   ├── enums.ts                    # Enums và Tab Keys của Manager
+    │   └── index.ts                    # Barrel export duy nhất của Manager ra bên ngoài
+    │
+    ├── approvals/                      # Role Cấp phê duyệt chi tiêu (Spending Approver)
+    │   ├── overview/                   # Chức năng: Tổng quan ngân sách & dòng phê duyệt
+    │   ├── queue/                      # Chức năng: Hàng chờ phê duyệt chi tiêu phần mềm, gia hạn, tối ưu hóa
+    │   ├── annual-budget/              # Chức năng: Thẩm định & phê duyệt đề xuất ngân sách năm các phòng ban
+    │   ├── exceptions/                 # Chức năng: Phê duyệt ngoại lệ vượt ngân sách & điều chỉnh
+    │   ├── decisions/                  # Chức năng: Lịch sử và sổ quyết định phê duyệt theo Cost Center
+    │   ├── shared/                     # Panel kiểm tra ngân sách, hook tabs
+    │   ├── approval-data.ts            # Mock data và contracts của Approvals
+    │   ├── approvals-nav.ts            # Cấu hình navigation và helper tabs của Approvals
+    │   ├── enums.ts                    # Enums và Tab Keys của Approvals
+    │   └── index.ts                    # Barrel export duy nhất của Approvals ra bên ngoài
+    │
+    ├── it-admin/                       # Role Quản trị kỹ thuật (IT Admin)
+    │   ├── overview/                   # Chức năng: Trung tâm điều hành IT tổng quan
+    │   ├── provisioning/               # Chức năng: Cấp phát, kích hoạt & thu hồi bản quyền
+    │   ├── device-collectors/          # Chức năng: Thu thập telemetry máy tính & định danh thiết bị
+    │   ├── dept-catalog/               # Chức năng: Quản lý danh mục phần mềm tiêu chuẩn phòng ban
+    │   ├── optimization/               # Chức năng: Tối ưu hoá giấy phép & hạ cấp gói nhàn rỗi
+    │   ├── shadow-it/                  # Chức năng: Giám sát phần mềm ngoài luồng không được phê duyệt
+    │   ├── reconciliation/             # Chức năng: Đối soát số liệu bản quyền với hóa đơn mua hàng
+    │   ├── identities/                 # Chức năng: Khớp nối danh tính chưa được định danh (Unmatched Identities)
+    │   ├── renewals/                   # Chức năng: Đề xuất gia hạn bản quyền công nghệ
+    │   ├── offboarding/                # Chức năng: Thu hồi tài khoản và bản quyền khi nhân sự nghỉ việc
+    │   ├── usage-import/               # Chức năng: Nhập lịch sử sử dụng phần mềm từ file ngoài
+    │   ├── shared/                     # Hook quản lý tabs dùng chung trong IT Admin
+    │   ├── it-admin-data.ts            # Mock data và contracts của IT Admin
+    │   ├── it-admin-nav.ts             # Cấu hình navigation và helper tabs của IT Admin
+    │   ├── enums.ts                    # Enums và Tab Keys của IT Admin
+    │   └── index.ts                    # Barrel export duy nhất của IT Admin ra bên ngoài
+    │
+    └── finance/                        # Role Tài chính (Finance)
+        ├── overview/                   # Chức năng: Báo cáo tài chính SaaS tổng quan & tỷ lệ giải ngân
+        ├── annual-budget/              # Chức năng: Kế hoạch ngân sách năm, thương lượng & tổng hợp
+        ├── budget-allocation/          # Chức năng: Phân bổ ngân sách theo phòng ban & Cost Center
+        ├── budget-questions/           # Chức năng: Thẩm định giải trình thắc mắc & ngoại lệ ngân sách
+        ├── commitments/                # Chức năng: Quản lý cam kết chi tiêu & hóa đơn công nợ
+        ├── budget-check/               # Chức năng: Kiểm tra khả dụng ngân sách & cảnh báo vượt mức
+        ├── period-close/               # Chức năng: Khóa sổ kỳ kế toán & phát hành báo cáo
+        ├── cost-optimization/          # Chức năng: Phân tích dự báo chi phí SaaS & cơ hội tiết kiệm
+        ├── spend-import/               # Chức năng: Nhập dữ liệu sao kê chi tiêu thực tế
+        ├── decisions/                  # Chức năng: Nhật ký lịch sử các quyết định tài chính
+        ├── shared/                     # Components dùng chung (filter panel, period filter, charts), hooks
+        ├── finance-data.ts             # Mock data và contracts của Finance
+        ├── finance-nav.ts              # Cấu hình navigation và helper tabs của Finance
+        ├── enums.ts                    # Enums và Tab Keys của Finance
+        └── index.ts                    # Barrel export duy nhất của Finance ra bên ngoài
+```
+
+### 4.1 Quy chuẩn Sử dụng Barrel Export (`index.ts`) & Decoupling Standard
+
+Để duy trì tính toàn vẹn kiến trúc và ngăn ngừa khớp nối lỏng lẻo (tight coupling), toàn bộ codebase tuân thủ 4 nguyên tắc barrel export sau:
+
+1. **Phân tách trách nhiệm Consumer (Consumer Decoupling)**:
+   - Các consumer cấp cao như [dashboard-page.tsx](file:///c:/fe_capstone/FE-dev-main/app/features/dashboard/dashboard-page.tsx), [dashboard-sidebar.tsx](file:///c:/fe_capstone/FE-dev-main/app/features/dashboard/components/dashboard-sidebar.tsx) và các Route Controller tại `app/routes/` **chỉ được phép import từ file barrel index gốc của Role** (`./employee`, `./super-admin`, `./manager`, `./approvals`, `./it-admin`, `./finance`).
+   - Tuyệt đối cấm import sâu vào đường dẫn con của từng sub-feature (ví dụ: `import { ManagerTeamRequestsView } from './manager/team-requests/views/...'` là **VI PHẠM**).
+   - **ĐÚNG**:
+     ```ts
+     import { EmployeeOverviewView, EmployeeSoftwareRequestView } from './employee'
+     import { ManagerOverviewView, ManagerTeamRequestsView } from './manager'
+     import { FinanceScreen, isValidFinanceTab } from './finance'
+     ```
+
+2. **Ranh giới Độc lập giữa các Sub-features (Sub-feature Isolation)**:
+   - Sub-feature A **tuyệt đối không được import trực tiếp** từ thư mục con của Sub-feature B trong cùng role.
+   - Nếu 2 sub-features cần dùng chung một dialog, modal, table, helper hay hook, thành phần đó **bắt buộc phải được chuyển vào thư mục `<role>/shared/`**.
+   - Nếu một thành phần được sử dụng bởi 2 roles khác nhau, thành phần đó phải được đưa lên tầng `app/entities/` (nếu liên quan đến thực thể nghiệp vụ) hoặc `app/shared/` (nếu là UI primitive / utility).
+
+3. **Ngăn chặn Xung đột Export (TS2308 Collision Prevention)**:
+   - Khi một enum hoặc type đã được export từ file dữ liệu (`<role>-data.ts`) hoặc điều hướng (`<role>-nav.ts`), trong file `index.ts` **không được sử dụng cú pháp mù quáng `export * from './enums'`**.
+   - Phải khai báo tường minh từng export duy nhất (named exports) để TypeScript nhận diện chính xác và không báo lỗi trùng lặp biểu tượng (TS2308).
+
+4. **Quy tắc Phạm vi Runtime Cục bộ (Runtime Local Scope Invariant)**:
+   - Cú pháp `export { X } from './enums'` trong TypeScript chỉ tái xuất khẩu giao diện module nhưng **không đưa biến `X` vào phạm vi runtime cục bộ** của file đó.
+   - Do đó, nếu trong file có hàm logic (ví dụ `isValidTab(val)`) cần tham chiếu trực tiếp đến mảng `TAB_KEYS`, file bắt buộc phải viết:
+     ```ts
+     import { TAB_KEYS, type TabKey } from './enums'
+     export { TAB_KEYS, type TabKey }
+     ```
+
+### 4.2 Các Nguyên Tắc Kiến Trúc Bắt Buộc (Strict Architectural Invariants)
+
+1. **Tính Đóng gói Độc lập (High Cohesion & Low Coupling)**:
+   - Toàn bộ giao diện (`views/`), thành phần con (`components/`), hook xử lý (`hooks/`) và định nghĩa kiểu dữ liệu (`enums.ts`) của chức năng nào phải nằm trọn vẹn trong chức năng đó.
+2. **Phân cấp Trang Cha (Views) và Component Con (Components)**:
+   - `views/`: Chỉ chứa trang cha cấp cao nhất đại diện cho Route/Tab, quản lý URL query params và layout tổng thể. Giới hạn tối đa <= 400 dòng code.
+   - `components/`: Chứa các component con độc lập (Modals, Dialogs, Tables, Cards) với kích thước nhỏ gọn <= 300 dòng code.
+3. **Cô lập State & Workflow vào Custom Hooks (`hooks/`)**:
+   - Tách toàn bộ state, form validation, filter logic và TanStack Query hooks ra khỏi JSX để đảm bảo component giao diện luôn thanh thoát, dễ đọc và dễ test.
+4. **Khai báo Enum Tập Trung (`enums.ts`)**:
+   - Định nghĩa rõ ràng cho Tab Keys, Workflow Statuses, Filter Values, loại bỏ hoàn toàn magic strings trong toàn bộ logic điều kiện.
+5. **Giới Hạn Cứng Kích Thước File (Strict <= 500 dòng/file)**:
+   - Mọi file `.tsx` hoặc `.ts` bắt buộc phải dưới 500 dòng code. Khi đạt ngưỡng ~400–450 dòng, phải lập tức phân rã thành component con hoặc custom hook.
+6. **Quy chuẩn Đa ngôn ngữ (Strict Zero-Hardcoded-Text)**:
+   - 100% văn bản hiển thị trên giao diện phải thông qua `useTranslation()`. Cấm tuyệt đối hardcode chuỗi text trong JSX. Khai báo đồng thời ở cả `vi` và `en`.
+7. **Bảo mật Phân quyền Đa tầng (RBAC Route Guard & Backend Authority)**:
+   - Mọi route dashboard phải bọc trong `<RoleGuard requiredRole="...">`. Cố tình truy cập sai vai trò sẽ bị chặn ngay lập tức và hiển thị 403 Forbidden. Phân quyền cuối cùng luôn do NestJS backend thẩm định.
 
 ## Key decisions
+
+### Employee device identification and workstation binding preview
+
+The Employee onboarding flow enforces a three-step sequence: Step 1 (Account creation),
+Step 2 (Single-role assignment), and Step 3 (Workstation and device identification).
+Device identification binds an employee's account to their assigned workstation hardware
+(Device Code, Hostname, MAC address, Hardware Serial Number, and Operating System).
+When the desktop collector tracking tool (`sentry-collector`) transmits telemetry
+(application session durations, active usage timestamps, and AI agent token metrics),
+the system matches the hardware MAC/Device Code to the assigned employee identity so that
+usage and activity data are attributed to the correct person rather than accumulating in
+the Unmatched Identities queue (`it-unmatched-identities`).
+
+This preview provides the complete interface in Super Admin Accounts (`tab=accounts`) with
+a dedicated "Định danh thiết bị nhân sự" sub-tab, post-creation onboarding guidance prompts,
+individual account detail hardware inspectors, and a device registration/pairing modal.
+In IT Admin Device Collectors (`tab=device-collectors`), the employee telemetry detail
+surfaces the verified hardware workstation binding alongside the session timeline.
 
 ### Employee overview preview
 

@@ -1,6 +1,100 @@
+import { itAdminOffboardingExtra } from './it-admin-offboarding-extra'
+import { itAdminProvisioningExtra } from './it-admin-provisioning-extra'
+import { itAdminDeviceCollectorsExtra } from './it-admin-deviceCollectors-extra'
+import { itAdminLicenseOptimizationExtra } from './it-admin-licenseOptimization-extra'
+import { itAdminDeptCatalogExtra } from './it-admin-deptCatalog-extra'
+import { itAdminUsageImportExtra } from './it-admin-usageImport-extra'
+import { itAdminShadowItExtra } from './it-admin-shadowIt-extra'
+import { itAdminReconciliationExtra } from './it-admin-reconciliation-extra'
 import { spendDashboard } from './dashboard-spend'
+import { superAdmin } from './super-admin'
+import { teamRequests } from './team-requests'
 
 export const dashboard = {
+  superAdmin,
+  teamRequests,
+  financeDemo: {
+    units: { seats: '{{value}} suất', servers: '{{value}} máy chủ', developers: '{{value}} nhà phát triển' },
+    text: {
+      designBudgetQuestion: 'Phòng Thiết kế còn đủ ngân sách quý 4 để mua thêm 15 suất Figma không?',
+      marketingBudgetQuestion: 'Marketing chưa có ngân sách quý 4 — Tài chính có dự kiến lập trong tuần này không?',
+      engineeringBudgetQuestion: 'Kiểm tra giúp ngân sách Kỹ thuật cho 10 suất Cursor Pro.',
+      engineeringBudgetAnswer: 'Còn khoảng 115 triệu sau khi trừ cam kết đang giữ. Ý kiến tham khảo, không chặn.',
+      companyBudgetQuestion: 'Ngân sách Toàn công ty cho gói Notion AI 40 suất?',
+      operationsBudgetQuestion: 'Ngân sách Vận hành cho Miro Team?',
+      opsBudgetShortfall: 'Ngân sách quý 4 của CC-OPS còn 768.000 ₫ sau cam kết đang giữ; yêu cầu cần 31.680.000 ₫.',
+      hubspotOutsideCatalog: 'HubSpot chưa có trong danh mục được phép; Quản trị CNTT đang đánh giá.',
+      engineeringToolsShortfall: 'Nhóm Công cụ phát triển của CC-ENG còn 4.200.000 ₫; Snyk Team cần 18.600.000 ₫ cho quý 4.',
+      engineeringTopUpNote: 'Đề xuất bổ sung từ buffer năm của Phòng Kỹ thuật; bắt buộc sau sự cố bảo mật tháng 9.',
+      expiredBudgetYear: 'Yêu cầu dùng ngân sách năm 2025 đã hết hiệu lực.',
+      transferTo2026Budget: 'Chuyển sang ngân sách năm 2026 của CC-SAL.',
+      hireFiveDevelopers: 'Tuyển thêm 5 lập trình viên năm 2027.',
+      keepFortySeats: '19 suất không hoạt động; giữ 40 suất như đề xuất gia hạn của CNTT.',
+      thirtyOneActiveSeats: '31/50 suất đang hoạt động',
+      projectScopeUnchanged: 'Giữ nguyên quy mô dự án.',
+      nineInactiveSeats: '9 suất không hoạt động',
+      expandCodingAssistant: 'Mở rộng trợ lý lập trình cho toàn đội.',
+      trialCustomerAssistant: 'Thử nghiệm trợ lý chăm sóc khách hàng.',
+      overlapsCursor: 'Chưa có trong danh mục — trùng một phần với Cursor Pro',
+      fintechNeedsSeats: 'Dự án Fintech Redesign cần thêm 5 suất.',
+      keepTwentyFiveSeats: '4 ghost seat đã đề xuất thu hồi; giữ 25 suất.',
+      twentyOneActiveSeats: '21/25 suất đang hoạt động',
+      videoAndIllustration: 'Dựng video và minh họa.',
+      usabilityTesting: 'Kiểm thử khả dụng.',
+      annualDiscount: 'Thương lượng gói năm giảm 40%.',
+      internalHelpdesk: 'Bàn trợ giúp nội bộ.',
+      monitorPaymentServers: 'Giám sát 10 máy chủ thanh toán.',
+      incidentResponse: 'Trực sự cố 24/7.',
+      partnerMeetings: 'Họp với đối tác.',
+      overlapsGoogleMeet: 'Trùng chức năng với Google Meet',
+      hubspotInfoRequest: 'Bổ sung báo giá HubSpot và kế hoạch chiến dịch 2027 làm căn cứ cho số người dùng.',
+      campaignAutomation: 'Tự động hóa chiến dịch.',
+      adContentDesign: 'Thiết kế nội dung quảng cáo.',
+      keywordResearch: 'Nghiên cứu từ khóa.',
+      customerManagement: 'Quản lý khách hàng.',
+      productVideos: 'Video giới thiệu sản phẩm.',
+      keepTwoSeats: 'Chỉ 2 người dùng thường xuyên; giữ 2 suất.',
+      companyGrowth: 'Toàn công ty, thêm nhân sự mới.',
+      downgradeBusinessPlus: 'Có thể hạ xuống Business+ (4% dùng tính năng Enterprise)',
+      emailCalendarMeet: 'Email, lịch, Meet.',
+      internalDocuments: 'Tài liệu nội bộ.',
+      catalogMissingChatgpt: 'Danh mục: không có ChatGPT',
+      noApprovedRequest: 'Yêu cầu đã duyệt: không có',
+      checkingCardUser: 'Quản trị CNTT đang xác minh người dùng thẻ 8812 (Phòng Kỹ thuật).',
+      slackSubscriptionBasis: 'Thuê bao Slack Enterprise Grid — 8.000.000 ₫/tháng',
+      expiredConfluenceBasis: 'Thuê bao Confluence Standard — hết hạn 31/08/2026',
+      cancelledPlanCharged: 'Gói đã hủy ở danh mục nhưng nhà cung cấp vẫn trừ tiền.',
+      miroSubscriptionBasis: 'Thuê bao Miro Team',
+      linkedMiroSubscription: 'Đã liên kết với thuê bao Miro Team.',
+      catalogMissingCanva: 'Danh mục: không có Canva Pro',
+      internalTimesheetServers: 'Hệ thống chấm công nội bộ — máy chủ quý 3',
+      internalCiRunner: 'CI runner nội bộ — phần Phòng Kỹ thuật',
+      retiredCostCenter: 'CC-PRD đã ngừng hiệu lực và được gộp vào CC-DES; yêu cầu vẫn gắn mã cũ.',
+      approvedAnnualBudget: 'Duyệt ngân sách năm 2026 cho 6 trung tâm chi phí.',
+      reduceEngineeringBuffer: 'Tổng vượt kế hoạch chi phí; yêu cầu Tài chính giảm buffer Phòng Kỹ thuật xuống 10%.',
+      approvedMarketingIncrease: 'Chấp thuận tăng ngân sách Marketing cho chiến dịch nửa cuối năm.',
+      cursorRequestApproved: 'REQ-2026-078 · Cursor Pro · 10 suất — trong ngân sách.',
+      canvaRequestRejected: 'REQ-2026-071 · Canva Pro ngoài danh mục — không chấp thuận, dùng Adobe Express có sẵn.',
+      marketingIncreaseReason: 'Điều chỉnh tăng cho chiến dịch nửa cuối năm, đã được Người duyệt chi chấp thuận.',
+      figmaSeatReview: 'Figma Organization: 4 ghost seat đã đề xuất thu hồi; giữ 25 suất.',
+      designBuffer: 'Buffer 5% cho Phòng Thiết kế.',
+      hubspotQuoteRequested: 'Yêu cầu bổ sung báo giá HubSpot và kế hoạch chiến dịch 2027.',
+      salesBudgetSubmitted: 'Gửi ngân sách 2027 của Phòng Kinh doanh cho Người duyệt chi.',
+      pagerDutyAdded: 'Thêm PagerDuty cho trực sự cố 24/7 từ quý 4 sau sự cố thanh toán tháng 9.',
+      standardCsv: 'Mẫu chuẩn SaaS-Sentry (CSV)',
+      vietcombankCsv: 'Vietcombank — thẻ doanh nghiệp (CSV)',
+      techcombankCsv: 'Techcombank — sao kê tài khoản (CSV)'
+    },
+    costCenters: {
+      engineering: { name: 'Kỹ thuật', department: 'Phòng Kỹ thuật' },
+      design: { name: 'Thiết kế', department: 'Phòng Thiết kế' },
+      operations: { name: 'Vận hành', department: 'Phòng Vận hành' },
+      marketing: { name: 'Marketing', department: 'Phòng Marketing' },
+      sales: { name: 'Kinh doanh', department: 'Phòng Kinh doanh' },
+      company: { name: 'Toàn công ty', department: 'Toàn công ty' },
+      product: { name: 'Sản phẩm', department: 'Phòng Sản phẩm (đã gộp)' }
+    }
+  },
   alerts: {
     expiring: {
       description: 'Trong vòng 30 ngày tới',
@@ -101,6 +195,12 @@ export const dashboard = {
     title: 'Tiết kiệm được phát hiện'
   },
   itAdmin: {
+    demoDepartments: {
+      company: 'Toàn công ty',
+      engineering: 'Kỹ thuật phần mềm',
+      designMarketing: 'Thiết kế & Marketing',
+      finance: 'Tài chính Kế toán'
+    },
     nav: {
       overview: 'Tổng quan',
       provisioning: 'Cấp phát & Thu hồi',
@@ -121,9 +221,74 @@ export const dashboard = {
       subtitle: 'Giám sát bản quyền, hàng đợi thực thi, chất lượng định danh và phát hiện lãng phí',
       quickActionsTitle: 'Hàng đợi tác vụ cần xử lý ngay',
       quickActionsDesc: 'Các tác vụ cần quyết định hoặc thực thi theo quy trình nghiệp vụ',
-      viewQueue: 'Vào xử lý'
+      viewQueue: 'Vào xử lý',
+      previousPeriod: 'so với chu kỳ trước',
+      queuesLabel: 'Hàng đợi tác vụ vận hành IT',
+      queuesTitle: 'Chỉ số vận hành & Hàng đợi tác vụ',
+      queuesDescription:
+        'Giám sát trực tiếp trạng thái cấp phát, đối chiếu bản quyền, thu thập telemetry và đề xuất phần mềm',
+      queuesUpdated: 'Cập nhật tự động · 8 luồng nghiệp vụ',
+      queueLabel: 'Hàng đợi tác vụ',
+      itemCount: 'mục',
+      queues: {
+        ready: {
+          title: 'Sẵn sàng cấp gói',
+          description: 'Đã phê duyệt, có gói hợp lệ, đủ số lượng đã mua và API sẵn sàng thực thi',
+          action: 'Vào cấp phát'
+        },
+        inProgress: {
+          title: 'Đang cấp / Timeout / Bàn giao',
+          description:
+            '{{inProgress}} đang gọi API, {{needsAttention}} cần kiểm tra timeout mạng hoặc khôi phục bàn giao Vault',
+          action: 'Xử lý ngay'
+        },
+        failed: {
+          title: 'Cấp thất bại (Cần thử lại)',
+          description: 'Lỗi API từ vendor (hết hạn mức, lỗi thẻ), chưa tạo credential',
+          action: 'Xem lỗi & Thử lại'
+        },
+        reconciliation: {
+          title: 'Đối chiếu: Mua thiếu & Mua dư',
+          count: '{{deficit}} thiếu / {{surplus}} dư',
+          description: 'So sánh nhu cầu và chứng từ mua. {{count}} hợp đồng/hóa đơn lệch số lượng cần xác minh',
+          action: 'Mở đối chiếu'
+        },
+        documents: {
+          title: 'Nhập chứng từ cần kiểm tra',
+          description: 'Hóa đơn & hợp đồng tải lên đang chờ ánh xạ gói và đối soát tổng tiền',
+          action: 'Kiểm tra chứng từ'
+        },
+        devices: {
+          title: 'Thiết bị ngắt kết nối đo lường',
+          description: 'Tool máy trạm gián đoạn gửi telemetry; phân biệt rõ với ít sử dụng',
+          action: 'Xem tình trạng tool'
+        },
+        optimization: {
+          title: 'Cảnh báo lãng phí & Thu hồi',
+          description: 'Tài khoản ít dùng, không thao tác >60 ngày hoặc nghỉ việc chờ thu hồi',
+          action: 'Thẩm tra thu hồi'
+        },
+        external: {
+          title: 'Yêu cầu phần mềm bên ngoài',
+          description: 'Đề xuất công cụ AI ngoài danh mục chờ IT Admin Chấp nhận hoặc Từ chối',
+          action: 'Duyệt đề xuất'
+        }
+      },
+      costTrendTitle: 'Xu hướng chi phí phần mềm & bản quyền AI',
+      costTrendDescription: 'So sánh chi phí thực tế với ngân sách dự kiến qua các kỳ',
+      costTrendYear: 'Năm 2026',
+      actualCost: 'Chi phí thực tế',
+      forecastCost: 'Dự kiến',
+      monthlyCostTrend: 'Xu hướng chi phí phần mềm theo tháng',
+      departmentAllocation: 'Phân bổ theo phòng ban',
+      departmentAllocationDescription: 'Tỷ trọng phần mềm & AI agent theo đơn vị',
+      departmentAllocationChart: 'Tỷ trọng phần mềm theo phòng ban',
+      engineeringShare: 'Kỹ thuật phần mềm: 58%',
+      designMarketingShare: 'Thiết kế & MKT: 32%',
+      otherShare: 'Khác: 10%'
     },
     provisioning: {
+      extra: itAdminProvisioningExtra,
       title: 'Hàng đợi cấp phát & thu hồi bản quyền',
       subtitle: 'Theo dõi tác vụ cấp phát tài khoản AI Agent, mã key bản quyền phần mềm và xử lý thu hồi',
       manualMetric: 'Thao tác thủ công',
@@ -159,6 +324,7 @@ export const dashboard = {
       statusCompleted: 'Hoàn tất'
     },
     usageImport: {
+      extra: itAdminUsageImportExtra,
       title: 'Trung tâm nạp dữ liệu hoạt động',
       subtitle: 'Tiếp nhận log sử dụng, kiểm tra chính sách bảo mật và giải quyết danh tính người dùng',
       metricConnected: 'Nguồn kết nối',
@@ -183,9 +349,38 @@ export const dashboard = {
       statusBlocked: 'Roster only (Chặn log)'
     },
     unmatchedIdentities: {
+      details: {
+        kicker: 'Khớp định danh tài khoản người dùng',
+        duplicateError:
+          'Quy tắc chống trùng lặp: Nhân viên NV-0042 đã được liên kết với email an.nguyen@saas-sentry.test. Một tài khoản AI không thể gán đồng thời cho hai nhân sự khác nhau!',
+        verifiedEmployee: 'Nhân viên đã xác minh',
+        manuallyMatched: '{{name}} (Đã khớp thủ công)',
+        confirmedConfidence: '100% (Xác nhận)',
+        matchRecorded: 'Đã ghi nhận ánh xạ tài khoản AI {{account}} → {{employee}}',
+        keptInQueue: 'Đã giữ mục {{id}} lại trong hàng đợi (không dùng để kết luận).',
+        conflictTitle: 'Xung đột định danh cần xác minh',
+        conflictDescription:
+          'Hệ thống phát hiện nhiều ứng viên có độ tương đồng. Cần IT Admin đối chiếu hồ sơ thực tế để phân bổ đúng tài khoản AI.',
+        noCandidateTitle: 'Chưa tìm thấy nhân sự phù hợp',
+        noCandidateDescription:
+          'Email phụ hoặc tài khoản chuyên gia AI thuê ngoài chưa có trong danh mục. Hãy tìm kiếm thủ công trong danh bạ.',
+        suggestionTitle: 'Gợi ý nhân sự có độ tin cậy cao',
+        suggestionDescription: 'Khớp theo quy tắc email nội bộ và họ tên. Sẵn sàng liên kết vào hồ sơ nhân viên.',
+        linkAccount: 'Liên kết tài khoản AI',
+        modalKicker: 'Đối chiếu danh tính AI',
+        modalTitle: 'Xác nhận liên kết tài khoản AI thủ công',
+        modalBeforeAccount: 'Gắn định danh tài khoản AI',
+        modalAfterAccount: 'vào nhân viên',
+        suggestedCandidates: 'Ứng viên gợi ý từ hệ thống:',
+        noAutomaticCandidate: 'Không có ứng viên tự động',
+        searchDirectory: 'Tìm trong danh bạ nhân viên công ty:',
+        searchPlaceholder: 'Tìm theo mã NV, tên hoặc email (ví dụ: NV-0042, Nguyễn Văn An)...',
+        confirmer: 'Người xác nhận (IT Admin):',
+        cancel: 'Hủy bỏ',
+        confirmLink: 'Xác nhận liên kết tài khoản AI'
+      },
       title: 'Hàng đợi định danh chưa khớp',
-      subtitle:
-        'Gắn định danh bên ngoài chưa biết vào nhân viên có kiểm toán, hoặc loại trừ an toàn',
+      subtitle: 'Gắn định danh bên ngoài chưa biết vào nhân viên có kiểm toán, hoặc loại trừ an toàn',
       metricTotal: 'Định danh chưa khớp',
       metricMatched: 'Đã khớp tự động',
       metricConflict: 'Hồ sơ xung đột',
@@ -203,6 +398,7 @@ export const dashboard = {
       badgeNoCandidate: 'Không có ứng viên'
     },
     licenseOptimization: {
+      extra: itAdminLicenseOptimizationExtra,
       title: 'Bảng tối ưu bản quyền & Giảm chi phí',
       subtitle: 'Phân tách rõ ràng tiết kiệm ngay từ thu hồi suất và tiết kiệm tại kỳ gia hạn',
       savingsImmediate: 'Tiết kiệm ngay (Thu hồi suất)',
@@ -223,6 +419,7 @@ export const dashboard = {
       seatsUnit: 'suất'
     },
     offboarding: {
+      extra: itAdminOffboardingExtra,
       title: 'Quy trình nhân sự nghỉ việc',
       subtitle: 'Quản lý 3 bước: Bàn giao dữ liệu, thu hồi mã key và tài khoản dịch vụ, và khóa tài khoản',
       employeeInfo: 'Hồ sơ nhân sự sắp nghỉ',
@@ -241,6 +438,7 @@ export const dashboard = {
       badgeScheduled: 'Đã lên lịch'
     },
     shadowIt: {
+      extra: itAdminShadowItExtra,
       title: 'Phát hiện phần mềm ngoài danh mục (Shadow IT)',
       subtitle: 'Thu thập bằng chứng từ 3 nguồn (Sao kê, IdP, Thiết bị) và rà soát các phát hiện có kiểm toán',
       channelFinance: 'Nguồn Tài chính (Sao kê chi tiêu)',
@@ -261,6 +459,7 @@ export const dashboard = {
       riskLow: 'Rủi ro thấp'
     },
     reconciliation: {
+      extra: itAdminReconciliationExtra,
       title: 'Xử lý sai lệch bản quyền & tài khoản',
       subtitle: 'So sánh hóa đơn, hợp đồng thuê bao và thành viên thực tế để xử lý sai lệch theo quy trình kiểm toán',
       threeNumbersTitle: 'Đối chiếu ba số liệu song song (Hóa đơn vs Hợp đồng vs Kích hoạt thực tế)',
@@ -283,6 +482,7 @@ export const dashboard = {
       outcomeTitle: 'Ghi nhận kết quả thực hiện với nhà cung cấp'
     },
     deviceCollectors: {
+      extra: itAdminDeviceCollectorsExtra,
       title: 'Bộ thu thập tiện ích thiết bị',
       subtitle: 'Quản lý tiện ích trình duyệt trên máy công ty, thực thi allowlist và bảo vệ quyền riêng tư',
       metricRegistered: 'Thiết bị đăng ký',
@@ -307,7 +507,8 @@ export const dashboard = {
       allowlistTitle: 'Danh sách cho phép (Allowlist tự động)',
       allowlistDesc: 'Chỉ thu thập tên miền thuộc SaaS Catalog: github.com, figma.com, atlassian.net, notion.so',
       badgeScreenCode: 'Thu thập thiết bị'
-    }
+    },
+    deptCatalog: { extra: itAdminDeptCatalogExtra }
   },
   employee: {
     preview: {
