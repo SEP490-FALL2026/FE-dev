@@ -12,20 +12,8 @@ import {
   type LucideIcon
 } from 'lucide-react'
 
-export type ManagerTabKey =
-  | 'overview'
-  | 'my-team'
-  | 'employee-detail'
-  | 'team-software'
-  | 'team-requests'
-  | 'my-requests'
-  | 'request-approval'
-  | 'create-employee-request'
-  | 'weekly-batch'
-  | 'annual-budget'
-  | 'ghost-seat-review'
-  | 'ghost-seat-detail'
-  | 'access-review'
+import { type ManagerTabKey, MANAGER_TAB_KEYS } from './enums'
+export { type ManagerTabKey, MANAGER_TAB_KEYS }
 
 export type ManagerTranslationKey =
   | 'overview'

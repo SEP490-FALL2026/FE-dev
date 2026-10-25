@@ -1,6 +1,103 @@
+import { itAdminOffboardingExtra } from './it-admin-offboarding-extra'
+import { itAdminProvisioningExtra } from './it-admin-provisioning-extra'
+import { itAdminDeviceCollectorsExtra } from './it-admin-deviceCollectors-extra'
+import { itAdminLicenseOptimizationExtra } from './it-admin-licenseOptimization-extra'
+import { itAdminDeptCatalogExtra } from './it-admin-deptCatalog-extra'
+import { itAdminUsageImportExtra } from './it-admin-usageImport-extra'
+import { itAdminShadowItExtra } from './it-admin-shadowIt-extra'
+import { itAdminReconciliationExtra } from './it-admin-reconciliation-extra'
 import { spendDashboard } from './dashboard-spend'
+import { superAdmin } from './super-admin'
+import { teamRequests } from './team-requests'
 
 export const dashboard = {
+  superAdmin,
+  teamRequests,
+  financeDemo: {
+    units: { seats: '{{value}} seats', servers: '{{value}} servers', developers: '{{value}} developers' },
+    text: {
+      designBudgetQuestion: 'Does the Design Department have enough Q4 budget for 15 more Figma seats?',
+      marketingBudgetQuestion: 'Marketing has no Q4 budget yet. Will Finance prepare one this week?',
+      engineeringBudgetQuestion: 'Please check the Engineering budget for 10 Cursor Pro seats.',
+      engineeringBudgetAnswer: 'About 115 million remains after reserved commitments. This is advisory and does not block the request.',
+      companyBudgetQuestion: 'Is there company-wide budget for 40 Notion AI seats?',
+      operationsBudgetQuestion: 'Is there Operations budget for Miro Team?',
+      opsBudgetShortfall: 'CC-OPS has 768,000 ₫ remaining in Q4 after reserved commitments; this request needs 31,680,000 ₫.',
+      hubspotOutsideCatalog: 'HubSpot is not in the approved catalog; IT Admin is evaluating it.',
+      engineeringToolsShortfall: 'The CC-ENG Development Tools group has 4,200,000 ₫ remaining; Snyk Team needs 18,600,000 ₫ for Q4.',
+      engineeringTopUpNote: 'Propose a top-up from the Engineering annual buffer; required after the September security incident.',
+      expiredBudgetYear: 'The request uses the expired 2025 budget.',
+      transferTo2026Budget: 'Transfer to the 2026 CC-SAL budget.',
+      hireFiveDevelopers: 'Hire five more developers in 2027.',
+      keepFortySeats: 'Nineteen seats are inactive; retain 40 seats as IT proposed for renewal.',
+      thirtyOneActiveSeats: '31 of 50 seats are active',
+      projectScopeUnchanged: 'Keep the project scope unchanged.',
+      nineInactiveSeats: 'Nine seats are inactive',
+      expandCodingAssistant: 'Expand the coding assistant to the whole team.',
+      trialCustomerAssistant: 'Trial a customer support assistant.',
+      overlapsCursor: 'Not in the catalog — partly overlaps with Cursor Pro',
+      fintechNeedsSeats: 'The Fintech Redesign project needs five more seats.',
+      keepTwentyFiveSeats: 'Four unused seats were proposed for revocation; retain 25 seats.',
+      twentyOneActiveSeats: '21 of 25 seats are active',
+      videoAndIllustration: 'Create videos and illustrations.',
+      usabilityTesting: 'Run usability tests.',
+      annualDiscount: 'Negotiate a 40% annual plan discount.',
+      internalHelpdesk: 'Internal helpdesk.',
+      monitorPaymentServers: 'Monitor ten payment servers.',
+      incidentResponse: 'Round-the-clock incident response.',
+      partnerMeetings: 'Meet with partners.',
+      overlapsGoogleMeet: 'Overlaps with Google Meet',
+      hubspotInfoRequest: 'Provide a HubSpot quote and the 2027 campaign plan to justify the user count.',
+      campaignAutomation: 'Automate campaigns.',
+      adContentDesign: 'Design advertising content.',
+      keywordResearch: 'Research keywords.',
+      customerManagement: 'Manage customer relationships.',
+      productVideos: 'Create product introduction videos.',
+      keepTwoSeats: 'Only two people use it regularly; retain two seats.',
+      companyGrowth: 'Company-wide use and new hires.',
+      downgradeBusinessPlus: 'Could downgrade to Business+ (only 4% use Enterprise features)',
+      emailCalendarMeet: 'Email, calendar, and Meet.',
+      internalDocuments: 'Internal documentation.',
+      catalogMissingChatgpt: 'Catalog: ChatGPT not found',
+      noApprovedRequest: 'Approved request: none',
+      checkingCardUser: 'IT Admin is identifying the user of card 8812 (Engineering Department).',
+      slackSubscriptionBasis: 'Slack Enterprise Grid subscription — 8,000,000 ₫/month',
+      expiredConfluenceBasis: 'Confluence Standard subscription — expired on 31 August 2026',
+      cancelledPlanCharged: 'The plan was cancelled in the catalog, but the vendor still charged it.',
+      miroSubscriptionBasis: 'Miro Team subscription',
+      linkedMiroSubscription: 'Linked to the Miro Team subscription.',
+      catalogMissingCanva: 'Catalog: Canva Pro not found',
+      internalTimesheetServers: 'Internal timesheet system — Q3 servers',
+      internalCiRunner: 'Internal CI runner — Engineering Department share',
+      retiredCostCenter: 'CC-PRD has been retired and merged into CC-DES; this request still uses the old code.',
+      approvedAnnualBudget: 'Approved the 2026 annual budget for six cost centers.',
+      reduceEngineeringBuffer:
+        'Total costs exceed the plan; Finance was asked to reduce the Engineering buffer to 10%.',
+      approvedMarketingIncrease: 'Approved a Marketing budget increase for the second half of the year.',
+      cursorRequestApproved: 'REQ-2026-078 · Cursor Pro · 10 seats — within budget.',
+      canvaRequestRejected:
+        'REQ-2026-071 · Canva Pro is outside the catalog — declined; use the existing Adobe Express license.',
+      marketingIncreaseReason: 'Increase for the second-half campaign, approved by the Spending Approver.',
+      figmaSeatReview: 'Figma Organization: four unused seats were proposed for revocation; retain 25 seats.',
+      designBuffer: '5% buffer for the Design Department.',
+      hubspotQuoteRequested: 'Requested a HubSpot quote and the 2027 campaign plan.',
+      salesBudgetSubmitted: 'Submitted the Sales Department’s 2027 budget to the Spending Approver.',
+      pagerDutyAdded:
+        'Added PagerDuty for round-the-clock incident response in Q4 after the September payment incident.',
+      standardCsv: 'SaaS-Sentry standard template (CSV)',
+      vietcombankCsv: 'Vietcombank — corporate card (CSV)',
+      techcombankCsv: 'Techcombank — account statement (CSV)'
+    },
+    costCenters: {
+      engineering: { name: 'Engineering', department: 'Engineering Department' },
+      design: { name: 'Design', department: 'Design Department' },
+      operations: { name: 'Operations', department: 'Operations Department' },
+      marketing: { name: 'Marketing', department: 'Marketing Department' },
+      sales: { name: 'Sales', department: 'Sales Department' },
+      company: { name: 'Company-wide', department: 'Company-wide' },
+      product: { name: 'Product', department: 'Product Department (merged)' }
+    }
+  },
   alerts: {
     expiring: {
       description: 'Within the next 30 days',
@@ -101,6 +198,12 @@ export const dashboard = {
     title: 'Savings identified'
   },
   itAdmin: {
+    demoDepartments: {
+      company: 'Company-wide',
+      engineering: 'Software Engineering',
+      designMarketing: 'Design & Marketing',
+      finance: 'Finance & Accounting'
+    },
     nav: {
       overview: 'Overview',
       provisioning: 'Provisioning & Deprovisioning',
@@ -121,9 +224,74 @@ export const dashboard = {
       subtitle: 'Monitor software licenses, provisioning queues, identity resolution, and waste detection',
       quickActionsTitle: 'Urgent Action Queues',
       quickActionsDesc: 'Tasks requiring decisions or execution according to business workflows',
-      viewQueue: 'Process Queue'
+      viewQueue: 'Process Queue',
+      previousPeriod: 'Compared with the previous period',
+      queuesLabel: 'IT operations queues',
+      queuesTitle: 'Operational metrics & task queues',
+      queuesDescription: 'Monitor provisioning, license reconciliation, telemetry collection, and software proposals',
+      queuesUpdated: 'Automatically updated · 8 workflows',
+      queueLabel: 'Task queue',
+      itemCount: 'items',
+      queues: {
+        ready: {
+          title: 'Ready to provision',
+          description: 'Approved, valid plan, sufficient purchased seats, and API ready to execute',
+          action: 'Start provisioning'
+        },
+        inProgress: {
+          title: 'Provisioning / timeout / handover',
+          description:
+            '{{inProgress}} API calls in progress; {{needsAttention}} need a network timeout check or Vault handover recovery',
+          action: 'Handle now'
+        },
+        failed: {
+          title: 'Provisioning failed (retry needed)',
+          description: 'Vendor API error (capacity or payment issue); credentials have not been created',
+          action: 'View error & retry'
+        },
+        reconciliation: {
+          title: 'Reconciliation: shortages & surpluses',
+          count: '{{deficit}} short / {{surplus}} surplus',
+          description:
+            'Compare demand with purchase records. {{count}} contracts or invoices with quantity differences need verification',
+          action: 'Open reconciliation'
+        },
+        documents: {
+          title: 'Purchase documents to review',
+          description: 'Uploaded invoices and contracts await plan mapping and total reconciliation',
+          action: 'Review documents'
+        },
+        devices: {
+          title: 'Disconnected usage devices',
+          description: 'Workstation tools stopped sending telemetry; distinguish this from low usage',
+          action: 'View device status'
+        },
+        optimization: {
+          title: 'Waste alerts & revocation',
+          description: 'Low usage, no activity for over 60 days, or former employees awaiting revocation',
+          action: 'Review revocation'
+        },
+        external: {
+          title: 'External software requests',
+          description: 'Proposed AI tools outside the catalog await an IT Admin decision',
+          action: 'Review proposals'
+        }
+      },
+      costTrendTitle: 'Software and AI license cost trend',
+      costTrendDescription: 'Compare actual spend with forecast budgets across periods',
+      costTrendYear: 'Year 2026',
+      actualCost: 'Actual cost',
+      forecastCost: 'Forecast',
+      monthlyCostTrend: 'Monthly software cost trend',
+      departmentAllocation: 'Allocation by department',
+      departmentAllocationDescription: 'Share of software and AI agents by department',
+      departmentAllocationChart: 'Software share by department',
+      engineeringShare: 'Engineering: 58%',
+      designMarketingShare: 'Design & Marketing: 32%',
+      otherShare: 'Other: 10%'
     },
     provisioning: {
+      extra: itAdminProvisioningExtra,
       title: 'Provisioning & Deprovisioning Queue',
       subtitle: 'Track AI agent account & password provisioning, software license keys, and deprovisioning workflows',
       manualMetric: 'Manual Action',
@@ -159,9 +327,9 @@ export const dashboard = {
       statusCompleted: 'Completed'
     },
     usageImport: {
+      extra: itAdminUsageImportExtra,
       title: 'Usage Data Import Workbench',
-      subtitle:
-        'Intake software activity logs, enforce privacy guards, coverage windows, and identity resolution',
+      subtitle: 'Intake software activity logs, enforce privacy guards, coverage windows, and identity resolution',
       metricConnected: 'Connected Sources',
       metricHealthy: 'Healthy Sources',
       metricOutdated: 'Needs Update',
@@ -184,6 +352,37 @@ export const dashboard = {
       statusBlocked: 'Roster Only (Logs Blocked)'
     },
     unmatchedIdentities: {
+      details: {
+        kicker: 'Match user account identities',
+        duplicateError:
+          'Duplicate identity: employee NV-0042 is already linked to an.nguyen@saas-sentry.test. An AI account cannot belong to two different employees.',
+        verifiedEmployee: 'Verified employee',
+        manuallyMatched: '{{name}} (manually matched)',
+        confirmedConfidence: '100% (confirmed)',
+        matchRecorded: 'AI account {{account}} was linked to {{employee}}',
+        keptInQueue: 'Item {{id}} remains in the queue and will not be used for a decision.',
+        conflictTitle: 'Identity conflict requires verification',
+        conflictDescription:
+          'Several candidates have similar identities. IT Admin must check employee records before assigning the AI account.',
+        noCandidateTitle: 'No matching employee found',
+        noCandidateDescription:
+          'The alternate email or external AI specialist account is not in the directory. Search the employee directory manually.',
+        suggestionTitle: 'High confidence employee suggestion',
+        suggestionDescription:
+          'The internal email and name match. This account is ready to be linked to an employee record.',
+        linkAccount: 'Link AI account',
+        modalKicker: 'AI identity review',
+        modalTitle: 'Confirm manual AI account link',
+        modalBeforeAccount: 'Link AI account identity',
+        modalAfterAccount: 'to an employee',
+        suggestedCandidates: 'System suggested candidates:',
+        noAutomaticCandidate: 'No automatic candidate',
+        searchDirectory: 'Search the employee directory:',
+        searchPlaceholder: 'Search by employee ID, name, or email (for example NV-0042, Nguyen Van An)...',
+        confirmer: 'Confirmed by (IT Admin):',
+        cancel: 'Cancel',
+        confirmLink: 'Confirm AI account link'
+      },
       title: 'Identity Resolution Queue',
       subtitle: 'Map unknown external identifiers to employees with audit trails, or exclude them safely',
       metricTotal: 'Unmatched Identifiers',
@@ -203,6 +402,7 @@ export const dashboard = {
       badgeNoCandidate: 'No Candidate Found'
     },
     licenseOptimization: {
+      extra: itAdminLicenseOptimizationExtra,
       title: 'License Optimization & Cost Reduction',
       subtitle: 'Audit 4 waste groups (G1–G4), clearly separating immediate savings from renewal opportunities',
       savingsImmediate: 'Immediate Savings (Seat Revocation)',
@@ -223,8 +423,10 @@ export const dashboard = {
       seatsUnit: 'seats'
     },
     offboarding: {
+      extra: itAdminOffboardingExtra,
       title: 'Employee Offboarding Lifecycle',
-      subtitle: 'Manage 3 stages: Pre-departure data handoff, software key & service account revocation, and account lock',
+      subtitle:
+        'Manage 3 stages: Pre-departure data handoff, software key & service account revocation, and account lock',
       employeeInfo: 'Departing Employee Profile',
       lastDay: 'Last Working Day',
       planCode: 'Plan ID',
@@ -241,6 +443,7 @@ export const dashboard = {
       badgeScheduled: 'Scheduled'
     },
     shadowIt: {
+      extra: itAdminShadowItExtra,
       title: 'Shadow IT Discovery',
       subtitle: 'Collect evidence from 3 sources (Finance, IdP, Collectors) and review audited findings',
       channelFinance: 'Finance Source (Card Statements)',
@@ -261,9 +464,9 @@ export const dashboard = {
       riskLow: 'Low Risk'
     },
     reconciliation: {
+      extra: itAdminReconciliationExtra,
       title: 'License & Account Discrepancy Resolution',
-      subtitle:
-        'Compare invoices, subscription agreements, and active assignments side by side with audit trail',
+      subtitle: 'Compare invoices, subscription agreements, and active assignments side by side with audit trail',
       threeNumbersTitle: 'Three Numbers Side-by-Side (Billed vs Contracted vs Active)',
       mismatchChatGPT: 'Invoice Mismatch (+5 extra seats billed vs internal contract)',
       mismatchClaude: 'Shadow Access (Admin membership in Claude console without internal Assignment)',
@@ -284,6 +487,7 @@ export const dashboard = {
       outcomeTitle: 'Record Vendor Negotiation Outcome'
     },
     deviceCollectors: {
+      extra: itAdminDeviceCollectorsExtra,
       title: 'Device Endpoint Collectors',
       subtitle: 'Manage enterprise browser extensions, enforce allowlists, and protect privacy',
       metricRegistered: 'Registered Devices',
@@ -308,7 +512,8 @@ export const dashboard = {
       allowlistTitle: 'Permitted Domains (Auto Allowlist)',
       allowlistDesc: 'Only collect domains in active SaaS catalog: github.com, figma.com, atlassian.net, notion.so',
       badgeScreenCode: 'Endpoint Collectors'
-    }
+    },
+    deptCatalog: { extra: itAdminDeptCatalogExtra }
   },
   employee: {
     preview: {

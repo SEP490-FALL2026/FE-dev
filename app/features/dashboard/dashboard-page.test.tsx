@@ -49,6 +49,18 @@ describe('DashboardPage', () => {
     view.unmount()
   })
 
+  it('translates the super-admin overview and navigation when English is selected', async () => {
+    await setAppLanguage('en')
+    renderDashboard('super-admin')
+
+    expect(screen.getByRole('heading', { level: 1, name: 'System Administration Overview' })).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'Organization metrics' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /View department list/ })).toBeInTheDocument()
+    expect(screen.getAllByText('No manager assigned').length).toBeGreaterThan(0)
+    expect(screen.getByText('Departments and their approval managers')).toBeInTheDocument()
+    expect(screen.queryByText('Chưa có Quản lý')).not.toBeInTheDocument()
+  })
+
   it('renders the finance dashboard and navigates the UF-11/12/19 screens', () => {
     const view = renderDashboard('finance')
     const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })

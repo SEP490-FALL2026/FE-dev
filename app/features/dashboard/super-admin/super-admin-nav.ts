@@ -1,13 +1,4 @@
-import {
-  BellRing,
-  Building2,
-  FileText,
-  Grid2X2,
-  RotateCcw,
-  Settings,
-  UserCheck,
-  Users
-} from 'lucide-react'
+import { BellRing, Building2, FileText, Grid2X2, RotateCcw, Settings, UserCheck, Users } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 export const SUPER_ADMIN_TAB_KEYS = [
@@ -28,17 +19,13 @@ export interface SuperAdminNavItem {
   badgeTone?: 'warning' | 'info' | 'neutral'
   icon: LucideIcon
   key: SuperAdminTabKey
-  screenCode: string
-  title: string
-  translationKey: string
+  translationKey: 'overview' | 'departments' | 'accounts' | 'personnel' | 'reminders'
 }
 
 export const superAdminNavItems: SuperAdminNavItem[] = [
   {
     icon: Grid2X2,
     key: 'overview',
-    screenCode: 'Tổng quan',
-    title: 'Tổng quan thiết lập',
     translationKey: 'overview'
   },
   {
@@ -46,8 +33,6 @@ export const superAdminNavItems: SuperAdminNavItem[] = [
     badgeTone: 'warning',
     icon: Building2,
     key: 'departments',
-    screenCode: 'Phòng ban',
-    title: 'Phòng ban',
     translationKey: 'departments'
   },
   {
@@ -55,22 +40,16 @@ export const superAdminNavItems: SuperAdminNavItem[] = [
     badgeTone: 'info',
     icon: Users,
     key: 'accounts',
-    screenCode: 'Tài khoản',
-    title: 'Tài khoản & Phân quyền',
     translationKey: 'accounts'
   },
   {
     icon: UserCheck,
     key: 'personnel',
-    screenCode: 'Nhân sự',
-    title: 'Nhân sự phòng ban',
     translationKey: 'personnel'
   },
   {
     icon: BellRing,
     key: 'reminders',
-    screenCode: 'Nhắc xử lý',
-    title: 'Nhắc xử lý Manager',
     translationKey: 'reminders'
   }
 ]
