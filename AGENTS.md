@@ -71,6 +71,7 @@ providers --------------------------+
 2. **Không sửa tay code trong `app/shared/api/generated/`**: Toàn bộ thư mục này là code tự sinh bởi Orval từ `openapi/openapi.yaml`. Mọi thay đổi API contract phải sửa trong `openapi.yaml` rồi chạy `pnpm api:generate`.
 3. **Phân biệt môi trường Test & Production**: Chỉ import Faker factories và MSW handlers trong các file test (`*.test.tsx`, `*.test.ts`). Không import vào code logic của ứng dụng.
 4. **Bảo mật**: Các biến môi trường `VITE_*` là public trên client bundle, tuyệt đối không lưu secret, private key vào đây. Phân quyền và kiểm tra hợp lệ cuối cùng bắt buộc phải được NestJS backend kiểm soát.
+5. **HTTP client dùng chung**: Orval sinh React Query hooks với Axios qua `app/shared/api/mutator/custom-axios.ts` và `app/shared/api/axios-client.ts`. Không tự tạo Axios instance riêng trong từng feature. Interceptor chỉ gắn token từ auth adapter đã đăng ký; hiện phiên đăng nhập demo chưa có token BE. Khi BE công bố contract refresh, tích hợp adapter bằng endpoint/kiểu dữ liệu thực, dùng `skipAuth` và `skipAuthRefresh` cho request xác thực, tránh refresh đệ quy và retry quá một lần. Không tự đoán URL refresh hoặc lưu token lâu dài vào `localStorage`.
 
 ---
 
@@ -81,9 +82,9 @@ providers --------------------------+
 1. **100% sử dụng hook `useTranslation()`**:
    - Tất cả tiêu đề (`h1`-`h6`), đoạn văn (`p`), nhãn form (`label`), placeholder, nút bấm (`button`), tiêu đề cột bảng (`th`), thông báo lỗi, thông báo rỗng (`empty state`), modal confirm, tooltip đều phải lấy qua:
      ```tsx
-     const { t } = useTranslation('dashboard')
+     const { t: translate } = useTranslation('dashboard')
      // Sử dụng:
-     <h1>{t('role.section.title')}</h1>
+     <h1>{translate('role.section.title')}</h1>
      ```
 2. **Đồng bộ song ngữ bắt buộc**:
    - Khi tạo mới bất kỳ key dịch nào, **phải thêm đồng thời** vào cả 2 file:
@@ -105,7 +106,7 @@ providers --------------------------+
    - Các modal, dialog, drawer tách thành component con trong `components/`.
    - Các bảng dữ liệu (Table), dải tóm tắt (KPI cards) tách thành component con.
    - Các state, mutation, query phức tạp chuyển vào custom hook trong `hooks/`.
-   - Các giá trị hằng số, tab keys, status chuyển vào `enums.ts`.
+   - Tab keys dùng chung cấp role có thể ở `<role>/enums.ts`; status và mã nghiệp vụ của từng chức năng đặt trong `<sub-feature>/enums/` theo mục 11.
 3. **Mục tiêu của Views**: File trong thư mục `views/` chỉ đóng vai trò container layout, điều phối hiển thị và kết nối URL query params, giữ kích thước dưới 400 dòng.
 
 ---
@@ -123,13 +124,15 @@ app/features/dashboard/<role>/
 │   ├── views/               # Trang cha (Parent View) của riêng chức năng này (<= 400 dòng)
 │   ├── components/          # Component con (Modals, Dialogs, Tables, Cards) của riêng chức năng này (<= 300 dòng)
 │   ├── hooks/               # Custom hooks nghiệp vụ của riêng chức năng này
-│   └── enums.ts             # Enums, types, tab keys của riêng chức năng này (nếu có)
+│   └── enums/               # Mỗi status/mã nghiệp vụ một file riêng khi chức năng có dữ liệu tương ứng
+│       └── <domain>-status.ts
 │
 ├── <sub-feature-B>/         # Phân hệ nghiệp vụ B
 │   ├── views/
 │   ├── components/
 │   ├── hooks/
-│   └── enums.ts
+│   └── enums/
+│       └── <domain>-status.ts
 │
 ├── shared/                  # Thành phần dùng chung giữa các chức năng TRONG CÙNG ROLE
 │   ├── components/          # Component dùng chung trong role (ví dụ: confirm dialogs, summary headers)
@@ -292,9 +295,68 @@ app/routes/
 Mỗi khi nhận nhiệm vụ code hoặc refactor, Agent **BẮT BUỘC** phải tự kiểm tra danh sách sau trước khi báo cáo hoàn thành:
 
 - [ ] **Kiểm tra giới hạn dòng**: Đảm bảo không có file `.tsx` nào mới tạo hoặc chỉnh sửa vượt quá 500 dòng code.
-- [ ] **Kiểm tra i18n**: Rà soát kỹ lưỡng, đảm bảo 100% text giao diện hiển thị đều dùng `t('key')`, không hardcode tiếng Việt hay tiếng Anh. Các key mới đã được khai báo ở cả `vi` và `en`.
-- [ ] **Kiểm tra cấu trúc Role**: File view đặt đúng trong `views/`, component con đặt đúng trong `components/`, hook đặt đúng trong `hooks/`, enum đặt trong `enums.ts`.
+- [ ] **Kiểm tra i18n**: Rà soát kỹ lưỡng, đảm bảo 100% text giao diện hiển thị đều dùng hàm dịch (đặt alias rõ nghĩa như `translate('key')`), không hardcode tiếng Việt hay tiếng Anh. Các key mới đã được khai báo ở cả `vi` và `en`.
+- [ ] **Kiểm tra cấu trúc Role**: File view đặt đúng trong `views/`, component con trong `components/`, hook trong `hooks/`; status/mã nghiệp vụ của chức năng có file riêng trong `enums/`, tab key cấp role có thể ở `<role>/enums.ts`.
 - [ ] **Kiểm tra Bảo mật Route**: Mọi route dashboard phải bọc qua `RoleGuard`.
+- [ ] **Kiểm tra tích hợp BE**: Đối chiếu OpenAPI và kiểu sinh ra; không giữ fixture, `Date.now()` hoặc thay đổi state cục bộ như kết quả ghi dữ liệu thật. Kiểm tra quyền thao tác, query key, phân trang, lọc, cập nhật cache và các trạng thái loading/error/empty/success.
+- [ ] **Kiểm tra code clean & hiệu năng**: Tên biến diễn đạt ý nghĩa; không lặp logic; không tạo abstraction chỉ dùng một lần; kiểm tra chi phí render, request trùng, dữ liệu lớn và cleanup tác vụ bất đồng bộ.
+- [ ] **Kiểm tra tương tác bất đồng bộ**: Nút gửi/ghi/xóa/xuất dữ liệu có trạng thái pending, chặn thao tác lặp, có chỉ báo loading dễ nhận biết và phản hồi lỗi/thành công đúng kết quả BE.
 - [ ] **Chạy Typecheck**: Chạy `pnpm typecheck` thành công với **0 lỗi TypeScript**.
 - [ ] **Chạy Unit Test**: Chạy `pnpm vitest run <path-to-test>` đảm bảo toàn bộ test case liên quan đều **Passed (100%)**.
 - [ ] **Đồng bộ tài liệu**: Cập nhật thay đổi kiến trúc vào `ARCHITECTURE.md` và `AGENTS.md` bằng tiếng Việt rõ ràng.
+
+---
+
+## 10. Trạng thái hiện tại và nguyên tắc chuyển từ UI mẫu sang BE
+
+**Hiện trạng (10/2026):** Nhiều màn hình nghiệp vụ đang dùng fixture/`INITIAL_*` và cập nhật `useState` để mô phỏng thao tác. Ví dụ `super-admin/accounts/hooks/use-super-admin-accounts.ts` tự tạo/sửa tài khoản và thiết bị trong bộ nhớ; tải lại trang sẽ mất thay đổi. `app/shared/api/generated/` hiện chỉ có API `system`. Không mô tả các luồng này là đã tích hợp BE, không hiện thông báo thành công như thể BE đã lưu dữ liệu.
+
+Khi nối một chức năng với BE, agent phải đi theo luồng sau:
+
+1. **Chốt contract trước**: Xác nhận endpoint, request/response, status, mã lỗi, quyền, phân trang/lọc/sắp xếp với OpenAPI do BE cung cấp. Nếu chưa có contract, ghi rõ phần còn thiếu và chỉ xây UI preview hoặc test fixture; không tự đoán response/status hay tạo API giả trong production. Sửa `openapi/openapi.yaml` theo contract đã xác nhận, chạy `pnpm api:validate` và `pnpm api:generate`; không sửa tay generated code.
+2. **Tách dữ liệu theo ranh giới**: Generated type/hook là nguồn sự thật cho DTO. Feature hook điều phối query/mutation, tham số URL, chuyển DTO thành view model khi cần; component chỉ nhận dữ liệu và callback có kiểu rõ ràng. Mapper chỉ tồn tại khi có khác biệt thực tế giữa DTO và UI; không tạo repository/wrapper một dòng cho mọi endpoint.
+3. **Một nguồn dữ liệu cho mỗi loại state**: Server state ở TanStack Query; bộ lọc/phân trang có thể chia sẻ bằng URL; form draft và dialog state ở local state. Không copy nguyên kết quả query vào `useState` rồi duy trì hai bản dữ liệu. Query key phải chứa mọi tham số ảnh hưởng kết quả; mutation chỉ invalidate hoặc cập nhật đúng các key liên quan sau khi BE xác nhận thành công.
+4. **Mỗi màn hình có các trạng thái hoàn chỉnh**: initial loading, refetching khi cần, empty, error có retry phù hợp, success và thiếu quyền. Không dùng danh sách giả thay cho response lỗi/rỗng. Giữ dữ liệu cũ trong lúc đổi trang/lọc chỉ khi UX cho phép và phải báo rõ đang tải dữ liệu mới.
+5. **Không tự quyết nghiệp vụ trên client**: BE cấp ID, timestamp, status cuối cùng và xác nhận quyền. Không dùng `Date.now()`, `Math.random()` hay sửa mảng local để giả làm kết quả create/update/delete. Client validation hỗ trợ UX; BE validation và authorization mới quyết định kết quả.
+
+## 11. Quy chuẩn status, enum và kiểu dữ liệu
+
+- **Mỗi chức năng có status hoặc mã nghiệp vụ từ BE phải có thư mục `enums/` riêng**, mỗi khái niệm một file rõ tên, ví dụ `accounts/enums/account-status.ts`, `accounts/enums/device-tracking-status.ts`, `team-requests/enums/request-status.ts`. Chức năng không có status/mã nghiệp vụ thì không tạo thư mục rỗng. `enums.ts` ở cấp role chỉ giữ tab key hoặc cấu hình chung đã tồn tại; code mới không tiếp tục gom status của nhiều chức năng vào đó.
+- File status chứa tập mã được contract xác nhận và type tương ứng; ưu tiên `as const`/literal union tương thích với kiểu OpenAPI generated. Không nhân bản một union thủ công ở `*-data.ts`, `enums.ts` và component. Nếu status là khái niệm dùng chung giữa nhiều role, đặt nguồn định nghĩa ở `app/entities/<domain>/enums/` rồi import theo chiều phụ thuộc; không sao chép mỗi role một bản.
+- Dùng mã status cho so sánh, filter, mutation payload và cache; dùng i18n cho nhãn hiển thị. Không so sánh theo text đã dịch, không trộn status của BE với trạng thái giao diện như `ALL`, `loading` hoặc tab key. Filter `ALL` là lựa chọn UI riêng, không gửi lên BE nếu contract không định nghĩa.
+- Xử lý status BE không nhận diện theo chính sách rõ ràng: không ép kiểu tùy tiện hoặc mặc định về `ACTIVE`/`APPROVED`; hiển thị nhãn fallback an toàn, ghi nhận lỗi contract nếu có cơ chế logging và chặn thao tác phụ thuộc vào status chưa biết. Khi BE thêm status mới, cập nhật contract, mapping nhãn và kiểm thử các nhánh ảnh hưởng.
+
+```ts
+// accounts/enums/account-status.ts: mã phải khớp OpenAPI; không dùng làm nhãn UI.
+export const ACCOUNT_STATUS = {
+  ACTIVE: 'ACTIVE',
+  INVITED: 'INVITED',
+  LOCKED: 'LOCKED',
+  DEACTIVATED: 'DEACTIVATED'
+} as const
+
+export type AccountStatus = (typeof ACCOUNT_STATUS)[keyof typeof ACCOUNT_STATUS]
+```
+
+## 12. Code clean, tái sử dụng và khả năng mở rộng
+
+1. **Tên đọc vào hiểu ý nghĩa**: Dùng `account`, `previousAccounts`, `requestStatus`, `submitEvent`, `error` thay cho tên một chữ cái như `a`, `d`, `e`, `s`, `t` hoặc tên mơ hồ như `prev`, `data`. Quy tắc áp dụng cả callback `map/filter`, event handler, state, props và tham số hàm. Với i18n, đặt alias `const { t: translate } = useTranslation(...)` trong code mới để tránh biến `t`; khi sửa code cũ thì đổi tên trong phạm vi liên quan. Không dùng tên viết tắt nếu người đọc phải đoán ý nghĩa.
+2. **Hàm và component có một nhiệm vụ rõ**: Tách xử lý dữ liệu, validate, side effect và JSX khi chúng thay đổi vì các lý do khác nhau. Tránh hook trả về hàng chục setter hoặc component gánh nhiều workflow; chia theo luồng có tên rõ, input/output có type. Không tách file chỉ để đạt số dòng nếu làm khó theo dõi luồng dữ liệu.
+3. **Tái sử dụng theo nhu cầu có thật**: Logic chung giữa hai chức năng cùng role đặt ở `<role>/shared/`; domain chung giữa role đặt ở `entities/`; primitive không có nghiệp vụ đặt ở `shared/`. Trích xuất hook/helper khi có ít nhất hai nơi dùng hoặc một luồng đủ phức tạp cần kiểm thử/tách trách nhiệm. Không tạo “generic hook” với nhiều cờ boolean, callback tùy ý hoặc abstraction che mất nghiệp vụ.
+4. **Hook linh động bằng đầu vào rõ ràng**: Hook danh sách nhận filter, page, sort hoặc options có type; không hardcode role, ID, trang đầu tiên, kích thước trang hay endpoint vào hook có ý định dùng lại. Tách hook query, mutation và UI state khi lifecycle khác nhau. Hook phải trả trạng thái và hành động có tên cụ thể, không để component biết chi tiết request/cache.
+5. **Loại bỏ magic value và trùng lặp**: Mã status, giới hạn nghiệp vụ, query key, thông điệp lỗi và route quan trọng có nguồn định nghĩa phù hợp; không rải string/number trong nhiều view. Không đưa mọi literal vào `enums/`: cấu hình UI, constant số và type có trách nhiệm riêng. Đặt type ở gần nơi sở hữu, ưu tiên kiểu suy ra từ contract, tránh `any`, non-null assertion và type cast để che dữ liệu chưa được kiểm tra.
+6. **Đọc và sửa dễ**: Ưu tiên early return, điều kiện có tên, hàm thuần cho tính toán, props cụ thể và thứ tự code nhất quán. Xóa dead code, comment mô tả *lý do* thay vì thuật lại từng dòng; không để handler demo giả vờ đã lưu dữ liệu. Mỗi thay đổi chỉ refactor phần liên quan, tránh mở rộng phạm vi không cần thiết.
+
+## 13. Hiệu năng và tương tác bất đồng bộ
+
+- **Đo trước khi tối ưu**: Kiểm tra request waterfall, số lần render, kích thước danh sách và bundle khi có dấu hiệu chậm. Không dùng `useMemo`, `useCallback`, `React.memo` đại trà; chỉ dùng khi phép tính tốn kém, identity ảnh hưởng component con hoặc profiling chứng minh lợi ích. Không tạo state cho giá trị có thể suy ra rẻ từ props/query.
+- **Giới hạn dữ liệu và request**: Danh sách lớn dùng phân trang/lọc/sắp xếp từ BE khi contract hỗ trợ; không tải toàn bộ rồi lọc trên client như dữ liệu mẫu. Search tự động cần debounce hợp lý, hủy/loại bỏ kết quả request cũ theo cơ chế của Query và giữ query key chính xác. Dùng lazy loading cho màn hình/biểu đồ nặng khi đo thấy có ích; tránh render hoặc fetch phần không nhìn thấy mà không cần thiết.
+- **Chặn thao tác lặp trong lúc mutation**: Với create/update/delete/approve/export bất đồng bộ, dùng `isPending` của mutation hoặc trạng thái pending riêng theo từng hành động. Disable nút và các thao tác xung đột, không gửi request thứ hai khi request đầu chưa hoàn tất. Không khóa toàn màn hình nếu chỉ một hàng đang xử lý. Chỉ đóng dialog/reset form và báo thành công sau response thành công; khi lỗi giữ dữ liệu người dùng đã nhập và cho retry.
+- **Hiển thị tiến trình dễ nhận biết**: Nút đang chạy có spinner hoặc biểu tượng loading kèm nhãn i18n phù hợp, `disabled`, `aria-busy` hoặc status thông báo phù hợp với accessibility; không chỉ đổi màu. Initial loading dùng skeleton/progress tương ứng; refetch không làm màn hình nhấp nháy hoặc xóa dữ liệu đang có nếu không cần. Các tác vụ dài có trạng thái theo BE, không giả lập hoàn tất bằng timer.
+- **Dọn dẹp và an toàn dữ liệu**: Cleanup timer/subscription và request ngoài Query khi unmount; tránh set state sau tác vụ không còn hiệu lực. Dùng key ổn định cho list, không dùng index khi thứ tự có thể đổi. Với CSV/file export, xử lý escaping, dữ liệu lớn và quyền tải theo nguồn BE; không báo “xuất thành công” trước khi file được tạo/tải thành công.
+
+## 14. Kiểm thử cho luồng dữ liệu thật
+
+- Test mapper/status và fallback cho mã không biết; test hook hoặc component với các trạng thái loading, empty, error/retry, success và mutation pending để xác nhận chặn double submit.
+- Dùng MSW cho hành vi request/cache/invalidation khi có API; fixture có type chỉ dùng trong test hoặc preview được ghi nhãn. Không dùng test chỉ lặp lại implementation; ưu tiên hành vi người dùng và contract có rủi ro.
+- Sau khi nối BE, chạy `pnpm api:validate`, `pnpm api:generate` nếu contract đổi, test liên quan, `pnpm typecheck` và `pnpm check` trước khi bàn giao. Nêu rõ phần nào vẫn là UI preview, endpoint nào còn thiếu và mọi kiểm tra chưa chạy được.
