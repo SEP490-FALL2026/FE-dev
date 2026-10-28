@@ -5,6 +5,8 @@
  * Committed frontend snapshot of the backend contract. Replace this bootstrap document with the OpenAPI export produced by NestJS when Swagger is enabled.
  * OpenAPI spec version: 0.1.0
  */
+import type { SecondParameter } from './system.helpers'
+import { withQueryKey } from './system.helpers'
 import { useQuery } from '@tanstack/react-query'
 import type {
   DataTag,
@@ -18,56 +20,18 @@ import type {
   UseQueryResult
 } from '@tanstack/react-query'
 
-import type { ApiStatusResponse } from '../../contracts'
+import type { ApiStatusResponse } from '../../model'
 
 import { env } from '~/shared/config/env'
 
-const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKey: K } => {
-  const result = { queryKey } as T & { queryKey: K }
-  for (const key of Object.keys(query)) {
-    // The explicit queryKey always wins, matching the previous
-    // `{ ...query, queryKey }` spread where it was set last.
-    if (key === 'queryKey') continue
-    Object.defineProperty(result, key, {
-      enumerable: true,
-      configurable: true,
-      get: () => (query as Record<string, unknown>)[key]
-    })
-  }
-  return result
-}
-
-export type getApiStatusResponse200 = {
-  data: ApiStatusResponse
-  status: 200
-}
-
-export type getApiStatusResponseSuccess = getApiStatusResponse200 & {
-  headers: Headers
-}
-export const getGetApiStatusUrl = () => {
-  return `${env.API_BASE_URL}/`
-}
+import { customAxios } from '../../../mutator/custom-axios'
+import type { ErrorType } from '../../../mutator/custom-axios'
 
 /**
  * @summary Read the current backend bootstrap response
  */
-export const getApiStatus = async (options?: RequestInit): Promise<getApiStatusResponseSuccess> => {
-  const res = await fetch(getGetApiStatusUrl(), {
-    ...options,
-    method: 'GET'
-  })
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
-  if (!res.ok) {
-    const err: globalThis.Error & { info?: any; status?: number } = new globalThis.Error()
-    const data = body ? JSON.parse(body) : {}
-    err.info = data
-    err.status = res.status
-    throw err
-  }
-  const data: getApiStatusResponseSuccess['data'] = body !== null ? body : ''
-  return { data, status: res.status, headers: res.headers } as getApiStatusResponseSuccess
+export const getApiStatus = (options?: SecondParameter<typeof customAxios>, signal?: AbortSignal) => {
+  return customAxios<ApiStatusResponse>({ url: `${env.API_BASE_URL}/`, method: 'GET', signal }, options)
 }
 
 export const getGetApiStatusQueryKey = () => {
@@ -76,17 +40,17 @@ export const getGetApiStatusQueryKey = () => {
 
 export const getGetApiStatusQueryOptions = <
   TData = Awaited<ReturnType<typeof getApiStatus>>,
-  TError = globalThis.Error & { info?: unknown; status?: number }
+  TError = ErrorType<unknown>
 >(options?: {
   query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiStatus>>, TError, TData>>
-  fetch?: RequestInit
+  request?: SecondParameter<typeof customAxios>
 }) => {
-  const { query: queryOptions, fetch: fetchOptions } = options ?? {}
+  const { query: queryOptions, request: requestOptions } = options ?? {}
 
   const queryKey = queryOptions?.queryKey ?? getGetApiStatusQueryKey()
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiStatus>>> = ({ signal }) =>
-    getApiStatus({ signal, ...fetchOptions })
+    getApiStatus(requestOptions, signal)
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof getApiStatus>>,
@@ -96,12 +60,9 @@ export const getGetApiStatusQueryOptions = <
 }
 
 export type GetApiStatusQueryResult = NonNullable<Awaited<ReturnType<typeof getApiStatus>>>
-export type GetApiStatusQueryError = globalThis.Error & { info?: unknown; status?: number }
+export type GetApiStatusQueryError = ErrorType<unknown>
 
-export function useGetApiStatus<
-  TData = Awaited<ReturnType<typeof getApiStatus>>,
-  TError = globalThis.Error & { info?: unknown; status?: number }
->(
+export function useGetApiStatus<TData = Awaited<ReturnType<typeof getApiStatus>>, TError = ErrorType<unknown>>(
   options: {
     query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiStatus>>, TError, TData>> &
       Pick<
@@ -112,14 +73,11 @@ export function useGetApiStatus<
         >,
         'initialData'
       >
-    fetch?: RequestInit
+    request?: SecondParameter<typeof customAxios>
   },
   queryClient?: QueryClient
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiStatus<
-  TData = Awaited<ReturnType<typeof getApiStatus>>,
-  TError = globalThis.Error & { info?: unknown; status?: number }
->(
+export function useGetApiStatus<TData = Awaited<ReturnType<typeof getApiStatus>>, TError = ErrorType<unknown>>(
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiStatus>>, TError, TData>> &
       Pick<
@@ -130,17 +88,14 @@ export function useGetApiStatus<
         >,
         'initialData'
       >
-    fetch?: RequestInit
+    request?: SecondParameter<typeof customAxios>
   },
   queryClient?: QueryClient
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiStatus<
-  TData = Awaited<ReturnType<typeof getApiStatus>>,
-  TError = globalThis.Error & { info?: unknown; status?: number }
->(
+export function useGetApiStatus<TData = Awaited<ReturnType<typeof getApiStatus>>, TError = ErrorType<unknown>>(
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiStatus>>, TError, TData>>
-    fetch?: RequestInit
+    request?: SecondParameter<typeof customAxios>
   },
   queryClient?: QueryClient
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
@@ -148,13 +103,10 @@ export function useGetApiStatus<
  * @summary Read the current backend bootstrap response
  */
 
-export function useGetApiStatus<
-  TData = Awaited<ReturnType<typeof getApiStatus>>,
-  TError = globalThis.Error & { info?: unknown; status?: number }
->(
+export function useGetApiStatus<TData = Awaited<ReturnType<typeof getApiStatus>>, TError = ErrorType<unknown>>(
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiStatus>>, TError, TData>>
-    fetch?: RequestInit
+    request?: SecondParameter<typeof customAxios>
   },
   queryClient?: QueryClient
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {

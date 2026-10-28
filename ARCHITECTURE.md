@@ -18,8 +18,9 @@ Trình duyệt (Browser)
           -> Bộ bảo vệ phân quyền (RoleGuard - RBAC Guard)
               -> Tính năng giao diện / Workflow nghiệp vụ (app/features/*)
                   -> Generated TanStack Query Hook (Orval client)
-                      -> REST API request (/api/*)
-                          -> NestJS Backend API (Xác thực, nghiệp vụ, lưu trữ)
+                      -> Shared Axios mutator and interceptors
+                          -> REST API request (/api/*)
+                              -> NestJS Backend API (Xác thực, nghiệp vụ, lưu trữ)
 ```
 
 - **Trình duyệt (Frontend)**: Chịu trách nhiệm hiển thị giao diện, điều hướng, quản lý trạng thái tương tác tạm thời (ephemeral UI state), kiểm tra phân quyền cục bộ và định dạng hiển thị.
@@ -452,9 +453,11 @@ app/
   shared/
     api/
       generated/
-        api/<tag>/         fetch functions and TanStack Query hooks
-        contracts/<tag>/   request/response/domain types
-        mocks/<tag>/       Faker factories and MSW handlers
+        operations/<tag>/  one Axios request and TanStack Query hook per operation file
+        model/<tag>/       request/response/domain types and Faker factories
+        mocks/<tag>/       MSW handlers per operation
+      mutator/              hand-written Orval Axios adapter
+      axios-client.ts       shared Axios instance, auth adapter, 401 refresh handling
       query-client.ts       TanStack Query defaults
     config/                 validated public runtime/build configuration
     i18n/                   typed vi/en resources and language lifecycle
@@ -571,22 +574,29 @@ openapi/openapi.yaml
       -> enforce one declared tag per operation, unique operationId,
          *Request request bodies, and *Response success bodies
   -> pnpm api:generate
-      -> app/shared/api/generated/api/<tag>
-      -> app/shared/api/generated/contracts/<tag>
-      -> app/shared/api/generated/mocks/<tag>/*.faker.ts
-      -> app/shared/api/generated/mocks/<tag>/*.msw.ts
+      -> app/shared/api/generated/operations/<tag>/<operation>.ts
+      -> app/shared/api/generated/model/<tag>/<schema>.ts
+      -> app/shared/api/generated/model/index.faker.ts
+      -> app/shared/api/generated/mocks/<tag>/<operation>.msw.ts
 ```
 
-Orval uses `fetch`, `react-query`, and `tags-split`. `splitByTags` also places
-contracts under their owning tag; a contract referenced by multiple tags remains at
-the contracts root so it is not duplicated. `tagsSplitDeduplication` extracts shared
-transport infrastructure, and generated index files provide deliberate public entry
-points. Its base URL reads
-`env.API_BASE_URL`, which defaults to `/api`. The built-in fetch generator preserves
-typed response data/status and throws for non-success HTTP responses, allowing
-TanStack Query to enter its error state. Do not wrap every generated call in a
-repository. Add a custom fetch mutator only when authentication, refresh, correlation
-IDs, or a normalized API-error contract requires it.
+Orval uses `axios`, `react-query`, and `tags-operations`: each OpenAPI tag owns a
+directory, and each operation gets its own generated file. `splitByTags` places
+models under their owning tag; a model referenced by multiple tags remains in the
+shared model directory so it is not duplicated. Generated index files provide public
+entry points. Faker factories live in `model/`; MSW handlers live in `mocks/`.
+`app/shared/api/mutator/custom-axios.ts` is hand-written and passes generated
+operations through the shared Axios instance. It returns the response body directly;
+HTTP failures remain `AxiosError` values for TanStack Query. The generated URL reads
+`env.API_BASE_URL`, which defaults to `/api`. `axios-client.ts` attaches an access token
+from a registered auth adapter, shares one in-flight refresh after 401 responses, and
+retries each failed request at most once. Auth requests can use `skipAuth` and
+`skipAuthRefresh`. The current demo session contains no BE tokens, so no auth adapter
+is registered yet. When the backend defines login/refresh contracts, register an
+adapter that reads the access token, performs refresh through a separate client,
+persists the new token according to that contract, and clears the session on refresh
+failure. Do not infer refresh URLs, token storage, or response envelopes from the
+demo session. Do not wrap every generated call in a repository.
 
 Faker is a development dependency and may be used by unit tests, component examples,
 or deterministic fixtures. MSW handlers may be used by integration tests or an

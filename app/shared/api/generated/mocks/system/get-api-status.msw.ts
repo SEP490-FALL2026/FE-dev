@@ -5,14 +5,14 @@
  * Committed frontend snapshot of the backend contract. Replace this bootstrap document with the OpenAPI export produced by NestJS when Swagger is enabled.
  * OpenAPI spec version: 0.1.0
  */
+import { faker } from '@faker-js/faker'
+
 import { HttpResponse, delay, http } from 'msw'
 import type { RequestHandlerOptions } from 'msw'
 
-import type { ApiStatusResponse } from '../../contracts'
+import type { ApiStatusResponse } from '../../model'
 
-import { getGetApiStatusResponseMock } from './system.faker'
-
-export { getGetApiStatusResponseMock } from './system.faker'
+export const getGetApiStatusResponseMock = (): ApiStatusResponse => faker.string.alpha({ length: { min: 10, max: 20 } })
 
 export const getGetApiStatusMockHandler = (
   overrideResponse?:
@@ -37,4 +37,4 @@ export const getGetApiStatusMockHandler = (
     options
   )
 }
-export const getSystemMock = () => [getGetApiStatusMockHandler()]
+export const getSystemMock = () => [getGetApiStatusMockHandler]

@@ -18,9 +18,8 @@ export default defineConfig({
       clean: true,
       client: 'react-query',
       formatter: 'prettier',
-      httpClient: 'fetch',
-      mode: 'tags-split',
-      commonTypesFileName: 'transport-types.ts',
+      httpClient: 'axios',
+      mode: 'tags-operations',
       indexFiles: true,
       mock: {
         indexMockFiles: true,
@@ -39,16 +38,16 @@ export default defineConfig({
         ]
       },
       override: {
-        fetch: {
-          forceSuccessResponse: true
+        mutator: {
+          path: './app/shared/api/mutator/custom-axios.ts',
+          name: 'customAxios'
         }
       },
       schemas: {
-        path: './app/shared/api/generated/contracts',
+        path: './app/shared/api/generated/model',
         splitByTags: true
       },
-      tagsSplitDeduplication: true,
-      target: './app/shared/api/generated/api'
+      target: './app/shared/api/generated/operations'
     }
   }
 })

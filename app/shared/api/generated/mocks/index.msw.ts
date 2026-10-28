@@ -1,1 +1,1 @@
-export { getSystemMock } from './system/system.msw'
+export { getGetApiStatusMockHandler as SystemGetApiStatusMockHandler } from './system/get-api-status.msw'
