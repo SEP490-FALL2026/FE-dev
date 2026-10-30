@@ -1,10 +1,10 @@
 import { RoleGuard } from '~/features/auth/components/role-guard'
-import { DashboardPage } from '~/features/dashboard/dashboard-page'
+import { DashboardEntry } from '~/features/dashboard/dashboard-entry'
 
 export default function SuperAdminDashboardRoute() {
   return (
     <RoleGuard requiredRole='super-admin'>
-      <DashboardPage role='super-admin' />
+      <DashboardEntry role='super-admin' />
     </RoleGuard>
   )
 }

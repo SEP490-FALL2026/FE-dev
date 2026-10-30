@@ -1,12 +1,29 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeAll, afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { http, HttpResponse } from 'msw'
+import { setupServer } from 'msw/node'
 
 import type { UserRole } from '~/entities/user-role/user-role'
 import { AppProviders } from '~/providers/app-providers'
 import { setAppLanguage } from '~/shared/i18n/i18n'
 
 import { DashboardPage } from './dashboard-page'
+
+const server = setupServer(
+  http.get('*/api/v1/onboarding-checklist', () => HttpResponse.json({ success: true, data: { steps: [] } })),
+  http.get('*/api/v1/super-admin-watch', () =>
+    HttpResponse.json({ success: true, data: { status: 'HEALTHY', reasons: {}, warnings: {}, holder: null } })
+  ),
+  http.get('*/api/v1/app-users', () =>
+    HttpResponse.json({
+      success: true,
+      data: { items: [], pagination: { page: 1, pageSize: 20, totalItems: 0, totalPages: 0 } }
+    })
+  )
+)
+beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
+afterAll(() => server.close())
 
 const roleLabels: Record<UserRole, string> = {
   employee: 'Nhân viên',
@@ -37,14 +54,14 @@ describe('DashboardPage', () => {
   it('renders the super-admin dashboard and navigates the UF-13 screens', () => {
     const view = renderDashboard('super-admin')
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Tổng quan Quản trị Hệ thống' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Thiết lập tổ chức' })).toBeInTheDocument()
     expect(screen.getByRole('navigation', { name: 'Điều hướng dashboard' })).toBeInTheDocument()
     expect(screen.getByTestId('dashboard-role')).toHaveTextContent(roleLabels['super-admin'])
 
     const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
-    const accountsBtn = within(nav).getByRole('button', { name: /Tài khoản & Phân quyền/i })
+    const accountsBtn = within(nav).getByRole('button', { name: /Tài khoản và trách nhiệm/i })
     fireEvent.click(accountsBtn)
-    expect(screen.getByRole('heading', { level: 1, name: 'Tài khoản & Phân quyền Hệ thống' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Tài khoản và trách nhiệm' })).toBeInTheDocument()
 
     view.unmount()
   })
@@ -53,12 +70,11 @@ describe('DashboardPage', () => {
     await setAppLanguage('en')
     renderDashboard('super-admin')
 
-    expect(screen.getByRole('heading', { level: 1, name: 'System Administration Overview' })).toBeInTheDocument()
-    expect(screen.getByRole('region', { name: 'Organization metrics' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /View department list/ })).toBeInTheDocument()
-    expect(screen.getAllByText('No manager assigned').length).toBeGreaterThan(0)
-    expect(screen.getByText('Departments and their approval managers')).toBeInTheDocument()
-    expect(screen.queryByText('Chưa có Quản lý')).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Organization setup' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Setup checklist' })).toBeInTheDocument()
+    const nav = screen.getByRole('navigation', { name: 'Dashboard navigation' })
+    expect(within(nav).getByRole('button', { name: 'Departments and projects' })).toBeInTheDocument()
+    expect(screen.queryByText('Minh Anh')).not.toBeInTheDocument()
   })
 
   it('renders the finance dashboard and navigates the UF-11/12/19 screens', () => {
@@ -592,7 +608,7 @@ describe('DashboardPage', () => {
     expect(screen.getByRole('searchbox', { name: 'Tìm kiếm' })).toBeInTheDocument()
     expect(screen.getByRole('group', { name: 'Ngôn ngữ' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Chuyển sang giao diện tối' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Đăng xuất' })).toHaveAttribute('href', '/login')
+    expect(screen.getByRole('link', { name: 'Đăng xuất' })).toHaveAttribute('href', '/logout')
   })
 
   it('navigates through IT admin submenus and activates the corresponding submenu', () => {

@@ -7,11 +7,9 @@ import { itAdminUsageImportExtra } from './it-admin-usageImport-extra'
 import { itAdminShadowItExtra } from './it-admin-shadowIt-extra'
 import { itAdminReconciliationExtra } from './it-admin-reconciliation-extra'
 import { spendDashboard } from './dashboard-spend'
-import { superAdmin } from './super-admin'
 import { teamRequests } from './team-requests'
 
 export const dashboard = {
-  superAdmin,
   teamRequests,
   financeDemo: {
     units: { seats: '{{value}} seats', servers: '{{value}} servers', developers: '{{value}} developers' },
@@ -19,13 +17,17 @@ export const dashboard = {
       designBudgetQuestion: 'Does the Design Department have enough Q4 budget for 15 more Figma seats?',
       marketingBudgetQuestion: 'Marketing has no Q4 budget yet. Will Finance prepare one this week?',
       engineeringBudgetQuestion: 'Please check the Engineering budget for 10 Cursor Pro seats.',
-      engineeringBudgetAnswer: 'About 115 million remains after reserved commitments. This is advisory and does not block the request.',
+      engineeringBudgetAnswer:
+        'About 115 million remains after reserved commitments. This is advisory and does not block the request.',
       companyBudgetQuestion: 'Is there company-wide budget for 40 Notion AI seats?',
       operationsBudgetQuestion: 'Is there Operations budget for Miro Team?',
-      opsBudgetShortfall: 'CC-OPS has 768,000 ₫ remaining in Q4 after reserved commitments; this request needs 31,680,000 ₫.',
+      opsBudgetShortfall:
+        'CC-OPS has 768,000 ₫ remaining in Q4 after reserved commitments; this request needs 31,680,000 ₫.',
       hubspotOutsideCatalog: 'HubSpot is not in the approved catalog; IT Admin is evaluating it.',
-      engineeringToolsShortfall: 'The CC-ENG Development Tools group has 4,200,000 ₫ remaining; Snyk Team needs 18,600,000 ₫ for Q4.',
-      engineeringTopUpNote: 'Propose a top-up from the Engineering annual buffer; required after the September security incident.',
+      engineeringToolsShortfall:
+        'The CC-ENG Development Tools group has 4,200,000 ₫ remaining; Snyk Team needs 18,600,000 ₫ for Q4.',
+      engineeringTopUpNote:
+        'Propose a top-up from the Engineering annual buffer; required after the September security incident.',
       expiredBudgetYear: 'The request uses the expired 2025 budget.',
       transferTo2026Budget: 'Transfer to the 2026 CC-SAL budget.',
       hireFiveDevelopers: 'Hire five more developers in 2027.',

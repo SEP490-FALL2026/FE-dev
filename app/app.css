@@ -1,4 +1,17 @@
-@import 'tailwindcss';
+@import 'tailwindcss' source('./');
+
+.app-toast[data-sonner-toast] {
+  border-radius: 10px;
+  box-shadow: 0 8px 30px rgb(0 0 0 / 10%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-sonner-toaster] *,
+  [data-sonner-toast] * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
 
 @theme inline {
   --font-sans:

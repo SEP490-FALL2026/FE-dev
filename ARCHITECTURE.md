@@ -4,6 +4,19 @@ Trạng thái: Nền tảng được phê duyệt, cập nhật chuẩn hoá th�
 
 ## 1. Bối cảnh & Phạm vi dự án (Context & Scope)
 
+### Khởi tạo SPA và khôi phục phiên (30/10/2026)
+
+- Route dashboard dùng `DashboardEntry` với dynamic import bên trong `RoleGuard`. Chỉ tải workspace sau khi xác thực và kiểm tra role thành công; khách và người sai quyền không tải toàn bộ màn hình dashboard để chờ redirect/403.
+- Axios dùng timeout mặc định 15 giây cho mỗi request; request đặc thù có thể cấu hình timeout riêng. Query `/me` của luồng login/khôi phục phiên không tự retry và dùng `networkMode: 'always'` để không bị pause vô hạn khi browser offline: lỗi mạng chuyển sang trạng thái `unavailable`, giữ refresh token và cho người dùng thử lại qua giao diện hiện có.
+- Dev pre-bundle khai báo cả `axios` và `sonner` để tránh Vite phát hiện muộn hai dependency này, tối ưu lại và reload giữa lúc khởi tạo. Cache dependency vẫn do Vite quản lý.
+- Tailwind giới hạn tự động dò class trong `app/` bằng `source('./')` ở `app/app.css`; không quét tài liệu, skill và cache ở root. Component UI mới phải nằm trong `app/`; nếu dùng UI từ package ngoài thì khai báo `@source` cụ thể.
+
+### Hạ tầng thông báo và giao diện đăng nhập (30/10/2026)
+
+- **Sonner 2** cung cấp toast chung. `app/shared/ui/app-toaster.tsx` sở hữu theme, i18n, Lucide icons, nút đóng và thời gian tự ẩn; `AppProviders` gắn đúng một Toaster để giữ thông báo khi đổi route. Feature gọi `toast` từ callback mutation; HTTP interceptor không phát thông báo UX.
+- Login giữ API auth-session, TanStack Query, redirect kiểm tra role và Retry-After. `login-page.tsx` chứa form bên trái; `components/login-showcase.tsx` và `login.css` sở hữu bố cục kính mờ và minh họa mascot bên phải. Ảnh nằm trong `app/assets/auth`, được import và Vite đóng gói cùng client để deploy không phụ thuộc URL ngoài. Light/dark dùng theme tokens; mobile ưu tiên form. Không có liên kết home, đăng nhập bên thứ ba hoặc đăng ký tự do; tài khoản do quản trị viên cấp. Dùng Motion hiện có, hỗ trợ reduced motion, không thêm framework UI khác.
+- Kết quả thao tác login, forgot/reset/activate/change password và lỗi logout đi qua toast; validation tại input và page state có retry/điều hướng vẫn nằm trong trang. Quy tắc bắt buộc cho mọi code mới nằm trong `AGENTS.md` và `UI_UX_DESIGN_GUIDELINES.md`.
+
 SaaS-Sentry là hệ thống quản trị dành cho doanh nghiệp nhằm quản lý danh mục phần mềm SaaS, hợp đồng bản quyền, quản lý ghế cấp phát (license seats), quy trình phê duyệt chi phí CNTT, tối ưu hoá lãng phí bản quyền (Ghost Seats), báo cáo tài chính và kiểm soát rủi ro Shadow IT.
 Tài liệu yêu cầu nghiệp vụ (BRD) xác định ứng dụng web thích ứng (Responsive Web Application) là trọng tâm của giai đoạn MVP.
 
@@ -34,6 +47,11 @@ Toàn bộ hệ thống Route được định nghĩa tập trung tại [app/rou
 app/routes/
 ├── home.tsx                            # Trang chủ Landing page (/)
 ├── login.tsx                           # Trang đăng nhập (/login)
+├── logout.tsx                          # Kết thúc phiên qua BE (/logout)
+├── forgot-password.tsx                 # Yêu cầu email khôi phục
+├── reset-password.tsx                  # Đặt lại mật khẩu từ URL fragment
+├── activate-account.tsx                # Kích hoạt từ lời mời
+├── change-password.tsx                 # Đổi mật khẩu khi đã đăng nhập
 ├── forbidden.tsx                       # Màn hình từ chối truy cập 403 Forbidden (/forbidden)
 │
 ├── dashboard.super-admin.tsx           # Route quản trị cấp cao Super Admin (/dashboard/super-admin)
@@ -48,6 +66,7 @@ app/routes/
 ```
 
 ### Nguyên tắc Bảo mật Phân quyền RBAC (Security Enforcement):
+
 1. **Thin Route Controllers**: Mỗi file trong `app/routes/` chỉ đóng vai trò là Controller mỏng, nhận tham số URL, thiết lập metadata trang và bọc giao diện trong bộ bảo vệ `RoleGuard`.
 2. **Bộ bảo vệ `RoleGuard` ([app/features/auth/components/role-guard.tsx](file:///c:/fe_capstone/FE-dev-main/app/features/auth/components/role-guard.tsx))**:
    - Mọi Route Dashboard của từng vai trò đều bắt buộc phải được bọc bởi `<RoleGuard requiredRole="...">`.
@@ -65,10 +84,10 @@ Trong mỗi vai trò (Role), thay vì gom toàn bộ file vào các thư mục n
 
 ```text
 app/features/
-├── auth/                               # Xác thực, phiên đăng nhập, tài khoản demo
-│   ├── auth-session.ts                 # Quản lý phiên làm việc, lưu trữ sessionStorage
+├── auth/                               # Xác thực, phiên đăng nhập và khôi phục tài khoản
+│   ├── auth-session.ts                 # Token pair trong localStorage, khôi phục bộ nhớ khi mở lại web
 │   ├── enums.ts                        # Enums trạng thái auth, danh sách role
-│   ├── hooks/                          # Hooks xác thực (useDemoAuth,...)
+│   ├── auth-action-page.tsx             # Kích hoạt, khôi phục và đổi mật khẩu qua API
 │   ├── components/                     # Bộ bảo vệ RoleGuard, form đăng nhập
 │   └── views/                          # Giao diện LoginPage, ForbiddenPage (403)
 │
@@ -100,9 +119,10 @@ app/features/
     │   ├── transfer/                   # Chức năng: Bàn giao và chuyển giao tài sản số
     │   ├── settings/                   # Chức năng: Cấu hình hệ thống chung
     │   ├── shared/                     # Hooks tabs dùng chung trong Super Admin
-    │   ├── super-admin-data.ts         # Mock data và contracts của Super Admin
+    │   ├── operations/                 # Chờ cấu hình, bước tắc nghẽn và ghi sự cố
+    │   ├── super-admin-screen.tsx      # Điều phối các màn hình API thật
     │   ├── super-admin-nav.ts          # Cấu hình navigation và helper tabs của Super Admin
-    │   ├── enums.ts                    # Enums và Tab Keys của Super Admin
+    │   ├── <slice>/enums/              # Mỗi khái niệm một file, lấy mã từ generated contract
     │   └── index.ts                    # Barrel export duy nhất của Super Admin ra bên ngoài
     │
     ├── manager/                        # Role Quản lý bộ phận (Manager)
@@ -217,23 +237,17 @@ app/features/
 
 ## Key decisions
 
-### Employee device identification and workstation binding preview
+### Super Admin tích hợp API (30/10/2026)
 
-The Employee onboarding flow enforces a three-step sequence: Step 1 (Account creation),
-Step 2 (Single-role assignment), and Step 3 (Workstation and device identification).
-Device identification binds an employee's account to their assigned workstation hardware
-(Device Code, Hostname, MAC address, Hardware Serial Number, and Operating System).
-When the desktop collector tracking tool (`sentry-collector`) transmits telemetry
-(application session durations, active usage timestamps, and AI agent token metrics),
-the system matches the hardware MAC/Device Code to the assigned employee identity so that
-usage and activity data are attributed to the correct person rather than accumulating in
-the Unmatched Identities queue (`it-unmatched-identities`).
+Super Admin sử dụng các slice tài khoản/trách nhiệm, phòng ban/dự án, nhân sự/import/sự kiện, tổng quan checklist/watch, tham số vận hành, lịch nghỉ/tiền tệ, giám sát quy trình và Audit Trail. `SuperAdminScreen` điều phối qua tab của shell. Các hook Orval gọi shared Axios; server state ở Query, form/dialog ở state cục bộ. Đã xóa fixture runtime, enum demo, translation demo và các màn định danh máy hoặc mô phỏng gửi email không có API. Dữ liệu mẫu của IT Admin và role khác vẫn thuộc phạm vi preview riêng.
 
-This preview provides the complete interface in Super Admin Accounts (`tab=accounts`) with
-a dedicated "Định danh thiết bị nhân sự" sub-tab, post-creation onboarding guidance prompts,
-individual account detail hardware inspectors, and a device registration/pairing modal.
-In IT Admin Device Collectors (`tab=device-collectors`), the employee telemetry detail
-surfaces the verified hardware workstation binding alongside the session timeline.
+Tổng quan gồm khối tiến độ tương phản, thẻ số liệu, cảnh báo gom theo phòng và sơ đồ checklist mở rộng được. Tiến độ chỉ tính các bước có trạng thái đã biết và đang được BE hỗ trợ, loại `NOT_AVAILABLE`; không dựng số liệu biểu đồ lịch sử. Cảnh báo mở đúng chi tiết phòng bằng mã từ API; query tra cứu mã duyệt các trang kết quả đã lọc đến khi khớp chính xác. URL giữ lựa chọn phòng, tìm kiếm, trạng thái và trang để browser Back khôi phục đúng ngữ cảnh. Liên kết import mang `section`/`importId`; nhiệm vụ trung tâm chi phí ghi rõ thuộc Finance. Search có placeholder VI/EN riêng, không dùng placeholder làm giá trị nhập.
+
+Form tạo/sửa hồ sơ nhân viên dùng sub-route `/dashboard/super-admin/personnel/new|correct` qua route controller mỏng và RoleGuard. Shell giữ vùng main cuộn; form dài có hai cột và phần căn cứ nhân sự, không bị nhét vào drawer. Nút điều hướng sidebar trở về URL dashboard theo tab để tránh giữ chế độ form khi đổi phân hệ.
+
+Tài khoản gắn với hồ sơ nhân viên; status và activationState độc lập. FE chỉ cấp/thu hồi các vai trực tiếp cho phép trong request enum; trưởng phòng và trách nhiệm phê duyệt tạo ra các vai suy ra. Chuyển giao Super Admin dùng operation riêng và đọc lại `/me`; `auth-session` theo dõi query thành công để cập nhật quyền dùng bởi RoleGuard. 403 đọc lại `/me`, không refresh token do lỗi phân quyền.
+
+Form, trạng thái query, phân trang và picker được chia sẻ trong `super-admin/shared/`; nhân sự và điều chuyển không import nội bộ lẫn nhau. API không cung cấp GET toàn bộ nhân viên: picker dùng app-user phân trang hoặc account-candidates theo search; danh sách thành viên dùng API từng phòng. Các write invalidate nguồn đọc liên quan, không thay mảng local như đã lưu. Import hai bước giữ idempotency key cho cùng payload/preview khi thử lại. Test MSW kiểm payload, phân trang, lỗi, pending, enum lạ và replay import; fixture test không đi vào bundle sản phẩm.
 
 ### Employee overview preview
 
@@ -564,43 +578,48 @@ introduced so Router and Query do not become competing caches.
 
 ### Contract-first client generation
 
-`openapi/openapi.yaml` is a versioned snapshot consumed by `orval.config.ts`.
-The current bootstrap operation mirrors the existing NestJS root controller; once
-Swagger is enabled in the backend, the backend export replaces this bootstrap file.
+`openapi/openapi.yaml` is a versioned snapshot of the live BE OpenAPI export at
+`https://wdp.novaproj.site/api/docs-json`. A snapshot of that export is kept in
+`openapi/openapi.yaml` for review and offline generation
+(`ORVAL_OPENAPI_SOURCE=./openapi/openapi.yaml`). Orval filters `auth`, `me` and the Super Admin business tags listed explicitly in `orval.config.ts`. Other roles' business screens remain outside this integration slice.
 
 ```text
 openapi/openapi.yaml
   -> pnpm api:validate
-      -> enforce one declared tag per operation, unique operationId,
-         *Request request bodies, and *Response success bodies
+      -> check the auth operation IDs and paths in the BE export
   -> pnpm api:generate
       -> app/shared/api/generated/operations/<tag>/<operation>.ts
       -> app/shared/api/generated/model/<tag>/<schema>.ts
-      -> app/shared/api/generated/model/index.faker.ts
-      -> app/shared/api/generated/mocks/<tag>/<operation>.msw.ts
 ```
 
 Orval uses `axios`, `react-query`, and `tags-operations`: each OpenAPI tag owns a
 directory, and each operation gets its own generated file. `splitByTags` places
 models under their owning tag; a model referenced by multiple tags remains in the
 shared model directory so it is not duplicated. Generated index files provide public
-entry points. Faker factories live in `model/`; MSW handlers live in `mocks/`.
+entry points. Generated mocks are disabled because the BE export's `allOf` response
+examples currently produce invalid mock `message` types in Orval 8.
 `app/shared/api/mutator/custom-axios.ts` is hand-written and passes generated
 operations through the shared Axios instance. It returns the response body directly;
 HTTP failures remain `AxiosError` values for TanStack Query. The generated URL reads
-`env.API_BASE_URL`, which defaults to `/api`. `axios-client.ts` attaches an access token
+`env.API_BASE_URL`, which reads the required `VITE_API_BASE_URL`. In local
+development, `.env` sets `/backend` and Vite forwards to `API_PROXY_TARGET`
+after removing that prefix. Orval uses the proxy target to locate the OpenAPI
+export. `pnpm build` uses mode `product` and reads `.env.product`, whose API URL
+points directly to the BE. BE CORS must allow the deployed FE origin.
+`axios-client.ts` attaches an access token
 from a registered auth adapter, shares one in-flight refresh after 401 responses, and
 retries each failed request at most once. Auth requests can use `skipAuth` and
-`skipAuthRefresh`. The current demo session contains no BE tokens, so no auth adapter
-is registered yet. When the backend defines login/refresh contracts, register an
-adapter that reads the access token, performs refresh through a separate client,
-persists the new token according to that contract, and clears the session on refresh
-failure. Do not infer refresh URLs, token storage, or response envelopes from the
-demo session. Do not wrap every generated call in a repository.
+`skipAuthRefresh`. The auth adapter is registered by `auth-session.ts`. It persists the complete token pair
+atomically as JSON under `saas-sentry.auth-tokens` in Local Storage, restores access tokens before `/me`,
+and migrates legacy Session Storage refresh tokens after a successful refresh. Storage failures fall back to
+Session Storage and memory. Logout and invalid sessions clear persisted credentials. It rotates
+both tokens after a single-flight refresh, clears the session on
+`AUTH.SESSION_INVALID`, and retains tokens on temporary service failures. `/me`
+supplies effective roles; no role is taken from a token. Do not wrap every generated
+call in a repository.
 
-Faker is a development dependency and may be used by unit tests, component examples,
-or deterministic fixtures. MSW handlers may be used by integration tests or an
-explicit local mock mode. Neither is imported by the production app graph.
+Auth tests use an isolated Axios adapter. No test fixture is imported by the
+production auth graph.
 
 Mock data does use Orval: Faker generators create typed object factories from schema
 constraints/examples, while MSW generators wrap those factories as HTTP handlers.
@@ -647,13 +666,19 @@ Contract update workflow:
 
 ### Configuration
 
-- `VITE_API_BASE_URL` is public and defaults to `/api`.
-- `API_PROXY_TARGET` is read only by the Vite development server and defaults to
-  `http://localhost:3000`.
-- Vite statically replaces browser environment values during the build. A changed
-  production API prefix therefore requires a rebuild unless the deployment keeps the
-  stable `/api` ingress contract.
+- `.env` is for local development: `VITE_API_BASE_URL=/backend` and
+  `API_PROXY_TARGET=https://wdp.novaproj.site`. The proxy target is only used
+  by Node tooling and is not exposed as a browser environment variable.
+- `.env.product` is for deployment: `VITE_API_BASE_URL=https://wdp.novaproj.site`.
+  The build script passes `--mode product` so this file overrides `.env`.
+- Vite statically replaces browser environment values during the build. Changing
+  the production API origin therefore requires a rebuild.
+- The Vite development server uses HTTP at `http://localhost:5173` and proxies
+  API requests to the BE over HTTPS. Production TLS is managed by the hosting
+  platform or reverse proxy. Port 5173 is strict.
 - No token, private key, or service credential belongs in a `VITE_*` variable.
+- React Router future flags explicitly retain v7 behavior. The versioned pnpm
+  patch replaces internal deprecated `envFile: false` options with `envDir: false`.
 
 ### Testing and debugging
 
@@ -776,8 +801,8 @@ Team Software uses the shared warm orange palette. The Manager shell is fixed to
 the viewport, with scrolling confined to its main content and sidebar navigation,
 so document scrolling cannot reveal unused body space below the portal.
 
-- Authentication/session storage awaits the backend OIDC contract. Do not store
-  long-lived tokens in local storage by default.
+- Authentication uses the BE login/refresh contract. Per the owner's persistence requirement, the token pair
+  is stored in Local Storage; browser scripts on the FE origin can read it. Never log or render credentials.
 - Form, table, chart, and component libraries should be chosen from real screens and
   accessibility requirements, not installed as architecture placeholders.
 - A shared Web/Mobile package is deferred. Web is the MVP and native presentation

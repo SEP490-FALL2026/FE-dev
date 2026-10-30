@@ -1,10 +1,9 @@
 import { LogOut, ShieldAlert } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { Link, useNavigate } from 'react-router'
+import { Link } from 'react-router'
 
 import type { UserRole } from '~/entities/user-role/user-role'
 import { useDocumentTitle } from '~/shared/lib/use-document-title'
-import { clearAuthSession } from '../auth-session'
 
 interface ForbiddenPageProps {
   currentUserRole?: UserRole | null
@@ -13,14 +12,8 @@ interface ForbiddenPageProps {
 
 export function ForbiddenPage({ currentUserRole, attemptedRole }: ForbiddenPageProps) {
   const { t } = useTranslation('errors')
-  const navigate = useNavigate()
 
   useDocumentTitle(t('forbiddenTitle'))
-
-  const handleLogout = () => {
-    clearAuthSession()
-    navigate('/login')
-  }
 
   const fallbackDashboardUrl = currentUserRole ? `/dashboard/${currentUserRole}` : '/login'
 
@@ -40,7 +33,7 @@ export function ForbiddenPage({ currentUserRole, attemptedRole }: ForbiddenPageP
           <ShieldAlert aria-hidden='true' className='size-8' />
         </div>
 
-        <p className='mt-5 text-xs font-bold tracking-widest text-danger-ink uppercase'>403 · {t('forbiddenTitle')}</p>
+        <p className='mt-5 text-xs font-bold tracking-widest text-danger-ink uppercase'>{t('forbiddenTitle')}</p>
         <h1 className='mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl'>{t('forbiddenSub')}</h1>
         <p className='mt-4 text-sm leading-relaxed text-muted-foreground'>
           {t('forbiddenDetails', {
@@ -56,14 +49,13 @@ export function ForbiddenPage({ currentUserRole, attemptedRole }: ForbiddenPageP
           >
             {t('forbiddenAction')}
           </Link>
-          <button
+          <Link
             className='inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-surface px-5 py-3 text-sm font-semibold text-foreground transition hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action'
-            onClick={handleLogout}
-            type='button'
+            to='/logout'
           >
             <LogOut aria-hidden='true' className='size-4' />
             {t('forbiddenLoginAgain')}
-          </button>
+          </Link>
         </div>
       </div>
     </main>

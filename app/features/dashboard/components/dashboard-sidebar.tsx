@@ -68,12 +68,9 @@ export interface DashboardSidebarProps {
 
 export function DashboardSidebar({
   activeApprovalParent,
-  activeApprovalTab,
   activeEmployeeParent,
-  activeEmployeeTab: _activeEmployeeTab,
   activeFinanceTab,
   activeManagerParent,
-  activeManagerTab: _activeManagerTab,
   activeParent,
   activeSuperAdminTab,
   activeTab,
@@ -96,6 +93,7 @@ export function DashboardSidebar({
 }: DashboardSidebarProps) {
   const { t } = useTranslation('dashboard')
   const { t: tCommon } = useTranslation('common')
+  const { t: translateAdmin } = useTranslation('admin')
 
   const isItAdmin = role === 'it-admin'
   const isEmployee = role === 'employee'
@@ -130,7 +128,7 @@ export function DashboardSidebar({
             <div>
               <p className='font-bold tracking-[-0.02em]'>{tCommon('brand')}</p>
               <p className='mt-0.5 text-[0.65rem] font-semibold tracking-[0.12em] text-muted-foreground uppercase'>
-                {t('demoNotice')}
+                {!isSuperAdmin && t('demoNotice')}
               </p>
             </div>
           </div>
@@ -350,8 +348,8 @@ export function DashboardSidebar({
                               aria-current={isCurrent && managerRequestScope === scope ? 'page' : undefined}
                               className={`min-h-10 w-full rounded-lg px-3 text-left text-sm transition ${
                                 isCurrent && managerRequestScope === scope
-                                    ? 'bg-primary-soft font-semibold text-primary-ink'
-                                    : 'text-muted-foreground hover:bg-surface hover:text-foreground'
+                                  ? 'bg-primary-soft font-semibold text-primary-ink'
+                                  : 'text-muted-foreground hover:bg-surface hover:text-foreground'
                               }`}
                               onClick={() => onSelectManagerTab('create-employee-request', { scope })}
                               type='button'
@@ -423,8 +421,8 @@ export function DashboardSidebar({
                       type='button'
                     >
                       <div className='flex items-center gap-3'>
-                        <Icon aria-hidden='true' className='size-[1.125rem] shrink-0' />
-                        <span>{t(`superAdmin.navigation.${item.translationKey}`)}</span>
+                        <Icon aria-hidden='true' strokeWidth={1.5} className='size-[1.125rem] shrink-0' />
+                        <span>{translateAdmin(`navigation.${item.translationKey}`)}</span>
                       </div>
                       {item.badge !== undefined && (
                         <span
@@ -470,7 +468,7 @@ export function DashboardSidebar({
           <div className='rounded-xl border border-border bg-surface px-3 py-2'>
             <Link
               className='flex h-10 w-full items-center gap-2 rounded-lg px-3 text-sm font-semibold text-muted-foreground transition hover:bg-primary-soft hover:text-primary'
-              to='/login'
+              to='/logout'
             >
               <LogOut aria-hidden='true' className='size-4' />
               {t('logout')}

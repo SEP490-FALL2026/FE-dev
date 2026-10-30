@@ -1,0 +1,221 @@
+import { overviewRedesign } from './admin-overview'
+
+export const admin = {
+  retryIn: 'Thử lại sau {{count}} giây',
+  navigation: {
+    overview: 'Tổng quan',
+    accounts: 'Tài khoản và trách nhiệm',
+    departments: 'Phòng ban và dự án',
+    personnel: 'Nhân sự',
+    reminders: 'Tham số vận hành',
+    settings: 'Cấu hình hệ thống',
+    transfer: 'Điều chuyển phòng ban',
+    'audit-trail': 'Nhật ký kiểm toán',
+    operations: 'Giám sát quy trình'
+  },
+  loading: 'Đang tải…',
+  saving: 'Đang lưu…',
+  saved: 'Đã lưu thay đổi',
+  save: 'Lưu',
+  cancel: 'Hủy',
+  close: 'Đóng',
+  retry: 'Thử lại',
+  empty: 'Không có bản ghi phù hợp',
+  unknown: 'Trạng thái chưa xác định',
+  none: 'Chưa thiết lập',
+  all: 'Tất cả',
+  pagination: 'Phân trang',
+  page: 'Trang {{page}} / {{total}} · {{count}} bản ghi',
+  previous: 'Trước',
+  next: 'Tiếp',
+  requestId: 'Mã tham chiếu: {{id}}',
+  actions: 'Thao tác',
+  details: 'Chi tiết',
+  edit: 'Sửa',
+  remove: 'Xóa',
+  create: 'Tạo',
+  errors: {
+    duplicate: 'Mã, email hoặc ngày này đã tồn tại. Chọn giá trị khác.',
+    financeAssigned: 'Đã có tài khoản giữ vai Finance. Kiểm tra phân công hiện tại trước.',
+    derivedRole: 'Vai này được suy ra từ trưởng phòng hoặc trách nhiệm phê duyệt.',
+    transferOnly: 'Dùng quy trình bàn giao Super Admin để thay đổi trách nhiệm này.',
+    alreadyActivated: 'Tài khoản đã kích hoạt, không cần gửi lại lời mời.',
+    accountLocked: 'Tài khoản đang bị khóa. Cần mở khóa trước khi tiếp tục.',
+    roleCombination: 'Không thể kết hợp các vai hoặc trách nhiệm này trên cùng tài khoản.',
+    unusableAccount: 'Chọn nhân sự đang làm việc với tài khoản đã kích hoạt và có thể đăng nhập.',
+    dutyConflict: 'Người thay thế phải khác người đang giữ trách nhiệm duyệt.',
+    successorResponsibilities: 'Bàn giao phòng ban hoặc trách nhiệm đặc biệt hiện tại của người này trước.',
+    departmentInUse: 'Phòng ban còn nhân sự hoặc dữ liệu phụ thuộc. Cần xử lý trước khi ngừng dùng.',
+    headMembership: 'Chọn thành viên đủ điều kiện của phòng tại ngày có hiệu lực.',
+    hrBasis: 'Điền đầy đủ văn bản nhân sự có thẩm quyền. Thông báo BM-09 không phải quyết định nhân sự.',
+    successorRequired: 'Chỉ định người kế nhiệm trưởng phòng hoặc xác nhận rõ không có người kế nhiệm.',
+    pendingEvent: 'Nhân sự đã có sự kiện khác xung đột. Kiểm tra sự kiện đó trước.',
+    dateInvalid: 'Ngày này không hợp lệ với trạng thái nhân sự hoặc lịch hiện tại.',
+    transferCancellation: 'Bổ sung lý do hủy điều chuyển phòng đang chờ.',
+    eventMissing: 'Không tìm thấy sự kiện đã ghi phù hợp. Kiểm tra nhân sự và mã tham chiếu sự kiện.',
+    verificationRequired: 'Điền phương thức xác minh và căn cứ tham chiếu.',
+    previewStale: 'Bản xem trước đã thay đổi. Làm mới và kiểm tra các dòng trước khi xác nhận nhập.',
+    importExpired: 'Lần nhập đã hết hạn. Tải lại tệp để tạo bản xem trước mới.',
+    duplicateFile: 'Xác nhận bạn có chủ ý nhập lại tệp trùng này.',
+    importConfirmed: 'Lần nhập này đã xác nhận. Kiểm tra kết quả trước khi thao tác tiếp.',
+    fileInvalid: 'Kiểm tra định dạng, kích thước, các cột bắt buộc và giới hạn dòng của tệp.',
+    parameterInvalid: 'Giá trị nằm ngoài miền cho phép của tham số vận hành.',
+    unavailable: 'Không tải được dữ liệu. Vui lòng thử lại.',
+    forbidden: 'Quyền hiện tại không cho phép thao tác này.',
+    missing: 'Không truy cập được bản ghi. Hãy tải lại danh sách.',
+    conflict: 'Dữ liệu đã thay đổi hoặc còn ràng buộc. Kiểm tra dữ liệu vừa tải lại trước khi thử tiếp.',
+    validation: 'Kiểm tra giá trị đã nhập và các trường bắt buộc.',
+    rateLimit: 'Quá nhiều yêu cầu. Vui lòng chờ trước khi thử lại.',
+    unknownOutcome: 'Chưa xác định được kết quả lưu. Kiểm tra dữ liệu vừa tải lại trước khi gửi tiếp.',
+    lockedCurrency: 'Tiền tệ báo cáo đã bị khóa vì có dữ liệu tài chính sử dụng.',
+    selfAction: 'Không thể dùng thao tác này với tài khoản của chính bạn.',
+    ineligible: 'Nhân sự chưa đủ điều kiện nhận trách nhiệm đã chọn.'
+  },
+  overview: {
+    redesign: overviewRedesign,
+    stepNames: {
+      1: 'Tổ chức và nhân sự',
+      2: 'Danh mục ứng dụng',
+      3: 'Gói và thuê bao',
+      4: 'Hiện trạng ghế',
+      5: 'Dữ liệu sử dụng'
+    },
+    setupStates: {
+      DONE: 'Hoàn tất',
+      INCOMPLETE: 'Chưa hoàn tất',
+      BLOCKED: 'Đang bị chặn',
+      NOT_AVAILABLE: 'Chưa hỗ trợ'
+    },
+    setupReasons: {
+      NO_DEPARTMENT: 'Tạo phòng ban đang hoạt động.',
+      NO_EMPLOYEE: 'Tạo hoặc nhập danh sách nhân viên.',
+      NO_APPLICATION: 'IT Admin cần cấu hình danh mục ứng dụng.',
+      NO_SUBSCRIPTION: 'IT Admin cần cấu hình thuê bao.',
+      NOT_BUILT_YET: 'Chức năng này chưa được hỗ trợ.'
+    },
+    setupWarnings: {
+      MISSING_HEAD: 'Chưa có trưởng phòng',
+      MISSING_IT_ADMIN: 'Chưa có IT Admin phụ trách',
+      MISSING_COST_CENTER: 'Finance chưa cấu hình trung tâm chi phí'
+    },
+    facts: {
+      activeDepartments: 'Phòng ban đang hoạt động',
+      activeEmployees: 'Nhân sự đang làm việc',
+      departmentsWithoutCostCenter: 'Phòng chưa có trung tâm chi phí'
+    },
+    title: 'Thiết lập tổ chức',
+    checklist: 'Danh sách thiết lập',
+    watch: 'Khả năng vận hành của Super Admin',
+    departments: 'Phòng ban',
+    accounts: 'Tài khoản và trách nhiệm',
+    personnel: 'Nhân sự',
+    settings: 'Cấu hình vận hành',
+    audit: 'Nhật ký kiểm toán',
+    operations: 'Giám sát quy trình',
+    steps: {
+      ORGANIZATION: 'Tổ chức',
+      EMPLOYEES: 'Nhân viên',
+      ACCOUNTS: 'Tài khoản',
+      ROLES: 'Trách nhiệm',
+      CATALOG: 'Danh mục phần mềm'
+    },
+    ready: 'Sẵn sàng',
+    missing: 'Cần cấu hình',
+    warning: 'Cần kiểm tra',
+    watchStates: {
+      HEALTHY: 'Sẵn sàng',
+      HOLDER_LEAVING_STILL_USABLE: 'Đang bàn giao · vẫn có thể thao tác',
+      HOLDER_UNUSABLE: 'Người giữ vai chưa thể thao tác',
+      NO_HOLDER: 'Chưa có người giữ vai'
+    },
+    warnings: {
+      HOLDER_LEAVING: 'Người giữ vai đang bàn giao trách nhiệm.',
+      HANDOVER_OVERDUE: 'Đã qua ngày làm việc cuối. Cần hoàn tất bàn giao.'
+    },
+    reasons: {
+      LOCKED: 'Tài khoản bị khóa',
+      LEFT: 'Nhân sự đã nghỉ việc',
+      NOT_ACTIVATED: 'Chưa kích hoạt lời mời',
+      AWAITING_CREDENTIAL_RESET: 'Đang chờ đặt lại thông tin đăng nhập'
+    }
+  },
+  parameters: {
+    title: 'Tham số vận hành',
+    futureOnly: 'Thay đổi áp dụng cho công việc tạo từ nay. Công việc đang chạy giữ nguyên giá trị ban đầu.',
+    key: 'Tham số',
+    value: 'Giá trị hiện hành',
+    default: 'Mặc định',
+    unit: 'Đơn vị',
+    history: 'Lịch sử',
+    edit: 'Cập nhật tham số',
+    numericArray: 'Nhập các số cách nhau bằng dấu phẩy.',
+    invalid: 'Nhập giá trị đúng kiểu dữ liệu của tham số.',
+    olderHistory: 'Phản hồi này chưa bao gồm các thay đổi cũ hơn.',
+    changed: 'Thời điểm thay đổi'
+  },
+  settings: {
+    title: 'Cấu hình hệ thống',
+    holidays: 'Ngày nghỉ',
+    date: 'Ngày',
+    reason: 'Lý do',
+    addDate: 'Thêm ngày nghỉ',
+    renameDate: 'Đổi tên ngày nghỉ',
+    removeDate: 'Xóa ngày nghỉ',
+    confirmRemove: 'Xóa ngày này khỏi lịch nghỉ?',
+    currency: 'Tiền tệ báo cáo',
+    currencyImpact: 'Tiền tệ sẽ bị khóa khi đã có tỷ giá hoặc giá được quy đổi.',
+    currencySave: 'Đặt tiền tệ báo cáo',
+    from: 'Từ ngày',
+    to: 'Đến ngày'
+  },
+  audit: {
+    placeholders: {
+      resourceType: 'Nhập loại tài nguyên, ví dụ Department',
+      resourceId: 'Nhập mã tài nguyên cần tìm',
+      actorAppUserId: 'Nhập mã tài khoản thực hiện',
+      action: 'Nhập mã hành động cần tìm'
+    },
+    title: 'Nhật ký kiểm toán',
+    resourceType: 'Loại tài nguyên',
+    resourceId: 'Mã tài nguyên',
+    actor: 'Mã tài khoản thực hiện',
+    action: 'Hành động',
+    from: 'Từ thời điểm',
+    to: 'Đến thời điểm (không bao gồm)',
+    apply: 'Áp dụng bộ lọc',
+    occurred: 'Thời điểm',
+    before: 'Trước thay đổi',
+    after: 'Sau thay đổi',
+    correlation: 'Mã liên kết sự kiện',
+    actorKinds: { USER: 'Người dùng', SYSTEM: 'Hệ thống', OPERATOR: 'Vận hành' }
+  },
+  operations: {
+    title: 'Giám sát quy trình',
+    waits: 'Đang chờ cấu hình',
+    congestion: 'Trách nhiệm bị tắc nghẽn',
+    incident: 'Ghi nhận sự cố',
+    holder: 'Mã nhân viên giữ bước',
+    description: 'Mô tả',
+    request: 'Yêu cầu',
+    since: 'Chờ từ',
+    department: 'Phòng ban',
+    waitingSteps: 'Bước đang chờ',
+    overdueSteps: 'Bước quá hạn',
+    reminders: 'Lượt đã nhắc',
+    incidentHistory: 'Sự cố đã ghi nhận',
+    waitReasons: {
+      NO_SPENDING_APPROVER: 'Cấu hình Người duyệt chi.',
+      NO_FALLBACK_APPROVER: 'Cấu hình người duyệt dự phòng.',
+      FALLBACK_IS_REQUESTER: 'Người duyệt dự phòng là người yêu cầu. Cần cấu hình người thay thế.',
+      NO_CONFLICT_SUBSTITUTE: 'Cấu hình người thay khi xung đột.',
+      NO_FINANCE_REVIEWER: 'Chỉ định nhân sự Finance đủ điều kiện.',
+      NO_IT_ADMIN_IN_CHARGE: 'Chỉ định IT Admin phụ trách phòng.'
+    },
+    stepKinds: {
+      NEED: 'Duyệt nhu cầu',
+      FINANCE_REVIEW: 'Finance rà soát',
+      SPEND_APPROVAL: 'Duyệt chi',
+      IT_ASSESSMENT: 'IT đánh giá'
+    }
+  }
+} as const

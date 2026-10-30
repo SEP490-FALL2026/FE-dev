@@ -1,9 +1,14 @@
 .DS_Store
+
+# Local environment values must never be committed (applies in every directory).
 .env
 .env.*
-.index.md
+# Commit only the shared template with non-sensitive example values.
 !.env.example
+
+.index.md
 /node_modules/
+/.pnpm-store/
 
 # React Router
 /.react-router/

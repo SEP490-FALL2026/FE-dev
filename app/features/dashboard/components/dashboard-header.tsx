@@ -46,31 +46,37 @@ export function DashboardHeader({
           )}
         </button>
 
-        <div className='relative ml-auto hidden w-full max-w-md sm:block'>
-          <Search
-            aria-hidden='true'
-            className='pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground'
-          />
-          <input
-            aria-label={t('header.searchLabel')}
-            className='h-11 w-full rounded-xl border border-border bg-surface pr-4 pl-10 text-sm outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-3 focus:ring-primary-soft'
-            placeholder={t('header.searchPlaceholder')}
-            type='search'
-          />
-        </div>
+        {role !== 'super-admin' && (
+          <div className='relative ml-auto hidden w-full max-w-md sm:block'>
+            <Search
+              aria-hidden='true'
+              className='pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground'
+            />
+            <input
+              aria-label={t('header.searchLabel')}
+              className='h-11 w-full rounded-xl border border-border bg-surface pr-4 pl-10 text-sm outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-3 focus:ring-primary-soft'
+              placeholder={t('header.searchPlaceholder')}
+              type='search'
+            />
+          </div>
+        )}
 
-        <ThemeSwitch />
+        <div className={role === 'super-admin' ? 'ml-auto' : ''}>
+          <ThemeSwitch />
+        </div>
         <LanguageSwitch />
-        <button
-          aria-label={t('header.notifications')}
-          className='relative grid size-10 shrink-0 place-items-center rounded-xl border border-border bg-surface text-muted-foreground transition hover:border-primary hover:text-primary'
-          type='button'
-        >
-          <Bell aria-hidden='true' className='size-[1.125rem]' />
-          <span className='absolute -top-1 -right-1 grid size-5 place-items-center rounded-full bg-danger text-[0.6rem] font-bold text-white'>
-            {notificationCount}
-          </span>
-        </button>
+        {role !== 'super-admin' && (
+          <button
+            aria-label={t('header.notifications')}
+            className='relative grid size-10 shrink-0 place-items-center rounded-xl border border-border bg-surface text-muted-foreground transition hover:border-primary hover:text-primary'
+            type='button'
+          >
+            <Bell aria-hidden='true' className='size-[1.125rem]' />
+            <span className='absolute -top-1 -right-1 grid size-5 place-items-center rounded-full bg-danger text-[0.6rem] font-bold text-white'>
+              {notificationCount}
+            </span>
+          </button>
+        )}
 
         <button
           aria-current={isEmployee && activeEmployeeTab === 'profile' ? 'page' : undefined}

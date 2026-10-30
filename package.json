@@ -7,7 +7,7 @@
     "api:generate": "pnpm api:validate && orval --config ./orval.config.ts",
     "api:validate": "node ./scripts/validate-openapi.mjs ./openapi/openapi.yaml",
     "api:watch": "pnpm api:validate && orval --config ./orval.config.ts --watch",
-    "build": "react-router build",
+    "build": "react-router build --mode product",
     "check": "pnpm prettier && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
     "dev": "react-router dev",
     "lint": "eslint .",
@@ -31,7 +31,8 @@
     "react-dom": "^19.2.7",
     "react-i18next": "^17.0.11",
     "react-router": "^7.18.4",
-    "recharts": "^3.10.1"
+    "recharts": "^3.10.1",
+    "sonner": "^2.0.8"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

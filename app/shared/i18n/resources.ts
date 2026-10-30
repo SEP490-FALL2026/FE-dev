@@ -1,4 +1,8 @@
 import { auth as enAuth } from './locales/en/auth'
+import { admin as enAdmin } from './locales/en/admin'
+import { adminAccounts as enAdminAccounts } from './locales/en/admin-accounts'
+import { adminOrganization as enAdminOrganization } from './locales/en/admin-organization'
+import { adminPersonnel as enAdminPersonnel } from './locales/en/admin-personnel'
 import { common as enCommon } from './locales/en/common'
 import { dashboard as enDashboard } from './locales/en/dashboard'
 import { errors as enErrors } from './locales/en/errors'
@@ -6,6 +10,10 @@ import { landing as enLanding } from './locales/en/landing'
 import { notFound as enNotFound } from './locales/en/not-found'
 import { theme as enTheme } from './locales/en/theme'
 import { auth as viAuth } from './locales/vi/auth'
+import { admin as viAdmin } from './locales/vi/admin'
+import { adminAccounts as viAdminAccounts } from './locales/vi/admin-accounts'
+import { adminOrganization as viAdminOrganization } from './locales/vi/admin-organization'
+import { adminPersonnel as viAdminPersonnel } from './locales/vi/admin-personnel'
 import { common as viCommon } from './locales/vi/common'
 import { dashboard as viDashboard } from './locales/vi/dashboard'
 import { errors as viErrors } from './locales/vi/errors'
@@ -17,6 +25,10 @@ export const defaultNS = 'common' as const
 
 export const resources = {
   en: {
+    admin: enAdmin,
+    adminAccounts: enAdminAccounts,
+    adminOrganization: enAdminOrganization,
+    adminPersonnel: enAdminPersonnel,
     auth: enAuth,
     common: enCommon,
     dashboard: enDashboard,
@@ -26,6 +38,10 @@ export const resources = {
     theme: enTheme
   },
   vi: {
+    admin: viAdmin,
+    adminAccounts: viAdminAccounts,
+    adminOrganization: viAdminOrganization,
+    adminPersonnel: viAdminPersonnel,
     auth: viAuth,
     common: viCommon,
     dashboard: viDashboard,

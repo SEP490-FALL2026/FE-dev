@@ -7,11 +7,9 @@ import { itAdminUsageImportExtra } from './it-admin-usageImport-extra'
 import { itAdminShadowItExtra } from './it-admin-shadowIt-extra'
 import { itAdminReconciliationExtra } from './it-admin-reconciliation-extra'
 import { spendDashboard } from './dashboard-spend'
-import { superAdmin } from './super-admin'
 import { teamRequests } from './team-requests'
 
 export const dashboard = {
-  superAdmin,
   teamRequests,
   financeDemo: {
     units: { seats: '{{value}} suất', servers: '{{value}} máy chủ', developers: '{{value}} nhà phát triển' },
@@ -24,7 +22,8 @@ export const dashboard = {
       operationsBudgetQuestion: 'Ngân sách Vận hành cho Miro Team?',
       opsBudgetShortfall: 'Ngân sách quý 4 của CC-OPS còn 768.000 ₫ sau cam kết đang giữ; yêu cầu cần 31.680.000 ₫.',
       hubspotOutsideCatalog: 'HubSpot chưa có trong danh mục được phép; Quản trị CNTT đang đánh giá.',
-      engineeringToolsShortfall: 'Nhóm Công cụ phát triển của CC-ENG còn 4.200.000 ₫; Snyk Team cần 18.600.000 ₫ cho quý 4.',
+      engineeringToolsShortfall:
+        'Nhóm Công cụ phát triển của CC-ENG còn 4.200.000 ₫; Snyk Team cần 18.600.000 ₫ cho quý 4.',
       engineeringTopUpNote: 'Đề xuất bổ sung từ buffer năm của Phòng Kỹ thuật; bắt buộc sau sự cố bảo mật tháng 9.',
       expiredBudgetYear: 'Yêu cầu dùng ngân sách năm 2025 đã hết hiệu lực.',
       transferTo2026Budget: 'Chuyển sang ngân sách năm 2026 của CC-SAL.',

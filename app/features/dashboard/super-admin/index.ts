@@ -25,12 +25,6 @@ export { SuperAdminSettingsView } from './settings/views/super-admin-settings-vi
 
 // Shared
 export { useSuperAdminTabs } from './shared/hooks/use-super-admin-tabs'
-export * from './super-admin-data'
 export * from './super-admin-nav'
-export {
-  USER_ACCOUNT_ROLES,
-  ACCOUNT_STATUSES,
-  DEVICE_TYPES,
-  DEVICE_TRACKING_STATUSES,
-  DEPARTMENT_STATUSES
-} from './enums'
+export { SuperAdminOperationsView } from './operations/views/super-admin-operations-view'
+export { SuperAdminScreen } from './super-admin-screen'

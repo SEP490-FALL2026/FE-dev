@@ -1,8 +1,10 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useSyncExternalStore, type ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Navigate, useLocation } from 'react-router'
 
 import type { UserRole } from '~/entities/user-role/user-role'
-import { getAuthSession } from '../auth-session'
+import { PageLoading } from '~/shared/ui/page-loading'
+import { getAuthState, initializeAuthSession, subscribeAuthSession } from '../auth-session'
 import { ForbiddenPage } from '../views/forbidden-page'
 
 interface RoleGuardProps {
@@ -12,51 +14,35 @@ interface RoleGuardProps {
 
 export function RoleGuard({ requiredRole, children }: RoleGuardProps) {
   const location = useLocation()
-  const [mounted, setMounted] = useState(false)
+  const { t } = useTranslation('auth')
+  const state = useSyncExternalStore(subscribeAuthSession, getAuthState, getAuthState)
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  // In test environment without explicit session, bypass to maintain test backward compatibility
-  const isTest = typeof process !== 'undefined' && process.env.NODE_ENV === 'test'
-  const session = getAuthSession()
-
-  if (isTest && !session) {
-    return <>{children}</>
+  if (state.status === 'checking') {
+    return <PageLoading message={t('session.checking')} />
   }
-
-  // Before hydration on client, render nothing or children safely
-  if (!mounted && typeof window !== 'undefined') {
-    // If there is an explicit session in sessionStorage already:
-    const clientSession = getAuthSession()
-    if (clientSession && clientSession.role !== requiredRole) {
-      return (
-        <ForbiddenPage
-          attemptedRole={requiredRole}
-          currentUserRole={clientSession.role as UserRole}
-        />
-      )
-    }
-  }
-
-  // 1. Authentication check
-  if (!session) {
-    const redirectUrl = `/login?redirectTo=${encodeURIComponent(location.pathname + location.search)}`
-    return <Navigate replace to={redirectUrl} />
-  }
-
-  // 2. Authorization / RBAC check
-  const currentRole = session.role as UserRole
-  if (currentRole !== requiredRole) {
+  if (state.status === 'unavailable') {
     return (
-      <ForbiddenPage
-        attemptedRole={requiredRole}
-        currentUserRole={currentRole}
-      />
+      <main className='grid min-h-screen place-items-center bg-background px-5'>
+        <div className='max-w-sm text-center'>
+          <p role='alert' className='text-sm text-foreground'>
+            {t('session.unavailable')}
+          </p>
+          <button
+            type='button'
+            className='mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground'
+            onClick={() => void initializeAuthSession()}
+          >
+            {t('session.retry')}
+          </button>
+        </div>
+      </main>
     )
   }
-
-  // Authorized
+  if (!state.session) {
+    return <Navigate replace to={`/login?redirectTo=${encodeURIComponent(location.pathname + location.search)}`} />
+  }
+  if (!state.session.roles.includes(requiredRole)) {
+    return <ForbiddenPage attemptedRole={requiredRole} currentUserRole={state.session.role} />
+  }
   return <>{children}</>
 }

@@ -1,5 +1,9 @@
 export const common = {
   brand: 'SaaS-Sentry',
+  notifications: {
+    label: 'Thông báo',
+    close: 'Đóng thông báo'
+  },
   language: {
     english: 'Tiếng Anh',
     englishShort: 'EN',
