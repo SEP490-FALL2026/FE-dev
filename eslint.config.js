@@ -9,7 +9,7 @@ import { globalIgnores } from 'eslint/config'
 import noHardcodedUiText from './eslint-rules/no-hardcoded-ui-text.cjs'
 
 export default tseslint.config([
-  globalIgnores(['dist', 'build', 'coverage', '.react-router', 'app/shared/api/generated/**']),
+  globalIgnores(['dist', 'build', 'coverage', '.react-router', '.pnpm-store', 'app/shared/api/generated/**']),
   ...query.configs['flat/recommended'],
   {
     files: ['**/*.{ts,tsx}'],

@@ -1,64 +1,90 @@
+import { AxiosHeaders } from 'axios'
 import { render, screen } from '@testing-library/react'
-import { MemoryRouter } from 'react-router'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { MemoryRouter, Route, Routes } from 'react-router'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-import { setAuthSession, clearAuthSession } from '../auth-session'
-import { demoAccounts } from '../demo-accounts'
+import { apiClient } from '~/shared/api/axios-client'
+import { createQueryClient } from '~/shared/api/query-client'
+import { AppProviders } from '~/providers/app-providers'
+import { clearAuthSession, configureAuthQueryClient, login } from '../auth-session'
 import { RoleGuard } from './role-guard'
 
-describe('RoleGuard RBAC Security', () => {
+function renderGuard(role: 'employee' | 'super-admin') {
+  return render(
+    <MemoryRouter initialEntries={[`/dashboard/${role}`]}>
+      <AppProviders>
+        <Routes>
+          <Route
+            path='/dashboard/:role'
+            element={
+              <RoleGuard requiredRole={role}>
+                <output data-testid='protected-workspace' />
+              </RoleGuard>
+            }
+          />
+          <Route path='/login' element={<output data-testid='login-target' />} />
+        </Routes>
+      </AppProviders>
+    </MemoryRouter>
+  )
+}
+
+describe('RoleGuard', () => {
+  const previousAdapter = apiClient.defaults.adapter
+
   beforeEach(() => {
     clearAuthSession()
+    sessionStorage.clear()
+    configureAuthQueryClient(createQueryClient())
+  })
+  afterEach(() => {
+    apiClient.defaults.adapter = previousAdapter
+    configureAuthQueryClient(null)
   })
 
-  it('renders protected content when the user role matches the required role', () => {
-    const itAdminAccount = demoAccounts.find((acc) => acc.role === 'it-admin')!
-    setAuthSession(itAdminAccount)
-
-    render(
-      <MemoryRouter initialEntries={['/dashboard/it-admin']}>
-        <RoleGuard requiredRole='it-admin'>
-          <div data-testid='protected-content'>IT Admin Content</div>
-        </RoleGuard>
-      </MemoryRouter>
-    )
-
-    expect(screen.getByTestId('protected-content')).toBeInTheDocument()
-    expect(screen.queryByText(/403/i)).not.toBeInTheDocument()
+  it('redirects a guest to login without rendering protected content', () => {
+    renderGuard('employee')
+    expect(screen.getByTestId('login-target')).toBeInTheDocument()
+    expect(screen.queryByTestId('protected-workspace')).not.toBeInTheDocument()
   })
 
-  it('blocks access and displays 403 Forbidden when an employee tries to access super-admin', () => {
-    const employeeAccount = demoAccounts.find((acc) => acc.role === 'employee')!
-    setAuthSession(employeeAccount)
+  it('accepts a role in /me effective roles and blocks another role', async () => {
+    apiClient.defaults.adapter = async (config) => ({
+      config,
+      data: config.url?.endsWith('/me')
+        ? {
+            success: true,
+            message: 'ME.RETRIEVED',
+            data: {
+              appUserId: 'u1',
+              loginEmail: 'person@example.com',
+              employee: { id: 'e1', employeeCode: '001', fullName: 'Person', department: null, jobTitle: null },
+              roles: { direct: ['EMPLOYEE'], derived: [], effective: ['EMPLOYEE'] },
+              selfServiceOnly: false
+            }
+          }
+        : {
+            success: true,
+            message: 'AUTH.LOGGED_IN',
+            data: {
+              accessToken: 'access',
+              refreshToken: 'refresh',
+              tokenType: 'Bearer',
+              expiresAt: new Date(Date.now() + 600_000).toISOString(),
+              refreshExpiresAt: new Date(Date.now() + 3_600_000).toISOString()
+            }
+          },
+      headers: new AxiosHeaders(),
+      status: 200,
+      statusText: 'OK'
+    })
+    await login('person@example.com', 'secret')
 
-    render(
-      <MemoryRouter initialEntries={['/dashboard/super-admin']}>
-        <RoleGuard requiredRole='super-admin'>
-          <div data-testid='protected-content'>Super Admin Confidential Content</div>
-        </RoleGuard>
-      </MemoryRouter>
-    )
-
-    // Confidential content must NOT be rendered
-    expect(screen.queryByTestId('protected-content')).not.toBeInTheDocument()
-    // 403 Forbidden UI must be rendered
+    const allowed = renderGuard('employee')
+    expect(screen.getByTestId('protected-workspace')).toBeInTheDocument()
+    allowed.unmount()
+    renderGuard('super-admin')
     expect(screen.getByText(/403/i)).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /forbiddenAction|Về trang tổng quan của tôi|Back to my dashboard/i })).toBeInTheDocument()
-  })
-
-  it('blocks access and displays 403 Forbidden when manager tries to access finance dashboard', () => {
-    const managerAccount = demoAccounts.find((acc) => acc.role === 'manager')!
-    setAuthSession(managerAccount)
-
-    render(
-      <MemoryRouter initialEntries={['/dashboard/finance']}>
-        <RoleGuard requiredRole='finance'>
-          <div data-testid='finance-content'>Finance Ledger Content</div>
-        </RoleGuard>
-      </MemoryRouter>
-    )
-
-    expect(screen.queryByTestId('finance-content')).not.toBeInTheDocument()
-    expect(screen.getByText(/403/i)).toBeInTheDocument()
+    expect(screen.queryByTestId('protected-workspace')).not.toBeInTheDocument()
   })
 })

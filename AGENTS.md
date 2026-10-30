@@ -1,6 +1,6 @@
 # SaaS-Sentry Frontend Agent Guide & Quy Chuẩn Phát Triển (Source of Truth)
 
-File này là **nguồn chân lý hoạt động (operational source of truth)** cho tất cả lập trình viên và các AI coding agent làm việc trong codebase frontend này. Mọi thay đổi về cấu trúc, luồng dữ liệu hoặc bổ sung tính năng mới **BẮT BUỘC** phải đọc và tuân thủ tuyệt đối các quy tắc trong tài liệu này và [ARCHITECTURE.md](file:///c:/fe_capstone/FE-dev-main/ARCHITECTURE.md).
+File này là **nguồn chân lý hoạt động (operational source of truth)** cho tất cả lập trình viên và các AI coding agent làm việc trong codebase frontend này. Mọi thay đổi về cấu trúc, luồng dữ liệu hoặc bổ sung tính năng mới **BẮT BUỘC** phải đọc và tuân thủ tuyệt đối các quy tắc trong tài liệu này, [ARCHITECTURE.md](file:///c:/fe_capstone/FE-dev-main/ARCHITECTURE.md) và [UI_UX_DESIGN_GUIDELINES.md](file:///c:/fe_capstone/FE-dev-main/UI_UX_DESIGN_GUIDELINES.md).
 
 ---
 
@@ -17,6 +17,11 @@ File này là **nguồn chân lý hoạt động (operational source of truth)**
   - Orval 8 (tự động sinh OpenAPI client, react-query hooks, Faker factories, MSW handlers).
   - Vitest & Testing Library (kiểm thử unit & component).
   - TypeScript strict mode, ESLint flat config, Prettier, pnpm.
+- **Tương thích Đa tác tử AI (Multi-Agent Support)**:
+  - **OpenAI Codex**: Cấu hình tại [CODEX.md](file:///c:/fe_capstone/FE-dev-main/CODEX.md) và [.codex/instructions.md](file:///c:/fe_capstone/FE-dev-main/.codex/instructions.md).
+  - **GitHub Copilot**: Cấu hình tại [.github/copilot-instructions.md](file:///c:/fe_capstone/FE-dev-main/.github/copilot-instructions.md).
+  - **Claude / Cursor / Windsurf / Gemini**: Cấu hình tại `CLAUDE.md`, `.cursor/rules/`, `.windsurfrules`, `GEMINI.md`.
+  - Toàn bộ các Agent đều phải tuân thủ nghiêm ngặt bộ quy tắc thiết kế UI tại [UI_UX_DESIGN_GUIDELINES.md](file:///c:/fe_capstone/FE-dev-main/UI_UX_DESIGN_GUIDELINES.md).
 
 ---
 
@@ -51,6 +56,7 @@ app/shared      -> Tầng hạ tầng dùng chung (i18n, UI primitives, utils, A
 ```
 
 ### Chiều phụ thuộc được phép (Dependency Rules):
+
 ```text
 routes -> features -> entities -> shared
    |          |                     ^
@@ -71,11 +77,20 @@ providers --------------------------+
 2. **Không sửa tay code trong `app/shared/api/generated/`**: Toàn bộ thư mục này là code tự sinh bởi Orval từ `openapi/openapi.yaml`. Mọi thay đổi API contract phải sửa trong `openapi.yaml` rồi chạy `pnpm api:generate`.
 3. **Phân biệt môi trường Test & Production**: Chỉ import Faker factories và MSW handlers trong các file test (`*.test.tsx`, `*.test.ts`). Không import vào code logic của ứng dụng.
 4. **Bảo mật**: Các biến môi trường `VITE_*` là public trên client bundle, tuyệt đối không lưu secret, private key vào đây. Phân quyền và kiểm tra hợp lệ cuối cùng bắt buộc phải được NestJS backend kiểm soát.
-5. **HTTP client dùng chung**: Orval sinh React Query hooks với Axios qua `app/shared/api/mutator/custom-axios.ts` và `app/shared/api/axios-client.ts`. Không tự tạo Axios instance riêng trong từng feature. Interceptor chỉ gắn token từ auth adapter đã đăng ký; hiện phiên đăng nhập demo chưa có token BE. Khi BE công bố contract refresh, tích hợp adapter bằng endpoint/kiểu dữ liệu thực, dùng `skipAuth` và `skipAuthRefresh` cho request xác thực, tránh refresh đệ quy và retry quá một lần. Không tự đoán URL refresh hoặc lưu token lâu dài vào `localStorage`.
+5. **HTTP client dùng chung**: Orval sinh React Query hooks với Axios qua `app/shared/api/mutator/custom-axios.ts` và `app/shared/api/axios-client.ts`. Không tự tạo Axios instance riêng trong từng feature. Interceptor gắn token từ auth adapter trong `auth-session.ts`; login/refresh dùng endpoint và kiểu dữ liệu BE đã sinh. Theo yêu cầu lưu phiên của Owner, token pair và hạn dùng lưu dạng JSON tại `localStorage['saas-sentry.auth-tokens']`, khôi phục khi mở lại web, thay thế sau refresh và xóa khi logout/phiên không hợp lệ. Phiên cũ từ `sessionStorage` được chuyển sau refresh thành công; khi storage bị chặn, dùng fallback sessionStorage/bộ nhớ. Dùng `skipAuth` và `skipAuthRefresh` cho request xác thực, tránh refresh đệ quy và retry quá một lần. Không tự đoán URL refresh, log hoặc hiển thị token.
 
 ---
 
 ## 5. Quy chuẩn Đa ngôn ngữ (Strict Zero-Hardcoded-Text Policy)
+
+### Thông báo thao tác bắt buộc qua toast
+
+- Dùng **Sonner** (`import { toast } from 'sonner'`) cho phản hồi thành công/thất bại của thao tác: đăng nhập, lưu, gửi, xóa, phê duyệt, xuất dữ liệu. **Không tạo khối alert/context/banner cố định trong layout để báo kết quả thao tác**, không dùng `window.alert`.
+- `AppToaster` ở `app/shared/ui/app-toaster.tsx` được gắn **một lần** trong `AppProviders`; không gắn Toaster riêng trong page/modal. Toaster dùng theme/i18n hiện hành, tự ẩn sau 5 giây, có nút đóng và tối đa 3 thông báo. Chỉ điều chỉnh cấu hình chung khi có lý do UX cụ thể.
+- Gọi toast trong callback `onSuccess`/`onError` của mutation hoặc handler sở hữu thao tác. Không phát toast trong render, effect theo dõi cờ mutation, Axios interceptor hoặc đồng thời nhiều tầng gây thông báo trùng. Chỉ báo thành công sau khi BE xác nhận; mọi nội dung phải dịch đủ VI/EN, ánh xạ mã lỗi sang key frontend, không hiển thị message BE thô hoặc token.
+- Dùng `id` ổn định cho kết quả cùng thao tác để tránh xếp chồng lỗi lặp. `requestId` có thể đặt trong description; không nhét chi tiết kỹ thuật dài vào toast.
+- **Phân biệt validation/trạng thái trang:** lỗi gắn với ô nhập được phép có hướng dẫn ngắn tại ô đó, `aria-invalid` và mô tả liên kết đúng. Loading, empty, mất kết nối khi tải trang, thiếu quyền hoặc liên kết hết hạn vẫn cần trạng thái trang cùng hành động retry/điều hướng; toast không thay thế các trạng thái này. Không hiển thị lại cùng thông báo thao tác bằng cả toast và banner.
+- Giữ `isPending`, spinner, `disabled` và chặn gửi lặp. Với `Retry-After`, hiển thị countdown ở nút để người dùng biết khi nào thử lại dù toast đã ẩn. Lỗi không xóa dữ liệu người dùng vừa nhập.
 
 > **CẤM TUYỆT ĐỐI HARDCODE TEXT TRONG GIAO DIỆN**: Bất kỳ chuỗi văn bản nào hiển thị tới mắt người dùng (tiếng Việt hay tiếng Anh) xuất hiện trực tiếp trong file `.tsx` đều bị coi là **VI PHẠM QUY CHUẨN**.
 
@@ -157,14 +172,15 @@ app/features/dashboard/<role>/
    - `index.ts`: Barrel export toàn bộ views, components, hooks, enums của Employee.
 
 2. **Super Admin (`app/features/dashboard/super-admin/`)**:
-   - `overview/`: Chỉ số điều hành hệ thống cấp cao toàn tổ chức.
-   - `accounts/`: Quản lý tài khoản người dùng, phân quyền vai trò đặc biệt, định danh thiết bị máy tính (Workstation binding).
+   - `overview/`: Tiến độ khởi tạo, số liệu API, cảnh báo gom theo phòng, checklist mở rộng và tình trạng người giữ vai Super Admin từ BE. Không tính bước `NOT_AVAILABLE` vào tiến độ; thao tác theo cảnh báo phải mở đúng đối tượng qua URL, không thêm dãy nút điều hướng trùng sidebar.
+   - `accounts/`: Tài khoản đăng nhập, lời mời, khóa/mở, vai trực tiếp, trách nhiệm phê duyệt và bàn giao Super Admin.
    - `departments/`: Quản lý danh sách phòng ban, chỉ số thống kê và quản lý người phụ trách.
-   - `personnel/`: Danh bạ nhân sự, đồng bộ trạng thái nhân sự.
-   - `reminders/`: Cấu hình chính sách và mô phỏng gửi email nhắc nhở tự động.
+   - `personnel/`: Hồ sơ chính thức, import hai bước, nghỉ dài hạn, nghỉ việc và thông báo BM-09.
+   - `reminders/`: Đọc, sửa và xem lịch sử tham số vận hành theo danh sách key của BE.
    - `audit/`: Nhật ký kiểm toán hệ thống (Audit Trail).
-   - `transfer/`: Bàn giao và chuyển giao tài sản số.
-   - `settings/`: Cấu hình hệ thống chung.
+   - `transfer/`: Ghi, đổi lịch, hủy sự kiện điều chuyển phòng ban.
+   - `settings/`: Lịch nghỉ và tiền tệ báo cáo.
+   - `operations/`: Chờ cấu hình, bước tắc nghẽn và ghi nhận sự cố.
    - `shared/`: Hooks dùng chung (`useSuperAdminTabs`).
    - `index.ts`: Barrel export toàn bộ views, helpers, enums của Super Admin.
 
@@ -250,6 +266,7 @@ app/features/dashboard/<role>/
    - Nếu component hoặc kiểu dữ liệu được dùng chung giữa 2 Role khác nhau, thành phần đó phải được đưa lên tầng `app/entities/` hoặc `app/shared/`.
 
 ### 7.4 Lợi ích & Nguyên tắc cốt lõi:
+
 1. **Tính Đóng gói Cao (High Cohesion & Encapsulation)**: Mọi thứ liên quan đến một tính năng (giao diện, logic, modal, hooks, enums) đều nằm trọn vẹn trong thư mục của tính năng đó.
 2. **Khả năng Mở rộng Không Giới Hạn (Enterprise Scalability)**: Khi doanh nghiệp mở rộng thêm các tính năng mới cho Role, lập trình viên/agent chỉ cần thêm một thư mục sub-feature mới mà không làm ảnh hưởng hay gây phình to thư mục của các tính năng khác.
 3. **Dễ Kiểm Thử & Loại Bỏ (Isolated Testing & Deprecation)**: Khi cần xoá bỏ hoặc nâng cấp một chức năng cũ, chỉ cần thao tác trên đúng thư mục của chức năng đó, không để lại code rác (dead code) ở các thư mục dùng chung.
@@ -261,6 +278,10 @@ app/features/dashboard/<role>/
 ---
 
 ## 8. Cấu trúc Route & Bảo mật Phân quyền (RBAC Route Guard)
+
+- Route dashboard import `DashboardEntry`; component này lazy-load `DashboardPage` và phải nằm bên trong `RoleGuard` để không tải workspace trước khi xác thực/phân quyền. Không import trực tiếp `DashboardPage` vào route.
+- Giữ timeout mặc định của HTTP client (15 giây/request). Query `/me` dùng cho login/khôi phục phiên không tự retry, dùng `networkMode: 'always'` để không pause vô hạn khi browser offline; lỗi mạng giữ token để người dùng thử lại. Không biến màn hình kiểm tra phiên thành trạng thái chờ vô hạn.
+- Tailwind chỉ dò class trong `app/`. Không mở rộng quét về root chứa tài liệu, skill và cache; UI ngoài `app/` cần khai báo `@source` cụ thể.
 
 Ứng dụng triển khai hệ thống route phân tách rõ ràng và bảo vệ đa tầng theo chuẩn RBAC:
 
@@ -280,6 +301,7 @@ app/routes/
 ```
 
 ### Cơ chế Bảo vệ RBAC bắt buộc:
+
 1. **Lưu phiên đăng nhập**: Khi đăng nhập tại `/login`, session người dùng được lưu thông qua `setAuthSession()` trong `app/features/auth/auth-session.ts`.
 2. **Bộ bảo vệ `RoleGuard`**:
    - Mỗi file route dashboard **bắt buộc** phải bọc component trong `<RoleGuard requiredRole="...">`.
@@ -301,6 +323,7 @@ Mỗi khi nhận nhiệm vụ code hoặc refactor, Agent **BẮT BUỘC** phả
 - [ ] **Kiểm tra tích hợp BE**: Đối chiếu OpenAPI và kiểu sinh ra; không giữ fixture, `Date.now()` hoặc thay đổi state cục bộ như kết quả ghi dữ liệu thật. Kiểm tra quyền thao tác, query key, phân trang, lọc, cập nhật cache và các trạng thái loading/error/empty/success.
 - [ ] **Kiểm tra code clean & hiệu năng**: Tên biến diễn đạt ý nghĩa; không lặp logic; không tạo abstraction chỉ dùng một lần; kiểm tra chi phí render, request trùng, dữ liệu lớn và cleanup tác vụ bất đồng bộ.
 - [ ] **Kiểm tra tương tác bất đồng bộ**: Nút gửi/ghi/xóa/xuất dữ liệu có trạng thái pending, chặn thao tác lặp, có chỉ báo loading dễ nhận biết và phản hồi lỗi/thành công đúng kết quả BE.
+- [ ] **Kiểm tra UI/UX Design System**: Bắt buộc tuân thủ toàn diện các quy chuẩn trong [UI_UX_DESIGN_GUIDELINES.md](file:///c:/fe_capstone/FE-dev-main/UI_UX_DESIGN_GUIDELINES.md): duy nhất 1 Primary CTA trên một viewport, số/tiền/ngày căn phải (`text-right tabular-nums font-mono`), không văn mẫu AI, không dùng Emoji làm icon, bo góc đồng tâm ($R_{\text{in}} = R_{\text{out}} - P$), khóa khung App Shell (`h-screen overflow-hidden`) và chuyển đổi responsive Card Stack trên mobile.
 - [ ] **Chạy Typecheck**: Chạy `pnpm typecheck` thành công với **0 lỗi TypeScript**.
 - [ ] **Chạy Unit Test**: Chạy `pnpm vitest run <path-to-test>` đảm bảo toàn bộ test case liên quan đều **Passed (100%)**.
 - [ ] **Đồng bộ tài liệu**: Cập nhật thay đổi kiến trúc vào `ARCHITECTURE.md` và `AGENTS.md` bằng tiếng Việt rõ ràng.
@@ -309,7 +332,11 @@ Mỗi khi nhận nhiệm vụ code hoặc refactor, Agent **BẮT BUỘC** phả
 
 ## 10. Trạng thái hiện tại và nguyên tắc chuyển từ UI mẫu sang BE
 
-**Hiện trạng (10/2026):** Nhiều màn hình nghiệp vụ đang dùng fixture/`INITIAL_*` và cập nhật `useState` để mô phỏng thao tác. Ví dụ `super-admin/accounts/hooks/use-super-admin-accounts.ts` tự tạo/sửa tài khoản và thiết bị trong bộ nhớ; tải lại trang sẽ mất thay đổi. `app/shared/api/generated/` hiện chỉ có API `system`. Không mô tả các luồng này là đã tích hợp BE, không hiện thông báo thành công như thể BE đã lưu dữ liệu.
+**Hiện trạng (30/10/2026):** Auth và Super Admin đã sử dụng API generated từ OpenAPI snapshot; Orval lọc các tag khai báo trong `orval.config.ts`, gồm auth/me và các nhóm tổ chức, tài khoản, sự kiện nhân sự, import, vận hành, audit. Các role khác vẫn còn fixture/`INITIAL_*`; không mô tả chúng là đã tích hợp BE. Super Admin không còn `super-admin-data.ts`, enum demo, định danh workstation hoặc mô phỏng gửi nhắc. Fixture chỉ nằm trong test. Tham khảo thiết kế và kế hoạch tích hợp tại `docs/superpowers/`.
+
+- Super Admin phân biệt `status = ACTIVE | LOCKED` và `activationState = INVITED | ACTIVATED`. Vai trực tiếp do API quản lý; `MANAGER` suy ra từ trưởng phòng và `SPENDING_APPROVER` suy ra từ trách nhiệm phê duyệt. Chuyển giao Super Admin đi qua endpoint riêng, sau đó đọc lại `/me`; auth đồng bộ quyền khi query `/me` cập nhật thành công.
+- `super-admin/shared/` chứa form, tra cứu nhân viên/phòng, phân trang, trạng thái tải và phản hồi mutation dùng chung giữa các slice; không import component của slice khác. Mutation nhân sự invalidate các danh sách, chi tiết đã cache, checklist/watch và nguồn chọn nhân viên bị ảnh hưởng. Lỗi ghi không rõ kết quả phải đọc lại dữ liệu; chỉ xác nhận import dùng lại idempotency key cho cùng ý định.
+- Không có API danh bạ nhân viên toàn cục: dùng thành viên phòng phân trang, tài khoản phân trang và `accountCandidatesList(search)` (không phân trang) cho picker; giữ nhập mã định danh chính thức khi không có bản ghi có thể chọn. Không tự dựng endpoint, không tải trang đầu rồi coi là toàn bộ danh bạ.
 
 Khi nối một chức năng với BE, agent phải đi theo luồng sau:
 
@@ -345,7 +372,7 @@ export type AccountStatus = (typeof ACCOUNT_STATUS)[keyof typeof ACCOUNT_STATUS]
 3. **Tái sử dụng theo nhu cầu có thật**: Logic chung giữa hai chức năng cùng role đặt ở `<role>/shared/`; domain chung giữa role đặt ở `entities/`; primitive không có nghiệp vụ đặt ở `shared/`. Trích xuất hook/helper khi có ít nhất hai nơi dùng hoặc một luồng đủ phức tạp cần kiểm thử/tách trách nhiệm. Không tạo “generic hook” với nhiều cờ boolean, callback tùy ý hoặc abstraction che mất nghiệp vụ.
 4. **Hook linh động bằng đầu vào rõ ràng**: Hook danh sách nhận filter, page, sort hoặc options có type; không hardcode role, ID, trang đầu tiên, kích thước trang hay endpoint vào hook có ý định dùng lại. Tách hook query, mutation và UI state khi lifecycle khác nhau. Hook phải trả trạng thái và hành động có tên cụ thể, không để component biết chi tiết request/cache.
 5. **Loại bỏ magic value và trùng lặp**: Mã status, giới hạn nghiệp vụ, query key, thông điệp lỗi và route quan trọng có nguồn định nghĩa phù hợp; không rải string/number trong nhiều view. Không đưa mọi literal vào `enums/`: cấu hình UI, constant số và type có trách nhiệm riêng. Đặt type ở gần nơi sở hữu, ưu tiên kiểu suy ra từ contract, tránh `any`, non-null assertion và type cast để che dữ liệu chưa được kiểm tra.
-6. **Đọc và sửa dễ**: Ưu tiên early return, điều kiện có tên, hàm thuần cho tính toán, props cụ thể và thứ tự code nhất quán. Xóa dead code, comment mô tả *lý do* thay vì thuật lại từng dòng; không để handler demo giả vờ đã lưu dữ liệu. Mỗi thay đổi chỉ refactor phần liên quan, tránh mở rộng phạm vi không cần thiết.
+6. **Đọc và sửa dễ**: Ưu tiên early return, điều kiện có tên, hàm thuần cho tính toán, props cụ thể và thứ tự code nhất quán. Xóa dead code, comment mô tả _lý do_ thay vì thuật lại từng dòng; không để handler demo giả vờ đã lưu dữ liệu. Mỗi thay đổi chỉ refactor phần liên quan, tránh mở rộng phạm vi không cần thiết.
 
 ## 13. Hiệu năng và tương tác bất đồng bộ
 
@@ -360,3 +387,32 @@ export type AccountStatus = (typeof ACCOUNT_STATUS)[keyof typeof ACCOUNT_STATUS]
 - Test mapper/status và fallback cho mã không biết; test hook hoặc component với các trạng thái loading, empty, error/retry, success và mutation pending để xác nhận chặn double submit.
 - Dùng MSW cho hành vi request/cache/invalidation khi có API; fixture có type chỉ dùng trong test hoặc preview được ghi nhãn. Không dùng test chỉ lặp lại implementation; ưu tiên hành vi người dùng và contract có rủi ro.
 - Sau khi nối BE, chạy `pnpm api:validate`, `pnpm api:generate` nếu contract đổi, test liên quan, `pnpm typecheck` và `pnpm check` trước khi bàn giao. Nêu rõ phần nào vẫn là UI preview, endpoint nào còn thiếu và mọi kiểm tra chưa chạy được.
+
+---
+
+## 15. Quy chuẩn Thiết kế Giao diện & Ràng buộc UI/UX Chống lỗi AI (UI/UX Guardrails)
+
+Mọi component và trang giao diện trong dự án **BẮT BUỘC** phải tuân thủ hướng dẫn chi tiết tại [UI_UX_DESIGN_GUIDELINES.md](file:///c:/fe_capstone/FE-dev-main/UI_UX_DESIGN_GUIDELINES.md). Dưới đây là 8 nguyên tắc cốt lõi:
+
+1. **Khóa khung App Shell**: Toàn bộ ứng dụng chạy trên layout khóa màn hình (`h-screen overflow-hidden flex`). Chỉ vùng nội dung `main` được cuộn dọc (`overflow-y-auto`). Cấm để body cuộn tự do làm xô lệch Header và Sidebar.
+2. **Đơn nhất Primary CTA**: Trên mỗi màn hình/modal chỉ có duy nhất 1 nút hành động chính (`bg-primary text-primary-foreground`). Các nút còn lại bắt buộc dùng `variant="outline"` hoặc `ghost`. Cấm spam 3 nút [Sửa][Xóa][Chi tiết] trên từng dòng bảng; phải gom vào nút `...` (Dropdown Menu).
+3. **Căn lề dữ liệu nghiêm ngặt**:
+   - Chữ, tên, mô tả: `text-left`.
+   - Số lượng, giá tiền, ngày tháng, mã ID: `text-right tabular-nums font-mono`.
+   - Cột hành động: Ghim sát lề phải (`text-right sticky right-0`).
+   - Mọi chuỗi văn bản biến thiên phải bọc `truncate` kèm `title={...}` để không làm vỡ grid.
+4. **Bố cục Form khoa học**: Không tạo form 1 cột kéo dài 800px vô lý. Gom nhóm các trường liên quan thành hàng 2 cột (`grid-cols-2`). Form ngắn (1-3 trường) dùng Modal; Form trung bình (4-10 trường) dùng Slide-over Drawer mép phải; Quy trình dài (> 10 trường) chuyển thành sub-route chuyên biệt.
+5. **Bo góc đồng tâm & Nguồn sáng tự nhiên**:
+   - Bán kính góc trong phải tuân thủ công thức $R_{\text{inner}} = R_{\text{outer}} - \text{Padding}$. Cấm đặt `rounded-xl` cho cả cha lẫn con.
+   - Hạn chế `rounded-full` (chỉ dùng cho Avatar và micro-badge). Ưu tiên chuẩn B2B sắc nét: `rounded-md` (6px) hoặc `rounded-lg` (8px).
+   - Dùng nguồn sáng từ trên xuống với viền trên sáng hơn nhẹ hoặc highlight mờ; đường viền dùng alpha (`border-black/[0.08]` hoặc `border-white/[0.12]`), cấm dùng mã HEX chết.
+6. **Chống rung giật tương tác (Zero Layout Shift)**:
+   - Cấm đổi từ `border-1` sang `border-2` hoặc đổi font chữ khi hover. Giữ nguyên kích thước pixel và chỉ đổi màu nền/màu viền nhẹ nhàng (`hover:bg-surface-subtle transition-colors duration-150`).
+   - Cấm dùng `hover:scale-105` làm rung lắc thẻ dữ liệu.
+7. **Xóa sổ Văn mẫu AI & Chuẩn hóa Icon**:
+   - Cấm tuyệt đối các từ vựng AI sáo rỗng: "Unleash", "Elevate", "Seamless", "Supercharge", "Next-Gen", "Dive in" và cấm dấu chấm than (!) ở tiêu đề/thông báo.
+   - Cấm viết các đoạn mô tả dài dòng, thừa thãi dưới tiêu đề rõ nghĩa.
+   - 100% icon dùng `lucide-react` đồng nhất `strokeWidth={1.5}`. Cấm tuyệt đối dùng Emoji (🚀, 🔥, 💡) làm icon chức năng.
+8. **Responsive Mobile chuẩn mực**:
+   - Dưới màn hình `md`, bảng biểu lớn tự động chuyển đổi thành Card Stack (`md:hidden`) hoặc cuộn ngang an toàn.
+   - Kích thước vùng bấm tối thiểu 44x44px trên mobile. Ô nhập liệu khai báo `text-base md:text-sm` để ngăn chặn hiện tượng tự động zoom trên iOS Safari.

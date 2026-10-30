@@ -1,297 +1,205 @@
-import {
-  Download,
-  Laptop,
-  Shield,
-  UserPlus,
-  Users
-} from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { PageHeader } from '../../../dashboard-ui'
-import { AccountsSubtabView } from '../components/accounts-subtab-view'
-import { RolesSubtabView } from '../components/roles-subtab-view'
-import { DevicesSubtabView } from '../components/devices-subtab-view'
-import { AccountsModals } from '../components/accounts-modals'
+import {
+  AppUserListActivationState,
+  AppUserListEmployeeLeft,
+  AppUserListRole,
+  AppUserListStatus
+} from '~/shared/api/generated/model'
+import { AdminField, adminButtonClass, adminInputClass, adminPrimaryClass } from '../../shared/components/admin-form'
+import { AdminQueryState, AdminEmpty } from '../../shared/components/admin-query-state'
+import { AdminPagination } from '../../shared/components/admin-pagination'
 import { useSuperAdminAccounts } from '../hooks/use-super-admin-accounts'
-import type { DeviceType } from '../../enums'
+import { AccountInviteDialog } from '../components/account-invite-dialog'
+import { AccountDetailModal } from '../components/account-detail-modal'
+import { RolesSubtabView } from '../components/roles-subtab-view'
+import { accountStatuses } from '../enums/account-status'
+import { activationStates } from '../enums/activation-state'
 
 export function SuperAdminAccountsView() {
-  const { t } = useTranslation('dashboard')
-  const {
-    accounts,
-    activeSubTab,
-    departmentFilter,
-    departments,
-    devFormCode,
-    devFormEmployeeId,
-    devFormError,
-    devFormMac,
-    devFormOs,
-    devFormType,
-    deviceModalExistingDevice,
-    deviceModalTargetAccount,
-    deviceSearchTerm,
-    deviceTypeFilter,
-    devices,
-    editEmail,
-    editName,
-    editPosition,
-    filteredAccounts,
-    formError,
-    handleCopyText,
-    handleCreateAccount,
-    handleEditAccount,
-    handleExportAccountsCsv,
-    handleOpenDeviceModal,
-    handleResendInvitation,
-    handleRoleChange,
-    handleSaveDeviceBinding,
-    handleToggleLock,
-    handleUnbindDevice,
-    isChangeRoleModalOpen,
-    isCreateModalOpen,
-    isDeviceModalOpen,
-    isEditModalOpen,
-    isLockModalOpen,
-    lockReason,
-    newCode,
-    newDepartmentId,
-    newEmail,
-    newName,
-    newPosition,
-    nextStepPrompt,
-    roleChangeReason,
-    roleFilter,
-    searchTerm,
-    selectedAccount,
-    setActiveSubTab,
-    setDepartmentFilter,
-    setDevFormCode,
-    setDevFormEmployeeId,
-    setDevFormMac,
-    setDevFormOs,
-    setDevFormType,
-    setDeviceSearchTerm,
-    setDeviceTypeFilter,
-    setEditEmail,
-    setEditName,
-    setEditPosition,
-    setIsChangeRoleModalOpen,
-    setIsCreateModalOpen,
-    setIsDeviceModalOpen,
-    setIsEditModalOpen,
-    setIsLockModalOpen,
-    setLockReason,
-    setNewCode,
-    setNewDepartmentId,
-    setNewEmail,
-    setNewName,
-    setNewPosition,
-    setNextStepPrompt,
-    setRoleChangeReason,
-    setRoleFilter,
-    setSearchTerm,
-    setSelectedAccount,
-    setTargetDeptIdForManager,
-    setTargetRole,
-    statusFilter,
-    targetDeptIdForManager,
-    targetRole,
-    toastMessage
-  } = useSuperAdminAccounts()
-
+  const { t: translate } = useTranslation('adminAccounts')
+  const state = useSuperAdminAccounts()
+  const { query, filters } = state
+  const data = query.data?.data
   return (
-    <div className='space-y-6'>
-      {toastMessage && (
-        <div className='fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-2xl border border-success/40 bg-surface/95 px-5 py-3.5 shadow-2xl backdrop-blur-xl animate-[slideUp_0.3s_ease-out]'>
-          <span className='size-2 rounded-full bg-success' />
-          <span className='text-sm font-semibold text-foreground'>{toastMessage}</span>
-        </div>
-      )}
-
-      <PageHeader
-        actions={
-          <div className='flex items-center gap-2'>
-            <button
-              className='inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-semibold text-foreground hover:bg-surface-subtle transition shadow-sm'
-              onClick={handleExportAccountsCsv}
-              type='button'
-            >
-              <Download className='size-3.5' />
-              <span>{t('superAdmin.accounts.exportCsv')}</span>
-            </button>
-            <button
-              className='inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-semibold text-foreground hover:bg-surface-subtle transition shadow-sm'
-              onClick={() => handleOpenDeviceModal()}
-              type='button'
-            >
-              <Laptop className='size-3.5' />
-              <span>{t('superAdmin.accounts.deviceBinding')}</span>
-            </button>
-            <button
-              className='inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground shadow-sm hover:bg-primary-hover transition'
-              onClick={() => {
-                setNewCode('')
-                setNewName('')
-                setNewEmail('')
-                setNewPosition('')
-                setNewDepartmentId('')
-                setIsCreateModalOpen(true)
-              }}
-              type='button'
-            >
-              <UserPlus className='size-3.5' />
-              <span>{t('superAdmin.accounts.addAccount')}</span>
-            </button>
-          </div>
-        }
-        code={t('superAdmin.accounts.headerCode')}
-        subtitle={t('superAdmin.accounts.headerSubtitle')}
-        title={t('superAdmin.accounts.headerTitle')}
-      />
-
-      <div className='flex flex-wrap items-center gap-2 border-b border-border pb-3'>
-        <button
-          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
-            activeSubTab === 'accounts'
-              ? 'bg-primary text-primary-foreground shadow-sm'
-              : 'text-muted-foreground hover:bg-surface-subtle hover:text-foreground'
-          }`}
-          onClick={() => setActiveSubTab('accounts')}
-          type='button'
-        >
-          <Users className='size-4' />
-          <span>{t('superAdmin.accounts.tabs.accounts', { count: accounts.length })}</span>
-        </button>
-
-        <button
-          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
-            activeSubTab === 'roles'
-              ? 'bg-primary text-primary-foreground shadow-sm'
-              : 'text-muted-foreground hover:bg-surface-subtle hover:text-foreground'
-          }`}
-          onClick={() => setActiveSubTab('roles')}
-          type='button'
-        >
-          <Shield className='size-4' />
-          <span>{t('superAdmin.accounts.tabs.roles')}</span>
-        </button>
-
-        <button
-          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
-            activeSubTab === 'devices'
-              ? 'bg-primary text-primary-foreground shadow-sm'
-              : 'text-muted-foreground hover:bg-surface-subtle hover:text-foreground'
-          }`}
-          onClick={() => setActiveSubTab('devices')}
-          type='button'
-        >
-          <Laptop className='size-4' />
-          <span>{t('superAdmin.accounts.tabs.devices', { count: devices.length })}</span>
-        </button>
+    <section className='space-y-5'>
+      <header className='flex flex-wrap items-center justify-between gap-4'>
+        <h1 className='text-2xl font-semibold [text-wrap:balance]'>{translate('title')}</h1>
+        {state.tab === 'accounts' && (
+          <button className={adminPrimaryClass} onClick={() => state.setInviteOpen(true)}>
+            {translate('invite')}
+          </button>
+        )}
+      </header>
+      <div role='tablist' aria-label={translate('title')} className='flex gap-2 border-b border-border pb-3'>
+        {(['accounts', 'responsibilities'] as const).map((tab) => (
+          <button
+            key={tab}
+            role='tab'
+            aria-selected={state.tab === tab}
+            className={`${adminButtonClass} ${state.tab === tab ? 'border-primary text-primary' : ''}`}
+            onClick={() => state.setTab(tab)}
+          >
+            {translate(tab === 'accounts' ? 'list' : 'responsibilities')}
+          </button>
+        ))}
       </div>
-
-      {activeSubTab === 'accounts' && (
-        <AccountsSubtabView
-          accounts={accounts}
-          departmentFilter={departmentFilter}
-          departments={departments}
-          devices={devices}
-          filteredAccounts={filteredAccounts}
-          onExportCsv={handleExportAccountsCsv}
-          onOpenCreateModal={() => setIsCreateModalOpen(true)}
-          onOpenDeviceModal={handleOpenDeviceModal}
-          onSelectAccount={(acc) => setSelectedAccount(acc)}
-          roleFilter={roleFilter}
-          searchTerm={searchTerm}
-          setDepartmentFilter={setDepartmentFilter}
-          setRoleFilter={setRoleFilter}
-          setSearchTerm={setSearchTerm}
-          statusFilter={statusFilter}
-        />
+      {state.tab === 'accounts' ? (
+        <>
+          <div className='grid gap-3 sm:grid-cols-2 xl:grid-cols-4'>
+            <AdminField label={translate('status')}>
+              <select
+                className={adminInputClass}
+                value={filters.status ?? ''}
+                onChange={(event) =>
+                  state.changeFilter({
+                    status: AppUserListStatus[event.target.value as keyof typeof AppUserListStatus]
+                  })
+                }
+              >
+                <option value=''>{translate('all')}</option>
+                {accountStatuses.map((status) => (
+                  <option key={status} value={status}>
+                    {translate(`statuses.${status}`)}
+                  </option>
+                ))}
+              </select>
+            </AdminField>
+            <AdminField label={translate('activation')}>
+              <select
+                className={adminInputClass}
+                value={filters.activationState ?? ''}
+                onChange={(event) =>
+                  state.changeFilter({
+                    activationState:
+                      AppUserListActivationState[event.target.value as keyof typeof AppUserListActivationState]
+                  })
+                }
+              >
+                <option value=''>{translate('all')}</option>
+                {activationStates.map((status) => (
+                  <option key={status} value={status}>
+                    {translate(`activationStates.${status}`)}
+                  </option>
+                ))}
+              </select>
+            </AdminField>
+            <AdminField label={translate('role')}>
+              <select
+                className={adminInputClass}
+                value={filters.role ?? ''}
+                onChange={(event) =>
+                  state.changeFilter({ role: AppUserListRole[event.target.value as keyof typeof AppUserListRole] })
+                }
+              >
+                <option value=''>{translate('all')}</option>
+                {Object.values(AppUserListRole).map((role) => (
+                  <option key={role} value={role}>
+                    {translate(`roles.${role}`)}
+                  </option>
+                ))}
+              </select>
+            </AdminField>
+            <AdminField label={translate('employment')}>
+              <select
+                className={adminInputClass}
+                value={filters.employeeLeft ?? ''}
+                onChange={(event) =>
+                  state.changeFilter({
+                    employeeLeft: AppUserListEmployeeLeft[event.target.value as keyof typeof AppUserListEmployeeLeft]
+                  })
+                }
+              >
+                <option value=''>{translate('all')}</option>
+                <option value='false'>{translate('working')}</option>
+                <option value='true'>{translate('left')}</option>
+              </select>
+            </AdminField>
+          </div>
+          <AdminQueryState query={query}>
+            {!data?.items.length ? (
+              <AdminEmpty />
+            ) : (
+              <div className='md:overflow-x-auto md:rounded-lg md:border md:border-border'>
+                <table className='block w-full text-left text-sm md:table'>
+                  <thead className='hidden bg-surface-subtle text-xs text-muted-foreground md:table-header-group'>
+                    <tr>
+                      {(['employee', 'loginEmail', 'status', 'activation', 'directRoles', 'actions'] as const).map(
+                        (key) => (
+                          <th key={key} className='px-4 py-3 font-medium'>
+                            {translate(key)}
+                          </th>
+                        )
+                      )}
+                    </tr>
+                  </thead>
+                  <tbody className='grid gap-3 md:table-row-group md:divide-y md:divide-border'>
+                    {data.items.map((account) => (
+                      <tr
+                        key={account.id}
+                        className='grid rounded-lg border border-border bg-surface p-4 md:table-row md:rounded-none md:border-0 md:p-0'
+                      >
+                        <td className='block min-w-0 py-2 md:table-cell md:px-4 md:py-3'>
+                          <span className='block max-w-64 truncate font-medium' title={account.employee?.fullName}>
+                            {account.employee?.fullName ?? translate('none')}
+                          </span>
+                          <span className='block text-right font-mono text-xs tabular-nums text-muted-foreground'>
+                            {account.employee?.employeeCode}
+                          </span>
+                        </td>
+                        <td className='block min-w-0 py-2 md:table-cell md:px-4 md:py-3'>
+                          <span className='block max-w-64 truncate' title={account.loginEmail}>
+                            {account.loginEmail}
+                          </span>
+                        </td>
+                        <td className='block py-2 md:table-cell md:px-4 md:py-3'>
+                          <span className='mr-2 text-xs text-muted-foreground md:hidden'>{translate('status')}</span>
+                          {accountStatuses.includes(account.status)
+                            ? translate(`statuses.${account.status}`)
+                            : translate('unknown')}
+                        </td>
+                        <td className='block py-2 md:table-cell md:px-4 md:py-3'>
+                          <span className='mr-2 text-xs text-muted-foreground md:hidden'>
+                            {translate('activation')}
+                          </span>
+                          {activationStates.includes(account.activationState)
+                            ? translate(`activationStates.${account.activationState}`)
+                            : translate('unknown')}
+                        </td>
+                        <td className='block py-2 md:table-cell md:px-4 md:py-3'>
+                          <span className='mr-2 text-xs text-muted-foreground md:hidden'>
+                            {translate('directRoles')}
+                          </span>
+                          {account.roles
+                            .map((role) =>
+                              Object.values(AppUserListRole).includes(role)
+                                ? translate(`roles.${role}`)
+                                : translate('unknown')
+                            )
+                            .join(', ')}
+                        </td>
+                        <td className='block bg-surface py-2 text-right md:sticky md:right-0 md:table-cell md:px-4 md:py-3'>
+                          <button className={adminButtonClass} onClick={() => state.setSelectedId(account.id)}>
+                            {translate('details')}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </AdminQueryState>
+          <AdminPagination
+            pagination={data?.pagination}
+            disabled={query.isFetching}
+            onPageChange={(page) => state.setFilters((previous) => ({ ...previous, page }))}
+          />
+        </>
+      ) : (
+        <RolesSubtabView />
       )}
-
-      {activeSubTab === 'roles' && (
-        <RolesSubtabView accounts={accounts} onSelectAccount={(acc) => setSelectedAccount(acc)} />
-      )}
-
-      {activeSubTab === 'devices' && (
-        <DevicesSubtabView
-          accounts={accounts}
-          deviceSearchTerm={deviceSearchTerm}
-          deviceTypeFilter={deviceTypeFilter}
-          devices={devices}
-          onOpenDeviceModal={handleOpenDeviceModal}
-          onUnbindDevice={handleUnbindDevice}
-          setDeviceSearchTerm={setDeviceSearchTerm}
-          setDeviceTypeFilter={setDeviceTypeFilter}
-        />
-      )}
-
-      <AccountsModals
-        accounts={accounts}
-        devFormCode={devFormCode}
-        devFormEmployeeId={devFormEmployeeId}
-        devFormError={devFormError}
-        devFormMac={devFormMac}
-        devFormOs={devFormOs}
-        devFormType={devFormType as DeviceType}
-        departments={departments}
-        deviceModalExistingDevice={deviceModalExistingDevice}
-        deviceModalTargetAccount={deviceModalTargetAccount}
-        devices={devices}
-        editEmail={editEmail}
-        editName={editName}
-        editPosition={editPosition}
-        formError={formError}
-        handleCopyText={handleCopyText}
-        handleCreateAccount={handleCreateAccount}
-        handleEditAccount={handleEditAccount}
-        handleOpenDeviceModal={handleOpenDeviceModal}
-        handleResendInvitation={handleResendInvitation}
-        handleRoleChange={handleRoleChange}
-        handleSaveDeviceBinding={handleSaveDeviceBinding}
-        handleToggleLock={handleToggleLock}
-        isChangeRoleModalOpen={isChangeRoleModalOpen}
-        isCreateModalOpen={isCreateModalOpen}
-        isDeviceModalOpen={isDeviceModalOpen}
-        isEditModalOpen={isEditModalOpen}
-        isLockModalOpen={isLockModalOpen}
-        lockReason={lockReason}
-        newCode={newCode}
-        newDepartmentId={newDepartmentId}
-        newEmail={newEmail}
-        newName={newName}
-        newPosition={newPosition}
-        nextStepPrompt={nextStepPrompt}
-        roleChangeReason={roleChangeReason}
-        selectedAccount={selectedAccount}
-        setDevFormCode={setDevFormCode}
-        setDevFormEmployeeId={setDevFormEmployeeId}
-        setDevFormMac={setDevFormMac}
-        setDevFormOs={setDevFormOs}
-        setDevFormType={setDevFormType}
-        setEditEmail={setEditEmail}
-        setEditName={setEditName}
-        setEditPosition={setEditPosition}
-        setIsChangeRoleModalOpen={setIsChangeRoleModalOpen}
-        setIsCreateModalOpen={setIsCreateModalOpen}
-        setIsDeviceModalOpen={setIsDeviceModalOpen}
-        setIsEditModalOpen={setIsEditModalOpen}
-        setIsLockModalOpen={setIsLockModalOpen}
-        setLockReason={setLockReason}
-        setNewCode={setNewCode}
-        setNewDepartmentId={setNewDepartmentId}
-        setNewEmail={setNewEmail}
-        setNewName={setNewName}
-        setNewPosition={setNewPosition}
-        setNextStepPrompt={setNextStepPrompt}
-        setRoleChangeReason={setRoleChangeReason}
-        setSelectedAccount={setSelectedAccount}
-        setTargetDeptIdForManager={setTargetDeptIdForManager}
-        setTargetRole={setTargetRole}
-        targetDeptIdForManager={targetDeptIdForManager}
-        targetRole={targetRole}
-      />
-    </div>
+      {state.inviteOpen && <AccountInviteDialog onClose={() => state.setInviteOpen(false)} />}
+      {state.selectedId && <AccountDetailModal id={state.selectedId} onClose={() => state.setSelectedId(null)} />}
+    </section>
   )
 }

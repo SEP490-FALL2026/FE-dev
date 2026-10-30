@@ -1,10 +1,12 @@
 node_modules/
+.pnpm-store/
 dist/
 build/
 .react-router/
 coverage/
 .vercel/
 .agents/skills/
+openapi/openapi.yaml
 Figma UI-UX/
 Requiments/
 Diagrams/

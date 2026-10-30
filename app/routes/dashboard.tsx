@@ -1,5 +1,5 @@
 import { RoleGuard } from '~/features/auth/components/role-guard'
-import { DashboardPage } from '~/features/dashboard/dashboard-page'
+import { DashboardEntry } from '~/features/dashboard/dashboard-entry'
 import { NotFoundPage } from '~/features/not-found/not-found-page'
 import { parseUserRole } from '~/entities/user-role/user-role'
 
@@ -14,7 +14,7 @@ export default function DashboardRoute({ params }: Route.ComponentProps) {
 
   return (
     <RoleGuard requiredRole={role}>
-      <DashboardPage role={role} />
+      <DashboardEntry role={role} />
     </RoleGuard>
   )
 }

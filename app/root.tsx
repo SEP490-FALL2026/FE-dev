@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router'
 
 import { AppProviders } from '~/providers/app-providers'
+import { PageLoading } from '~/shared/ui/page-loading'
 
 import type { Route } from './+types/root'
 import './app.css'
@@ -45,11 +46,7 @@ export default function App() {
 export function HydrateFallback() {
   const { t } = useTranslation('errors')
 
-  return (
-    <main className='grid min-h-screen place-items-center p-6'>
-      <p className='text-sm text-muted-foreground'>{t('loading')}</p>
-    </main>
-  )
+  return <PageLoading message={t('loading')} />
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

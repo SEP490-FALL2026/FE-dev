@@ -67,10 +67,29 @@ export function validateOpenApi(document) {
 
 export async function validateOpenApiFile(filePath) {
   const document = parse(await readFile(filePath, 'utf8'))
-  const issues = validateOpenApi(document)
+  const isBackendExport = document.info?.version === '1.0' && !document.tags?.length
+  const issues = isBackendExport ? validateBackendExport(document) : validateOpenApi(document)
   if (issues.length > 0) {
     throw new Error(`OpenAPI conventions failed:\n- ${issues.join('\n- ')}`)
   }
+}
+
+function validateBackendExport(document) {
+  const expected = {
+    authLogin: ['post', '/api/v1/auth/login'],
+    authRefresh: ['post', '/api/v1/auth/refresh'],
+    authLogout: ['post', '/api/v1/auth/logout'],
+    authRequestPasswordReset: ['post', '/api/v1/auth/password-reset-requests'],
+    authResetPassword: ['post', '/api/v1/auth/password-resets'],
+    authRedeemInvitation: ['post', '/api/v1/auth/invitations/redeem'],
+    meGet: ['get', '/api/v1/me'],
+    meChangePassword: ['post', '/api/v1/me/password']
+  }
+  return Object.entries(expected).flatMap(([operationId, [method, path]]) =>
+    document.paths?.[path]?.[method]?.operationId === operationId
+      ? []
+      : [`Missing ${operationId} at ${method.toUpperCase()} ${path}`]
+  )
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {

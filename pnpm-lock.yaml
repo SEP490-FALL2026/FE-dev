@@ -7,6 +7,11 @@ settings:
 overrides:
   '@vercel/static-config@3.4.1>ajv': 8.20.0
 
+patchedDependencies:
+  '@react-router/dev@7.18.4':
+    hash: 102439f3eccdbd291c590b1bb64acb979303b60255ea309406825b827cbf0a4f
+    path: patches/@react-router__dev@7.18.4.patch
+
 importers:
   .:
     dependencies:
@@ -46,6 +51,9 @@ importers:
       recharts:
         specifier: ^3.10.1
         version: 3.10.1(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react-is@17.0.2)(react@19.2.8)(redux@5.0.1)
+      sonner:
+        specifier: ^2.0.8
+        version: 2.0.8(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
     devDependencies:
       '@eslint/js':
         specifier: ^10.0.1
@@ -55,7 +63,7 @@ importers:
         version: 10.5.0
       '@react-router/dev':
         specifier: ^7.18.4
-        version: 7.18.4(@types/node@22.20.1)(jiti@2.7.0)(lightningcss@1.33.0)(react-router@7.18.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(typescript@5.9.3)(vite@8.2.1(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(yaml@2.9.0)
+        version: 7.18.4(patch_hash=102439f3eccdbd291c590b1bb64acb979303b60255ea309406825b827cbf0a4f)(@types/node@22.20.1)(jiti@2.7.0)(lightningcss@1.33.0)(react-router@7.18.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(typescript@5.9.3)(vite@8.2.1(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(yaml@2.9.0)
       '@tailwindcss/vite':
         specifier: ^4.2.2
         version: 4.3.3(vite@8.2.1(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))
@@ -79,7 +87,7 @@ importers:
         version: 19.2.4(@types/react@19.2.18)
       '@vercel/react-router':
         specifier: ^1.3.6
-        version: 1.3.6(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(@react-router/dev@7.18.4(@types/node@22.20.1)(jiti@2.7.0)(lightningcss@1.33.0)(react-router@7.18.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(typescript@5.9.3)(vite@8.2.1(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(yaml@2.9.0))(@react-router/node@7.18.4(react-router@7.18.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(typescript@5.9.3))(isbot@5.2.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+        version: 1.3.6(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(@react-router/dev@7.18.4(patch_hash=102439f3eccdbd291c590b1bb64acb979303b60255ea309406825b827cbf0a4f)(@types/node@22.20.1)(jiti@2.7.0)(lightningcss@1.33.0)(react-router@7.18.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(typescript@5.9.3)(vite@8.2.1(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(yaml@2.9.0))(@react-router/node@7.18.4(react-router@7.18.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(typescript@5.9.3))(isbot@5.2.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       eslint:
         specifier: ^10.8.1
         version: 10.8.1(jiti@2.7.0)
@@ -3346,6 +3354,17 @@ packages:
       { integrity: sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw== }
     engines: { node: '>=14' }
 
+  sonner@2.0.8:
+    resolution:
+      { integrity: sha512-UM/ByIoFra8yzV75n1o0Puu0bw5U/9UNnDacrJNspekBewIfsQ3D6ez1nvlWpt7aTsO6rujQtifBpycwIivqlg== }
+    peerDependencies:
+      '@types/react': ^18.0.0 || ^19.0.0
+      react: ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+      react-dom: ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
   source-map-js@1.2.1:
     resolution:
       { integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA== }
@@ -4504,7 +4523,7 @@ snapshots:
 
   '@oxc-project/types@0.143.0': {}
 
-  '@react-router/dev@7.18.4(@types/node@22.20.1)(jiti@2.7.0)(lightningcss@1.33.0)(react-router@7.18.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(typescript@5.9.3)(vite@8.2.1(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(yaml@2.9.0)':
+  '@react-router/dev@7.18.4(patch_hash=102439f3eccdbd291c590b1bb64acb979303b60255ea309406825b827cbf0a4f)(@types/node@22.20.1)(jiti@2.7.0)(lightningcss@1.33.0)(react-router@7.18.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(typescript@5.9.3)(vite@8.2.1(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(yaml@2.9.0)':
     dependencies:
       '@babel/core': 7.29.7
       '@babel/generator': 7.29.8
@@ -5033,9 +5052,9 @@ snapshots:
       '@typescript-eslint/types': 8.66.0
       eslint-visitor-keys: 5.0.1
 
-  '@vercel/react-router@1.3.6(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(@react-router/dev@7.18.4(@types/node@22.20.1)(jiti@2.7.0)(lightningcss@1.33.0)(react-router@7.18.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(typescript@5.9.3)(vite@8.2.1(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(yaml@2.9.0))(@react-router/node@7.18.4(react-router@7.18.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(typescript@5.9.3))(isbot@5.2.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
+  '@vercel/react-router@1.3.6(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)(@react-router/dev@7.18.4(patch_hash=102439f3eccdbd291c590b1bb64acb979303b60255ea309406825b827cbf0a4f)(@types/node@22.20.1)(jiti@2.7.0)(lightningcss@1.33.0)(react-router@7.18.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(typescript@5.9.3)(vite@8.2.1(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(yaml@2.9.0))(@react-router/node@7.18.4(react-router@7.18.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(typescript@5.9.3))(isbot@5.2.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
     dependencies:
-      '@react-router/dev': 7.18.4(@types/node@22.20.1)(jiti@2.7.0)(lightningcss@1.33.0)(react-router@7.18.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(typescript@5.9.3)(vite@8.2.1(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(yaml@2.9.0)
+      '@react-router/dev': 7.18.4(patch_hash=102439f3eccdbd291c590b1bb64acb979303b60255ea309406825b827cbf0a4f)(@types/node@22.20.1)(jiti@2.7.0)(lightningcss@1.33.0)(react-router@7.18.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(typescript@5.9.3)(vite@8.2.1(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.0))(yaml@2.9.0)
       '@react-router/node': 7.18.4(react-router@7.18.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(typescript@5.9.3)
       '@vercel/static-config': 3.4.3(@emnapi/core@1.11.3)(@emnapi/runtime@1.11.3)
       isbot: 5.2.1
@@ -6365,6 +6384,13 @@ snapshots:
   siginfo@2.0.0: {}
 
   signal-exit@4.1.0: {}
+
+  sonner@2.0.8(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8):
+    dependencies:
+      react: 19.2.8
+      react-dom: 19.2.8(react@19.2.8)
+    optionalDependencies:
+      '@types/react': 19.2.18
 
   source-map-js@1.2.1: {}
 
