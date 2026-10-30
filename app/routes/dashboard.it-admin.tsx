@@ -1,10 +1,10 @@
 import { RoleGuard } from '~/features/auth/components/role-guard'
-import { DashboardPage } from '~/features/dashboard/dashboard-page'
+import { DashboardEntry } from '~/features/dashboard/dashboard-entry'
 
 export default function ItAdminDashboardRoute() {
   return (
     <RoleGuard requiredRole='it-admin'>
-      <DashboardPage role='it-admin' />
+      <DashboardEntry role='it-admin' />
     </RoleGuard>
   )
 }

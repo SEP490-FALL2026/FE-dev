@@ -2,13 +2,12 @@ import type { UserRole } from '~/entities/user-role/user-role'
 
 export type RoleProfile = { displayName: string; initials: string }
 
-export const roleProfiles: Record<UserRole, RoleProfile> = {
+export const roleProfiles: Record<Exclude<UserRole, 'super-admin'>, RoleProfile> = {
   employee: { displayName: 'Đức Anh', initials: 'ĐA' },
   finance: { displayName: 'Ngọc Lan', initials: 'NL' },
   'it-admin': { displayName: 'Quang Huy', initials: 'QH' },
   manager: { displayName: 'Thu Hà', initials: 'TH' },
-  'spending-approver': { displayName: 'Hoàng Nam', initials: 'HN' },
-  'super-admin': { displayName: 'Minh Anh', initials: 'MA' }
+  'spending-approver': { displayName: 'Hoàng Nam', initials: 'HN' }
 }
 
 export const notificationCount = 3

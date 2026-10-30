@@ -1,0 +1,16 @@
+.admin-overview-hero {
+  color: var(--theme-background);
+  background: color-mix(in oklab, var(--theme-foreground) 94%, var(--theme-primary));
+  box-shadow: 0 8px 24px color-mix(in oklab, var(--theme-foreground) 10%, transparent);
+}
+
+[data-theme='dark'] .admin-overview-hero {
+  color: var(--theme-foreground);
+  background: color-mix(in oklab, var(--theme-surface) 80%, var(--theme-primary));
+}
+
+.admin-overview-surface {
+  background: var(--theme-surface);
+  border: 1px solid color-mix(in oklab, var(--theme-foreground) 12%, transparent);
+  box-shadow: 0 1px 3px color-mix(in oklab, var(--theme-foreground) 4%, transparent);
+}

@@ -1,6 +1,6 @@
-Read AGENTS.md and ARCHITECTURE.md before changing code. Keep routes thin and obey
-routes -> features -> entities -> shared. Generate app/shared/api/generated with
-pnpm api:generate; never edit generated files or pnpm-lock.yaml manually. Keep
-Faker/MSW out of production imports and run the relevant pnpm quality gates.
-Use typed vi/en i18n keys for all UI/accessibility copy. Validate OpenAPI before
-generation and preserve the tag-based api/contracts/mocks structure.
+Read AGENTS.md, ARCHITECTURE.md, and UI_UX_DESIGN_GUIDELINES.md before changing code.
+Keep routes thin and obey routes -> features -> entities -> shared.
+Obey UI/UX Guardrails: single primary CTA, table text left & numbers right with tabular-nums, locked h-screen App Shell, concentric border radii, no AI buzzwords, no emojis as UI icons.
+Generate app/shared/api/generated with pnpm api:generate; never edit generated files or pnpm-lock.yaml manually.
+Keep Faker/MSW out of production imports and run the relevant pnpm quality gates.
+Use typed vi/en i18n keys for all UI/accessibility copy. Validate OpenAPI before generation.

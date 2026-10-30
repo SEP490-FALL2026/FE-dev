@@ -1,10 +1,11 @@
 import { motion, useReducedMotion } from 'motion/react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useSyncExternalStore } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useSearchParams } from 'react-router'
+import { useLocation, useNavigate, useSearchParams } from 'react-router'
 
 import type { UserRole } from '~/entities/user-role/user-role'
 import { useDocumentTitle } from '~/shared/lib/use-document-title'
+import { getAuthState, subscribeAuthSession } from '../auth/auth-session'
 
 import { roleProfiles } from './dashboard-data'
 import { DashboardHeader } from './components/dashboard-header'
@@ -75,23 +76,27 @@ import {
 } from './manager'
 import './manager/manager-workspace.css'
 
-import {
-  isValidSuperAdminTab,
-  type SuperAdminTabKey,
-  SuperAdminOverviewView,
-  SuperAdminDepartmentsView,
-  SuperAdminAccountsView,
-  SuperAdminPersonnelView,
-  SuperAdminRemindersView,
-  SuperAdminAuditView
-} from './super-admin'
+import { isValidSuperAdminTab, type SuperAdminTabKey, SuperAdminScreen } from './super-admin'
 
 export function DashboardPage({ role }: { role: UserRole }) {
   const { i18n, t } = useTranslation('dashboard')
   const shouldReduceMotion = useReducedMotion()
   const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false)
   const [employeeAvatarUrl, setEmployeeAvatarUrl] = useState<string | null>(null)
-  const profile = roleProfiles[role]
+  const auth = useSyncExternalStore(subscribeAuthSession, getAuthState, getAuthState)
+  const fullName = auth.session?.user.employee.fullName ?? ''
+  const profile =
+    role === 'super-admin'
+      ? {
+          displayName: fullName,
+          initials: fullName
+            .split(/\s+/)
+            .filter(Boolean)
+            .map((part) => part[0])
+            .slice(-2)
+            .join('')
+        }
+      : roleProfiles[role]
   const locale = i18n.resolvedLanguage === 'en' ? 'en-US' : 'vi-VN'
 
   const isItAdmin = role === 'it-admin'
@@ -112,6 +117,8 @@ export function DashboardPage({ role }: { role: UserRole }) {
   }
 
   const [searchParams, setSearchParams] = useSearchParams()
+  const location = useLocation()
+  const navigate = useNavigate()
   const tabParam = searchParams.get('tab')
 
   // IT Admin Tabs
@@ -141,7 +148,12 @@ export function DashboardPage({ role }: { role: UserRole }) {
   const activeFinanceTab: FinanceTabKey = isFinance && isValidFinanceTab(tabParam) ? tabParam : 'overview'
 
   // Super Admin Tabs
-  const activeSuperAdminTab: SuperAdminTabKey = isSuperAdmin && isValidSuperAdminTab(tabParam) ? tabParam : 'overview'
+  const personnelFormPage = isSuperAdmin && location.pathname.startsWith('/dashboard/super-admin/personnel/')
+  const activeSuperAdminTab: SuperAdminTabKey = personnelFormPage
+    ? 'personnel'
+    : isSuperAdmin && isValidSuperAdminTab(tabParam)
+      ? tabParam
+      : 'overview'
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     licenses: true,
@@ -162,19 +174,24 @@ export function DashboardPage({ role }: { role: UserRole }) {
     if (extraParams) {
       Object.entries(extraParams).forEach(([k, v]) => nextParams.set(k, v))
     }
-    setSearchParams(nextParams)
+    if (personnelFormPage) void navigate({ pathname: '/dashboard/super-admin', search: nextParams.toString() })
+    else setSearchParams(nextParams)
     setMobileNavigationOpen(false)
   }
 
   const handleSelectTab = (tab: ItAdminTabKey, extraParams?: Record<string, string>) => updateTab(tab, extraParams)
-  const handleSelectEmployeeTab = (tab: EmployeeTabKey, extraParams?: Record<string, string>) => updateTab(tab, extraParams)
+  const handleSelectEmployeeTab = (tab: EmployeeTabKey, extraParams?: Record<string, string>) =>
+    updateTab(tab, extraParams)
   const handleSelectManagerTab = (tab: ManagerTabKey, extraParams?: Record<string, string>) => {
     if (tab === 'create-employee-request') setManagerCreateMenuOpen(true)
     updateTab(tab, extraParams)
   }
-  const handleSelectApprovalTab = (tab: ApprovalTabKey, extraParams?: Record<string, string>) => updateTab(tab, extraParams)
-  const handleSelectFinanceTab = (tab: FinanceTabKey, extraParams?: Record<string, string>) => updateTab(tab, extraParams)
-  const handleSelectSuperAdminTab = (tab: SuperAdminTabKey, extraParams?: Record<string, string>) => updateTab(tab, extraParams)
+  const handleSelectApprovalTab = (tab: ApprovalTabKey, extraParams?: Record<string, string>) =>
+    updateTab(tab, extraParams)
+  const handleSelectFinanceTab = (tab: FinanceTabKey, extraParams?: Record<string, string>) =>
+    updateTab(tab, extraParams)
+  const handleSelectSuperAdminTab = (tab: SuperAdminTabKey, extraParams?: Record<string, string>) =>
+    updateTab(tab, extraParams)
 
   const handleSaveManagerPreview = (request: ManagerPreviewRequestInput) => {
     const createdAt = new Date().toISOString()
@@ -209,7 +226,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
   useDocumentTitle(t('documentTitle'))
 
   return (
-    <div className='min-h-screen bg-background'>
+    <div className='flex h-screen overflow-hidden bg-background'>
       <DashboardSidebar
         activeApprovalParent={activeApprovalParent}
         activeApprovalTab={activeApprovalTab}
@@ -239,7 +256,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
         toggleSection={toggleSection}
       />
 
-      <div className='min-w-0 lg:pl-72'>
+      <div className='flex h-full min-w-0 flex-1 flex-col lg:pl-72'>
         <DashboardHeader
           activeEmployeeTab={activeEmployeeTab}
           employeeAvatarUrl={employeeAvatarUrl}
@@ -252,7 +269,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
 
         <motion.main
           animate={{ opacity: 1, y: 0 }}
-          className={`mx-auto max-w-[100rem] p-4 sm:p-6 lg:p-8 ${isManager ? 'manager-workspace' : ''}`}
+          className={`mx-auto min-h-0 w-full max-w-[100rem] flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 ${isManager ? 'manager-workspace' : ''}`}
           initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
           key={
             isItAdmin
@@ -451,23 +468,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
               tab={activeFinanceTab}
             />
           ) : isSuperAdmin ? (
-            activeSuperAdminTab === 'overview' ? (
-              <SuperAdminOverviewView onSelectTab={handleSelectSuperAdminTab} />
-            ) : activeSuperAdminTab === 'departments' ? (
-              <SuperAdminDepartmentsView onSelectTab={handleSelectSuperAdminTab} />
-            ) : activeSuperAdminTab === 'accounts' ? (
-              <SuperAdminAccountsView />
-            ) : activeSuperAdminTab === 'personnel' ? (
-              <SuperAdminPersonnelView onSelectTab={handleSelectSuperAdminTab} />
-            ) : activeSuperAdminTab === 'reminders' ? (
-              <SuperAdminRemindersView />
-            ) : activeSuperAdminTab === 'settings' ? (
-              <SuperAdminRemindersView />
-            ) : activeSuperAdminTab === 'transfer' ? (
-              <SuperAdminPersonnelView onSelectTab={handleSelectSuperAdminTab} />
-            ) : (
-              <SuperAdminAuditView />
-            )
+            <SuperAdminScreen tab={activeSuperAdminTab} onSelectTab={handleSelectSuperAdminTab} />
           ) : (
             <DefaultDashboardView
               displayName={profile.displayName}

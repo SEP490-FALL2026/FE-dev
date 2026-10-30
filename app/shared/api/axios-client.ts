@@ -19,7 +19,7 @@ export interface ApiAuthAdapter {
 type RetriableRequestConfig = InternalAxiosRequestConfig & { retriedAfterRefresh?: boolean }
 
 export function createApiClient(getAuthAdapter: () => ApiAuthAdapter | null): AxiosInstance {
-  const client = axios.create()
+  const client = axios.create({ timeout: 15_000 })
   let refreshPromise: Promise<string | null> | null = null
 
   client.interceptors.request.use(
@@ -43,9 +43,21 @@ export function createApiClient(getAuthAdapter: () => ApiAuthAdapter | null): Ax
 
       const requestConfig = error.config as RetriableRequestConfig
       const authAdapter = getAuthAdapter()
-      if (!authAdapter || requestConfig.skipAuthRefresh || requestConfig.retriedAfterRefresh) {
+      const errorCode = (error.response.data as { error?: { code?: string } } | undefined)?.error?.code
+      if (
+        !authAdapter ||
+        requestConfig.skipAuthRefresh ||
+        !['INVALID_ACCESS_TOKEN', 'AUTHENTICATION_REQUIRED'].includes(errorCode ?? '')
+      ) {
         throw error
       }
+
+      if (requestConfig.retriedAfterRefresh) {
+        authAdapter.onSessionExpired?.()
+        throw error
+      }
+
+      if (!authAdapter.getAccessToken()) throw error
 
       requestConfig.retriedAfterRefresh = true
       const currentToken = authAdapter.getAccessToken()
@@ -57,7 +69,15 @@ export function createApiClient(getAuthAdapter: () => ApiAuthAdapter | null): Ax
         if (!refreshPromise) {
           refreshPromise = Promise.resolve()
             .then(() => authAdapter.refreshAccessToken())
-            .catch(() => null)
+            .catch((refreshError: unknown) => {
+              const refreshCode = axios.isAxiosError(refreshError)
+                ? (refreshError.response?.data as { error?: { code?: string } } | undefined)?.error?.code
+                : undefined
+              if (refreshCode === 'AUTH.SESSION_INVALID') {
+                if (getAuthAdapter() === authAdapter) authAdapter.onSessionExpired?.()
+              }
+              throw refreshError
+            })
             .then((token) => {
               if (!token && getAuthAdapter() === authAdapter) authAdapter.onSessionExpired?.()
               return token

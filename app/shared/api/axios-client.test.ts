@@ -1,14 +1,15 @@
 import { AxiosError, AxiosHeaders, type AxiosAdapter, type InternalAxiosRequestConfig } from 'axios'
 import { describe, expect, it, vi } from 'vitest'
+import { env } from '~/shared/config/env'
 
 import { apiClient, createApiClient, type ApiAuthAdapter } from './axios-client'
-import { getApiStatus } from './generated/operations/system/get-api-status'
+import { authLogin } from './generated/operations/auth/auth-login'
 import { customAxios } from './mutator/custom-axios'
 
 function unauthorized(config: InternalAxiosRequestConfig): AxiosError {
   return new AxiosError('Unauthorized', 'ERR_BAD_REQUEST', config, undefined, {
     config,
-    data: { message: 'Unauthorized' },
+    data: { success: false, error: { code: 'INVALID_ACCESS_TOKEN' } },
     headers: new AxiosHeaders(),
     status: 401,
     statusText: 'Unauthorized'
@@ -16,17 +17,30 @@ function unauthorized(config: InternalAxiosRequestConfig): AxiosError {
 }
 
 describe('Axios API client', () => {
+  it('bounds requests by default so session initialization cannot wait indefinitely', async () => {
+    const client = createApiClient(() => null)
+    let timeout: number | undefined
+    client.defaults.adapter = async (config) => {
+      timeout = config.timeout
+      return { config, data: 'ok', headers: new AxiosHeaders(), status: 200, statusText: 'OK' }
+    }
+
+    await client.get('/api/v1/me')
+
+    expect(timeout).toBeGreaterThan(0)
+    expect(timeout).toBeLessThanOrEqual(15_000)
+  })
   it('routes a generated Orval operation through the shared Axios client', async () => {
     const previousAdapter = apiClient.defaults.adapter
     const requestedUrls: string[] = []
     apiClient.defaults.adapter = async (config) => {
       requestedUrls.push(config.url ?? '')
-      return { config, data: 'Hello World!', headers: new AxiosHeaders(), status: 200, statusText: 'OK' }
+      return { config, data: { success: true }, headers: new AxiosHeaders(), status: 200, statusText: 'OK' }
     }
 
     try {
-      await expect(getApiStatus()).resolves.toBe('Hello World!')
-      expect(requestedUrls).toEqual(['/api/'])
+      await expect(authLogin({ email: 'a@example.com', password: 'secret' })).resolves.toEqual({ success: true })
+      expect(requestedUrls).toEqual([`${env.API_BASE_URL}/api/v1/auth/login`])
     } finally {
       apiClient.defaults.adapter = previousAdapter
     }
@@ -141,5 +155,36 @@ describe('Axios API client', () => {
 
     expect(refreshAccessToken).toHaveBeenCalledTimes(1)
     expect(transport).toHaveBeenCalledTimes(3)
+  })
+
+  it('does not refresh for an unrelated 401 or an unauthenticated request', async () => {
+    const refreshAccessToken = vi.fn(async () => 'new-token')
+    const client = createApiClient(() => ({ getAccessToken: () => null, refreshAccessToken }))
+    client.defaults.adapter = async (config) => {
+      throw unauthorized(config)
+    }
+
+    await expect(client.get('/api/v1/me')).rejects.toBeInstanceOf(AxiosError)
+    expect(refreshAccessToken).not.toHaveBeenCalled()
+  })
+
+  it('preserves the session when refresh is temporarily unavailable', async () => {
+    const onSessionExpired = vi.fn()
+    const client = createApiClient(() => ({
+      getAccessToken: () => 'old-token',
+      refreshAccessToken: async () => {
+        throw new AxiosError('unavailable', 'ERR_BAD_RESPONSE', undefined, undefined, {
+          data: { error: { code: 'AUTH.UNAVAILABLE' } },
+          status: 503
+        } as never)
+      },
+      onSessionExpired
+    }))
+    client.defaults.adapter = async (config) => {
+      throw unauthorized(config)
+    }
+
+    await expect(client.get('/api/v1/me')).rejects.toBeInstanceOf(AxiosError)
+    expect(onSessionExpired).not.toHaveBeenCalled()
   })
 })

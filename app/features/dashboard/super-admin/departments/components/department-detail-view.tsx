@@ -1,268 +1,204 @@
-import {
-  AlertTriangle,
-  ArrowLeft,
-  Edit2,
-  Trash2,
-  UserCheck,
-  UserMinus,
-  UserPlus
-} from 'lucide-react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Panel, PanelTitle } from '../../../dashboard-ui'
-import {
-  type Department,
-  type UserAccount,
-  roleDefinitions
-} from '../../super-admin-data'
+import { useDepartmentGet, useDepartmentMemberList } from '~/shared/api/generated/operations/departments'
+import { useDashboardFormat } from '../../../dashboard-ui'
+import { AdminQueryState, AdminEmpty } from '../../shared/components/admin-query-state'
+import { AdminPagination } from '../../shared/components/admin-pagination'
+import { adminButtonClass } from '../../shared/components/admin-form'
+import { DepartmentStatus } from '../enums/department-status'
+import { DepartmentWarning } from '../enums/department-warning'
+import { MemberStatus } from '../enums/member-status'
+import { MemberWorkState } from '../enums/member-work-state'
+import { DepartmentForm } from './department-form'
+import { DepartmentActionForm, type DepartmentAction } from './department-action-form'
+import { ProjectsPanel } from './projects-panel'
 
-export interface DepartmentDetailViewProps {
-  selectedDept: Department
-  currentDeptMembers: UserAccount[]
-  onBack: () => void
-  onOpenEditModal: () => void
-  onOpenDeprecateModal: () => void
-  onOpenAssignManagerModal: () => void
-  onOpenAddMembersModal: () => void
-  onRemoveMember: (member: UserAccount) => void
-}
-
-export function DepartmentDetailView({
-  selectedDept,
-  currentDeptMembers,
-  onBack,
-  onOpenEditModal,
-  onOpenDeprecateModal,
-  onOpenAssignManagerModal,
-  onOpenAddMembersModal,
-  onRemoveMember
-}: DepartmentDetailViewProps) {
-  const { t } = useTranslation('dashboard')
-
+export function DepartmentDetailView({ id, onBack }: { id: string; onBack: () => void }) {
+  const { t: translate } = useTranslation('adminOrganization')
+  const { formatDate, formatNumber } = useDashboardFormat()
+  const [page, setPage] = useState(1)
+  const [action, setAction] = useState<DepartmentAction | 'edit' | null>(null)
+  const [tab, setTab] = useState<'members' | 'projects'>('members')
+  const query = useDepartmentGet(id)
+  const members = useDepartmentMemberList(id, { page, pageSize: 20 })
+  const department = query.data?.data
+  const active = department?.status === DepartmentStatus.ACTIVE
   return (
-    <div className='space-y-6'>
-      <div className='flex flex-wrap items-center justify-between gap-4'>
-        <div className='flex items-center gap-3'>
-          <button
-            className='grid size-9 place-items-center rounded-xl border border-border bg-surface text-muted-foreground hover:bg-surface-subtle hover:text-foreground transition'
-            onClick={onBack}
-            title={t('superAdmin.departmentsModule.detailView.backTitle')}
-            type='button'
-          >
-            <ArrowLeft className='size-4' />
-          </button>
-          <div>
-            <div className='flex items-center gap-2'>
-              <span className='font-mono font-bold text-primary text-sm'>[{selectedDept.code}]</span>
-              <h1 className='text-2xl font-bold tracking-tight text-foreground'>{selectedDept.name}</h1>
-              <span
-                className={`rounded-full border px-2.5 py-0.5 text-[0.65rem] font-bold ${
-                  selectedDept.status === 'CONFIGURED'
-                    ? 'border-success/30 bg-success/15 text-success'
-                    : selectedDept.status === 'DEPRECATED'
-                      ? 'border-border bg-surface-subtle text-muted-foreground'
-                      : 'border-warning/30 bg-warning/15 text-warning'
-                }`}
-              >
-                {selectedDept.status === 'CONFIGURED'
-                  ? t('superAdmin.departmentsModule.statusConfigured')
-                  : selectedDept.status === 'DEPRECATED'
-                    ? t('superAdmin.departmentsModule.statusDeprecated')
-                    : t('superAdmin.departmentsModule.statusIncomplete')}
-              </span>
-            </div>
-            <p className='mt-0.5 text-xs text-muted-foreground'>{selectedDept.description}</p>
-          </div>
-        </div>
-
-        <div className='flex items-center gap-2'>
-          <button
-            className='inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-2 text-xs font-semibold text-foreground hover:bg-surface-subtle transition'
-            onClick={onOpenEditModal}
-            type='button'
-          >
-            <Edit2 className='size-3.5' />
-            {t('superAdmin.departmentsModule.detailView.editInfoBtn')}
-          </button>
-          <button
-            className='inline-flex items-center gap-1.5 rounded-xl border border-danger/30 bg-danger/10 px-3 py-2 text-xs font-semibold text-danger hover:bg-danger/20 transition'
-            onClick={onOpenDeprecateModal}
-            type='button'
-          >
-            <Trash2 className='size-3.5' />
-            {selectedDept.memberCount > 0
-              ? t('superAdmin.departmentsModule.detailView.deprecateBtn')
-              : t('superAdmin.departmentsModule.detailView.deleteBtn')}
-          </button>
-        </div>
-      </div>
-
-      {/* Department Manager Card */}
-      <Panel>
-        <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
-          <div className='flex items-start gap-3'>
-            <span className='grid size-11 place-items-center rounded-2xl bg-info/15 text-info'>
-              <UserCheck className='size-5' />
-            </span>
-            <div>
-              <div className='flex items-center gap-2'>
-                <span className='text-xs font-bold uppercase tracking-wider text-muted-foreground'>
-                  {t('superAdmin.departmentsModule.detailView.managerHeading')}
-                </span>
-                <span className='rounded bg-info/20 px-1.5 py-0.5 text-[0.65rem] font-bold text-info'>
-                  {t('superAdmin.departmentsModule.detailView.managerLimit')}
-                </span>
+    <div className='grid gap-6'>
+      <button type='button' className={`${adminButtonClass} justify-self-start`} onClick={onBack}>
+        {translate('back')}
+      </button>
+      <AdminQueryState query={query}>
+        {!department && <AdminEmpty />}
+        {department && (
+          <>
+            <header className='flex flex-wrap items-start justify-between gap-4'>
+              <div>
+                <p className='font-mono text-sm text-muted-foreground'>{department.code}</p>
+                <h1 className='text-2xl font-semibold'>{department.name}</h1>
+                <p className='mt-2 max-w-3xl whitespace-pre-wrap text-sm text-muted-foreground'>
+                  {department.function}
+                </p>
               </div>
-
-              {selectedDept.managerName ? (
-                <div className='mt-1'>
-                  <p className='text-base font-bold text-foreground'>{selectedDept.managerName}</p>
-                  <p className='text-xs text-muted-foreground font-mono'>{selectedDept.managerEmail}</p>
-                </div>
-              ) : (
-                <div className='mt-1'>
-                  <p className='text-sm font-bold text-warning flex items-center gap-1.5'>
-                    <AlertTriangle className='size-4' />
-                    {t('superAdmin.departmentsModule.detailView.managerMissingTitle')}
-                  </p>
-                  <p className='text-xs text-muted-foreground'>
-                    {t('superAdmin.departmentsModule.detailView.managerMissingDesc')}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <button
-            className='inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground shadow-sm hover:bg-primary-hover transition shrink-0'
-            onClick={onOpenAssignManagerModal}
-            type='button'
-          >
-            <UserCheck className='size-3.5' />
-            <span>
-              {selectedDept.managerId
-                ? t('superAdmin.departmentsModule.detailView.changeManagerNow')
-                : t('superAdmin.departmentsModule.detailView.assignManagerNow')}
-            </span>
-          </button>
-        </div>
-      </Panel>
-
-      {/* Members of Department */}
-      <Panel>
-        <PanelTitle
-          action={
-            <button
-              className='inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground shadow-sm hover:bg-primary-hover transition shrink-0'
-              onClick={onOpenAddMembersModal}
-              type='button'
-            >
-              <UserPlus className='size-3.5' />
-              <span>{t('superAdmin.departmentsModule.detailView.addMemberBtn')}</span>
-            </button>
-          }
-          hint={t('superAdmin.departmentsModule.detailView.membersHint')}
-          title={t('superAdmin.departmentsModule.detailView.membersHeading', {
-            count: currentDeptMembers.length
-          })}
-        />
-
-        <div className='mt-4 overflow-x-auto'>
-          <table className='w-full text-left text-xs'>
-            <thead className='border-b border-border bg-surface-subtle text-muted-foreground'>
-              <tr>
-                <th className='p-3 font-semibold'>{t('superAdmin.departmentsModule.detailView.colEmpCode')}</th>
-                <th className='p-3 font-semibold'>{t('superAdmin.departmentsModule.detailView.colFullName')}</th>
-                <th className='p-3 font-semibold'>{t('superAdmin.departmentsModule.detailView.colWorkEmail')}</th>
-                <th className='p-3 font-semibold text-center'>{t('superAdmin.departmentsModule.detailView.colUniqueRole')}</th>
-                <th className='p-3 font-semibold text-center'>{t('superAdmin.departmentsModule.detailView.colStatus')}</th>
-                <th className='p-3 font-semibold text-right'>{t('superAdmin.departmentsModule.detailView.colAction')}</th>
-              </tr>
-            </thead>
-            <tbody className='divide-y divide-border'>
-              {currentDeptMembers.map((member) => {
-                const isManager = member.id === selectedDept.managerId
-                const roleDef = roleDefinitions[member.role]
-
-                return (
-                  <tr className='transition hover:bg-surface-subtle/60' key={member.id}>
-                    <td className='p-3 font-mono font-bold text-muted-foreground'>{member.employeeCode}</td>
-                    <td className='p-3'>
-                      <div className='flex items-center gap-1.5'>
-                        <span className='font-bold text-foreground'>{member.name}</span>
-                        {isManager && (
-                          <span className='rounded bg-info/20 px-1.5 py-0.5 text-[0.65rem] font-bold text-info'>
-                            {t('superAdmin.departmentsModule.detailView.headOfDeptBadge')}
-                          </span>
-                        )}
-                      </div>
-                      <span className='text-[0.7rem] text-muted-foreground'>{member.position}</span>
-                    </td>
-                    <td className='p-3 font-mono text-muted-foreground'>{member.email}</td>
-                    <td className='p-3 text-center'>
-                      <span
-                        className={`inline-flex rounded-full border px-2 py-0.5 text-[0.65rem] font-bold ${
-                          roleDef.colorTone === 'primary'
-                            ? 'border-primary/30 bg-primary/15 text-primary'
-                            : roleDef.colorTone === 'info'
-                              ? 'border-info/30 bg-info/15 text-info'
-                              : roleDef.colorTone === 'warning'
-                                ? 'border-warning/30 bg-warning/15 text-warning'
-                                : roleDef.colorTone === 'success'
-                                  ? 'border-success/30 bg-success/15 text-success'
-                                  : 'border-border bg-surface-subtle text-muted-foreground'
-                        }`}
+              {active && (
+                <details className='relative'>
+                  <summary className={`${adminButtonClass} cursor-pointer`}>{translate('actionsLabel')}</summary>
+                  <div className='absolute right-0 z-10 mt-2 grid min-w-60 gap-1 rounded-md border border-border bg-surface p-2 shadow-lg'>
+                    <button className={adminButtonClass} type='button' onClick={() => setAction('edit')}>
+                      {translate('editDepartment')}
+                    </button>
+                    <button className={adminButtonClass} type='button' onClick={() => setAction('assignHead')}>
+                      {translate('actions.assignHead')}
+                    </button>
+                    {department.head && (
+                      <button className={adminButtonClass} type='button' onClick={() => setAction('vacateHead')}>
+                        {translate('actions.vacateHead')}
+                      </button>
+                    )}
+                    {department.head && !department.successor && (
+                      <button
+                        className={adminButtonClass}
+                        type='button'
+                        onClick={() => setAction('designateSuccessor')}
                       >
-                        {roleDef.name}
-                      </span>
-                    </td>
-                    <td className='p-3 text-center'>
-                      <span
-                        className={`inline-flex rounded-full border px-2 py-0.5 text-[0.65rem] font-bold ${
-                          member.status === 'ACTIVE'
-                            ? 'border-success/30 bg-success/15 text-success'
-                            : member.status === 'INVITED'
-                              ? 'border-warning/30 bg-warning/15 text-warning'
-                              : 'border-danger/30 bg-danger/15 text-danger'
-                        }`}
-                      >
-                        {member.status === 'ACTIVE'
-                          ? t('superAdmin.departmentsModule.detailView.statusActive')
-                          : member.status === 'INVITED'
-                            ? t('superAdmin.departmentsModule.detailView.statusInvited')
-                            : t('superAdmin.departmentsModule.detailView.statusLocked')}
-                      </span>
-                    </td>
-                    <td className='p-3 text-right'>
-                      {!isManager ? (
-                        <button
-                          className='inline-flex items-center gap-1 rounded-lg border border-danger/30 bg-danger/10 px-2 py-1 text-[0.7rem] font-semibold text-danger hover:bg-danger/20 transition'
-                          onClick={() => onRemoveMember(member)}
-                          type='button'
-                        >
-                          <UserMinus className='size-3' />
-                          {t('superAdmin.departmentsModule.detailView.removeBtn')}
-                        </button>
-                      ) : (
-                        <span className='text-[0.7rem] text-muted-foreground italic'>
-                          {t('superAdmin.departmentsModule.detailView.replaceManagerFirst')}
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                )
-              })}
-
-              {currentDeptMembers.length === 0 && (
-                <tr>
-                  <td className='p-8 text-center text-muted-foreground' colSpan={6}>
-                    {t('superAdmin.departmentsModule.detailView.emptyMembers')}
-                  </td>
-                </tr>
+                        {translate('actions.designateSuccessor')}
+                      </button>
+                    )}
+                    {department.successor && (
+                      <button className={adminButtonClass} type='button' onClick={() => setAction('clearSuccessor')}>
+                        {translate('actions.clearSuccessor')}
+                      </button>
+                    )}
+                    <button
+                      className={`${adminButtonClass} text-danger`}
+                      type='button'
+                      onClick={() => setAction('deactivate')}
+                    >
+                      {translate('actions.deactivate')}
+                    </button>
+                  </div>
+                </details>
               )}
-            </tbody>
-          </table>
-        </div>
-      </Panel>
+            </header>
+            <dl className='grid gap-5 rounded-lg border border-border p-5 sm:grid-cols-2 lg:grid-cols-3'>
+              {[
+                [
+                  translate('status'),
+                  Object.values(DepartmentStatus).includes(department.status)
+                    ? translate(`departmentStatus.${department.status}`)
+                    : translate('unknown')
+                ],
+                [translate('head'), department.head?.fullName ?? translate('unassigned')],
+                [
+                  translate('successor'),
+                  department.successor
+                    ? `${department.successor.fullName} · ${formatDate(department.successor.since)}`
+                    : translate('unassigned')
+                ],
+                [translate('itAdmin'), department.itAdmin?.fullName ?? translate('unassigned')],
+                [translate('costCenter'), department.costCenter?.name ?? translate('unassigned')],
+                [translate('members'), formatNumber(department.memberCount)]
+              ].map(([label, value]) => (
+                <div key={label}>
+                  <dt className='text-sm text-muted-foreground'>{label}</dt>
+                  <dd className='mt-1 font-medium'>{value}</dd>
+                </div>
+              ))}
+            </dl>
+            {!!department.warnings.length && (
+              <ul className='list-inside list-disc text-sm text-warning'>
+                {department.warnings.map((warning) => (
+                  <li key={warning}>
+                    {Object.values(DepartmentWarning).includes(warning)
+                      ? translate(`warnings.${warning}`)
+                      : translate('unknown')}
+                  </li>
+                ))}
+              </ul>
+            )}
+            <section className='grid gap-3'>
+              <h2 className='font-semibold'>{translate('headHistory')}</h2>
+              {!department.headHistory.length && (
+                <p className='text-sm text-muted-foreground'>{translate('noHistory')}</p>
+              )}
+              {department.headHistory.map((head) => (
+                <div
+                  key={`${head.employeeId}-${head.validFrom}`}
+                  className='flex flex-wrap justify-between gap-3 border-b border-border py-2 text-sm'
+                >
+                  <span>
+                    {head.fullName} · {head.employeeCode}
+                  </span>
+                  <span className='font-mono tabular-nums'>
+                    {formatDate(head.validFrom)} · {head.validTo ? formatDate(head.validTo) : translate('ongoing')}
+                  </span>
+                </div>
+              ))}
+              {department.headHistoryHasMore && (
+                <p className='text-sm text-muted-foreground'>{translate('historyLimited')}</p>
+              )}
+            </section>
+            <nav className='flex gap-3 border-b border-border pb-3'>
+              {(['members', 'projects'] as const).map((value) => (
+                <button
+                  key={value}
+                  type='button'
+                  aria-pressed={tab === value}
+                  className={adminButtonClass}
+                  onClick={() => setTab(value)}
+                >
+                  {translate(value)}
+                </button>
+              ))}
+            </nav>
+            {tab === 'members' ? (
+              <section className='grid gap-4'>
+                <p className='text-sm text-muted-foreground'>{translate('membersHelp')}</p>
+                <AdminQueryState query={members}>
+                  {!members.data?.data?.items.length && <AdminEmpty />}
+                  <div className='grid gap-3'>
+                    {members.data?.data?.items.map((member) => (
+                      <article
+                        key={member.employeeCode}
+                        className='flex flex-wrap justify-between gap-3 rounded-md border border-border p-4 text-sm'
+                      >
+                        <div>
+                          <h3 className='font-medium'>{member.fullName}</h3>
+                          <p className='font-mono text-muted-foreground'>{member.employeeCode}</p>
+                          <p>
+                            {Object.values(MemberStatus).includes(member.status)
+                              ? translate(`memberStatus.${member.status}`)
+                              : translate('unknown')}{' '}
+                            ·{' '}
+                            {Object.values(MemberWorkState).includes(member.workState)
+                              ? translate(`workState.${member.workState}`)
+                              : translate('unknown')}
+                          </p>
+                        </div>
+                        <div className='text-right'>
+                          <p className='font-mono tabular-nums'>{formatDate(member.memberSince)}</p>
+                          <p>{translate(member.hasWorkEmail ? 'hasEmail' : 'noEmail')}</p>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                  <AdminPagination
+                    pagination={members.data?.data?.pagination}
+                    onPageChange={setPage}
+                    disabled={members.isFetching}
+                  />
+                </AdminQueryState>
+              </section>
+            ) : (
+              <ProjectsPanel departmentId={id} />
+            )}
+            {action === 'edit' && <DepartmentForm department={department} onClose={() => setAction(null)} />}
+            {action && action !== 'edit' && (
+              <DepartmentActionForm department={department} action={action} onClose={() => setAction(null)} />
+            )}
+          </>
+        )}
+      </AdminQueryState>
     </div>
   )
 }
