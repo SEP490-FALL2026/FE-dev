@@ -1,0 +1,5 @@
+export { NeedDecisionBodyDtoDecision as NEED_DECISION } from '~/shared/api/generated/model/access-requests/needDecisionBodyDtoDecision'
+export { AccessRequestResponseDtoDataRequestNeedStepState as NEED_STEP_STATE } from '~/shared/api/generated/model/access-requests/accessRequestResponseDtoDataRequestNeedStepState'
+export { AccessRequestResponseDtoDataRequestType as REQUEST_TYPE } from '~/shared/api/generated/model/access-requests/accessRequestResponseDtoDataRequestType'
+export { ACCESS_REQUEST_STATE as REQUEST_STATE } from '~/entities/request/enums/access-request-state'
+export { LinesResponseDtoDataItemsItemState as GROUP_LINE_STATE } from '~/shared/api/generated/model/group-requests/linesResponseDtoDataItemsItemState'

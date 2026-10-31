@@ -11,6 +11,7 @@ import {
 } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getEmployeeError } from '../hooks/employee-errors'
+import { WorkspaceEmptyState } from '~/shared/ui/workspace-empty-state'
 
 export const employeeInputClass =
   'min-h-11 w-full rounded-md border border-border bg-background px-3 py-2 text-base outline-none focus-visible:ring-2 focus-visible:ring-primary md:min-h-10 md:text-sm'
@@ -32,7 +33,7 @@ export function EmployeeButton({
       {...props}
       aria-busy={busy || undefined}
       disabled={props.disabled || busy}
-      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${primary ? 'bg-primary text-primary-foreground hover:bg-primary-hover' : 'border border-border bg-surface hover:bg-surface-subtle'}`}
+      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-50 ${primary ? 'bg-primary text-foreground shadow-sm hover:bg-primary-hover' : 'border border-border/80 bg-surface hover:bg-surface-subtle'}`}
     >
       {busy && <LoaderCircle aria-hidden='true' className='size-4 animate-spin' strokeWidth={1.5} />}
       {children}
@@ -63,21 +64,20 @@ export function EmployeeInput(props: InputHTMLAttributes<HTMLInputElement>) {
   return <input {...props} className={employeeInputClass} />
 }
 
-export function EmployeeSection({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <section className='min-w-0 space-y-4 rounded-lg border border-border/60 bg-surface p-4 sm:p-6'>
-      <h2 className='text-base font-semibold'>{title}</h2>
-      {children}
-    </section>
-  )
-}
+export { WorkspaceSection as EmployeeSection } from '~/shared/ui/workspace-section'
 
 export function EmployeeQueryState({
   query,
-  empty
+  empty,
+  emptyTitle,
+  emptyDescription,
+  emptyAction
 }: {
   query: { isPending: boolean; isError: boolean; isFetching?: boolean; error: unknown; refetch: () => unknown }
   empty?: boolean
+  emptyTitle?: string
+  emptyDescription?: string
+  emptyAction?: ReactNode
 }) {
   const { t: translate } = useTranslation('employee')
   if (query.isPending)
@@ -99,7 +99,14 @@ export function EmployeeQueryState({
       </div>
     )
   }
-  if (empty) return <p className='py-6 text-sm text-muted-foreground'>{translate('empty')}</p>
+  if (empty)
+    return (
+      <WorkspaceEmptyState
+        title={emptyTitle ?? translate('empty')}
+        description={emptyDescription}
+        action={emptyAction}
+      />
+    )
   return query.isFetching ? (
     <p role='status' className='text-xs text-muted-foreground'>
       {translate('refreshing')}
@@ -139,8 +146,17 @@ export function EmployeePagination({
 export function EmployeeStatus({ value }: { value: string }) {
   const { t: translate, i18n } = useTranslation('employee')
   const known = Object.hasOwn(i18n.getResourceBundle(i18n.resolvedLanguage ?? 'vi', 'employee')?.statuses ?? {}, value)
+  const tone = !known
+    ? 'border-border/60 bg-surface-subtle text-muted-foreground'
+    : ['COMPLETED', 'APPROVED', 'CONFIRMED', 'HANDED_OVER', 'HANDLED', 'RESOLVED'].includes(value)
+      ? 'border-success/20 bg-success/10 text-success-ink'
+      : ['FAILED', 'REJECTED', 'IT_REJECTED', 'SPEND_REJECTED', 'NEED_REJECTED'].includes(value)
+        ? 'border-danger/20 bg-danger/10 text-danger-ink'
+        : ['PENDING', 'OPEN', 'NEW', 'WAITING_REPORTER', 'AWAITING_REVOCATION'].includes(value)
+          ? 'border-warning/25 bg-warning/10 text-warning-ink'
+          : 'border-border/60 bg-surface-subtle text-muted-foreground'
   return (
-    <span className='inline-flex items-center gap-1.5 rounded-md border border-border/60 bg-surface-subtle px-2 py-1 text-xs font-medium'>
+    <span className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs font-medium ${tone}`}>
       <span aria-hidden='true' className='size-1.5 rounded-full bg-current' />
       {known ? translate(`statuses.${value}` as 'statuses.PENDING') : translate('unknownStatus')}
     </span>

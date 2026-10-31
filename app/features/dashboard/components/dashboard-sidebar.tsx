@@ -19,7 +19,7 @@ import type { UserRole } from '~/entities/user-role/user-role'
 import { BrandMark } from '~/shared/ui/brand-mark'
 import { itAdminMenuItems, type ItAdminTabKey } from '../it-admin'
 import { employeeMenuItems, type EmployeeTabKey } from '../employee'
-import { managerNavItems, type ManagerTabKey, MOCK_TEAM_REQUESTS } from '../manager'
+import { managerNavItems, type ManagerTabKey } from '../manager'
 import { approvalNavItems, type ApprovalTabKey } from '../approvals'
 import { FinanceSidebarNav, type FinanceTabKey } from '../finance'
 import { superAdminNavItems, type SuperAdminTabKey } from '../super-admin'
@@ -50,9 +50,7 @@ export interface DashboardSidebarProps {
   activeSuperAdminTab: SuperAdminTabKey
   activeTab: ItAdminTabKey
   managerCreateMenuOpen: boolean
-  managerMarkedRequestIds: string[]
   managerRequestScope: 'team' | 'individual'
-  managerSentRequestIds: string[]
   mobileNavigationOpen: boolean
   onCloseMobileNavigation: () => void
   onSelectApprovalTab: (tab: ApprovalTabKey) => void
@@ -77,9 +75,7 @@ export function DashboardSidebar({
   activeSuperAdminTab,
   activeTab,
   managerCreateMenuOpen,
-  managerMarkedRequestIds,
   managerRequestScope,
-  managerSentRequestIds,
   mobileNavigationOpen,
   onCloseMobileNavigation,
   onSelectApprovalTab,
@@ -97,6 +93,7 @@ export function DashboardSidebar({
   const { t: tCommon } = useTranslation('common')
   const { t: translateAdmin } = useTranslation('admin')
   const { t: translateEmployee } = useTranslation('employee')
+  const { t: translateManager } = useTranslation('manager')
 
   const isItAdmin = role === 'it-admin'
   const isEmployee = role === 'employee'
@@ -131,7 +128,7 @@ export function DashboardSidebar({
             <div>
               <p className='font-bold tracking-[-0.02em]'>{tCommon('brand')}</p>
               <p className='mt-0.5 text-[0.65rem] font-semibold tracking-[0.12em] text-muted-foreground uppercase'>
-                {!isSuperAdmin && !isEmployee && t('demoNotice')}
+                {!isSuperAdmin && !isEmployee && !isManager && t('demoNotice')}
               </p>
             </div>
           </div>
@@ -319,30 +316,15 @@ export function DashboardSidebar({
                       type='button'
                     >
                       <div className='flex items-center gap-3'>
-                        <Icon aria-hidden='true' className='size-[1.125rem] shrink-0' />
-                        <span>{t(`manager.nav.${item.translationKey}`)}</span>
+                        <Icon aria-hidden='true' className='size-[1.125rem] shrink-0' strokeWidth={1.5} />
+                        <span>{translateManager(item.liveLabel)}</span>
                       </div>
                       {item.key === 'create-employee-request' && (
                         <ChevronDown
                           aria-hidden='true'
                           className={`size-4 transition-transform ${managerCreateMenuOpen ? 'rotate-180' : ''}`}
+                          strokeWidth={1.5}
                         />
-                      )}
-                      {item.badge !== undefined && (
-                        <span
-                          className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[0.65rem] font-bold ${
-                            isCurrent ? 'bg-white/20 text-white' : 'bg-surface-subtle text-muted-foreground'
-                          }`}
-                        >
-                          {item.key === 'team-requests'
-                            ? MOCK_TEAM_REQUESTS.filter(
-                                (request) =>
-                                  request.status === 'PENDING' && !managerMarkedRequestIds.includes(request.id)
-                              ).length
-                            : item.key === 'weekly-batch'
-                              ? managerMarkedRequestIds.filter((id) => !managerSentRequestIds.includes(id)).length
-                              : item.badge}
-                        </span>
                       )}
                     </button>
                     {item.key === 'create-employee-request' && managerCreateMenuOpen && (
@@ -359,7 +341,7 @@ export function DashboardSidebar({
                               onClick={() => onSelectManagerTab('create-employee-request', { scope })}
                               type='button'
                             >
-                              {t(scope === 'team' ? 'manager.nav.requestForTeam' : 'manager.nav.requestForIndividual')}
+                              {translateManager(scope === 'team' ? 'group' : 'individual')}
                             </button>
                           </li>
                         ))}

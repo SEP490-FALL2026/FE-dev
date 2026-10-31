@@ -1,99 +1,125 @@
-import { ArrowUpRight, FileText, Laptop, ShieldCheck } from 'lucide-react'
+import { ArrowRight, Building2, FileText, Laptop, LayoutDashboard, MessageSquare, Plus, UserRound } from 'lucide-react'
+import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useAccessRequestDraftList } from '~/shared/api/generated/operations/access-requests/access-request-draft-list'
-import { useHandoverDutyList } from '~/shared/api/generated/operations/handover-duties/handover-duty-list'
-import { EmployeeButton, EmployeeSection, EmployeeQueryState } from '../../shared/components/employee-api-ui'
+import { EmployeeButton, EmployeeSection } from '../../shared/components/employee-api-ui'
+import { EmployeePageHeader } from '../../shared/components/employee-page-header'
+import { EmployeeOverviewWork } from '../components/employee-overview-work'
 import type { EmployeeTabKey } from '../../enums'
 
 export function EmployeeLiveOverview({
   name,
+  departmentName,
+  jobTitle,
   selfServiceOnly,
   onSelectTab
 }: {
   name: string
+  departmentName?: string
+  jobTitle?: string | null
   selfServiceOnly: boolean
   onSelectTab: (tab: EmployeeTabKey) => void
 }) {
-  const { t: translate, i18n } = useTranslation('employee')
-  const drafts = useAccessRequestDraftList({ page: 1, pageSize: 1 }, { query: { enabled: !selfServiceOnly } })
-  const duties = useHandoverDutyList({ scope: 'mine', status: 'OPEN', page: 1, pageSize: 1 })
-  const formatCount = (value?: number) =>
-    value === undefined ? translate('noValue') : new Intl.NumberFormat(i18n.language).format(value)
-  const cards: {
-    key: 'handovers' | 'drafts'
-    icon: typeof ShieldCheck
-    query: typeof duties | typeof drafts
-    count: number | undefined
-  }[] = [
-    {
-      key: 'handovers',
-      icon: ShieldCheck,
-      query: duties,
-      count: !duties.isError ? duties.data?.data?.pagination.totalItems : undefined
-    },
-    ...(!selfServiceOnly
-      ? [
-          {
-            key: 'drafts' as const,
-            icon: FileText,
-            query: drafts,
-            count: !drafts.isError ? drafts.data?.data?.pagination.totalItems : undefined
-          }
-        ]
-      : [])
-  ]
+  const { t: translate } = useTranslation('employee')
+  const actionId = useId()
+  const actions = [
+    { tab: 'my-requests', label: 'quickRequests', hint: 'quickRequestsHint', icon: FileText },
+    { tab: 'my-software', label: 'quickAccess', hint: 'quickAccessHint', icon: Laptop },
+    { tab: 'issues', label: 'quickIssues', hint: 'quickIssuesHint', icon: MessageSquare }
+  ] as const
   return (
     <div className='space-y-6'>
-      <header className='flex flex-wrap items-start justify-between gap-4'>
-        <div className='min-w-0'>
-          <p className='mb-2 text-sm text-muted-foreground'>{translate('workspace')}</p>
-          <h1 className='truncate text-2xl font-semibold sm:text-3xl' title={name}>
-            {name}
-          </h1>
+      <EmployeePageHeader
+        title={translate('overview')}
+        icon={LayoutDashboard}
+        actions={
+          !selfServiceOnly && (
+            <EmployeeButton primary onClick={() => onSelectTab('create-request')}>
+              <Plus aria-hidden strokeWidth={1.5} className='size-4' />
+              {translate('create')}
+            </EmployeeButton>
+          )
+        }
+      />
+      <section className='workspace-overview-hero rounded-lg px-5 py-6 sm:px-7 sm:py-7'>
+        <div className='flex flex-wrap items-center justify-between gap-5'>
+          <div className='min-w-0'>
+            {departmentName && (
+              <p className='mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-widest opacity-75'>
+                <Building2 aria-hidden strokeWidth={1.5} className='size-4' />
+                {departmentName}
+              </p>
+            )}
+            <h2 className='text-xl font-semibold tracking-tight [overflow-wrap:anywhere] [text-wrap:balance] sm:text-2xl'>
+              {name}
+            </h2>
+            <p className='mt-3 max-w-xl text-sm leading-relaxed opacity-75'>
+              {translate(selfServiceOnly ? 'handoverHint' : 'redesign.overviewHint')}
+            </p>
+          </div>
+          <button
+            type='button'
+            className='inline-flex min-h-11 items-center gap-2 rounded-md border border-current/25 px-4 py-2 text-sm font-medium transition-colors hover:bg-white/10'
+            onClick={() => onSelectTab('profile')}
+          >
+            <UserRound aria-hidden strokeWidth={1.5} className='size-4' />
+            {translate('redesign.account')}
+            <ArrowRight aria-hidden strokeWidth={1.5} className='size-4' />
+          </button>
         </div>
+      </section>
+      <EmployeeOverviewWork selfServiceOnly={selfServiceOnly} onSelectTab={onSelectTab} />
+      <div
+        className={`grid items-start gap-5 ${selfServiceOnly ? '' : 'xl:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]'}`}
+      >
         {!selfServiceOnly && (
-          <EmployeeButton primary onClick={() => onSelectTab('create-request')}>
-            {translate('create')}
-          </EmployeeButton>
-        )}
-      </header>
-      <div className={`grid gap-4 ${!selfServiceOnly ? 'md:grid-cols-2' : ''}`}>
-        {cards.map(({ key, icon: Icon, query, count }) => (
-          <section key={key} className='rounded-lg border border-border/60 bg-surface p-5'>
-            <div className='flex items-center justify-between'>
-              <Icon className='size-5 text-muted-foreground' strokeWidth={1.5} />
-              <p className='text-right font-mono text-3xl tabular-nums'>{formatCount(count)}</p>
+          <EmployeeSection title={translate('redesign.quickActions')}>
+            <div className='divide-y divide-border/50'>
+              {actions.map(({ tab, label, hint, icon: Icon }) => (
+                <button
+                  key={tab}
+                  type='button'
+                  aria-label={translate(`redesign.${label}`)}
+                  aria-describedby={`${actionId}-${tab}`}
+                  className='group flex min-h-16 w-full items-start gap-3 rounded-md px-2 py-4 text-left transition-colors hover:bg-surface-subtle'
+                  onClick={() => onSelectTab(tab)}
+                >
+                  <Icon aria-hidden strokeWidth={1.5} className='mt-0.5 size-5 shrink-0 text-primary-ink' />
+                  <span className='min-w-0 flex-1'>
+                    <span className='block text-sm font-medium'>{translate(`redesign.${label}`)}</span>
+                    <span
+                      id={`${actionId}-${tab}`}
+                      className='mt-1.5 block text-sm leading-relaxed text-muted-foreground'
+                    >
+                      {translate(`redesign.${hint}`)}
+                    </span>
+                  </span>
+                  <ArrowRight
+                    aria-hidden
+                    strokeWidth={1.5}
+                    className='mt-0.5 size-4 shrink-0 text-muted-foreground group-hover:text-primary-ink'
+                  />
+                </button>
+              ))}
             </div>
-            <p className='mt-4 text-sm'>{translate(key)}</p>
-            <EmployeeQueryState query={query} />
-          </section>
-        ))}
+          </EmployeeSection>
+        )}
+        <EmployeeSection title={translate('redesign.account')}>
+          <dl className='divide-y divide-border/50 text-sm'>
+            <div className='flex flex-wrap justify-between gap-2 py-3'>
+              <dt className='text-muted-foreground'>{translate('department')}</dt>
+              <dd className='min-w-0 max-w-56 truncate' title={departmentName}>
+                {departmentName ?? translate('noValue')}
+              </dd>
+            </div>
+            <div className='flex flex-wrap justify-between gap-2 py-3'>
+              <dt className='text-muted-foreground'>{translate('jobTitle')}</dt>
+              <dd className='min-w-0 max-w-56 truncate' title={jobTitle ?? undefined}>
+                {jobTitle ?? translate('noValue')}
+              </dd>
+            </div>
+          </dl>
+        </EmployeeSection>
       </div>
-      <EmployeeSection title={translate('overview')}>
-        <div className='divide-y divide-border/50'>
-          {[
-            { tab: 'handovers', label: 'handovers', icon: ShieldCheck },
-            ...(!selfServiceOnly
-              ? [
-                  { tab: 'my-requests', label: 'myRequests', icon: FileText },
-                  { tab: 'my-software', label: 'mySoftware', icon: Laptop },
-                  { tab: 'issues', label: 'issues', icon: Laptop }
-                ]
-              : [])
-          ].map(({ tab, label, icon: Icon }) => (
-            <button
-              key={tab}
-              type='button'
-              onClick={() => onSelectTab(tab as EmployeeTabKey)}
-              className='flex min-h-16 w-full items-center gap-4 py-4 text-left transition-colors hover:bg-surface-subtle'
-            >
-              <Icon className='size-5 text-muted-foreground' strokeWidth={1.5} />
-              <span className='flex-1 text-sm font-medium'>{translate(label as 'handovers')}</span>
-              <ArrowUpRight className='size-4' strokeWidth={1.5} />
-            </button>
-          ))}
-        </div>
-      </EmployeeSection>
     </div>
   )
 }

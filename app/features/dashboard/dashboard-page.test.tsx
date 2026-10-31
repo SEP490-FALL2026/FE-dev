@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
-import { beforeAll, afterAll, beforeEach, describe, expect, it } from 'vitest'
+import { beforeAll, afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
 
@@ -9,6 +9,8 @@ import { AppProviders } from '~/providers/app-providers'
 import { setAppLanguage } from '~/shared/i18n/i18n'
 
 import { DashboardPage } from './dashboard-page'
+import { managerProfile } from '../../../test/fixtures/manager-api'
+import { pageResponse } from '../../../test/fixtures/employee-api'
 
 const server = setupServer(
   http.get('*/api/v1/me', () =>
@@ -24,6 +26,8 @@ const server = setupServer(
     })
   ),
   http.get('*/api/v1/notifications/unread-count', () => HttpResponse.json({ success: true, data: { unread: 0 } })),
+  http.get('*/api/v1/spend-queue', () => HttpResponse.json(pageResponse([]))),
+  http.get('*/api/v1/transfer-reviews', () => HttpResponse.json(pageResponse([]))),
   http.get('*/api/v1/handover-duties', () =>
     HttpResponse.json({
       success: true,
@@ -49,6 +53,7 @@ const server = setupServer(
 )
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 afterAll(() => server.close())
+afterEach(() => server.resetHandlers())
 
 const roleLabels: Record<UserRole, string> = {
   employee: 'Nhân viên',
@@ -304,112 +309,60 @@ describe('DashboardPage', () => {
     expect(screen.getByText(/Đang chờ Tài chính trả lời/)).toBeInTheDocument()
   })
 
-  it('renders the manager dashboard shell and navigates tabs', () => {
-    const view = renderDashboard('manager')
+  it('renders the manager dashboard shell and navigates live tabs', async () => {
+    server.use(http.get('*/api/v1/me', () => HttpResponse.json({ success: true, data: managerProfile })))
+    renderDashboard('manager')
+    expect(await screen.findByRole('heading', { level: 1, name: 'Tổng quan' })).toBeInTheDocument()
     const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
-
-    expect(screen.getByText('Bảng điều khiển Quản lý')).toBeInTheDocument()
     expect(screen.getByTestId('dashboard-role')).toHaveTextContent(roleLabels.manager)
-
-    // Click "Nhân viên của tôi"
-    const myTeamBtn = within(nav).getByRole('button', { name: /Nhân viên của tôi/i })
-    expect(myTeamBtn).not.toHaveClass('bg-primary')
-    fireEvent.click(myTeamBtn)
-    expect(myTeamBtn).toHaveClass('bg-primary')
-    expect(screen.getByRole('heading', { level: 1, name: 'Thành viên trong nhóm' })).toBeInTheDocument()
-
-    // Click "Phần mềm của nhóm"
-    const teamSoftBtn = within(nav).getByRole('button', { name: /Phần mềm của nhóm/i })
-    expect(teamSoftBtn).not.toHaveClass('bg-primary')
-    fireEvent.click(teamSoftBtn)
-    expect(teamSoftBtn).toHaveClass('bg-primary')
-    expect(myTeamBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByRole('heading', { level: 1, name: 'Phần mềm phòng ban sử dụng' })).toBeInTheDocument()
-
-    // Click "Yêu cầu phê duyệt"
-    const teamRequestsBtn = within(nav).getByRole('button', { name: /Yêu cầu phê duyệt/i })
-    fireEvent.click(teamRequestsBtn)
-    expect(teamRequestsBtn).toHaveClass('bg-primary')
-    expect(teamSoftBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByRole('heading', { level: 1, name: 'Yêu cầu phần mềm của nhóm' })).toBeInTheDocument()
-
-    // Click "Rà soát tài khoản lãng phí"
-    const ghostSeatBtn = within(nav).getByRole('button', { name: /Rà soát tài khoản lãng phí/i })
-    fireEvent.click(ghostSeatBtn)
-    expect(ghostSeatBtn).toHaveClass('bg-primary')
-    expect(teamRequestsBtn).not.toHaveClass('bg-primary')
-    expect(
-      screen.getByRole('heading', { level: 1, name: 'Rà soát mức sử dụng phần mềm của nhân viên' })
-    ).toBeInTheDocument()
-
+    const members = within(nav).getByRole('button', { name: 'Nhân sự phòng ban' })
+    fireEvent.click(members)
+    expect(members).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByLabelText('ID phòng ban')).toBeInTheDocument()
+    fireEvent.click(within(nav).getByRole('button', { name: 'Duyệt nhu cầu' }))
+    expect(await screen.findByRole('heading', { level: 1, name: 'Duyệt nhu cầu' })).toBeInTheDocument()
+    expect(screen.getByLabelText('ID yêu cầu')).toBeInTheDocument()
+    expect(screen.queryByText('REQ-M01')).not.toBeInTheDocument()
+  })
+  it('opens the annual budget only from Manager navigation', async () => {
+    await setAppLanguage('en', true)
+    server.use(
+      http.get('*/api/v1/me', () => HttpResponse.json({ success: true, data: managerProfile })),
+      http.get('*/api/v1/budget-proposals', () => HttpResponse.json(pageResponse([]))),
+      http.get('*/api/v1/budgets/mine', () => HttpResponse.json({ success: true, data: { budget: null } }))
+    )
+    const view = renderDashboard('manager')
+    fireEvent.click(screen.getByRole('button', { name: 'Annual budget' }))
+    expect(await screen.findByRole('heading', { level: 1, name: 'Annual budget' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'New proposal' })).toBeInTheDocument()
     view.unmount()
-  })
-
-  it('opens the annual budget proposal only from Manager navigation', async () => {
-    localStorage.setItem('saas-sentry.language', 'en')
-    await setAppLanguage('en', false)
-    const manager = renderDashboard('manager')
-    fireEvent.click(screen.getByRole('button', { name: 'Annual budget proposal' }))
-    expect(screen.getByRole('heading', { level: 1, name: 'Next year budget proposal' })).toBeInTheDocument()
-    manager.unmount()
-
+    server.resetHandlers()
     renderDashboard('employee')
-    expect(screen.queryByRole('button', { name: 'Annual budget proposal' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Annual budget' })).not.toBeInTheDocument()
   })
-
-  it('opens team and individual request forms from the Manager sidebar', async () => {
-    localStorage.setItem('saas-sentry.language', 'en')
-    await setAppLanguage('en', false)
+  it('opens group and delegated forms from the Manager sidebar', async () => {
+    await setAppLanguage('en', true)
+    server.use(http.get('*/api/v1/me', () => HttpResponse.json({ success: true, data: managerProfile })))
     renderDashboard('manager')
     const nav = screen.getByRole('navigation', { name: 'Dashboard navigation' })
-    const createButton = within(nav).getByRole('button', { name: 'Create Request' })
-
-    expect(createButton).toHaveAttribute('aria-expanded', 'false')
-    fireEvent.click(createButton)
-    expect(createButton).toHaveAttribute('aria-expanded', 'true')
-
-    fireEvent.click(within(nav).getByRole('button', { name: 'Request for team' }))
-    expect(screen.getByRole('heading', { level: 1, name: 'Create License Request for Team' })).toBeInTheDocument()
-    expect(screen.queryByRole('combobox', { name: 'Select Employee' })).not.toBeInTheDocument()
-    const members = screen.getByRole('group', { name: 'Select team members to receive access' })
-    const previewButton = screen.getByRole('button', { name: 'Preview Request' })
-    expect(previewButton).toBeDisabled()
-    fireEvent.click(within(members).getAllByRole('checkbox')[0])
-    expect(previewButton).toBeDisabled()
-    fireEvent.change(screen.getByRole('textbox', { name: 'Desired license plan' }), {
-      target: { value: 'Enterprise Custom' }
-    })
-    fireEvent.change(screen.getByLabelText('From date'), {
-      target: { value: '2026-01-01' }
-    })
-    fireEvent.change(screen.getByLabelText('To date'), { target: { value: '2025-12-31' } })
-    expect(screen.getByText('The end date must be on or after the start date.')).toBeInTheDocument()
-    expect(previewButton).toBeDisabled()
-    fireEvent.change(screen.getByLabelText('To date'), { target: { value: '2026-06-30' } })
-    expect(previewButton).toBeEnabled()
-    fireEvent.change(screen.getByRole('textbox', { name: 'Business Justification' }), {
-      target: { value: 'Shared access for the design project' }
-    })
-    fireEvent.click(previewButton)
-    expect(screen.getByText('Enterprise Custom')).toBeInTheDocument()
-    expect(screen.getByText('1/1/2026 – 6/30/2026')).toBeInTheDocument()
-
-    fireEvent.click(within(nav).getByRole('button', { name: 'Request for individual' }))
-    expect(screen.getByRole('heading', { level: 1, name: 'Create License Request for Employee' })).toBeInTheDocument()
-    expect(screen.getByRole('combobox', { name: 'Select Employee' })).toBeInTheDocument()
-    expect(screen.getByRole('textbox', { name: 'Desired license plan' })).toHaveValue('')
-    expect(screen.getByLabelText('From date')).toHaveValue('')
-    expect(screen.getByLabelText('To date')).toHaveValue('')
-    expect(within(nav).getByRole('button', { name: 'Request for individual' })).toHaveAttribute('aria-current', 'page')
+    const create = within(nav).getByRole('button', { name: 'Request on behalf' })
+    expect(create).toHaveAttribute('aria-expanded', 'false')
+    fireEvent.click(create)
+    fireEvent.click(within(nav).getByRole('button', { name: 'Group request' }))
+    expect(await screen.findByRole('heading', { level: 1, name: 'Group request' })).toBeInTheDocument()
+    expect(screen.getByRole('combobox', { name: 'Plan' })).toBeInTheDocument()
+    expect(screen.queryByLabelText('Plan ID')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Save preview' })).not.toBeInTheDocument()
+    fireEvent.click(within(nav).getByRole('button', { name: 'Delegated requests' }))
+    expect(await screen.findByRole('heading', { level: 1, name: 'Delegated requests' })).toBeInTheDocument()
+    expect(screen.getByRole('combobox', { name: 'Beneficiaries' })).toBeInTheDocument()
+    expect(screen.queryByLabelText('Beneficiary employee IDs (one per line)')).not.toBeInTheDocument()
   })
-
-  it('restores team request mode from the Manager URL', async () => {
-    localStorage.setItem('saas-sentry.language', 'en')
-    await setAppLanguage('en', false)
+  it('restores group mode from the Manager URL', async () => {
+    await setAppLanguage('en', true)
+    server.use(http.get('*/api/v1/me', () => HttpResponse.json({ success: true, data: managerProfile })))
     renderDashboard('manager', '/?tab=create-employee-request&scope=team')
-
-    expect(screen.getByRole('heading', { level: 1, name: 'Create License Request for Team' })).toBeInTheDocument()
-    const nav = screen.getByRole('navigation', { name: 'Dashboard navigation' })
-    expect(within(nav).getByRole('button', { name: 'Create Request' })).toHaveAttribute('aria-expanded', 'true')
+    expect(await screen.findByRole('heading', { level: 1, name: 'Group request' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Request on behalf' })).toHaveAttribute('aria-expanded', 'true')
   })
 })

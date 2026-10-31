@@ -33,27 +33,7 @@ import { getParentApprovalMenuKey, isValidApprovalTab, type ApprovalTabKey, Appr
 
 import { isValidFinanceTab, type FinanceTabKey, FinanceScreen } from './finance'
 
-import {
-  getParentManagerMenuKey,
-  isValidManagerTab,
-  type ManagerTabKey,
-  MOCK_TEAM_REQUESTS,
-  ManagerAccessReviewView,
-  ManagerAnnualBudgetView,
-  ManagerCreateEmployeeRequestView,
-  ManagerEmployeeDetailView,
-  ManagerGhostSeatDetailView,
-  ManagerGhostSeatReviewView,
-  ManagerMyTeamView,
-  ManagerMyRequestsView,
-  ManagerOverviewView,
-  ManagerRequestApprovalView,
-  ManagerTeamRequestsView,
-  ManagerTeamSoftwareView,
-  ManagerWeeklyBatchView,
-  type ManagerPreviewRequest,
-  type ManagerPreviewRequestInput
-} from './manager'
+import { getParentManagerMenuKey, isValidManagerTab, type ManagerTabKey, ManagerScreen } from './manager'
 import './manager/manager-workspace.css'
 
 import { isValidSuperAdminTab, type SuperAdminTabKey, SuperAdminScreen } from './super-admin'
@@ -65,7 +45,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
   const auth = useSyncExternalStore(subscribeAuthSession, getAuthState, getAuthState)
   const fullName = auth.session?.user.employee.fullName ?? ''
   const profile =
-    role === 'super-admin' || role === 'employee'
+    role === 'super-admin' || role === 'employee' || role === 'manager'
       ? {
           displayName: fullName,
           initials: fullName
@@ -99,13 +79,15 @@ export function DashboardPage({ role }: { role: UserRole }) {
   const activeEmployeeParent = isEmployee ? getParentEmployeeMenuKey(activeEmployeeTab) : 'overview'
 
   // Manager Tabs
-  const activeManagerTab: ManagerTabKey = isManager && isValidManagerTab(tabParam) ? tabParam : 'overview'
+  const managerFormPage = isManager && location.pathname.startsWith('/dashboard/manager/annual-budget/')
+  const activeManagerTab: ManagerTabKey = managerFormPage
+    ? 'annual-budget'
+    : isManager && isValidManagerTab(tabParam)
+      ? tabParam
+      : 'overview'
   const activeManagerParent = isManager
     ? getParentManagerMenuKey(activeManagerTab, searchParams.get('from'))
     : 'overview'
-  const [managerPreviewRequests, setManagerPreviewRequests] = useState<ManagerPreviewRequest[]>([])
-  const [managerMarkedRequestIds, setManagerMarkedRequestIds] = useState<string[]>([])
-  const [managerSentRequestIds, setManagerSentRequestIds] = useState<string[]>([])
   const managerRequestScope = searchParams.get('scope') === 'team' ? 'team' : 'individual'
   const [managerCreateMenuOpen, setManagerCreateMenuOpen] = useState(activeManagerTab === 'create-employee-request')
 
@@ -153,7 +135,15 @@ export function DashboardPage({ role }: { role: UserRole }) {
     updateTab(tab, extraParams)
   const handleSelectManagerTab = (tab: ManagerTabKey, extraParams?: Record<string, string>) => {
     if (tab === 'create-employee-request') setManagerCreateMenuOpen(true)
-    updateTab(tab, extraParams)
+    const departmentId = searchParams.get('departmentId')
+    const next = new URLSearchParams({
+      ...(departmentId ? { departmentId } : {}),
+      ...(tab === 'overview' ? {} : { tab }),
+      ...extraParams
+    })
+    if (managerFormPage) void navigate({ pathname: '/dashboard/manager', search: next.toString() })
+    else setSearchParams(next)
+    setMobileNavigationOpen(false)
   }
   const handleSelectApprovalTab = (tab: ApprovalTabKey, extraParams?: Record<string, string>) =>
     updateTab(tab, extraParams)
@@ -161,24 +151,6 @@ export function DashboardPage({ role }: { role: UserRole }) {
     updateTab(tab, extraParams)
   const handleSelectSuperAdminTab = (tab: SuperAdminTabKey, extraParams?: Record<string, string>) =>
     updateTab(tab, extraParams)
-
-  const handleSaveManagerPreview = (request: ManagerPreviewRequestInput) => {
-    const createdAt = new Date().toISOString()
-    setManagerPreviewRequests((current) => [
-      { ...request, id: `preview-${Date.now()}-${current.length}`, createdAt },
-      ...current
-    ])
-    handleSelectManagerTab('my-requests')
-  }
-
-  const handleMarkManagerRequest = (requestId: string) => {
-    setManagerMarkedRequestIds((current) => (current.includes(requestId) ? current : [...current, requestId]))
-    handleSelectManagerTab('weekly-batch')
-  }
-
-  const handleSendMarkedRequests = () => {
-    setManagerSentRequestIds((current) => [...new Set([...current, ...managerMarkedRequestIds])])
-  }
 
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat(locale, { currency: 'VND', maximumFractionDigits: 0, style: 'currency' }).format(value)
@@ -209,9 +181,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
         activeSuperAdminTab={activeSuperAdminTab}
         activeTab={activeTab}
         managerCreateMenuOpen={managerCreateMenuOpen}
-        managerMarkedRequestIds={managerMarkedRequestIds}
         managerRequestScope={managerRequestScope}
-        managerSentRequestIds={managerSentRequestIds}
         mobileNavigationOpen={mobileNavigationOpen}
         onCloseMobileNavigation={() => setMobileNavigationOpen(false)}
         onSelectApprovalTab={handleSelectApprovalTab}
@@ -291,74 +261,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
           ) : isEmployee ? (
             <EmployeeScreen tab={activeEmployeeTab} onSelectTab={handleSelectEmployeeTab} />
           ) : isManager ? (
-            activeManagerTab === 'overview' ? (
-              <ManagerOverviewView
-                displayName={profile.displayName}
-                formatCurrency={formatCurrency}
-                onSelectTab={handleSelectManagerTab}
-              />
-            ) : activeManagerTab === 'my-team' ? (
-              <ManagerMyTeamView onSelectTab={handleSelectManagerTab} />
-            ) : activeManagerTab === 'employee-detail' ? (
-              <ManagerEmployeeDetailView
-                backToReview={searchParams.get('from') === 'access-review'}
-                employeeId={searchParams.get('id') || undefined}
-                onSelectTab={handleSelectManagerTab}
-              />
-            ) : activeManagerTab === 'team-software' ? (
-              <ManagerTeamSoftwareView formatCurrency={formatCurrency} onSelectTab={handleSelectManagerTab} />
-            ) : activeManagerTab === 'team-requests' ? (
-              <ManagerTeamRequestsView
-                markedRequestIds={managerMarkedRequestIds}
-                sentRequestIds={managerSentRequestIds}
-                onSelectTab={handleSelectManagerTab}
-              />
-            ) : activeManagerTab === 'my-requests' ? (
-              <ManagerMyRequestsView
-                managerName={profile.displayName}
-                onSelectTab={handleSelectManagerTab}
-                requests={managerPreviewRequests}
-              />
-            ) : activeManagerTab === 'request-approval' ? (
-              <ManagerRequestApprovalView
-                formatCurrency={formatCurrency}
-                isMarked={managerMarkedRequestIds.includes(searchParams.get('id') || '')}
-                isSent={managerSentRequestIds.includes(searchParams.get('id') || '')}
-                onMarkForPreparation={handleMarkManagerRequest}
-                onSelectTab={handleSelectManagerTab}
-                requestId={searchParams.get('id') || undefined}
-              />
-            ) : activeManagerTab === 'create-employee-request' ? (
-              <ManagerCreateEmployeeRequestView
-                employeeId={searchParams.get('employeeId') || undefined}
-                formatCurrency={formatCurrency}
-                key={managerRequestScope}
-                onSelectTab={handleSelectManagerTab}
-                onSavePreview={handleSaveManagerPreview}
-                scope={managerRequestScope}
-              />
-            ) : activeManagerTab === 'weekly-batch' ? (
-              <ManagerWeeklyBatchView
-                onSelectTab={handleSelectManagerTab}
-                onSendAll={handleSendMarkedRequests}
-                requests={MOCK_TEAM_REQUESTS.filter(
-                  (item) => managerMarkedRequestIds.includes(item.id) && !managerSentRequestIds.includes(item.id)
-                )}
-                sentCount={managerSentRequestIds.length}
-              />
-            ) : activeManagerTab === 'annual-budget' ? (
-              <ManagerAnnualBudgetView />
-            ) : activeManagerTab === 'ghost-seat-review' ? (
-              <ManagerGhostSeatReviewView formatCurrency={formatCurrency} onSelectTab={handleSelectManagerTab} />
-            ) : activeManagerTab === 'ghost-seat-detail' ? (
-              <ManagerGhostSeatDetailView
-                formatCurrency={formatCurrency}
-                ghostId={searchParams.get('id') || undefined}
-                onSelectTab={handleSelectManagerTab}
-              />
-            ) : (
-              <ManagerAccessReviewView onSelectTab={handleSelectManagerTab} />
-            )
+            <ManagerScreen tab={activeManagerTab} onSelectTab={handleSelectManagerTab} />
           ) : isApprover ? (
             <ApprovalScreen
               displayName={profile.displayName}

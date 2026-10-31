@@ -1,4 +1,7 @@
 import { useTranslation } from 'react-i18next'
+import { MessageSquare, Plus } from 'lucide-react'
+import { EmployeePageHeader } from '../../shared/components/employee-page-header'
+import { EmployeeDataTable } from '../../shared/components/employee-data-table'
 import { useSaasIssueList } from '~/shared/api/generated/operations/saas-issues/saas-issue-list'
 import { useDashboardFormat } from '../../../dashboard-ui'
 import {
@@ -22,39 +25,63 @@ export function EmployeeIssuesView({
   const query = useSaasIssueList({ scope: 'mine', page, pageSize })
   return (
     <div className='space-y-6'>
-      <header className='flex flex-wrap items-center justify-between gap-4'>
-        <h1 className='text-2xl font-semibold'>{translate('issues')}</h1>
-        <EmployeeButton primary onClick={() => onSelectTab('report-issue')}>
-          {translate('reportIssue')}
-        </EmployeeButton>
-      </header>
-      <EmployeeSection title={translate('issues')}>
-        <EmployeeQueryState query={query} empty={!query.data?.data?.items.length} />
-        {!query.isError &&
-          query.data?.data?.items.map((issue) => (
-            <article
-              key={issue.id}
-              className='flex flex-wrap items-center justify-between gap-4 border-b border-border/40 py-4'
-            >
-              <div className='min-w-0'>
-                <p className='truncate font-mono text-xs' title={issue.code}>
-                  {issue.code}
-                </p>
-                <h2 className='mt-1 truncate text-sm font-semibold' title={issue.plan.applicationName}>
-                  {issue.plan.applicationName} · {issue.plan.planName}
-                </h2>
-                <p className='mt-1 text-right font-mono text-xs tabular-nums'>
-                  {translate('dueOn')}: {formatDate(issue.responseDueOn)}
-                </p>
-              </div>
-              <div className='flex items-center gap-3'>
-                <EmployeeStatus value={issue.state} />
-                <EmployeeButton onClick={() => onSelectTab('issue-detail', { id: issue.id })}>
-                  {translate('open')}
-                </EmployeeButton>
-              </div>
-            </article>
-          ))}
+      <EmployeePageHeader
+        title={translate('issues')}
+        icon={MessageSquare}
+        actions={
+          <EmployeeButton primary onClick={() => onSelectTab('report-issue')}>
+            <Plus aria-hidden strokeWidth={1.5} className='size-4' />
+            {translate('reportIssue')}
+          </EmployeeButton>
+        }
+      />
+      <EmployeeSection>
+        <EmployeeQueryState
+          query={query}
+          empty={!query.data?.data?.items.length}
+          emptyTitle={translate('redesign.noIssues')}
+          emptyDescription={translate('redesign.noIssuesHint')}
+        />
+        {!query.isError && (
+          <EmployeeDataTable
+            label={translate('issues')}
+            items={query.data?.data?.items ?? []}
+            rowKey={(issue) => issue.id}
+            columns={[
+              {
+                key: 'software',
+                label: translate('redesign.application'),
+                render: (issue) => (
+                  <div>
+                    <p className='max-w-56 truncate font-medium' title={issue.plan.applicationName}>
+                      {issue.plan.applicationName}
+                    </p>
+                    <p className='mt-1 max-w-56 truncate text-xs text-muted-foreground' title={issue.plan.planName}>
+                      {issue.plan.planName}
+                    </p>
+                  </div>
+                )
+              },
+              {
+                key: 'code',
+                label: translate('redesign.issueCode'),
+                render: (issue) => (
+                  <p className='truncate font-mono text-xs' title={issue.code}>
+                    {issue.code}
+                  </p>
+                )
+              },
+              {
+                key: 'due',
+                label: translate('dueOn'),
+                align: 'right',
+                render: (issue) => formatDate(issue.responseDueOn)
+              },
+              { key: 'status', label: translate('state'), render: (issue) => <EmployeeStatus value={issue.state} /> }
+            ]}
+            onOpen={(issue) => onSelectTab('issue-detail', { id: issue.id })}
+          />
+        )}
         <EmployeePagination pagination={query.data?.data?.pagination} onPage={onPage} busy={query.isFetching} />
       </EmployeeSection>
     </div>

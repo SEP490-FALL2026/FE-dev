@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { ArrowLeft, Bug } from 'lucide-react'
+import { EmployeePageHeader } from '../../shared/components/employee-page-header'
 import { useTranslation } from 'react-i18next'
 import { useSaasIssueFormOptions } from '~/shared/api/generated/operations/saas-issues/saas-issue-form-options'
 import { useSaasIssueSubmit } from '~/shared/api/generated/operations/saas-issues/saas-issue-submit'
@@ -42,9 +44,17 @@ export function EmployeeReportIssue({ onCreated, onBack }: { onCreated: (id: str
   })
   return (
     <div className='space-y-6'>
-      <EmployeeButton onClick={onBack}>{translate('back')}</EmployeeButton>
-      <h1 className='text-2xl font-semibold'>{translate('reportIssue')}</h1>
-      <EmployeeSection title={translate('reportIssue')}>
+      <EmployeePageHeader
+        title={translate('reportIssue')}
+        icon={Bug}
+        actions={
+          <EmployeeButton onClick={onBack}>
+            <ArrowLeft aria-hidden strokeWidth={1.5} className='size-4' />
+            {translate('back')}
+          </EmployeeButton>
+        }
+      />
+      <EmployeeSection title={translate('redesign.requestFields')}>
         <p className='max-w-3xl text-sm text-muted-foreground'>{translate('issueHint')}</p>
         <form
           className='space-y-5'
@@ -66,13 +76,18 @@ export function EmployeeReportIssue({ onCreated, onBack }: { onCreated: (id: str
           <EmployeeFormErrors fields={feedback.invalidFields}>
             <fieldset disabled={mutation.isPending || feedback.blocked} className='space-y-5'>
               <legend className='mb-3 text-sm font-medium'>{translate('chooseAssignment')}</legend>
-              <EmployeeQueryState query={options} empty={!options.data?.data?.items.length} />
+              <EmployeeQueryState
+                query={options}
+                empty={!options.data?.data?.items.length}
+                emptyTitle={translate('redesign.noAssignments')}
+                emptyDescription={translate('redesign.noAssignmentsHint')}
+              />
               {!options.isError && (
                 <div className='grid gap-2 sm:grid-cols-2'>
                   {options.data?.data?.items.map((assignment) => (
                     <label
                       key={assignment.assignmentId}
-                      className='flex min-h-11 min-w-0 items-center gap-3 rounded-md border border-border/60 p-3'
+                      className={`flex min-h-11 min-w-0 items-center gap-3 rounded-md border p-3 transition-colors ${assignmentId === assignment.assignmentId ? 'border-primary/50 bg-primary-soft/25' : 'border-border/60 hover:bg-surface-subtle'}`}
                     >
                       <input
                         required
@@ -149,7 +164,7 @@ export function EmployeeReportIssue({ onCreated, onBack }: { onCreated: (id: str
                 {translate('errors.unknownOutcome')}
               </p>
             )}
-            <div className='flex justify-end border-t border-border/60 pt-5'>
+            <div className='sticky bottom-0 flex justify-end border-t border-border/60 bg-surface pt-5 pb-[calc(1rem+env(safe-area-inset-bottom))]'>
               <EmployeeButton
                 primary
                 type='submit'

@@ -1,19 +1,17 @@
 import {
+  ArrowRightLeft,
   Boxes,
   ClipboardList,
-  FileCheck2,
   Files,
-  FolderOpen,
   Grid2X2,
+  Handshake,
   Landmark,
   Plus,
-  Sparkles,
   UsersRound,
   type LucideIcon
 } from 'lucide-react'
-
-import { type ManagerTabKey, MANAGER_TAB_KEYS } from './enums'
-export { type ManagerTabKey, MANAGER_TAB_KEYS }
+import { MANAGER_TAB_KEYS, type ManagerTabKey } from './enums'
+export { MANAGER_TAB_KEYS, type ManagerTabKey }
 
 export type ManagerTranslationKey =
   | 'overview'
@@ -26,100 +24,46 @@ export type ManagerTranslationKey =
   | 'createEmployeeRequest'
   | 'weeklyBatch'
   | 'annualBudget'
-
+  | 'transfers'
+  | 'notices'
+  | 'handovers'
+type LiveLabel =
+  | 'overview'
+  | 'team'
+  | 'personnel'
+  | 'tools'
+  | 'requests'
+  | 'create'
+  | 'batch'
+  | 'budget'
+  | 'transfers'
+  | 'notices'
+  | 'handovers'
 export interface ManagerNavItem {
-  badge?: number
   icon: LucideIcon
   key: ManagerTabKey
   translationKey: ManagerTranslationKey
+  liveLabel: LiveLabel
 }
-
 export const managerNavItems: ManagerNavItem[] = [
-  {
-    icon: Grid2X2,
-    key: 'overview',
-    translationKey: 'overview'
-  },
-  {
-    icon: UsersRound,
-    key: 'my-team',
-    translationKey: 'myTeam'
-  },
-  {
-    icon: Boxes,
-    key: 'team-software',
-    translationKey: 'teamSoftware'
-  },
-  {
-    badge: 3,
-    icon: ClipboardList,
-    key: 'team-requests',
-    translationKey: 'teamRequests'
-  },
-  {
-    icon: FolderOpen,
-    key: 'my-requests',
-    translationKey: 'myRequests'
-  },
-  {
-    badge: 4,
-    icon: Sparkles,
-    key: 'ghost-seat-review',
-    translationKey: 'ghostSeatReview'
-  },
-  {
-    badge: 6,
-    icon: FileCheck2,
-    key: 'access-review',
-    translationKey: 'accessReview'
-  },
-  {
-    icon: Plus,
-    key: 'create-employee-request',
-    translationKey: 'createEmployeeRequest'
-  },
-  {
-    badge: 0,
-    icon: Files,
-    key: 'weekly-batch',
-    translationKey: 'weeklyBatch'
-  },
-  {
-    icon: Landmark,
-    key: 'annual-budget',
-    translationKey: 'annualBudget'
-  }
+  { icon: Grid2X2, key: 'overview', translationKey: 'overview', liveLabel: 'overview' },
+  { icon: UsersRound, key: 'my-team', translationKey: 'myTeam', liveLabel: 'personnel' },
+  { icon: Boxes, key: 'team-software', translationKey: 'teamSoftware', liveLabel: 'tools' },
+  { icon: ClipboardList, key: 'team-requests', translationKey: 'teamRequests', liveLabel: 'requests' },
+  { icon: Plus, key: 'create-employee-request', translationKey: 'createEmployeeRequest', liveLabel: 'create' },
+  { icon: Files, key: 'weekly-batch', translationKey: 'weeklyBatch', liveLabel: 'batch' },
+  { icon: Landmark, key: 'annual-budget', translationKey: 'annualBudget', liveLabel: 'budget' },
+  { icon: ArrowRightLeft, key: 'transfer-reviews', translationKey: 'transfers', liveLabel: 'transfers' },
+  { icon: Handshake, key: 'handovers', translationKey: 'handovers', liveLabel: 'handovers' }
 ]
-
-const validTabs = new Set<string>([
-  'overview',
-  'my-team',
-  'employee-detail',
-  'team-software',
-  'team-requests',
-  'my-requests',
-  'request-approval',
-  'create-employee-request',
-  'weekly-batch',
-  'annual-budget',
-  'ghost-seat-review',
-  'ghost-seat-detail',
-  'access-review'
-])
-
+const validTabs = new Set<string>(MANAGER_TAB_KEYS)
 export function isValidManagerTab(value: string | null): value is ManagerTabKey {
   return value !== null && validTabs.has(value)
 }
-
 export function getParentManagerMenuKey(tab: ManagerTabKey, from?: string | null): ManagerTabKey {
-  if (tab === 'employee-detail') {
-    return from === 'access-review' ? 'access-review' : 'my-team'
-  }
-  if (tab === 'request-approval') {
-    return 'team-requests'
-  }
-  if (tab === 'ghost-seat-detail') {
-    return 'ghost-seat-review'
-  }
+  if (tab === 'personnel-notices') return 'my-team'
+  if (tab === 'employee-detail') return from === 'access-review' ? 'access-review' : 'my-team'
+  if (tab === 'request-approval') return 'team-requests'
+  if (tab === 'ghost-seat-detail') return 'ghost-seat-review'
   return tab
 }

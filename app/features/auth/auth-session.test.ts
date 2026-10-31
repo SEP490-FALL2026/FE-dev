@@ -78,6 +78,29 @@ describe('auth session', () => {
     expect(sessionStorage.getItem('saas-sentry.access-token')).toBeNull()
   })
 
+  it.each([
+    { effective: ['EMPLOYEE', 'MANAGER'], expected: 'manager' },
+    { effective: ['EMPLOYEE', 'SPENDING_APPROVER'], expected: 'spending-approver' },
+    { effective: ['EMPLOYEE', 'MANAGER', 'IT_ADMIN'], expected: 'it-admin' },
+    { effective: ['EMPLOYEE'], expected: 'employee' }
+  ])('opens the $expected workspace from effective roles regardless of API order', async ({ effective, expected }) => {
+    apiClient.defaults.adapter = async (config) => ({
+      config,
+      data: config.url?.endsWith('/me')
+        ? { ...me, data: { ...me.data, roles: { ...me.data.roles, effective } } }
+        : tokenPair('role'),
+      headers: new AxiosHeaders(),
+      status: 200,
+      statusText: 'OK'
+    })
+
+    const session = await login('person@example.com', 'secret')
+
+    expect(session.role).toBe(expected)
+    expect(session.roles).toContain(expected)
+    expect(session.roles).toHaveLength(effective.length)
+  })
+
   it('uses one refresh call for concurrent requests and rotates the refresh token', async () => {
     sessionStorage.setItem('saas-sentry.refresh-token', 'refresh-one')
     const refresh = vi.fn(async (config: InternalAxiosRequestConfig) => ({

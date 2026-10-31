@@ -233,12 +233,14 @@ export function Dialog({
   children,
   hint,
   onClose,
+  presentation,
   size = 'md',
   title
 }: {
   children: React.ReactNode
   hint?: string
   onClose: () => void
+  presentation?: 'drawer' | 'sheet'
   size?: 'lg' | 'md'
   title: string
 }) {
@@ -256,6 +258,7 @@ export function Dialog({
   }, [])
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.target instanceof Element && event.target.closest('[role="dialog"]') !== panelRef.current) return
     if (event.key === 'Escape') {
       event.preventDefault()
       onClose()
@@ -278,7 +281,7 @@ export function Dialog({
 
   return (
     <div
-      className='fixed inset-0 z-50 flex items-center justify-center bg-foreground/45 p-4 backdrop-blur-[2px]'
+      className={`fixed inset-0 z-50 flex bg-foreground/45 ${presentation === 'drawer' ? 'items-end justify-end sm:items-stretch' : presentation === 'sheet' ? 'items-end justify-center sm:items-center sm:p-4' : 'items-center justify-center p-4 backdrop-blur-[2px]'}`}
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose()
       }}
@@ -286,7 +289,7 @@ export function Dialog({
       <div
         aria-labelledby={titleId}
         aria-modal='true'
-        className={`max-h-[calc(100dvh-2rem)] w-full overflow-y-auto rounded-2xl border border-border bg-surface p-6 shadow-2xl outline-none ${
+        className={`${presentation === 'drawer' ? 'max-h-[95dvh] rounded-t-lg sm:max-h-screen sm:max-w-[640px] sm:rounded-none' : presentation === 'sheet' ? 'max-h-[95dvh] rounded-t-lg sm:max-h-[calc(100dvh-2rem)] sm:rounded-lg' : 'max-h-[calc(100dvh-2rem)] rounded-2xl'} w-full overflow-y-auto border border-border bg-surface p-6 shadow-2xl outline-none ${
           size === 'lg' ? 'max-w-3xl' : 'max-w-lg'
         }`}
         onKeyDown={handleKeyDown}
@@ -303,11 +306,11 @@ export function Dialog({
           </div>
           <button
             aria-label={t('ui.close')}
-            className='grid size-8 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-surface-subtle'
+            className={`grid ${presentation ? 'size-11 sm:size-8' : 'size-8'} shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-surface-subtle`}
             onClick={onClose}
             type='button'
           >
-            <X aria-hidden='true' className='size-4' />
+            <X aria-hidden='true' className='size-4' strokeWidth={1.5} />
           </button>
         </div>
         <div className='mt-5'>{children}</div>

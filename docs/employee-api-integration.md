@@ -2,7 +2,7 @@
 
 Ngày đối chiếu: 31/10/2026. Nguồn: `../docs/Figma UI-UX/API-Integration/roles/employee.md`, quy ước, reference và enum do BE cung cấp; OpenAPI đang chạy tại `https://wdp.novaproj.site/api/docs-json`.
 
-Swagger đang chạy và `openapi/openapi.yaml` có cùng SHA-256: `68639fa96dc15d5ae621d121909987badde92e58373b066413b205ad4998d694`.
+Snapshot `openapi/openapi.yaml` hiện có SHA-256 `e3838d6fb5dde0f6d3e8b14a15dec7f705f40a999732194e00e1451d6e34647b`, đã được cập nhật trong đợt tích hợp Manager. Đợt chỉnh UI Employee không đổi contract/generated và không đối chiếu Swagger trực tiếp lại.
 Tài liệu hướng dẫn BE ghi revision `25d524477406`, hash contract `926f0b757c8989cc...`; đây là revision tài liệu, không phải bằng chứng image VPS hiện tại. Khi có khác biệt, DTO và đường dẫn lấy từ Swagger hiện tại; không sửa tay generated client.
 
 ## Luồng được nối
@@ -44,7 +44,19 @@ Kiểm thử MSW và component nằm tại `employee-api.test.tsx`, `employee-su
 
 Điều chỉnh chuông thông báo: 28 test trong 5 file liên quan đạt, gồm test riêng tại `notifications/employee-notification-bell.test.tsx`. Bao phủ một toast cho mỗi lần nhấn, chặn nhấn lặp, cập nhật số chưa đọc, fallback mã lạ, trạng thái rỗng, lỗi API và giữ trang hiện tại. `pnpm typecheck` và ESLint các file sửa đạt.
 
-## Kết quả xác minh ngày 31/10/2026
+## Rà soát giao diện Employee
+
+- Dùng chung header, section, empty state và bảng responsive tại `app/shared/ui/workspace-*`; Employee và Manager chỉ dùng wrapper bản dịch của mình. Không import chéo role hoặc nối thêm endpoint đặc quyền.
+- Tổng quan có khối nhận diện nhân viên, tổng số bản nháp và việc bàn giao từ BE, danh sách tối đa bốn bàn giao đang mở và các thao tác nhanh. Không đếm một trang làm tổng, không biến lỗi thành 0, không thêm số liệu usage hay toàn bộ assignment.
+- Quyền sử dụng phân biệt nhắc hết hạn với lịch sử hoàn trả; giữ hai bộ phân trang độc lập, nút gia hạn dùng đúng `assignmentId`. Bản nháp có bảng, menu thao tác và vùng tra cứu yêu cầu riêng; không gọi đó là lịch sử toàn bộ đơn.
+- Biểu mẫu giữ payload, draft và quy tắc kiểm tra lại trước khi gửi. Chi tiết yêu cầu có vùng timeline riêng; chi tiết sự cố có tóm tắt và khu vực trao đổi. Hồ sơ/bảo mật có phân cấp rõ; privacy hiển thị đúng dữ liệu chưa có.
+- Chuông Employee giữ nguyên cơ chế một thông báo/toast mỗi lần nhấn; không tạo trang hoặc lối tắt thông báo mới. Giữ giới hạn `selfServiceOnly`, xác nhận mobile dùng sheet và vùng thao tác form dài ghim cuối form.
+
+Kiểm chứng sau chỉnh UI: 78 test Employee/locale và các luồng Manager dùng chung UI đều qua. Ba test mới xác nhận tổng số do BE báo, phục hồi số đếm sau lỗi, phân trang độc lập và gia hạn đúng assignment. TypeScript, build production, ESLint và Prettier phạm vi sửa đều qua. Build còn cảnh báo kích thước chunk dashboard. Không sửa generated/Orval hoặc ghi dữ liệu vào BE thật trong đợt này.
+
+Chưa kiểm tra hình ảnh desktop/mobile: công cụ báo browser access host và native pipe không khả dụng. Các test MSW không thay thế kiểm tra giao diện hay nghiệp vụ có tài khoản trên BE thật.
+
+## Kết quả xác minh trước rà soát UI
 
 - `api:validate` và Orval generation từ snapshot đã đối chiếu: đạt.
 - ESLint trên toàn bộ file thay đổi do tác vụ này: đạt. Các file TS/TSX viết tay được sửa/tạo đều không vượt 500 dòng.

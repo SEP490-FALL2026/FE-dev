@@ -1,4 +1,7 @@
 import { useRef } from 'react'
+import { FilePlus2 } from 'lucide-react'
+import { EmployeePageHeader } from '../../shared/components/employee-page-header'
+import { EmployeeRequestGuide } from '../components/employee-request-guide'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import {
@@ -28,26 +31,31 @@ export function EmployeeLiveCreateView({
     value === 'group' || value === 'proposal' || value === 'renewal' || value === 'return' ? value : 'individual'
   return (
     <div className='space-y-6'>
-      <h1 className='text-2xl font-semibold tracking-tight'>{translate('create')}</h1>
-      <nav aria-label={translate('mode')} className='flex flex-wrap gap-2'>
+      <EmployeePageHeader title={translate('create')} icon={FilePlus2} />
+      <nav aria-label={translate('mode')} className='flex gap-1 overflow-x-auto border-b border-border/60 pb-3'>
         {(['individual', 'group', 'proposal', 'renewal', 'return'] as const).map((option) => (
           <button
             key={option}
             type='button'
             aria-pressed={mode === option}
-            className={`min-h-11 rounded-md border px-3 text-sm ${mode === option ? 'border-primary bg-primary-soft text-primary' : 'border-border hover:bg-surface-subtle'}`}
+            className={`min-h-11 shrink-0 rounded-md px-4 text-sm font-medium whitespace-nowrap transition-colors ${mode === option ? 'bg-primary-soft text-primary-ink' : 'text-muted-foreground hover:bg-surface-subtle'}`}
             onClick={() => setSearchParams({ tab: 'create-request', mode: option })}
           >
             {translate(option)}
           </button>
         ))}
       </nav>
-      <LiveCreateForm
-        key={`${mode}:${searchParams.get('assignmentId') ?? ''}`}
-        mode={mode}
-        assignmentId={searchParams.get('assignmentId') ?? ''}
-        onSelectTab={onSelectTab}
-      />
+      <div className='grid items-start gap-5 2xl:grid-cols-[minmax(0,1fr)_300px]'>
+        <LiveCreateForm
+          key={`${mode}:${searchParams.get('assignmentId') ?? ''}`}
+          mode={mode}
+          assignmentId={searchParams.get('assignmentId') ?? ''}
+          onSelectTab={onSelectTab}
+        />
+        <aside className='hidden min-w-0 2xl:block'>
+          <EmployeeRequestGuide needsPreview={mode === 'individual' || mode === 'group'} />
+        </aside>
+      </div>
     </div>
   )
 }
@@ -182,7 +190,7 @@ function LiveCreateForm({
               {translate('errors.unknownOutcome')}
             </p>
           )}
-          <div className='flex flex-wrap justify-end gap-3 border-t border-border/60 pt-5'>
+          <div className='sticky bottom-0 flex flex-wrap justify-end gap-3 border-t border-border/60 bg-surface pt-5 pb-[calc(1rem+env(safe-area-inset-bottom))]'>
             {needsPreview && (
               <EmployeeButton
                 type='button'

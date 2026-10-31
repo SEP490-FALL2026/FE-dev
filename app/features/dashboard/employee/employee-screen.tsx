@@ -48,7 +48,13 @@ export function EmployeeScreen({
   let content
   if (restricted || tab === 'overview')
     content = (
-      <EmployeeLiveOverview name={user.employee.fullName} selfServiceOnly={selfServiceOnly} onSelectTab={onSelectTab} />
+      <EmployeeLiveOverview
+        name={user.employee.fullName}
+        departmentName={user.employee.department?.name}
+        jobTitle={user.employee.jobTitle}
+        selfServiceOnly={selfServiceOnly}
+        onSelectTab={onSelectTab}
+      />
     )
   else if (tab === 'handovers') content = <EmployeeHandoversView />
   else if (tab === 'profile') content = <EmployeeLiveProfile />

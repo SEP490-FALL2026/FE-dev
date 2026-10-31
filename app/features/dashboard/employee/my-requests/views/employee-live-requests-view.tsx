@@ -1,4 +1,7 @@
 import { useState } from 'react'
+import { FileText, MoreHorizontal, Plus, Search } from 'lucide-react'
+import { EmployeePageHeader } from '../../shared/components/employee-page-header'
+import { EmployeeDataTable } from '../../shared/components/employee-data-table'
 import { useTranslation } from 'react-i18next'
 import {
   useAccessRequestDraftList,
@@ -59,60 +62,96 @@ export function EmployeeLiveRequestsView({
   const busy = deletion.isPending || submission.isPending
   return (
     <div className='space-y-6'>
-      <header className='flex flex-wrap items-center justify-between gap-4'>
-        <h1 className='text-2xl font-semibold'>{translate('myRequests')}</h1>
-        <EmployeeButton primary onClick={() => onSelectTab('create-request')}>
-          {translate('create')}
-        </EmployeeButton>
-      </header>
-      <EmployeeSection title={translate('lookup')}>
-        <p className='max-w-3xl text-sm text-muted-foreground'>{translate('lookupHint')}</p>
-        <form
-          className='flex flex-wrap items-end gap-3'
-          onSubmit={(event) => {
-            event.preventDefault()
-            onSelectTab('request-detail', { id: lookup.trim() })
-          }}
-        >
-          <div className='min-w-0 flex-1'>
-            <EmployeeField label={translate('requestCode')}>
-              <EmployeeInput
-                required
-                pattern={uuidPattern}
-                value={lookup}
-                onChange={(event) => setLookup(event.target.value)}
-              />
-            </EmployeeField>
-          </div>
-          <EmployeeButton type='submit'>{translate('open')}</EmployeeButton>
-        </form>
-      </EmployeeSection>
-      <EmployeeSection title={translate('drafts')}>
-        <EmployeeQueryState query={query} empty={!query.data?.data?.items.length} />
-        {!query.isError && (
-          <ul className='divide-y divide-border/50'>
-            {query.data?.data?.items.map((draft) => (
-              <li key={draft.id} className='flex flex-wrap items-center justify-between gap-4 py-4'>
-                <div className='min-w-0 space-y-2'>
-                  <p className='max-w-full truncate font-mono text-xs' title={draft.id}>
-                    {draft.id}
-                  </p>
-                  <EmployeeStatus value={draft.kind} />
-                  <p className='max-w-full truncate text-xs text-muted-foreground' title={draft.planId}>
-                    {translate('planId')}: {draft.planId}
-                  </p>
-                </div>
-                <div className='space-y-2 text-right'>
-                  <p className='font-mono text-xs tabular-nums'>{formatDateTime(draft.createdAt)}</p>
-                  <p className='font-mono text-xs tabular-nums'>
-                    {translate('beneficiary')}: {formatNumber(draft.beneficiaryCount)}
-                  </p>
-                  <details className='relative'>
+      <EmployeePageHeader
+        title={translate('myRequests')}
+        icon={FileText}
+        actions={
+          <EmployeeButton primary onClick={() => onSelectTab('create-request')}>
+            <Plus aria-hidden strokeWidth={1.5} className='size-4' />
+            {translate('create')}
+          </EmployeeButton>
+        }
+      />
+      <div className='grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_320px]'>
+        <aside className='min-w-0 xl:order-2'>
+          <EmployeeSection title={translate('lookup')}>
+            <p className='max-w-3xl text-sm text-muted-foreground'>{translate('lookupHint')}</p>
+            <form
+              className='space-y-3'
+              onSubmit={(event) => {
+                event.preventDefault()
+                onSelectTab('request-detail', { id: lookup.trim() })
+              }}
+            >
+              <div className='min-w-0 flex-1'>
+                <EmployeeField label={translate('requestCode')}>
+                  <EmployeeInput
+                    required
+                    pattern={uuidPattern}
+                    value={lookup}
+                    onChange={(event) => setLookup(event.target.value)}
+                  />
+                </EmployeeField>
+              </div>
+              <EmployeeButton type='submit'>
+                <Search aria-hidden strokeWidth={1.5} className='size-4' />
+                {translate('open')}
+              </EmployeeButton>
+            </form>
+          </EmployeeSection>
+        </aside>
+        <div className='min-w-0 xl:order-1'>
+          <EmployeeSection title={translate('drafts')}>
+            <EmployeeQueryState
+              query={query}
+              empty={!query.data?.data?.items.length}
+              emptyTitle={translate('redesign.noDrafts')}
+              emptyDescription={translate('redesign.noDraftsHint')}
+            />
+            {!query.isError && (
+              <EmployeeDataTable
+                label={translate('drafts')}
+                actionLabel={translate('redesign.actions')}
+                items={query.data?.data?.items ?? []}
+                rowKey={(draft) => draft.id}
+                columns={[
+                  {
+                    key: 'draft',
+                    label: translate('redesign.draftId'),
+                    render: (draft) => (
+                      <div>
+                        <p className='truncate font-mono text-xs' title={draft.id}>
+                          {draft.id}
+                        </p>
+                        <div className='mt-2'>
+                          <EmployeeStatus value={draft.kind} />
+                        </div>
+                        <p className='mt-2 truncate text-xs text-muted-foreground' title={draft.planId}>
+                          {translate('planId')}: {draft.planId}
+                        </p>
+                      </div>
+                    )
+                  },
+                  {
+                    key: 'beneficiaries',
+                    label: translate('redesign.peopleCount'),
+                    align: 'right',
+                    render: (draft) => formatNumber(draft.beneficiaryCount)
+                  },
+                  {
+                    key: 'date',
+                    label: translate('redesign.createdAt'),
+                    align: 'right',
+                    render: (draft) => formatDateTime(draft.createdAt)
+                  }
+                ]}
+                renderAction={(draft) => (
+                  <details className='relative inline-block'>
                     <summary
-                      className='min-h-11 cursor-pointer rounded-md border border-border px-4 py-2 text-center'
-                      aria-label={translate('open')}
+                      className='grid size-11 cursor-pointer list-none place-items-center rounded-md text-muted-foreground transition-colors hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary [&::-webkit-details-marker]:hidden'
+                      aria-label={translate('redesign.actions')}
                     >
-                      ···
+                      <MoreHorizontal aria-hidden strokeWidth={1.5} className='mx-auto size-5' />
                     </summary>
                     <div className='absolute right-0 z-10 grid min-w-44 gap-2 rounded-md border border-border bg-surface p-2 shadow-md'>
                       <EmployeeButton
@@ -129,15 +168,16 @@ export function EmployeeLiveRequestsView({
                       </EmployeeButton>
                     </div>
                   </details>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-        <EmployeePagination pagination={query.data?.data?.pagination} onPage={onPage} busy={query.isFetching} />
-      </EmployeeSection>
+                )}
+              />
+            )}
+            <EmployeePagination pagination={query.data?.data?.pagination} onPage={onPage} busy={query.isFetching} />
+          </EmployeeSection>
+        </div>
+      </div>
       {action && (
         <Dialog
+          presentation='sheet'
           title={translate('draftConfirm')}
           hint={translate(action.kind === 'delete' ? 'deleteHint' : 'submitDraftHint')}
           onClose={() => {

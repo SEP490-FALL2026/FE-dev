@@ -11,7 +11,11 @@ export const MANAGER_TAB_KEYS = [
   'annual-budget',
   'ghost-seat-review',
   'ghost-seat-detail',
-  'access-review'
+  'access-review',
+  'transfer-reviews',
+  'personnel-notices',
+  'handovers',
+  'notifications'
 ] as const
 
 export type ManagerTabKey = (typeof MANAGER_TAB_KEYS)[number]

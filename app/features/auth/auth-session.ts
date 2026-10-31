@@ -7,7 +7,7 @@ import { authLogout } from '~/shared/api/generated/operations/auth/auth-logout'
 import { authRefresh } from '~/shared/api/generated/operations/auth/auth-refresh'
 import { getMeGetQueryOptions } from '~/shared/api/generated/operations/me/me-get'
 import { configureApiAuth } from '~/shared/api/axios-client'
-import type { UserRole } from '~/entities/user-role/user-role'
+import { USER_ROLES, type UserRole } from '~/entities/user-role/user-role'
 
 const REFRESH_KEY = 'saas-sentry.refresh-token'
 const TOKENS_KEY = 'saas-sentry.auth-tokens'
@@ -133,7 +133,8 @@ export function configureAuthQueryClient(client: QueryClient | null) {
 
 function sessionFromProfile(user: NonNullable<MeResponseDtoData>): AuthSession {
   const roles = user.roles.effective.map((value) => ROLE_MAP[value]).filter((role): role is UserRole => Boolean(role))
-  return { user, roles, role: roles[0] ?? null }
+  const role = USER_ROLES.find((candidate) => roles.includes(candidate)) ?? null
+  return { user, roles, role }
 }
 export function subscribeAuthSession(listener: () => void) {
   listeners.add(listener)

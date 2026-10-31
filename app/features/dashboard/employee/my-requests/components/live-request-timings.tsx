@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { useAccessRequestTimingsGet } from '~/shared/api/generated/operations/access-requests/access-request-timings-get'
 import { useDashboardFormat } from '../../../dashboard-ui'
-import { EmployeeQueryState, EmployeeStatus } from '../../shared/components/employee-api-ui'
+import { EmployeeQueryState, EmployeeSection, EmployeeStatus } from '../../shared/components/employee-api-ui'
 
 export function LiveRequestTimings({ id }: { id: string }) {
   const { t: translate } = useTranslation('employee')
@@ -9,8 +9,7 @@ export function LiveRequestTimings({ id }: { id: string }) {
   const query = useAccessRequestTimingsGet(id)
   const timings = !query.isError ? query.data?.data?.timings : undefined
   return (
-    <section className='space-y-4 border-t border-border/60 pt-4'>
-      <h2 className='font-semibold'>{translate('timeline')}</h2>
+    <EmployeeSection title={translate('timeline')}>
       <EmployeeQueryState query={query} empty={!timings} />
       {timings && (
         <ol className='space-y-3'>
@@ -19,7 +18,10 @@ export function LiveRequestTimings({ id }: { id: string }) {
             .map(
               ([kind, segment]) =>
                 segment && (
-                  <li key={kind} className='flex flex-wrap items-center justify-between gap-3'>
+                  <li
+                    key={kind}
+                    className='relative space-y-3 border-l border-border/60 pb-3 pl-4 before:absolute before:top-2 before:-left-1 before:size-2 before:rounded-full before:bg-primary'
+                  >
                     <EmployeeStatus value={kind} />
                     <p className='text-right font-mono text-xs tabular-nums'>
                       {formatDateTime(segment.startedAt)}
@@ -30,6 +32,6 @@ export function LiveRequestTimings({ id }: { id: string }) {
             )}
         </ol>
       )}
-    </section>
+    </EmployeeSection>
   )
 }

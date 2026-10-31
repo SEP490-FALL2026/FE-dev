@@ -68,6 +68,7 @@ export function LiveRequestLines({ id, isRequester }: { id: string; isRequester:
       <EmployeePagination pagination={query.data?.data?.pagination} onPage={onPage} busy={query.isFetching} />
       {selected && (
         <Dialog
+          presentation='sheet'
           title={translate('withdrawConfirm')}
           hint={selected.name}
           onClose={() => {

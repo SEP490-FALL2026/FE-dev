@@ -1,4 +1,6 @@
 import { useTranslation } from 'react-i18next'
+import { ArrowLeft, MessageSquare } from 'lucide-react'
+import { EmployeePageHeader } from '../../shared/components/employee-page-header'
 import { useSaasIssueGet, getSaasIssueGetQueryKey } from '~/shared/api/generated/operations/saas-issues/saas-issue-get'
 import {
   useSaasIssueEntryList,
@@ -47,38 +49,89 @@ export function EmployeeIssueDetail({ id, onBack }: { id: string; onBack: () => 
     new Date(issue.reopenUntil).getTime() > new Date().getTime()
   return (
     <div className='space-y-6'>
-      <EmployeeButton onClick={onBack}>{translate('back')}</EmployeeButton>
-      <h1 className='text-2xl font-semibold'>{translate('issueDetail')}</h1>
-      <EmployeeSection title={issue?.plan.applicationName ?? translate('issueDetail')}>
-        <EmployeeQueryState query={query} empty={!issue} />
-        {issue && (
-          <>
-            <div className='flex flex-wrap justify-between gap-2'>
-              <p className='truncate font-mono text-xs' title={issue.code}>
-                {issue.code}
-              </p>
-              <EmployeeStatus value={issue.state} />
-            </div>
-            <p className='text-sm break-words whitespace-pre-wrap'>{issue.description}</p>
-            {issue.resolution && (
-              <p className='text-sm'>
-                {translate('resolution')}: {issue.resolution}
-              </p>
+      <EmployeePageHeader
+        title={translate('issueDetail')}
+        icon={MessageSquare}
+        actions={
+          <EmployeeButton onClick={onBack}>
+            <ArrowLeft aria-hidden strokeWidth={1.5} className='size-4' />
+            {translate('back')}
+          </EmployeeButton>
+        }
+      />
+      <div className='grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(300px,0.6fr)]'>
+        <div className='min-w-0 xl:order-2'>
+          <EmployeeSection title={issue?.plan.applicationName ?? translate('redesign.softwareDetails')}>
+            <EmployeeQueryState query={query} empty={!issue} />
+            {issue && (
+              <>
+                <div className='flex flex-wrap items-center justify-between gap-3'>
+                  <p className='truncate font-mono text-xs' title={issue.code}>
+                    {issue.code}
+                  </p>
+                  <EmployeeStatus value={issue.state} />
+                </div>
+                <p className='text-sm leading-relaxed break-words whitespace-pre-wrap'>{issue.description}</p>
+                <dl className='space-y-4 border-t border-border/50 pt-4 text-sm'>
+                  <div className='flex flex-wrap justify-between gap-2'>
+                    <dt className='text-muted-foreground'>{translate('category')}</dt>
+                    <dd>{translate(`statuses.${issue.category}`, { defaultValue: translate('noValue') })}</dd>
+                  </div>
+                  <div className='flex flex-wrap justify-between gap-2'>
+                    <dt className='text-muted-foreground'>{translate('impact')}</dt>
+                    <dd>{translate(`statuses.${issue.impact}`, { defaultValue: translate('noValue') })}</dd>
+                  </div>
+                  <div>
+                    <dt className='text-muted-foreground'>{translate('occurredAt')}</dt>
+                    <dd className='mt-2 text-right font-mono text-xs tabular-nums'>
+                      {formatDateTime(issue.occurredAt)}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className='text-muted-foreground'>{translate('dueOn')}</dt>
+                    <dd className='mt-2 text-right font-mono text-xs tabular-nums'>
+                      {formatDateTime(issue.responseDueOn)}
+                    </dd>
+                  </div>
+                </dl>
+                {issue.resolution && (
+                  <div className='rounded-md bg-surface-subtle p-3'>
+                    <p className='text-xs font-medium text-muted-foreground'>{translate('resolution')}</p>
+                    <p className='mt-2 text-sm leading-relaxed break-words whitespace-pre-wrap'>{issue.resolution}</p>
+                  </div>
+                )}
+              </>
             )}
-            <section className='space-y-3 border-t border-border/60 pt-4'>
-              <h2 className='font-semibold'>{translate('conversation')}</h2>
-              <EmployeeQueryState query={entries} empty={!entries.data?.data?.items.length} />
+          </EmployeeSection>
+        </div>
+        {issue && (
+          <div className='min-w-0 xl:order-1'>
+            <EmployeeSection title={translate('conversation')}>
+              <EmployeeQueryState
+                query={entries}
+                empty={!entries.data?.data?.items.length}
+                emptyTitle={translate('redesign.noConversation')}
+                emptyDescription={translate('redesign.noConversationHint')}
+              />
               {!entries.isError &&
                 entries.data?.data?.items.map((entry) => (
-                  <article key={entry.id} className='border-b border-border/40 py-3'>
-                    <div className='flex flex-wrap justify-between gap-2'>
-                      <p className='truncate text-xs font-medium' title={entry.author?.fullName}>
+                  <article key={entry.id} className='rounded-lg border border-border/50 bg-surface-subtle/30 p-4'>
+                    <div className='flex flex-wrap items-center justify-between gap-3'>
+                      <p className='max-w-56 truncate text-sm font-medium' title={entry.author?.fullName}>
                         {entry.author?.fullName ?? translate('noValue')}
                       </p>
-                      <p className='text-right font-mono text-xs tabular-nums'>{formatDateTime(entry.createdAt)}</p>
+                      <p className='text-right font-mono text-xs text-muted-foreground tabular-nums'>
+                        {formatDateTime(entry.createdAt)}
+                      </p>
                     </div>
-                    {entry.body && <p className='mt-2 text-sm break-words whitespace-pre-wrap'>{entry.body}</p>}
-                    {entry.toState && <EmployeeStatus value={entry.toState} />}
+                    {entry.body && (
+                      <p className='mt-3 text-sm leading-relaxed break-words whitespace-pre-wrap'>{entry.body}</p>
+                    )}
+                    {entry.toState && (
+                      <div className='mt-3'>
+                        <EmployeeStatus value={entry.toState} />
+                      </div>
+                    )}
                   </article>
                 ))}
               <EmployeePagination
@@ -86,47 +139,47 @@ export function EmployeeIssueDetail({ id, onBack }: { id: string; onBack: () => 
                 onPage={onPage}
                 busy={entries.isFetching}
               />
-            </section>
-            {(canMessage || canReopen) && (
-              <form
-                className='space-y-4 border-t border-border/60 pt-4'
-                onSubmit={async (event) => {
-                  event.preventDefault()
-                  if (busy || feedback.blocked) return
-                  const form = event.currentTarget
-                  const body = String(new FormData(form).get('message') ?? '').trim()
-                  if (!body) return
-                  try {
-                    if (canReopen) await reopen.mutateAsync({ id, data: { reason: body } })
-                    else await message.mutateAsync({ id, data: { body } })
-                    form.reset()
-                  } catch {
-                    /* Mutation feedback preserves the draft. */
-                  }
-                }}
-              >
-                <EmployeeField label={translate(canReopen ? 'reopenReason' : 'message')}>
-                  <textarea
-                    required
-                    name='message'
-                    maxLength={canReopen ? 1000 : 2000}
-                    rows={3}
-                    className={employeeInputClass}
-                    disabled={busy || feedback.blocked}
-                  />
-                </EmployeeField>
-                <div className='flex justify-end'>
-                  <EmployeeButton primary type='submit' busy={busy} disabled={feedback.blocked}>
-                    {feedback.retrySeconds
-                      ? translate('retryAfter', { seconds: feedback.retrySeconds })
-                      : translate(canReopen ? 'reopen' : 'sendMessage')}
-                  </EmployeeButton>
-                </div>
-              </form>
-            )}
-          </>
+              {(canMessage || canReopen) && (
+                <form
+                  className='space-y-4 border-t border-border/60 pt-4'
+                  onSubmit={async (event) => {
+                    event.preventDefault()
+                    if (busy || feedback.blocked) return
+                    const form = event.currentTarget
+                    const body = String(new FormData(form).get('message') ?? '').trim()
+                    if (!body) return
+                    try {
+                      if (canReopen) await reopen.mutateAsync({ id, data: { reason: body } })
+                      else await message.mutateAsync({ id, data: { body } })
+                      form.reset()
+                    } catch {
+                      /* Mutation feedback preserves the draft. */
+                    }
+                  }}
+                >
+                  <EmployeeField label={translate(canReopen ? 'reopenReason' : 'message')}>
+                    <textarea
+                      required
+                      name='message'
+                      maxLength={canReopen ? 1000 : 2000}
+                      rows={3}
+                      className={employeeInputClass}
+                      disabled={busy || feedback.blocked}
+                    />
+                  </EmployeeField>
+                  <div className='flex justify-end'>
+                    <EmployeeButton primary type='submit' busy={busy} disabled={feedback.blocked}>
+                      {feedback.retrySeconds
+                        ? translate('retryAfter', { seconds: feedback.retrySeconds })
+                        : translate(canReopen ? 'reopen' : 'sendMessage')}
+                    </EmployeeButton>
+                  </div>
+                </form>
+              )}
+            </EmployeeSection>
+          </div>
         )}
-      </EmployeeSection>
+      </div>
     </div>
   )
 }

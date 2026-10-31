@@ -237,9 +237,27 @@ app/features/
 
 ## Key decisions
 
+### Manager tích hợp API (31/10/2026)
+
+Màn gửi lô yêu cầu có nhãn **Gửi đề nghị chi** (EN: **Submit spending requests**) trên menu/header; trạng thái chờ gửi và timeline Employee dùng cùng thuật ngữ. Tab `weekly-batch`, enum và operation không đổi. Nhãn phân biệt nhiệm vụ gửi của Manager với phê duyệt chi của Spending Approver và đề xuất ngân sách năm đi Finance.
+
+`ManagerScreen` thay nhánh preview trong dashboard. Public barrel chỉ export bộ điều phối, chuông thông báo và điều hướng; shell không giữ fixture, mảng đánh dấu/gửi hoặc ID do FE tạo. Các slice live dùng Orval/shared Axios và TanStack Query; form/dialog giữ draft, URL giữ phân trang/ID. Enum theo slice lấy từ generated; Request state từ entities. `useManagerAction` sở hữu phản hồi mutation, invalidation, chống click lặp, lỗi field/429 và khóa gửi lại khi chưa biết kết quả. Chỉ điều hướng sau BE xác nhận và khi component còn mount.
+
+Giữ app shell và theme Manager, thay nội dung không có dữ liệu BE. Ngân sách có route form riêng cho lập/gửi lại đề xuất, qua RoleGuard; dòng kế hoạch bắt buộc có cửa sổ mua/kỳ dịch vụ/chu kỳ lặp theo luật nghiệp vụ, tiền giữ chuỗi. Không tải số ngân sách còn lại. Dialog chung bổ sung tùy chọn sheet/drawer để form Manager đáp ứng mobile. Ma trận API, giới hạn và kiểm chứng ở `docs/manager-api-integration.md`.
+
+Giao diện Manager dùng chung header, section, empty state và bảng responsive trong `manager/shared/components`, theo phân cấp nội dung của Super Admin. Bảng chỉ có một cây DOM, hiển thị dạng hàng có nhãn trên mobile. Tổng quan đọc `pagination.totalItems` của spend queue, review `OPEN` và handover `OPEN` thuộc `mine`; lỗi tải không biến thành số 0. Không dựng biểu đồ usage/chi phí thiếu nguồn. BM-09 nằm tại Nhân sự phòng ban (`tab=my-team&section=changes`), không có mục thông báo nhân sự riêng. Chuông mở drawer qua `notifications=open`, giữ tab/phân trang bên dưới; paging và bộ lọc của drawer là state cục bộ. URL cũ `personnel-notices`/`notifications` chuyển sang ngữ cảnh mới. Chi tiết đề xuất ngân sách mở drawer; Escape trong xác nhận con chỉ đóng xác nhận đó.
+
+Màn Duyệt nhu cầu dùng ô tìm UUID phía trên bảng, bỏ khối quy trình. Owner chọn giữ khung hàng đợi có thông báo thiếu API NEED và khóa phân trang cho đến khi BE bổ sung; kết quả tra cứu thật không được coi là hàng đợi. Nhân sự/công cụ mặc định phân trang BE; do hai API chưa hỗ trợ search, tìm kiếm đọc đủ trang qua Orval/TanStack Query trước khi lọc và phân trang kết quả, không công bố kết quả thiếu khi một trang lỗi. Search/page/context nằm trong URL; tìm mới hoặc xóa tìm kiếm đưa về trang đầu.
+
+Tạo yêu cầu nhóm/gửi hộ dùng `ManagerChoiceSelect`: dropdown có tìm kiếm, bàn phím/Escape/focus, tên/email và lựa chọn lưu qua phân trang. `ManagerPeoplePicker` đọc `groupRequestCandidateList` theo phạm vi BE (còn làm việc, có email công việc); không nhập UUID hay dùng directory khác. Nhóm chọn tối đa 10, gửi hộ cá nhân chọn một người; confirmation hiển thị tên/gói, payload chỉ lấy ID của lựa chọn. Owner giữ dropdown gói chờ API danh mục (`API-GAP-02`), không dùng công cụ đang cấp làm danh mục. Liên kết IT có `planId` hợp lệ và nhãn gói có thể cung cấp một lựa chọn; BE kiểm lại lúc check/gửi. Không tạo danh mục fixture hoặc gọi `/plans` của IT/Finance.
+
+`/me` không trả ID phòng và roster không trả ID nhân viên; không gọi directory Super Admin để bù, dùng ID chính thức/picker nhóm được phép. Usage/ghost seats/rà soát định kỳ/AI/export sử dụng/upload chứng từ ngân sách cho Manager chưa có API. Import `/budget-versions/{id}/imports` thuộc Finance; đề xuất Manager vẫn nhận JSON, không có ngày bắt đầu chu kỳ hoặc file. Bằng chứng và yêu cầu BE ở `docs/manager-list-budget-api-audit.md`. Các đoạn **Manager preview** trong tài liệu này chỉ ghi lịch sử thiết kế, đã bị thay trong runtime bởi quyết định này; không coi chúng là trạng thái chức năng hiện hành.
+
 ### Employee tích hợp API (31/10/2026)
 
 `EmployeeScreen` thay bộ điều kiện preview trong dashboard; public API của role chỉ export bộ điều phối, chuông thông báo và điều hướng. Các slice tạo đơn, bản nháp/theo dõi, gia hạn/hoàn trả, báo lỗi SaaS, thông báo, bàn giao và hồ sơ dùng client Orval và shared Axios. Giữ source preview cũ cô lập khỏi public barrel để không đưa fixture vào luồng sản phẩm. Ma trận endpoint và giới hạn contract: `docs/employee-api-integration.md`.
+
+Giao diện Employee dùng `WorkspacePageHeader`, `WorkspaceSection`, `WorkspaceEmptyState` và `WorkspaceDataTable` tại `app/shared/ui/`, cùng các wrapper giữ namespace riêng của Employee/Manager. Không import nội bộ giữa hai role. CSS bảng responsive nằm cùng primitive; chỉ một cây DOM cho bảng desktop và hàng có nhãn trên mobile. Tổng quan hiển thị danh tính thật, tổng số bản nháp/bàn giao từ `pagination.totalItems` và tối đa bốn việc bàn giao `OPEN` thuộc `mine`; lỗi không thay bằng số 0, self-service không mount dữ liệu bản nháp. Các trang quyền sử dụng, bản nháp, sự cố, bàn giao có trạng thái rỗng theo nghiệp vụ. Chi tiết yêu cầu tách thông tin khỏi timeline; chi tiết sự cố tách tóm tắt khỏi trao đổi. Form giữ kiểm tra xem trước và draft hiện có; các xác nhận dùng bottom sheet trên mobile.
 
 Thông báo Employee chỉ mở qua chuông trên header: mỗi lần nhấn lấy một thông báo chưa đọc, ghi nhận đã đọc qua API và hiển thị một toast Sonner dùng ID ổn định. Không có trang/tab, mục sidebar hoặc lối tắt tổng quan cho thông báo; URL cũ `tab=notifications` về tổng quan.
 
@@ -581,7 +599,10 @@ and migrates legacy Session Storage refresh tokens after a successful refresh. S
 Session Storage and memory. Logout and invalid sessions clear persisted credentials. It rotates
 both tokens after a single-flight refresh, clears the session on
 `AUTH.SESSION_INVALID`, and retains tokens on temporary service failures. `/me`
-supplies effective roles; no role is taken from a token. Do not wrap every generated
+supplies effective roles; no role is taken from a token. The default workspace follows the
+`USER_ROLES` priority, so a derived Manager or Spending Approver role takes precedence over
+Employee regardless of the API array order. Login ignores a generic Employee-root redirect
+for those users while preserving explicit links into Employee screens. Do not wrap every generated
 call in a repository.
 
 Auth tests use an isolated Axios adapter. No test fixture is imported by the

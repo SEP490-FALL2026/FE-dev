@@ -1,4 +1,7 @@
 import { useState } from 'react'
+import { Handshake } from 'lucide-react'
+import { EmployeePageHeader } from '../../shared/components/employee-page-header'
+import { EmployeeDataTable } from '../../shared/components/employee-data-table'
 import { useTranslation } from 'react-i18next'
 import {
   useHandoverDutyList,
@@ -32,31 +35,50 @@ export function EmployeeHandoversView() {
   const [selected, setSelected] = useState<string | null>(null)
   return (
     <div className='space-y-6'>
-      <h1 className='text-2xl font-semibold'>{translate('handovers')}</h1>
-      <p className='text-sm text-muted-foreground'>{translate('handoverHint')}</p>
-      <EmployeeSection title={translate('handovers')}>
-        <EmployeeQueryState query={query} empty={!query.data?.data?.items.length} />
-        {!query.isError &&
-          query.data?.data?.items.map((duty) => (
-            <article
-              key={duty.id}
-              className='flex flex-wrap items-center justify-between gap-4 border-b border-border/40 py-4'
-            >
-              <div className='min-w-0'>
-                <h3 className='truncate text-sm font-semibold' title={duty.application.name}>
-                  {duty.application.name} · {duty.plan.name}
-                </h3>
-                <p className='mt-1 text-right font-mono text-xs tabular-nums'>
-                  {translate('dueOn')}: {formatDate(duty.dueOn)}
-                </p>
-                {duty.overdue && <p className='text-xs text-warning'>{translate('overdue')}</p>}
-              </div>
-              <div className='flex items-center gap-3'>
-                <EmployeeStatus value={duty.status} />
-                <EmployeeButton onClick={() => setSelected(duty.id)}>{translate('open')}</EmployeeButton>
-              </div>
-            </article>
-          ))}
+      <EmployeePageHeader title={translate('handovers')} description={translate('handoverHint')} icon={Handshake} />
+      <EmployeeSection>
+        <EmployeeQueryState
+          query={query}
+          empty={!query.data?.data?.items.length}
+          emptyTitle={translate('redesign.noHandovers')}
+          emptyDescription={translate('redesign.noHandoversHint')}
+        />
+        {!query.isError && (
+          <EmployeeDataTable
+            label={translate('handovers')}
+            items={query.data?.data?.items ?? []}
+            rowKey={(duty) => duty.id}
+            columns={[
+              {
+                key: 'software',
+                label: translate('redesign.application'),
+                render: (duty) => (
+                  <div>
+                    <p className='max-w-56 truncate font-medium' title={duty.application.name}>
+                      {duty.application.name}
+                    </p>
+                    <p className='mt-1 max-w-56 truncate text-xs text-muted-foreground' title={duty.plan.name}>
+                      {duty.plan.name}
+                    </p>
+                  </div>
+                )
+              },
+              {
+                key: 'due',
+                label: translate('dueOn'),
+                align: 'right',
+                render: (duty) => (
+                  <div>
+                    <p>{formatDate(duty.dueOn)}</p>
+                    {duty.overdue && <p className='mt-1 font-sans text-xs text-warning-ink'>{translate('overdue')}</p>}
+                  </div>
+                )
+              },
+              { key: 'status', label: translate('state'), render: (duty) => <EmployeeStatus value={duty.status} /> }
+            ]}
+            onOpen={(duty) => setSelected(duty.id)}
+          />
+        )}
         <EmployeePagination pagination={query.data?.data?.pagination} onPage={onPage} busy={query.isFetching} />
       </EmployeeSection>
       {selected && <HandoverDialog key={selected} id={selected} onClose={() => setSelected(null)} />}
@@ -89,6 +111,7 @@ function HandoverDialog({ id, onClose }: { id: string; onClose: () => void }) {
   const knownRole = !!duty && Object.values(HANDOVER_ROLE).includes(duty.role)
   return (
     <Dialog
+      presentation='sheet'
       title={translate('handovers')}
       hint={translate('handoverHint')}
       onClose={() => {

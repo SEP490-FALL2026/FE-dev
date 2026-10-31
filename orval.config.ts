@@ -35,7 +35,12 @@ export default defineConfig({
           'saas-issues',
           'notifications',
           'handover-duties',
-          'assignment-expiry'
+          'assignment-expiry',
+          'delegated-requests',
+          'spend-submission',
+          'budget-proposals',
+          'budgets',
+          'transfer-reviews'
         ]
       }
     },

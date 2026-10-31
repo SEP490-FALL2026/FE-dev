@@ -15,6 +15,7 @@ describe('translation resources', () => {
       'employee',
       'errors',
       'landing',
+      'manager',
       'notFound',
       'theme'
     ]
@@ -37,7 +38,14 @@ describe('translation resources', () => {
           : [`${prefix}${key}`]
       )
     }
-    for (const namespace of ['admin', 'adminAccounts', 'adminOrganization', 'adminPersonnel', 'employee'] as const) {
+    for (const namespace of [
+      'admin',
+      'adminAccounts',
+      'adminOrganization',
+      'adminPersonnel',
+      'employee',
+      'manager'
+    ] as const) {
       expect(keys(resources.en[namespace]).sort(), namespace).toEqual(keys(resources.vi[namespace]).sort())
     }
   })
