@@ -1,5 +1,4 @@
 import {
-  ArrowRight,
   ArrowRightLeft,
   CalendarPlus,
   CalendarX,
@@ -12,7 +11,6 @@ import {
   Sparkles,
   Zap
 } from 'lucide-react'
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { catalogSoftwareList, employeeSoftwareItems, employeeSummaryCards } from '../../employee-data'

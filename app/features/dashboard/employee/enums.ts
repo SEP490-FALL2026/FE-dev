@@ -14,7 +14,12 @@ export const EMPLOYEE_TAB_KEYS = [
   'profile',
   'privacy',
   'data-export',
-  'data-usage'
+  'data-usage',
+  'handovers',
+  'issues',
+  'issue-detail',
+  'report-issue',
+  'return-detail'
 ] as const
 
 export type EmployeeTabKey = (typeof EMPLOYEE_TAB_KEYS)[number]

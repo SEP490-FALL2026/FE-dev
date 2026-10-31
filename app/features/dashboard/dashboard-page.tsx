@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from 'motion/react'
-import { useEffect, useState, useSyncExternalStore } from 'react'
+import { useState, useSyncExternalStore } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate, useSearchParams } from 'react-router'
 
@@ -27,27 +27,7 @@ import {
   ItDeptCatalogView
 } from './it-admin'
 
-import {
-  EmployeeCreateRequestView,
-  EmployeeDataExportView,
-  EmployeeDataUsageView,
-  EmployeeMyRequestsView,
-  EmployeeMySoftwareView,
-  EmployeeOverviewView,
-  EmployeeProfileView,
-  EmployeePrivacyView,
-  EmployeeRequestDetailView,
-  EmployeeRequestNewSoftwareView,
-  EmployeeRequestSoftwareDetailsView,
-  EmployeeReturnLicenseView,
-  EmployeeReviewRequestView,
-  EmployeeSoftwareDetailView,
-  EmployeeSubmissionSuccessView,
-  EmployeeTemporaryRenewalView,
-  getParentEmployeeMenuKey,
-  isValidEmployeeTab,
-  type EmployeeTabKey
-} from './employee'
+import { EmployeeScreen, getParentEmployeeMenuKey, isValidEmployeeTab, type EmployeeTabKey } from './employee'
 
 import { getParentApprovalMenuKey, isValidApprovalTab, type ApprovalTabKey, ApprovalScreen } from './approvals'
 
@@ -82,11 +62,10 @@ export function DashboardPage({ role }: { role: UserRole }) {
   const { i18n, t } = useTranslation('dashboard')
   const shouldReduceMotion = useReducedMotion()
   const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false)
-  const [employeeAvatarUrl, setEmployeeAvatarUrl] = useState<string | null>(null)
   const auth = useSyncExternalStore(subscribeAuthSession, getAuthState, getAuthState)
   const fullName = auth.session?.user.employee.fullName ?? ''
   const profile =
-    role === 'super-admin'
+    role === 'super-admin' || role === 'employee'
       ? {
           displayName: fullName,
           initials: fullName
@@ -105,16 +84,6 @@ export function DashboardPage({ role }: { role: UserRole }) {
   const isManager = role === 'manager'
   const isApprover = role === 'spending-approver'
   const isSuperAdmin = role === 'super-admin'
-
-  useEffect(() => {
-    return () => {
-      if (employeeAvatarUrl) URL.revokeObjectURL(employeeAvatarUrl)
-    }
-  }, [employeeAvatarUrl])
-
-  const handleEmployeeAvatarSelect = (file: File) => {
-    setEmployeeAvatarUrl(URL.createObjectURL(file))
-  }
 
   const [searchParams, setSearchParams] = useSearchParams()
   const location = useLocation()
@@ -228,6 +197,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
   return (
     <div className='flex h-screen overflow-hidden bg-background'>
       <DashboardSidebar
+        employeeSelfServiceOnly={isEmployee && auth.session?.user.selfServiceOnly === true}
         activeApprovalParent={activeApprovalParent}
         activeApprovalTab={activeApprovalTab}
         activeEmployeeParent={activeEmployeeParent}
@@ -259,7 +229,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
       <div className='flex h-full min-w-0 flex-1 flex-col lg:pl-72'>
         <DashboardHeader
           activeEmployeeTab={activeEmployeeTab}
-          employeeAvatarUrl={employeeAvatarUrl}
+          employeeAvatarUrl={null}
           mobileNavigationOpen={mobileNavigationOpen}
           onOpenProfile={() => handleSelectEmployeeTab('profile')}
           onToggleMobileNavigation={() => setMobileNavigationOpen((open) => !open)}
@@ -319,70 +289,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
               <ItDeptCatalogView onSelectTab={handleSelectTab} />
             )
           ) : isEmployee ? (
-            activeEmployeeTab === 'overview' ? (
-              <EmployeeOverviewView
-                displayName={profile.displayName}
-                formatCurrency={formatCurrency}
-                formatNumber={formatNumber}
-                onSelectTab={handleSelectEmployeeTab}
-              />
-            ) : activeEmployeeTab === 'my-software' ? (
-              <EmployeeMySoftwareView onSelectTab={handleSelectEmployeeTab} />
-            ) : activeEmployeeTab === 'software-detail' ? (
-              <EmployeeSoftwareDetailView
-                formatCurrency={formatCurrency}
-                onSelectTab={handleSelectEmployeeTab}
-                softwareId={searchParams.get('id') || '1'}
-              />
-            ) : activeEmployeeTab === 'my-requests' ? (
-              <EmployeeMyRequestsView onSelectTab={handleSelectEmployeeTab} />
-            ) : activeEmployeeTab === 'request-detail' ? (
-              <EmployeeRequestDetailView
-                onSelectTab={handleSelectEmployeeTab}
-                requestId={searchParams.get('id') || 'REQ-1024'}
-              />
-            ) : activeEmployeeTab === 'create-request' ? (
-              <EmployeeCreateRequestView onSelectTab={handleSelectEmployeeTab} />
-            ) : activeEmployeeTab === 'request-new-software' ? (
-              <EmployeeRequestNewSoftwareView
-                initialParams={Object.fromEntries(searchParams.entries())}
-                onSelectTab={handleSelectEmployeeTab}
-                preselectedSoftwareId={searchParams.get('softwareId') || undefined}
-                requestType={searchParams.get('type') === 'changePlan' ? 'changePlan' : 'newSoftware'}
-              />
-            ) : activeEmployeeTab === 'request-software-details' ? (
-              <EmployeeRequestSoftwareDetailsView
-                initialParams={Object.fromEntries(searchParams.entries())}
-                onSelectTab={handleSelectEmployeeTab}
-              />
-            ) : activeEmployeeTab === 'temporary-renewal' ? (
-              <EmployeeTemporaryRenewalView
-                initialParams={Object.fromEntries(searchParams.entries())}
-                onSelectTab={handleSelectEmployeeTab}
-                softwareId={searchParams.get('softwareId') || undefined}
-              />
-            ) : activeEmployeeTab === 'return-license' ? (
-              <EmployeeReturnLicenseView
-                initialParams={Object.fromEntries(searchParams.entries())}
-                onSelectTab={handleSelectEmployeeTab}
-                softwareId={searchParams.get('softwareId') || undefined}
-              />
-            ) : activeEmployeeTab === 'review-request' ? (
-              <EmployeeReviewRequestView
-                onSelectTab={handleSelectEmployeeTab}
-                requestParams={Object.fromEntries(searchParams.entries())}
-              />
-            ) : activeEmployeeTab === 'submission-success' ? (
-              <EmployeeSubmissionSuccessView onSelectTab={handleSelectEmployeeTab} />
-            ) : activeEmployeeTab === 'profile' ? (
-              <EmployeeProfileView avatarUrl={employeeAvatarUrl} onAvatarSelect={handleEmployeeAvatarSelect} />
-            ) : activeEmployeeTab === 'privacy' ? (
-              <EmployeePrivacyView onSelectTab={handleSelectEmployeeTab} />
-            ) : activeEmployeeTab === 'data-export' ? (
-              <EmployeeDataExportView onSelectTab={handleSelectEmployeeTab} />
-            ) : (
-              <EmployeeDataUsageView onSelectTab={handleSelectEmployeeTab} />
-            )
+            <EmployeeScreen tab={activeEmployeeTab} onSelectTab={handleSelectEmployeeTab} />
           ) : isManager ? (
             activeManagerTab === 'overview' ? (
               <ManagerOverviewView

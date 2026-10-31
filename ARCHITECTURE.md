@@ -237,6 +237,18 @@ app/features/
 
 ## Key decisions
 
+### Employee tích hợp API (31/10/2026)
+
+`EmployeeScreen` thay bộ điều kiện preview trong dashboard; public API của role chỉ export bộ điều phối, chuông thông báo và điều hướng. Các slice tạo đơn, bản nháp/theo dõi, gia hạn/hoàn trả, báo lỗi SaaS, thông báo, bàn giao và hồ sơ dùng client Orval và shared Axios. Giữ source preview cũ cô lập khỏi public barrel để không đưa fixture vào luồng sản phẩm. Ma trận endpoint và giới hạn contract: `docs/employee-api-integration.md`.
+
+Thông báo Employee chỉ mở qua chuông trên header: mỗi lần nhấn lấy một thông báo chưa đọc, ghi nhận đã đọc qua API và hiển thị một toast Sonner dùng ID ổn định. Không có trang/tab, mục sidebar hoặc lối tắt tổng quan cho thông báo; URL cũ `tab=notifications` về tổng quan.
+
+Tạo đơn cá nhân/nhóm bắt buộc xem trước hoặc kiểm tra từ BE; chỉnh form hủy hiệu lực lần kiểm tra trước. Đơn nhóm chọn nhân viên cùng phòng qua picker phân trang, gửi employeeId và ngày kết thúc từng người, không giữ email trong URL. Mã đơn trả về dùng để mở chi tiết ngay. Bản nháp gửi body rỗng và xác nhận thao tác. Query giữ paging trong URL; server state không chép sang local state. Kết quả ghi không rõ không được tự gửi lại; lỗi 422 liên kết với field, 429 có countdown và 403 đồng bộ `/me`.
+
+Không có catalog và danh sách toàn bộ request/assignment dành cho Employee ở contract đối chiếu: màn hình giải thích giới hạn, nhận mã gói từ IT, mở đơn theo ID và hiển thị nhắc hết hạn đúng phạm vi. Không gọi endpoint IT Admin/Finance để bù phần thiếu. Usage, license key, avatar upload và xuất dữ liệu cá nhân không được mô phỏng thành dữ liệu thật. Phiên `selfServiceOnly` chỉ mở tổng quan hạn chế, thông báo, bàn giao và hồ sơ.
+
+Các mã nghiệp vụ re-export từ generated vào `enums/` của từng slice; Request state chung nằm ở `entities/request/enums`. Fallback status không cấp quyền thao tác. Money dùng chuỗi thập phân và BigInt khi định dạng. Các test MSW xác nhận payload strict, paging, pending, lỗi, cache, enum lạ và ranh giới self-service; kiểm tra với tài khoản BE thật vẫn là bước xác minh riêng.
+
 ### Super Admin tích hợp API (30/10/2026)
 
 Super Admin sử dụng các slice tài khoản/trách nhiệm, phòng ban/dự án, nhân sự/import/sự kiện, tổng quan checklist/watch, tham số vận hành, lịch nghỉ/tiền tệ, giám sát quy trình và Audit Trail. `SuperAdminScreen` điều phối qua tab của shell. Các hook Orval gọi shared Axios; server state ở Query, form/dialog ở state cục bộ. Đã xóa fixture runtime, enum demo, translation demo và các màn định danh máy hoặc mô phỏng gửi email không có API. Dữ liệu mẫu của IT Admin và role khác vẫn thuộc phạm vi preview riêng.
@@ -249,57 +261,11 @@ Tài khoản gắn với hồ sơ nhân viên; status và activationState độc
 
 Form, trạng thái query, phân trang và picker được chia sẻ trong `super-admin/shared/`; nhân sự và điều chuyển không import nội bộ lẫn nhau. API không cung cấp GET toàn bộ nhân viên: picker dùng app-user phân trang hoặc account-candidates theo search; danh sách thành viên dùng API từng phòng. Các write invalidate nguồn đọc liên quan, không thay mảng local như đã lưu. Import hai bước giữ idempotency key cho cùng payload/preview khi thử lại. Test MSW kiểm payload, phân trang, lỗi, pending, enum lạ và replay import; fixture test không đi vào bundle sản phẩm.
 
-### Employee overview preview
+### Không gian Employee
 
-The Employee overview chart compares the six illustrative assigned-software
-usage percentages and calculates their average from those same records. These
-figures are labeled as sample per-tool usage, not employee performance or an
-authoritative activity timeline.
+Xem quyết định tích hợp Employee bên dưới và `docs/employee-api-integration.md`. Các module preview cũ không còn thuộc public API của role.
 
-### Employee profile and privacy preview
-
-The Employee dashboard uses `tab=profile` for the personal and organization
-record opened from the header avatar. The sidebar's Privacy item uses
-`tab=privacy` for the separate data transparency preview. Its export and usage
-screens return to Privacy, and their sidebar selection stays on Privacy. The
-profile and privacy figures are illustrative local data; this split changes
-navigation and presentation only, not account identity, telemetry collection, or
-backend authorization.
-
-The employee can choose a JPG, PNG, or WebP avatar up to 2 MB. The dashboard
-holds an object URL for a session-only preview on the profile and header, and
-revokes it when replaced or unmounted. No file is uploaded or persisted until
-the backend provides an authorized avatar endpoint.
-
-### Employee software request preview
-
-The employee software request preview now uses separate catalog selection and
-registration screens. The `request-new-software` tab selects a catalog item and
-`request-software-details` collects a plan from the illustrative Standard or
-Professional choices,
-individual or shared-team usage type, a reason, and a name when "Other software"
-is selected. The employee does not enter a project or department. URL parameters
-carry the draft through the review
-screen and back navigation. This request type shows four steps; renewal and return
-requests retain their three-step previews. Submission remains unavailable until a
-backend contract and authorization flow are connected.
-
-For shared-team requests, the employee is the representative and selects colleagues
-from the active members of their own department. The representative is included by
-default; the maximum is the available department roster size. The preview treats
-this as one subscription request with individual access for every listed person.
-Only selected member IDs are carried in URL parameters, then resolved against the
-same eligible roster in the review. The review shows the full group and explains
-the intended manager approval, IT provisioning, and shared status.
-Actual submission, per-person provisioning, and status synchronization require a
-backend request model, authorization, and notification contract.
-
-The Employee My Requests preview labels each illustrative record as individual or
-shared instead of showing its current approval stage in the list. Three shared
-records (one existing Notion example and two additional samples) show the request
-representative and the registered colleagues in detail. These participant lists
-are local fixture data from the same Engineering roster used by the draft selector;
-they do not prove that a group request was submitted or provisioned by the backend.
+### Manager request preview
 
 The Manager Team Requests preview uses the same individual/shared form labels in
 place of its estimated-cost list column. Two sample Manager requests are shared;
@@ -581,7 +547,7 @@ introduced so Router and Query do not become competing caches.
 `openapi/openapi.yaml` is a versioned snapshot of the live BE OpenAPI export at
 `https://wdp.novaproj.site/api/docs-json`. A snapshot of that export is kept in
 `openapi/openapi.yaml` for review and offline generation
-(`ORVAL_OPENAPI_SOURCE=./openapi/openapi.yaml`). Orval filters `auth`, `me` and the Super Admin business tags listed explicitly in `orval.config.ts`. Other roles' business screens remain outside this integration slice.
+(`ORVAL_OPENAPI_SOURCE=./openapi/openapi.yaml`). Orval filters `auth`, `me` and the Super Admin business tags listed explicitly in `orval.config.ts`. Employee business tags are also generated; see the integration matrix. Other roles remain previews.
 
 ```text
 openapi/openapi.yaml

@@ -20,11 +20,14 @@ import { errors as viErrors } from './locales/vi/errors'
 import { landing as viLanding } from './locales/vi/landing'
 import { notFound as viNotFound } from './locales/vi/not-found'
 import { theme as viTheme } from './locales/vi/theme'
+import { employee as enEmployee } from './locales/en/employee'
+import { employee as viEmployee } from './locales/vi/employee'
 
 export const defaultNS = 'common' as const
 
 export const resources = {
   en: {
+    employee: enEmployee,
     admin: enAdmin,
     adminAccounts: enAdminAccounts,
     adminOrganization: enAdminOrganization,
@@ -38,6 +41,7 @@ export const resources = {
     theme: enTheme
   },
   vi: {
+    employee: viEmployee,
     admin: viAdmin,
     adminAccounts: viAdminAccounts,
     adminOrganization: viAdminOrganization,

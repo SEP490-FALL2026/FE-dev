@@ -4,6 +4,7 @@ import type { UserRole } from '~/entities/user-role/user-role'
 import { LanguageSwitch } from '~/shared/ui/language-switch'
 import { ThemeSwitch } from '~/shared/ui/theme-switch'
 import { notificationCount, type RoleProfile } from '../dashboard-data'
+import { EmployeeNotificationBell } from '../employee'
 
 export interface DashboardHeaderProps {
   activeEmployeeTab?: string
@@ -46,7 +47,7 @@ export function DashboardHeader({
           )}
         </button>
 
-        {role !== 'super-admin' && (
+        {role !== 'super-admin' && !isEmployee && (
           <div className='relative ml-auto hidden w-full max-w-md sm:block'>
             <Search
               aria-hidden='true'
@@ -61,11 +62,12 @@ export function DashboardHeader({
           </div>
         )}
 
-        <div className={role === 'super-admin' ? 'ml-auto' : ''}>
+        <div className={role === 'super-admin' || isEmployee ? 'ml-auto' : ''}>
           <ThemeSwitch />
         </div>
         <LanguageSwitch />
-        {role !== 'super-admin' && (
+        {isEmployee && <EmployeeNotificationBell />}
+        {role !== 'super-admin' && !isEmployee && (
           <button
             aria-label={t('header.notifications')}
             className='relative grid size-10 shrink-0 place-items-center rounded-xl border border-border bg-surface text-muted-foreground transition hover:border-primary hover:text-primary'

@@ -19,9 +19,7 @@ export function useEmployeeSoftware(pageSize = 4) {
 
   const averageUsage = useMemo(() => {
     return employeeSoftwareItems.length
-      ? Math.round(
-          employeeSoftwareItems.reduce((total, item) => total + item.usage, 0) / employeeSoftwareItems.length
-        )
+      ? Math.round(employeeSoftwareItems.reduce((total, item) => total + item.usage, 0) / employeeSoftwareItems.length)
       : 0
   }, [])
 

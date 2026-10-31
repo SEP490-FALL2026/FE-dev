@@ -28,7 +28,14 @@ export default defineConfig({
           'employee-imports',
           'currencies',
           'controlled-waits',
-          'step-congestion'
+          'step-congestion',
+          'access-requests',
+          'group-requests',
+          'return-requests',
+          'saas-issues',
+          'notifications',
+          'handover-duties',
+          'assignment-expiry'
         ]
       }
     },
