@@ -9,6 +9,7 @@ export function EmployeeDataTable<T>(props: {
   onOpen?: (item: T) => void
   renderAction?: (item: T) => ReactNode
   actionLabel?: string
+  emptyState?: ReactNode
   label: string
 }) {
   const { t: translate } = useTranslation('employee')

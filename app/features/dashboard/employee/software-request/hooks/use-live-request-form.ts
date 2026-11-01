@@ -16,11 +16,12 @@ import { groupRequestCheck } from '~/shared/api/generated/operations/group-reque
 import { groupRequestSubmit } from '~/shared/api/generated/operations/group-requests/group-request-submit'
 import { returnRequestSubmit } from '~/shared/api/generated/operations/return-requests/return-request-submit'
 import { getReturnRequestListQueryKey } from '~/shared/api/generated/operations/return-requests/return-request-list'
+import { getMeAccessRequestListQueryKey } from '~/shared/api/generated/operations/me/me-access-request-list'
 import { useEmployeeFeedback } from '../../shared/hooks/use-employee-feedback'
 import { DRAFT_KIND } from '../../shared/enums/draft-kind'
 
 export type RequestMode = 'individual' | 'group' | 'proposal' | 'renewal' | 'return'
-export type GroupSelection = { employeeId: string; fullName: string; expectedEndDate: string }
+export type GroupSelection = { employeeId: string; fullName: string; workEmail?: string; expectedEndDate: string }
 
 export function readRequestFields(form: HTMLFormElement) {
   const fields = new FormData(form)
@@ -66,7 +67,11 @@ export function useLiveRequestForm(
   onDraftSaved: () => void
 ) {
   const [members, setMembers] = useState<GroupSelection[]>([])
-  const feedback = useEmployeeFeedback([getAccessRequestDraftListQueryKey(), getReturnRequestListQueryKey()])
+  const feedback = useEmployeeFeedback([
+    getAccessRequestDraftListQueryKey(),
+    getReturnRequestListQueryKey(),
+    getMeAccessRequestListQueryKey()
+  ])
   const groupPayload = (fields: Fields): GroupBodyDto => ({
     ...requestPayload(fields),
     lines: members.map(({ employeeId, expectedEndDate }) => ({

@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { FilePlus2 } from 'lucide-react'
 import { EmployeePageHeader } from '../../shared/components/employee-page-header'
 import { EmployeeRequestGuide } from '../components/employee-request-guide'
@@ -17,6 +17,8 @@ import { uuidPattern } from '../../shared/employee-identifiers'
 import { LiveRequestPreview } from '../components/live-request-preview'
 import { LiveGroupMembers } from '../components/live-group-members'
 import { LiveGroupEligibility } from '../components/live-group-eligibility'
+import { EmployeeCatalogPicker } from '../components/employee-catalog-picker'
+import type { CatalogPlan } from '../components/employee-catalog-plans'
 import type { EmployeeTabKey } from '../../enums'
 
 export function EmployeeLiveCreateView({
@@ -53,7 +55,7 @@ export function EmployeeLiveCreateView({
           onSelectTab={onSelectTab}
         />
         <aside className='hidden min-w-0 2xl:block'>
-          <EmployeeRequestGuide needsPreview={mode === 'individual' || mode === 'group'} />
+          <EmployeeRequestGuide needsPreview={mode === 'individual' || mode === 'group'} group={mode === 'group'} />
         </aside>
       </div>
     </div>
@@ -71,6 +73,7 @@ function LiveCreateForm({
 }) {
   const { t: translate } = useTranslation('employee')
   const formRef = useRef<HTMLFormElement>(null)
+  const [plan, setPlan] = useState<CatalogPlan | null>(null)
   const workflow = useLiveRequestForm(
     mode,
     (id, returned) => onSelectTab(returned ? 'return-detail' : 'request-detail', { id }),
@@ -79,31 +82,53 @@ function LiveCreateForm({
   const busy = workflow.submit.isPending || workflow.preview.isPending
   const needsPreview = mode === 'individual' || mode === 'group'
   const preview = workflow.previewResult
+  const selectionIncomplete =
+    needsPreview && (!plan || (mode === 'group' && (!workflow.members.length || workflow.members.length > 10)))
   const onReview = () => {
-    if (formRef.current?.reportValidity()) workflow.preview.mutate(readRequestFields(formRef.current))
+    if (!selectionIncomplete && formRef.current?.reportValidity())
+      workflow.preview.mutate(readRequestFields(formRef.current))
   }
   return (
     <EmployeeSection title={translate(mode)}>
-      {needsPreview && <p className='max-w-3xl text-sm text-muted-foreground'>{translate('catalogGap')}</p>}
       {mode === 'return' && <p className='text-sm text-muted-foreground'>{translate('returnHint')}</p>}
       <form
         ref={formRef}
         className='space-y-5'
-        onChange={workflow.clearPreview}
+        onChange={(event) => {
+          const field = event.nativeEvent.target
+          if (
+            (field instanceof HTMLInputElement ||
+              field instanceof HTMLTextAreaElement ||
+              field instanceof HTMLSelectElement) &&
+            field.name
+          )
+            workflow.clearPreview()
+        }}
         onSubmit={(event) => {
           event.preventDefault()
-          if (!busy && !workflow.feedback.blocked)
+          if (
+            !busy &&
+            !workflow.feedback.blocked &&
+            !selectionIncomplete &&
+            (!needsPreview || plan?.canSubmit === true)
+          )
             workflow.submit.mutate({ fields: readRequestFields(event.currentTarget), draft: false })
         }}
       >
         <EmployeeFormErrors fields={workflow.feedback.invalidFields}>
           <fieldset disabled={busy || workflow.feedback.blocked} className='space-y-5'>
+            {needsPreview && (
+              <EmployeeCatalogPicker
+                value={plan}
+                onChange={(choice) => {
+                  setPlan(choice)
+                  workflow.clearPreview()
+                }}
+                disabled={busy || workflow.feedback.blocked}
+                invalid={workflow.feedback.invalidFields.includes('planId')}
+              />
+            )}
             <div className='grid gap-5 sm:grid-cols-2'>
-              {needsPreview && (
-                <EmployeeField label={translate('planId')}>
-                  <EmployeeInput required name='planId' pattern={uuidPattern} />
-                </EmployeeField>
-              )}
               {(mode === 'renewal' || mode === 'return') && (
                 <EmployeeField label={translate('assignmentId')}>
                   <EmployeeInput required name='assignmentId' defaultValue={assignmentId} pattern={uuidPattern} />
@@ -132,17 +157,30 @@ function LiveCreateForm({
                   </EmployeeField>
                 </>
               )}
-              {mode !== 'return' && (
-                <>
-                  <EmployeeField label={translate('project')}>
-                    <EmployeeInput name='projectLabel' maxLength={200} />
-                  </EmployeeField>
-                  <EmployeeField label={translate('spendOn')}>
-                    <EmployeeInput type='date' name='expectedSpendOn' />
-                  </EmployeeField>
-                </>
-              )}
             </div>
+            {mode === 'group' && (
+              <LiveGroupMembers
+                members={workflow.members}
+                disabled={busy || workflow.feedback.blocked}
+                invalid={workflow.feedback.invalidFields.some(
+                  (field) => field === 'lines' || field.startsWith('lines.')
+                )}
+                onChange={(members) => {
+                  workflow.setMembers(members)
+                  workflow.clearPreview()
+                }}
+              />
+            )}
+            {mode !== 'return' && (
+              <div className='grid gap-5 sm:grid-cols-2'>
+                <EmployeeField label={translate('project')}>
+                  <EmployeeInput name='projectLabel' maxLength={200} />
+                </EmployeeField>
+                <EmployeeField label={translate('spendOn')}>
+                  <EmployeeInput type='date' name='expectedSpendOn' />
+                </EmployeeField>
+              </div>
+            )}
             {mode === 'proposal' ? (
               <>
                 <EmployeeField label={translate('purpose')}>
@@ -161,16 +199,6 @@ function LiveCreateForm({
               <EmployeeField label={translate('termReason')}>
                 <EmployeeInput name='termReason' maxLength={1000} />
               </EmployeeField>
-            )}
-            {mode === 'group' && (
-              <LiveGroupMembers
-                members={workflow.members}
-                disabled={busy}
-                onChange={(members) => {
-                  workflow.setMembers(members)
-                  workflow.clearPreview()
-                }}
-              />
             )}
           </fieldset>
           {preview && (
@@ -194,9 +222,9 @@ function LiveCreateForm({
             {needsPreview && (
               <EmployeeButton
                 type='button'
-                disabled={busy || workflow.feedback.blocked || (mode === 'group' && !workflow.members.length)}
+                disabled={busy || workflow.feedback.blocked || selectionIncomplete}
                 onClick={() => {
-                  if (formRef.current?.reportValidity())
+                  if (!selectionIncomplete && formRef.current?.reportValidity())
                     workflow.submit.mutate({ fields: readRequestFields(formRef.current), draft: true })
                 }}
               >
@@ -208,11 +236,7 @@ function LiveCreateForm({
                 primary
                 type='button'
                 busy={workflow.preview.isPending}
-                disabled={
-                  workflow.submit.isPending ||
-                  workflow.feedback.blocked ||
-                  (mode === 'group' && !workflow.members.length)
-                }
+                disabled={workflow.submit.isPending || workflow.feedback.blocked || selectionIncomplete}
                 onClick={onReview}
               >
                 {workflow.feedback.retrySeconds
@@ -224,7 +248,12 @@ function LiveCreateForm({
                 primary
                 type='submit'
                 busy={workflow.submit.isPending}
-                disabled={busy || workflow.feedback.blocked || (needsPreview && !preview?.canSubmit)}
+                disabled={
+                  busy ||
+                  workflow.feedback.blocked ||
+                  selectionIncomplete ||
+                  (needsPreview && (!preview?.canSubmit || plan?.canSubmit !== true))
+                }
               >
                 {workflow.feedback.retrySeconds
                   ? translate('retryAfter', { seconds: workflow.feedback.retrySeconds })

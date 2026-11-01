@@ -11,6 +11,7 @@ export default defineConfig({
         tags: [
           'auth',
           'me',
+          'dashboards',
           'audit',
           'employees',
           'departments',
@@ -31,6 +32,7 @@ export default defineConfig({
           'step-congestion',
           'access-requests',
           'group-requests',
+          'requestable-software',
           'return-requests',
           'saas-issues',
           'notifications',

@@ -9,6 +9,7 @@ import {
 import { useAccessRequestWithdraw } from '~/shared/api/generated/operations/access-requests/access-request-withdraw'
 import { getAccessRequestTimingsGetQueryKey } from '~/shared/api/generated/operations/access-requests/access-request-timings-get'
 import { getAccessRequestLineListQueryKey } from '~/shared/api/generated/operations/group-requests/access-request-line-list'
+import { getMeAccessRequestListQueryKey } from '~/shared/api/generated/operations/me/me-access-request-list'
 import { Dialog, useDashboardFormat } from '../../../dashboard-ui'
 import {
   EmployeeButton,
@@ -23,6 +24,7 @@ import { canOfferWithdrawal, REQUEST_TYPE } from '../enums/request-actions'
 import { LiveRequestLines } from '../components/live-request-lines'
 import { LiveRequestTimings } from '../components/live-request-timings'
 import { EmployeeMoney } from '../../shared/components/employee-money'
+import { LiveRequestAssessment } from '../components/live-request-assessment'
 
 export function EmployeeLiveRequestDetail({
   id,
@@ -44,7 +46,8 @@ export function EmployeeLiveRequestDetail({
   const feedback = useEmployeeFeedback([
     getAccessRequestGetQueryKey(id),
     getAccessRequestTimingsGetQueryKey(id),
-    getAccessRequestLineListQueryKey(id)
+    getAccessRequestLineListQueryKey(id),
+    getMeAccessRequestListQueryKey()
   ])
   const mutation = useAccessRequestWithdraw({
     mutation: {
@@ -146,6 +149,7 @@ export function EmployeeLiveRequestDetail({
           </aside>
         )}
       </div>
+      {request?.proposal && <LiveRequestAssessment id={id} />}
       {confirming && (
         <Dialog
           presentation='sheet'

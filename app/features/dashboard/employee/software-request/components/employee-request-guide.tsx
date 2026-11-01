@@ -2,10 +2,10 @@ import { Check, FileText, Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { EmployeeSection } from '../../shared/components/employee-api-ui'
 
-export function EmployeeRequestGuide({ needsPreview }: { needsPreview: boolean }) {
+export function EmployeeRequestGuide({ needsPreview, group = false }: { needsPreview: boolean; group?: boolean }) {
   const { t: translate } = useTranslation('employee')
   const steps = [
-    { title: 'guidePrepare', hint: 'guidePrepareHint', icon: FileText },
+    { title: 'guidePrepare', hint: group ? 'guidePrepareGroupHint' : 'guidePrepareHint', icon: FileText },
     ...(needsPreview ? [{ title: 'guidePreview', hint: 'guidePreviewHint', icon: Search } as const] : []),
     { title: 'guideTrack', hint: 'guideTrackHint', icon: Check }
   ] as const

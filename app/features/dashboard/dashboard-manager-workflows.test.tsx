@@ -141,7 +141,7 @@ describe('DashboardPage Manager workflows', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Notifications' }))
     const dialog = screen.getByRole('dialog', { name: 'Notifications' })
     expect(await screen.findByRole('heading', { level: 1, name: 'Overview' })).toBeInTheDocument()
-    fireEvent.click(await within(dialog).findByRole('button', { name: 'Open' }))
+    fireEvent.click(await within(dialog).findByRole('button', { name: 'View request' }))
     expect(await screen.findByLabelText('Approve need')).toBeInTheDocument()
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(write).not.toHaveBeenCalled()
@@ -170,7 +170,7 @@ describe('DashboardPage Manager workflows', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
-  it('paginates and filters notifications inside the bell without changing the workspace page', async () => {
+  it('appends notification pages inside the bell without changing the workspace page', async () => {
     await setAppLanguage('en', true)
     const reads: string[] = []
     server.use(
@@ -183,8 +183,8 @@ describe('DashboardPage Manager workflows', () => {
           data: {
             items: [
               {
-                id: employeeId,
-                code: 'STEP_ASSIGNED',
+                id: page === 1 ? employeeId : requestId,
+                code: page === 1 ? 'STEP_ASSIGNED' : 'REQUEST_GRANTED',
                 params: {},
                 createdAt: '2026-10-31T03:00:00Z',
                 readAt: null,
@@ -202,11 +202,11 @@ describe('DashboardPage Manager workflows', () => {
     bell.focus()
     fireEvent.click(bell)
     const dialog = screen.getByRole('dialog', { name: 'Notifications' })
-    fireEvent.click(await within(dialog).findByRole('button', { name: 'Next' }))
-    expect(await within(dialog).findByText('Page 2 of 2')).toBeInTheDocument()
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Unread' }))
-    expect(await within(dialog).findByText('Page 1 of 2')).toBeInTheDocument()
-    expect(reads.some((query) => query.includes('page=1') && query.includes('unreadOnly=true'))).toBe(true)
+    fireEvent.click(await within(dialog).findByRole('button', { name: 'Load more' }))
+    expect(await within(dialog).findByText('Access granted')).toBeInTheDocument()
+    expect(within(dialog).getByText('A workflow step needs your attention')).toBeInTheDocument()
+    expect(within(dialog).queryByRole('button', { name: 'Load more' })).not.toBeInTheDocument()
+    expect(reads.some((query) => query.includes('page=2'))).toBe(true)
     expect(screen.getByTestId('route')).toHaveTextContent('tab=weekly-batch&page=2')
     fireEvent.keyDown(dialog, { key: 'Escape' })
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()

@@ -75,7 +75,7 @@ export function EmployeeScreen({
     content = (
       <EmployeeLiveReturnDetail
         id={id}
-        onBack={() => onSelectTab('my-software')}
+        onBack={() => onSelectTab('my-software', { accessList: 'returns' })}
         onHandover={() => onSelectTab('handovers')}
       />
     )

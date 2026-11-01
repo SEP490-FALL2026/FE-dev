@@ -11,7 +11,9 @@ import { assignmentId, employeeId, pageResponse, plan, planId, requestId } from 
 import { EmployeeLiveOverview } from './overview/views/employee-live-overview'
 import { EmployeeLiveAccessView } from './my-software/views/employee-live-access-view'
 
-const server = setupServer()
+const server = setupServer(
+  http.get('*/api/v1/dashboards/employee', () => HttpResponse.json({ success: true, data: null }))
+)
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
@@ -97,7 +99,7 @@ it('shows a failed count as unavailable and recovers it through retry', async ()
   expect(await within(drafts).findByText('0')).toBeInTheDocument()
 })
 
-it('keeps independent server pages for reminders and returns and renews the actual assignment', async () => {
+it('loads only the selected access list and renews the actual assignment', async () => {
   const queries: URL[] = []
   const holder = { id: employeeId, employeeCode: 'EMP-TEST', fullName: 'Test Employee' }
   const reminder: ExpiryReminderPageResponseDtoDataItemsItem = {
@@ -121,12 +123,15 @@ it('keeps independent server pages for reminders and returns and renews the actu
     })
   )
   const navigate = vi.fn()
-  mount(<EmployeeLiveAccessView onSelectTab={navigate} />, '/?tab=my-software&page=2&returnsPage=3')
+  mount(<EmployeeLiveAccessView onSelectTab={navigate} />, '/?tab=my-software&accessList=expiry&page=2&returnsPage=3')
   const table = await screen.findByRole('table', { name: 'Expiry reminders' })
   fireEvent.click(within(table).getByRole('button', { name: 'Renew access' }))
   expect(navigate).toHaveBeenCalledWith('create-request', { mode: 'renewal', assignmentId })
   expect(queries.find((url) => url.pathname.endsWith('/assignment-expiry-reminders'))?.searchParams.get('page')).toBe(
     '2'
   )
-  expect(queries.find((url) => url.pathname.endsWith('/return-requests'))?.searchParams.get('page')).toBe('3')
+  expect(queries.some((url) => url.pathname.endsWith('/return-requests'))).toBe(false)
+  fireEvent.click(screen.getByRole('button', { name: 'Return requests' }))
+  await screen.findByRole('heading', { name: 'Return requests' })
+  expect(queries.find((url) => url.pathname.endsWith('/return-requests'))?.searchParams.get('page')).toBe('1')
 })

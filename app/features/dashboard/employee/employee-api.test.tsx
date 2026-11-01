@@ -1,3 +1,4 @@
+import { employeeCatalogHandlers, chooseCatalogPlan } from '../../../../test/fixtures/employee-catalog'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
@@ -15,12 +16,12 @@ import {
   requestPreview
 } from '../../../../test/fixtures/employee-api'
 import { EmployeeLiveCreateView } from './software-request/views/employee-live-create-view'
-import { EmployeeLiveRequestsView } from './my-requests/views/employee-live-requests-view'
+import { EmployeeDraftRequests } from './my-requests/components/employee-draft-requests'
 import { EmployeeLiveRequestDetail } from './my-requests/views/employee-live-request-detail'
 import { EmployeeStatus } from './shared/components/employee-api-ui'
 import { EmployeeScreen } from './employee-screen'
 
-const server = setupServer()
+const server = setupServer(...employeeCatalogHandlers)
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
@@ -36,8 +37,8 @@ function mount(children: React.ReactNode, url = '/?tab=create-request') {
   )
   return { ...view, client }
 }
-function fillIndividual() {
-  fireEvent.change(screen.getByLabelText('Plan ID supplied by IT'), { target: { value: planId } })
+async function fillIndividual() {
+  await chooseCatalogPlan()
   fireEvent.change(screen.getByLabelText('Business reason'), { target: { value: 'Development work' } })
   fireEvent.change(screen.getByLabelText('Term (months)'), { target: { value: '3' } })
 }
@@ -62,7 +63,7 @@ describe('Employee API workflows', () => {
     )
     const navigate = vi.fn()
     mount(<EmployeeLiveCreateView onSelectTab={navigate} />)
-    fillIndividual()
+    await fillIndividual()
     fireEvent.click(screen.getByRole('button', { name: 'Preview request' }))
     const submit = await screen.findByRole('button', { name: 'Submit request' })
     expect(previewed).toHaveBeenCalledWith({ planId, termMonths: 3 })
@@ -94,7 +95,7 @@ describe('Employee API workflows', () => {
     )
     const navigate = vi.fn()
     const view = mount(<EmployeeLiveCreateView onSelectTab={navigate} />)
-    fillIndividual()
+    await fillIndividual()
     fireEvent.click(screen.getByRole('button', { name: 'Preview request' }))
     fireEvent.click(await screen.findByRole('button', { name: 'Submit request' }))
     await waitFor(() => expect(received).toBe(true))
@@ -110,7 +111,7 @@ describe('Employee API workflows', () => {
       )
     )
     mount(<EmployeeLiveCreateView onSelectTab={vi.fn()} />)
-    fillIndividual()
+    await fillIndividual()
     fireEvent.click(screen.getByRole('button', { name: 'Preview request' }))
     expect(await screen.findByRole('button', { name: 'Submit request' })).toBeDisabled()
     fireEvent.change(screen.getByLabelText('Term (months)'), { target: { value: '6' } })
@@ -169,7 +170,7 @@ describe('Employee API workflows', () => {
       })
     )
     const navigate = vi.fn()
-    mount(<EmployeeLiveRequestsView onSelectTab={navigate} />, '/?tab=my-requests')
+    mount(<EmployeeDraftRequests onSelectTab={navigate} />, '/?tab=my-requests')
     fireEvent.click(await screen.findByRole('button', { name: 'Next' }))
     await waitFor(() => expect(pages).toContain(2))
     fireEvent.click(await screen.findByRole('button', { name: 'Submit draft' }))
@@ -194,7 +195,7 @@ describe('Employee API workflows', () => {
         )
       )
     )
-    mount(<EmployeeLiveRequestsView onSelectTab={vi.fn()} />, '/?tab=my-requests')
+    mount(<EmployeeDraftRequests onSelectTab={vi.fn()} />, '/?tab=my-requests')
     expect(await screen.findByText('Unsupported status')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Submit draft' })).toBeDisabled()
   })

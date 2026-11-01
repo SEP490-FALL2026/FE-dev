@@ -31,6 +31,10 @@ Màn trình lô được đặt tên **Gửi đề nghị chi** (EN: **Submit sp
 
 `ManagerScreen` thay nhánh preview trong dashboard. Public barrel chỉ export bộ điều phối, chuông và điều hướng; không export fixture. Shell không giữ mảng đã đánh dấu/đã gửi. Preview cũ cô lập khỏi runtime để giữ lịch sử thiết kế/test.
 
+Cập nhật 01/11: chuông Manager/Employee dùng chung popover trong `entities/notification`, thay drawer Manager và toast một mục Employee. Manager vẫn giữ `notifications=open`, tab và page khi đóng; mở request bằng mã đã kiểm UUID như trước. Orval cung cấp list/count/mark-read/mark-all-read; infinite query trang 10 mục nối bằng Tải thêm, giữ các trang đã tải nếu trang sau lỗi. Không tự ghi đã đọc khi mở bảng; đọc từng mục/đọc tất cả invalidate list/count sau BE, chặn nhấn lặp và xử lý lỗi/429 an toàn. Các mô tả drawer/lọc/phân trang cũ dưới đây chỉ ghi lịch sử UI trước thay đổi này.
+
+Kiểm chứng popover: 18 test thông báo của hai role và 8 test shell Manager qua; các test hồi quy bị timeout khi chạy cùng build đã qua khi chạy riêng một worker. Typecheck, build production và lint/format phạm vi sửa qua. `pnpm check` vẫn dừng tại 48 file định dạng có sẵn ngoài phạm vi sửa. Chưa xác minh trực quan hoặc tài khoản BE thật: Computer Use dừng vì không xác định chắc chắn URL Chrome để áp dụng chính sách; không tiếp tục thao tác trình duyệt sau đó.
+
 View live nằm đúng slice; shared của Manager sở hữu controls, query state, paging URL, kiểm UUID, picker và mutation feedback. Generated operations dùng Axios/auth adapter chung. `useManagerAction` chỉ điều phối pending, chống click lặp, invalidation, toast, lỗi field, 429/countdown, 403/đọc lại `/me` và khóa gửi lại khi kết quả không xác định; không tự retry mutation. Không điều hướng từ response nếu người dùng đã rời màn hình.
 
 Status từ generated qua `enums/` của slice; Request state dùng `entities/request/enums`. Mã lạ có fallback và không cấp quyền thao tác. Không gửi object GET, optional rỗng hoặc `null` không hợp lệ. Tiền giữ chuỗi thập phân và định dạng qua helper BigInt.

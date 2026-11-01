@@ -1,89 +1,121 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useGroupRequestCandidateList } from '~/shared/api/generated/operations/group-requests/group-request-candidate-list'
-import { useEmployeePage } from '../../shared/hooks/use-employee-page'
+import { EmployeeChoiceSelect } from '../../shared/components/employee-choice-select'
 import {
   EmployeeField,
   EmployeeInput,
   EmployeePagination,
-  EmployeeQueryState,
-  EmployeeButton
+  EmployeeQueryState
 } from '../../shared/components/employee-api-ui'
 import type { GroupSelection } from '../hooks/use-live-request-form'
 
 export function LiveGroupMembers({
   members,
   onChange,
-  disabled
+  disabled,
+  invalid
 }: {
   members: GroupSelection[]
   onChange: (members: GroupSelection[]) => void
   disabled: boolean
+  invalid?: boolean
 }) {
   const { t: translate } = useTranslation('employee')
-  const { page, pageSize, onPage } = useEmployeePage('membersPage')
-  const [draftSearch, setDraftSearch] = useState('')
+  const [open, setOpen] = useState(false)
+  const [draft, setDraft] = useState('')
   const [search, setSearch] = useState('')
-  const query = useGroupRequestCandidateList({ page, pageSize, ...(search ? { q: search } : {}) })
+  const [page, setPage] = useState(1)
+  useEffect(() => {
+    if (draft.trim() === search) return
+    const timer = setTimeout(() => {
+      setSearch(draft.trim())
+      setPage(1)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [draft, search])
+  const query = useGroupRequestCandidateList(
+    { page, pageSize: 20, ...(search ? { q: search } : {}) },
+    { query: { enabled: open && !disabled } }
+  )
+  const current = draft.trim() === search && !query.isError
+  const candidates = current ? (query.data?.data?.items ?? []) : []
   return (
-    <section className='space-y-4 border-t border-border/60 pt-5'>
-      <h3 className='font-semibold'>{translate('members')}</h3>
-      <p className='text-sm text-muted-foreground'>{translate('groupHint')}</p>
-      <div className='flex flex-wrap items-end gap-2'>
-        <EmployeeField label={translate('memberSearch')}>
-          <EmployeeInput value={draftSearch} onChange={(event) => setDraftSearch(event.target.value)} maxLength={100} />
-        </EmployeeField>
-        <EmployeeButton
-          type='button'
-          disabled={disabled}
-          onClick={() => {
-            setSearch(draftSearch.trim())
-            onPage(1)
-          }}
-        >
-          {translate('lookup')}
-        </EmployeeButton>
-      </div>
-      <p className='text-right font-mono text-sm tabular-nums'>{translate('selected', { count: members.length })}</p>
-      <EmployeeQueryState query={query} empty={!query.data?.data?.items.length} />
-      {!query.isError && (
-        <div className='grid gap-2 sm:grid-cols-2'>
-          {query.data?.data?.items.map((candidate) => {
-            const selected = members.some((member) => member.employeeId === candidate.employeeId)
-            return (
-              <label
-                key={candidate.employeeId}
-                className='flex min-h-11 min-w-0 items-center gap-3 rounded-md border border-border/60 px-3 py-2'
-              >
-                <input
-                  type='checkbox'
-                  checked={selected}
-                  disabled={disabled || (!selected && members.length >= 10)}
-                  onChange={() =>
-                    onChange(
-                      selected
-                        ? members.filter((member) => member.employeeId !== candidate.employeeId)
-                        : [
-                            ...members,
-                            { employeeId: candidate.employeeId, fullName: candidate.fullName, expectedEndDate: '' }
-                          ]
-                    )
-                  }
-                />
-                <span className='truncate text-sm' title={candidate.fullName}>
-                  {candidate.fullName}
-                </span>
-              </label>
+    <section aria-label={translate('members')} className='space-y-4 border-t border-border/60 pt-5'>
+      <EmployeeChoiceSelect
+        label={translate('members')}
+        placeholder={translate('groupPicker.choosePeople')}
+        multiple
+        limit={10}
+        disabled={disabled}
+        invalid={invalid}
+        selected={members.map((member) => ({
+          value: member.employeeId,
+          label: member.fullName,
+          description: member.workEmail
+        }))}
+        onChange={(choices) =>
+          onChange(
+            choices.map(
+              (choice) =>
+                members.find((member) => member.employeeId === choice.value) ?? {
+                  employeeId: choice.value,
+                  fullName: choice.label,
+                  workEmail: choice.description,
+                  expectedEndDate: ''
+                }
             )
-          })}
-        </div>
-      )}
-      <EmployeePagination pagination={query.data?.data?.pagination} onPage={onPage} busy={query.isFetching} />
+          )
+        }
+        onOpenChange={setOpen}
+        hint={translate('groupHint')}
+        search={{
+          label: translate('memberSearch'),
+          placeholder: translate('groupPicker.searchPeoplePlaceholder'),
+          value: draft,
+          onChange: setDraft
+        }}
+        options={candidates.map((candidate) => ({
+          value: candidate.employeeId,
+          label: candidate.fullName,
+          description: candidate.workEmail
+        }))}
+        state={
+          draft.trim() === search ? (
+            <EmployeeQueryState
+              query={query}
+              empty={!candidates.length}
+              emptyTitle={translate('groupPicker.noMatches')}
+            />
+          ) : (
+            <p role='status' className='py-4 text-sm text-muted-foreground'>
+              {translate('loading')}
+            </p>
+          )
+        }
+        footer={
+          current && (
+            <EmployeePagination pagination={query.data?.data?.pagination} onPage={setPage} busy={query.isFetching} />
+          )
+        }
+      />
       {members.map((member) => (
-        <div key={member.employeeId} className='grid gap-2 sm:grid-cols-2'>
-          <p className='self-center truncate text-sm' title={member.fullName}>
-            {member.fullName}
-          </p>
+        <div
+          role='group'
+          aria-label={translate('groupPicker.memberDetails', { name: member.fullName, email: member.workEmail ?? '' })}
+          key={member.employeeId}
+          className='grid items-center gap-3 border-b border-border/40 pb-2 sm:grid-cols-2'
+        >
+          <div className='min-w-0 text-sm'>
+            <p className='truncate font-medium' title={member.fullName}>
+              {member.fullName}
+            </p>
+            {member.workEmail && (
+              <p className='truncate text-xs text-muted-foreground' title={member.workEmail}>
+                {member.workEmail}
+              </p>
+            )}
+          </div>
           <EmployeeField label={translate('memberEndDate')}>
             <EmployeeInput
               type='date'

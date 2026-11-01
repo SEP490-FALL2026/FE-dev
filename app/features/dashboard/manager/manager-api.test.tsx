@@ -91,7 +91,7 @@ describe('Manager need approval and spend submission', () => {
     expect(written).toHaveBeenCalledWith({ decision: 'APPROVE', spend: { offPlan: true } })
     expect(confirm).toBeDisabled()
     finish()
-    expect(await screen.findByText('Awaiting batch submission')).toBeInTheDocument()
+    expect(await screen.findByText('Awaiting spending request submission')).toBeInTheDocument()
     expect(view.client.getQueryState(getSpendQueueListQueryKey())?.isInvalidated).toBe(true)
   })
   it('hides need decisions for the requester and for an unknown request state', async () => {

@@ -12,5 +12,6 @@ export type DepartmentToolsResponseDtoDataItemsItemSource =
 export const DepartmentToolsResponseDtoDataItemsItemSource = {
   BASELINE: 'BASELINE',
   HANDOVER: 'HANDOVER',
-  REQUEST: 'REQUEST'
+  REQUEST: 'REQUEST',
+  RENEWAL_CARRY: 'RENEWAL_CARRY'
 } as const

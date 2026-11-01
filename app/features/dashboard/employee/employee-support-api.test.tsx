@@ -1,3 +1,4 @@
+import { employeeCatalogHandlers, chooseCatalogPlan } from '../../../../test/fixtures/employee-catalog'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
@@ -20,7 +21,7 @@ import { EmployeeIssueDetail } from './saas-issues/views/employee-issue-detail'
 import { EmployeeHandoversView } from './handovers/views/employee-handovers-view'
 import { EmployeeReportIssue } from './saas-issues/views/employee-report-issue'
 
-const server = setupServer()
+const server = setupServer(...employeeCatalogHandlers)
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
@@ -55,10 +56,15 @@ describe('Employee support and group contracts', () => {
         })
       })
     )
-    mount(<EmployeeLiveCreateView onSelectTab={vi.fn()} />, '/?tab=create-request&mode=group')
-    fireEvent.change(screen.getByLabelText('Plan ID supplied by IT'), { target: { value: planId } })
+    mount(
+      <EmployeeLiveCreateView onSelectTab={vi.fn()} />,
+      `/?tab=create-request&mode=group&planId=${planId}&planName=Standard&applicationName=Test%20Software`
+    )
+    await chooseCatalogPlan()
     fireEvent.change(screen.getByLabelText('Business reason'), { target: { value: 'Team development' } })
-    fireEvent.click(await screen.findByRole('checkbox', { name: 'Test Colleague' }))
+    fireEvent.click(screen.getByRole('combobox', { name: 'Beneficiaries' }))
+    fireEvent.click(await screen.findByRole('option', { name: /Test Colleague/ }))
+    fireEvent.keyDown(screen.getByRole('searchbox'), { key: 'Escape' })
     fireEvent.change(screen.getByLabelText('Access end date (if applicable)'), { target: { value: '2027-01-31' } })
     fireEvent.click(screen.getByRole('button', { name: 'Preview request' }))
     expect(await screen.findByRole('button', { name: 'Submit request' })).toBeDisabled()
@@ -85,10 +91,15 @@ describe('Employee support and group contracts', () => {
         })
       )
     )
-    mount(<EmployeeLiveCreateView onSelectTab={vi.fn()} />, '/?tab=create-request&mode=group')
-    fireEvent.change(screen.getByLabelText('Plan ID supplied by IT'), { target: { value: planId } })
+    mount(
+      <EmployeeLiveCreateView onSelectTab={vi.fn()} />,
+      `/?tab=create-request&mode=group&planId=${planId}&planName=Standard&applicationName=Test%20Software`
+    )
+    await chooseCatalogPlan()
     fireEvent.change(screen.getByLabelText('Business reason'), { target: { value: 'Team development' } })
-    fireEvent.click(await screen.findByRole('checkbox', { name: 'Test Colleague' }))
+    fireEvent.click(screen.getByRole('combobox', { name: 'Beneficiaries' }))
+    fireEvent.click(await screen.findByRole('option', { name: /Test Colleague/ }))
+    fireEvent.keyDown(screen.getByRole('searchbox'), { key: 'Escape' })
     fireEvent.click(screen.getByRole('button', { name: 'Preview request' }))
     expect(await screen.findByText('This plan does not support multiple seats')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Submit request' })).toBeDisabled()
@@ -111,7 +122,7 @@ describe('Employee support and group contracts', () => {
       )
     )
     mount(<EmployeeLiveCreateView onSelectTab={vi.fn()} />, '/?tab=create-request')
-    fireEvent.change(screen.getByLabelText('Plan ID supplied by IT'), { target: { value: planId } })
+    await chooseCatalogPlan()
     fireEvent.change(screen.getByLabelText('Business reason'), { target: { value: 'Reason' } })
     fireEvent.click(screen.getByRole('button', { name: 'Save draft' }))
     await waitFor(() => expect(screen.getByLabelText(/Business reason/)).toHaveAttribute('aria-invalid', 'true'))
@@ -130,7 +141,7 @@ describe('Employee support and group contracts', () => {
       })
     )
     mount(<EmployeeLiveCreateView onSelectTab={vi.fn()} />, '/?tab=create-request')
-    fireEvent.change(screen.getByLabelText('Plan ID supplied by IT'), { target: { value: planId } })
+    await chooseCatalogPlan()
     fireEvent.change(screen.getByLabelText('Business reason'), { target: { value: 'Reason' } })
     fireEvent.click(screen.getByRole('button', { name: 'Save draft' }))
     expect(await screen.findByRole('button', { name: /Try again in 5 seconds/ })).toBeDisabled()

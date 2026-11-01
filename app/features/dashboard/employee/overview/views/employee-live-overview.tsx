@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { EmployeeButton, EmployeeSection } from '../../shared/components/employee-api-ui'
 import { EmployeePageHeader } from '../../shared/components/employee-page-header'
 import { EmployeeOverviewWork } from '../components/employee-overview-work'
+import { EmployeeDashboardSummary } from '../components/employee-dashboard-summary'
 import type { EmployeeTabKey } from '../../enums'
 
 export function EmployeeLiveOverview({
@@ -17,7 +18,7 @@ export function EmployeeLiveOverview({
   departmentName?: string
   jobTitle?: string | null
   selfServiceOnly: boolean
-  onSelectTab: (tab: EmployeeTabKey) => void
+  onSelectTab: (tab: EmployeeTabKey, params?: Record<string, string>) => void
 }) {
   const { t: translate } = useTranslation('employee')
   const actionId = useId()
@@ -67,6 +68,7 @@ export function EmployeeLiveOverview({
           </button>
         </div>
       </section>
+      {!selfServiceOnly && <EmployeeDashboardSummary onSelectTab={onSelectTab} />}
       <EmployeeOverviewWork selfServiceOnly={selfServiceOnly} onSelectTab={onSelectTab} />
       <div
         className={`grid items-start gap-5 ${selfServiceOnly ? '' : 'xl:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)]'}`}

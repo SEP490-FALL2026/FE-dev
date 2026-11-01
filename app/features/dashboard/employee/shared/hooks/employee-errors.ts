@@ -1,6 +1,7 @@
 import axios from 'axios'
 
 const errorKeys = {
+  'REQUESTABLE_SOFTWARE.NO_DEPARTMENT': 'catalogDepartment',
   'FINANCE.SETUP_INCOMPLETE': 'financeSetup',
   'ACCESS_REQUEST.ALREADY_HOLDS_ACCESS': 'existingAccess',
   'ACCESS_REQUEST.APPLICATION_RETIRED': 'planUnavailable',
