@@ -17,7 +17,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import type { UserRole } from '~/entities/user-role/user-role'
 import { BrandMark } from '~/shared/ui/brand-mark'
-import { itAdminMenuItems, type ItAdminTabKey } from '../it-admin'
+import { ItSidebarNav, type ItAdminTabKey } from '../it-admin'
 import { employeeMenuItems, type EmployeeTabKey } from '../employee'
 import { managerNavItems, type ManagerTabKey, MOCK_TEAM_REQUESTS } from '../manager'
 import { approvalNavItems, type ApprovalTabKey } from '../approvals'
@@ -128,7 +128,7 @@ export function DashboardSidebar({
             <div>
               <p className='font-bold tracking-[-0.02em]'>{tCommon('brand')}</p>
               <p className='mt-0.5 text-[0.65rem] font-semibold tracking-[0.12em] text-muted-foreground uppercase'>
-                {!isSuperAdmin && t('demoNotice')}
+                {!isSuperAdmin && !isItAdmin && t('demoNotice')}
               </p>
             </div>
           </div>
@@ -144,105 +144,13 @@ export function DashboardSidebar({
 
         <nav aria-label={t('navigation.label')} className='flex-1 overflow-y-auto px-4 py-5'>
           {isItAdmin ? (
-            <ul className='space-y-1.5'>
-              {itAdminMenuItems.map((item) => {
-                if (item.directTabKey) {
-                  const isCurrent = activeTab === item.directTabKey
-                  const Icon = item.icon
-
-                  return (
-                    <li key={item.key}>
-                      <button
-                        aria-current={isCurrent ? 'page' : undefined}
-                        className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-3 text-left text-sm font-semibold transition ${
-                          isCurrent
-                            ? 'bg-primary text-primary-foreground shadow-[0_10px_25px_var(--theme-primary-soft)]'
-                            : 'text-muted-foreground hover:bg-surface hover:text-foreground'
-                        }`}
-                        onClick={() => onSelectItAdminTab(item.directTabKey!)}
-                        type='button'
-                      >
-                        <Icon aria-hidden='true' className='size-[1.125rem] shrink-0' />
-                        {t(`navigation.${item.translationKey}`)}
-                      </button>
-                    </li>
-                  )
-                }
-
-                const isOpen = openSections[item.key] ?? false
-                const isParentActive = activeParent === item.key
-                const Icon = item.icon
-
-                return (
-                  <li className='space-y-1' key={item.key}>
-                    <button
-                      aria-expanded={isOpen}
-                      className={`flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-left text-sm font-semibold transition ${
-                        isParentActive
-                          ? 'border border-primary/20 bg-primary-soft/50 font-bold text-primary'
-                          : 'text-muted-foreground hover:bg-surface hover:text-foreground'
-                      }`}
-                      onClick={() => toggleSection(item.key)}
-                      type='button'
-                    >
-                      <div className='flex min-w-0 items-center gap-3'>
-                        <Icon aria-hidden='true' className='size-[1.125rem] shrink-0' />
-                        <span className='truncate'>{t(`navigation.${item.translationKey}`)}</span>
-                      </div>
-                      <ChevronDown
-                        aria-hidden='true'
-                        className={`size-4 text-muted-foreground transition-transform duration-200 ${
-                          isOpen ? 'rotate-180' : ''
-                        }`}
-                      />
-                    </button>
-
-                    {isOpen && item.children && (
-                      <ul className='ml-4 space-y-1 border-l-2 border-border/70 pl-2.5 pt-0.5'>
-                        {item.children.map((subItem) => {
-                          const isSubCurrent = activeTab === subItem.key
-                          const SubIcon = subItem.icon
-
-                          return (
-                            <li key={subItem.key}>
-                              <button
-                                aria-current={isSubCurrent ? 'page' : undefined}
-                                className={`group flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-semibold transition ${
-                                  isSubCurrent
-                                    ? 'bg-primary font-bold text-primary-foreground shadow-sm'
-                                    : 'text-muted-foreground hover:bg-surface hover:text-foreground'
-                                }`}
-                                onClick={() => onSelectItAdminTab(subItem.key)}
-                                type='button'
-                              >
-                                <div className='flex min-w-0 items-center gap-2'>
-                                  <SubIcon
-                                    aria-hidden='true'
-                                    className={`size-3.5 shrink-0 ${isSubCurrent ? 'opacity-100' : 'opacity-80'}`}
-                                  />
-                                  <span className='truncate'>{t(`itAdmin.nav.${subItem.translationKey}`)}</span>
-                                </div>
-                                {subItem.badge !== undefined && (
-                                  <span
-                                    className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[0.65rem] font-bold ${
-                                      isSubCurrent
-                                        ? 'bg-white/20 text-white'
-                                        : 'bg-surface-subtle text-muted-foreground'
-                                    }`}
-                                  >
-                                    {subItem.badge}
-                                  </span>
-                                )}
-                              </button>
-                            </li>
-                          )
-                        })}
-                      </ul>
-                    )}
-                  </li>
-                )
-              })}
-            </ul>
+            <ItSidebarNav
+              activeTab={activeTab}
+              activeParent={activeParent}
+              openSections={openSections}
+              onSelectTab={onSelectItAdminTab}
+              toggleSection={toggleSection}
+            />
           ) : isEmployee ? (
             <ul className='space-y-1.5'>
               {employeeMenuItems.map((item) => {

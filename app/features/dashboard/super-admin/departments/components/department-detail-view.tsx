@@ -1,48 +1,95 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useRef, useState, type MouseEvent } from 'react'
+import { ArrowLeft, Building2, UsersRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { useDepartmentGet, useDepartmentMemberList } from '~/shared/api/generated/operations/departments'
+import { useDepartmentGet } from '~/shared/api/generated/operations/departments'
 import { useDashboardFormat } from '../../../dashboard-ui'
 import { AdminQueryState, AdminEmpty } from '../../shared/components/admin-query-state'
-import { AdminPagination } from '../../shared/components/admin-pagination'
 import { adminButtonClass } from '../../shared/components/admin-form'
 import { DepartmentStatus } from '../enums/department-status'
-import { DepartmentWarning } from '../enums/department-warning'
-import { MemberStatus } from '../enums/member-status'
-import { MemberWorkState } from '../enums/member-work-state'
 import { DepartmentForm } from './department-form'
+import { DepartmentOverviewPanels } from './department-overview-panels'
+import { DepartmentMembersPanel } from './department-members-panel'
+import { DepartmentHeadHistory } from './department-head-history'
 import { DepartmentActionForm, type DepartmentAction } from './department-action-form'
-import { ProjectsPanel } from './projects-panel'
 
 export function DepartmentDetailView({ id, onBack }: { id: string; onBack: () => void }) {
   const { t: translate } = useTranslation('adminOrganization')
-  const { formatDate, formatNumber } = useDashboardFormat()
-  const [page, setPage] = useState(1)
+  const { formatNumber } = useDashboardFormat()
   const [action, setAction] = useState<DepartmentAction | 'edit' | null>(null)
-  const [tab, setTab] = useState<'members' | 'projects'>('members')
+  const [historyOpen, setHistoryOpen] = useState(false)
+  const [historyOpening, setHistoryOpening] = useState(false)
+  const historyOpenLock = useRef(false)
+  const historyTrigger = useRef<HTMLButtonElement>(null)
+  const openHistory = (event: MouseEvent<HTMLButtonElement>) => {
+    if (historyOpenLock.current) return
+    historyTrigger.current = event.currentTarget
+    historyOpenLock.current = true
+    setHistoryOpening(true)
+    setHistoryOpen(true)
+  }
+  const historyReady = useCallback(() => setHistoryOpening(false), [])
+  const closeHistory = useCallback(() => {
+    setHistoryOpening(false)
+    setHistoryOpen(false)
+  }, [])
+  useEffect(() => {
+    if (!historyOpen && historyOpenLock.current) {
+      historyOpenLock.current = false
+      historyTrigger.current?.focus()
+    }
+  }, [historyOpen])
   const query = useDepartmentGet(id)
-  const members = useDepartmentMemberList(id, { page, pageSize: 20 })
   const department = query.data?.data
   const active = department?.status === DepartmentStatus.ACTIVE
   return (
-    <div className='grid gap-6'>
+    <div className='grid gap-5'>
       <button type='button' className={`${adminButtonClass} justify-self-start`} onClick={onBack}>
+        <ArrowLeft aria-hidden className='size-4' strokeWidth={1.5} />
         {translate('back')}
       </button>
       <AdminQueryState query={query}>
         {!department && <AdminEmpty />}
         {department && (
           <>
-            <header className='flex flex-wrap items-start justify-between gap-4'>
-              <div>
-                <p className='font-mono text-sm text-muted-foreground'>{department.code}</p>
-                <h1 className='text-2xl font-semibold'>{department.name}</h1>
-                <p className='mt-2 max-w-3xl whitespace-pre-wrap text-sm text-muted-foreground'>
-                  {department.function}
+            <header className='flex min-w-0 flex-wrap items-center gap-5 rounded-lg border border-t-4 border-border/80 border-t-primary/60 bg-surface p-5 shadow-sm sm:p-6'>
+              <div className='flex w-full min-w-0 items-center gap-4 sm:w-auto sm:flex-1'>
+                <span className='grid size-14 shrink-0 place-items-center rounded-md bg-primary-soft text-primary-ink'>
+                  <Building2 aria-hidden className='size-7' strokeWidth={1.5} />
+                </span>
+                <div className='min-w-0'>
+                  <p className='truncate font-mono text-xs text-muted-foreground' title={department.code}>
+                    {department.code}
+                  </p>
+                  <h1 className='mt-1 break-words text-2xl leading-tight font-semibold tracking-tight [overflow-wrap:anywhere] [text-wrap:balance]'>
+                    {department.name}
+                  </h1>
+                  <p className='mt-2 inline-flex items-center gap-2 text-xs font-medium'>
+                    <span
+                      aria-hidden
+                      className={`size-1.5 rounded-full ${active ? 'bg-success' : 'bg-muted-foreground'}`}
+                    />
+                    {Object.values(DepartmentStatus).includes(department.status)
+                      ? translate(`departmentStatus.${department.status}`)
+                      : translate('unknown')}
+                  </p>
+                </div>
+              </div>
+              <div className='ml-auto border-l border-border/80 pl-5 text-right'>
+                <p className='font-mono text-3xl leading-none font-semibold tabular-nums'>
+                  {formatNumber(department.memberCount)}
+                </p>
+                <p className='mt-2 inline-flex items-center gap-1.5 text-xs text-muted-foreground'>
+                  <UsersRound aria-hidden className='size-3.5' strokeWidth={1.5} />
+                  {translate('members')}
                 </p>
               </div>
               {active && (
                 <details className='relative'>
-                  <summary className={`${adminButtonClass} cursor-pointer`}>{translate('actionsLabel')}</summary>
+                  <summary
+                    className={`${adminButtonClass} cursor-pointer list-none [&::-webkit-details-marker]:hidden`}
+                  >
+                    {translate('actionsLabel')}
+                  </summary>
                   <div className='absolute right-0 z-10 mt-2 grid min-w-60 gap-1 rounded-md border border-border bg-surface p-2 shadow-lg'>
                     <button className={adminButtonClass} type='button' onClick={() => setAction('edit')}>
                       {translate('editDepartment')}
@@ -80,117 +127,15 @@ export function DepartmentDetailView({ id, onBack }: { id: string; onBack: () =>
                 </details>
               )}
             </header>
-            <dl className='grid gap-5 rounded-lg border border-border p-5 sm:grid-cols-2 lg:grid-cols-3'>
-              {[
-                [
-                  translate('status'),
-                  Object.values(DepartmentStatus).includes(department.status)
-                    ? translate(`departmentStatus.${department.status}`)
-                    : translate('unknown')
-                ],
-                [translate('head'), department.head?.fullName ?? translate('unassigned')],
-                [
-                  translate('successor'),
-                  department.successor
-                    ? `${department.successor.fullName} · ${formatDate(department.successor.since)}`
-                    : translate('unassigned')
-                ],
-                [translate('itAdmin'), department.itAdmin?.fullName ?? translate('unassigned')],
-                [translate('costCenter'), department.costCenter?.name ?? translate('unassigned')],
-                [translate('members'), formatNumber(department.memberCount)]
-              ].map(([label, value]) => (
-                <div key={label}>
-                  <dt className='text-sm text-muted-foreground'>{label}</dt>
-                  <dd className='mt-1 font-medium'>{value}</dd>
-                </div>
-              ))}
-            </dl>
-            {!!department.warnings.length && (
-              <ul className='list-inside list-disc text-sm text-warning'>
-                {department.warnings.map((warning) => (
-                  <li key={warning}>
-                    {Object.values(DepartmentWarning).includes(warning)
-                      ? translate(`warnings.${warning}`)
-                      : translate('unknown')}
-                  </li>
-                ))}
-              </ul>
-            )}
-            <section className='grid gap-3'>
-              <h2 className='font-semibold'>{translate('headHistory')}</h2>
-              {!department.headHistory.length && (
-                <p className='text-sm text-muted-foreground'>{translate('noHistory')}</p>
-              )}
-              {department.headHistory.map((head) => (
-                <div
-                  key={`${head.employeeId}-${head.validFrom}`}
-                  className='flex flex-wrap justify-between gap-3 border-b border-border py-2 text-sm'
-                >
-                  <span>
-                    {head.fullName} · {head.employeeCode}
-                  </span>
-                  <span className='font-mono tabular-nums'>
-                    {formatDate(head.validFrom)} · {head.validTo ? formatDate(head.validTo) : translate('ongoing')}
-                  </span>
-                </div>
-              ))}
-              {department.headHistoryHasMore && (
-                <p className='text-sm text-muted-foreground'>{translate('historyLimited')}</p>
-              )}
-            </section>
-            <nav className='flex gap-3 border-b border-border pb-3'>
-              {(['members', 'projects'] as const).map((value) => (
-                <button
-                  key={value}
-                  type='button'
-                  aria-pressed={tab === value}
-                  className={adminButtonClass}
-                  onClick={() => setTab(value)}
-                >
-                  {translate(value)}
-                </button>
-              ))}
-            </nav>
-            {tab === 'members' ? (
-              <section className='grid gap-4'>
-                <p className='text-sm text-muted-foreground'>{translate('membersHelp')}</p>
-                <AdminQueryState query={members}>
-                  {!members.data?.data?.items.length && <AdminEmpty />}
-                  <div className='grid gap-3'>
-                    {members.data?.data?.items.map((member) => (
-                      <article
-                        key={member.employeeCode}
-                        className='flex flex-wrap justify-between gap-3 rounded-md border border-border p-4 text-sm'
-                      >
-                        <div>
-                          <h3 className='font-medium'>{member.fullName}</h3>
-                          <p className='font-mono text-muted-foreground'>{member.employeeCode}</p>
-                          <p>
-                            {Object.values(MemberStatus).includes(member.status)
-                              ? translate(`memberStatus.${member.status}`)
-                              : translate('unknown')}{' '}
-                            ·{' '}
-                            {Object.values(MemberWorkState).includes(member.workState)
-                              ? translate(`workState.${member.workState}`)
-                              : translate('unknown')}
-                          </p>
-                        </div>
-                        <div className='text-right'>
-                          <p className='font-mono tabular-nums'>{formatDate(member.memberSince)}</p>
-                          <p>{translate(member.hasWorkEmail ? 'hasEmail' : 'noEmail')}</p>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                  <AdminPagination
-                    pagination={members.data?.data?.pagination}
-                    onPageChange={setPage}
-                    disabled={members.isFetching}
-                  />
-                </AdminQueryState>
-              </section>
-            ) : (
-              <ProjectsPanel departmentId={id} />
+            <DepartmentOverviewPanels
+              department={department}
+              onViewHistory={openHistory}
+              historyOpening={historyOpening}
+              historyOpen={historyOpen}
+            />
+            <DepartmentMembersPanel key={id} id={id} />
+            {historyOpen && (
+              <DepartmentHeadHistory department={department} onClose={closeHistory} onReady={historyReady} />
             )}
             {action === 'edit' && <DepartmentForm department={department} onClose={() => setAction(null)} />}
             {action && action !== 'edit' && (

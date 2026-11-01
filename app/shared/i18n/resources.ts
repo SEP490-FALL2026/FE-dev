@@ -20,11 +20,29 @@ import { errors as viErrors } from './locales/vi/errors'
 import { landing as viLanding } from './locales/vi/landing'
 import { notFound as viNotFound } from './locales/vi/not-found'
 import { theme as viTheme } from './locales/vi/theme'
+import { itAdmin as enItAdmin } from './locales/en/it-admin'
+import { itAdmin as viItAdmin } from './locales/vi/it-admin'
+import { itProvisioning as enItProvisioning } from './locales/en/it-provisioning'
+import { itProvisioning as viItProvisioning } from './locales/vi/it-provisioning'
+import { itCatalog as enItCatalog } from './locales/en/it-catalog'
+import { itCatalog as viItCatalog } from './locales/vi/it-catalog'
+import { itOffboarding as enItOffboarding } from './locales/en/it-offboarding'
+import { itOffboarding as viItOffboarding } from './locales/vi/it-offboarding'
+import { itIssues as enItIssues } from './locales/en/it-issues'
+import { itIssues as viItIssues } from './locales/vi/it-issues'
+import { itNewSoftware as enItNewSoftware } from './locales/en/it-new-software'
+import { itNewSoftware as viItNewSoftware } from './locales/vi/it-new-software'
 
 export const defaultNS = 'common' as const
 
 export const resources = {
   en: {
+    itNewSoftware: enItNewSoftware,
+    itAdmin: enItAdmin,
+    itProvisioning: enItProvisioning,
+    itCatalog: enItCatalog,
+    itOffboarding: enItOffboarding,
+    itIssues: enItIssues,
     admin: enAdmin,
     adminAccounts: enAdminAccounts,
     adminOrganization: enAdminOrganization,
@@ -38,6 +56,12 @@ export const resources = {
     theme: enTheme
   },
   vi: {
+    itNewSoftware: viItNewSoftware,
+    itAdmin: viItAdmin,
+    itProvisioning: viItProvisioning,
+    itCatalog: viItCatalog,
+    itOffboarding: viItOffboarding,
+    itIssues: viItIssues,
     admin: viAdmin,
     adminAccounts: viAdminAccounts,
     adminOrganization: viAdminOrganization,

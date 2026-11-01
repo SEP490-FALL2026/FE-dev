@@ -6,6 +6,35 @@ import { afterAll, afterEach, beforeAll, beforeEach, expect, it } from 'vitest'
 import { setAppLanguage } from '~/shared/i18n/i18n'
 import { SuperAdminRemindersView } from './views/super-admin-reminders-view'
 
+const parameterKeys = [
+  'APPROVAL_SLA_WORKING_DAYS',
+  'BACKLOG_ALERT_THRESHOLD',
+  'ACTIVITY_WINDOW_MINUTES',
+  'FISCAL_YEAR_START_MONTH',
+  'SPEND_SUBMISSION_WAIT_WORKING_DAYS',
+  'TRANSFER_REVIEW_WORKING_DAYS'
+] as const
+const parameters = parameterKeys.map((key, position) => ({
+  key,
+  value: position === 1 ? 15 : 2,
+  default: position === 1 ? 10 : 2,
+  isDefault: position !== 1,
+  unit: ['working days', 'steps', 'minutes per day', 'month of the year', 'working days', 'working days'][position],
+  description: 'Raw backend description',
+  constraints: {},
+  changedAt: position === 1 ? '2026-11-01T03:00:00Z' : null
+}))
+
+function mountParameters() {
+  return render(
+    <QueryClientProvider
+      client={new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })}
+    >
+      <SuperAdminRemindersView />
+    </QueryClientProvider>
+  )
+}
+
 const server = setupServer()
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 afterEach(() => server.resetHandlers())
@@ -25,7 +54,7 @@ it('sends numeric values, preserves failed drafts and prevents duplicate saves',
         data: {
           items: [
             {
-              key: 'SLA_WORKING_DAYS',
+              key: 'APPROVAL_SLA_WORKING_DAYS',
               value: 3,
               default: 3,
               isDefault: true,
@@ -38,7 +67,7 @@ it('sends numeric values, preserves failed drafts and prevents duplicate saves',
         }
       })
     ),
-    http.put('*/api/v1/operating-parameters/SLA_WORKING_DAYS', async ({ request }) => {
+    http.put('*/api/v1/operating-parameters/APPROVAL_SLA_WORKING_DAYS', async ({ request }) => {
       calls += 1
       received = await request.json()
       await new Promise<void>((resolve) => {
@@ -67,4 +96,81 @@ it('sends numeric values, preserves failed drafts and prevents duplicate saves',
   await waitFor(() => expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled())
   expect(screen.getByLabelText('Current value')).toHaveValue(7)
   expect(calls).toBe(1)
+})
+
+it.each([
+  ['vi', 'Thời hạn xử lý phê duyệt', 'Ngày làm việc', 'Đang dùng mặc định', 'Đã tùy chỉnh'],
+  ['en', 'Approval processing deadline', 'Working days', 'Using default', 'Customized']
+] as const)(
+  'localizes parameter names, units and value states in %s',
+  async (language, name, unit, defaultState, customState) => {
+    await setAppLanguage(language, false)
+    server.use(
+      http.get('*/api/v1/operating-parameters', () => HttpResponse.json({ success: true, data: { items: parameters } }))
+    )
+    mountParameters()
+    expect(await screen.findByRole('heading', { name })).toBeInTheDocument()
+    expect(screen.getAllByText(unit).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(defaultState)).toHaveLength(5)
+    expect(screen.getByText(customState)).toBeInTheDocument()
+    expect(document.querySelector('time[datetime="2026-11-01T03:00:00Z"]')).not.toBeNull()
+    expect(screen.queryByText('2026-11-01T03:00:00Z')).not.toBeInTheDocument()
+    for (const key of parameterKeys) expect(screen.queryByText(key, { exact: true })).not.toBeInTheDocument()
+    for (const rawUnit of ['working days', 'steps', 'minutes per day', 'month of the year'])
+      expect(screen.queryByText(rawUnit, { exact: true })).not.toBeInTheDocument()
+    expect(screen.queryByText('Raw backend description')).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', {
+        name: language === 'vi' ? 'Thời hạn rà soát sau điều chuyển' : 'Post-transfer review deadline'
+      })
+    ).toBeInTheDocument()
+  }
+)
+
+it('keeps new API parameters visible with safe label and unit fallbacks', async () => {
+  server.use(
+    http.get('*/api/v1/operating-parameters', () =>
+      HttpResponse.json({
+        success: true,
+        data: {
+          items: [{ ...parameters[0], key: 'NEW_PARAMETER', unit: 'unrecognized backend unit' }]
+        }
+      })
+    )
+  )
+  mountParameters()
+  expect(await screen.findByRole('heading', { name: 'Other parameter' })).toBeInTheDocument()
+  expect(screen.queryByText('NEW_PARAMETER')).not.toBeInTheDocument()
+  expect(screen.getByText('Unit label unavailable')).toBeInTheDocument()
+  expect(screen.queryByText('unrecognized backend unit')).not.toBeInTheDocument()
+})
+
+it('uses the translated parameter name in editing and history and distinguishes current from previous values', async () => {
+  server.use(
+    http.get('*/api/v1/operating-parameters', () =>
+      HttpResponse.json({ success: true, data: { items: [parameters[0]] } })
+    ),
+    http.get('*/api/v1/operating-parameters/APPROVAL_SLA_WORKING_DAYS/history', () =>
+      HttpResponse.json({
+        success: true,
+        data: {
+          items: [
+            { value: 2, from: '2026-11-01T03:00:00Z', until: null },
+            { value: 3, from: '2026-10-01T03:00:00Z', until: '2026-11-01T03:00:00Z' }
+          ],
+          hasMore: true
+        }
+      })
+    )
+  )
+  mountParameters()
+  fireEvent.click(await screen.findByRole('button', { name: 'Edit' }))
+  expect(screen.getByRole('dialog')).toHaveTextContent('Approval processing deadline')
+  expect(screen.getByRole('dialog')).not.toHaveTextContent(parameterKeys[0])
+  fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+  fireEvent.click(screen.getByRole('button', { name: 'History' }))
+  expect(await screen.findByRole('heading', { name: 'History · Approval processing deadline' })).toBeInTheDocument()
+  expect(await screen.findByText('Currently applied')).toBeInTheDocument()
+  expect(screen.getByText('No longer applied')).toBeInTheDocument()
+  expect(screen.getByText('Earlier changes are not included in this response.')).toBeInTheDocument()
 })

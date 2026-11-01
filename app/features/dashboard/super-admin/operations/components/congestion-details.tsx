@@ -15,7 +15,7 @@ export function CongestionDetails({
   onClose: () => void
 }) {
   const { t: translate } = useTranslation('admin')
-  const { formatDateTime } = useDashboardFormat()
+  const { formatDateTime, formatNumber } = useDashboardFormat()
   const [page, setPage] = useState(1)
   const [incidentPage, setIncidentPage] = useState(1)
   const steps = useStepCongestionStepList({ page, pageSize: 20, ...(holderEmployeeId ? { holderEmployeeId } : {}) })
@@ -31,18 +31,29 @@ export function CongestionDetails({
       <AdminQueryState query={steps}>
         {!steps.data?.data?.items.length && <AdminEmpty />}
         {steps.data?.data?.items.map((item) => (
-          <div
-            key={item.stepId}
-            className='flex flex-wrap justify-between gap-3 border-b border-border/40 py-3 text-sm'
-          >
-            <span className='truncate font-mono text-xs' title={item.requestId}>
-              {item.requestId}
-            </span>
-            <span>{translate(`operations.stepKinds.${item.stepKind}`, { defaultValue: translate('unknown') })}</span>
-            <time className='text-right font-mono text-xs tabular-nums' dateTime={item.dueAt}>
-              {formatDateTime(item.dueAt)}
-            </time>
-          </div>
+          <article key={item.stepId} className='space-y-3 border-b border-border/40 py-3 text-sm'>
+            <p className='font-medium'>
+              {translate(`operations.stepKinds.${item.stepKind}`, { defaultValue: translate('unknown') })}
+            </p>
+            <dl className='grid gap-3 sm:grid-cols-3'>
+              <div className='grid gap-1'>
+                <dt className='text-muted-foreground'>{translate('operations.createdAt')}</dt>
+                <dd className='text-right font-mono text-xs tabular-nums'>
+                  <time dateTime={item.createdAt}>{formatDateTime(item.createdAt)}</time>
+                </dd>
+              </div>
+              <div className='grid gap-1'>
+                <dt className='text-muted-foreground'>{translate('operations.dueAt')}</dt>
+                <dd className='text-right font-mono text-xs tabular-nums'>
+                  <time dateTime={item.dueAt}>{formatDateTime(item.dueAt)}</time>
+                </dd>
+              </div>
+              <div className='grid gap-1'>
+                <dt className='text-muted-foreground'>{translate('operations.reminders')}</dt>
+                <dd className='text-right font-mono text-xs tabular-nums'>{formatNumber(item.reminders)}</dd>
+              </div>
+            </dl>
+          </article>
         ))}
         <AdminPagination pagination={steps.data?.data?.pagination} onPageChange={setPage} disabled={steps.isFetching} />
       </AdminQueryState>

@@ -26,8 +26,7 @@ export function useAdminMutationFeedback(queryKeys: readonly QueryKey[], onSucce
       if (failure.key !== 'rateLimit') await invalidate()
       if (failure.key === 'forbidden') await refreshPermissions()
       toast.error(translate(`errors.${failure.key}`), {
-        id: 'admin-write',
-        description: failure.requestId ? translate('requestId', { id: failure.requestId }) : undefined
+        id: 'admin-write'
       })
     }
   }

@@ -1,41 +1,34 @@
-import { render } from '@testing-library/react'
+import { render, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
-import { afterEach, expect, it } from 'vitest'
-
+import { http, HttpResponse } from 'msw'
+import { setupServer } from 'msw/node'
+import { afterAll, afterEach, beforeAll, expect, it } from 'vitest'
 import { AppProviders } from '~/providers/app-providers'
 import { setAppLanguage } from '~/shared/i18n/i18n'
-
 import { DashboardPage } from '../dashboard-page'
 import { IT_ADMIN_TAB_KEYS } from './it-admin-nav'
-
-afterEach(async () => setAppLanguage('vi', false))
-
-it('audits visible IT Admin text in English', async () => {
+const server = setupServer(
+  http.get('*/api/v1/*', () => HttpResponse.json({ error: { code: 'AUTHORIZATION.FORBIDDEN' } }, { status: 403 }))
+)
+beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
+afterAll(() => server.close())
+afterEach(async () => {
+  await setAppLanguage('vi', false)
+})
+it('translates every IT Admin screen including unavailable and forbidden states', async () => {
   await setAppLanguage('en', false)
-  const findings: Record<string, string[]> = {}
-  const people = [
-    'Trần Văn Hùng', 'Lê Thị Mai', 'Phạm Thị Lan', 'Lê Minh Tuấn', 'Đặng Hoàng Nam',
-    'Bùi Anh Quân', 'Trần Đình Trọng', 'Nguyễn Minh An', 'Vũ Thị Lan',
-    'Nguyễn Văn Hoàng', 'Hoàng Yến Nhi', 'Đỗ Nam Trung', 'Lưu Quang Khải',
-    'Đỗ Tuấn Kiệt', 'Phan Minh Đức'
-  ]
   for (const tab of IT_ADMIN_TAB_KEYS) {
-    const { container, unmount } = render(
-      <MemoryRouter initialEntries={[`/?tab=${tab}`]}>
+    const view = render(
+      <MemoryRouter initialEntries={['/?tab=' + tab]}>
         <AppProviders>
           <DashboardPage role='it-admin' />
         </AppProviders>
       </MemoryRouter>
     )
-    const text = [...container.querySelectorAll('main *')]
-      .filter((node) => node.children.length === 0)
-      .map((node) => node.textContent?.trim())
-      .filter((value) => {
-        const withoutNames = people.reduce((text, name) => text.replaceAll(name, ''), value || '')
-        return /[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/iu.test(withoutNames)
-      })
-    if (text.length) findings[tab] = [...new Set(text)] as string[]
-    unmount()
+    await waitFor(() => expect(view.container.textContent).not.toContain('Loading data'))
+    const visibleText = view.container.querySelector('main')?.textContent ?? ''
+    expect(visibleText).not.toMatch(/[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/iu)
+    expect(visibleText).not.toMatch(/(?:itAdmin|itCatalog|itProvisioning|itOffboarding|itIssues|itNewSoftware):/)
+    view.unmount()
   }
-  expect(findings).toEqual({})
 })

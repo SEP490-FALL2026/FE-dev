@@ -46,7 +46,7 @@ export function DashboardHeader({
           )}
         </button>
 
-        {role !== 'super-admin' && (
+        {role !== 'super-admin' && role !== 'it-admin' && (
           <div className='relative ml-auto hidden w-full max-w-md sm:block'>
             <Search
               aria-hidden='true'
@@ -61,11 +61,11 @@ export function DashboardHeader({
           </div>
         )}
 
-        <div className={role === 'super-admin' ? 'ml-auto' : ''}>
+        <div className={role === 'super-admin' || role === 'it-admin' ? 'ml-auto' : ''}>
           <ThemeSwitch />
         </div>
         <LanguageSwitch />
-        {role !== 'super-admin' && (
+        {role !== 'super-admin' && role !== 'it-admin' && (
           <button
             aria-label={t('header.notifications')}
             className='relative grid size-10 shrink-0 place-items-center rounded-xl border border-border bg-surface text-muted-foreground transition hover:border-primary hover:text-primary'

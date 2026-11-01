@@ -1,6 +1,6 @@
 import { act, render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
-import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AxiosHeaders } from 'axios'
 
 import { AppProviders } from '~/providers/app-providers'
@@ -10,6 +10,8 @@ import { createQueryClient } from '~/shared/api/query-client'
 import { clearAuthSession, configureAuthQueryClient, login } from '~/features/auth/auth-session'
 
 import DashboardRoute from './dashboard'
+// Pre-transform the workspace outside test timeouts; browser tests verify deferred downloading.
+import '~/features/dashboard/dashboard-page'
 
 function renderRoute(role: string) {
   const routeElement = DashboardRoute({ params: { role } } as never)
@@ -23,11 +25,6 @@ function renderRoute(role: string) {
 
 describe('dashboard route', () => {
   const previousAdapter = apiClient.defaults.adapter
-
-  beforeAll(async () => {
-    // Transform the large workspace before the test; browser checks cover deferred downloading.
-    await import('~/features/dashboard/dashboard-page')
-  }, 30_000)
 
   afterEach(() => {
     apiClient.defaults.adapter = previousAdapter
@@ -61,23 +58,29 @@ describe('dashboard route', () => {
               selfServiceOnly: false
             }
           }
-        : {
-            success: true,
-            message: 'AUTH.LOGGED_IN',
-            data: {
-              accessToken: 'access',
-              refreshToken: 'refresh',
-              tokenType: 'Bearer',
-              expiresAt: new Date(Date.now() + 600_000).toISOString(),
-              refreshExpiresAt: new Date(Date.now() + 3_600_000).toISOString()
+        : config.url?.includes('/auth/')
+          ? {
+              success: true,
+              message: 'AUTH.LOGGED_IN',
+              data: {
+                accessToken: 'access',
+                refreshToken: 'refresh',
+                tokenType: 'Bearer',
+                expiresAt: new Date(Date.now() + 600_000).toISOString(),
+                refreshExpiresAt: new Date(Date.now() + 3_600_000).toISOString()
+              }
             }
-          }
+          : {
+              success: true,
+              message: 'TEST.LISTED',
+              data: { items: [], pagination: { page: 1, pageSize: 1, totalItems: 0, totalPages: 0 } }
+            }
     })
     await login('it@example.com', 'secret')
     renderRoute('it-admin')
     await act(() => vi.dynamicImportSettled())
 
-    expect(await screen.findByRole('heading', { level: 1, name: 'Tổng quan' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Trung tâm điều hành IT' })).toBeInTheDocument()
     expect(screen.getByTestId('dashboard-role')).toHaveTextContent('Quản trị viên CNTT')
   })
 

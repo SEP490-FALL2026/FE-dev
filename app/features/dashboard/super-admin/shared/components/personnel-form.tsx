@@ -4,6 +4,7 @@ import type { CreateEmployeeBodyDtoHrBasis } from '~/shared/api/generated/model/
 import { AdminField, AdminFormDialog, adminInputClass } from './admin-form'
 import { EmployeeLookup } from './employee-lookup'
 import { DepartmentLookup } from './department-lookup'
+import { NoticeEventLookup, type NoticeEventSource } from './notice-event-lookup'
 
 export interface PersonnelField {
   name: string
@@ -11,7 +12,10 @@ export interface PersonnelField {
   optional?: boolean
   options?: readonly string[]
   initial?: string
+  initialLabel?: string
   maxLength?: number
+  eventSource?: NoticeEventSource
+  employeeId?: string
 }
 export const basisFields: PersonnelField[] = [
   { name: 'type', maxLength: 100 },
@@ -91,9 +95,11 @@ export function PersonnelForm({
             label={translate(`fields.${field.name}`, { defaultValue: translate('unknown') })}
           >
             {field.name === 'employeeId' || field.name === 'successorEmployeeId' ? (
-              <EmployeeLookup name={field.name} required={!field.optional} />
+              <EmployeeLookup name={field.name} required={!field.optional} initial={field.initial} initialLabel={field.initialLabel} />
             ) : field.name === 'toDepartmentId' || field.name === 'departmentId' ? (
-              <DepartmentLookup name={field.name} required={!field.optional} initial={field.initial} />
+              <DepartmentLookup name={field.name} required={!field.optional} initial={field.initial} initialLabel={field.initialLabel} />
+            ) : field.name === 'eventId' && field.eventSource && field.employeeId ? (
+              <NoticeEventLookup source={field.eventSource} employeeId={field.employeeId} />
             ) : field.options ? (
               <select
                 name={field.name}

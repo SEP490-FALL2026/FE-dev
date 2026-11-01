@@ -13,19 +13,7 @@ import { DashboardSidebar } from './components/dashboard-sidebar'
 import { DefaultDashboardView } from './components/default-dashboard-view'
 
 // Role views
-import {
-  getParentMenuKey,
-  isValidItAdminTab,
-  type ItAdminTabKey,
-  ItDeviceCollectorsView,
-  ItOptimizationView,
-  ItOverviewView,
-  ItProvisioningView,
-  ItReconciliationView,
-  ItShadowItView,
-  ItUsageImportView,
-  ItDeptCatalogView
-} from './it-admin'
+import { getParentMenuKey, isValidItAdminTab, type ItAdminTabKey, ItAdminScreen } from './it-admin'
 
 import {
   EmployeeCreateRequestView,
@@ -86,7 +74,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
   const auth = useSyncExternalStore(subscribeAuthSession, getAuthState, getAuthState)
   const fullName = auth.session?.user.employee.fullName ?? ''
   const profile =
-    role === 'super-admin'
+    role === 'super-admin' || role === 'it-admin'
       ? {
           displayName: fullName,
           initials: fullName
@@ -285,39 +273,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
           transition={{ duration: 0.25, ease: 'easeOut' }}
         >
           {isItAdmin ? (
-            activeTab === 'overview' ? (
-              <ItOverviewView
-                formatCompact={formatCompact}
-                formatCurrency={formatCurrency}
-                formatMonth={formatMonth}
-                formatNumber={formatNumber}
-                onSelectTab={handleSelectTab}
-              />
-            ) : activeTab === 'provisioning' ? (
-              <ItProvisioningView initialTaskId={searchParams.get('id') || undefined} onSelectTab={handleSelectTab} />
-            ) : activeTab === 'reconciliation' ? (
-              <ItReconciliationView onSelectTab={handleSelectTab} />
-            ) : activeTab === 'usage-import' ? (
-              <ItUsageImportView onSelectTab={handleSelectTab} />
-            ) : activeTab === 'device-collectors' ? (
-              <ItDeviceCollectorsView
-                alertId={searchParams.get('alertId') || undefined}
-                fromTab={searchParams.get('from') || undefined}
-                initialDeptId={searchParams.get('deptId') || undefined}
-                initialEmployeeId={searchParams.get('employeeId') || undefined}
-                onSelectTab={handleSelectTab}
-              />
-            ) : activeTab === 'license-optimization' ? (
-              <ItOptimizationView
-                formatCurrency={formatCurrency}
-                initialAlertId={searchParams.get('alertId') || undefined}
-                onSelectTab={handleSelectTab}
-              />
-            ) : activeTab === 'shadow-it' ? (
-              <ItShadowItView onSelectTab={handleSelectTab} />
-            ) : (
-              <ItDeptCatalogView onSelectTab={handleSelectTab} />
-            )
+            <ItAdminScreen tab={activeTab} itemId={searchParams.get('id') ?? undefined} onSelectTab={handleSelectTab} />
           ) : isEmployee ? (
             activeEmployeeTab === 'overview' ? (
               <EmployeeOverviewView

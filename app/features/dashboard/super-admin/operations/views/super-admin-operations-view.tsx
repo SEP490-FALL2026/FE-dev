@@ -43,7 +43,19 @@ export function SuperAdminOperationsView() {
                 <p>
                   {translate(`operations.waitReasons.${item.waitingReason}`, { defaultValue: translate('unknown') })}
                 </p>
-                <p className='break-all font-mono text-xs text-muted-foreground'>{item.requestId}</p>
+                <div className='grid min-w-0 gap-1 text-muted-foreground'>
+                  <p className='flex min-w-0 flex-wrap items-baseline gap-x-2'>
+                    <span>
+                      {translate('operations.requester')}
+                      {': '}
+                    </span>
+                    <span className='truncate' title={item.requester.fullName}>
+                      {item.requester.fullName}
+                    </span>
+                    <span className='font-mono text-xs tabular-nums'>{item.requester.employeeCode}</span>
+                  </p>
+                  <p>{translate(`operations.stepKinds.${item.stepKind}`, { defaultValue: translate('unknown') })}</p>
+                </div>
               </li>
             ))}
           </ul>

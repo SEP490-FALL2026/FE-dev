@@ -4,6 +4,23 @@ File này là **nguồn chân lý hoạt động (operational source of truth)**
 
 ---
 
+## 0. Bảo vệ tài liệu quy tắc — phải có sự cho phép của người dùng
+
+Ba file sau là **tài liệu được bảo vệ**:
+
+- [AGENTS.md](AGENTS.md)
+- [ARCHITECTURE.md](ARCHITECTURE.md)
+- [UI_UX_DESIGN_GUIDELINES.md](UI_UX_DESIGN_GUIDELINES.md)
+
+1. **Mặc định chỉ được đọc khi làm nhiệm vụ code**: Không tự sửa nội dung, bổ sung ghi chú tiến độ, cập nhật hiện trạng, viết lại, định dạng lại, xóa, đổi tên hoặc di chuyển các file này trong lúc thêm chức năng, sửa lỗi, refactor, tích hợp BE hay chạy công cụ tự động. Ví dụ: code một chức năng Employee không bao gồm quyền cập nhật `ARCHITECTURE.md`.
+2. **Chỉ sửa khi người dùng cho phép rõ ràng**: Yêu cầu trực tiếp sửa một tài liệu hoặc chấp thuận đề xuất sửa tài liệu là sự cho phép, nhưng chỉ áp dụng cho file và nội dung thuộc phạm vi đó. Yêu cầu code chức năng, “hoàn thiện”, “đồng bộ tài liệu” chung chung hoặc quyền sửa tài liệu ở một nhiệm vụ trước không tự cấp quyền cho nhiệm vụ code tiếp theo. Không yêu cầu xác nhận lại phần người dùng đã cho phép rõ ràng trong nhiệm vụ hiện tại.
+3. **Phải báo trước khi cần thay đổi ngoài phạm vi đã cho phép**: Nêu file và mục cần sửa, lý do, nội dung đề xuất cụ thể (đoạn thay thế hoặc diff) và ảnh hưởng đến quy tắc hiện hành; chờ người dùng chấp thuận rồi mới ghi vào file. Trong lúc chờ, tiếp tục phần code độc lập có thể hoàn thành theo quy tắc hiện tại. Báo sau khi đã sửa không thay thế việc xin phép trước.
+4. **Không sửa quy tắc để hợp thức hóa code**: Nếu implementation hoặc yêu cầu mới xung đột tài liệu, báo rõ xung đột và đề xuất cách xử lý. Không tự nới giới hạn, thêm ngoại lệ, đổi kiến trúc hay bỏ ràng buộc để code vừa viết được coi là đúng. Nếu chưa được phép sửa tài liệu, giữ nguyên và liệt kê đề xuất trong báo cáo bàn giao.
+5. **Công cụ tự động cũng phải giữ phạm vi này**: Không để formatter, lệnh sửa lỗi hàng loạt hoặc script ghi vào tài liệu được bảo vệ khi chưa được phép. Chọn phạm vi file phù hợp hoặc chạy chế độ kiểm tra. Khi review diff, đối chiếu với trạng thái trước nhiệm vụ; không đưa vào thay đổi mới ngoài phạm vi được duyệt và không ghi đè/hoàn tác thay đổi sẵn có của người dùng.
+6. **Quy tắc này được ưu tiên trong các chỉ dẫn tài liệu của repository**: Mọi yêu cầu “cập nhật kiến trúc”, “đồng bộ tài liệu” hoặc checklist ở tài liệu khác đều phải tuân thủ điều kiện cho phép ở trên. Khi chưa được duyệt, chỉ báo đề xuất; không tự cập nhật ba file được bảo vệ.
+
+---
+
 ## 1. Phạm vi dự án & Công nghệ cốt lõi
 
 - **Dự án**: Frontend Web MVP cho hệ thống **SaaS-Sentry** (Quản trị bản quyền phần mềm, hợp đồng SaaS, quy trình phê duyệt chi phí, tối ưu hoá license và phát hiện Shadow IT).
@@ -326,7 +343,7 @@ Mỗi khi nhận nhiệm vụ code hoặc refactor, Agent **BẮT BUỘC** phả
 - [ ] **Kiểm tra UI/UX Design System**: Bắt buộc tuân thủ toàn diện các quy chuẩn trong [UI_UX_DESIGN_GUIDELINES.md](file:///c:/fe_capstone/FE-dev-main/UI_UX_DESIGN_GUIDELINES.md): duy nhất 1 Primary CTA trên một viewport, số/tiền/ngày căn phải (`text-right tabular-nums font-mono`), không văn mẫu AI, không dùng Emoji làm icon, bo góc đồng tâm ($R_{\text{in}} = R_{\text{out}} - P$), khóa khung App Shell (`h-screen overflow-hidden`) và chuyển đổi responsive Card Stack trên mobile.
 - [ ] **Chạy Typecheck**: Chạy `pnpm typecheck` thành công với **0 lỗi TypeScript**.
 - [ ] **Chạy Unit Test**: Chạy `pnpm vitest run <path-to-test>` đảm bảo toàn bộ test case liên quan đều **Passed (100%)**.
-- [ ] **Đồng bộ tài liệu**: Cập nhật thay đổi kiến trúc vào `ARCHITECTURE.md` và `AGENTS.md` bằng tiếng Việt rõ ràng.
+- [ ] **Bảo vệ tài liệu quy tắc**: Kiểm tra diff để bảo đảm không tự thay đổi `AGENTS.md`, `ARCHITECTURE.md` hoặc `UI_UX_DESIGN_GUIDELINES.md`. Nếu cần cập nhật, báo file/mục, lý do và nội dung đề xuất; chỉ ghi thay đổi sau khi người dùng cho phép rõ ràng theo mục 0. Đề xuất chưa được duyệt phải nêu trong báo cáo bàn giao.
 
 ---
 

@@ -1,11 +1,13 @@
 import { overviewRedesign } from './admin-overview'
+import { parameterPresentation } from './admin-parameters'
+import { operationPresentation } from './admin-operations-presentation'
 
 export const admin = {
   retryIn: 'Try again in {{count}}s',
   navigation: {
     overview: 'Overview',
     accounts: 'Accounts and responsibilities',
-    departments: 'Departments and projects',
+    departments: 'Departments',
     personnel: 'Personnel',
     reminders: 'Operating parameters',
     settings: 'System settings',
@@ -135,6 +137,7 @@ export const admin = {
     }
   },
   parameters: {
+    ...parameterPresentation,
     title: 'Operating parameters',
     futureOnly: 'Changes apply to newly created work. Existing work keeps its original values.',
     key: 'Parameter',
@@ -185,6 +188,7 @@ export const admin = {
     actorKinds: { USER: 'User', SYSTEM: 'System', OPERATOR: 'Operator' }
   },
   operations: {
+    ...operationPresentation,
     title: 'Workflow monitoring',
     waits: 'Waiting for configuration',
     congestion: 'Congested responsibilities',

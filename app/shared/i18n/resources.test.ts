@@ -13,6 +13,12 @@ describe('translation resources', () => {
       'common',
       'dashboard',
       'errors',
+      'itAdmin',
+      'itCatalog',
+      'itIssues',
+      'itNewSoftware',
+      'itOffboarding',
+      'itProvisioning',
       'landing',
       'notFound',
       'theme'
@@ -28,7 +34,7 @@ describe('translation resources', () => {
     expect(resources.en).toHaveProperty('dashboard.navigation.overview')
   })
 
-  it('keeps every Super Admin translation key in both languages', () => {
+  it('keeps every integrated administration translation key in both languages', () => {
     function keys(value: Record<string, unknown>, prefix = ''): string[] {
       return Object.entries(value).flatMap(([key, child]) =>
         child && typeof child === 'object'
@@ -36,7 +42,18 @@ describe('translation resources', () => {
           : [`${prefix}${key}`]
       )
     }
-    for (const namespace of ['admin', 'adminAccounts', 'adminOrganization', 'adminPersonnel'] as const) {
+    for (const namespace of [
+      'admin',
+      'adminAccounts',
+      'adminOrganization',
+      'adminPersonnel',
+      'itAdmin',
+      'itCatalog',
+      'itIssues',
+      'itNewSoftware',
+      'itOffboarding',
+      'itProvisioning'
+    ] as const) {
       expect(keys(resources.en[namespace]).sort(), namespace).toEqual(keys(resources.vi[namespace]).sort())
     }
   })

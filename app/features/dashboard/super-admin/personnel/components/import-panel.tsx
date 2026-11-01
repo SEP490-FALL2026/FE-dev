@@ -21,16 +21,20 @@ import { AdminField, adminButtonClass, adminInputClass, adminPrimaryClass } from
 import { AdminQueryState } from '../../shared/components/admin-query-state'
 import { AdminPagination } from '../../shared/components/admin-pagination'
 import { usePersonnelMutationFeedback } from '../../shared/hooks/use-personnel-mutation-feedback'
-import { PersonnelForm, readBasis, uuidPattern, value } from '../../shared/components/personnel-form'
+import { PersonnelForm, readBasis, value } from '../../shared/components/personnel-form'
 import { PersonnelCard, PersonnelCode, PersonnelList } from '../../shared/components/personnel-list'
 import { importStatuses, previewImport } from '../enums/import-status'
 import { importOutcomes } from '../enums/import-outcome'
 import { useAdminRetryDelay } from '../../shared/hooks/use-admin-retry-delay'
+import { useRecentEmployeeImports } from '../hooks/use-recent-employee-imports'
+import { importColumnField } from '../enums/import-column'
+import { useDashboardFormat } from '../../../dashboard-ui'
 
 export function ImportPanel() {
   const { t: translate } = useTranslation('adminPersonnel')
   const { t: translateAdmin } = useTranslation('admin')
   const retrySeconds = useAdminRetryDelay()
+  const { formatDateTime } = useDashboardFormat()
   const [searchParams] = useSearchParams()
   const [importId, setImportId] = useState(searchParams.get('importId') ?? '')
   const [page, setPage] = useState(1)
@@ -81,6 +85,11 @@ export function ImportPanel() {
   const cancel = useEmployeeImportCancel({ mutation: { ...feedback, retry: false } })
   const pending = upload.isPending || refresh.isPending || confirm.isPending || cancel.isPending
   const data = query.data?.data
+  const recentImports = useRecentEmployeeImports(data)
+  const columnLabel = (column: string) => {
+    const field = importColumnField(column)
+    return field ? translate(`fields.${field}`) : translate('otherImportColumn')
+  }
   return (
     <section className='space-y-5'>
       <p className='text-sm text-muted-foreground'>{translate('importHelp')}</p>
@@ -127,19 +136,22 @@ export function ImportPanel() {
         }}
       >
         <AdminField label={translate('fields.importId')}>
-          <input
+          <select
             className={adminInputClass}
             name='importId'
-            placeholder={translate('importIdPlaceholder')}
-            pattern={uuidPattern}
+            defaultValue=''
             required
             disabled={pending}
-          />
+          >
+            <option value=''>{translate('choose')}</option>
+            {recentImports.map((item) => <option key={item.id} value={item.id}>{translate('recentImportOption', { file: item.fileName, date: formatDateTime(item.createdAt) })}</option>)}
+          </select>
         </AdminField>
         <button className={adminButtonClass} disabled={pending}>
           {translate('resumeImport')}
         </button>
       </form>
+      <p className='text-xs text-muted-foreground'>{translate('recentImportsHelp')}</p>
       {importId && (
         <AdminQueryState query={query}>
           {data && (
@@ -159,7 +171,7 @@ export function ImportPanel() {
                 <p>{translate('importResult', { created: data.result.created, errors: data.result.errors })}</p>
               )}
               {data.ignoredColumns.length > 0 && (
-                <p>{translate('ignoredColumns', { columns: data.ignoredColumns.join(', ') })}</p>
+                <p>{translate('ignoredColumns', { columns: data.ignoredColumns.map(columnLabel).join(', ') })}</p>
               )}
               {data.summary.duplicateOf && <p className='text-warning'>{translate('duplicateFile')}</p>}
               {data.status === previewImport && (
@@ -217,22 +229,22 @@ export function ImportPanel() {
                   <dl className='grid gap-1 sm:grid-cols-2'>
                     {Object.entries(row.cells).map(([key, cell]) => (
                       <div key={key}>
-                        <dt className='font-mono text-xs'>{key}</dt>
-                        <dd className='break-words'>{cell}</dd>
+                        <dt className='text-xs'>{columnLabel(key)}</dt>
+                        <dd className='break-words'>{importColumnField(key) ? cell : translate('unsupportedImportValue')}</dd>
                       </div>
                     ))}
                   </dl>
                   {row.errors.length > 0 && (
                     <p className='break-words'>
                       {translate('rowErrors', {
-                        errors: row.errors.map((error) => `${error.column}: ${error.code}`).join(', ')
+                        errors: row.errors.map((error) => translate('invalidImportCell', { field: columnLabel(error.column) })).join(', ')
                       })}
                     </p>
                   )}
                   {row.differences?.length ? (
                     <p>
                       {translate('differences', {
-                        fields: row.differences.map((difference) => difference.column).join(', ')
+                        fields: row.differences.map((difference) => columnLabel(difference.column)).join(', ')
                       })}
                     </p>
                   ) : null}

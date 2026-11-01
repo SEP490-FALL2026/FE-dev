@@ -80,7 +80,8 @@ export function DepartmentForm({
             defaultValue={department?.function ?? ''}
           />
         </AdminField>
-        <EmployeePicker name='itAdminEmployeeId' itAdmin optional initialId={department?.itAdmin?.employeeId} />
+        <EmployeePicker name='itAdminEmployeeId' itAdmin optional initialId={department?.itAdmin?.employeeId}
+          initialLabel={department?.itAdmin ? `${department.itAdmin.employeeCode} — ${department.itAdmin.fullName}` : ''} />
       </section>
       <HrBasisFields />
     </AdminFormDialog>
