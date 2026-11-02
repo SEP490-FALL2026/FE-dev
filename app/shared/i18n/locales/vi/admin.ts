@@ -1,11 +1,13 @@
 import { overviewRedesign } from './admin-overview'
+import { parameterPresentation } from './admin-parameters'
+import { operationPresentation } from './admin-operations-presentation'
 
 export const admin = {
   retryIn: 'Thử lại sau {{count}} giây',
   navigation: {
     overview: 'Tổng quan',
     accounts: 'Tài khoản và trách nhiệm',
-    departments: 'Phòng ban và dự án',
+    departments: 'Phòng ban',
     personnel: 'Nhân sự',
     reminders: 'Tham số vận hành',
     settings: 'Cấu hình hệ thống',
@@ -72,6 +74,7 @@ export const admin = {
     ineligible: 'Nhân sự chưa đủ điều kiện nhận trách nhiệm đã chọn.'
   },
   overview: {
+    unknownStep: 'Bước thiết lập chưa xác định',
     redesign: overviewRedesign,
     stepNames: {
       1: 'Tổ chức và nhân sự',
@@ -140,6 +143,7 @@ export const admin = {
     }
   },
   parameters: {
+    ...parameterPresentation,
     title: 'Tham số vận hành',
     futureOnly: 'Thay đổi áp dụng cho công việc tạo từ nay. Công việc đang chạy giữ nguyên giá trị ban đầu.',
     key: 'Tham số',
@@ -190,6 +194,7 @@ export const admin = {
     actorKinds: { USER: 'Người dùng', SYSTEM: 'Hệ thống', OPERATOR: 'Vận hành' }
   },
   operations: {
+    ...operationPresentation,
     title: 'Giám sát quy trình',
     waits: 'Đang chờ cấu hình',
     congestion: 'Trách nhiệm bị tắc nghẽn',

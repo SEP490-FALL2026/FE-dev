@@ -1,159 +1,158 @@
-import { ArrowRight, CheckCircle2, Clock, Landmark } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-
-import { PageHeader, Panel, StatTile, useDashboardFormat } from '../../../dashboard-ui'
-import { planningFiscalYear, proposalTotals, type ProposalStage } from '../../../finance/annual-budget-data'
-import { useAnnualBudgetState } from '../../../finance/annual-budget-store'
-import { ProposalStagePill } from '../../../finance/annual-budget/components/budget-plan-parts'
-import type { ApprovalTabKey } from '../../approvals-nav'
-import { ApprovalAnnualBudgetDetail } from '../components/approval-annual-budget-detail'
+import { useBudgetVersionList } from '~/shared/api/generated/operations/budget-versions/budget-version-list'
+import { useBudgetProposalList } from '~/shared/api/generated/operations/budget-proposals/budget-proposal-list'
+import { useDashboardFormat } from '../../../dashboard-ui'
 import {
-  ApprovalAnnualBudgetFilters,
-  decisionStages,
-  defaultAnnualBudgetFilters,
-  matchesAnnualBudgetFilters,
-  type AnnualBudgetFilters,
-  type DecisionStage
-} from '../components/approval-annual-budget-filters'
+  ApprovalsButton,
+  ApprovalsPage,
+  ApprovalsPagination,
+  ApprovalsStatus
+} from '../../shared/components/approvals-ui'
+import { ApprovalsQueryState } from '../../shared/components/approvals-query-state'
+import { ApprovalsTable } from '../../shared/components/approvals-table'
+import { formatMoney } from '../../shared/approvals-money'
+import { ApprovalAnnualBudgetDetail } from '../components/approval-annual-budget-detail'
+import { ApprovalAnnualBudgetFilters } from '../components/approval-annual-budget-filters'
+import { ApprovalBudgetProposalDetail } from '../components/approval-budget-proposal-detail'
+import type { ApprovalBudgetViewProps } from '../budget-view-props'
+import { versionState, type VersionState } from '../enums/version-state'
+import { proposalState, type ProposalState } from '../enums/proposal-state'
 
-const isDecisionStage = (stage: ProposalStage): stage is DecisionStage =>
-  (decisionStages as ProposalStage[]).includes(stage)
-
-/**
- * APV-05: department budgets Finance sent for the planning year. The list opens first; choosing one opens
- * its decision screen (`id` search param). Proposals still with Finance are not shown.
- */
-export function ApprovalAnnualBudgetView({
-  formatCurrency,
-  itemId,
-  onSelectTab
-}: {
-  formatCurrency: (value: number) => string
-  itemId?: string
-  onSelectTab: (tab: ApprovalTabKey, params?: Record<string, string>) => void
-}) {
-  const { t } = useTranslation('dashboard')
-  const { formatDate } = useDashboardFormat()
-  const items = useAnnualBudgetState().proposals.filter((proposal) => isDecisionStage(proposal.stage))
-  const [filters, setFilters] = useState<AnnualBudgetFilters>(defaultAnnualBudgetFilters)
-  const selected = items.find((proposal) => proposal.id === itemId)
-
-  if (selected) {
+export function ApprovalAnnualBudgetView(props: ApprovalBudgetViewProps) {
+  if (props.itemId?.startsWith('proposal:'))
     return (
-      <ApprovalAnnualBudgetDetail
-        formatCurrency={formatCurrency}
-        key={selected.id}
-        onBack={() => onSelectTab('annual-budget')}
-        proposal={selected}
-      />
+      <ApprovalBudgetProposalDetail {...props} key={props.itemId} itemId={props.itemId.slice('proposal:'.length)} />
     )
-  }
+  if (props.itemId) return <ApprovalAnnualBudgetDetail {...props} key={props.itemId} itemId={props.itemId} />
+  return <ApprovalBudgetLists {...props} />
+}
 
-  const totalOf = (stage: DecisionStage) =>
-    items.filter((item) => item.stage === stage).reduce((sum, item) => sum + proposalTotals(item).total, 0)
-  const visible = items.filter((item) => matchesAnnualBudgetFilters(item, filters))
-  const head = 'py-2.5 pr-3 font-semibold'
-
+function ApprovalBudgetLists({ onSelectTab }: ApprovalBudgetViewProps) {
+  const { t: translate } = useTranslation('approvalsBudget')
+  const [section, setSection] = useState<'versions' | 'proposals'>('versions')
   return (
-    <div className='space-y-6'>
-      <PageHeader
-        subtitle={t('budgetPlan.approver.subtitle', { year: planningFiscalYear })}
-        title={t('budgetPlan.approver.title')}
+    <ApprovalsPage title={translate('title')}>
+      <div role='group' aria-label={translate('title')} className='flex flex-wrap gap-2'>
+        {(['versions', 'proposals'] as const).map((item) => (
+          <ApprovalsButton key={item} aria-pressed={section === item} onClick={() => setSection(item)}>
+            {translate(item)}
+          </ApprovalsButton>
+        ))}
+      </div>
+      {section === 'versions' ? (
+        <VersionList onOpen={(id) => onSelectTab('annual-budget', { id })} />
+      ) : (
+        <ProposalList onOpen={(id) => onSelectTab('annual-budget', { id: `proposal:${id}` })} />
+      )}
+    </ApprovalsPage>
+  )
+}
+
+function VersionList({ onOpen }: { onOpen: (id: string) => void }) {
+  const { t: translate, i18n } = useTranslation('approvalsBudget')
+  const { formatDate } = useDashboardFormat()
+  const [page, setPage] = useState(1)
+  const [filters, setFilters] = useState<{ state?: VersionState; year?: number }>({ state: versionState.SENT })
+  const query = useBudgetVersionList({ ...filters, page, pageSize: 20 })
+  return (
+    <>
+      <ApprovalAnnualBudgetFilters
+        states={Object.values(versionState)}
+        state={filters.state}
+        year={filters.year}
+        onApply={(next) => {
+          setFilters({ state: Object.values(versionState).find((state) => state === next.state), year: next.year })
+          setPage(1)
+        }}
       />
-
-      <section aria-label={t('budgetPlan.approver.summaryLabel')} className='grid gap-4 sm:grid-cols-3'>
-        <StatTile
-          icon={Clock}
-          label={t('budgetPlan.approver.pending')}
-          tone='primary'
-          value={String(items.filter((item) => item.stage === 'SENT').length)}
+      <ApprovalsQueryState query={query}>
+        <ApprovalsTable
+          items={query.data?.data?.items ?? []}
+          rowKey={(version) => version.id}
+          onOpen={(version) => onOpen(version.id)}
+          columns={[
+            {
+              key: 'center',
+              label: translate('center'),
+              render: (version) => (
+                <span title={`${version.costCenter.code} · ${version.costCenter.name}`}>{version.costCenter.name}</span>
+              )
+            },
+            { key: 'year', label: translate('year'), numeric: true, render: (version) => version.year },
+            { key: 'number', label: translate('number'), numeric: true, render: (version) => version.number },
+            {
+              key: 'total',
+              label: translate('total'),
+              numeric: true,
+              render: (version) => formatMoney(version.total, i18n.language)
+            },
+            { key: 'state', label: translate('state'), render: (version) => <ApprovalsStatus value={version.state} /> },
+            {
+              key: 'sentAt',
+              label: translate('sentAt'),
+              numeric: true,
+              render: (version) => (version.sentAt ? formatDate(version.sentAt) : translate('unavailable'))
+            }
+          ]}
         />
-        <StatTile
-          icon={Landmark}
-          label={t('budgetPlan.approver.pendingTotal')}
-          tone='warning'
-          value={formatCurrency(totalOf('SENT'))}
+        <ApprovalsPagination pagination={query.data?.data?.pagination} onPageChange={setPage} />
+      </ApprovalsQueryState>
+    </>
+  )
+}
+
+function ProposalList({ onOpen }: { onOpen: (id: string) => void }) {
+  const { t: translate, i18n } = useTranslation('approvalsBudget')
+  const { formatDate } = useDashboardFormat()
+  const [page, setPage] = useState(1)
+  const [filters, setFilters] = useState<{ state?: ProposalState; year?: number }>({})
+  const query = useBudgetProposalList({ ...filters, page, pageSize: 20 })
+  return (
+    <>
+      <p className='text-sm text-muted-foreground'>{translate('readOnly')}</p>
+      <ApprovalAnnualBudgetFilters
+        states={Object.values(proposalState)}
+        state={filters.state}
+        year={filters.year}
+        onApply={(next) => {
+          setFilters({ state: Object.values(proposalState).find((state) => state === next.state), year: next.year })
+          setPage(1)
+        }}
+      />
+      <ApprovalsQueryState query={query}>
+        <ApprovalsTable
+          items={query.data?.data?.items ?? []}
+          rowKey={(proposal) => proposal.id}
+          onOpen={(proposal) => onOpen(proposal.id)}
+          columns={[
+            {
+              key: 'center',
+              label: translate('center'),
+              render: (proposal) => <span title={proposal.costCenter.name}>{proposal.costCenter.name}</span>
+            },
+            { key: 'year', label: translate('year'), numeric: true, render: (proposal) => proposal.year },
+            {
+              key: 'total',
+              label: translate('total'),
+              numeric: true,
+              render: (proposal) => formatMoney(proposal.total, i18n.language)
+            },
+            {
+              key: 'state',
+              label: translate('state'),
+              render: (proposal) => <ApprovalsStatus value={proposal.state} />
+            },
+            {
+              key: 'submittedAt',
+              label: translate('submittedAt'),
+              numeric: true,
+              render: (proposal) => formatDate(proposal.submittedAt)
+            }
+          ]}
         />
-        <StatTile
-          icon={CheckCircle2}
-          label={t('budgetPlan.approver.approvedTotal')}
-          tone='success'
-          value={formatCurrency(totalOf('APPROVED'))}
-        />
-      </section>
-
-      <ApprovalAnnualBudgetFilters applied={filters} onApply={setFilters} proposals={items} />
-
-      <Panel>
-        {visible.length === 0 ? (
-          <p className='py-6 text-center text-xs text-muted-foreground'>
-            {t('budgetPlan.filtersApproverDecisions.annual.empty')}
-          </p>
-        ) : (
-          <div className='overflow-x-auto'>
-            <table className='w-full min-w-200 text-left text-xs'>
-              <thead>
-                <tr className='border-b border-border text-muted-foreground'>
-                  <th className={head}>{t('budgetPlan.approver.colDepartment')}</th>
-                  <th className={head}>{t('budgetPlan.approver.colVersion')}</th>
-                  <th className={`${head} text-right`}>{t('budgetPlan.approver.colFinanceTotal')}</th>
-                  <th className={`${head} text-right`}>{t('budgetPlan.approver.colRequested')}</th>
-                  <th className={`${head} text-right`}>{t('budgetPlan.approver.colBuffer')}</th>
-                  <th className={head}>{t('budgetPlan.approver.colSentAt')}</th>
-                  <th className={head}>{t('budgetPlan.approver.colStage')}</th>
-                  <th className='py-2.5'>
-                    <span className='sr-only'>{t('budgetPlan.approver.openDetail')}</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody className='divide-y divide-border'>
-                {visible.map((proposal) => {
-                  const totals = proposalTotals(proposal)
-                  const open = () => onSelectTab('annual-budget', { id: proposal.id })
-
-                  return (
-                    <tr
-                      className='cursor-pointer transition hover:bg-surface-subtle/60'
-                      key={proposal.id}
-                      onClick={open}
-                    >
-                      <td className='py-3 pr-3'>
-                        <p className='font-semibold text-foreground'>{proposal.department}</p>
-                        <p className='mt-0.5 font-mono text-[0.7rem] text-muted-foreground'>{proposal.costCenter}</p>
-                      </td>
-                      <td className='py-3 pr-3 font-mono font-semibold'>
-                        {t('budgetPlan.approver.version', { version: proposal.version })}
-                      </td>
-                      <td className='py-3 pr-3 text-right font-bold text-foreground'>{formatCurrency(totals.total)}</td>
-                      <td className='py-3 pr-3 text-right text-muted-foreground'>{formatCurrency(totals.requested)}</td>
-                      <td className='py-3 pr-3 text-right'>{formatCurrency(totals.buffer)}</td>
-                      <td className='py-3 pr-3'>{proposal.sentAt ? formatDate(proposal.sentAt) : null}</td>
-                      <td className='py-3 pr-3'>
-                        <ProposalStagePill stage={proposal.stage} />
-                      </td>
-                      <td className='py-3 text-right'>
-                        <button
-                          aria-label={t('budgetPlan.approver.openDetailFor', { department: proposal.department })}
-                          className='inline-flex items-center gap-1 font-bold text-primary hover:underline'
-                          onClick={(event) => {
-                            event.stopPropagation()
-                            open()
-                          }}
-                          type='button'
-                        >
-                          {t('budgetPlan.approver.openDetail')}
-                          <ArrowRight aria-hidden='true' className='size-3' />
-                        </button>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Panel>
-    </div>
+        <ApprovalsPagination pagination={query.data?.data?.pagination} onPageChange={setPage} />
+      </ApprovalsQueryState>
+    </>
   )
 }

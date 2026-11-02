@@ -110,7 +110,11 @@ export const auth = {
       title: 'Kích hoạt tài khoản',
       description: 'Đặt mật khẩu để hoàn tất lời mời tham gia.',
       submit: 'Kích hoạt tài khoản',
-      success: 'Tài khoản đã được kích hoạt. Bạn có thể đăng nhập.'
+      success: 'Tài khoản đã được kích hoạt. Bạn có thể đăng nhập.',
+      uncertainResult:
+        'Chưa xác định được tài khoản đã kích hoạt hay chưa. Hãy thử đăng nhập bằng mật khẩu vừa đặt. Nếu chưa đăng nhập được, bạn có thể thử kích hoạt lại.',
+      alreadySubmitted:
+        'Nếu đã gửi yêu cầu kích hoạt, hãy thử đăng nhập bằng mật khẩu vừa đặt trước khi nhờ gửi lại lời mời.'
     },
     change: {
       title: 'Đổi mật khẩu',

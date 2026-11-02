@@ -1,47 +1,49 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useDepartmentList } from '~/shared/api/generated/operations/departments'
+import { useDepartmentGet, useDepartmentList } from '~/shared/api/generated/operations/departments'
 import { adminInputClass, adminButtonClass } from './admin-form'
 import { AdminEmpty, AdminQueryState } from './admin-query-state'
 import { AdminPagination } from './admin-pagination'
 
-/** A paged API selection with an optional known ID; no client-side directory fixture. */
+/** Resolve one initial reference and browse server-paged departments by name. */
 export function DepartmentLookup({
   name,
   required = true,
-  initial = ''
+  initial = '',
+  initialLabel = ''
 }: {
   name: string
   required?: boolean
   initial?: string
+  initialLabel?: string
 }) {
   const { t: translate } = useTranslation('adminPersonnel')
   const [selected, setSelected] = useState(initial)
-  const [selectedName, setSelectedName] = useState('')
+  const [selectedName, setSelectedName] = useState(initialLabel)
   const [open, setOpen] = useState(false)
   const [page, setPage] = useState(1)
   const query = useDepartmentList({ page, pageSize: 20, status: 'ACTIVE' }, { query: { enabled: open } })
+  const initialDepartment = useDepartmentGet(initial, { query: { enabled: Boolean(initial && !initialLabel && selected === initial) } })
+  const initialData = initialDepartment.data?.data
+  const displayName = selectedName || (initialData && selected === initial ? `${initialData.code} · ${initialData.name}` : translate('currentSelection'))
   return (
     <div className='grid gap-2'>
-      <input
-        placeholder={translate('departmentIdPlaceholder')}
+      <select
         aria-label={translate(name === 'toDepartmentId' ? 'fields.toDepartmentId' : 'fields.departmentId')}
         className={adminInputClass}
         name={name}
         required={required}
-        pattern='[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
         value={selected}
-        onChange={(event) => {
-          setSelected(event.target.value)
+        onChange={() => {
+          setSelected('')
           setSelectedName('')
         }}
-      />
-      {selectedName && (
-        <p className='truncate text-xs text-muted-foreground' title={selectedName}>
-          {selectedName}
-        </p>
-      )}
-      <button type='button' className={adminButtonClass} onClick={() => setOpen(!open)}>
+      >
+        <option value=''>{translate(required ? 'choose' : 'noSelection')}</option>
+        {selected && <option value={selected}>{displayName}</option>}
+      </select>
+      {initialDepartment.isError && selected === initial && <AdminQueryState query={initialDepartment}>{null}</AdminQueryState>}
+      <button type='button' aria-expanded={open} className={adminButtonClass} onClick={() => setOpen(!open)}>
         {translate('chooseDepartment')}
       </button>
       {open && (
@@ -55,7 +57,7 @@ export function DepartmentLookup({
                   className={`${adminButtonClass} w-full justify-start text-left`}
                   onClick={() => {
                     setSelected(department.id)
-                    setSelectedName(department.name)
+                    setSelectedName(`${department.code} · ${department.name}`)
                     setOpen(false)
                   }}
                 >

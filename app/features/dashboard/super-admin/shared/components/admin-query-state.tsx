@@ -33,9 +33,6 @@ export function AdminQueryState({
     return (
       <div role='alert' className='space-y-3 rounded-lg border border-border bg-surface p-6'>
         <p>{translate(`errors.${failure.key}`)}</p>
-        {failure.requestId && (
-          <p className='break-all text-xs text-muted-foreground'>{translate('requestId', { id: failure.requestId })}</p>
-        )}
         <button
           type='button'
           className='min-h-11 rounded-md border border-border px-4 md:min-h-9'

@@ -41,7 +41,8 @@ export function NoticeActionForm({
   ]
   const eventFields: PersonnelField[] = transfer
     ? [
-        { name: 'toDepartmentId', type: 'uuid', initial: notice.targetDepartment?.id },
+        { name: 'toDepartmentId', type: 'uuid', initial: notice.targetDepartment?.id,
+          initialLabel: notice.targetDepartment ? `${notice.targetDepartment.code} · ${notice.targetDepartment.name}` : '' },
         { name: 'effectiveOn', type: 'date', initial: notice.proposedOn },
         ...successorFields
       ]
@@ -62,7 +63,8 @@ export function NoticeActionForm({
         action === 'reject'
           ? [{ name: 'reason', maxLength: 2000 }]
           : action === 'link'
-            ? [{ name: 'eventId', type: 'uuid' }, ...verificationFields]
+            ? [{ name: 'eventId', type: 'uuid', employeeId: notice.employee.id,
+                eventSource: transfer ? 'transfers' : leave ? 'leaves' : 'offboarding' }, ...verificationFields]
             : [...verificationFields, ...eventFields]
       }
       basis={action === 'record'}

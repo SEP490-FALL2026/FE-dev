@@ -1,4 +1,12 @@
 import { auth as enAuth } from './locales/en/auth'
+import { approvals as enApprovals } from './locales/en/approvals'
+import { approvalsBudget as enApprovalsBudget } from './locales/en/approvals-budget'
+import { approvalsSpend as enApprovalsSpend } from './locales/en/approvals-spend'
+import { approvalsNeed as enApprovalsNeed } from './locales/en/approvals-need'
+import { finance as enFinance } from './locales/en/finance'
+import { financeBudget as enFinanceBudget } from './locales/en/finance-budget'
+import { financeSpend as enFinanceSpend } from './locales/en/finance-spend'
+import { financeSettings as enFinanceSettings } from './locales/en/finance-settings'
 import { admin as enAdmin } from './locales/en/admin'
 import { adminAccounts as enAdminAccounts } from './locales/en/admin-accounts'
 import { adminOrganization as enAdminOrganization } from './locales/en/admin-organization'
@@ -10,6 +18,14 @@ import { landing as enLanding } from './locales/en/landing'
 import { notFound as enNotFound } from './locales/en/not-found'
 import { theme as enTheme } from './locales/en/theme'
 import { auth as viAuth } from './locales/vi/auth'
+import { approvals as viApprovals } from './locales/vi/approvals'
+import { approvalsBudget as viApprovalsBudget } from './locales/vi/approvals-budget'
+import { approvalsSpend as viApprovalsSpend } from './locales/vi/approvals-spend'
+import { approvalsNeed as viApprovalsNeed } from './locales/vi/approvals-need'
+import { finance as viFinance } from './locales/vi/finance'
+import { financeBudget as viFinanceBudget } from './locales/vi/finance-budget'
+import { financeSpend as viFinanceSpend } from './locales/vi/finance-spend'
+import { financeSettings as viFinanceSettings } from './locales/vi/finance-settings'
 import { admin as viAdmin } from './locales/vi/admin'
 import { adminAccounts as viAdminAccounts } from './locales/vi/admin-accounts'
 import { adminOrganization as viAdminOrganization } from './locales/vi/admin-organization'
@@ -20,11 +36,37 @@ import { errors as viErrors } from './locales/vi/errors'
 import { landing as viLanding } from './locales/vi/landing'
 import { notFound as viNotFound } from './locales/vi/not-found'
 import { theme as viTheme } from './locales/vi/theme'
+import { itAdmin as enItAdmin } from './locales/en/it-admin'
+import { itAdmin as viItAdmin } from './locales/vi/it-admin'
+import { itProvisioning as enItProvisioning } from './locales/en/it-provisioning'
+import { itProvisioning as viItProvisioning } from './locales/vi/it-provisioning'
+import { itCatalog as enItCatalog } from './locales/en/it-catalog'
+import { itCatalog as viItCatalog } from './locales/vi/it-catalog'
+import { itOffboarding as enItOffboarding } from './locales/en/it-offboarding'
+import { itOffboarding as viItOffboarding } from './locales/vi/it-offboarding'
+import { itIssues as enItIssues } from './locales/en/it-issues'
+import { itIssues as viItIssues } from './locales/vi/it-issues'
+import { itNewSoftware as enItNewSoftware } from './locales/en/it-new-software'
+import { itNewSoftware as viItNewSoftware } from './locales/vi/it-new-software'
 
 export const defaultNS = 'common' as const
 
 export const resources = {
   en: {
+    approvals: enApprovals,
+    approvalsBudget: enApprovalsBudget,
+    approvalsSpend: enApprovalsSpend,
+    approvalsNeed: enApprovalsNeed,
+    finance: enFinance,
+    financeBudget: enFinanceBudget,
+    financeSpend: enFinanceSpend,
+    financeSettings: enFinanceSettings,
+    itNewSoftware: enItNewSoftware,
+    itAdmin: enItAdmin,
+    itProvisioning: enItProvisioning,
+    itCatalog: enItCatalog,
+    itOffboarding: enItOffboarding,
+    itIssues: enItIssues,
     admin: enAdmin,
     adminAccounts: enAdminAccounts,
     adminOrganization: enAdminOrganization,
@@ -38,6 +80,20 @@ export const resources = {
     theme: enTheme
   },
   vi: {
+    approvals: viApprovals,
+    approvalsBudget: viApprovalsBudget,
+    approvalsSpend: viApprovalsSpend,
+    approvalsNeed: viApprovalsNeed,
+    finance: viFinance,
+    financeBudget: viFinanceBudget,
+    financeSpend: viFinanceSpend,
+    financeSettings: viFinanceSettings,
+    itNewSoftware: viItNewSoftware,
+    itAdmin: viItAdmin,
+    itProvisioning: viItProvisioning,
+    itCatalog: viItCatalog,
+    itOffboarding: viItOffboarding,
+    itIssues: viItIssues,
     admin: viAdmin,
     adminAccounts: viAdminAccounts,
     adminOrganization: viAdminOrganization,

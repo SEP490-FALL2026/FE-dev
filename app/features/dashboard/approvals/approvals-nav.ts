@@ -1,11 +1,7 @@
-import { BarChart3, Clock, Grid2X2, Landmark, PiggyBank, ScrollText, ShieldQuestion } from 'lucide-react'
+import { Clock, Grid2X2, Landmark } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
-/**
- * `request`, `renewal` and `charge` are the APV-02/APV-03 detail screens opened from the APV-01 queue (UF-15).
- * `optimization` (APV-04) lists Finance's cost optimization proposals and `annual-budget` (APV-05) the department
- * budgets Finance sends for the next fiscal year; an item opens with the `id` param.
- */
+/** Detail tabs open by API identifier. Legacy demo tabs remain valid URLs with an unavailable state. */
 import { APPROVAL_TAB_KEYS, type ApprovalTabKey } from './enums'
 export { APPROVAL_TAB_KEYS, type ApprovalTabKey }
 
@@ -22,18 +18,8 @@ export interface ApprovalNavItem {
 
 export const approvalNavItems: ApprovalNavItem[] = [
   { icon: Grid2X2, key: 'overview', translationKey: 'overview' },
-  { badge: 8, icon: Clock, key: 'queue', screenCode: 'APV-01', translationKey: 'queue' },
-  { badge: 2, icon: PiggyBank, key: 'optimization', screenCode: 'APV-04', translationKey: 'optimization' },
-  { badge: 1, icon: Landmark, key: 'annual-budget', screenCode: 'APV-05', translationKey: 'annualBudget' },
-  {
-    badge: 2,
-    icon: ShieldQuestion,
-    key: 'exception-approval',
-    screenCode: 'APV-07',
-    translationKey: 'exceptionApproval'
-  },
-  { icon: ScrollText, key: 'decision-history', screenCode: 'APV-06', translationKey: 'decisionHistory' },
-  { icon: BarChart3, key: 'reports', translationKey: 'reports' }
+  { icon: Clock, key: 'queue', screenCode: 'APV-01', translationKey: 'queue' },
+  { icon: Landmark, key: 'annual-budget', screenCode: 'APV-05', translationKey: 'annualBudget' }
 ]
 
 export function isValidApprovalTab(value: string | null): value is ApprovalTabKey {
@@ -41,5 +27,6 @@ export function isValidApprovalTab(value: string | null): value is ApprovalTabKe
 }
 
 export function getParentApprovalMenuKey(tab: ApprovalTabKey): ApprovalTabKey {
-  return tab === 'request' || tab === 'renewal' || tab === 'charge' ? 'queue' : tab
+  if (tab === 'need') return 'overview'
+  return tab === 'request' || tab === 'renewal' || tab === 'charge' || tab === 'batch' ? 'queue' : tab
 }

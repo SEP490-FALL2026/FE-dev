@@ -16,12 +16,12 @@ afterAll(() => server.close())
 beforeEach(async () => {
   await setAppLanguage('en', false)
 })
-function mount(component: React.ReactNode) {
+function mount(component: React.ReactNode, entry = '/') {
   return render(
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })}
     >
-      <MemoryRouter>{component}</MemoryRouter>
+      <MemoryRouter initialEntries={[entry]}>{component}</MemoryRouter>
     </QueryClientProvider>
   )
 }
@@ -105,9 +105,8 @@ it('replays an import confirmation with the same idempotency key after an uncert
       return HttpResponse.json({ success: false, error: { code: 'SERVICE_UNAVAILABLE' } }, { status: 503 })
     })
   )
-  mount(<ImportPanel />)
-  fill('Import UUID', importId)
-  fireEvent.click(screen.getByRole('button', { name: 'Read existing import' }))
+  mount(<ImportPanel />, `/?importId=${importId}`)
+  expect(screen.queryByRole('textbox', { name: /UUID|ID/ })).not.toBeInTheDocument()
   fireEvent.click(await screen.findByRole('button', { name: 'Confirm import' }))
   basis()
   const dialog = screen.getByRole('dialog')

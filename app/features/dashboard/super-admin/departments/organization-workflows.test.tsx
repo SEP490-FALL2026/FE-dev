@@ -9,7 +9,8 @@ import type { DepartmentResponseDtoData } from '~/shared/api/generated/model'
 import { DepartmentActionForm, type DepartmentAction } from './components/department-action-form'
 import { DepartmentForm } from './components/department-form'
 import { DepartmentDetailView } from './components/department-detail-view'
-import { ProjectForm } from './components/project-form'
+import { MemoryRouter } from 'react-router'
+import { SuperAdminDepartmentsView } from './views/super-admin-departments-view'
 
 const server = setupServer()
 const base = `${env.API_BASE_URL}/api/v1`
@@ -135,39 +136,20 @@ describe('Organization workflows through HTTP', () => {
     )
   })
 
-  it('reads project detail before updating so a summary does not erase its description', async () => {
-    let body: unknown
-    const project = {
-      id: 'p1',
-      name: 'Migration',
-      status: 'RUNNING' as const,
-      departments: [{ id: department.id, code: department.code, name: department.name }],
-      updatedAt: ''
-    }
-    server.use(
-      http.get(`${base}/projects/p1`, () =>
-        envelope({ ...project, description: 'Keep this description', createdAt: '' })
-      ),
-      http.get(`${base}/departments`, () => envelope({ items: [department], pagination: pagination(1) })),
-      http.patch(`${base}/projects/p1`, async ({ request }) => {
-        body = await request.json()
-        return envelope({ ...project, description: 'Keep this description' })
-      })
+  it('keeps department search, filters and creation available without a separate module tab', async () => {
+    server.use(http.get(`${base}/departments`, () => envelope({ items: [department], pagination: pagination(1) })))
+    mount(
+      <MemoryRouter>
+        <SuperAdminDepartmentsView />
+      </MemoryRouter>
     )
-    mount(<ProjectForm project={project} onClose={vi.fn()} />)
-    expect(await screen.findByLabelText('Description')).toHaveValue('Keep this description')
-    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Migration phase 2' } })
-    fillBasis()
-    submit()
-    await waitFor(() =>
-      expect(body).toEqual({
-        name: 'Migration phase 2',
-        description: 'Keep this description',
-        status: 'RUNNING',
-        departmentIds: [department.id],
-        hrBasis: basis
-      })
-    )
+    await screen.findByRole('heading', { name: 'Engineering' })
+    expect(screen.getByRole('searchbox', { name: 'Search departments' })).toBeInTheDocument()
+    expect(screen.getByRole('combobox', { name: 'Status' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Projects' })).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Create department' }))
+    expect(screen.getByRole('dialog', { name: 'Create department' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Department code')).toBeInTheDocument()
   })
 
   it('pages department members using their own endpoint without editing membership locally', async () => {
@@ -194,6 +176,7 @@ describe('Organization workflows through HTTP', () => {
     )
     mount(<DepartmentDetailView id={department.id} onBack={vi.fn()} />)
     await screen.findByText('Member 1')
+    expect(screen.queryByRole('button', { name: 'Projects' })).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Next' }))
     await screen.findByText('Member 2')
     expect(pages).toEqual(['1', '2'])

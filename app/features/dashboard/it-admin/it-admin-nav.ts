@@ -3,26 +3,22 @@ import {
   Laptop,
   Layers,
   LayoutDashboard,
+  MessageSquare,
   PackageCheck,
   Scale,
   ShieldAlert,
   Sparkles,
   UploadCloud,
   UserMinus,
-  UsersRound,
   UserX,
   type LucideIcon
 } from 'lucide-react'
-
 import { IT_ADMIN_TAB_KEYS, type ItAdminTabKey } from './enums'
 export { IT_ADMIN_TAB_KEYS, type ItAdminTabKey }
-
 export function isValidItAdminTab(value: unknown): value is ItAdminTabKey {
-  return typeof value === 'string' && IT_ADMIN_TAB_KEYS.includes(value as ItAdminTabKey)
+  return typeof value === 'string' && IT_ADMIN_TAB_KEYS.some((key) => key === value)
 }
-
 export type ItAdminSubMenuItem = {
-  badge?: number | string
   icon: LucideIcon
   key: ItAdminTabKey
   translationKey:
@@ -32,9 +28,11 @@ export type ItAdminSubMenuItem = {
     | 'deviceCollectors'
     | 'licenseOptimization'
     | 'shadowIt'
-    | 'deptCatalog'
+    | 'offboarding'
+    | 'saasIssues'
+    | 'identities'
+    | 'renewals'
 }
-
 export type ItAdminMenuItem = {
   children?: readonly ItAdminSubMenuItem[]
   directTabKey?: ItAdminTabKey
@@ -42,84 +40,44 @@ export type ItAdminMenuItem = {
   key: string
   translationKey: 'overview' | 'licenses' | 'usageSources' | 'optimize' | 'deptCatalog'
 }
-
 export const itAdminMenuItems: readonly ItAdminMenuItem[] = [
+  { key: 'overview', directTabKey: 'overview', icon: LayoutDashboard, translationKey: 'overview' },
   {
-    directTabKey: 'overview',
-    icon: LayoutDashboard,
-    key: 'overview',
-    translationKey: 'overview'
-  },
-  {
-    children: [
-      {
-        badge: 8,
-        icon: PackageCheck,
-        key: 'provisioning',
-        translationKey: 'provisioning'
-      },
-      {
-        badge: 4,
-        icon: Scale,
-        key: 'reconciliation',
-        translationKey: 'reconciliation'
-      },
-      {
-        badge: 3,
-        icon: UploadCloud,
-        key: 'usage-import',
-        translationKey: 'usageImport'
-      }
-    ],
-    icon: PackageCheck,
     key: 'licenses',
-    translationKey: 'licenses'
+    icon: PackageCheck,
+    translationKey: 'licenses',
+    children: [
+      { key: 'provisioning', icon: PackageCheck, translationKey: 'provisioning' },
+      { key: 'offboarding', icon: UserMinus, translationKey: 'offboarding' },
+      { key: 'saas-issues', icon: MessageSquare, translationKey: 'saasIssues' },
+      { key: 'reconciliation', icon: Scale, translationKey: 'reconciliation' },
+      { key: 'renewals', icon: CalendarClock, translationKey: 'renewals' }
+    ]
   },
   {
-    children: [
-      {
-        badge: 3,
-        icon: Laptop,
-        key: 'device-collectors',
-        translationKey: 'deviceCollectors'
-      }
-    ],
-    icon: Laptop,
     key: 'usage-sources',
-    translationKey: 'usageSources'
-  },
-  {
+    icon: Laptop,
+    translationKey: 'usageSources',
     children: [
-      {
-        badge: 4,
-        icon: Sparkles,
-        key: 'license-optimization',
-        translationKey: 'licenseOptimization'
-      },
-      {
-        badge: 4,
-        icon: ShieldAlert,
-        key: 'shadow-it',
-        translationKey: 'shadowIt'
-      }
-    ],
-    icon: Sparkles,
-    key: 'optimize',
-    translationKey: 'optimize'
+      { key: 'usage-import', icon: UploadCloud, translationKey: 'usageImport' },
+      { key: 'device-collectors', icon: Laptop, translationKey: 'deviceCollectors' },
+      { key: 'identities', icon: UserX, translationKey: 'identities' }
+    ]
   },
   {
-    directTabKey: 'dept-catalog',
-    icon: Layers,
-    key: 'dept-catalog',
-    translationKey: 'deptCatalog'
-  }
+    key: 'optimize',
+    icon: Sparkles,
+    translationKey: 'optimize',
+    children: [
+      { key: 'license-optimization', icon: Sparkles, translationKey: 'licenseOptimization' },
+      { key: 'shadow-it', icon: ShieldAlert, translationKey: 'shadowIt' }
+    ]
+  },
+  { key: 'dept-catalog', directTabKey: 'dept-catalog', icon: Layers, translationKey: 'deptCatalog' }
 ]
-
-export function getParentMenuKey(tabKey: ItAdminTabKey): string {
-  if (tabKey === 'overview') return 'overview'
-  if (tabKey === 'provisioning' || tabKey === 'reconciliation' || tabKey === 'usage-import') return 'licenses'
-  if (tabKey === 'device-collectors') return 'usage-sources'
-  if (tabKey === 'license-optimization' || tabKey === 'shadow-it') return 'optimize'
-  if (tabKey === 'dept-catalog') return 'dept-catalog'
-  return 'overview'
+export function getParentMenuKey(tab: ItAdminTabKey): string {
+  return (
+    itAdminMenuItems.find((item) => item.directTabKey === tab || item.children?.some((child) => child.key === tab))
+      ?.key ?? 'overview'
+  )
 }

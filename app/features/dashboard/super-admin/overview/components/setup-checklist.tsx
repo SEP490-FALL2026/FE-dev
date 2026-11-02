@@ -50,7 +50,7 @@ function SetupStage({ step, onSelectTab }: { step: SetupStep; onSelectTab: Super
       >
         <span>
           <span className='block text-sm font-semibold'>
-            {translate(`overview.stepNames.${step.step}`, { defaultValue: step.key })}
+            {translate(`overview.stepNames.${step.step}`, { defaultValue: translate('overview.unknownStep') })}
           </span>
           <span className={`mt-1 block text-xs ${done ? 'text-success-ink' : 'text-muted-foreground'}`}>
             {translate(`overview.setupStates.${step.status}`, { defaultValue: translate('unknown') })}
@@ -65,7 +65,7 @@ function SetupStage({ step, onSelectTab }: { step: SetupStep; onSelectTab: Super
       <div
         id={sectionId}
         role='region'
-        aria-label={translate(`overview.stepNames.${step.step}`, { defaultValue: step.key })}
+        aria-label={translate(`overview.stepNames.${step.step}`, { defaultValue: translate('overview.unknownStep') })}
         hidden={!open}
         className='mt-3 space-y-3 rounded-md bg-surface-subtle/70 p-4'
       >
