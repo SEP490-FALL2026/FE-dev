@@ -1,4 +1,6 @@
+import { employeeRequestExtras } from './employee-request-extras'
 export const employee = {
+  requestExtras: employeeRequestExtras,
   workspace: 'Employee workspace',
   dashboardSummary: {
     title: 'Your work overview',
@@ -357,6 +359,10 @@ export const employee = {
   noValue: 'Not available',
   selfService: 'Your account is in the handover phase. Only notifications, handovers and your profile are available.',
   errors: {
+    serviceBaseline: employeeRequestExtras.errors.baseline,
+    servicePlan: employeeRequestExtras.errors.plan,
+    returnSender: employeeRequestExtras.errors.sender,
+    returnChanged: employeeRequestExtras.errors.changed,
     unavailable: 'Could not load data. Please try again.',
     forbidden: 'You do not have permission for this action.',
     missing: 'No record was found within your permitted scope.',

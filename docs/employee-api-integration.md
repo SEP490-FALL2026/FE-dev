@@ -1,5 +1,25 @@
 # Employee — tích hợp API và giới hạn contract
 
+## Cập nhật 02/11/2026: Ba API Employee còn lại
+
+| API (tiền tố `/api/v1`)                            | Giao diện và hành vi                                                                                                                                                  |
+| -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /requestable-plans/{id}`                      | Tạo yêu cầu cá nhân/nhóm/tài khoản dịch vụ: đọc gói đã chọn, hiển thị vendor, điều khoản chia sẻ và khả năng mất dữ liệu khi gỡ quyền.                                |
+| `POST /return-requests/{id}/handover-confirmation` | Quyền sử dụng → Yêu cầu hoàn trả → Chi tiết: xác nhận bàn giao dữ liệu trước khi IT thu hồi. Không có request body.                                                   |
+| `POST /access-requests/service-accounts`           | Tạo yêu cầu → Tài khoản dịch vụ: chọn phần mềm/gói từ catalog, nhập định danh dự kiến, mục đích tự động hóa, lý do, thời hạn và các trường tùy chọn; xem lại rồi gửi. |
+
+Đã đối chiếu ba operation trên Swagger live `https://wdp.novaproj.site/api/docs-json` với snapshot hiện có; không đổi contract/Orval config và không sửa tay generated. Các ghi chú operation chi tiết gói chưa được gọi ở lịch sử 01/11 bên dưới đã hết hiệu lực.
+
+Form tài khoản dịch vụ mở trong drawer bên phải, thành sheet trên mobile, có hộp xác nhận gửi riêng. Đóng xác nhận giữ nội dung form; Escape ở drawer trở về form tạo yêu cầu thông thường. Không hiển thị lời nhắc lưu nháp trong luồng tài khoản dịch vụ. Phản hồi Employee đồng bộ `/me` theo HTTP 403, kể cả khi lỗi đã được dịch bằng mã nghiệp vụ riêng như `RETURN_REQUEST.NOT_REQUESTER`.
+
+Chi tiết gói phải khớp ID gói/phần mềm đã chọn; pending, lỗi hoặc empty không cho tiếp tục xem trước/lưu nháp/gửi. Gói thiếu giá vẫn được chọn; quyền gửi theo `canSubmit` của danh sách và chi tiết, cùng kết quả preview/check của luồng cấp cho người. Điều khoản vendor chỉ để tham khảo, không cho phép dùng chung tài khoản công ty. Không suy nullable vendor/sharing thành dữ liệu có sẵn; sharing lạ có fallback.
+
+Xác nhận hoàn trả chỉ hiện cho `requestedBy.employeeId` đúng phiên, state `AWAITING_REVOCATION`, `handover.required=true` và chưa confirmed. Có bước xác nhận, chặn nhấn lặp; success/conflict invalidate chi tiết/danh sách để đọc trạng thái thật. Không đánh đồng bàn giao với thu hồi xong, và không gọi `handoverDutyConfirm` của nghỉ việc.
+
+Form tài khoản dịch vụ dành cho bot/CI/chủ thể phi con người, người gửi chịu trách nhiệm và IT kiểm tra trước khi cấp. Chỉ cho các provisioning type đã biết được contract hỗ trợ (K1/K2/K3/K5); K4 hoặc mã chưa biết không mở thao tác. Payload chỉ gồm `planId`, `purpose`, `expectedIdentifier`, `businessReason`, `termMonths`, cùng `projectLabel`/`expectedSpendOn` khi được nhập; phần mềm không tốn tiền không hiện/gửi ngày chi. Không gán employee beneficiary, giá, loại request hay cờ admin; không dùng API preview/draft của yêu cầu cấp cho người. Kiểm tra độ dài/thời hạn, trim văn bản theo contract, map lỗi baseline/unsupported/validation, giữ input khi lỗi, countdown 429 và khóa gửi lại khi kết quả ghi chưa xác định. Chỉ điều hướng sang request sau response có ID; invalidate danh sách đã gửi/dashboard. `selfServiceOnly` không mount các form nghiệp vụ này.
+
+Kiểm chứng bản cuối: 194/194 test hồi quy Employee/Manager/dashboard/bản dịch/thông báo qua, gồm 28 test mới cho chi tiết gói, xác nhận hoàn trả và tài khoản dịch vụ. Bao phủ payload strict, xác nhận/chặn nhấn lặp, lỗi/empty/retry, 403 đồng bộ phiên, 409 đọc lại trạng thái, 422 giữ input, 429 countdown, kết quả ghi chưa rõ, fallback enum và guard `selfServiceOnly`. OpenAPI validation, TypeScript, ESLint/Prettier phạm vi sửa và build production qua. Build còn cảnh báo kích thước chunk dashboard và thời gian plugin. `pnpm check` toàn repo dừng ở 48 file định dạng có sẵn ngoài phạm vi; không sửa hàng loạt module khác. Chưa xác minh trực quan desktop/mobile hoặc thực hiện nghiệp vụ ghi với tài khoản BE thật; MSW không thay thế kiểm tra dữ liệu/quyền trên môi trường triển khai.
+
 ## Cập nhật 01/11/2026: Tổng quan và thẩm định IT
 
 - `GET /dashboards/employee` (`employeeDashboardGet`) cung cấp bốn thẻ ở Tổng quan: quyền phần mềm, sắp hết hạn trong 7 ngày, yêu cầu và sự cố đang mở. Giữ `asOf`, chỉ hiện count hợp lệ ở `COUNTED`; `AT_SOURCE` hiện lối mở danh sách, `NOT_AVAILABLE` ghi chưa có số liệu. Không biến số liệu chưa được BE cung cấp thành 0; chưa có count yêu cầu không ngăn mở danh sách `/me/access-requests` đã tích hợp. Thẻ hết hạn mở đúng bộ lọc nhắc hết hạn. Giữ khối bản nháp/bàn giao; phiên `selfServiceOnly` không tải dashboard nghiệp vụ.

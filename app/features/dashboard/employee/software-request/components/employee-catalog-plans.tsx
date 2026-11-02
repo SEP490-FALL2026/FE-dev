@@ -13,13 +13,15 @@ export function EmployeeCatalogPlans({
   value,
   onChange,
   disabled,
-  invalid
+  invalid,
+  allowDraft = true
 }: {
   applicationId: string
   value: CatalogPlan | null
   onChange: (plan: CatalogPlan | null) => void
   disabled: boolean
   invalid?: boolean
+  allowDraft?: boolean
 }) {
   const { t: translate } = useTranslation('employee')
   const search = useCatalogSearch()
@@ -71,7 +73,9 @@ export function EmployeeCatalogPlans({
         }
       />
       {value && !value.canSubmit && (
-        <p className='text-sm leading-relaxed text-warning-ink'>{translate('catalog.draftOnly')}</p>
+        <p className='text-sm leading-relaxed text-warning-ink'>
+          {translate(allowDraft ? 'catalog.draftOnly' : 'requestExtras.serviceAccount.blocked')}
+        </p>
       )}
       <input type='hidden' name='planId' value={value?.id ?? ''} />
     </div>

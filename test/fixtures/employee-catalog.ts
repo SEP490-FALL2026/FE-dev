@@ -1,8 +1,9 @@
 ﻿import { http, HttpResponse } from 'msw'
-import { fireEvent, screen, waitFor } from '@testing-library/react'
+import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { expect } from 'vitest'
 import type { RequestableApplicationResponseDtoData } from '../../app/shared/api/generated/model/requestable-software/requestableApplicationResponseDtoData'
 import type { RequestablePlanPageResponseDtoDataItemsItem } from '../../app/shared/api/generated/model/requestable-software/requestablePlanPageResponseDtoDataItemsItem'
+import type { RequestablePlanResponseDtoData } from '../../app/shared/api/generated/model/requestable-software/requestablePlanResponseDtoData'
 import { pageResponse, planId } from './employee-api'
 
 export const catalogApplication: NonNullable<RequestableApplicationResponseDtoData> = {
@@ -27,12 +28,19 @@ export const catalogPlan: RequestablePlanPageResponseDtoDataItemsItem = {
   canSubmit: true,
   submitBlockedReason: null
 }
+export const catalogPlanDetails: NonNullable<RequestablePlanResponseDtoData> = {
+  ...catalogPlan,
+  vendorName: 'Test Vendor',
+  sharingPolicy: 'NOT_ALLOWED',
+  dataLossOnRemoval: true
+}
 export const employeeCatalogHandlers = [
   http.get('*/api/v1/requestable-applications', () => HttpResponse.json(pageResponse([catalogApplication]))),
   http.get('*/api/v1/requestable-applications/:id', () =>
     HttpResponse.json({ success: true, data: catalogApplication })
   ),
-  http.get('*/api/v1/requestable-plans', () => HttpResponse.json(pageResponse([catalogPlan])))
+  http.get('*/api/v1/requestable-plans', () => HttpResponse.json(pageResponse([catalogPlan]))),
+  http.get('*/api/v1/requestable-plans/:id', () => HttpResponse.json({ success: true, data: catalogPlanDetails }))
 ]
 export async function chooseCatalogPlan() {
   fireEvent.click(screen.getByRole('combobox', { name: 'Software' }))
@@ -40,4 +48,6 @@ export async function chooseCatalogPlan() {
   await waitFor(() => expect(screen.getByRole('combobox', { name: 'Software plan' })).toBeEnabled())
   fireEvent.click(screen.getByRole('combobox', { name: 'Software plan' }))
   fireEvent.click(await screen.findByRole('option', { name: /Standard/ }))
+  const details = screen.queryByRole('region', { name: 'Selected plan details' })
+  if (details) await waitFor(() => expect(within(details).queryByRole('status')).not.toBeInTheDocument())
 }

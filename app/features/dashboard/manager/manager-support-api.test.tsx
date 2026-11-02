@@ -1,3 +1,5 @@
+import { managerCatalogHandlers, managerReadHandlers } from '../../../../test/fixtures/manager-integration'
+import { chooseCatalogPlan } from '../../../../test/fixtures/employee-catalog'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
@@ -23,7 +25,7 @@ import { ManagerLiveCreate } from './team-requests/views/manager-live-create'
 import { ManagerGroupDecisions } from './team-requests/components/manager-group-decisions'
 import { ManagerSpendCorrections } from './team-requests/components/manager-spend-corrections'
 
-const server = setupServer()
+const server = setupServer(...managerCatalogHandlers, ...managerReadHandlers)
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
@@ -168,12 +170,9 @@ describe('Manager budget, group and personnel contracts', () => {
         return HttpResponse.json({ success: true })
       })
     )
-    mount(
-      <ManagerLiveCreate group onOpen={vi.fn()} />,
-      `/dashboard/manager?planId=${planId}&planName=Standard&applicationName=Test%20Software`
-    )
-    fireEvent.click(screen.getByRole('combobox', { name: 'Plan' }))
-    fireEvent.click(screen.getByRole('option', { name: /Standard/ }))
+    mount(<ManagerLiveCreate group onOpen={vi.fn()} />, '/dashboard/manager')
+    await chooseCatalogPlan()
+    await screen.findByText('Sharing not allowed')
     fireEvent.change(screen.getByLabelText('Term (months)'), { target: { value: '3' } })
     fireEvent.click(screen.getByRole('combobox', { name: 'Beneficiaries' }))
     fireEvent.click(await screen.findByRole('option', { name: /Test Employee/ }))

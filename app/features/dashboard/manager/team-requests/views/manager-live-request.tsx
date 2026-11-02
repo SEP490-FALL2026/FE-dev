@@ -1,14 +1,14 @@
 import { ArrowLeft, ClipboardCheck } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { useQueryClient } from '@tanstack/react-query'
+import type { NeedQueueResponseDtoDataItemsItem } from '~/shared/api/generated/model/need-decisions/needQueueResponseDtoDataItemsItem'
+import { getNeedDecisionListQueryKey } from '~/shared/api/generated/operations/need-decisions/need-decision-list'
 import { useAccessRequestGet } from '~/shared/api/generated/operations/access-requests/access-request-get'
-import { useAccessRequestSimilarSeatList } from '~/shared/api/generated/operations/access-requests/access-request-similar-seat-list'
 import { useDashboardFormat } from '../../../dashboard-ui'
-import { useManagerPage } from '../../shared/hooks/use-manager-page'
 import { ManagerPageHeader } from '../../shared/components/manager-page-header'
 import {
   ManagerButton,
   ManagerMoney,
-  ManagerPagination,
   ManagerQueryState,
   ManagerSection,
   ManagerStatus
@@ -17,13 +17,36 @@ import { ManagerNeedForm } from '../components/manager-need-form'
 import { ManagerGroupDecisions } from '../components/manager-group-decisions'
 import { ManagerSpendCorrections } from '../components/manager-spend-corrections'
 import { NEED_STEP_STATE, REQUEST_TYPE, REQUEST_STATE } from '../enums/need-decision'
+import { ManagerRequestAssessment, ManagerRequestTimings } from '../components/manager-request-progress'
+import { ManagerRequestWithdraw } from '../components/manager-request-withdraw'
+import { ManagerLineWithdrawals } from '../components/manager-line-withdrawals'
+import { isHeadWithdrawalStage } from '../enums/withdrawal'
+import { ManagerSimilarSeats } from '../components/manager-similar-seats'
 
-export function ManagerLiveRequest({ id, employeeId, onBack }: { id: string; employeeId: string; onBack: () => void }) {
+export function ManagerLiveRequest({
+  id,
+  employeeId,
+  departmentCode,
+  onBack
+}: {
+  id: string
+  employeeId: string
+  departmentCode?: string
+  onBack: () => void
+}) {
   const { t: translate } = useTranslation('manager')
   const { formatDateTime } = useDashboardFormat()
   const query = useAccessRequestGet(id)
   const data = !query.isError ? query.data?.data : null
   const request = data && 'request' in data ? data.request : null
+  const client = useQueryClient()
+  const queueContext = client
+    .getQueriesData<{ data?: { items: NeedQueueResponseDtoDataItemsItem[] } | null }>({
+      queryKey: getNeedDecisionListQueryKey()
+    })
+    .flatMap(([, page]) => page?.data?.items ?? [])
+    .find((row) => row.requestId === id && row.stepId === request?.needStep.id)
+  const mayWithdraw = !!request && request.department.code === departmentCode && isHeadWithdrawalStage(request.state)
   const canDecide =
     request?.state === REQUEST_STATE.PENDING &&
     request.needStep.state === NEED_STEP_STATE.PENDING &&
@@ -35,10 +58,13 @@ export function ManagerLiveRequest({ id, employeeId, onBack }: { id: string; emp
         title={translate('requests')}
         icon={ClipboardCheck}
         actions={
-          <ManagerButton onClick={onBack}>
-            <ArrowLeft aria-hidden strokeWidth={1.5} className='size-4' />
-            {translate('back')}
-          </ManagerButton>
+          <div className='flex flex-wrap gap-3'>
+            {mayWithdraw && <ManagerRequestWithdraw id={id} />}
+            <ManagerButton onClick={onBack}>
+              <ArrowLeft aria-hidden strokeWidth={1.5} className='size-4' />
+              {translate('back')}
+            </ManagerButton>
+          </div>
         }
       />
       <ManagerQueryState query={query} empty={!request} />
@@ -85,17 +111,24 @@ export function ManagerLiveRequest({ id, employeeId, onBack }: { id: string; emp
             </dl>
             <p className='text-right font-mono text-xs tabular-nums'>{formatDateTime(request.submittedAt)}</p>
           </ManagerSection>
-          {request.type === REQUEST_TYPE.GROUP_GRANT ? (
+          {request.type === REQUEST_TYPE.GROUP_GRANT && mayWithdraw ? (
+            <ManagerLineWithdrawals id={id} />
+          ) : request.type === REQUEST_TYPE.GROUP_GRANT ? (
             <ManagerGroupDecisions
               id={id}
               employeeId={employeeId}
-              hasSpend={request.policy.hasSpendStep}
+              hasSpend={queueContext?.planLineRequired ?? request.policy.hasSpendStep}
+              termRequired={queueContext?.termConfirmationRequired}
               requestPending={request.state === REQUEST_STATE.PENDING}
             />
           ) : canDecide ? (
             <ManagerSection title={translate('decision')}>
-              <ManagerNeedForm id={id} hasSpend={request.policy.hasSpendStep} />
-              <SimilarSeats id={id} />
+              <ManagerNeedForm
+                id={id}
+                hasSpend={queueContext?.planLineRequired ?? request.policy.hasSpendStep}
+                termRequired={queueContext?.termConfirmationRequired}
+              />
+              <ManagerSimilarSeats id={id} />
             </ManagerSection>
           ) : (
             <p className='text-sm text-muted-foreground'>{translate('noPermission')}</p>
@@ -103,24 +136,8 @@ export function ManagerLiveRequest({ id, employeeId, onBack }: { id: string; emp
           {request.state === REQUEST_STATE.AWAITING_SPEND_SUBMISSION && <ManagerSpendCorrections id={id} />}
         </div>
       )}
+      {request && <ManagerRequestTimings id={id} />}
+      {request?.proposal && <ManagerRequestAssessment id={id} />}
     </div>
-  )
-}
-function SimilarSeats({ id }: { id: string }) {
-  const { t: translate } = useTranslation('manager')
-  const paging = useManagerPage('seatPage')
-  const query = useAccessRequestSimilarSeatList(id, { page: paging.page, pageSize: paging.pageSize })
-  return (
-    <details>
-      <summary className='cursor-pointer text-sm'>{translate('similarSeats')}</summary>
-      <ManagerQueryState query={query} empty={!query.data?.data?.items.length} />
-      {!query.isError &&
-        query.data?.data?.items.map((seat) => (
-          <p key={seat.assignmentId} className='mt-2 text-sm'>
-            {seat.plan.planName}
-          </p>
-        ))}
-      <ManagerPagination pagination={query.data?.data?.pagination} onPage={paging.onPage} busy={query.isFetching} />
-    </details>
   )
 }

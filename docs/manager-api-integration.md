@@ -1,5 +1,45 @@
 # Manager — tích hợp API ngày 31/10/2026
 
+## Cập nhật 02/11/2026 — Gộp nội dung trùng
+
+- **Tổng quan:** chỉ giữ một cụm thẻ chỉ số từ dashboard; bỏ hai thẻ đếm chờ đề nghị chi/điều chuyển ở khối công việc cũ. Bảng chờ trình vẫn có tổng số từ BE và lối xem đầy đủ. Thẻ bàn giao mở đặt cạnh bảng trên desktop, xuống hàng trên màn nhỏ; vẫn lấy `mine`/`OPEN`, giữ loading/error/retry và không biến lỗi thành 0. Không còn gọi danh sách điều chuyển chỉ để dựng lại thẻ đếm. Nút gửi yêu cầu thay chỉ nằm ở hero; tên phòng chỉ nằm tại một vùng nhận diện phòng.
+- **Chi tiết yêu cầu nhóm:** chỉ dựng một danh sách người. Khi còn ở bước nhu cầu vẫn quyết định đúng các dòng được giao; khi đến giai đoạn trưởng phòng được rút thì nút rút nằm ngay tại từng dòng. Giữ người/trạng thái không cho rút, lý do bắt buộc, xác nhận, invalidate và các giới hạn gửi lặp.
+- **Quyền tương tự đang có:** bảng hiển thị ứng dụng/gói, định danh tài khoản, mã cấp phát và ngày bắt đầu giữ quyền; vẫn phân trang. API này trả quyền của người thụ hưởng ở công cụ cùng nhóm chức năng, không có tên người giữ trong từng dòng; không tự lấy directory hoặc suy diễn tên nhân viên.
+- **Xác nhận nhóm:** gom các lỗi dòng cùng reason thành một thông báo, bên dưới có tên/email từng người bị ảnh hưởng; không làm mất lỗi của người trùng tên. UUID là fallback khi không đối chiếu được lựa chọn. Điều kiện cho gửi vẫn theo kết quả check của BE.
+- **Nhãn giao diện:** bỏ tiêu đề khối lặp “Thành viên phòng ban”, “Yêu cầu hoàn trả”; tab công cụ đổi thành “Đang được cấp”. Giữ tiêu đề trang, tổng số, filter, phân trang và nhãn bảng dùng cho accessibility. Các key thêm mới có VI/EN.
+
+Các thay đổi chỉ gộp cách trình bày, dùng các field/operation hiện có; không đổi snapshot, Orval hoặc mã generated.
+
+Kiểm chứng: 206/206 test hồi quy Manager/Employee/dashboard/thông báo/i18n qua, gồm 12 test bổ sung cho nội dung không lặp, giai đoạn duyệt/rút nhóm, phân trang quyền tương tự, người trùng tên và nhãn điều hướng. TypeScript, ESLint/Prettier phạm vi sửa, whitespace và build production qua. `pnpm check` dừng ở 48 file định dạng có sẵn; đã đối chiếu không có file nào thuộc phạm vi sửa. Build vẫn có cảnh báo kích thước chunk và thời gian plugin. Đã kiểm tra trực quan Tổng quan (cả phần dưới khi cuộn) và trạng thái Công cụ chưa liên kết phòng trên phiên Manager sẵn có tại Edge desktop; header/sidebar giữ cố định, nội dung đã gộp hiển thị đúng. Browser access host chưa khả dụng nhưng native Edge quan sát được sau khi đưa đúng cửa sổ lên trước; không dùng ảnh của cửa sổ khác để bấm. Chưa kiểm trực tiếp mobile hoặc mọi trạng thái dữ liệu thực tế; các thao tác duyệt/rút/gửi chỉ kiểm thử bằng MSW, không ghi dữ liệu nghiệp vụ trên BE.
+
+## Cập nhật 02/11/2026 — 15 API bổ sung
+
+Đã đối chiếu trực tiếp `https://wdp.novaproj.site/api/docs-json`: 15 operation dưới đây và toàn bộ schema đều khớp snapshot hiện có (306 operation). Không suy revision triển khai chỉ từ Swagger; chưa kiểm quyền bằng tài khoản BE thật. Orval bổ sung tag `need-decisions`, validate và tái sinh từ snapshot. Các ghi chú thiếu hàng đợi/danh mục bên dưới là lịch sử 31/10, không còn mô tả UI hiện tại.
+
+| Operation                      | Vị trí / hành vi                                                                                                                                                 |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `managerDashboardGet`          | Tổng quan, trạng thái số liệu và `asOf`; thẻ mở đúng phòng từ dữ liệu BE. Không giả usage/chi phí/ghost seat.                                                    |
+| `needDecisionList`             | Duyệt nhu cầu: loại yêu cầu, trang BE, tìm UUID riêng; mở dòng không tự quyết. Cờ term/plan của đúng step trong cache dựng form.                                 |
+| `requestableApplicationList`   | Picker phần mềm tìm kiếm/debounce/lọc loại/trang BE.                                                                                                             |
+| `requestableApplicationGet`    | Nhà cung cấp, nhóm chức năng, độ nhạy cảm và khả năng gửi.                                                                                                       |
+| `requestablePlanList`          | Gói theo ứng dụng, tìm/trang BE; không lấy công cụ đang cấp thay danh mục.                                                                                       |
+| `requestablePlanGet`           | Đọc lại gói chọn hoặc link IT, chính sách chia sẻ/mất dữ liệu; bỏ tên gói URL.                                                                                   |
+| `accessRequestPreview`         | Gửi hộ: ước tính trong xác nhận; body chỉ plan/tháng/project/ngày chi, không gửi người/lý do hay field của delegated. Không dùng chain preview cho luồng gửi hộ. |
+| `accessRequestAssessmentGet`   | Chi tiết request có proposal, nội dung IT/báo giá/từ chối/phương án thay thế chỉ đọc.                                                                            |
+| `accessRequestTimingsGet`      | Tiến độ các bước tại chi tiết request.                                                                                                                           |
+| `accessRequestWithdraw`        | Rút request ở giai đoạn trưởng phòng xử lý và đúng phòng, lý do bắt buộc; BE quyết cuối.                                                                         |
+| `accessRequestLineWithdraw`    | Rút người chọn khỏi request nhóm ở giai đoạn phù hợp; không tác động người khác.                                                                                 |
+| `returnRequestSubmit`          | Mở công cụ đang cấp, nhập lý do và xác nhận; quyền vẫn còn đến khi IT thu hồi xong.                                                                              |
+| `returnRequestList`            | Công cụ đang cấp → Yêu cầu hoàn trả: lọc trạng thái, phân trang BE.                                                                                              |
+| `returnRequestGet`             | Chi tiết hoàn trả, ghi chú, hạn/xác nhận bàn giao và kết quả thu hồi.                                                                                            |
+| `returnRequestHandoverConfirm` | Người gửi return xác nhận sau hộp thoại; không body, chặn lặp, chỉ khi chờ thu hồi/cần bàn giao/chưa xác nhận.                                                   |
+
+Giữ `groupRequestCheck` cho yêu cầu nhóm; chỉ dùng preview cho gửi hộ hiện có một người/một gói. Tất cả thao tác mới dùng `useManagerAction`, không tự thử lại ghi; lỗi 409/403/429 và kết quả không rõ giữ nguyên cơ chế an toàn. Query chỉ mount khi đúng màn; self-service/không có vai Manager bị chặn trước khi mount nội dung.
+
+Nội dung thẩm định dùng chung với Employee ở `entities/request/components`, dùng bộ dịch Employee hiện có; định dạng và debounce catalog ở shared. Không import nội bộ Employee sang Manager. Ngân sách vẫn chưa có upload file, không gọi import dành Finance.
+
+Kiểm chứng: 165/165 test hồi quy Manager/Employee/dashboard/thông báo/i18n qua. Sau bổ sung giữ bộ lọc/trang khi mở và quay lại chi tiết hoàn trả, file kiểm thử tích hợp mới chạy lại 17/17 qua (gồm các test có trong hồi quy trước). TypeScript, ESLint/Prettier phạm vi sửa, build production và kiểm tra whitespace qua; không có file source sửa/thêm nào vượt 500 dòng. `pnpm check` vẫn dừng ở 48 file định dạng có sẵn ngoài phạm vi. Computer Use đã dừng vì không xác định URL Chrome đủ chắc chắn để áp dụng chính sách; không tiếp tục input sau đó. Chưa xác minh trực quan desktop/mobile hoặc quyền/dữ liệu với tài khoản BE thật; các thao tác ghi chỉ kiểm thử bằng MSW, không ghi dữ liệu nghiệp vụ lên VPS.
+
 ## Nguồn
 
 Đã đọc các tài liệu bắt buộc của FE và hướng dẫn BE tại `../docs/Figma UI-UX/API-Integration/`: `roles/manager.md`, `conventions.md`, `ai-integration-guide.md`, flow ngân sách/đơn trả phí, reference tương ứng và enum theo field. Swagger đọc trực tiếp từ `https://wdp.novaproj.site/api/docs-json`: 287 operation. Snapshot lưu tại `openapi/openapi.yaml`; SHA256 tệp JSON compact: `e3838d6fb5dde0f6d3e8b14a15dec7f705f40a999732194e00e1451d6e34647b`. Không suy ra revision triển khai chỉ từ Swagger.

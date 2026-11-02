@@ -12,6 +12,7 @@ export default defineConfig({
           'auth',
           'me',
           'dashboards',
+          'need-decisions',
           'audit',
           'employees',
           'departments',

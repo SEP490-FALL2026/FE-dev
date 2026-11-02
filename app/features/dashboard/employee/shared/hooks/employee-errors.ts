@@ -1,6 +1,14 @@
 import axios from 'axios'
 
 const errorKeys = {
+  'SERVICE_ACCOUNT_REQUEST.BASELINE_NOT_CLOSED': 'serviceBaseline',
+  'SERVICE_ACCOUNT_REQUEST.PLAN_NOT_SUPPORTED': 'servicePlan',
+  'RETURN_REQUEST.NOT_REQUESTER': 'returnSender',
+  'RETURN_REQUEST.HANDOVER_NOT_REQUIRED': 'returnChanged',
+  'RETURN_REQUEST.HANDOVER_ALREADY_CONFIRMED': 'returnChanged',
+  'RETURN_REQUEST.NOT_AWAITING': 'returnChanged',
+  'REQUESTABLE_SOFTWARE.PLAN_NOT_FOUND': 'planUnavailable',
+  'ACCESS_REQUEST.NO_DEPARTMENT': 'catalogDepartment',
   'REQUESTABLE_SOFTWARE.NO_DEPARTMENT': 'catalogDepartment',
   'FINANCE.SETUP_INCOMPLETE': 'financeSetup',
   'ACCESS_REQUEST.ALREADY_HOLDS_ACCESS': 'existingAccess',
@@ -45,6 +53,7 @@ export function getEmployeeError(error: unknown) {
   const retryAfter = Number(response?.headers['retry-after'] ?? response?.data?.error?.details?.retryAfterSeconds ?? 60)
   return {
     key,
+    status: response?.status,
     fields: (response?.data?.error?.details?.issues ?? [])
       .map((issue) =>
         typeof issue.path === 'string' ? issue.path : Array.isArray(issue.path) ? issue.path.join('.') : ''

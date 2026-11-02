@@ -1,4 +1,6 @@
+import { managerIntegration } from './manager-integration'
 export const manager = {
+  integration: managerIntegration,
   title: 'Không gian phòng ban',
   overview: 'Tổng quan',
   team: 'Thành viên phòng ban',
@@ -231,6 +233,7 @@ export const manager = {
     notAssigned: 'Bước này không còn được giao cho bạn.'
   },
   statuses: {
+    AWAITING_REVOCATION: 'Chờ thu hồi',
     ACTIVE: 'Đang hoạt động',
     INACTIVE: 'Ngừng hoạt động',
     TERMINATED: 'Đã nghỉ',

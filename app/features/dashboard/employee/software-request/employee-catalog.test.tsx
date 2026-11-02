@@ -8,6 +8,7 @@ import { setAppLanguage } from '~/shared/i18n/i18n'
 import {
   catalogApplication,
   catalogPlan,
+  catalogPlanDetails,
   chooseCatalogPlan,
   employeeCatalogHandlers
 } from '../../../../../test/fixtures/employee-catalog'
@@ -38,7 +39,7 @@ function reason() {
 }
 
 describe('Employee requester catalog', () => {
-  it('uses all three authorized routes, displays details and previews the selected plan ID', async () => {
+  it('uses all four authorized catalog routes, displays details and previews the selected plan ID', async () => {
     const calls: string[] = []
     const preview = vi.fn()
     server.use(
@@ -59,6 +60,10 @@ describe('Employee requester catalog', () => {
         expect(url.searchParams.get('applicationId')).toBe(planId)
         return HttpResponse.json(pageResponse([catalogPlan]))
       }),
+      http.get('*/api/v1/requestable-plans/:id', ({ request }) => {
+        calls.push(new URL(request.url).pathname)
+        return HttpResponse.json({ success: true, data: catalogPlanDetails })
+      }),
       http.post('*/api/v1/access-requests/preview', async ({ request }) => {
         preview(await request.json())
         return HttpResponse.json({ success: true, data: { preview: requestPreview } })
@@ -78,7 +83,8 @@ describe('Employee requester catalog', () => {
     expect(calls.map((pathname) => pathname.slice(pathname.indexOf('/api/v1/')))).toEqual([
       '/api/v1/requestable-applications',
       `/api/v1/requestable-applications/${planId}`,
-      '/api/v1/requestable-plans'
+      '/api/v1/requestable-plans',
+      `/api/v1/requestable-plans/${planId}`
     ])
   })
 

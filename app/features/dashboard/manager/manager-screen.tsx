@@ -19,6 +19,8 @@ import { ManagerBudgetForm } from './annual-budget/views/manager-budget-form'
 import { ManagerTransferReviews } from './access-review/views/manager-transfer-reviews'
 import { ManagerNotices } from './personnel-notices/views/manager-notices'
 import { ManagerHandovers } from './handovers/views/manager-handovers'
+import { ManagerReturns } from './team/views/manager-returns'
+import { ManagerReturnDetail } from './team/views/manager-return-detail'
 
 export function ManagerScreen({
   tab,
@@ -52,6 +54,12 @@ export function ManagerScreen({
   }
   const openRequest = (id: string) => onSelectTab('request-approval', { id })
   const id = params.get('id') ?? ''
+  const returnContext: Record<string, string> = { toolsView: 'returns' }
+  for (const key of ['returnState', 'returnPage', 'departmentId']) {
+    const value = params.get(key)
+    if (value) returnContext[key] = value
+  }
+  const openReturn = (returnId: string) => onSelectTab('return-detail', { ...returnContext, id: returnId })
   let content
   if (form)
     content =
@@ -116,15 +124,57 @@ export function ManagerScreen({
     content = (
       <div className='space-y-5'>
         <ManagerPageHeader title={translate('tools')} icon={Boxes} />
-        <ManagerDepartmentContext name={user.employee.department?.name} />
-        <ManagerLiveTeam departmentId={validDepartment ? departmentId : undefined} tools embedded />
+        <nav aria-label={translate('tools')} className='flex gap-2 border-b border-border/60 pb-3'>
+          {(['assigned', 'returns'] as const).map((view) => (
+            <button
+              key={view}
+              type='button'
+              className='min-h-11 rounded-md px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-primary aria-pressed:bg-primary-soft aria-pressed:text-primary-ink'
+              aria-pressed={(params.get('toolsView') === 'returns') === (view === 'returns')}
+              onClick={() =>
+                onSelectTab('team-software', { toolsView: view, ...(validDepartment ? { departmentId } : {}) })
+              }
+            >
+              {translate(view === 'returns' ? 'integration.returns' : 'integration.assigned')}
+            </button>
+          ))}
+        </nav>
+        {params.get('toolsView') === 'returns' ? (
+          <ManagerReturns onOpen={openReturn} />
+        ) : (
+          <>
+            <ManagerDepartmentContext name={user.employee.department?.name} />
+            <ManagerLiveTeam
+              departmentId={validDepartment ? departmentId : undefined}
+              tools
+              embedded
+              onReturnCreated={openReturn}
+            />
+          </>
+        )}
       </div>
+    )
+  else if (tab === 'return-detail')
+    content = isResourceId(id) ? (
+      <ManagerReturnDetail
+        id={id}
+        employeeId={user.employee.id}
+        onBack={() => onSelectTab('team-software', returnContext)}
+      />
+    ) : (
+      <p>{translate('errors.missing')}</p>
     )
   else if (tab === 'team-requests' || tab === 'my-requests')
     content = <ManagerRequestLookup history={tab === 'my-requests'} onOpen={openRequest} />
   else if (tab === 'request-approval')
     content = isResourceId(id) ? (
-      <ManagerLiveRequest key={id} id={id} employeeId={user.employee.id} onBack={() => onSelectTab('team-requests')} />
+      <ManagerLiveRequest
+        key={id}
+        id={id}
+        employeeId={user.employee.id}
+        departmentCode={user.employee.department?.code}
+        onBack={() => onSelectTab('team-requests')}
+      />
     ) : (
       <ManagerRequestLookup onOpen={openRequest} />
     )

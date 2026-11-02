@@ -11,12 +11,14 @@ export function EmployeeCatalogPicker({
   value,
   onChange,
   disabled,
-  invalid
+  invalid,
+  allowDraft = true
 }: {
   value: CatalogPlan | null
   onChange: (plan: CatalogPlan | null) => void
   disabled: boolean
   invalid?: boolean
+  allowDraft?: boolean
 }) {
   const { t: translate } = useTranslation('employee')
   const [application, setApplication] = useState<WorkspaceChoice | null>(null)
@@ -40,6 +42,7 @@ export function EmployeeCatalogPicker({
           disabled={disabled || !details}
           value={value}
           invalid={invalid}
+          allowDraft={allowDraft}
           onChange={(plan) =>
             onChange(plan && details ? { ...plan, canSubmit: plan.canSubmit && details.canSubmit } : null)
           }

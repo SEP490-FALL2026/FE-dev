@@ -1,3 +1,4 @@
+import { managerReadHandlers } from '../../../test/fixtures/manager-integration'
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import { beforeAll, afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -13,6 +14,7 @@ import { managerProfile } from '../../../test/fixtures/manager-api'
 import { pageResponse } from '../../../test/fixtures/employee-api'
 
 const server = setupServer(
+  ...managerReadHandlers,
   http.get('*/api/v1/me', () =>
     HttpResponse.json({
       success: true,
@@ -350,7 +352,7 @@ describe('DashboardPage', () => {
     fireEvent.click(create)
     fireEvent.click(within(nav).getByRole('button', { name: 'Group request' }))
     expect(await screen.findByRole('heading', { level: 1, name: 'Group request' })).toBeInTheDocument()
-    expect(screen.getByRole('combobox', { name: 'Plan' })).toBeInTheDocument()
+    expect(screen.getByRole('combobox', { name: 'Software plan' })).toBeInTheDocument()
     expect(screen.queryByLabelText('Plan ID')).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Save preview' })).not.toBeInTheDocument()
     fireEvent.click(within(nav).getByRole('button', { name: 'Delegated requests' }))

@@ -74,9 +74,10 @@ export function EmployeeScreen({
   else if (tab === 'return-detail')
     content = (
       <EmployeeLiveReturnDetail
+        key={id}
         id={id}
+        employeeId={user.employee.id}
         onBack={() => onSelectTab('my-software', { accessList: 'returns' })}
-        onHandover={() => onSelectTab('handovers')}
       />
     )
   else if (tab === 'issues') content = <EmployeeIssuesView onSelectTab={onSelectTab} />

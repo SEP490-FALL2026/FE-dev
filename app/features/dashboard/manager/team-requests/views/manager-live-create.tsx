@@ -12,7 +12,8 @@ import { ManagerGroupConfirmation } from '../components/manager-group-confirmati
 import { useManagerAction } from '../../shared/hooks/use-manager-action'
 import { ManagerPeoplePicker } from '../../shared/components/manager-people-picker'
 import type { ManagerChoice } from '../../shared/components/manager-choice-select'
-import { ManagerPlanPicker } from '../components/manager-plan-picker'
+import { ManagerCatalogPicker, type ManagerCatalogPlan } from '../components/manager-catalog-picker'
+import { ManagerDelegatedPreview } from '../components/manager-delegated-preview'
 import { ManagerRequestSummary } from '../components/manager-request-summary'
 import {
   ManagerActionState,
@@ -26,7 +27,7 @@ import {
 export function ManagerLiveCreate({ group, onOpen }: { group: boolean; onOpen: (id: string) => void }) {
   const { t: translate } = useTranslation('manager')
   const [people, setPeople] = useState<ManagerChoice[]>([])
-  const [plan, setPlan] = useState<ManagerChoice | null>(null)
+  const [plan, setPlan] = useState<ManagerCatalogPlan | null>(null)
   const [created, setCreated] = useState<string[]>([])
   const [pending, setPending] = useState<
     { kind: 'group'; body: GroupBodyDto } | { kind: 'delegated'; body: DelegatedBodyDto } | null
@@ -61,9 +62,9 @@ export function ManagerLiveCreate({ group, onOpen }: { group: boolean; onOpen: (
             className='space-y-5'
             onSubmit={(event) => {
               event.preventDefault()
-              if (action.blocked || !plan || !people.length || people.length > (group ? 10 : 1)) return
+              if (action.blocked || !plan?.canSubmit || !people.length || people.length > (group ? 10 : 1)) return
               const form = new FormData(event.currentTarget)
-              const planId = plan.value
+              const planId = plan.id
               const employeeIds = people.map((person) => person.value)
               const businessReason = String(form.get('businessReason')).trim()
               const termMonths = Number(form.get('termMonths'))
@@ -103,8 +104,8 @@ export function ManagerLiveCreate({ group, onOpen }: { group: boolean; onOpen: (
             }}
           >
             <fieldset disabled={action.blocked} className='space-y-4'>
-              <div className='grid gap-4 sm:grid-cols-2'>
-                <ManagerPlanPicker
+              <div className='space-y-4'>
+                <ManagerCatalogPicker
                   value={plan}
                   onChange={setPlan}
                   disabled={action.blocked}
@@ -155,7 +156,7 @@ export function ManagerLiveCreate({ group, onOpen }: { group: boolean; onOpen: (
               <ManagerButton
                 primary
                 type='submit'
-                disabled={action.blocked || !plan || !people.length || people.length > (group ? 10 : 1)}
+                disabled={action.blocked || !plan?.canSubmit || !people.length || people.length > (group ? 10 : 1)}
                 busy={action.isPending}
               >
                 {action.retrySeconds ? translate('retryAfter', { seconds: action.retrySeconds }) : translate('submit')}
@@ -184,10 +185,14 @@ export function ManagerLiveCreate({ group, onOpen }: { group: boolean; onOpen: (
           }}
         >
           <div className='space-y-4'>
-            <ManagerRequestSummary plan={plan} people={people} />
+            <ManagerRequestSummary
+              plan={{ value: plan.id, label: plan.name, description: plan.application.name }}
+              people={people}
+            />
             {pending.kind === 'group' ? (
               <ManagerGroupConfirmation
                 body={pending.body}
+                people={people}
                 blocked={action.blocked}
                 busy={action.isPending}
                 onCancel={() => setPending(null)}
@@ -196,22 +201,15 @@ export function ManagerLiveCreate({ group, onOpen }: { group: boolean; onOpen: (
                 }}
               />
             ) : (
-              <div className='flex justify-end gap-3'>
-                <ManagerButton disabled={action.isPending} onClick={() => setPending(null)}>
-                  {translate('cancel')}
-                </ManagerButton>
-                <ManagerButton
-                  primary
-                  busy={action.isPending}
-                  disabled={action.blocked}
-                  onClick={() => {
-                    if (action.blocked) return
-                    delegated.mutate(pending.body)
-                  }}
-                >
-                  {translate('confirm')}
-                </ManagerButton>
-              </div>
+              <ManagerDelegatedPreview
+                body={pending.body}
+                blocked={action.blocked}
+                busy={action.isPending}
+                onCancel={() => setPending(null)}
+                onConfirm={() => {
+                  if (!delegated.blocked) delegated.mutate(pending.body)
+                }}
+              />
             )}
           </div>
         </Dialog>

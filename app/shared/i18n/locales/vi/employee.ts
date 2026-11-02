@@ -1,4 +1,6 @@
+import { employeeRequestExtras } from './employee-request-extras'
 export const employee = {
+  requestExtras: employeeRequestExtras,
   workspace: 'Không gian nhân viên',
   dashboardSummary: {
     title: 'Tổng quan công việc của bạn',
@@ -351,6 +353,10 @@ export const employee = {
   noValue: 'Chưa có thông tin',
   selfService: 'Tài khoản đang trong giai đoạn bàn giao. Chỉ mở thông báo, bàn giao và hồ sơ cá nhân.',
   errors: {
+    serviceBaseline: employeeRequestExtras.errors.baseline,
+    servicePlan: employeeRequestExtras.errors.plan,
+    returnSender: employeeRequestExtras.errors.sender,
+    returnChanged: employeeRequestExtras.errors.changed,
     unavailable: 'Không tải được dữ liệu. Vui lòng thử lại.',
     forbidden: 'Bạn không có quyền thao tác trên dữ liệu này.',
     missing: 'Không tìm thấy dữ liệu trong phạm vi được phép.',

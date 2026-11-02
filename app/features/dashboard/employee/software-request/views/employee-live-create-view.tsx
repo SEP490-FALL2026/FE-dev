@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useRef } from 'react'
 import { FilePlus2 } from 'lucide-react'
 import { EmployeePageHeader } from '../../shared/components/employee-page-header'
 import { EmployeeRequestGuide } from '../components/employee-request-guide'
@@ -18,7 +18,9 @@ import { LiveRequestPreview } from '../components/live-request-preview'
 import { LiveGroupMembers } from '../components/live-group-members'
 import { LiveGroupEligibility } from '../components/live-group-eligibility'
 import { EmployeeCatalogPicker } from '../components/employee-catalog-picker'
-import type { CatalogPlan } from '../components/employee-catalog-plans'
+import { EmployeeCatalogPlanDetails } from '../components/employee-catalog-plan-details'
+import { EmployeeServiceAccountForm } from '../components/employee-service-account-form'
+import { useEmployeeCatalogSelection } from '../hooks/use-employee-catalog-selection'
 import type { EmployeeTabKey } from '../../enums'
 
 export function EmployeeLiveCreateView({
@@ -29,13 +31,15 @@ export function EmployeeLiveCreateView({
   const { t: translate } = useTranslation('employee')
   const [searchParams, setSearchParams] = useSearchParams()
   const value = searchParams.get('mode')
-  const mode: RequestMode =
-    value === 'group' || value === 'proposal' || value === 'renewal' || value === 'return' ? value : 'individual'
+  const mode: RequestMode | 'service' =
+    value === 'group' || value === 'proposal' || value === 'renewal' || value === 'return' || value === 'service'
+      ? value
+      : 'individual'
   return (
     <div className='space-y-6'>
       <EmployeePageHeader title={translate('create')} icon={FilePlus2} />
       <nav aria-label={translate('mode')} className='flex gap-1 overflow-x-auto border-b border-border/60 pb-3'>
-        {(['individual', 'group', 'proposal', 'renewal', 'return'] as const).map((option) => (
+        {(['individual', 'group', 'proposal', 'renewal', 'return', 'service'] as const).map((option) => (
           <button
             key={option}
             type='button'
@@ -43,20 +47,29 @@ export function EmployeeLiveCreateView({
             className={`min-h-11 shrink-0 rounded-md px-4 text-sm font-medium whitespace-nowrap transition-colors ${mode === option ? 'bg-primary-soft text-primary-ink' : 'text-muted-foreground hover:bg-surface-subtle'}`}
             onClick={() => setSearchParams({ tab: 'create-request', mode: option })}
           >
-            {translate(option)}
+            {translate(option === 'service' ? 'requestExtras.serviceAccount.title' : option)}
           </button>
         ))}
       </nav>
       <div className='grid items-start gap-5 2xl:grid-cols-[minmax(0,1fr)_300px]'>
-        <LiveCreateForm
-          key={`${mode}:${searchParams.get('assignmentId') ?? ''}`}
-          mode={mode}
-          assignmentId={searchParams.get('assignmentId') ?? ''}
-          onSelectTab={onSelectTab}
-        />
-        <aside className='hidden min-w-0 2xl:block'>
-          <EmployeeRequestGuide needsPreview={mode === 'individual' || mode === 'group'} group={mode === 'group'} />
-        </aside>
+        {mode === 'service' ? (
+          <EmployeeServiceAccountForm
+            onCreated={(id) => onSelectTab('request-detail', { id })}
+            onDismiss={() => setSearchParams({ tab: 'create-request', mode: 'individual' })}
+          />
+        ) : (
+          <LiveCreateForm
+            key={`${mode}:${searchParams.get('assignmentId') ?? ''}`}
+            mode={mode}
+            assignmentId={searchParams.get('assignmentId') ?? ''}
+            onSelectTab={onSelectTab}
+          />
+        )}
+        {mode !== 'service' && (
+          <aside className='hidden min-w-0 2xl:block'>
+            <EmployeeRequestGuide needsPreview={mode === 'individual' || mode === 'group'} group={mode === 'group'} />
+          </aside>
+        )}
       </div>
     </div>
   )
@@ -73,7 +86,8 @@ function LiveCreateForm({
 }) {
   const { t: translate } = useTranslation('employee')
   const formRef = useRef<HTMLFormElement>(null)
-  const [plan, setPlan] = useState<CatalogPlan | null>(null)
+  const selection = useEmployeeCatalogSelection()
+  const { plan, setPlan } = selection
   const workflow = useLiveRequestForm(
     mode,
     (id, returned) => onSelectTab(returned ? 'return-detail' : 'request-detail', { id }),
@@ -83,7 +97,8 @@ function LiveCreateForm({
   const needsPreview = mode === 'individual' || mode === 'group'
   const preview = workflow.previewResult
   const selectionIncomplete =
-    needsPreview && (!plan || (mode === 'group' && (!workflow.members.length || workflow.members.length > 10)))
+    needsPreview &&
+    (!selection.ready || (mode === 'group' && (!workflow.members.length || workflow.members.length > 10)))
   const onReview = () => {
     if (!selectionIncomplete && formRef.current?.reportValidity())
       workflow.preview.mutate(readRequestFields(formRef.current))
@@ -106,27 +121,25 @@ function LiveCreateForm({
         }}
         onSubmit={(event) => {
           event.preventDefault()
-          if (
-            !busy &&
-            !workflow.feedback.blocked &&
-            !selectionIncomplete &&
-            (!needsPreview || plan?.canSubmit === true)
-          )
+          if (!busy && !workflow.feedback.blocked && !selectionIncomplete && (!needsPreview || selection.canSubmit))
             workflow.submit.mutate({ fields: readRequestFields(event.currentTarget), draft: false })
         }}
       >
         <EmployeeFormErrors fields={workflow.feedback.invalidFields}>
           <fieldset disabled={busy || workflow.feedback.blocked} className='space-y-5'>
             {needsPreview && (
-              <EmployeeCatalogPicker
-                value={plan}
-                onChange={(choice) => {
-                  setPlan(choice)
-                  workflow.clearPreview()
-                }}
-                disabled={busy || workflow.feedback.blocked}
-                invalid={workflow.feedback.invalidFields.includes('planId')}
-              />
+              <>
+                <EmployeeCatalogPicker
+                  value={plan}
+                  onChange={(choice) => {
+                    setPlan(choice)
+                    workflow.clearPreview()
+                  }}
+                  disabled={busy || workflow.feedback.blocked}
+                  invalid={workflow.feedback.invalidFields.includes('planId')}
+                />
+                <EmployeeCatalogPlanDetails selection={selection} />
+              </>
             )}
             <div className='grid gap-5 sm:grid-cols-2'>
               {(mode === 'renewal' || mode === 'return') && (
@@ -252,7 +265,7 @@ function LiveCreateForm({
                   busy ||
                   workflow.feedback.blocked ||
                   selectionIncomplete ||
-                  (needsPreview && (!preview?.canSubmit || plan?.canSubmit !== true))
+                  (needsPreview && (!preview?.canSubmit || !selection.canSubmit))
                 }
               >
                 {workflow.feedback.retrySeconds

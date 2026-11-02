@@ -1,4 +1,6 @@
+import { managerIntegration } from './manager-integration'
 export const manager = {
+  integration: managerIntegration,
   title: 'Department workspace',
   overview: 'Overview',
   team: 'Department members',
@@ -237,6 +239,7 @@ export const manager = {
     notAssigned: 'This step is no longer assigned to you.'
   },
   statuses: {
+    AWAITING_REVOCATION: 'Awaiting revocation',
     ACTIVE: 'Active',
     INACTIVE: 'Inactive',
     TERMINATED: 'Terminated',

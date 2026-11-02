@@ -1,4 +1,4 @@
-import { ArrowRight, Building2, FilePlus2, Landmark, LayoutDashboard, UsersRound } from 'lucide-react'
+import { ArrowRight, FilePlus2, Landmark, LayoutDashboard, UsersRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useId } from 'react'
 import { useDepartmentGet } from '~/shared/api/generated/operations/departments/department-get'
@@ -7,6 +7,7 @@ import { ManagerQueryState, ManagerSection, ManagerStatus } from '../../shared/c
 import { ManagerPageHeader } from '../../shared/components/manager-page-header'
 import { ManagerDepartmentContext } from '../../shared/components/manager-department-context'
 import { ManagerOverviewWork } from '../components/manager-overview-work'
+import { ManagerDashboardSummary } from '../components/manager-dashboard-summary'
 
 type SelectTab = (tab: ManagerTabKey, params?: Record<string, string>) => void
 export function ManagerLiveOverview({
@@ -28,12 +29,6 @@ export function ManagerLiveOverview({
       <section className='manager-overview-hero rounded-lg px-5 py-6 sm:px-7 sm:py-7'>
         <div className='flex flex-wrap items-center justify-between gap-5'>
           <div className='min-w-0'>
-            {departmentName && (
-              <p className='mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-widest opacity-75'>
-                <Building2 aria-hidden strokeWidth={1.5} className='size-4' />
-                {departmentName}
-              </p>
-            )}
             <h2 className='text-xl font-semibold tracking-tight [text-wrap:balance] sm:text-2xl'>
               {translate('greeting', { name })}
             </h2>
@@ -49,20 +44,13 @@ export function ManagerLiveOverview({
           </button>
         </div>
       </section>
+      <ManagerDashboardSummary onSelectTab={onSelectTab} />
       <ManagerOverviewWork onSelectTab={onSelectTab} />
       <div className='grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(280px,0.8fr)]'>
         <ManagerSection title={translate('quickActions')}>
           <div className='divide-y divide-border/50'>
             {(
               [
-                {
-                  key: 'create',
-                  title: 'quickCreate',
-                  hint: 'quickCreateHint',
-                  icon: FilePlus2,
-                  tab: 'create-employee-request',
-                  params: { scope: 'individual' }
-                },
                 { key: 'budget', title: 'quickBudget', hint: 'quickBudgetHint', icon: Landmark, tab: 'annual-budget' },
                 { key: 'team', title: 'quickPersonnel', hint: 'quickPersonnelHint', icon: UsersRound, tab: 'my-team' }
               ] as const
@@ -73,7 +61,7 @@ export function ManagerLiveOverview({
                 aria-label={translate(item.title)}
                 aria-describedby={`${actionId}-${item.key}`}
                 className='group flex w-full items-start gap-3 rounded-md px-2 py-4 text-left transition-colors hover:bg-surface-subtle'
-                onClick={() => onSelectTab(item.tab, 'params' in item ? item.params : undefined)}
+                onClick={() => onSelectTab(item.tab)}
               >
                 <item.icon aria-hidden strokeWidth={1.5} className='mt-0.5 size-5 shrink-0 text-primary-ink' />
                 <span className='min-w-0 flex-1'>
@@ -96,7 +84,7 @@ export function ManagerLiveOverview({
         </ManagerSection>
         <div className='space-y-4'>
           {departmentId && <DepartmentOverview id={departmentId} />}
-          <ManagerDepartmentContext name={departmentName} />
+          <ManagerDepartmentContext name={departmentId ? undefined : departmentName} />
         </div>
       </div>
     </div>

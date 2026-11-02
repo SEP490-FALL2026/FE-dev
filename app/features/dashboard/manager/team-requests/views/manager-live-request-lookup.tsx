@@ -9,6 +9,7 @@ import { ManagerPageHeader } from '../../shared/components/manager-page-header'
 import { ManagerDataTable } from '../../shared/components/manager-data-table'
 import { ManagerSearchToolbar } from '../../shared/components/manager-search-toolbar'
 import { isResourceId } from '../../shared/manager-identifiers'
+import { ManagerNeedQueue } from '../components/manager-need-queue'
 
 export function ManagerRequestLookup({ history, onOpen }: { history?: boolean; onOpen: (id: string) => void }) {
   const { t: translate } = useTranslation('manager')
@@ -40,62 +41,66 @@ export function ManagerRequestLookup({ history, onOpen }: { history?: boolean; o
         label={translate('requestLookup')}
         placeholder={translate('requestSearchPlaceholder')}
       />
-      <ManagerSection title={title}>
-        <ManagerDataTable
-          label={title}
-          items={rows}
-          rowKey={(item) => item.id}
-          emptyState={empty}
-          columns={[
-            {
-              key: 'application',
-              label: translate('application'),
-              render: (item) => (
-                <div>
-                  <p
-                    className='max-w-64 truncate font-medium'
-                    title={item.plan?.applicationName ?? item.proposal?.softwareName ?? ''}
-                  >
-                    {item.plan?.applicationName ?? item.proposal?.softwareName}
+      {!search && !history ? (
+        <ManagerNeedQueue onOpen={onOpen} />
+      ) : (
+        <ManagerSection title={title}>
+          <ManagerDataTable
+            label={title}
+            items={rows}
+            rowKey={(item) => item.id}
+            emptyState={empty}
+            columns={[
+              {
+                key: 'application',
+                label: translate('application'),
+                render: (item) => (
+                  <div>
+                    <p
+                      className='max-w-64 truncate font-medium'
+                      title={item.plan?.applicationName ?? item.proposal?.softwareName ?? ''}
+                    >
+                      {item.plan?.applicationName ?? item.proposal?.softwareName}
+                    </p>
+                    <p className='mt-1 truncate font-mono text-xs text-muted-foreground' title={item.id}>
+                      {item.id}
+                    </p>
+                  </div>
+                )
+              },
+              {
+                key: 'employee',
+                label: translate('employee'),
+                render: (item) => (
+                  <p className='max-w-56 truncate' title={item.requester.fullName}>
+                    {item.requester.fullName}
                   </p>
-                  <p className='mt-1 truncate font-mono text-xs text-muted-foreground' title={item.id}>
-                    {item.id}
-                  </p>
-                </div>
-              )
-            },
-            {
-              key: 'employee',
-              label: translate('employee'),
-              render: (item) => (
-                <p className='max-w-56 truncate' title={item.requester.fullName}>
-                  {item.requester.fullName}
-                </p>
-              )
-            },
-            { key: 'status', label: translate('status'), render: (item) => <ManagerStatus value={item.state} /> },
-            {
-              key: 'submitted',
-              label: translate('submittedAt'),
-              align: 'right',
-              render: (item) => formatDateTime(item.submittedAt)
-            }
-          ]}
-          onOpen={(item) => onOpen(item.id)}
-        />
-        <nav
-          aria-label={translate('pagination')}
-          className='flex flex-wrap items-center justify-between gap-3 border-t border-border/50 pt-4'
-        >
-          <p className='text-sm text-muted-foreground'>
-            {rows.length ? translate('tableTotal', { count: rows.length }) : translate('needQueuePaginationGap')}
-          </p>
-          <div className='flex gap-2'>
-            <ManagerButton disabled>{translate('previous')}</ManagerButton>
-            <ManagerButton disabled>{translate('next')}</ManagerButton>
-          </div>
-        </nav>
-      </ManagerSection>
+                )
+              },
+              { key: 'status', label: translate('status'), render: (item) => <ManagerStatus value={item.state} /> },
+              {
+                key: 'submitted',
+                label: translate('submittedAt'),
+                align: 'right',
+                render: (item) => formatDateTime(item.submittedAt)
+              }
+            ]}
+            onOpen={(item) => onOpen(item.id)}
+          />
+          <nav
+            aria-label={translate('pagination')}
+            className='flex flex-wrap items-center justify-between gap-3 border-t border-border/50 pt-4'
+          >
+            <p className='text-sm text-muted-foreground'>
+              {rows.length ? translate('tableTotal', { count: rows.length }) : translate('needQueuePaginationGap')}
+            </p>
+            <div className='flex gap-2'>
+              <ManagerButton disabled>{translate('previous')}</ManagerButton>
+              <ManagerButton disabled>{translate('next')}</ManagerButton>
+            </div>
+          </nav>
+        </ManagerSection>
+      )}
     </div>
   )
 }

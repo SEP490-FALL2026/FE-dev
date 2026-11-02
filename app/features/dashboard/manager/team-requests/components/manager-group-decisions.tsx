@@ -1,3 +1,6 @@
+import { getAccessRequestTimingsGetQueryKey } from '~/shared/api/generated/operations/access-requests/access-request-timings-get'
+import { getNeedDecisionListQueryKey } from '~/shared/api/generated/operations/need-decisions/need-decision-list'
+import { getManagerDashboardGetQueryKey } from '~/shared/api/generated/operations/dashboards/manager-dashboard-get'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { LineNeedDecisionBodyDto } from '~/shared/api/generated/model/group-requests/lineNeedDecisionBodyDto'
@@ -27,12 +30,14 @@ export function ManagerGroupDecisions({
   id,
   employeeId,
   hasSpend,
-  requestPending
+  requestPending,
+  termRequired = false
 }: {
   id: string
   employeeId: string
   hasSpend: boolean
   requestPending: boolean
+  termRequired?: boolean
 }) {
   const { t: translate } = useTranslation('manager')
   // Group creation is capped at ten; still refuse a partial response if that contract changes.
@@ -49,7 +54,14 @@ export function ManagerGroupDecisions({
   const [rejected, setRejected] = useState<string[]>([])
   const action = useManagerAction({
     mutationFn: (body: LineNeedDecisionBodyDto) => accessRequestLineNeedDecide(id, body),
-    invalidate: [getAccessRequestLineListQueryKey(id), getAccessRequestGetQueryKey(id), getSpendQueueListQueryKey()],
+    invalidate: [
+      getAccessRequestLineListQueryKey(id),
+      getAccessRequestGetQueryKey(id),
+      getAccessRequestTimingsGetQueryKey(id),
+      getSpendQueueListQueryKey(),
+      getNeedDecisionListQueryKey(),
+      getManagerDashboardGetQueryKey()
+    ],
     onSuccess: () => setConfirmation(null)
   })
   return (
@@ -127,7 +139,12 @@ export function ManagerGroupDecisions({
             {!!pending.length && requestPending && (
               <>
                 <ManagerField label={translate('termConfirmation')}>
-                  <textarea name='termConfirmation' maxLength={1000} className={managerInputClass} />
+                  <textarea
+                    name='termConfirmation'
+                    required={termRequired && pending.some((line) => !rejected.includes(line.employee.employeeId))}
+                    maxLength={1000}
+                    className={managerInputClass}
+                  />
                 </ManagerField>
                 {hasSpend && pending.some((line) => !rejected.includes(line.employee.employeeId)) && (
                   <ManagerPlanAllocation id={id} />

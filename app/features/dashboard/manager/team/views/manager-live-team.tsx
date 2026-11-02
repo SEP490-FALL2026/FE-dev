@@ -1,4 +1,7 @@
 import { Boxes, UsersRound } from 'lucide-react'
+import { useState } from 'react'
+import type { DepartmentToolsResponseDtoDataItemsItem } from '~/shared/api/generated/model/departments/departmentToolsResponseDtoDataItemsItem'
+import { ManagerReturnForm } from '../components/manager-return-form'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import { useDepartmentGet } from '~/shared/api/generated/operations/departments/department-get'
@@ -26,11 +29,13 @@ import {
 export function ManagerLiveTeam({
   departmentId,
   tools = false,
-  embedded = false
+  embedded = false,
+  onReturnCreated
 }: {
   departmentId?: string
   tools?: boolean
   embedded?: boolean
+  onReturnCreated?: (id: string) => void
 }) {
   const { t: translate } = useTranslation('manager')
   const paging = useManagerPage()
@@ -67,7 +72,7 @@ export function ManagerLiveTeam({
         !department.isError &&
         department.data?.data &&
         (tools ? (
-          <Tools departmentId={departmentId ?? ''} paging={paging} />
+          <Tools departmentId={departmentId ?? ''} paging={paging} onReturnCreated={onReturnCreated} />
         ) : (
           <Members departmentId={departmentId ?? ''} paging={paging} />
         ))}
@@ -97,16 +102,14 @@ function Members({ departmentId, paging }: { departmentId: string; paging: Retur
         : undefined
       : paged.data?.data
   return (
-    <ManagerSection
-      title={translate('team')}
-      action={
-        data && (
+    <ManagerSection>
+      {data && (
+        <div className='flex justify-end'>
           <span className='font-mono text-xs text-muted-foreground tabular-nums'>
             {translate('tableTotal', { count: data.pagination.totalItems })}
           </span>
-        )
-      }
-    >
+        </div>
+      )}
       <ManagerQueryState
         query={query}
         empty={!data?.items.length}
@@ -151,7 +154,16 @@ function Members({ departmentId, paging }: { departmentId: string; paging: Retur
     </ManagerSection>
   )
 }
-function Tools({ departmentId, paging }: { departmentId: string; paging: ReturnType<typeof useManagerPage> }) {
+function Tools({
+  departmentId,
+  paging,
+  onReturnCreated
+}: {
+  departmentId: string
+  paging: ReturnType<typeof useManagerPage>
+  onReturnCreated?: (id: string) => void
+}) {
+  const [returning, setReturning] = useState<DepartmentToolsResponseDtoDataItemsItem | null>(null)
   const { t: translate } = useTranslation('manager')
   const { formatDate } = useDashboardFormat()
   const [params] = useSearchParams()
@@ -188,6 +200,7 @@ function Tools({ departmentId, paging }: { departmentId: string; paging: ReturnT
         label={translate('tools')}
         items={data?.items ?? []}
         rowKey={(assignment) => assignment.assignmentId}
+        onOpen={setReturning}
         columns={[
           {
             key: 'application',
@@ -220,6 +233,14 @@ function Tools({ departmentId, paging }: { departmentId: string; paging: ReturnT
         ]}
       />
       <ManagerPagination pagination={data?.pagination} onPage={paging.onPage} busy={query.isFetching} />
+      {returning && (
+        <ManagerReturnForm
+          assignment={returning}
+          departmentId={departmentId}
+          onClose={() => setReturning(null)}
+          onCreated={onReturnCreated}
+        />
+      )}
     </ManagerSection>
   )
 }

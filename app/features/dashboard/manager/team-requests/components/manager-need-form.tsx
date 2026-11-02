@@ -1,3 +1,6 @@
+import { getAccessRequestTimingsGetQueryKey } from '~/shared/api/generated/operations/access-requests/access-request-timings-get'
+import { getNeedDecisionListQueryKey } from '~/shared/api/generated/operations/need-decisions/need-decision-list'
+import { getManagerDashboardGetQueryKey } from '~/shared/api/generated/operations/dashboards/manager-dashboard-get'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { NeedDecisionBodyDto } from '~/shared/api/generated/model/access-requests/needDecisionBodyDto'
@@ -16,13 +19,27 @@ import {
 import { NEED_DECISION } from '../enums/need-decision'
 import { allocationFromForm, ManagerPlanAllocation } from './manager-plan-allocation'
 
-export function ManagerNeedForm({ id, hasSpend }: { id: string; hasSpend: boolean }) {
+export function ManagerNeedForm({
+  id,
+  hasSpend,
+  termRequired = false
+}: {
+  id: string
+  hasSpend: boolean
+  termRequired?: boolean
+}) {
   const { t: translate } = useTranslation('manager')
   const [decision, setDecision] = useState<NeedDecisionBodyDto['decision']>(NEED_DECISION.APPROVE)
   const [confirmation, setConfirmation] = useState<NeedDecisionBodyDto | null>(null)
   const action = useManagerAction({
     mutationFn: (body: NeedDecisionBodyDto) => accessRequestNeedDecide(id, body),
-    invalidate: [getAccessRequestGetQueryKey(id), getSpendQueueListQueryKey()],
+    invalidate: [
+      getAccessRequestGetQueryKey(id),
+      getAccessRequestTimingsGetQueryKey(id),
+      getSpendQueueListQueryKey(),
+      getNeedDecisionListQueryKey(),
+      getManagerDashboardGetQueryKey()
+    ],
     onSuccess: () => setConfirmation(null)
   })
   return (
@@ -63,7 +80,12 @@ export function ManagerNeedForm({ id, hasSpend }: { id: string; hasSpend: boolea
           {decision === NEED_DECISION.APPROVE && (
             <>
               <ManagerField label={translate('termConfirmation')}>
-                <textarea className={managerInputClass} name='termConfirmation' maxLength={1000} />
+                <textarea
+                  className={managerInputClass}
+                  name='termConfirmation'
+                  required={termRequired}
+                  maxLength={1000}
+                />
               </ManagerField>
               {hasSpend && <ManagerPlanAllocation id={id} />}
             </>

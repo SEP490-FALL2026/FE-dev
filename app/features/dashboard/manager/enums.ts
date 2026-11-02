@@ -3,6 +3,7 @@ export const MANAGER_TAB_KEYS = [
   'my-team',
   'employee-detail',
   'team-software',
+  'return-detail',
   'team-requests',
   'my-requests',
   'request-approval',

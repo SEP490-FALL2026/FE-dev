@@ -16,6 +16,7 @@ import { ManagerRequestLookup } from './team-requests/views/manager-live-request
 import { ManagerLiveTeam } from './team/views/manager-live-team'
 
 const server = setupServer(
+  http.get('*/api/v1/need-decisions', () => page([], 1, 0, 20)),
   http.get('*/api/v1/departments/:id', () =>
     HttpResponse.json({ success: true, data: { id: employeeId, name: 'Engineering' } })
   )
@@ -79,7 +80,7 @@ function search(name: string, value: string) {
 }
 
 describe('Manager searchable lists', () => {
-  it('keeps the NEED list explicit about the missing backend API and searches a real request before opening it', async () => {
+  it('loads the NEED list and searches a real request before opening it', async () => {
     const opened = vi.fn()
     const read = vi.fn()
     server.use(
@@ -90,10 +91,8 @@ describe('Manager searchable lists', () => {
     )
     mount(<ManagerRequestLookup onOpen={opened} />)
     expect(screen.getByRole('table', { name: 'Requests awaiting need approval' })).toBeInTheDocument()
-    expect(screen.getByText('The request queue API is not available yet')).toBeInTheDocument()
+    expect(await screen.findByText('No requests awaiting your decision')).toBeInTheDocument()
     expect(screen.queryByText('Need approval process')).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled()
-    expect(screen.getByRole('button', { name: 'Previous' })).toBeDisabled()
     expect(read).not.toHaveBeenCalled()
 
     search('Request ID', 'partial-id')
@@ -107,7 +106,7 @@ describe('Manager searchable lists', () => {
     fireEvent.click(within(table).getByRole('button', { name: 'Open' }))
     expect(opened).toHaveBeenCalledWith(requestId)
     fireEvent.click(screen.getByRole('button', { name: 'Clear' }))
-    expect(screen.getByText('The request queue API is not available yet')).toBeInTheDocument()
+    expect(await screen.findByText('No requests awaiting your decision')).toBeInTheDocument()
     expect(screen.queryByText('Test Software')).not.toBeInTheDocument()
   })
 
@@ -167,7 +166,6 @@ describe('Manager searchable lists', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Next' }))
     expect(await screen.findByText('Employee 120')).toBeInTheDocument()
     expect(screen.getAllByText('Figma')).toHaveLength(1)
-    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled()
     search('Search assigned tools', 'assignment-120')
     expect(await screen.findByText('Employee 120')).toBeInTheDocument()
     expect(screen.queryByText('Employee 100')).not.toBeInTheDocument()

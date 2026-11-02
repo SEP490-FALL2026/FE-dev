@@ -32,7 +32,7 @@ export function useEmployeeFeedback(queryKeys: readonly QueryKey[]) {
     if (key === 'unknownOutcome') setUnknownOutcome(true)
     if (key === 'rateLimit') setRetrySeconds(failure.retryAfter)
     else if (writing) await invalidate()
-    if (key === 'forbidden')
+    if (failure.status === 403)
       await queryClient
         .fetchQuery({ ...getMeGetQueryOptions(), staleTime: 0, retry: false, networkMode: 'always' })
         .catch(() => undefined)

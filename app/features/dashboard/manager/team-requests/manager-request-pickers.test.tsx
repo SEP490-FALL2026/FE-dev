@@ -1,3 +1,5 @@
+import { managerCatalogHandlers, managerReadHandlers } from '../../../../../test/fixtures/manager-integration'
+import { chooseCatalogPlan } from '../../../../../test/fixtures/employee-catalog'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
@@ -14,7 +16,7 @@ import { ManagerLiveCreate } from './views/manager-live-create'
 
 const first = { employeeId, fullName: 'Alex Nguyen', workEmail: 'alex.nguyen@example.test' }
 const second = { employeeId: requestId, fullName: 'Alex Nguyen', workEmail: 'alex.design@example.test' }
-const server = setupServer()
+const server = setupServer(...managerCatalogHandlers, ...managerReadHandlers)
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
@@ -101,7 +103,7 @@ describe('Manager request dropdowns', () => {
     expect(screen.getByRole('option', { name: /alex.design@example.test/ })).not.toBeDisabled()
   })
 
-  it('shows the catalog API gap without ID inputs or privileged directory requests', async () => {
+  it('loads the catalog without ID inputs or privileged directory requests', async () => {
     const privileged = vi.fn()
     server.use(
       http.get('*/api/v1/plans', () => {
@@ -116,12 +118,11 @@ describe('Manager request dropdowns', () => {
     mount(<ManagerLiveCreate group onOpen={vi.fn()} />)
     expect(screen.queryByLabelText('Plan ID')).not.toBeInTheDocument()
     expect(screen.queryByLabelText('Beneficiary employee IDs (one per line)')).not.toBeInTheDocument()
-    expect(screen.getAllByRole('combobox')).toHaveLength(2)
-    fireEvent.click(screen.getByRole('combobox', { name: 'Plan' }))
-    expect(
-      screen.getByText('The backend needs to provide a plan catalog for Manager. No plan has been shared in this link.')
-    ).toBeInTheDocument()
-    expect(screen.queryByRole('option')).not.toBeInTheDocument()
+    expect(screen.getAllByRole('combobox')).toHaveLength(3)
+    expect(screen.getByRole('combobox', { name: 'Software plan' })).toBeDisabled()
+    await chooseCatalogPlan()
+    await screen.findByText('Sharing not allowed')
+    expect(await screen.findByText('Sharing not allowed')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Submit' })).toBeDisabled()
     expect(privileged).not.toHaveBeenCalled()
   })
@@ -149,12 +150,9 @@ describe('Manager request dropdowns', () => {
         return HttpResponse.json({ success: true, data: { request: managerRequest } }, { status: 201 })
       })
     )
-    mount(
-      <ManagerLiveCreate group onOpen={vi.fn()} />,
-      `/dashboard/manager?planId=${planId}&planName=Standard&applicationName=Test%20Software`
-    )
-    fireEvent.click(screen.getByRole('combobox', { name: 'Plan' }))
-    fireEvent.click(screen.getByRole('option', { name: /Standard/ }))
+    mount(<ManagerLiveCreate group onOpen={vi.fn()} />, '/dashboard/manager')
+    await chooseCatalogPlan()
+    await screen.findByText('Sharing not allowed')
     fireEvent.click(screen.getByRole('combobox', { name: 'Beneficiaries' }))
     fireEvent.click(await screen.findByRole('option', { name: /alex.nguyen@example.test/ }))
     fireEvent.click(screen.getByRole('option', { name: /alex.design@example.test/ }))

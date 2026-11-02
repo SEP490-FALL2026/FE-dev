@@ -3,15 +3,18 @@ import { useTranslation } from 'react-i18next'
 import type { GroupBodyDto } from '~/shared/api/generated/model/group-requests/groupBodyDto'
 import { groupRequestCheck } from '~/shared/api/generated/operations/group-requests/group-request-check'
 import { ManagerButton, ManagerMoney, ManagerQueryState } from '../../shared/components/manager-api-ui'
+import type { ManagerChoice } from '../../shared/components/manager-choice-select'
 
 export function ManagerGroupConfirmation({
   body,
+  people,
   blocked,
   busy,
   onConfirm,
   onCancel
 }: {
   body: GroupBodyDto
+  people: readonly ManagerChoice[]
   blocked: boolean
   busy: boolean
   onConfirm: () => void
@@ -30,6 +33,15 @@ export function ManagerGroupConfirmation({
     !check.tooManyLines &&
     check.lines.length === body.lines.length &&
     check.lines.every((line) => line.ok === true && body.lines.some((person) => person.employeeId === line.employeeId))
+  const failures = new Map<string | null, ManagerChoice[]>()
+  for (const line of check?.lines ?? []) {
+    if (line.ok) continue
+    const person = people.find((choice) => choice.value === line.employeeId) ?? {
+      value: line.employeeId,
+      label: line.employeeId
+    }
+    failures.set(line.reason, [...(failures.get(line.reason) ?? []), person])
+  }
   return (
     <div className='space-y-4'>
       <ManagerQueryState query={query} />
@@ -43,15 +55,23 @@ export function ManagerGroupConfirmation({
               })}
             </p>
           )}
-          {check.lines
-            .filter((line) => !line.ok)
-            .map((line) => (
-              <p key={line.employeeId} className='text-sm text-warning'>
-                {employeeTranslate(`eligibility.${line.reason}` as 'eligibility.END_DATE_REQUIRED', {
+          {Array.from(failures, ([reason, affected]) => (
+            <div key={reason ?? 'unknown'} className='space-y-2 border-l border-warning/40 pl-3 text-sm'>
+              <p className='text-warning-ink'>
+                {employeeTranslate(`eligibility.${reason}` as 'eligibility.END_DATE_REQUIRED', {
                   defaultValue: translate('validation')
                 })}
               </p>
-            ))}
+              <ul className='space-y-1'>
+                {affected.map((person) => (
+                  <li key={person.value} className='break-words'>
+                    {person.label}
+                    {person.description && <span className='ml-2 text-muted-foreground'>{person.description}</span>}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </>
       )}
       <div className='flex justify-end gap-3'>
