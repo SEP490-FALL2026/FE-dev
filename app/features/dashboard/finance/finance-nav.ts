@@ -1,175 +1,93 @@
 import {
-  AppWindow,
-  BookCheck,
   Building2,
   CalendarRange,
   ClipboardCheck,
-  ClipboardList,
   FileInput,
-  FileSpreadsheet,
   FileText,
   Grid2X2,
   Handshake,
   Landmark,
-  LayoutList,
   LineChart,
   MessageSquareText,
-  PieChart,
-  PiggyBank,
   ReceiptText,
-  ScrollText,
-  ShieldAlert,
-  SquareSplitHorizontal,
-  TriangleAlert,
-  Wallet
+  Wallet,
+  Coins,
+  Store
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-
 import { FINANCE_TAB_KEYS, type FinanceTabKey } from './enums'
 export { FINANCE_TAB_KEYS, type FinanceTabKey }
 
+export type FinanceAreaKey = 'budget' | 'close' | 'overview' | 'planning' | 'spend'
 export type FinanceTranslationKey =
-  | 'annualProposals'
-  | 'budgetAllocation'
-  | 'budgetCheck'
-  | 'budgetExceptions'
-  | 'budgetNegotiation'
-  | 'budgetPeriods'
-  | 'budgetQuestions'
-  | 'budgets'
-  | 'chargeExceptions'
-  | 'commitments'
-  | 'costAnalysis'
-  | 'costForecast'
-  | 'costOptimization'
-  | 'decisionHistory'
-  | 'departmentBudget'
-  | 'departmentSummary'
   | 'overview'
+  | 'costCenters'
+  | 'budgets'
+  | 'reviews'
+  | 'commitments'
+  | 'questions'
+  | 'proposals'
+  | 'versions'
+  | 'catalog'
+  | 'exchangeRates'
+  | 'vendorTax'
   | 'periodClose'
   | 'periodReport'
-  | 'saasCost'
-  | 'spendImport'
-
 export interface FinanceTab {
-  badge?: number
-  icon: LucideIcon
   key: FinanceTabKey
-  screenCode: string
+  icon: LucideIcon
   translationKey: FinanceTranslationKey
 }
-
-export type FinanceAreaKey = 'budget' | 'close' | 'overview' | 'planning' | 'spend'
-
 export interface FinanceArea {
   icon: LucideIcon
   key: FinanceAreaKey
   tabs: readonly FinanceTab[]
 }
 
-/**
- * The sidebar shows five areas; opening one expands every screen of that area under it. The URL keeps the screen
- * key (`tab=…`), so links between screens keep working and the area follows from the screen.
- */
 export const financeAreas: readonly FinanceArea[] = [
+  { key: 'overview', icon: Grid2X2, tabs: [{ key: 'overview', icon: Grid2X2, translationKey: 'overview' }] },
   {
-    tabs: [{ icon: Grid2X2, key: 'overview', screenCode: 'FIN-01', translationKey: 'overview' }],
-    icon: Grid2X2,
-    key: 'overview'
-  },
-  {
-    tabs: [
-      { icon: Building2, key: 'department-budget', screenCode: 'FIN-09', translationKey: 'departmentBudget' },
-      { badge: 1, icon: Wallet, key: 'budgets', screenCode: 'FIN-06', translationKey: 'budgets' },
-      {
-        icon: SquareSplitHorizontal,
-        key: 'budget-allocation',
-        screenCode: 'FIN-45',
-        translationKey: 'budgetAllocation'
-      },
-      { icon: ClipboardCheck, key: 'budget-check', screenCode: 'FIN-08', translationKey: 'budgetCheck' },
-      { badge: 3, icon: BookCheck, key: 'commitments', screenCode: 'FIN-20', translationKey: 'commitments' },
-      {
-        badge: 2,
-        icon: MessageSquareText,
-        key: 'budget-questions',
-        screenCode: 'FIN-05',
-        translationKey: 'budgetQuestions'
-      },
-      {
-        badge: 3,
-        icon: ShieldAlert,
-        key: 'budget-exceptions',
-        screenCode: 'FIN-44',
-        translationKey: 'budgetExceptions'
-      },
-      { icon: CalendarRange, key: 'budget-periods', screenCode: 'FIN-43', translationKey: 'budgetPeriods' },
-      { icon: ScrollText, key: 'decision-history', screenCode: 'FIN-47', translationKey: 'decisionHistory' },
-      { icon: LayoutList, key: 'department-summary', screenCode: 'FIN-42', translationKey: 'departmentSummary' }
-    ],
+    key: 'budget',
     icon: Landmark,
-    key: 'budget'
+    tabs: [
+      { key: 'cost-centers', icon: Building2, translationKey: 'costCenters' },
+      { key: 'budgets', icon: Wallet, translationKey: 'budgets' },
+      { key: 'budget-check', icon: ClipboardCheck, translationKey: 'reviews' },
+      { key: 'commitments', icon: Handshake, translationKey: 'commitments' },
+      { key: 'budget-questions', icon: MessageSquareText, translationKey: 'questions' }
+    ]
   },
   {
-    tabs: [
-      {
-        badge: 2,
-        icon: FileInput,
-        key: 'annual-proposals',
-        screenCode: 'FIN-40',
-        translationKey: 'annualProposals'
-      },
-      { icon: Handshake, key: 'budget-negotiation', screenCode: 'FIN-41', translationKey: 'budgetNegotiation' },
-      { icon: LineChart, key: 'cost-forecast', screenCode: 'FIN-33', translationKey: 'costForecast' },
-      {
-        badge: 3,
-        icon: PiggyBank,
-        key: 'cost-optimization',
-        screenCode: 'FIN-35',
-        translationKey: 'costOptimization'
-      }
-    ],
+    key: 'planning',
     icon: LineChart,
-    key: 'planning'
+    tabs: [
+      { key: 'annual-proposals', icon: FileInput, translationKey: 'proposals' },
+      { key: 'budget-negotiation', icon: CalendarRange, translationKey: 'versions' }
+    ]
   },
   {
-    tabs: [
-      { icon: AppWindow, key: 'saas-cost', screenCode: 'FIN-46', translationKey: 'saasCost' },
-      { icon: FileSpreadsheet, key: 'spend-import', screenCode: 'FIN-04', translationKey: 'spendImport' },
-      {
-        badge: 3,
-        icon: TriangleAlert,
-        key: 'charge-exceptions',
-        screenCode: 'FIN-07',
-        translationKey: 'chargeExceptions'
-      }
-    ],
+    key: 'spend',
     icon: ReceiptText,
-    key: 'spend'
+    tabs: [
+      { key: 'saas-cost', icon: Store, translationKey: 'catalog' },
+      { key: 'exchange-rates', icon: Coins, translationKey: 'exchangeRates' },
+      { key: 'vendor-tax', icon: ReceiptText, translationKey: 'vendorTax' }
+    ]
   },
   {
+    key: 'close',
+    icon: FileText,
     tabs: [
-      { icon: ClipboardList, key: 'period-close', screenCode: 'FIN-30', translationKey: 'periodClose' },
-      { icon: PieChart, key: 'cost-analysis', screenCode: 'FIN-32', translationKey: 'costAnalysis' },
-      { icon: FileText, key: 'period-report', screenCode: 'FIN-34', translationKey: 'periodReport' }
-    ],
-    icon: ClipboardList,
-    key: 'close'
+      { key: 'period-close', icon: CalendarRange, translationKey: 'periodClose' },
+      { key: 'period-report', icon: FileText, translationKey: 'periodReport' }
+    ]
   }
 ]
 
 export const areaTabs = (area: FinanceArea) => area.tabs
-
 export function financeAreaOf(tab: FinanceTabKey): FinanceArea {
-  return financeAreas.find((area) => areaTabs(area).some((item) => item.key === tab)) ?? financeAreas[0]
+  return financeAreas.find((area) => area.tabs.some((item) => item.key === tab)) ?? financeAreas[0]
 }
-
-/** The sidebar badge of an area adds up the badges of its screens. */
-export function areaBadge(area: FinanceArea) {
-  const total = areaTabs(area).reduce((sum, item) => sum + (item.badge ?? 0), 0)
-  return total > 0 ? total : undefined
-}
-
 export function isValidFinanceTab(value: string | null): value is FinanceTabKey {
   return value !== null && (FINANCE_TAB_KEYS as readonly string[]).includes(value)
 }

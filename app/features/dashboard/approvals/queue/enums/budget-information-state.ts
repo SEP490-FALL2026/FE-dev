@@ -1,0 +1,1 @@
+export { ApprovalDetailResponseDtoDataSpendApprovalLatestBudgetInformationState as BUDGET_INFORMATION_STATE } from '~/shared/api/generated/model/approvalDetailResponseDtoDataSpendApprovalLatestBudgetInformationState'

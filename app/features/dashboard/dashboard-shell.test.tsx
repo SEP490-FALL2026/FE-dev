@@ -21,7 +21,16 @@ const server = setupServer(
       data: { items: [], pagination: { page: 1, pageSize: 20, totalItems: 0, totalPages: 0 } }
     })
   ),
-  ...['provisioning-tasks', 'saas-issues', 'offboarding-cases'].map((path) =>
+  ...[
+    'provisioning-tasks',
+    'saas-issues',
+    'offboarding-cases',
+    'budget-proposals',
+    'budget-versions',
+    'finance-reviews',
+    'budget-information-requests',
+    'budgets'
+  ].map((path) =>
     http.get(`*/api/v1/${path}`, () =>
       HttpResponse.json({
         success: true,

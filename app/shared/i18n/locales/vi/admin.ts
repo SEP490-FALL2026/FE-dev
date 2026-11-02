@@ -74,6 +74,7 @@ export const admin = {
     ineligible: 'Nhân sự chưa đủ điều kiện nhận trách nhiệm đã chọn.'
   },
   overview: {
+    unknownStep: 'Bước thiết lập chưa xác định',
     redesign: overviewRedesign,
     stepNames: {
       1: 'Tổ chức và nhân sự',

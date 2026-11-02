@@ -21,7 +21,18 @@ const server = setupServer(
       data: { items: [], pagination: { page: 1, pageSize: 20, totalItems: 0, totalPages: 0 } }
     })
   ),
-  ...['provisioning-tasks', 'saas-issues', 'offboarding-cases'].map((path) =>
+  ...[
+    'provisioning-tasks',
+    'saas-issues',
+    'offboarding-cases',
+    'budget-proposals',
+    'budget-versions',
+    'finance-reviews',
+    'budget-information-requests',
+    'budgets',
+    'spend-approvals',
+    'notifications'
+  ].map((path) =>
     http.get(`*/api/v1/${path}`, () =>
       HttpResponse.json({
         success: true,
@@ -86,205 +97,53 @@ describe('DashboardPage', () => {
     expect(screen.queryByText('Minh Anh')).not.toBeInTheDocument()
   })
 
-  it('renders the finance dashboard and navigates the UF-11/12/19 screens', () => {
-    const view = renderDashboard('finance')
+  it('navigates Finance API workspaces and identifies unavailable reporting', () => {
+    renderDashboard('finance')
+    expect(screen.getByRole('heading', { level: 1, name: 'Tổng quan tài chính' })).toBeInTheDocument()
     const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
-
-    expect(screen.getByRole('heading', { level: 1, name: 'Bảng điều khiển Tài chính' })).toBeInTheDocument()
-    expect(screen.getByTestId('dashboard-role')).toHaveTextContent('Tài chính')
-
-    // Five areas like the IT Admin menu: the overview is a direct link, the others expand in place.
-    const areaButtons = within(nav).getAllByRole('button', { expanded: false })
-    expect(areaButtons.map((button) => button.textContent?.replace(/\d+$/, ''))).toEqual([
-      'Trung tâm chi phí & Ngân sách',
-      'Lập kế hoạch & Dự trù',
-      'Chi phí & Đối soát',
-      'Đóng kỳ & Báo cáo'
-    ])
-    expect(within(nav).getByRole('button', { current: 'page' })).toHaveTextContent('Tổng quan')
-
-    const budgetArea = within(nav).getByRole('button', { name: /Trung tâm chi phí & Ngân sách/ })
-    expect(within(nav).queryByRole('button', { name: /Theo phòng ban/ })).not.toBeInTheDocument()
-    fireEvent.click(budgetArea)
-    expect(budgetArea).toHaveAttribute('aria-expanded', 'true')
-
-    const questionsBtn = within(nav).getByRole('button', { name: /Yêu cầu ngân sách/ })
-    fireEvent.click(questionsBtn)
-    expect(questionsBtn).toHaveClass('bg-primary')
-    expect(
-      screen.getByRole('heading', { level: 1, name: 'Yêu cầu thông tin ngân sách từ Người duyệt chi' })
-    ).toBeInTheDocument()
-
-    const commitmentsBtn = within(nav).getByRole('button', { name: /Cam kết chi/ })
-    fireEvent.click(commitmentsBtn)
-    expect(commitmentsBtn).toHaveClass('bg-primary')
-    expect(questionsBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByRole('heading', { level: 1, name: 'Khoản cam kết chờ ghi nhận' })).toBeInTheDocument()
-
-    fireEvent.click(within(nav).getByRole('button', { name: /Đóng kỳ & Báo cáo/ }))
+    fireEvent.click(within(nav).getByRole('button', { name: 'Trung tâm chi phí & Ngân sách' }))
+    fireEvent.click(within(nav).getByRole('button', { name: 'Ngân sách hiện hành' }))
+    expect(screen.getByRole('heading', { level: 1, name: 'Ngân sách hiện hành' })).toBeInTheDocument()
+    fireEvent.click(within(nav).getByRole('button', { name: 'Đóng kỳ & Báo cáo' }))
     fireEvent.click(within(nav).getByRole('button', { name: 'Báo cáo kỳ' }))
-    expect(screen.getByRole('heading', { level: 1, name: 'Báo cáo kỳ Quý 3/2026' })).toBeInTheDocument()
-
-    view.unmount()
+    expect(screen.getByRole('heading', { level: 1, name: 'Chức năng chưa khả dụng' })).toBeInTheDocument()
   })
 
-  it('lists budget info requests first, filters them in order, and opens a separate detail screen', () => {
-    renderDashboard('finance', '/?tab=budget-questions')
-
-    const filter = screen.getByRole('combobox', { name: 'Trạng thái' })
-    expect(
-      within(filter)
-        .getAllByRole('option')
-        .map((option) => option.textContent)
-    ).toEqual(['Tất cả', 'Đang mở', 'Đã trả lời', 'Đóng — yêu cầu bị hủy'])
-    expect(filter).toHaveValue('all')
-    expect(screen.getAllByRole('button', { name: /^Xem chi tiết REQ-/ })).toHaveLength(5)
-
-    fireEvent.change(filter, { target: { value: 'ANSWERED' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Áp dụng bộ lọc' }))
-    expect(screen.getAllByRole('button', { name: /^Xem chi tiết REQ-/ })).toHaveLength(1)
-
-    fireEvent.click(screen.getByRole('button', { name: 'Xem chi tiết REQ-2026-078' }))
-    expect(screen.getByRole('heading', { level: 1, name: 'Cursor Pro · 10 suất' })).toBeInTheDocument()
-    expect(screen.queryByRole('combobox', { name: 'Trạng thái' })).not.toBeInTheDocument()
-
-    fireEvent.click(screen.getByRole('button', { name: 'Quay lại danh sách' }))
-    expect(screen.getByRole('combobox', { name: 'Trạng thái' })).toHaveValue('ANSWERED')
-    expect(screen.getAllByRole('button', { name: /^Xem chi tiết REQ-/ })).toHaveLength(1)
-  })
-
-  it('requires an opinion and a note before Finance answers a budget question', () => {
-    renderDashboard('finance', '/?tab=budget-questions')
-    fireEvent.click(screen.getByRole('button', { name: 'Xem chi tiết REQ-2026-089' }))
-
-    fireEvent.click(screen.getByRole('button', { name: 'Gửi câu trả lời' }))
-    expect(screen.getByText('Chọn một ý kiến.')).toBeInTheDocument()
-    expect(screen.getByText('Bắt buộc nhập ghi chú.')).toBeInTheDocument()
-
-    fireEvent.click(screen.getByRole('radio', { name: 'Trong hạn mức' }))
-    fireEvent.change(screen.getByLabelText('Ghi chú cho Người duyệt chi'), { target: { value: 'Còn đủ ngân sách.' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Gửi câu trả lời' }))
-
-    expect(screen.getByText(/Câu trả lời đã hiện trên màn hình quyết định của Người duyệt chi/)).toBeInTheDocument()
-
-    fireEvent.click(screen.getByRole('button', { name: 'Quay lại danh sách' }))
-    fireEvent.change(screen.getByRole('combobox', { name: 'Trạng thái' }), { target: { value: 'ANSWERED' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Áp dụng bộ lọc' }))
-    expect(screen.getAllByRole('button', { name: /^Xem chi tiết REQ-/ })).toHaveLength(2)
-    expect(screen.getByRole('button', { name: 'Xem chi tiết REQ-2026-089' })).toBeInTheDocument()
-  })
-
-  it('shows a negative remaining with the over-committed label when a budget is smaller than back-filled commitments', () => {
-    renderDashboard('finance', '/?tab=budgets')
-
-    fireEvent.click(screen.getAllByRole('button', { name: 'Lập ngân sách' })[0])
-    fireEvent.change(screen.getByLabelText('Hạn mức ngân sách (chi phí thực chịu, VND)'), {
-      target: { value: '20000000' }
-    })
-    expect(screen.getByText(/Còn lại âm: cam kết tạo trước khi có ngân sách vượt hạn mức vừa lập/)).toBeInTheDocument()
-
-    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Lập ngân sách' }))
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    expect(screen.getByText(/đã gắn ngược 2 khoản cam kết/)).toBeInTheDocument()
-  })
-
-  it('switches the budget view between month, quarter and year and adds a Cost Center in a pop-up', () => {
-    renderDashboard('finance', '/?tab=budgets')
-
-    expect(screen.getByRole('heading', { name: 'Ngân sách theo trung tâm chi phí — Quý 4/2026' })).toBeInTheDocument()
-    const granularity = screen.getByRole('group', { name: 'Xem theo' })
-
-    fireEvent.click(within(granularity).getByRole('button', { name: 'Tháng' }))
-    expect(screen.getByLabelText('Kỳ')).toHaveValue('2026-10')
-    fireEvent.change(screen.getByLabelText('Kỳ'), { target: { value: '2026-07' } })
-    expect(screen.getByRole('heading', { name: 'Ngân sách theo trung tâm chi phí — Tháng 7/2026' })).toBeInTheDocument()
-    expect(screen.getByText('Kỳ đã qua')).toBeInTheDocument()
-
-    fireEvent.click(within(granularity).getByRole('button', { name: 'Năm' }))
-    expect(screen.getByRole('heading', { name: 'Ngân sách theo trung tâm chi phí — Năm 2026' })).toBeInTheDocument()
-
-    fireEvent.click(screen.getByRole('button', { name: 'Thêm trung tâm chi phí' }))
-    const dialog = screen.getByRole('dialog', { name: 'Thêm trung tâm chi phí' })
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Lưu' }))
-    expect(within(dialog).getByRole('alert')).toHaveTextContent('Nhập mã và tên trung tâm chi phí.')
-
-    fireEvent.change(within(dialog).getByLabelText('Mã trung tâm chi phí'), { target: { value: 'cc-legal' } })
-    fireEvent.change(within(dialog).getByLabelText('Tên'), { target: { value: 'Pháp chế' } })
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Lưu' }))
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    expect(screen.getAllByText('CC-LEGAL')).toHaveLength(2)
-  })
-
-  it('renders the spending approver dashboard and navigates the UF-15 screens', () => {
+  it('navigates the Spending Approver API workspaces without demo badges or profile', async () => {
     const view = renderDashboard('spending-approver')
     const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Chào Hoàng Nam' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Tổng quan phê duyệt' })).toBeInTheDocument()
     expect(screen.getByTestId('dashboard-role')).toHaveTextContent(roleLabels['spending-approver'])
-    expect(screen.queryByText(/Mở hàng chờ/)).not.toBeInTheDocument()
+    expect(screen.queryByText('Hoàng Nam')).not.toBeInTheDocument()
 
     const queueBtn = within(nav).getByRole('button', { name: /Hàng chờ duyệt/i })
     expect(queueBtn).not.toHaveClass('bg-primary')
     fireEvent.click(queueBtn)
     expect(queueBtn).toHaveClass('bg-primary')
-    expect(screen.getByRole('heading', { level: 1, name: 'Hàng chờ phê duyệt' })).toBeInTheDocument()
-
-    const reportsBtn = within(nav).getByRole('button', { name: /Báo cáo/i })
-    fireEvent.click(reportsBtn)
-    expect(reportsBtn).toHaveClass('bg-primary')
-    expect(queueBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByRole('heading', { level: 1, name: 'Báo cáo của Người duyệt chi' })).toBeInTheDocument()
-    const savings = screen.getByRole('region', { name: 'Tiết kiệm' })
-    const periodFilter = screen.getByRole('group', { name: 'Xem theo' })
-    const spendChart = screen.getByRole('img', {
-      name: 'Biểu đồ cột ngân sách và chi phí theo trung tâm chi phí — Quý 3/2026'
-    })
-    expect(savings.compareDocumentPosition(periodFilter) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-    expect(periodFilter.compareDocumentPosition(spendChart) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-    expect(screen.getByText('Chưa phân bổ trung tâm chi phí')).toBeInTheDocument()
-
-    fireEvent.click(within(periodFilter).getByRole('button', { name: 'Năm' }))
+    expect(screen.getByRole('heading', { level: 1, name: 'Hàng đợi duyệt chi' })).toBeInTheDocument()
+    expect(await screen.findByText('Không có bản ghi phù hợp.')).toBeInTheDocument()
     expect(
-      screen.getByRole('img', { name: 'Biểu đồ cột ngân sách và chi phí theo trung tâm chi phí — Năm 2026' })
+      screen.getByPlaceholderText('Nhập tên phần mềm, người yêu cầu hoặc Cost Center trong trang')
     ).toBeInTheDocument()
-    expect(screen.queryByText('Chưa phân bổ trung tâm chi phí')).not.toBeInTheDocument()
+
+    expect(within(nav).queryByRole('button', { name: /Báo cáo/i })).not.toBeInTheDocument()
+    fireEvent.click(within(nav).getByRole('button', { name: /Ngân sách năm/i }))
+    expect(screen.getByRole('heading', { level: 1, name: 'Phê duyệt ngân sách năm' })).toBeInTheDocument()
 
     view.unmount()
   })
 
-  it('requires a reason before the spending approver rejects a request', () => {
-    renderDashboard('spending-approver')
-    fireEvent.click(
-      within(screen.getByRole('navigation', { name: 'Điều hướng dashboard' })).getByRole('button', {
-        name: /Hàng chờ duyệt/i
-      })
-    )
-    fireEvent.click(screen.getByRole('button', { name: 'Mở REQ-2026-089' }))
-
-    expect(screen.getByRole('heading', { level: 1, name: 'Figma Organization · 15 suất' })).toBeInTheDocument()
-    expect(
-      within(screen.getByRole('navigation', { name: 'Điều hướng dashboard' })).getByRole('button', {
-        name: /Hàng chờ duyệt/i
-      })
-    ).toHaveClass('bg-primary')
-
-    fireEvent.click(screen.getByRole('button', { name: 'Từ chối' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Xác nhận từ chối' }))
-    expect(screen.getByText('Bắt buộc nhập lý do.')).toBeInTheDocument()
-
-    fireEvent.change(screen.getByLabelText('Lý do từ chối (bắt buộc)'), { target: { value: 'Chưa cần trong Q4.' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Xác nhận từ chối' }))
-    expect(screen.getByText(/không tạo khoản cam kết/)).toBeInTheDocument()
+  it('keeps unsupported report URLs honest and provides supported navigation', () => {
+    renderDashboard('spending-approver', '/?tab=reports')
+    expect(screen.getByRole('heading', { level: 1, name: 'Chức năng chưa được hỗ trợ' })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Hàng đợi duyệt chi' }))
+    expect(screen.getByRole('heading', { level: 1, name: 'Hàng đợi duyệt chi' })).toBeInTheDocument()
   })
 
-  it('shows the Finance budget opinion thread on the request detail', () => {
+  it('does not restore a demo Request for a legacy fixture ID', () => {
     renderDashboard('spending-approver', '/?tab=request&id=req-101')
-    expect(
-      screen.getByText('Marketing chưa có ngân sách quý 4 — Tài chính có dự kiến lập trong tuần này không?')
-    ).toBeInTheDocument()
-    expect(screen.getByText(/Ngọc Lan \(Tài chính\) trả lời/)).toBeInTheDocument()
-
-    renderDashboard('spending-approver', '/?tab=request&id=req-089')
-    expect(screen.getByText(/Đang chờ Tài chính trả lời/)).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Duyệt chi yêu cầu' })).toBeInTheDocument()
+    expect(screen.getByText('Không có bản ghi phù hợp.')).toBeInTheDocument()
   })
 })

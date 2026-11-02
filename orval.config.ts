@@ -48,7 +48,18 @@ export default defineConfig({
           'access-requests',
           'delegated-requests',
           'group-requests',
-          'transfer-reviews'
+          'transfer-reviews',
+          'cost-centers',
+          'budget-proposals',
+          'budget-versions',
+          'budgets',
+          'budget-commitments',
+          'finance-reviews',
+          'budget-information',
+          'exchange-rates',
+          'spend-approvals',
+          'spend-submission',
+          'notifications'
         ]
       }
     },

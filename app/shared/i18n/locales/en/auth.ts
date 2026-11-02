@@ -110,7 +110,11 @@ export const auth = {
       title: 'Activate account',
       description: 'Set a password to complete your invitation.',
       submit: 'Activate account',
-      success: 'Your account is active. You can sign in.'
+      success: 'Your account is active. You can sign in.',
+      uncertainResult:
+        'We could not confirm whether your account was activated. Try signing in with the password you just set. If you cannot sign in, you can try activating again.',
+      alreadySubmitted:
+        'If you already submitted an activation request, try signing in with the password you just set before asking for another invitation.'
     },
     change: {
       title: 'Change password',

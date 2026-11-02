@@ -128,7 +128,7 @@ export function DashboardSidebar({
             <div>
               <p className='font-bold tracking-[-0.02em]'>{tCommon('brand')}</p>
               <p className='mt-0.5 text-[0.65rem] font-semibold tracking-[0.12em] text-muted-foreground uppercase'>
-                {!isSuperAdmin && !isItAdmin && t('demoNotice')}
+                {!isSuperAdmin && !isItAdmin && role !== 'finance' && t('demoNotice')}
               </p>
             </div>
           </div>

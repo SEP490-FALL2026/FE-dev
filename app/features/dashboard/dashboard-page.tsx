@@ -74,7 +74,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
   const auth = useSyncExternalStore(subscribeAuthSession, getAuthState, getAuthState)
   const fullName = auth.session?.user.employee.fullName ?? ''
   const profile =
-    role === 'super-admin' || role === 'it-admin'
+    role === 'super-admin' || role === 'it-admin' || role === 'finance' || role === 'spending-approver'
       ? {
           displayName: fullName,
           initials: fullName

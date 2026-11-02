@@ -74,6 +74,7 @@ export const admin = {
     ineligible: 'This person is not eligible for the selected responsibility.'
   },
   overview: {
+    unknownStep: 'Unknown setup step',
     redesign: overviewRedesign,
     stepNames: {
       1: 'Organization and personnel',

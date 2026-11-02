@@ -1,4 +1,9 @@
 export const adminPersonnel = {
+  otherImportColumn: 'Cột khác',
+  recentImportOption: '{{file}} · {{date}}',
+  recentImportsHelp: 'Chọn lần nhập gần đây trong phiên trình duyệt này để tiếp tục.',
+  unsupportedImportValue: 'Cột chưa được hỗ trợ',
+  invalidImportCell: '{{field}}: giá trị không hợp lệ',
   chooseDepartment: 'Chọn phòng ban',
   lookupEmployee: 'Tìm nhân viên',
   withAccounts: 'Đã có tài khoản',
@@ -38,10 +43,8 @@ export const adminPersonnel = {
   unknown: 'Trạng thái chưa xác định',
   searchMembers: 'Đọc thành viên phòng',
   basisHelp: 'Sử dụng văn bản nhân sự có thẩm quyền, không dùng mã BM-09 làm căn cứ. Cần điền đủ bốn trường căn cứ.',
-  eventHelp:
-    'Chọn nhân viên và phòng đến. Điều chuyển trưởng phòng phải có người kế nhiệm hoặc xác nhận không có.',
-  memberHelp:
-    'Đọc thành viên theo từng phòng. Chọn nhân viên để sửa hồ sơ chính thức. Để trống trường không cần sửa.',
+  eventHelp: 'Chọn nhân viên và phòng đến. Điều chuyển trưởng phòng phải có người kế nhiệm hoặc xác nhận không có.',
+  memberHelp: 'Đọc thành viên theo từng phòng. Chọn nhân viên để sửa hồ sơ chính thức. Để trống trường không cần sửa.',
   successorConflict: 'Chọn người kế nhiệm hoặc xác nhận không có, không chọn đồng thời.',
   transferRoute: '{{from}} → {{to}}',
   transferEventOption: '{{employee}} · {{from}} → {{to}} · {{date}}',

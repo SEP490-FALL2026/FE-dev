@@ -5,7 +5,7 @@
  * Internal software license and technology cost API
  * OpenAPI spec version: 1.0
  */
-import type { ApprovalDetailResponseDto } from './approvalDetailResponseDto'
+import type { ApprovalDetailResponseDto } from '../approvalDetailResponseDto'
 
 export type SpendApprovalLineDecide200 = ApprovalDetailResponseDto & {
   message?: unknown

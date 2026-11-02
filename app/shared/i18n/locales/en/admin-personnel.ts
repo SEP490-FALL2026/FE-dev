@@ -1,4 +1,9 @@
 export const adminPersonnel = {
+  otherImportColumn: 'Other column',
+  recentImportOption: '{{file}} · {{date}}',
+  recentImportsHelp: 'Choose a recent import from this browser session to resume it.',
+  unsupportedImportValue: 'Unsupported column',
+  invalidImportCell: '{{field}}: invalid value',
   chooseDepartment: 'Choose department',
   lookupEmployee: 'Find employee',
   withAccounts: 'With accounts',

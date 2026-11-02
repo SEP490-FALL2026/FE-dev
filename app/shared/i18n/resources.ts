@@ -1,4 +1,12 @@
 import { auth as enAuth } from './locales/en/auth'
+import { approvals as enApprovals } from './locales/en/approvals'
+import { approvalsBudget as enApprovalsBudget } from './locales/en/approvals-budget'
+import { approvalsSpend as enApprovalsSpend } from './locales/en/approvals-spend'
+import { approvalsNeed as enApprovalsNeed } from './locales/en/approvals-need'
+import { finance as enFinance } from './locales/en/finance'
+import { financeBudget as enFinanceBudget } from './locales/en/finance-budget'
+import { financeSpend as enFinanceSpend } from './locales/en/finance-spend'
+import { financeSettings as enFinanceSettings } from './locales/en/finance-settings'
 import { admin as enAdmin } from './locales/en/admin'
 import { adminAccounts as enAdminAccounts } from './locales/en/admin-accounts'
 import { adminOrganization as enAdminOrganization } from './locales/en/admin-organization'
@@ -10,6 +18,14 @@ import { landing as enLanding } from './locales/en/landing'
 import { notFound as enNotFound } from './locales/en/not-found'
 import { theme as enTheme } from './locales/en/theme'
 import { auth as viAuth } from './locales/vi/auth'
+import { approvals as viApprovals } from './locales/vi/approvals'
+import { approvalsBudget as viApprovalsBudget } from './locales/vi/approvals-budget'
+import { approvalsSpend as viApprovalsSpend } from './locales/vi/approvals-spend'
+import { approvalsNeed as viApprovalsNeed } from './locales/vi/approvals-need'
+import { finance as viFinance } from './locales/vi/finance'
+import { financeBudget as viFinanceBudget } from './locales/vi/finance-budget'
+import { financeSpend as viFinanceSpend } from './locales/vi/finance-spend'
+import { financeSettings as viFinanceSettings } from './locales/vi/finance-settings'
 import { admin as viAdmin } from './locales/vi/admin'
 import { adminAccounts as viAdminAccounts } from './locales/vi/admin-accounts'
 import { adminOrganization as viAdminOrganization } from './locales/vi/admin-organization'
@@ -37,6 +53,14 @@ export const defaultNS = 'common' as const
 
 export const resources = {
   en: {
+    approvals: enApprovals,
+    approvalsBudget: enApprovalsBudget,
+    approvalsSpend: enApprovalsSpend,
+    approvalsNeed: enApprovalsNeed,
+    finance: enFinance,
+    financeBudget: enFinanceBudget,
+    financeSpend: enFinanceSpend,
+    financeSettings: enFinanceSettings,
     itNewSoftware: enItNewSoftware,
     itAdmin: enItAdmin,
     itProvisioning: enItProvisioning,
@@ -56,6 +80,14 @@ export const resources = {
     theme: enTheme
   },
   vi: {
+    approvals: viApprovals,
+    approvalsBudget: viApprovalsBudget,
+    approvalsSpend: viApprovalsSpend,
+    approvalsNeed: viApprovalsNeed,
+    finance: viFinance,
+    financeBudget: viFinanceBudget,
+    financeSpend: viFinanceSpend,
+    financeSettings: viFinanceSettings,
     itNewSoftware: viItNewSoftware,
     itAdmin: viItAdmin,
     itProvisioning: viItProvisioning,

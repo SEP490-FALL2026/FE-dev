@@ -3,10 +3,11 @@ import { useMutation } from '@tanstack/react-query'
 import { ArrowLeft, LoaderCircle } from 'lucide-react'
 import { useEffect, useState, useSyncExternalStore, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, Navigate } from 'react-router'
+import { Link, Navigate, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 
 import { authRedeemInvitation } from '~/shared/api/generated/operations/auth/auth-redeem-invitation'
+import type { ErrorEnvelopeDto } from '~/shared/api/generated/model/errorEnvelopeDto'
 import { authRequestPasswordReset } from '~/shared/api/generated/operations/auth/auth-request-password-reset'
 import { authResetPassword } from '~/shared/api/generated/operations/auth/auth-reset-password'
 import { meChangePassword } from '~/shared/api/generated/operations/me/me-change-password'
@@ -20,13 +21,20 @@ import { getInvalidFields } from './validation-issues'
 
 export type AuthAction = 'forgot' | 'reset' | 'activate' | 'change'
 
+function getActionErrorCode(error: unknown) {
+  return axios.isAxiosError<ErrorEnvelopeDto>(error) ? error.response?.data?.error?.code : undefined
+}
+
 function isInvalidTokenError(error: unknown) {
-  const code = axios.isAxiosError(error) ? error.response?.data?.error?.code : undefined
+  const code = getActionErrorCode(error)
   return code === 'AUTH.PASSWORD_RESET_INVALID' || code === 'AUTH.INVITATION_INVALID'
 }
 
-function getActionErrorKey(error: unknown, retrySeconds: number) {
-  const code = axios.isAxiosError(error) ? error.response?.data?.error?.code : undefined
+function getActionErrorKey(error: unknown, retrySeconds: number, action: AuthAction) {
+  if (action === 'activate' && axios.isAxiosError(error) && (!error.response || error.response.status >= 500)) {
+    return 'actions.activate.uncertainResult'
+  }
+  const code = getActionErrorCode(error)
   if (code === 'VALIDATION_ERROR') return 'actions.validation'
   if (code === 'AUTH.CURRENT_PASSWORD_INVALID') return 'actions.currentPasswordInvalid'
   if (code === 'AUTH.PASSWORD_POLICY_VIOLATION') return 'actions.passwordPolicy'
@@ -37,23 +45,28 @@ function getActionErrorKey(error: unknown, retrySeconds: number) {
   return 'actions.genericError'
 }
 
-function readFragmentToken() {
+function readFragmentToken(action: AuthAction) {
   if (typeof window === 'undefined') return ''
-  return new URLSearchParams(window.location.hash.slice(1)).get('token') ?? ''
+  const tokens = new URLSearchParams(window.location.hash.slice(1)).getAll('token')
+  const token = tokens[0] ?? ''
+  if (action === 'activate' && (tokens.length !== 1 || !token.trim() || token.length > 256)) return ''
+  return token
 }
 
 export function AuthActionPage({ action }: { action: AuthAction }) {
-  const { t } = useTranslation('auth')
+  const { t: translate } = useTranslation('auth')
   const { t: common } = useTranslation('common')
+  const navigate = useNavigate()
   const session = useSyncExternalStore(subscribeAuthSession, getAuthState, getAuthState)
-  const [token] = useState(readFragmentToken)
+  const [token] = useState(() => readFragmentToken(action))
   const [email, setEmail] = useState('')
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [localError, setLocalError] = useState('')
+  const [validationError, setValidationError] = useState<'mismatch' | 'policy' | null>(null)
   const [retrySeconds, setRetrySeconds] = useState(0)
   const mutation = useMutation({
+    retry: false,
     mutationFn: async () => {
       if (action === 'forgot')
         return authRequestPasswordReset({ email: email.trim() }, { skipAuth: true, skipAuthRefresh: true })
@@ -68,20 +81,21 @@ export function AuthActionPage({ action }: { action: AuthAction }) {
       const seconds = getRetryDelaySeconds(error)
       setRetrySeconds(seconds)
       const requestId = axios.isAxiosError(error) ? error.response?.data?.error?.requestId : undefined
-      toast.error(t(getActionErrorKey(error, seconds), { seconds }), {
+      toast.error(translate(getActionErrorKey(error, seconds, action), { seconds }), {
         id: `auth-${action}`,
-        description: typeof requestId === 'string' ? t('errors.requestId', { requestId }) : undefined
+        description: typeof requestId === 'string' ? translate('errors.requestId', { requestId }) : undefined
       })
     },
     onSuccess: () => {
-      toast.success(t(`actions.${action}.success`), { id: `auth-${action}` })
+      toast.success(translate(`actions.${action}.success`), { id: `auth-${action}` })
       if (action === 'change' || action === 'reset') clearAuthSession()
+      if (action === 'activate') navigate('/login', { replace: true })
     }
   })
 
-  useDocumentTitle(t(`actions.${action}.title`))
+  useDocumentTitle(translate(`actions.${action}.title`))
   useEffect(() => {
-    if (token && (action === 'reset' || action === 'activate')) {
+    if (action === 'activate' || (token && action === 'reset')) {
       window.history.replaceState(window.history.state, '', window.location.pathname + window.location.search)
     }
   }, [action, token])
@@ -95,14 +109,14 @@ export function AuthActionPage({ action }: { action: AuthAction }) {
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (mutation.isPending || retrySeconds > 0) return
-    setLocalError('')
+    if (mutation.isPending || retrySeconds > 0 || invalidLink) return
+    setValidationError(null)
     if (action !== 'forgot' && newPassword !== confirmPassword) {
-      setLocalError(t('actions.passwordMismatch'))
+      setValidationError('mismatch')
       return
     }
     if (action !== 'forgot' && (newPassword.length < 12 || newPassword.length > 128)) {
-      setLocalError(t('actions.passwordPolicy'))
+      setValidationError('policy')
       return
     }
     toast.dismiss(`auth-${action}`)
@@ -111,6 +125,13 @@ export function AuthActionPage({ action }: { action: AuthAction }) {
 
   const invalidFields = getInvalidFields(mutation.error)
   const invalidLink = (action === 'reset' || action === 'activate') && (!token || isInvalidTokenError(mutation.error))
+  const invalidPassword =
+    validationError === 'policy' ||
+    invalidFields.has(action === 'activate' ? 'password' : 'newPassword') ||
+    getActionErrorCode(mutation.error) === 'AUTH.PASSWORD_POLICY_VIOLATION'
+  const localError = validationError
+    ? translate(validationError === 'mismatch' ? 'actions.passwordMismatch' : 'actions.passwordPolicy')
+    : ''
 
   return (
     <main className='min-h-screen bg-background px-5 py-6 text-foreground sm:px-8'>
@@ -132,52 +153,55 @@ export function AuthActionPage({ action }: { action: AuthAction }) {
             to='/login'
             className='inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground'
           >
-            <ArrowLeft aria-hidden='true' className='size-4' />
-            {t('actions.back')}
+            <ArrowLeft aria-hidden='true' className='size-4' strokeWidth={1.5} />
+            {translate('actions.back')}
           </Link>
-          <h1 className='mt-7 text-3xl font-semibold tracking-[-0.04em]'>{t(`actions.${action}.title`)}</h1>
-          <p className='mt-3 text-sm leading-6 text-muted-foreground'>{t(`actions.${action}.description`)}</p>
+          <h1 className='mt-7 text-3xl font-semibold tracking-[-0.04em]'>{translate(`actions.${action}.title`)}</h1>
+          <p className='mt-3 text-sm leading-6 text-muted-foreground'>{translate(`actions.${action}.description`)}</p>
           {mutation.isSuccess ? (
             <Link className='mt-8 inline-flex text-sm font-semibold text-primary-ink underline' to='/login'>
-              {t('actions.backToLogin')}
+              {translate('actions.backToLogin')}
             </Link>
           ) : invalidLink ? (
             <div className='mt-7 space-y-4 text-sm'>
               <p role='alert' className='text-danger-ink'>
-                {t('actions.invalidLink')}
+                {translate('actions.invalidLink')}
               </p>
               {action === 'reset' ? (
                 <Link to='/forgot-password' className='font-medium text-primary-ink underline'>
-                  {t('actions.requestNewLink')}
+                  {translate('actions.requestNewLink')}
                 </Link>
               ) : (
-                <p className='text-muted-foreground'>{t('actions.contactAdmin')}</p>
+                <>
+                  <p className='text-muted-foreground'>{translate('actions.contactAdmin')}</p>
+                  <p className='text-muted-foreground'>{translate('actions.activate.alreadySubmitted')}</p>
+                </>
               )}
             </div>
           ) : action === 'change' && session.status === 'unavailable' ? (
             <div className='mt-7 text-sm text-muted-foreground'>
-              <p role='alert'>{t('session.unavailable')}</p>
+              <p role='alert'>{translate('session.unavailable')}</p>
               <button
                 type='button'
                 className='mt-4 rounded-lg bg-primary px-4 py-2 font-semibold text-primary-foreground'
                 onClick={() => void initializeAuthSession()}
               >
-                {t('session.retry')}
+                {translate('session.retry')}
               </button>
             </div>
           ) : action === 'change' && session.status !== 'authenticated' ? (
             <p role='status' className='mt-7 text-sm text-muted-foreground'>
-              {t('session.checking')}
+              {translate('session.checking')}
             </p>
           ) : (
             <form className='mt-8 space-y-4' onSubmit={submit}>
               {action === 'forgot' && (
                 <label className='block text-sm font-medium'>
-                  {t('email.label')}
+                  {translate('email.label')}
                   <input
                     autoComplete='email'
                     aria-invalid={invalidFields.has('email') || undefined}
-                    aria-description={invalidFields.has('email') ? t('actions.validation') : undefined}
+                    aria-description={invalidFields.has('email') ? translate('actions.validation') : undefined}
                     className='mt-2 h-11 w-full rounded-lg border border-border bg-background px-3.5 text-base outline-none focus:border-primary'
                     onChange={(event) => setEmail(event.target.value)}
                     required
@@ -188,12 +212,12 @@ export function AuthActionPage({ action }: { action: AuthAction }) {
               )}
               {action === 'change' && (
                 <label className='block text-sm font-medium'>
-                  {t('actions.currentPassword')}
+                  {translate('actions.currentPassword')}
                   <input
                     autoComplete='current-password'
                     aria-invalid={invalidFields.has('currentPassword') || undefined}
                     aria-description={
-                      invalidFields.has('currentPassword') ? t('actions.currentPasswordInvalid') : undefined
+                      invalidFields.has('currentPassword') ? translate('actions.currentPasswordInvalid') : undefined
                     }
                     className='mt-2 h-11 w-full rounded-lg border border-border bg-background px-3.5 text-base outline-none focus:border-primary'
                     onChange={(event) => setCurrentPassword(event.target.value)}
@@ -206,11 +230,18 @@ export function AuthActionPage({ action }: { action: AuthAction }) {
               {action !== 'forgot' && (
                 <>
                   <label className='block text-sm font-medium'>
-                    {t('actions.newPassword')}
+                    {translate('actions.newPassword')}
                     <input
                       autoComplete='new-password'
-                      aria-invalid={invalidFields.has(action === 'activate' ? 'password' : 'newPassword') || undefined}
-                      aria-describedby='auth-password-policy'
+                      aria-invalid={invalidPassword || undefined}
+                      aria-describedby={
+                        validationError === 'policy' ? 'auth-password-policy auth-local-error' : 'auth-password-policy'
+                      }
+                      aria-description={
+                        invalidFields.has(action === 'activate' ? 'password' : 'newPassword')
+                          ? translate('actions.validation')
+                          : undefined
+                      }
                       className='mt-2 h-11 w-full rounded-lg border border-border bg-background px-3.5 text-base outline-none focus:border-primary'
                       onChange={(event) => setNewPassword(event.target.value)}
                       minLength={12}
@@ -221,14 +252,14 @@ export function AuthActionPage({ action }: { action: AuthAction }) {
                     />
                   </label>
                   <p id='auth-password-policy' className='text-xs leading-5 text-muted-foreground'>
-                    {t('actions.passwordPolicy')}
+                    {translate('actions.passwordPolicy')}
                   </p>
                   <label className='block text-sm font-medium'>
-                    {t('actions.confirmPassword')}
+                    {translate('actions.confirmPassword')}
                     <input
                       autoComplete='new-password'
-                      aria-invalid={!!localError || undefined}
-                      aria-describedby={localError ? 'auth-local-error' : undefined}
+                      aria-invalid={validationError === 'mismatch' || undefined}
+                      aria-describedby={validationError === 'mismatch' ? 'auth-local-error' : undefined}
                       className='mt-2 h-11 w-full rounded-lg border border-border bg-background px-3.5 text-base outline-none focus:border-primary'
                       onChange={(event) => setConfirmPassword(event.target.value)}
                       required
@@ -249,8 +280,12 @@ export function AuthActionPage({ action }: { action: AuthAction }) {
                 disabled={mutation.isPending || retrySeconds > 0}
                 type='submit'
               >
-                {mutation.isPending && <LoaderCircle aria-hidden='true' className='size-4 animate-spin' />}
-                {retrySeconds > 0 ? t('retryIn', { seconds: retrySeconds }) : t(`actions.${action}.submit`)}
+                {mutation.isPending && (
+                  <LoaderCircle aria-hidden='true' className='size-4 animate-spin' strokeWidth={1.5} />
+                )}
+                {retrySeconds > 0
+                  ? translate('retryIn', { seconds: retrySeconds })
+                  : translate(`actions.${action}.submit`)}
               </button>
             </form>
           )}
