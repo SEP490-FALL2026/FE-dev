@@ -11,6 +11,7 @@ import { ManagerNotificationBell } from '../manager'
 
 export interface DashboardHeaderProps {
   activeEmployeeTab?: string
+  activeManagerTab?: string
   employeeAvatarUrl: string | null
   mobileNavigationOpen: boolean
   onOpenProfile?: () => void
@@ -21,6 +22,7 @@ export interface DashboardHeaderProps {
 
 export function DashboardHeader({
   activeEmployeeTab,
+  activeManagerTab,
   employeeAvatarUrl,
   mobileNavigationOpen,
   onOpenProfile,
@@ -31,6 +33,8 @@ export function DashboardHeader({
   const { t } = useTranslation('dashboard')
   const { t: tAuth } = useTranslation('auth')
   const isEmployee = role === 'employee'
+  const isProfileActive =
+    (isEmployee && activeEmployeeTab === 'profile') || (role === 'manager' && activeManagerTab === 'profile')
 
   return (
     <header className='sticky top-0 z-30 border-b border-border bg-background/90 px-4 py-3 backdrop-blur-xl sm:px-6 lg:px-8'>
@@ -60,10 +64,16 @@ export function DashboardHeader({
         {role === 'manager' && <ManagerNotificationBell />}
 
         <button
-          aria-current={isEmployee && activeEmployeeTab === 'profile' ? 'page' : undefined}
-          aria-label={isEmployee ? t('employee.profile.openProfile') : undefined}
+          aria-current={isProfileActive ? 'page' : undefined}
+          aria-label={
+            isEmployee
+              ? t('employee.profile.openProfile')
+              : role === 'manager'
+                ? t('manager.profile.openProfile', { defaultValue: 'Hồ sơ cá nhân' })
+                : undefined
+          }
           className='flex min-w-0 items-center gap-2.5 rounded-xl border border-border bg-surface py-1.5 pr-3 pl-1.5 text-left transition enabled:hover:border-primary enabled:hover:bg-primary-soft/30 enabled:focus-visible:outline-2 enabled:focus-visible:outline-offset-2 enabled:focus-visible:outline-primary'
-          disabled={!isEmployee}
+          disabled={!onOpenProfile}
           onClick={onOpenProfile}
           type='button'
         >

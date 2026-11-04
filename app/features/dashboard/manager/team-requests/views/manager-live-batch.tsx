@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Files, Send } from 'lucide-react'
+import { Files, Send, Users } from 'lucide-react'
 import { ManagerPageHeader } from '../../shared/components/manager-page-header'
 import { ManagerDataTable } from '../../shared/components/manager-data-table'
 import { useTranslation } from 'react-i18next'
@@ -28,7 +28,13 @@ import {
   managerInputClass
 } from '../../shared/components/manager-api-ui'
 
-export function ManagerLiveBatch({ onOpen }: { onOpen: (id: string) => void }) {
+export function ManagerLiveBatch({
+  onOpen,
+  onCreateGroup
+}: {
+  onOpen: (id: string) => void
+  onCreateGroup?: () => void
+}) {
   const { t: translate } = useTranslation('manager')
   const paging = useManagerPage()
   const [params, setParams] = useSearchParams()
@@ -58,15 +64,21 @@ export function ManagerLiveBatch({ onOpen }: { onOpen: (id: string) => void }) {
         description={translate('batchHint')}
         icon={Files}
         actions={
-          <ManagerButton
-            primary
-            disabled={!selected.length || action.blocked || query.isFetching}
-            busy={action.isPending}
-            onClick={() => setConfirm(true)}
-          >
-            <Send aria-hidden strokeWidth={1.5} className='size-4' />
-            {action.retrySeconds ? translate('retryAfter', { seconds: action.retrySeconds }) : translate('submit')}
-          </ManagerButton>
+          <>
+            <ManagerButton onClick={onCreateGroup}>
+              <Users aria-hidden strokeWidth={1.5} className='size-4' />
+              {translate('createGroupRequest')}
+            </ManagerButton>
+            <ManagerButton
+              primary
+              disabled={!selected.length || action.blocked || query.isFetching}
+              busy={action.isPending}
+              onClick={() => setConfirm(true)}
+            >
+              <Send aria-hidden strokeWidth={1.5} className='size-4' />
+              {action.retrySeconds ? translate('retryAfter', { seconds: action.retrySeconds }) : translate('submit')}
+            </ManagerButton>
+          </>
         }
       />
       <ManagerSection

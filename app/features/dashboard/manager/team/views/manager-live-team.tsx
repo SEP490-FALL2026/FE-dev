@@ -1,5 +1,6 @@
 import { Boxes, UsersRound } from 'lucide-react'
 import { useState } from 'react'
+import type { DepartmentMembersResponseDtoDataItemsItem } from '~/shared/api/generated/model/departments/departmentMembersResponseDtoDataItemsItem'
 import type { DepartmentToolsResponseDtoDataItemsItem } from '~/shared/api/generated/model/departments/departmentToolsResponseDtoDataItemsItem'
 import { ManagerReturnForm } from '../components/manager-return-form'
 import { useTranslation } from 'react-i18next'
@@ -30,12 +31,16 @@ export function ManagerLiveTeam({
   departmentId,
   tools = false,
   embedded = false,
-  onReturnCreated
+  onReturnCreated,
+  onOpenMember,
+  onOpenTool
 }: {
   departmentId?: string
   tools?: boolean
   embedded?: boolean
   onReturnCreated?: (id: string) => void
+  onOpenMember?: (member: DepartmentMembersResponseDtoDataItemsItem) => void
+  onOpenTool?: (tool: DepartmentToolsResponseDtoDataItemsItem) => void
 }) {
   const { t: translate } = useTranslation('manager')
   const paging = useManagerPage()
@@ -72,14 +77,27 @@ export function ManagerLiveTeam({
         !department.isError &&
         department.data?.data &&
         (tools ? (
-          <Tools departmentId={departmentId ?? ''} paging={paging} onReturnCreated={onReturnCreated} />
+          <Tools
+            departmentId={departmentId ?? ''}
+            paging={paging}
+            onReturnCreated={onReturnCreated}
+            onOpenTool={onOpenTool}
+          />
         ) : (
-          <Members departmentId={departmentId ?? ''} paging={paging} />
+          <Members departmentId={departmentId ?? ''} paging={paging} onOpenMember={onOpenMember} />
         ))}
     </div>
   )
 }
-function Members({ departmentId, paging }: { departmentId: string; paging: ReturnType<typeof useManagerPage> }) {
+function Members({
+  departmentId,
+  paging,
+  onOpenMember
+}: {
+  departmentId: string
+  paging: ReturnType<typeof useManagerPage>
+  onOpenMember?: (member: DepartmentMembersResponseDtoDataItemsItem) => void
+}) {
   const { t: translate } = useTranslation('manager')
   const { formatDate } = useDashboardFormat()
   const [params] = useSearchParams()
@@ -120,6 +138,7 @@ function Members({ departmentId, paging }: { departmentId: string; paging: Retur
         label={translate('team')}
         items={data?.items ?? []}
         rowKey={(member) => member.employeeCode}
+        onOpen={onOpenMember}
         columns={[
           {
             key: 'employee',
@@ -133,9 +152,20 @@ function Members({ departmentId, paging }: { departmentId: string; paging: Retur
                   <UsersRound strokeWidth={1.5} className='size-4' />
                 </span>
                 <div className='min-w-0'>
-                  <p className='max-w-64 truncate font-medium' title={member.fullName}>
-                    {member.fullName}
-                  </p>
+                  {onOpenMember ? (
+                    <button
+                      type='button'
+                      onClick={() => onOpenMember(member)}
+                      className='max-w-64 truncate text-left font-medium text-foreground hover:text-primary transition-colors focus-visible:outline-2 focus-visible:outline-primary'
+                      title={member.fullName}
+                    >
+                      {member.fullName}
+                    </button>
+                  ) : (
+                    <p className='max-w-64 truncate font-medium' title={member.fullName}>
+                      {member.fullName}
+                    </p>
+                  )}
                   <p className='mt-1 font-mono text-xs text-muted-foreground'>{member.employeeCode}</p>
                 </div>
               </div>
@@ -157,11 +187,13 @@ function Members({ departmentId, paging }: { departmentId: string; paging: Retur
 function Tools({
   departmentId,
   paging,
-  onReturnCreated
+  onReturnCreated,
+  onOpenTool
 }: {
   departmentId: string
   paging: ReturnType<typeof useManagerPage>
   onReturnCreated?: (id: string) => void
+  onOpenTool?: (tool: DepartmentToolsResponseDtoDataItemsItem) => void
 }) {
   const [returning, setReturning] = useState<DepartmentToolsResponseDtoDataItemsItem | null>(null)
   const { t: translate } = useTranslation('manager')
@@ -200,16 +232,27 @@ function Tools({
         label={translate('tools')}
         items={data?.items ?? []}
         rowKey={(assignment) => assignment.assignmentId}
-        onOpen={setReturning}
+        onOpen={onOpenTool ?? ((item) => setReturning(item))}
         columns={[
           {
             key: 'application',
             label: translate('application'),
             render: (item) => (
               <div>
-                <p className='max-w-56 truncate font-medium' title={item.application.name}>
-                  {item.application.name}
-                </p>
+                {onOpenTool ? (
+                  <button
+                    type='button'
+                    onClick={() => onOpenTool(item)}
+                    className='max-w-56 truncate text-left font-medium text-foreground hover:text-primary transition-colors focus-visible:outline-2 focus-visible:outline-primary'
+                    title={item.application.name}
+                  >
+                    {item.application.name}
+                  </button>
+                ) : (
+                  <p className='max-w-56 truncate font-medium' title={item.application.name}>
+                    {item.application.name}
+                  </p>
+                )}
                 <p className='mt-1 max-w-56 truncate text-xs text-muted-foreground' title={item.plan.name}>
                   {item.plan.name}
                 </p>

@@ -188,9 +188,16 @@ export function DashboardPage({ role }: { role: UserRole }) {
       <div className='flex h-full min-w-0 flex-1 flex-col lg:pl-72'>
         <DashboardHeader
           activeEmployeeTab={activeEmployeeTab}
+          activeManagerTab={activeManagerTab}
           employeeAvatarUrl={null}
           mobileNavigationOpen={mobileNavigationOpen}
-          onOpenProfile={() => handleSelectEmployeeTab('profile')}
+          onOpenProfile={
+            isEmployee
+              ? () => handleSelectEmployeeTab('profile')
+              : isManager
+                ? () => handleSelectManagerTab('profile')
+                : undefined
+          }
           onToggleMobileNavigation={() => setMobileNavigationOpen((open) => !open)}
           profile={profile}
           role={role}

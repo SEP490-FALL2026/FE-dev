@@ -21,6 +21,9 @@ import { ManagerNotices } from './personnel-notices/views/manager-notices'
 import { ManagerHandovers } from './handovers/views/manager-handovers'
 import { ManagerReturns } from './team/views/manager-returns'
 import { ManagerReturnDetail } from './team/views/manager-return-detail'
+import { ManagerLiveEmployeeDetail } from './team/views/manager-live-employee-detail'
+import { ManagerLiveToolDetail } from './team/views/manager-live-tool-detail'
+import { ManagerProfileView } from './team/views/manager-profile-view'
 
 export function ManagerScreen({
   tab,
@@ -38,7 +41,8 @@ export function ManagerScreen({
   const departmentId = params.get('departmentId') ?? user?.managerScope?.departmentId ?? ''
   const validDepartment = isResourceId(departmentId)
   const form = location.pathname.startsWith('/dashboard/manager/annual-budget/')
-  const needsDepartment = form || ['overview', 'my-team', 'team-software', 'employee-detail'].includes(tab)
+  const needsDepartment =
+    form || ['overview', 'my-team', 'team-software', 'employee-detail', 'tool-detail'].includes(tab)
   const department = useDepartmentGet(departmentId, {
     query: { enabled: !!user && !user.selfServiceOnly && validDepartment && needsDepartment }
   })
@@ -80,7 +84,7 @@ export function ManagerScreen({
         onSelectTab={onSelectTab}
       />
     )
-  else if (tab === 'my-team' || tab === 'employee-detail') {
+  else if (tab === 'my-team') {
     const changes = params.get('section') === 'changes'
     content = (
       <div className='space-y-5'>
@@ -114,12 +118,38 @@ export function ManagerScreen({
         ) : (
           <>
             <ManagerDepartmentContext departmentId={departmentId} name={user.employee.department?.name} />
-            <ManagerLiveTeam departmentId={validDepartment ? departmentId : undefined} embedded />
+            <ManagerLiveTeam
+              departmentId={validDepartment ? departmentId : undefined}
+              embedded
+              onOpenMember={(member) =>
+                onSelectTab('employee-detail', {
+                  id: member.employeeId,
+                  ...(validDepartment ? { departmentId } : {})
+                })
+              }
+            />
           </>
         )}
       </div>
     )
-  } else if (tab === 'team-software')
+  } else if (tab === 'employee-detail')
+    content = isResourceId(id) ? (
+      <ManagerLiveEmployeeDetail
+        id={id}
+        departmentId={validDepartment ? departmentId : undefined}
+        onBack={() => onSelectTab('my-team', validDepartment ? { departmentId } : {})}
+        onSelectTab={onSelectTab}
+      />
+    ) : (
+      <div className='space-y-4'>
+        <p>{translate('errors.missing')}</p>
+        <ManagerButton onClick={() => onSelectTab('my-team', validDepartment ? { departmentId } : {})}>
+          {translate('employeeDetail.backToTeam')}
+        </ManagerButton>
+      </div>
+    )
+  else if (tab === 'profile') content = <ManagerProfileView />
+  else if (tab === 'team-software')
     content = (
       <div className='space-y-5'>
         <ManagerPageHeader title={translate('tools')} icon={Boxes} />
@@ -148,9 +178,32 @@ export function ManagerScreen({
               tools
               embedded
               onReturnCreated={openReturn}
+              onOpenTool={(tool) =>
+                onSelectTab('tool-detail', {
+                  id: tool.assignmentId,
+                  ...(validDepartment ? { departmentId } : {})
+                })
+              }
             />
           </>
         )}
+      </div>
+    )
+  else if (tab === 'tool-detail')
+    content = isResourceId(id) ? (
+      <ManagerLiveToolDetail
+        id={id}
+        departmentId={validDepartment ? departmentId : undefined}
+        onBack={() => onSelectTab('team-software', validDepartment ? { departmentId } : {})}
+        onReturnCreated={openReturn}
+        onSelectTab={onSelectTab}
+      />
+    ) : (
+      <div className='space-y-4'>
+        <p>{translate('errors.missing')}</p>
+        <ManagerButton onClick={() => onSelectTab('team-software', validDepartment ? { departmentId } : {})}>
+          {translate('toolDetail.backToTools')}
+        </ManagerButton>
       </div>
     )
   else if (tab === 'return-detail')
@@ -181,7 +234,13 @@ export function ManagerScreen({
     content = (
       <ManagerLiveCreate key={params.get('scope')} group={params.get('scope') === 'team'} onOpen={openRequest} />
     )
-  else if (tab === 'weekly-batch') content = <ManagerLiveBatch onOpen={openRequest} />
+  else if (tab === 'weekly-batch')
+    content = (
+      <ManagerLiveBatch
+        onOpen={openRequest}
+        onCreateGroup={() => onSelectTab('create-employee-request', { scope: 'team' })}
+      />
+    )
   else if (tab === 'annual-budget') content = <ManagerLiveBudget />
   else if (tab === 'transfer-reviews') content = <ManagerTransferReviews />
   else if (tab === 'handovers') content = <ManagerHandovers />

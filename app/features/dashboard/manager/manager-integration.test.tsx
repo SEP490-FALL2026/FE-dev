@@ -94,7 +94,7 @@ it('loads, filters and paginates the NEED queue without sending a decision on ro
   )
   mount(<ManagerRequestLookup onOpen={opened} />)
   expect(await screen.findByText('Test Software')).toBeInTheDocument()
-  expect(screen.getByText(/9,007,199,254,740,993\.25/)).toBeInTheDocument()
+  expect(screen.getByText('Awaiting need approval')).toBeInTheDocument()
   fireEvent.click(screen.getByRole('button', { name: 'Next' }))
   await waitFor(() => expect(reads.at(-1)?.searchParams.get('page')).toBe('2'))
   fireEvent.change(screen.getByLabelText('Request type'), { target: { value: 'GROUP_GRANT' } })

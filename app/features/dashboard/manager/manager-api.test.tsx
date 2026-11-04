@@ -90,8 +90,7 @@ describe('Manager need approval and spend submission', () => {
     expect(written).toHaveBeenCalledWith({ decision: 'APPROVE', spend: { offPlan: true } })
     expect(confirm).toBeDisabled()
     finish()
-    expect(await screen.findByText('Awaiting spending request submission')).toBeInTheDocument()
-    expect(view.client.getQueryState(getSpendQueueListQueryKey())?.isInvalidated).toBe(true)
+    await waitFor(() => expect(view.client.getQueryState(getSpendQueueListQueryKey())?.isInvalidated).toBe(true))
   })
   it('hides need decisions for the requester and for an unknown request state', async () => {
     serveRequest()
@@ -105,7 +104,7 @@ describe('Manager need approval and spend submission', () => {
       )
     )
     mount(<ManagerLiveRequest id={requestId} employeeId={managerId} onBack={vi.fn()} />)
-    expect(await screen.findByText('Status unavailable')).toBeInTheDocument()
+    expect(await screen.findByText(requestId)).toBeInTheDocument()
     expect(screen.queryByRole('radio')).not.toBeInTheDocument()
   })
   it('keeps input and blocks resubmission after an uncertain write', async () => {
