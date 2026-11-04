@@ -6,6 +6,8 @@ import { getSuperAdminWatchGetQueryKey } from '~/shared/api/generated/operations
 import { getDepartmentTransferListQueryKey } from '~/shared/api/generated/operations/department-transfers'
 import { getLongLeaveListQueryKey } from '~/shared/api/generated/operations/long-leaves'
 import { getOffboardingCaseListQueryKey } from '~/shared/api/generated/operations/offboarding-cases'
+import { getEmployeeListQueryKey } from '~/shared/api/generated/operations/employees/employee-list'
+import { getSuperAdminDashboardGetQueryKey } from '~/shared/api/generated/operations/dashboards/super-admin-dashboard-get'
 import { useAdminMutationFeedback } from './use-admin-mutation-feedback'
 
 /** HR events change employee state, account eligibility, department duties and overview warnings together. */
@@ -16,7 +18,7 @@ export function usePersonnelMutationFeedback(queryKeys: readonly QueryKey[], onS
     .findAll({
       predicate: (query) =>
         typeof query.queryKey[0] === 'string' &&
-        /\/api\/v1\/(departments|app-users|department-transfers|long-leaves|offboarding-cases)\//.test(
+        /\/api\/v1\/(employees|departments|app-users|department-transfers|long-leaves|offboarding-cases)\//.test(
           query.queryKey[0]
         )
     })
@@ -27,6 +29,8 @@ export function usePersonnelMutationFeedback(queryKeys: readonly QueryKey[], onS
       ...cachedEmployeeViews,
       getAppUserListQueryKey(),
       getAccountCandidatesListQueryKey(),
+      getEmployeeListQueryKey(),
+      getSuperAdminDashboardGetQueryKey(),
       getDepartmentListQueryKey(),
       getOnboardingChecklistGetQueryKey(),
       getSuperAdminWatchGetQueryKey(),

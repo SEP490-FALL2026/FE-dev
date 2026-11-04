@@ -69,7 +69,17 @@ describe('IT catalog API integration', () => {
         return {
           data: { id: 'app-1', name: 'Live application', status: 'APPROVED', businessOwner: { fullName: 'Owner' } }
         }
-      if (url.endsWith('/retirement')) return { data: { retirement: { canRetire: false } } }
+      if (url.endsWith('/retirement'))
+        return {
+          data: {
+            retirement: {
+              status: 'APPROVED',
+              confirmed: false,
+              canRetire: false,
+              blockers: { assignmentTotal: 0, subscriptionTotal: 0 }
+            }
+          }
+        }
       return {
         data: {
           items: url.endsWith('/applications')

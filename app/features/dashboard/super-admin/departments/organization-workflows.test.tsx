@@ -31,26 +31,13 @@ const department: NonNullable<DepartmentResponseDtoData> = {
   deactivatedAt: null,
   successor: null,
   headHistory: [],
-  headHistoryHasMore: false,
-  projects: [],
-  projectTotal: 0
+  headHistoryHasMore: false
 }
-const basis = { type: 'Decision', reference: 'HR-42', issuer: 'HR', issuedOn: '2026-10-30' }
 const envelope = (data: unknown) => HttpResponse.json({ success: true, message: 'OK', data })
 const pagination = (page: number) => ({ page, pageSize: 20, totalItems: 40, totalPages: 2 })
 function mount(component: React.ReactNode) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })
   return render(<QueryClientProvider client={client}>{component}</QueryClientProvider>)
-}
-function fillBasis() {
-  for (const [label, value] of [
-    ['Document type', basis.type],
-    ['Reference', basis.reference],
-    ['Issuer', basis.issuer],
-    ['Issued on', basis.issuedOn]
-  ]) {
-    fireEvent.change(screen.getByLabelText(label), { target: { value } })
-  }
 }
 function submit() {
   const form = screen.getByRole('dialog').querySelector('form')
@@ -76,6 +63,7 @@ describe('Organization workflows through HTTP', () => {
         pages.push(params.get('page') ?? '')
         expect(params.get('status')).toBe('ACTIVE')
         expect(params.get('activationState')).toBe('ACTIVATED')
+        expect(params.get('role')).toBe('MANAGER')
         const second = params.get('page') === '2'
         return envelope({
           items: [
@@ -85,7 +73,7 @@ describe('Organization workflows through HTTP', () => {
               status: 'ACTIVE',
               activationState: 'ACTIVATED',
               employee: { id: employeeId, employeeCode: 'E2', fullName: second ? 'Dana Page Two' : 'Dana Page One' },
-              roles: ['EMPLOYEE']
+              roles: ['EMPLOYEE', 'MANAGER']
             }
           ],
           pagination: pagination(second ? 2 : 1)
@@ -100,11 +88,10 @@ describe('Organization workflows through HTTP', () => {
     await screen.findByRole('button', { name: /Dana Page One/ })
     fireEvent.click(screen.getByRole('button', { name: 'Next' }))
     fireEvent.click(await screen.findByRole('button', { name: /Dana Page Two/ }))
-    expect(screen.getByLabelText('Employee ID')).toHaveValue(employeeId)
+    expect(screen.getByRole('combobox', { name: 'Employee' })).toHaveValue(employeeId)
     fireEvent.change(screen.getByLabelText('Effective from'), { target: { value: '2027-01-01' } })
-    fillBasis()
     submit()
-    await waitFor(() => expect(body).toEqual({ employeeId, effectiveFrom: '2027-01-01', hrBasis: basis }))
+    await waitFor(() => expect(body).toEqual({ employeeId, effectiveFrom: '2027-01-01' }))
     expect(pages).toEqual(['1', '2'])
   })
 
@@ -116,20 +103,29 @@ describe('Organization workflows through HTTP', () => {
   ])('sends the strict body for %s', async (action, path, dated) => {
     let body: unknown
     server.use(
+      http.get(`${base}/app-users`, () =>
+        envelope({
+          items: [
+            {
+              id: 'login-id',
+              employee: { id: employeeId, employeeCode: 'EMP-2', fullName: 'Dana' },
+              roles: ['MANAGER']
+            }
+          ],
+          pagination: pagination(1)
+        })
+      ),
       http.post(`${base}/departments/${department.id}/${path}`, async ({ request }) => {
         body = await request.json()
         return envelope(department)
       })
     )
     mount(<DepartmentActionForm department={department} action={action} onClose={vi.fn()} />)
-    if (action === 'designateSuccessor')
-      fireEvent.change(screen.getByLabelText('Employee ID'), { target: { value: employeeId } })
+    if (action === 'designateSuccessor') fireEvent.click(await screen.findByRole('button', { name: /Dana/ }))
     if (dated) fireEvent.change(screen.getByLabelText('Effective from'), { target: { value: '2027-01-01' } })
-    fillBasis()
     submit()
     await waitFor(() =>
       expect(body).toEqual({
-        hrBasis: basis,
         ...(dated ? { effectiveFrom: '2027-01-01' } : {}),
         ...(action === 'designateSuccessor' ? { employeeId } : {})
       })
@@ -162,6 +158,7 @@ describe('Organization workflows through HTTP', () => {
         return envelope({
           items: [
             {
+              employeeId,
               employeeCode: `E${page}`,
               fullName: `Member ${page}`,
               status: 'ACTIVE',
@@ -174,8 +171,15 @@ describe('Organization workflows through HTTP', () => {
         })
       })
     )
-    mount(<DepartmentDetailView id={department.id} onBack={vi.fn()} />)
-    await screen.findByText('Member 1')
+    mount(
+      <MemoryRouter>
+        <DepartmentDetailView id={department.id} onBack={vi.fn()} />
+      </MemoryRouter>
+    )
+    expect(await screen.findByRole('link', { name: 'Member 1' })).toHaveAttribute(
+      'href',
+      `/dashboard/super-admin?tab=personnel&employeeId=${employeeId}`
+    )
     expect(screen.queryByRole('button', { name: 'Projects' })).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Next' }))
     await screen.findByText('Member 2')
@@ -200,7 +204,6 @@ describe('Organization workflows through HTTP', () => {
     mount(<DepartmentForm onClose={onClose} />)
     fireEvent.change(screen.getByLabelText('Department code'), { target: { value: 'ENG' } })
     fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Engineering' } })
-    fillBasis()
     submit()
     await waitFor(() => expect(screen.getByRole('button', { name: 'Saving…' })).toBeDisabled())
     submit()
@@ -208,7 +211,6 @@ describe('Organization workflows through HTTP', () => {
     release?.()
     await waitFor(() => expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled())
     expect(screen.getByLabelText('Name')).toHaveValue('Engineering')
-    expect(screen.getByLabelText('Reference')).toHaveValue('HR-42')
     expect(onClose).not.toHaveBeenCalled()
     expect(calls).toBe(1)
   })

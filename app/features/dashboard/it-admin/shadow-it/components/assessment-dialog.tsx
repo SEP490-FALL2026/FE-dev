@@ -46,7 +46,10 @@ export function AssessmentDialog({
           data: { kind, reason: reason.trim(), alternativeNote: alternative.trim() }
         })
       await client.invalidateQueries({
-        predicate: (query) => query.queryKey.some((key) => typeof key === 'string' && /access-requests/.test(key))
+        predicate: (query) =>
+          query.queryKey.some(
+            (key) => typeof key === 'string' && /access-requests|assessment-queue|dashboards\/it-admin/.test(key)
+          )
       })
       toast.success(translate('saved'), { id: 'it-assessment' })
       onClose()
@@ -55,7 +58,10 @@ export function AssessmentDialog({
       if (getItError(error).key === 'forbidden')
         await client.fetchQuery({ ...getMeGetQueryOptions(), staleTime: 0, retry: false }).catch(() => undefined)
       await client.invalidateQueries({
-        predicate: (query) => query.queryKey.some((key) => typeof key === 'string' && /access-requests/.test(key))
+        predicate: (query) =>
+          query.queryKey.some(
+            (key) => typeof key === 'string' && /access-requests|assessment-queue|dashboards\/it-admin/.test(key)
+          )
       })
       toast.error(translateError(`errors.${getItError(error).key}`), { id: 'it-assessment' })
     } finally {

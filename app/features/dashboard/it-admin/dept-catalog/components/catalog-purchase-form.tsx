@@ -1,4 +1,4 @@
-﻿import { CatalogProvisioningType } from '../enums/provisioning-type'
+import { CatalogProvisioningType } from '../enums/provisioning-type'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { DeclarePlanBodyDtoPricingModel } from '~/shared/api/generated/model/plans/declarePlanBodyDtoPricingModel'
@@ -11,6 +11,7 @@ import { getSubscriptionListQueryKey } from '~/shared/api/generated/operations/s
 import { ItField, ItFormDialog, itInputClass } from '../../shared/components/it-form'
 import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
 import { uuidPattern } from './catalog-application-form'
+import { ItDirectoryLookup } from '../../shared/components/it-directory-lookup'
 export function CatalogPurchaseForm({
   mode,
   applicationId,
@@ -26,6 +27,7 @@ export function CatalogPurchaseForm({
 }) {
   const { t: translate } = useTranslation('itCatalog')
   const [selectedType, setSelectedType] = useState('')
+  const [departmentId, setDepartmentId] = useState('')
   const feedback = useItMutationFeedback([getPlanListQueryKey(), getSubscriptionListQueryKey()], onClose)
   const plan = usePlanCreate({ mutation: feedback })
   const subscription = useSubscriptionCreate({ mutation: feedback })
@@ -77,7 +79,13 @@ export function CatalogPurchaseForm({
       {mode === 'plan' ? (
         <>
           <ItField label={translate('planName')}>
-            <input name='name' required maxLength={1000} className={itInputClass} />
+            <input
+              placeholder={translate('placeholders.plan')}
+              name='name'
+              required
+              maxLength={1000}
+              className={itInputClass}
+            />
           </ItField>
           <fieldset>
             <legend>{translate('provisioning')}</legend>
@@ -128,8 +136,17 @@ export function CatalogPurchaseForm({
       ) : (
         <>
           <ItField label={translate('department')}>
-            <input name='department' required pattern={uuidPattern} className={itInputClass} />
+            <input
+              placeholder={translate('placeholders.departmentId')}
+              name='department'
+              required
+              pattern={uuidPattern}
+              value={departmentId}
+              onChange={(event) => setDepartmentId(event.target.value)}
+              className={itInputClass}
+            />
           </ItField>
+          <ItDirectoryLookup mode='department' onSelect={setDepartmentId} />
           <fieldset>
             <legend>{translate('subscriptionKind')}</legend>
             {Object.values(DeclareSubscriptionBodyDtoKind).map((value) => (
@@ -140,7 +157,15 @@ export function CatalogPurchaseForm({
             ))}
           </fieldset>
           <ItField label={translate('quantity')}>
-            <input name='quantity' type='number' min={0} max={1000000000} step={1} className={itInputClass} />
+            <input
+              placeholder={translate('placeholders.quantity')}
+              name='quantity'
+              type='number'
+              min={0}
+              max={1000000000}
+              step={1}
+              className={itInputClass}
+            />
           </ItField>
         </>
       )}

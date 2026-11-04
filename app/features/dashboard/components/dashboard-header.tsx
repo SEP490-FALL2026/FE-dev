@@ -1,11 +1,13 @@
-import { Bell, Menu, Search, X } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { UserRole } from '~/entities/user-role/user-role'
 import { LanguageSwitch } from '~/shared/ui/language-switch'
 import { ThemeSwitch } from '~/shared/ui/theme-switch'
-import { notificationCount, type RoleProfile } from '../dashboard-data'
+import type { RoleProfile } from '../dashboard-data'
 import { FinanceWorkspaceSearch } from '../finance'
 import { ApprovalsWorkspaceSearch } from '../approvals'
+import { EmployeeNotificationBell } from '../employee'
+import { ManagerNotificationBell } from '../manager'
 
 export interface DashboardHeaderProps {
   activeEmployeeTab?: string
@@ -50,37 +52,12 @@ export function DashboardHeader({
 
         {role === 'finance' && <FinanceWorkspaceSearch />}
         {role === 'spending-approver' && <ApprovalsWorkspaceSearch />}
-        {role !== 'super-admin' && role !== 'it-admin' && role !== 'finance' && role !== 'spending-approver' && (
-          <div className='relative ml-auto hidden w-full max-w-md sm:block'>
-            <Search
-              aria-hidden='true'
-              className='pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground'
-            />
-            <input
-              aria-label={t('header.searchLabel')}
-              className='h-11 w-full rounded-xl border border-border bg-surface pr-4 pl-10 text-sm outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-3 focus:ring-primary-soft'
-              placeholder={t('header.searchPlaceholder')}
-              type='search'
-            />
-          </div>
-        )}
-
-        <div className={role === 'super-admin' || role === 'it-admin' ? 'ml-auto' : 'max-sm:ml-auto'}>
+        <div className={role === 'finance' || role === 'spending-approver' ? 'max-sm:ml-auto' : 'ml-auto'}>
           <ThemeSwitch />
         </div>
         <LanguageSwitch />
-        {role !== 'super-admin' && role !== 'it-admin' && role !== 'finance' && role !== 'spending-approver' && (
-          <button
-            aria-label={t('header.notifications')}
-            className='relative grid size-10 shrink-0 place-items-center rounded-xl border border-border bg-surface text-muted-foreground transition hover:border-primary hover:text-primary'
-            type='button'
-          >
-            <Bell aria-hidden='true' className='size-[1.125rem]' />
-            <span className='absolute -top-1 -right-1 grid size-5 place-items-center rounded-full bg-danger text-[0.6rem] font-bold text-white'>
-              {notificationCount}
-            </span>
-          </button>
-        )}
+        {isEmployee && <EmployeeNotificationBell />}
+        {role === 'manager' && <ManagerNotificationBell />}
 
         <button
           aria-current={isEmployee && activeEmployeeTab === 'profile' ? 'page' : undefined}

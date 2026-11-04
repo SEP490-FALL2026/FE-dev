@@ -85,7 +85,8 @@ export const itAdminDeviceCollectorsExtra = {
   syncMinutesAgo: '{{minutes}} minutes ago',
   syncNoData: 'No data yet',
   identifiedWorkstation: 'Identified Workstation',
-  workstationIdentityHelp: 'Computer identified for employee after role assignment, enabling tracking tool to map data accurately',
+  workstationIdentityHelp:
+    'Computer identified for employee after role assignment, enabling tracking tool to map data accurately',
   deviceHardwareId: 'Hardware ID (MAC/Serial):',
   trackingToolStatus: 'Tracking Tool Status:',
   trackingToolActive: 'Actively mapping telemetry to this employee'

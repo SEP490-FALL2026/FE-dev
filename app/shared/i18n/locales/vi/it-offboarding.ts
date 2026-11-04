@@ -41,6 +41,17 @@
   provisioning: 'Mở hàng đợi cấp phát',
   noPermission: 'Chỉ IT Admin được ghi bằng chứng hoặc đóng hồ sơ này.',
   note: 'Bằng chứng / lý do',
+  cancellationReason: 'Lý do',
+  cancellationEvidence: 'Bằng chứng hoàn tác / thu lại lời mời (tùy chọn)',
+  rightContext: {
+    confirmer: 'Người xác nhận bàn giao',
+    dueOn: 'Hạn xác nhận bàn giao: {{date}}',
+    accessRunsOnUntil: 'Quyền truy cập tiếp tục đến: {{date}}',
+    overdue: 'Đã quá hạn xác nhận bàn giao',
+    flaggedUnconfirmed: 'Đã tiếp tục thu hồi khi chưa có xác nhận bàn giao',
+    viewHandover: 'Xem việc bàn giao',
+    waitingReasons: { NO_HEAD: 'Đang chờ trưởng phòng', NO_SUCCESSOR: 'Đang chờ người kế nhiệm' }
+  },
   confirm: 'Xác nhận',
   saved: 'Đã ghi nhận thao tác',
   failed: 'Thao tác thất bại. Tải lại hồ sơ rồi thử lại.',
@@ -51,13 +62,17 @@
     lock: 'Ghi nhận khóa tài khoản',
     revoke: 'Mở thu hồi các quyền đã chọn',
     close: 'Đóng hồ sơ',
-    cancel: 'Hủy yêu cầu do nghỉ việc'
+    cancel: 'Hủy yêu cầu do nghỉ việc',
+    closeLine: 'Đóng dòng của nhân viên nghỉ việc'
   },
   hints: {
     lock: 'Chỉ ghi bằng chứng sau khi đã khóa tài khoản công ty bên ngoài hệ thống. Thao tác này không khóa tài khoản.',
     revoke: 'Tạo tác vụ thu hồi cho các quyền đã chọn. Quyền chỉ được gỡ khi IT hoàn tất từng tác vụ.',
     close: 'Đóng hồ sơ sau khi giải quyết toàn bộ điều kiện và mục kiểm tra từ hệ thống.',
-    cancel: 'Hủy yêu cầu đang mở vì người hưởng đã nghỉ việc. Hệ thống kiểm tra điều kiện thực hiện.'
+    cancel: 'Đóng yêu cầu hoặc dòng nhóm còn mở của nhân viên nghỉ việc. Hệ thống kiểm tra điều kiện thực hiện.',
+    closeLine: 'Yêu cầu của các thành viên khác vẫn tiếp tục. Chỉ đóng dòng của nhân viên nghỉ việc.',
+    cancellationEvidence:
+      'Nếu đã bắt đầu cấp quyền, ghi kết quả kiểm tra nhà cung cấp và cách hoàn tác hoặc thu lại lời mời. Hệ thống quyết định khi nào bắt buộc có bằng chứng. Không nhập mật khẩu hoặc khóa.'
   },
   steps: {
     dataHandover: 'Bàn giao dữ liệu',

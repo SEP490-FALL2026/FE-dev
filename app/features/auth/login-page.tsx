@@ -56,8 +56,9 @@ export function LoginPage() {
       const requested = searchParams.get('redirectTo')
       const safeRedirect = requested?.startsWith('/dashboard/') && !requested.startsWith('//') ? requested : null
       const requestedRole = safeRedirect?.split('/')[2]
+      const isGenericEmployeeRedirect = safeRedirect === '/dashboard/employee' && session.role !== 'employee'
       navigate(
-        safeRedirect && session.roles.includes(requestedRole as typeof session.role)
+        safeRedirect && !isGenericEmployeeRedirect && session.roles.includes(requestedRole as typeof session.role)
           ? safeRedirect
           : `/dashboard/${session.role}`,
         { replace: true }

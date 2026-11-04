@@ -4,6 +4,7 @@ import { LoaderCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { getAdminError } from '../hooks/admin-errors'
 import { getMeGetQueryOptions } from '~/shared/api/generated/operations/me/me-get'
+import { adminButtonClass } from './admin-form'
 
 export function AdminQueryState({
   query,
@@ -33,11 +34,7 @@ export function AdminQueryState({
     return (
       <div role='alert' className='space-y-3 rounded-lg border border-border bg-surface p-6'>
         <p>{translate(`errors.${failure.key}`)}</p>
-        <button
-          type='button'
-          className='min-h-11 rounded-md border border-border px-4 md:min-h-9'
-          onClick={() => void query.refetch()}
-        >
+        <button type='button' className={adminButtonClass} onClick={() => void query.refetch()}>
           {translate('retry')}
         </button>
       </div>

@@ -1,4 +1,5 @@
-﻿import { useState } from 'react'
+import { ItChoiceSelect } from '../../shared/components/it-choice-select'
+import { useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import {
@@ -79,20 +80,15 @@ function GrantDialog({
         {request.plan.applicationName} · {request.plan.planName} · {request.beneficiary.fullName}
       </p>
       <ItQueryState query={subscriptions}>
-        <ItField label={translate('subscription')}>
-          <select
-            className={itInputClass}
-            value={draft.subscriptionId ?? ''}
-            onChange={(event) => update('subscriptionId', event.target.value)}
-          >
-            <option value=''>{translate('automaticSubscription')}</option>
-            {data?.items.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.planName} · {item.id}
-              </option>
-            ))}
-          </select>
-        </ItField>
+        <ItChoiceSelect
+          label={translate('subscription')}
+          value={draft.subscriptionId ?? ''}
+          options={[
+            { value: '', label: translate('automaticSubscription') },
+            ...(data?.items.map((item) => ({ value: item.id, label: item.planName, description: item.id })) ?? [])
+          ]}
+          onChange={(value) => update('subscriptionId', value)}
+        />
         {data && (
           <ItPagination
             page={page}
@@ -107,6 +103,7 @@ function GrantDialog({
         <input
           className={itInputClass}
           maxLength={254}
+          placeholder={translate('placeholders.account')}
           value={draft.accountIdentifier ?? ''}
           onChange={(event) =>
             setDraft((previous) => ({ ...previous, accountIdentifier: event.target.value || undefined }))
@@ -126,6 +123,7 @@ function GrantDialog({
           <input
             className={itInputClass}
             pattern='[0-9a-fA-F-]{36}'
+            placeholder={translate('placeholders.employeeId')}
             value={draft.responsibleEmployeeId ?? ''}
             onChange={(event) => update('responsibleEmployeeId', event.target.value)}
           />

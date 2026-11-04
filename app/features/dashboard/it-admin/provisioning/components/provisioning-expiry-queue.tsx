@@ -1,4 +1,5 @@
-﻿import { useState } from 'react'
+import { ItChoiceSelect } from '../../shared/components/it-choice-select'
+import { useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import {
@@ -10,11 +11,12 @@ import type {
   AssignmentExpiryQueueListParams,
   ExpiryQueuePageResponseDtoDataItemsItem
 } from '~/shared/api/generated/model'
-import { ItField, ItFormDialog, itInputClass, itButtonClass } from '../../shared/components/it-form'
+import { ItFormDialog, itButtonClass } from '../../shared/components/it-form'
 import { ItEmpty, ItQueryState } from '../../shared/components/it-query-state'
 import { ItPagination } from '../../shared/components/it-pagination'
 import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
 import { ExpiryStatus } from '../enums/expiry-status'
+import { ExpiryHandover } from './expiry-handover'
 
 export function ProvisioningExpiryQueue({ onOpenTask }: { onOpenTask: (id: string) => void }) {
   const { t: translate } = useTranslation('itProvisioning')
@@ -35,43 +37,37 @@ export function ProvisioningExpiryQueue({ onOpenTask }: { onOpenTask: (id: strin
   return (
     <div className='space-y-4'>
       <div className='grid gap-3 sm:grid-cols-2'>
-        <ItField label={translate('status')}>
-          <select
-            className={itInputClass}
-            value={params.status ?? ''}
-            onChange={(event) =>
-              setParams((previous) => ({
-                ...previous,
-                page: 1,
-                status: (event.target.value || undefined) as AssignmentExpiryQueueListParams['status']
-              }))
-            }
-          >
-            <option value=''>{translate('allStatuses')}</option>
-            {Object.values(ExpiryStatus).map((status) => (
-              <option value={status} key={status}>
-                {translate(`expiryValues.${status}`)}
-              </option>
-            ))}
-          </select>
-        </ItField>
-        <ItField label={translate('debt')}>
-          <select
-            className={itInputClass}
-            value={params.debt ?? ''}
-            onChange={(event) =>
-              setParams((previous) => ({
-                ...previous,
-                page: 1,
-                debt: (event.target.value || undefined) as AssignmentExpiryQueueListParams['debt']
-              }))
-            }
-          >
-            <option value=''>{translate('anyDebt')}</option>
-            <option value='true'>{translate('withDebt')}</option>
-            <option value='false'>{translate('withoutDebt')}</option>
-          </select>
-        </ItField>
+        <ItChoiceSelect
+          label={translate('status')}
+          value={params.status ?? ''}
+          options={[
+            { value: '', label: translate('allStatuses') },
+            ...Object.values(ExpiryStatus).map((value) => ({ value, label: translate(`expiryValues.${value}`) }))
+          ]}
+          onChange={(value) =>
+            setParams((previous) => ({
+              ...previous,
+              page: 1,
+              status: Object.values(ExpiryStatus).find((status) => status === value)
+            }))
+          }
+        />
+        <ItChoiceSelect
+          label={translate('debt')}
+          value={params.debt ?? ''}
+          options={[
+            { value: '', label: translate('anyDebt') },
+            { value: 'true', label: translate('withDebt') },
+            { value: 'false', label: translate('withoutDebt') }
+          ]}
+          onChange={(value) =>
+            setParams((previous) => ({
+              ...previous,
+              page: 1,
+              debt: value === 'true' || value === 'false' ? value : undefined
+            }))
+          }
+        />
       </div>
       <ItQueryState query={query}>
         {data?.items.length ? (
@@ -91,6 +87,7 @@ export function ProvisioningExpiryQueue({ onOpenTask }: { onOpenTask: (id: strin
                     {translate('overdueDays', { count: item.daysOverdue })}
                   </p>
                   {item.debt && <p className='text-sm text-warning'>{translate('withDebt')}</p>}
+                  {item.handover && <ExpiryHandover handover={item.handover} />}
                 </div>
                 {item.revocation ? (
                   <button className={itButtonClass} onClick={() => onOpenTask(item.revocation!.taskId)}>

@@ -4,7 +4,7 @@ import type { ItAdminTabKey } from '../../enums'
 import { itAdminMenuItems } from '../../it-admin-nav'
 
 export type UnsupportedItTab =
-  'reconciliation' | 'usage-import' | 'device-collectors' | 'license-optimization' | 'identities' | 'renewals'
+  'reconciliation' | 'usage-import' | 'device-collectors' | 'license-optimization' | 'identities'
 export function ItUnavailableView({ tab }: { tab: UnsupportedItTab }) {
   const { t: translate } = useTranslation('itAdmin')
   const item = itAdminMenuItems

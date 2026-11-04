@@ -1,5 +1,6 @@
 ﻿import { OffboardingServiceDuties } from './offboarding-service-duties'
 import { OffboardingHandoverDuties } from './offboarding-handover-duties'
+import { OffboardingRightContext } from './offboarding-right-context'
 import { useState } from 'react'
 import { useDashboardFormat } from '../../../dashboard-ui'
 import { useTranslation } from 'react-i18next'
@@ -38,7 +39,7 @@ export function OffboardingDetails({
   const grants = useOffboardingCaseOpenGrantTaskList(id, { page: grantPage, pageSize: 20 })
   const me = useMeGet()
   const item = detail.data?.data
-  const authorized = !me.isError && (me.data?.data?.roles.effective.includes('IT_ADMIN') ?? false)
+  const authorized = !me.isError && (me.data?.data?.roles.includes('IT_ADMIN') ?? false)
   const active = authorized && !detail.isFetching && item?.state === OffboardingState.LEFT && !item.closed
   const rightData = rights.data?.data
   const requestData = requests.data?.data
@@ -153,14 +154,7 @@ export function OffboardingDetails({
                       <div className='min-w-0 flex-1'>
                         <p className='font-medium'>{right.application.name}</p>
                         <p className='text-sm text-muted-foreground'>{right.plan.name}</p>
-                        {right.handover && (
-                          <p className='text-sm'>
-                            {translate('handover')}:{' '}
-                            {translate(`states.${right.handover.status}`, {
-                              defaultValue: translate('states.UNKNOWN')
-                            })}
-                          </p>
-                        )}
+                        <OffboardingRightContext right={right} caseId={id} authorized={authorized && !item.closed} />
                         {right.revocation && (
                           <p className='text-sm'>
                             {translate('revocation')}:{' '}
@@ -204,9 +198,17 @@ export function OffboardingDetails({
                       <button
                         className={itButtonClass}
                         disabled={!active || !request.cancellable}
-                        onClick={() => setAction({ kind: 'cancel', caseId: id, requestId: request.requestId })}
+                        onClick={() =>
+                          setAction({
+                            kind: 'cancel',
+                            caseId: id,
+                            requestId: request.requestId,
+                            employeeId: item.employee.id,
+                            group: request.group
+                          })
+                        }
                       >
-                        {translate('actions.cancel')}
+                        {translate(request.group ? 'actions.closeLine' : 'actions.cancel')}
                       </button>
                     </div>
                   ))}

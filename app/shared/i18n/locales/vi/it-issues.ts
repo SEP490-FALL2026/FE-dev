@@ -1,5 +1,8 @@
 export const itIssues = {
   title: 'Báo lỗi SaaS',
+  scope: 'Phạm vi',
+  assigned: 'Được giao cho tôi',
+  allIssues: 'Tất cả phiếu',
   state: 'Trạng thái',
   all: 'Tất cả',
   reporter: 'Người báo',

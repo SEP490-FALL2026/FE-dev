@@ -1,0 +1,53 @@
+export const itPurchases = {
+  title: 'Contracts & documents',
+  contractUncertain:
+    'The creation result is uncertain. Check the contract with the administrator before creating it again.',
+  create: 'Create contract',
+  name: 'Contract name',
+  namePlaceholder: 'e.g. Workspace annual agreement',
+  contractId: 'Contract ID',
+  documentId: 'Document ID',
+  contractPlaceholder: 'Enter the saved contract UUID',
+  documentPlaceholder: 'Enter the saved document UUID',
+  openContract: 'Open contract',
+  openDocument: 'Open document',
+  lookupHint: 'Use a saved reference to open an existing contract or document.',
+  upload: 'Upload attachment',
+  uploadHint:
+    'The file is uploaded to storage, verified, then permanently attached to this contract. It does not change purchased seats or spending.',
+  file: 'Document file',
+  fileHint: 'Maximum 1 GB; the file type must be accepted by the server.',
+  invalidFile: 'Choose a non-empty file within 1 GB and a name no longer than 400 characters.',
+  purpose: 'Document purpose',
+  documentRef: 'Document reference: {{id}}',
+  contractRef: 'Contract reference: {{id}}',
+  uncertain: 'The declaration result is uncertain. Check the saved document before starting a new upload.',
+  done: 'Uploaded',
+  status: 'Status',
+  size: 'File size',
+  bytes: '{{size}} bytes',
+  unknown: 'Not available',
+  attach: 'Attach to contract',
+  openFile: 'Open file',
+  stages: {
+    idle: 'Ready',
+    declaring: 'Declaring document',
+    uploading: 'Uploading file',
+    completing: 'Verifying uploaded file',
+    attaching: 'Attaching to contract',
+    done: 'Uploaded'
+  },
+  values: {
+    CONTRACT_ATTACHMENT: 'Contract attachment',
+    PURCHASE_DOCUMENT: 'Purchase document',
+    TAX_PAYMENT_PROOF: 'Tax payment evidence',
+    SIGNATURE_RECORD: 'Signature record',
+    IMPORT_SOURCE: 'Import source',
+    COST_STATEMENT: 'Cost statement',
+    AWAITING_UPLOAD: 'Awaiting upload',
+    PENDING_ATTACH: 'Ready to attach',
+    READY: 'Ready',
+    QUARANTINED: 'Quarantined',
+    EXPIRED: 'Expired'
+  }
+} as const

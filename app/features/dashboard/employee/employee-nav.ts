@@ -1,4 +1,13 @@
-import { CirclePlus, FileText, Laptop, LayoutDashboard, ShieldCheck, type LucideIcon } from 'lucide-react'
+import {
+  CirclePlus,
+  FileText,
+  Laptop,
+  LayoutDashboard,
+  ShieldCheck,
+  MessageSquare,
+  ClipboardCheck,
+  type LucideIcon
+} from 'lucide-react'
 
 import { EMPLOYEE_TAB_KEYS, type EmployeeTabKey } from './enums'
 export { EMPLOYEE_TAB_KEYS, type EmployeeTabKey }
@@ -20,7 +29,7 @@ export type EmployeeMenuItem = {
   directTabKey?: EmployeeTabKey
   icon: LucideIcon
   key: string
-  translationKey: 'overview' | 'mySoftware' | 'myRequests' | 'createRequest' | 'privacy'
+  translationKey: 'overview' | 'mySoftware' | 'myRequests' | 'create' | 'privacy' | 'handovers' | 'issues'
 }
 
 export const employeeMenuItems: readonly EmployeeMenuItem[] = [
@@ -31,14 +40,12 @@ export const employeeMenuItems: readonly EmployeeMenuItem[] = [
     translationKey: 'overview'
   },
   {
-    badge: 6,
     directTabKey: 'my-software',
     icon: Laptop,
     key: 'my-software',
     translationKey: 'mySoftware'
   },
   {
-    badge: 2,
     directTabKey: 'my-requests',
     icon: FileText,
     key: 'my-requests',
@@ -48,17 +55,22 @@ export const employeeMenuItems: readonly EmployeeMenuItem[] = [
     directTabKey: 'create-request',
     icon: CirclePlus,
     key: 'create-request',
-    translationKey: 'createRequest'
+    translationKey: 'create'
   },
   {
     directTabKey: 'privacy',
     icon: ShieldCheck,
     key: 'privacy',
     translationKey: 'privacy'
-  }
+  },
+  { directTabKey: 'handovers', icon: ClipboardCheck, key: 'handovers', translationKey: 'handovers' },
+  { directTabKey: 'issues', icon: MessageSquare, key: 'issues', translationKey: 'issues' }
 ]
 
 export function getParentEmployeeMenuKey(tabKey: EmployeeTabKey): string {
+  if (tabKey === 'handovers') return tabKey
+  if (tabKey === 'issues' || tabKey === 'issue-detail' || tabKey === 'report-issue') return 'issues'
+  if (tabKey === 'return-detail') return 'my-software'
   if (tabKey === 'overview') return 'overview'
   if (tabKey === 'my-software' || tabKey === 'software-detail') return 'my-software'
   if (tabKey === 'my-requests' || tabKey === 'request-detail') return 'my-requests'

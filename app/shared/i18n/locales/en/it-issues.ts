@@ -1,5 +1,8 @@
 export const itIssues = {
   title: 'SaaS issues',
+  scope: 'Scope',
+  assigned: 'Assigned to me',
+  allIssues: 'All reports',
   state: 'State',
   all: 'All',
   reporter: 'Reporter',

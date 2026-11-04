@@ -1,0 +1,1 @@
+export { EmployeeDashboardResponseDtoDataSectionsSoftwareRightsState as DASHBOARD_SECTION_STATE } from '~/shared/api/generated/model/dashboards/employeeDashboardResponseDtoDataSectionsSoftwareRightsState'

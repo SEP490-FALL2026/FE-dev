@@ -192,43 +192,90 @@ export const itAdminProvisioningExtra = {
   unitSso: 'Quyền truy cập SSO',
   provisionedFor: 'Đã cấp thành công 1 {{unit}} cho {{beneficiary}}.',
   demoItems: {
-    'REQ-2026-0917-084': { beneficiaryRole: 'Kỹ sư phần mềm cao cấp (Senior Backend Engineer)', purpose: 'Phân tích tài liệu kiến trúc kỹ thuật và sinh boilerplate code microservices' },
-    'REQ-2026-0917-085': { beneficiaryRole: 'Kỹ sư phần mềm cao cấp (Senior Backend Engineer)', purpose: 'Gợi ý code tự động trên IDE VS Code và tự động viết unit tests' },
-    'REQ-MULTI-01': { beneficiaryRole: 'Lập trình viên Frontend (Web Team)', purpose: 'Hỗ trợ dịch tài liệu và tối ưu hiệu năng frontend' },
+    'REQ-2026-0917-084': {
+      beneficiaryRole: 'Kỹ sư phần mềm cao cấp (Senior Backend Engineer)',
+      purpose: 'Phân tích tài liệu kiến trúc kỹ thuật và sinh boilerplate code microservices'
+    },
+    'REQ-2026-0917-085': {
+      beneficiaryRole: 'Kỹ sư phần mềm cao cấp (Senior Backend Engineer)',
+      purpose: 'Gợi ý code tự động trên IDE VS Code và tự động viết unit tests'
+    },
+    'REQ-MULTI-01': {
+      beneficiaryRole: 'Lập trình viên Frontend (Web Team)',
+      purpose: 'Hỗ trợ dịch tài liệu và tối ưu hiệu năng frontend'
+    },
     'REQ-MULTI-02': { beneficiaryRole: 'Kỹ sư DevOps & Cloud', purpose: 'Viết kịch bản tự động hóa hạ tầng Terraform' },
     'REQ-MULTI-03': { beneficiaryRole: 'Chuyên viên QA/Automation Test', purpose: 'Sinh test case kiểm thử tự động' },
-    'REQ-ENG-0201': { beneficiaryRole: 'Kỹ sư AI/ML', purpose: 'Tích hợp Claude Sonnet 3.5 vào pipeline phân tích dữ liệu' },
+    'REQ-ENG-0201': {
+      beneficiaryRole: 'Kỹ sư AI/ML',
+      purpose: 'Tích hợp Claude Sonnet 3.5 vào pipeline phân tích dữ liệu'
+    },
     'REQ-ENG-0202': { beneficiaryRole: 'Lập trình viên Backend', purpose: 'Nghiên cứu mô hình ngôn ngữ lớn nội bộ' },
-    'REQ-ENG-0203': { beneficiaryRole: 'Data Engineer', purpose: 'Sử dụng IntelliJ IDEA Ultimate và DataGrip bản quyền công ty' },
+    'REQ-ENG-0203': {
+      beneficiaryRole: 'Data Engineer',
+      purpose: 'Sử dụng IntelliJ IDEA Ultimate và DataGrip bản quyền công ty'
+    },
     'REQ-ENG-BLOCKED': { beneficiaryRole: 'Kỹ sư Hệ thống', purpose: 'Sử dụng Cursor AI IDE cho dự án Golang' },
-    'REQ-DES-0101': { beneficiaryRole: 'Trưởng nhóm UI/UX Designer', purpose: 'Quản trị hệ thống Design System và phân quyền bản vẽ thiết kế sản phẩm' },
-    'REQ-DES-0102': { beneficiaryRole: 'Content & Copywriter', purpose: 'Sáng tạo nội dung bài viết truyền thông và chiến dịch mạng xã hội' }
+    'REQ-DES-0101': {
+      beneficiaryRole: 'Trưởng nhóm UI/UX Designer',
+      purpose: 'Quản trị hệ thống Design System và phân quyền bản vẽ thiết kế sản phẩm'
+    },
+    'REQ-DES-0102': {
+      beneficiaryRole: 'Content & Copywriter',
+      purpose: 'Sáng tạo nội dung bài viết truyền thông và chiến dịch mạng xã hội'
+    }
   },
   itSystem: 'Hệ thống IT',
   provisioningApiSystem: 'Hệ thống API Cấp phát',
   demoDetails: {
     'REQ-2026-0917-084': {
-      audit0Action: 'Gửi yêu cầu', audit0Details: 'Đã gửi yêu cầu cấp phát ChatGPT Plus',
-      audit1Action: 'Chấp nhận & Xếp đợt', audit1Details: 'Đã phê duyệt và xếp vào Đợt 1 - tháng 10/2026'
+      audit0Action: 'Gửi yêu cầu',
+      audit0Details: 'Đã gửi yêu cầu cấp phát ChatGPT Plus',
+      audit1Action: 'Chấp nhận & Xếp đợt',
+      audit1Details: 'Đã phê duyệt và xếp vào Đợt 1 - tháng 10/2026'
     },
-    'REQ-2026-0917-085': { audit0Action: 'Gửi yêu cầu', audit0Details: 'Đã gửi yêu cầu cấp phát GitHub Copilot Business' },
-    'REQ-MULTI-01': { audit0Action: 'Tách từ đề nghị nhóm', audit0Details: 'Tách mục cấp phát 1/3 từ mã đề nghị gốc REQ-2026-MULTI-03' },
-    'REQ-MULTI-02': { audit0Action: 'Cấp phát thành công', audit0Details: 'Cấp thành công tài khoản OpenAI Workspace qua API' },
-    'REQ-MULTI-03': { audit0Action: 'Tách từ đề nghị nhóm', audit0Details: 'Tách mục cấp phát 3/3 từ mã đề nghị gốc REQ-2026-MULTI-03. Đang ở hàng đợi Chưa xếp đợt' },
-    'REQ-ENG-0201': { audit0Action: 'API Cấp phát thất bại', audit0Details: 'Nhà cung cấp trả về lỗi 402 Payment Required. Chưa tạo key' },
+    'REQ-2026-0917-085': {
+      audit0Action: 'Gửi yêu cầu',
+      audit0Details: 'Đã gửi yêu cầu cấp phát GitHub Copilot Business'
+    },
+    'REQ-MULTI-01': {
+      audit0Action: 'Tách từ đề nghị nhóm',
+      audit0Details: 'Tách mục cấp phát 1/3 từ mã đề nghị gốc REQ-2026-MULTI-03'
+    },
+    'REQ-MULTI-02': {
+      audit0Action: 'Cấp phát thành công',
+      audit0Details: 'Cấp thành công tài khoản OpenAI Workspace qua API'
+    },
+    'REQ-MULTI-03': {
+      audit0Action: 'Tách từ đề nghị nhóm',
+      audit0Details: 'Tách mục cấp phát 3/3 từ mã đề nghị gốc REQ-2026-MULTI-03. Đang ở hàng đợi Chưa xếp đợt'
+    },
+    'REQ-ENG-0201': {
+      audit0Action: 'API Cấp phát thất bại',
+      audit0Details: 'Nhà cung cấp trả về lỗi 402 Payment Required. Chưa tạo key'
+    },
     'REQ-ENG-0202': {
       lastError: 'HTTP Timeout sau 30s — Chưa nhận phản hồi xác nhận từ cổng đối tác Anthropic',
-      audit0Action: 'API Timeout', audit0Details: 'Gọi API sinh key nhưng timeout mạng. Đang chờ IT Admin bấm Kiểm tra lại trạng thái'
+      audit0Action: 'API Timeout',
+      audit0Details: 'Gọi API sinh key nhưng timeout mạng. Đang chờ IT Admin bấm Kiểm tra lại trạng thái'
     },
     'REQ-ENG-0203': {
-      recoveryGuide: 'Key đã kích hoạt ở Vendor JetBrains Hub nhưng việc mã hóa lưu Vault nội bộ bị gián đoạn. IT Admin bấm Khôi phục để đọc lại mã key từ JetBrains API và lưu an toàn.',
-      audit0Action: 'Lỗi bàn giao Vault', audit0Details: 'Vendor xác nhận thành công mã JB-ORDER-99412-CONFIRMED, nhưng hệ thống nội bộ lỗi lưu trữ bàn giao'
+      recoveryGuide:
+        'Key đã kích hoạt ở Vendor JetBrains Hub nhưng việc mã hóa lưu Vault nội bộ bị gián đoạn. IT Admin bấm Khôi phục để đọc lại mã key từ JetBrains API và lưu an toàn.',
+      audit0Action: 'Lỗi bàn giao Vault',
+      audit0Details:
+        'Vendor xác nhận thành công mã JB-ORDER-99412-CONFIRMED, nhưng hệ thống nội bộ lỗi lưu trữ bàn giao'
     },
     'REQ-ENG-BLOCKED': {
       blockReason: 'Chưa có quyền sử dụng đã mua và cổng API cấp phát tự động đang ở trạng thái Nháp (chưa sẵn sàng)',
-      audit0Action: 'Chờ cấu hình/mua', audit0Details: 'Yêu cầu được chuyển vào hàng đợi chờ IT Admin nhập chứng từ mua (IT-06) và kích hoạt API trong danh mục (IT-11)'
+      audit0Action: 'Chờ cấu hình/mua',
+      audit0Details:
+        'Yêu cầu được chuyển vào hàng đợi chờ IT Admin nhập chứng từ mua (IT-06) và kích hoạt API trong danh mục (IT-11)'
     },
-    'REQ-DES-0101': { audit0Action: 'Cấp phát hoàn thành', audit0Details: 'Đã cấp seat Figma Organization và gửi thông báo bàn giao' },
+    'REQ-DES-0101': {
+      audit0Action: 'Cấp phát hoàn thành',
+      audit0Details: 'Đã cấp seat Figma Organization và gửi thông báo bàn giao'
+    },
     'REQ-DES-0102': { audit0Action: 'Gửi yêu cầu', audit0Details: 'Chờ IT Admin cấp phát trong Đợt 1' }
   }
 } as const

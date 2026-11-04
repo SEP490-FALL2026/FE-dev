@@ -21,7 +21,7 @@ import { AdminField, adminButtonClass, adminInputClass, adminPrimaryClass } from
 import { AdminQueryState } from '../../shared/components/admin-query-state'
 import { AdminPagination } from '../../shared/components/admin-pagination'
 import { usePersonnelMutationFeedback } from '../../shared/hooks/use-personnel-mutation-feedback'
-import { PersonnelForm, readBasis, value } from '../../shared/components/personnel-form'
+import { PersonnelForm, value } from '../../shared/components/personnel-form'
 import { PersonnelCard, PersonnelCode, PersonnelList } from '../../shared/components/personnel-list'
 import { importStatuses, previewImport } from '../enums/import-status'
 import { importOutcomes } from '../enums/import-outcome'
@@ -29,6 +29,7 @@ import { useAdminRetryDelay } from '../../shared/hooks/use-admin-retry-delay'
 import { useRecentEmployeeImports } from '../hooks/use-recent-employee-imports'
 import { importColumnField } from '../enums/import-column'
 import { useDashboardFormat } from '../../../dashboard-ui'
+import { ImportImpactSummary } from './import-impact-summary'
 
 export function ImportPanel() {
   const { t: translate } = useTranslation('adminPersonnel')
@@ -136,15 +137,13 @@ export function ImportPanel() {
         }}
       >
         <AdminField label={translate('fields.importId')}>
-          <select
-            className={adminInputClass}
-            name='importId'
-            defaultValue=''
-            required
-            disabled={pending}
-          >
+          <select className={adminInputClass} name='importId' defaultValue='' required disabled={pending}>
             <option value=''>{translate('choose')}</option>
-            {recentImports.map((item) => <option key={item.id} value={item.id}>{translate('recentImportOption', { file: item.fileName, date: formatDateTime(item.createdAt) })}</option>)}
+            {recentImports.map((item) => (
+              <option key={item.id} value={item.id}>
+                {translate('recentImportOption', { file: item.fileName, date: formatDateTime(item.createdAt) })}
+              </option>
+            ))}
           </select>
         </AdminField>
         <button className={adminButtonClass} disabled={pending}>
@@ -174,6 +173,7 @@ export function ImportPanel() {
                 <p>{translate('ignoredColumns', { columns: data.ignoredColumns.map(columnLabel).join(', ') })}</p>
               )}
               {data.summary.duplicateOf && <p className='text-warning'>{translate('duplicateFile')}</p>}
+              <ImportImpactSummary summary={data.summary} />
               {data.status === previewImport && (
                 <div className='flex flex-wrap gap-3'>
                   <button
@@ -230,14 +230,18 @@ export function ImportPanel() {
                     {Object.entries(row.cells).map(([key, cell]) => (
                       <div key={key}>
                         <dt className='text-xs'>{columnLabel(key)}</dt>
-                        <dd className='break-words'>{importColumnField(key) ? cell : translate('unsupportedImportValue')}</dd>
+                        <dd className='break-words'>
+                          {importColumnField(key) ? cell : translate('unsupportedImportValue')}
+                        </dd>
                       </div>
                     ))}
                   </dl>
                   {row.errors.length > 0 && (
                     <p className='break-words'>
                       {translate('rowErrors', {
-                        errors: row.errors.map((error) => translate('invalidImportCell', { field: columnLabel(error.column) })).join(', ')
+                        errors: row.errors
+                          .map((error) => translate('invalidImportCell', { field: columnLabel(error.column) }))
+                          .join(', ')
                       })}
                     </p>
                   )}
@@ -263,7 +267,6 @@ export function ImportPanel() {
         <PersonnelForm
           title={translate(action === 'confirm' ? 'confirmImport' : 'cancelImport')}
           pending={pending}
-          basis={action === 'confirm'}
           fields={
             action === 'confirm' && data?.summary.duplicateOf
               ? [{ name: 'acknowledgeDuplicateFile', type: 'checkbox' }]
@@ -278,7 +281,6 @@ export function ImportPanel() {
             }
             const intent = {
               previewVersion: version,
-              hrBasis: readBasis(values),
               ...(values.get('acknowledgeDuplicateFile') ? { acknowledgeDuplicateFile: true } : {})
             }
             const signature = JSON.stringify({ importId, ...intent })

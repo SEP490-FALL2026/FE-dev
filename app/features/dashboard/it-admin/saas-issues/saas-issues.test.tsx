@@ -35,11 +35,12 @@ it('loads all-scope SaaS issues with server state filtering and pagination', asy
     </QueryClientProvider>
   )
   await screen.findByText('No matching records.')
-  fireEvent.change(screen.getByLabelText('State'), { target: { value: 'IN_PROGRESS' } })
+  fireEvent.click(screen.getByRole('combobox', { name: 'State' }))
+  fireEvent.click(screen.getByRole('option', { name: 'In progress' }))
   await waitFor(() => expect(calls.at(-1)?.get('state')).toBe('IN_PROGRESS'))
   fireEvent.click(screen.getByRole('button', { name: 'Next' }))
   await waitFor(() => expect(calls.at(-1)?.get('page')).toBe('2'))
-  expect(calls.at(-1)?.get('scope')).toBe('all')
+  expect(calls.at(-1)?.get('scope')).toBe('assigned')
 })
 
 it('shows a retry state for failed reads instead of demo issues', async () => {

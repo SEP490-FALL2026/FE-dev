@@ -17,6 +17,10 @@ function renderLoginPage(url = '/login') {
         <Routes>
           <Route path='/login' element={<LoginPage />} />
           <Route path='/dashboard/employee' element={<output data-testid='employee-workspace' />} />
+          <Route path='/dashboard/manager' element={<output data-testid='manager-workspace' />} />
+          <Route path='/dashboard/spending-approver' element={<output data-testid='approver-workspace' />} />
+          <Route path='/dashboard/finance' element={<output data-testid='finance-workspace' />} />
+          <Route path='/dashboard/it-admin' element={<output data-testid='it-workspace' />} />
         </Routes>
       </AppProviders>
     </MemoryRouter>
@@ -56,10 +60,18 @@ describe('LoginPage', () => {
             success: true,
             message: 'ME.RETRIEVED',
             data: {
+              managerScope: null,
               appUserId: 'u1',
               loginEmail: 'person@example.com',
-              employee: { id: 'e1', employeeCode: '001', fullName: 'Person', department: null, jobTitle: null },
-              roles: { direct: ['EMPLOYEE'], derived: [], effective: ['EMPLOYEE'] },
+              employee: {
+                unplaced: false,
+                id: 'e1',
+                employeeCode: '001',
+                fullName: 'Person',
+                department: null,
+                jobTitle: null
+              },
+              roles: ['EMPLOYEE'],
               selfServiceOnly: false
             }
           }
@@ -88,6 +100,63 @@ describe('LoginPage', () => {
     const notification = await screen.findByText('Đăng nhập thành công.')
     expect(notification.closest('[data-sonner-toast]')).not.toBeNull()
   })
+
+  it.each([
+    { apiRole: 'MANAGER', target: 'manager-workspace', redirect: '/login' },
+    { apiRole: 'SPENDING_APPROVER', target: 'approver-workspace', redirect: '/login' },
+    { apiRole: 'FINANCE', target: 'finance-workspace', redirect: '/login' },
+    { apiRole: 'IT_ADMIN', target: 'it-workspace', redirect: '/login' },
+    { apiRole: 'MANAGER', target: 'manager-workspace', redirect: '/login?redirectTo=%2Fdashboard%2Femployee' }
+  ])(
+    'opens $target for a demo account with $apiRole instead of the employee landing page',
+    async ({ apiRole, target, redirect }) => {
+      apiClient.defaults.adapter = async (config) => ({
+        config,
+        data: config.url?.endsWith('/me')
+          ? {
+              success: true,
+              message: 'ME.RETRIEVED',
+              data: {
+                managerScope: null,
+                appUserId: 'u1',
+                loginEmail: 'person@example.com',
+                employee: {
+                  unplaced: false,
+                  id: 'e1',
+                  employeeCode: '001',
+                  fullName: 'Person',
+                  department: null,
+                  jobTitle: null
+                },
+                roles: ['EMPLOYEE', apiRole],
+                selfServiceOnly: false
+              }
+            }
+          : {
+              success: true,
+              message: 'AUTH.LOGGED_IN',
+              data: {
+                accessToken: 'access',
+                refreshToken: 'refresh',
+                tokenType: 'Bearer',
+                expiresAt: new Date(Date.now() + 600_000).toISOString(),
+                refreshExpiresAt: new Date(Date.now() + 3_600_000).toISOString()
+              }
+            },
+        headers: new AxiosHeaders(),
+        status: 200,
+        statusText: 'OK'
+      })
+      renderLoginPage(redirect)
+
+      fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'person@example.com' } })
+      fireEvent.change(screen.getByLabelText('Mật khẩu'), { target: { value: 'secret' } })
+      fireEvent.click(screen.getByRole('button', { name: 'Đăng nhập' }))
+
+      expect(await screen.findByTestId(target)).toBeInTheDocument()
+      expect(screen.queryByTestId('employee-workspace')).not.toBeInTheDocument()
+    }
+  )
 
   it('toggles password visibility', () => {
     renderLoginPage()

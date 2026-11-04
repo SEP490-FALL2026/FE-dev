@@ -60,6 +60,32 @@ it('prevents completing drafts with missing data', async () => {
   expect(await screen.findByRole('button', { name: 'Activate subscription' })).toBeDisabled()
   expect(request.mock.calls.some(([config]) => config.method === 'POST')).toBe(false)
 })
+
+it('records an explicit cancellation deadline without silently confirming an inferred date', async () => {
+  request.mockResolvedValue({
+    data: {
+      id: 'sub-1',
+      status: 'ACTIVE',
+      planName: 'Plan',
+      missing: [],
+      autoRenew: true,
+      allowsMidTermReduction: false,
+      noticeDeadline: { value: '2026-12-01', source: 'INFERRED_UNCONFIRMED' },
+      alerts: { baseDate: '2026-12-01', dates: [] }
+    }
+  })
+  mount(<CatalogSubscriptionEditor id='sub-1' onClose={() => undefined} />)
+  const input = await screen.findByLabelText('Declared cancellation deadline')
+  expect(input).toHaveValue('')
+  fireEvent.change(input, { target: { value: '2026-11-25' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+  await waitFor(() =>
+    expect(request).toHaveBeenCalledWith(
+      expect.objectContaining({ method: 'PATCH', data: expect.objectContaining({ noticeDeadline: '2026-11-25' }) }),
+      undefined
+    )
+  )
+})
 it('activates a complete draft through the completion endpoint', async () => {
   request.mockResolvedValue({
     data: {

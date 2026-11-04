@@ -1,7 +1,9 @@
 ﻿import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { AssessmentQueue } from '../components/assessment-queue'
 import { useAccessRequestAssessmentGet } from '~/shared/api/generated/operations/access-requests/access-request-assessment-get'
 import { useMeGet } from '~/shared/api/generated/operations/me/me-get'
+import { useAccessRequestGet } from '~/shared/api/generated/operations/access-requests/access-request-get'
 import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { itButtonClass, itPrimaryClass, itInputClass, ItField } from '../../shared/components/it-form'
 import { AssessmentDialog } from '../components/assessment-dialog'
@@ -23,14 +25,28 @@ export function ItShadowItView({
   const { t: translate } = useTranslation('itNewSoftware')
   const [draftId, setDraftId] = useState(initialRequestId ?? '')
   const [id, setId] = useState(initialRequestId ?? '')
+  const [queueAllowsAction, setQueueAllowsAction] = useState<boolean | undefined>()
   return (
     <div className='space-y-5'>
       <h1 className='text-2xl font-semibold tracking-tight [text-wrap:balance]'>{translate('title')}</h1>
-      <p className='max-w-3xl text-sm text-muted-foreground'>{translate('queueUnavailable')}</p>
+      {!id && (
+        <AssessmentQueue
+          onOpen={(requestId, canAct) => {
+            setQueueAllowsAction(canAct)
+            setId(requestId)
+          }}
+        />
+      )}
+      {id && (
+        <button type='button' className={itButtonClass} onClick={() => setId('')}>
+          {translate('queue.back')}
+        </button>
+      )}
       <form
         className='flex flex-wrap items-end gap-3'
         onSubmit={(event) => {
           event.preventDefault()
+          setQueueAllowsAction(undefined)
           setId(draftId.trim())
         }}
       >
@@ -50,18 +66,40 @@ export function ItShadowItView({
           {translate('lookup')}
         </button>
       </form>
-      {id && <AssessmentDetail key={id} id={id} onSelectTab={onSelectTab} />}
+      {id && <AssessmentDetail key={id} id={id} queueAllowsAction={queueAllowsAction} onSelectTab={onSelectTab} />}
     </div>
   )
 }
-function AssessmentDetail({ id, onSelectTab }: { id: string; onSelectTab?: (tab: ItAdminTabKey) => void }) {
+function AssessmentDetail({
+  id,
+  onSelectTab,
+  queueAllowsAction
+}: {
+  id: string
+  onSelectTab?: (tab: ItAdminTabKey) => void
+  queueAllowsAction?: boolean
+}) {
   const { t: translate } = useTranslation('itNewSoftware')
   const query = useAccessRequestAssessmentGet(id)
   const me = useMeGet()
+  const requestQuery = useAccessRequestGet(id, { query: { enabled: queueAllowsAction === undefined } })
+  const requestData = requestQuery.data?.data
+  const request = requestData && 'request' in requestData ? requestData.request : undefined
+  const employeeId = me.data?.data?.employee?.id
+  const independent =
+    request &&
+    !requestQuery.isError &&
+    !requestQuery.isFetching &&
+    !!employeeId &&
+    request.requester.employeeId !== employeeId &&
+    request.beneficiary?.employeeId !== employeeId
   const [mode, setMode] = useState<'save' | 'complete' | 'reject' | null>(null)
   const [internalOpen, setInternalOpen] = useState(false)
   const item = query.data?.data?.assessment
-  const authorized = !me.isError && (me.data?.data?.roles.effective.includes('IT_ADMIN') ?? false)
+  const authorized =
+    (queueAllowsAction === true || (queueAllowsAction === undefined && !!independent)) &&
+    !me.isError &&
+    (me.data?.data?.roles.includes('IT_ADMIN') ?? false)
   const editable =
     authorized &&
     !query.isFetching &&

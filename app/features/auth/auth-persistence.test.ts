@@ -13,10 +13,11 @@ const me = {
   success: true,
   message: 'ME.RETRIEVED',
   data: {
+    managerScope: null,
     appUserId: 'u1',
     loginEmail: 'person@example.com',
     employee: null,
-    roles: { direct: ['EMPLOYEE'], derived: [], effective: ['EMPLOYEE'] },
+    roles: ['EMPLOYEE'],
     selfServiceOnly: false
   }
 }

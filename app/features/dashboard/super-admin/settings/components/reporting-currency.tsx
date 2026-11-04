@@ -56,6 +56,7 @@ export function ReportingCurrency() {
                 required
                 list='admin-currencies'
                 pattern='[A-Z]{3}'
+                placeholder={translate('settings.currencyPlaceholder')}
                 className={adminInputClass}
                 value={currency}
                 onChange={(event) => setCurrency(event.target.value)}

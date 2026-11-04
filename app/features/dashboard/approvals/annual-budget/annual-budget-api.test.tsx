@@ -100,7 +100,7 @@ describe('Spending Approver annual budget API', () => {
       if (path === '/me')
         data = {
           employee: { id: ownVersion ? 'finance-1' : 'approver-1' },
-          roles: { effective: ['SPENDING_APPROVER'] }
+          roles: ['SPENDING_APPROVER']
         }
       if (path === '/budget-versions')
         data = page(

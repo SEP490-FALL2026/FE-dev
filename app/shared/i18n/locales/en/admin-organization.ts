@@ -1,4 +1,7 @@
+import { adminDepartmentEditor } from './admin-department-editor'
+
 export const adminOrganization = {
+  ...adminDepartmentEditor,
   title: 'Organization',
   subtitle: 'Manage departments and leadership.',
   departments: 'Departments',
@@ -55,7 +58,7 @@ export const adminOrganization = {
     assignHead:
       'Choose a member on the effective date, today or later. The previous head ends the day before. The server checks eligibility.',
     vacateHead:
-      'The department will have no head from the selected date, today or later. Requests use the configured fallback approver.',
+      'The department will have no head from the selected date, today or later. Department requests wait until a new head is assigned.',
     designateSuccessor:
       'A successor must start after today and be a department member on that date. A current head is required.',
     clearSuccessor: 'Withdraw the future successor. The current head continues without the planned end date.'

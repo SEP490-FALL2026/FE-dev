@@ -48,7 +48,7 @@ export function FinanceCommitmentDetail({
   const disabled =
     !fresh ||
     item.state !== CommitmentState.HELD ||
-    !me.data?.data?.roles.effective.includes('FINANCE') ||
+    !me.data?.data?.roles.includes('FINANCE') ||
     me.isFetching ||
     me.isError ||
     releases.isFetching ||

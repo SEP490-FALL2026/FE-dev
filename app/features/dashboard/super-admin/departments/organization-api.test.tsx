@@ -69,23 +69,18 @@ describe('Organization API integration', () => {
       ).toBe(true)
     )
   })
-  it('sends only department fields and a complete HR basis, then reloads the list', async () => {
+  it('sends only current department fields, then reloads the list', async () => {
     mount()
     fireEvent.click(screen.getByRole('button', { name: 'Create department' }))
     fireEvent.change(screen.getByLabelText('Department code'), { target: { value: 'ENG' } })
     fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Engineering' } })
-    fireEvent.change(screen.getByLabelText('Document type'), { target: { value: 'Decision' } })
-    fireEvent.change(screen.getByLabelText('Reference'), { target: { value: 'HR-42' } })
-    fireEvent.change(screen.getByLabelText('Issuer'), { target: { value: 'HR' } })
-    fireEvent.change(screen.getByLabelText('Issued on'), { target: { value: '2026-10-30' } })
     fireEvent.submit(screen.getByRole('dialog').querySelector('form')!)
     await waitFor(() => expect(requests.some((r) => r.method === 'post')).toBe(true))
     expect(requests.find((r) => r.method === 'post')?.body).toEqual({
       code: 'ENG',
       name: 'Engineering',
       function: null,
-      itAdminEmployeeId: null,
-      hrBasis: { type: 'Decision', reference: 'HR-42', issuer: 'HR', issuedOn: '2026-10-30' }
+      itAdminEmployeeId: null
     })
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     expect(requests.filter((r) => r.method === 'get' && r.url?.endsWith('/departments')).length).toBeGreaterThan(1)

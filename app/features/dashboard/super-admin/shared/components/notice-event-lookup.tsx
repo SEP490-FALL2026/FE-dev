@@ -21,26 +21,59 @@ export function NoticeEventLookup({ employeeId, source }: { employeeId: string; 
   const leaves = useLongLeaveList(params, { query: { enabled: source === 'leaves' } })
   const offboarding = useOffboardingCaseList(params, { query: { enabled: source === 'offboarding' } })
   const query = source === 'transfers' ? transfers : source === 'leaves' ? leaves : offboarding
-  const items = source === 'transfers'
-    ? transfers.data?.data?.items.map((event) => ({ id: event.id, label: translate('transferEventOption', {
-      employee: event.employee.fullName, from: event.from.department.name, to: event.to.department.name, date: formatDate(event.effectiveOn)
-    }) }))
-    : source === 'leaves'
-      ? leaves.data?.data?.items.map((event) => ({ id: event.id, label: translate('leaveEventOption', {
-        employee: event.employee.fullName, start: formatDate(event.startedOn), end: formatDate(event.approvedReturnOn)
-      }) }))
-      : offboarding.data?.data?.items.map((event) => ({ id: event.id, label: translate('offboardingEventOption', {
-        employee: event.employee.fullName, date: formatDate(event.lastWorkingDay)
-      }) }))
+  const items =
+    source === 'transfers'
+      ? transfers.data?.data?.items.map((event) => ({
+          id: event.id,
+          label: translate('transferEventOption', {
+            employee: event.employee.fullName,
+            from: event.from.department.name,
+            to: event.to.department.name,
+            date: formatDate(event.effectiveOn)
+          })
+        }))
+      : source === 'leaves'
+        ? leaves.data?.data?.items.map((event) => ({
+            id: event.id,
+            label: translate('leaveEventOption', {
+              employee: event.employee.fullName,
+              start: formatDate(event.startedOn),
+              end: formatDate(event.approvedReturnOn)
+            })
+          }))
+        : offboarding.data?.data?.items.map((event) => ({
+            id: event.id,
+            label: translate('offboardingEventOption', {
+              employee: event.employee.fullName,
+              date: formatDate(event.lastWorkingDay)
+            })
+          }))
   return (
     <div className='grid gap-2'>
-      <select className={adminInputClass} name='eventId' aria-label={translate('fields.eventId')} required value={selection?.id ?? ''} onChange={() => setSelection(null)}>
+      <select
+        className={adminInputClass}
+        name='eventId'
+        aria-label={translate('fields.eventId')}
+        required
+        value={selection?.id ?? ''}
+        onChange={() => setSelection(null)}
+      >
         <option value=''>{translate('choose')}</option>
         {selection && <option value={selection.id}>{selection.label}</option>}
       </select>
       <AdminQueryState query={query}>
         {!items?.length && <AdminEmpty />}
-        {items?.map((event) => <button key={event.id} type='button' aria-pressed={event.id === selection?.id} className={`${adminButtonClass} justify-start text-left`} onClick={() => setSelection(event)}>{event.label}</button>)}
+        {items?.map((event) => (
+          <button
+            key={event.id}
+            type='button'
+            aria-pressed={event.id === selection?.id}
+            className={`${adminButtonClass} justify-start text-left`}
+            onClick={() => setSelection(event)}
+          >
+            {event.label}
+          </button>
+        ))}
         <AdminPagination pagination={query.data?.data?.pagination} onPageChange={setPage} disabled={query.isFetching} />
       </AdminQueryState>
     </div>

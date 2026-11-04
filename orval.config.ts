@@ -11,12 +11,12 @@ export default defineConfig({
         tags: [
           'auth',
           'me',
+          'dashboards',
+          'need-decisions',
           'audit',
           'employees',
           'departments',
           'app-users',
-          'approval-roles',
-          'super-admin-transfers',
           'onboarding',
           'super-admin-watch',
           'department-transfers',
@@ -33,6 +33,7 @@ export default defineConfig({
           'plans',
           'vendors',
           'subscriptions',
+          'subscription-renewals',
           'plan-terms',
           'contracts',
           'documents',
@@ -59,7 +60,9 @@ export default defineConfig({
           'exchange-rates',
           'spend-approvals',
           'spend-submission',
-          'notifications'
+          'notifications',
+          'requestable-software',
+          'return-requests'
         ]
       }
     },

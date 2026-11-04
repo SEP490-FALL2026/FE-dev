@@ -1,5 +1,32 @@
 ﻿export const itProvisioning = {
   expiry: 'Quyền đã hết hạn',
+  handover: {
+    title: 'Bàn giao dữ liệu',
+    details: 'Xem yêu cầu bàn giao',
+    confirm: 'Xác nhận đã xử lý bàn giao',
+    confirmer: 'Người xác nhận được giao',
+    dueOn: 'Hạn xác nhận',
+    notConfirmer:
+      'Chỉ IT được giao xác nhận mới có thể ghi nhận xử lý. Hạn bàn giao không tự cho phép gỡ quyền truy cập.',
+    values: {
+      OPEN: 'Chờ xác nhận',
+      CONFIRMED: 'Đã xác nhận',
+      CANCELLED: 'Đã hủy',
+      IT_ADMIN: 'IT Admin',
+      DEPARTMENT_HEAD: 'Trưởng phòng',
+      REQUESTER: 'Người yêu cầu',
+      NO_HEAD: 'Chờ trưởng phòng',
+      NO_SUCCESSOR: 'Chờ người kế nhiệm'
+    }
+  },
+  placeholders: {
+    account: 'Ví dụ: nhanvien@company.example',
+    employeeId: 'UUID nhân viên chịu trách nhiệm',
+    evidence: 'Ghi nơi thực hiện, thời điểm và cách cấp hoặc thu hồi quyền',
+    reason: 'Mô tả lỗi và các bước đã thử xử lý',
+    note: 'Nêu căn cứ xác nhận quyền truy cập đã kết thúc',
+    accessEvidence: 'Ghi bằng chứng đã cắt truy cập phía nhà cung cấp'
+  },
   debt: 'Nghĩa vụ còn tồn',
   anyDebt: 'Mọi nghĩa vụ',
   withDebt: 'Còn nghĩa vụ tồn',

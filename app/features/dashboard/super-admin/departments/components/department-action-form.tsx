@@ -11,7 +11,6 @@ import {
 } from '~/shared/api/generated/operations/departments'
 import { AdminField, AdminFormDialog, adminInputClass } from '../../shared/components/admin-form'
 import { useAdminMutationFeedback } from '../../shared/hooks/use-admin-mutation-feedback'
-import { HrBasisFields, readHrBasis } from './hr-basis-fields'
 import { EmployeePicker } from './employee-picker'
 import { organizationSummaryQueryKeys } from '../hooks/organization-query-keys'
 
@@ -56,7 +55,7 @@ export function DepartmentActionForm({
       onSubmit={(event) => {
         event.preventDefault()
         const form = new FormData(event.currentTarget)
-        const common = { id: department.id, data: { hrBasis: readHrBasis(form) } }
+        const common = { id: department.id, data: {} }
         const datedData = { ...common.data, effectiveFrom: String(form.get('effectiveFrom')) }
         const employeeData = { ...datedData, employeeId: String(form.get('employeeId')).trim() }
         if (action === 'deactivate') deactivate.mutate(common)
@@ -73,7 +72,6 @@ export function DepartmentActionForm({
           <input className={adminInputClass} required name='effectiveFrom' type='date' min={minimumDate} />
         </AdminField>
       )}
-      <HrBasisFields />
     </AdminFormDialog>
   )
 }

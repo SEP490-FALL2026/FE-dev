@@ -32,16 +32,18 @@ beforeEach(async () => {
     http.get(`${endpoint}/me`, () =>
       HttpResponse.json(
         envelope({
+          managerScope: null,
           appUserId: 'previous-admin',
           loginEmail: 'admin@example.com',
           employee: {
+            unplaced: false,
             id: 'previous-employee',
             employeeCode: 'E-001',
             fullName: 'Previous Administrator',
             department: null,
             jobTitle: null
           },
-          roles: { direct: ['EMPLOYEE'], derived: [], effective: ['EMPLOYEE'] },
+          roles: ['EMPLOYEE'],
           selfServiceOnly: false
         })
       )
@@ -176,8 +178,8 @@ describe('Super Admin account requests', () => {
     fireEvent.click(await screen.findByRole('button', { name: 'Grant role' }))
     const dialog = screen.getByRole('dialog')
     const picker = within(dialog).getByLabelText('Role')
-    expect(within(picker).queryByRole('option', { name: 'Manager' })).not.toBeInTheDocument()
-    expect(within(picker).queryByRole('option', { name: 'Spending Approver' })).not.toBeInTheDocument()
+    expect(within(picker).getByRole('option', { name: 'Manager' })).toBeInTheDocument()
+    expect(within(picker).getByRole('option', { name: 'Spending Approver' })).toBeInTheDocument()
     expect(within(picker).queryByRole('option', { name: 'Super Admin' })).not.toBeInTheDocument()
     fireEvent.change(picker, { target: { value: 'FINANCE' } })
     fireEvent.click(within(dialog).getByRole('button', { name: 'Confirm' }))
@@ -209,53 +211,26 @@ describe('Super Admin account requests', () => {
     await waitFor(() => expect(save).toHaveBeenCalledWith({ reason: 'Security review' }))
   })
 
-  it('assigns approval responsibility using employee ID from paged activated accounts', async () => {
-    const assign = vi.fn()
+  it('reads spending approvers from account roles and opens account details without retired APIs', async () => {
     const requests: URL[] = []
     server.use(
-      http.get(`${endpoint}/approval-roles`, () =>
-        HttpResponse.json(
-          envelope({ items: [{ role: 'CONFLICT_SUBSTITUTE', holder: null, history: [], historyHasMore: false }] })
-        )
-      ),
       http.get(`${endpoint}/app-users`, ({ request }) => {
         requests.push(new URL(request.url))
-        return HttpResponse.json(page([{ ...account, activationState: 'ACTIVATED' }]))
-      }),
-      http.put(`${endpoint}/approval-roles/CONFLICT_SUBSTITUTE`, async ({ request }) => {
-        assign(await request.json())
-        return HttpResponse.json(envelope({ items: [] }))
+        return HttpResponse.json(page([{ ...account, roles: ['EMPLOYEE', 'SPENDING_APPROVER'] }]))
       })
     )
     mount()
-    fireEvent.click(screen.getByRole('tab', { name: 'Approval responsibilities' }))
-    fireEvent.click(await screen.findByRole('button', { name: 'Assign or replace' }))
-    const dialog = screen.getByRole('dialog')
-    fireEvent.click(await within(dialog).findByRole('radio', { name: /Alex/ }))
-    expect(requests.at(-1)?.searchParams.get('activationState')).toBe('ACTIVATED')
-    expect(requests.at(-1)?.searchParams.get('employeeLeft')).toBe('false')
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Confirm' }))
-    await waitFor(() => expect(assign).toHaveBeenCalledWith({ employeeId: 'employee-1' }))
+    fireEvent.click(screen.getByRole('tab', { name: 'Spending approver' }))
+    await waitFor(() => expect(requests.at(-1)?.searchParams.get('role')).toBe('SPENDING_APPROVER'))
+    fireEvent.click(await screen.findByRole('button', { name: 'View details' }))
+    expect(await screen.findByRole('button', { name: 'Grant role' })).toBeInTheDocument()
   })
 
-  it('confirms transfer and sends only successorAppUserId', async () => {
-    const transfer = vi.fn()
-    server.use(
-      http.get(`${endpoint}/app-users`, () => HttpResponse.json(page([{ ...account, activationState: 'ACTIVATED' }]))),
-      http.post(`${endpoint}/super-admin-transfers`, async ({ request }) => {
-        transfer(await request.json())
-        return HttpResponse.json(envelope({}))
-      })
-    )
+  it('does not offer the retired Super Admin transfer action', async () => {
     mount()
-    fireEvent.click(screen.getByRole('tab', { name: 'Approval responsibilities' }))
-    fireEvent.click(await screen.findByRole('button', { name: 'Transfer Super Admin' }))
-    const dialog = screen.getByRole('dialog')
-    fireEvent.click(await within(dialog).findByRole('radio', { name: /Alex/ }))
-    fireEvent.click(within(dialog).getByRole('checkbox'))
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Confirm' }))
-    await waitFor(() => expect(transfer).toHaveBeenCalledWith({ successorAppUserId: 'account-1' }))
-    expect(within(dialog).queryByLabelText(/password/i)).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('tab', { name: 'Spending approver' }))
+    expect(await screen.findByText('alex@example.com')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Transfer Super Admin' })).not.toBeInTheDocument()
   })
 
   it('shows a retryable read error and recovers to an empty state', async () => {

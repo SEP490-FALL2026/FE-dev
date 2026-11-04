@@ -1,4 +1,23 @@
+import { adminEmployeeDirectory } from './admin-employee-directory'
+import { adminImportImpact } from './admin-import-impact'
+
 export const adminPersonnel = {
+  ...adminEmployeeDirectory,
+  ...adminImportImpact,
+  fieldPlaceholder: 'Enter {{field}}',
+  placeholders: {
+    employeeCode: 'e.g. EMP-001',
+    fullName: 'Enter the full legal name',
+    workEmail: 'e.g. employee@company.com',
+    departmentCode: 'e.g. ENG',
+    jobTitle: 'e.g. Business analyst',
+    reason: 'Explain the reason for this change',
+    type: 'e.g. Department transfer decision',
+    reference: 'e.g. HR-2026-123',
+    issuer: 'Name the authorized issuer or organization',
+    transferCancellationReason: 'Explain why the pending transfer must be cancelled',
+    verificationReference: 'Official document number or verification reference'
+  },
   otherImportColumn: 'Other column',
   recentImportOption: '{{file}} · {{date}}',
   recentImportsHelp: 'Choose a recent import from this browser session to resume it.',
@@ -64,7 +83,7 @@ export const adminPersonnel = {
   upload: 'Upload for preview',
   file: 'Employee file',
   importHelp:
-    'CSV/XLSX, up to 2 MiB. Required columns: employee_code, full_name, employment_type, hire_date, department_code. Upload only creates a preview.',
+    'CSV/XLSX, up to 2 MiB. Required: employee_code, full_name, employment_type, hire_date. department_code, work_email and job_title are optional; leave the department code blank for unplaced staff. Upload only creates a preview.',
   resumeImport: 'Read existing import',
   importIdPlaceholder: 'Enter the ID of a previous employee import',
   refreshPreview: 'Refresh preview',

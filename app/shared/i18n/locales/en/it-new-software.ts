@@ -1,13 +1,47 @@
 ﻿export const itNewSoftware = {
   title: 'Software requests outside the catalog',
+  placeholders: {
+    vendorName: 'e.g. Miro',
+    plannedPlanName: 'e.g. Business',
+    termsSummary: 'Summarize the terms relevant to company use',
+    memberUsageMethod: 'How will members and activity be verified?',
+    grantRevokeMethod: 'Describe grant, revoke and data handover steps',
+    controlRiskNote: 'Record risks and the evidence supporting your assessment',
+    proposedBusinessOwnerEmployeeId: 'Business owner employee UUID',
+    equivalentPlanId: 'UUID of a saved equivalent catalog plan',
+    opinion: 'Opinion received, date and supporting reference'
+  },
+  queue: {
+    title: 'Waiting for assessment',
+    total: '{{count}} requests',
+    users: '{{count}} users',
+    missing: '{{count}} missing fields',
+    sla: 'SLA {{days}} working days',
+    actionable: 'Ready for your review',
+    viewOnly: 'View only',
+    open: 'View assessment',
+    back: 'Back to queue',
+    readiness: {
+      COMPLETABLE: 'Ready to complete',
+      INCOMPLETE: 'Assessment incomplete',
+      INTERNAL_BY_REGISTRATION: 'Internal registration required',
+      UNCONTROLLABLE: 'Control risk requires review'
+    }
+  },
   catalogLink: {
     title: 'Registered catalog plan',
     action: 'Link saved catalog plan',
     linked: 'Linked plan: {{plan}}',
-    hint: 'Linking requires a completed paid assessment, a saved equivalent catalog plan, and an unlinked request awaiting execution after spending approval. Internal registration creates its own plan.',
+    hint: 'After spending approval, select the registered application and plan that will fulfill this request. The paid assessment must be complete and the request awaiting execution.',
+    suggestion: 'Alternative from assessment (reference only): {{application}} · {{plan}}',
+    searchApplication: 'Search registered applications',
+    searchPlaceholder: 'e.g. Figma, Jira',
+    application: 'Registered application',
+    plan: 'Plan to fulfill this request',
+    selectPlanHint: 'Select a saved plan for the chosen application and wait for its details to load.',
     confirm: 'Link {{application}} · {{plan}} to this request?',
     confirmHint:
-      'The backend checks the registered plan and active Business Owner. This links the request; it does not create software or grant access.'
+      'The registered application must have a Business Owner who still works here. Linking the plan prepares this request for provisioning.'
   },
   requestIdPlaceholder: 'Enter the request UUID',
   unknown: 'Unknown status',

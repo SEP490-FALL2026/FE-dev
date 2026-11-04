@@ -41,6 +41,17 @@
   provisioning: 'Open provisioning queue',
   noPermission: 'Only an IT Admin may record evidence or close this case.',
   note: 'Evidence / reason',
+  cancellationReason: 'Reason',
+  cancellationEvidence: 'Rollback / invitation recovery evidence (optional)',
+  rightContext: {
+    confirmer: 'Handover confirmer',
+    dueOn: 'Handover confirmation due: {{date}}',
+    accessRunsOnUntil: 'Access continues until: {{date}}',
+    overdue: 'Handover confirmation overdue',
+    flaggedUnconfirmed: 'Revocation continued without handover confirmation',
+    viewHandover: 'Review handover duty',
+    waitingReasons: { NO_HEAD: 'Waiting for a department head', NO_SUCCESSOR: 'Waiting for a successor' }
+  },
   confirm: 'Confirm',
   saved: 'Operation recorded',
   failed: 'Operation failed. Refresh the case and try again.',
@@ -51,13 +62,17 @@
     lock: 'Record account lock',
     revoke: 'Open selected revocations',
     close: 'Close case',
-    cancel: 'Cancel request for departure'
+    cancel: 'Cancel request for departure',
+    closeLine: 'Close departing employee’s line'
   },
   hints: {
     lock: 'Record evidence only after locking the company account outside this system. This action does not lock the account.',
     revoke: 'Create revocation tasks for the selected rights. Access is removed when IT completes each task.',
     close: 'Close this case after all backend blockers and checklist items are resolved.',
-    cancel: 'Cancel this open request because the beneficiary has left. The backend verifies eligibility.'
+    cancel: 'Close the departing employee’s open request or group line. The server verifies eligibility.',
+    closeLine: 'Other group members continue with their request. Only the departing employee’s line is closed.',
+    cancellationEvidence:
+      'If granting has started, record the vendor check and how the work was undone or the invitation recovered. The server determines when evidence is required. Never include passwords or keys.'
   },
   steps: {
     dataHandover: 'Data handover',

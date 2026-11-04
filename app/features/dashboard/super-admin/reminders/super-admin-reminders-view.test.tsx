@@ -21,7 +21,7 @@ const parameters = parameterKeys.map((key, position) => ({
   isDefault: position !== 1,
   unit: ['working days', 'steps', 'minutes per day', 'month of the year', 'working days', 'working days'][position],
   description: 'Raw backend description',
-  constraints: {},
+  constraints: { kind: 'int', min: 1, max: 30 },
   changedAt: position === 1 ? '2026-11-01T03:00:00Z' : null
 }))
 
@@ -60,7 +60,7 @@ it('sends numeric values, preserves failed drafts and prevents duplicate saves',
               isDefault: true,
               unit: 'days',
               description: '',
-              constraints: {},
+              constraints: { kind: 'int', min: 1, max: 30 },
               changedAt: null
             }
           ]
@@ -173,4 +173,91 @@ it('uses the translated parameter name in editing and history and distinguishes 
   expect(await screen.findByText('Currently applied')).toBeInTheDocument()
   expect(screen.getByText('No longer applied')).toBeInTheDocument()
   expect(screen.getByText('Earlier changes are not included in this response.')).toBeInTheDocument()
+})
+
+it('shows labels and groups returned by BE even for new parameter keys', async () => {
+  server.use(
+    http.get('*/api/v1/operating-parameters', () =>
+      HttpResponse.json({
+        success: true,
+        data: {
+          items: [
+            {
+              ...parameters[0],
+              key: 'NEW_PARAMETER',
+              label: 'Tên mới từ BE',
+              group: 'WORKFLOW',
+              groupLabel: 'Nhóm từ BE',
+              unitLabel: 'ngày từ BE'
+            }
+          ]
+        }
+      })
+    )
+  )
+  mountParameters()
+  expect(await screen.findByRole('heading', { name: 'Tên mới từ BE' })).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: 'Nhóm từ BE' })).toBeInTheDocument()
+  expect(screen.getByText('ngày từ BE')).toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button', { name: 'Edit' }))
+  expect(screen.getByRole('dialog')).toHaveTextContent('Tên mới từ BE')
+})
+
+it('uses BE enum labels and sends the selected enum code', async () => {
+  let received: unknown
+  server.use(
+    http.get('*/api/v1/operating-parameters', () =>
+      HttpResponse.json({
+        success: true,
+        data: {
+          items: [
+            {
+              ...parameters[0],
+              key: 'RULE_SCHEDULE_G1_G2',
+              value: 'DAILY',
+              default: 'DAILY',
+              label: 'Lịch chạy luật',
+              constraints: {
+                kind: 'enum',
+                options: ['DAILY', 'WEEKLY'],
+                optionLabels: { DAILY: 'Hằng ngày', WEEKLY: 'Hằng tuần' }
+              }
+            }
+          ]
+        }
+      })
+    ),
+    http.put('*/api/v1/operating-parameters/RULE_SCHEDULE_G1_G2', async ({ request }) => {
+      received = await request.json()
+      return HttpResponse.json({ success: true, data: {} })
+    })
+  )
+  mountParameters()
+  fireEvent.click(await screen.findByRole('button', { name: 'Edit' }))
+  fireEvent.click(screen.getByRole('radio', { name: 'Hằng tuần' }))
+  expect(screen.getByRole('radio', { name: 'Hằng tuần' })).toBeChecked()
+  fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+  await waitFor(() => expect(received).toEqual({ value: 'WEEKLY' }))
+})
+
+it('keeps unsupported constraint kinds read only', async () => {
+  server.use(
+    http.get('*/api/v1/operating-parameters', () =>
+      HttpResponse.json({
+        success: true,
+        data: {
+          items: [
+            {
+              ...parameters[0],
+              constraints: { kind: 'future' },
+              value: { hours: 2 }
+            }
+          ]
+        }
+      })
+    )
+  )
+  mountParameters()
+  expect(await screen.findByRole('button', { name: 'Edit' })).toBeDisabled()
+  expect(screen.getByText('{"hours":2}')).toBeInTheDocument()
 })

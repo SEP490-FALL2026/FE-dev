@@ -1,6 +1,6 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
-import { beforeAll, afterAll, beforeEach, describe, expect, it } from 'vitest'
+import { beforeAll, afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
 
@@ -9,6 +9,10 @@ import { AppProviders } from '~/providers/app-providers'
 import { setAppLanguage } from '~/shared/i18n/i18n'
 
 import { DashboardPage } from './dashboard-page'
+// Pre-transform lazy code outside assertion timeouts; production network tests cover deferred downloads.
+import './super-admin/super-admin-screen'
+import './finance/finance-screen'
+import './approvals/approval-screen'
 
 const server = setupServer(
   http.get('*/api/v1/onboarding-checklist', () => HttpResponse.json({ success: true, data: { steps: [] } })),
@@ -54,14 +58,16 @@ const roleLabels: Record<UserRole, string> = {
   'super-admin': 'Quản trị hệ thống'
 }
 
-function renderDashboard(role: UserRole, initialEntry = '/') {
-  return render(
+async function renderDashboard(role: UserRole, initialEntry = '/') {
+  const view = render(
     <MemoryRouter initialEntries={[initialEntry]}>
       <AppProviders>
         <DashboardPage role={role} />
       </AppProviders>
     </MemoryRouter>
   )
+  await act(() => vi.dynamicImportSettled())
+  return view
 }
 
 describe('DashboardPage', () => {
@@ -71,8 +77,8 @@ describe('DashboardPage', () => {
     await setAppLanguage('vi', false)
   })
 
-  it('renders the super-admin dashboard and navigates the UF-13 screens', () => {
-    const view = renderDashboard('super-admin')
+  it('renders the super-admin dashboard and navigates the UF-13 screens', async () => {
+    const view = await renderDashboard('super-admin')
 
     expect(screen.getByRole('heading', { level: 1, name: 'Thiết lập tổ chức' })).toBeInTheDocument()
     expect(screen.getByRole('navigation', { name: 'Điều hướng dashboard' })).toBeInTheDocument()
@@ -88,7 +94,7 @@ describe('DashboardPage', () => {
 
   it('translates the super-admin overview and navigation when English is selected', async () => {
     await setAppLanguage('en')
-    renderDashboard('super-admin')
+    await renderDashboard('super-admin')
 
     expect(screen.getByRole('heading', { level: 1, name: 'Organization setup' })).toBeInTheDocument()
     expect(await screen.findByRole('heading', { name: 'Setup checklist' })).toBeInTheDocument()
@@ -97,8 +103,8 @@ describe('DashboardPage', () => {
     expect(screen.queryByText('Minh Anh')).not.toBeInTheDocument()
   })
 
-  it('navigates Finance API workspaces and identifies unavailable reporting', () => {
-    renderDashboard('finance')
+  it('navigates Finance API workspaces and identifies unavailable reporting', async () => {
+    await renderDashboard('finance')
     expect(screen.getByRole('heading', { level: 1, name: 'Tổng quan tài chính' })).toBeInTheDocument()
     const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
     fireEvent.click(within(nav).getByRole('button', { name: 'Trung tâm chi phí & Ngân sách' }))
@@ -110,7 +116,7 @@ describe('DashboardPage', () => {
   })
 
   it('navigates the Spending Approver API workspaces without demo badges or profile', async () => {
-    const view = renderDashboard('spending-approver')
+    const view = await renderDashboard('spending-approver')
     const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
 
     expect(screen.getByRole('heading', { level: 1, name: 'Tổng quan phê duyệt' })).toBeInTheDocument()
@@ -134,15 +140,15 @@ describe('DashboardPage', () => {
     view.unmount()
   })
 
-  it('keeps unsupported report URLs honest and provides supported navigation', () => {
-    renderDashboard('spending-approver', '/?tab=reports')
+  it('keeps unsupported report URLs honest and provides supported navigation', async () => {
+    await renderDashboard('spending-approver', '/?tab=reports')
     expect(screen.getByRole('heading', { level: 1, name: 'Chức năng chưa được hỗ trợ' })).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Hàng đợi duyệt chi' }))
     expect(screen.getByRole('heading', { level: 1, name: 'Hàng đợi duyệt chi' })).toBeInTheDocument()
   })
 
-  it('does not restore a demo Request for a legacy fixture ID', () => {
-    renderDashboard('spending-approver', '/?tab=request&id=req-101')
+  it('does not restore a demo Request for a legacy fixture ID', async () => {
+    await renderDashboard('spending-approver', '/?tab=request&id=req-101')
     expect(screen.getByRole('heading', { level: 1, name: 'Duyệt chi yêu cầu' })).toBeInTheDocument()
     expect(screen.getByText('Không có bản ghi phù hợp.')).toBeInTheDocument()
   })

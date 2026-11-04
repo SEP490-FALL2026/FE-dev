@@ -43,7 +43,7 @@ export function FinanceReviewDetail({ requestId, onClose }: { requestId: string;
   const ownRequest =
     requestItem?.requester.employeeId === employeeId || requestItem?.beneficiary?.employeeId === employeeId
   const authorized = Boolean(
-    me.data?.data?.roles.effective.includes('FINANCE') &&
+    me.data?.data?.roles.includes('FINANCE') &&
     employeeId &&
     review?.step.assignee?.employeeId === employeeId &&
     !ownRequest

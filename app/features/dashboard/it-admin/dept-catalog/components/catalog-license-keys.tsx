@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useCallback, useRef } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -187,6 +187,7 @@ export function CatalogKeyVault({ subscriptionId }: { subscriptionId: string }) 
           <textarea
             autoComplete='off'
             spellCheck={false}
+            placeholder={translate('placeholders.keys')}
             value={text}
             disabled={imported.isPending}
             className={itInputClass}

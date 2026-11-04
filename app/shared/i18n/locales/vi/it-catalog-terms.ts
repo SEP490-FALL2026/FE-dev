@@ -1,0 +1,32 @@
+export const itCatalogTerms = {
+  title: 'Điều khoản gói',
+  uncertain: 'Chưa xác định được kết quả ghi. Đóng biểu mẫu và kiểm tra lịch sử ý kiến trước khi ghi lại.',
+  edit: 'Sửa điều khoản',
+  warnings: 'Điều khoản cần rà soát',
+  open: 'Rà soát điều khoản',
+  notApplicable: 'Phần mềm nội bộ K5 không áp dụng rà soát điều khoản.',
+  termsUrl: 'Liên kết điều khoản',
+  lastReviewedOn: 'Ngày rà soát gần nhất',
+  aiTraining: 'Chính sách huấn luyện AI',
+  dataLocation: 'Nơi lưu dữ liệu',
+  commercialUse: 'Sử dụng thương mại',
+  cancellationRefund: 'Hủy và hoàn tiền',
+  maxDevicesPerKey: 'Số thiết bị mỗi khóa',
+  installNote: 'Ràng buộc cài đặt',
+  reviewFrom: 'Bắt đầu rà soát',
+  opinions: 'Ý kiến Business Owner',
+  recordOpinion: 'Ghi ý kiến phụ trách',
+  saveOpinion: 'Lưu ý kiến',
+  opinion: 'Ý kiến Business Owner',
+  opinionHint: 'Ý kiến được lưu làm căn cứ; không tạo thêm bước phê duyệt.',
+  opinionPlaceholder: 'Ghi đánh giá của Business Owner về các điều khoản này',
+  urlPlaceholder: 'https://vendor.example/terms',
+  devicesPlaceholder: 'Ví dụ: 3',
+  installPlaceholder: 'Giới hạn thiết bị, kích hoạt và chuyển quyền',
+  placeholders: {
+    aiTraining: 'Nhà cung cấp có dùng dữ liệu công ty để huấn luyện AI không?',
+    dataLocation: 'Quốc gia hoặc khu vực lưu trữ dữ liệu',
+    commercialUse: 'Điều kiện sử dụng trong công ty và thương mại',
+    cancellationRefund: 'Thời hạn báo hủy, hoàn tiền và xuất dữ liệu'
+  }
+} as const

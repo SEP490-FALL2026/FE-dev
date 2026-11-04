@@ -1,0 +1,109 @@
+.workspace-data-table {
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+.workspace-data-table th {
+  border-bottom: 1px solid var(--theme-border);
+  background: var(--theme-surface-subtle);
+  padding: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--theme-muted-foreground);
+}
+.workspace-data-table td {
+  border-bottom: 1px solid color-mix(in oklab, var(--theme-border) 60%, transparent);
+  padding: 0.875rem 0.75rem;
+  vertical-align: middle;
+  overflow-wrap: anywhere;
+}
+.workspace-data-table th:last-child:has(.sr-only),
+.workspace-data-table td:last-child:has(> button) {
+  width: 8.5rem;
+}
+.workspace-data-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+.workspace-data-table tbody tr:hover {
+  background: var(--theme-surface-subtle);
+}
+.workspace-data-table button:focus-visible {
+  outline: 2px solid var(--theme-primary);
+  outline-offset: 2px;
+}
+.workspace-mobile-label {
+  display: none;
+}
+.workspace-data-table td.workspace-table-empty {
+  padding: 0;
+  text-align: center;
+}
+@media (max-width: 767px) {
+  .workspace-data-table,
+  .workspace-data-table tbody {
+    display: block;
+    width: 100%;
+  }
+  .workspace-data-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .workspace-data-table tr {
+    display: block;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--theme-border);
+  }
+  .workspace-data-table tr:last-child {
+    border-bottom: 0;
+  }
+  .workspace-data-table td,
+  .workspace-data-table td:last-child:has(> button) {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border: 0;
+    padding: 0.5rem;
+    text-align: right;
+  }
+  .workspace-data-table td:first-child {
+    text-align: left;
+  }
+  .workspace-data-table td:first-child > div {
+    width: 100%;
+  }
+  .workspace-data-table td:first-child .workspace-mobile-label {
+    display: none;
+  }
+  .workspace-mobile-label {
+    display: block;
+    flex-shrink: 0;
+    max-width: 45%;
+    text-align: left;
+    font-family: inherit;
+    font-size: 0.75rem;
+    color: var(--theme-muted-foreground);
+  }
+  .workspace-data-table .workspace-row-action {
+    justify-content: flex-end;
+  }
+  .workspace-data-table td.workspace-table-empty {
+    display: block;
+    padding: 0;
+  }
+}
+
+.workspace-overview-hero {
+  color: var(--theme-background);
+  background: color-mix(in oklab, var(--theme-foreground) 94%, var(--theme-primary));
+  box-shadow: 0 8px 24px color-mix(in oklab, var(--theme-foreground) 10%, transparent);
+}
+[data-theme='dark'] .workspace-overview-hero {
+  color: var(--theme-foreground);
+  background: color-mix(in oklab, var(--theme-surface) 80%, var(--theme-primary));
+}

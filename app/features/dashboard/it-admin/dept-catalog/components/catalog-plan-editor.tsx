@@ -1,4 +1,4 @@
-﻿import { useCatalogEditorSnapshot } from '../hooks/use-catalog-editor-snapshot'
+import { useCatalogEditorSnapshot } from '../hooks/use-catalog-editor-snapshot'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { usePlanGet } from '~/shared/api/generated/operations/plans/plan-get'
@@ -101,7 +101,14 @@ function PlanFields({
       )}
       <div className='contents' onChange={onDirty}>
         <ItField label={translate('planName')}>
-          <input name='name' required maxLength={1000} className={itInputClass} defaultValue={plan.name} />
+          <input
+            placeholder={translate('placeholders.plan')}
+            name='name'
+            required
+            maxLength={1000}
+            className={itInputClass}
+            defaultValue={plan.name}
+          />
         </ItField>
         <p className='text-sm text-muted-foreground'>
           {translate(`enums.${plan.provisioningType}`, { defaultValue: translate('unknown') })}
@@ -129,6 +136,7 @@ function PlanFields({
         </label>
         <ItField label={translate('revocationNote')}>
           <textarea
+            placeholder={translate('placeholders.note')}
             name='note'
             required={dataLoss}
             maxLength={5000}

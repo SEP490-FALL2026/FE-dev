@@ -16,6 +16,7 @@ describe('translation resources', () => {
       'auth',
       'common',
       'dashboard',
+      'employee',
       'errors',
       'finance',
       'financeBudget',
@@ -27,7 +28,11 @@ describe('translation resources', () => {
       'itNewSoftware',
       'itOffboarding',
       'itProvisioning',
+      'itPurchases',
+      'itRenewals',
+      'itTransfers',
       'landing',
+      'manager',
       'notFound',
       'theme'
     ]
@@ -68,7 +73,12 @@ describe('translation resources', () => {
       'itIssues',
       'itNewSoftware',
       'itOffboarding',
-      'itProvisioning'
+      'itProvisioning',
+      'itPurchases',
+      'itRenewals',
+      'itTransfers',
+      'employee',
+      'manager'
     ] as const) {
       expect(keys(resources.en[namespace]).sort(), namespace).toEqual(keys(resources.vi[namespace]).sort())
     }

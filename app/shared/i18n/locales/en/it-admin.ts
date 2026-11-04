@@ -1,6 +1,30 @@
 export const itAdmin = {
+  overview: {
+    tasksHint: 'The task list includes grants and revocations; filter by status or channel.',
+    workspace: 'IT workspace',
+    scope: '{{count}} departments in your scope',
+    asOf: 'As of {{date}}',
+    refresh: 'Refresh',
+    workload: 'Operations at a glance',
+    serverScope: 'Your assigned scope',
+    atSource: 'View at source',
+    notAvailable: 'Not available',
+    metrics: {
+      grantTasks: 'Pending grants',
+      revocationTasks: 'Pending revocations',
+      saasIssues: 'Open SaaS issues',
+      offboardingHandovers: 'Offboarding handovers',
+      licenseKeys: 'Unassigned license keys',
+      termsToReview: 'Terms to review',
+      cancellationDeadlines: 'Cancellation deadlines',
+      discrepancies: 'Usage discrepancies',
+      unconfirmedDevices: 'Unconfirmed devices'
+    }
+  },
   retryIn: 'Try again in {{count}} seconds',
   navigation: {
+    transfers: 'Technical transfers',
+    purchaseDocuments: 'Contracts & documents',
     overview: 'Overview',
     licenses: 'Provisioning and revocation',
     usageSources: 'Usage data',
@@ -18,6 +42,19 @@ export const itAdmin = {
     renewals: 'Renewals'
   },
   title: 'IT operations',
+  selectPlaceholder: 'Choose an option',
+  selectedCount: '{{count}} selected',
+  selectedList: 'Selected options',
+  removeSelection: 'Remove {{name}}',
+  fieldPlaceholder: 'Enter {{field}}',
+  directory: {
+    people: 'Browse people',
+    departments: 'Browse departments',
+    search: 'Search department name or code',
+    changeDepartment: 'Change department',
+    scopeHint:
+      'Only working people on this page are selectable. Technical member access is limited to the departments you manage or cover.'
+  },
   loading: 'Loading data',
   retry: 'Try again',
   empty: 'No matching records.',

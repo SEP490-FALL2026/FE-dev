@@ -1,4 +1,4 @@
-export { FinanceScreen } from './finance-screen'
+export { FinanceScreen } from './finance-screen-entry'
 export { FinanceSidebarNav } from './shared/components/finance-sidebar-nav'
 export { FinanceWorkspaceSearch } from './shared/components/finance-workspace-search'
 export { useFinanceTabs } from './shared/hooks/use-finance-tabs'

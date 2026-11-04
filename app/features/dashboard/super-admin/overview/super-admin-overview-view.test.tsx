@@ -39,6 +39,7 @@ afterAll(() => server.close())
 describe('Super Admin overview localization', () => {
   beforeEach(async () => {
     await setAppLanguage('vi', false)
+    server.use(http.get('*/api/v1/dashboards/super-admin', () => HttpResponse.json({ success: true, data: null })))
   })
 
   it('renders authoritative checklist and holder instead of demo metrics', async () => {

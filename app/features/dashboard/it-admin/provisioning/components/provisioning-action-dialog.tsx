@@ -1,4 +1,5 @@
-﻿import { useState } from 'react'
+import { ItChoiceSelect } from '../../shared/components/it-choice-select'
+import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import type { RevocationCompletionBodyDto, TaskResponseDtoDataTask } from '~/shared/api/generated/model'
@@ -103,16 +104,17 @@ export function ProvisioningActionDialog({
     >
       <p className='text-sm text-muted-foreground'>{translate(action === 'cancel' ? 'cancelHint' : 'confirmHint')}</p>
       {action === 'revocation' && task.plan?.provisioningType === 'K2' && (
-        <ItField label={translate('completion')}>
-          <select
-            className={itInputClass}
-            value={completion}
-            onChange={(event) => setCompletion(event.target.value as typeof completion)}
-          >
-            <option value='ACCOUNT_REMOVED'>{translate('values.ACCOUNT_REMOVED')}</option>
-            <option value='ALREADY_GONE'>{translate('values.ALREADY_GONE')}</option>
-          </select>
-        </ItField>
+        <ItChoiceSelect
+          label={translate('completion')}
+          value={completion}
+          options={(['ACCOUNT_REMOVED', 'ALREADY_GONE'] as const).map((value) => ({
+            value,
+            label: translate(`values.${value}`)
+          }))}
+          onChange={(value) => {
+            if (value === 'ACCOUNT_REMOVED' || value === 'ALREADY_GONE') setCompletion(value)
+          }}
+        />
       )}
       {needsEvidence && (
         <ItField label={translate('evidence')}>
@@ -120,6 +122,7 @@ export function ProvisioningActionDialog({
             className={itInputClass}
             required
             maxLength={2000}
+            placeholder={translate('placeholders.evidence')}
             value={evidence}
             onChange={(event) => setEvidence(event.target.value)}
           />
@@ -131,6 +134,7 @@ export function ProvisioningActionDialog({
             className={itInputClass}
             required
             maxLength={1000}
+            placeholder={translate('placeholders.reason')}
             value={reason}
             onChange={(event) => setReason(event.target.value)}
           />
@@ -142,6 +146,7 @@ export function ProvisioningActionDialog({
             required
             className={itInputClass}
             maxLength={1000}
+            placeholder={translate('placeholders.note')}
             value={note}
             onChange={(event) => setNote(event.target.value)}
           />
@@ -158,22 +163,24 @@ export function ProvisioningActionDialog({
               onChange={(event) => setPaidThroughOn(event.target.value)}
             />
           </ItField>
-          <ItField label={translate('accessState')}>
-            <select
-              className={itInputClass}
-              value={accessState}
-              onChange={(event) => setAccessState(event.target.value as typeof accessState)}
-            >
-              <option value='UNTIL_PAID_END'>{translate('values.UNTIL_PAID_END')}</option>
-              <option value='CUT'>{translate('values.CUT')}</option>
-            </select>
-          </ItField>
+          <ItChoiceSelect
+            label={translate('accessState')}
+            value={accessState}
+            options={(['UNTIL_PAID_END', 'CUT'] as const).map((value) => ({
+              value,
+              label: translate(`values.${value}`)
+            }))}
+            onChange={(value) => {
+              if (value === 'UNTIL_PAID_END' || value === 'CUT') setAccessState(value)
+            }}
+          />
           {accessState === 'CUT' && (
             <ItField label={translate('accessEvidence')}>
               <textarea
                 required
                 maxLength={2000}
                 className={itInputClass}
+                placeholder={translate('placeholders.accessEvidence')}
                 value={accessEvidence}
                 onChange={(event) => setAccessEvidence(event.target.value)}
               />

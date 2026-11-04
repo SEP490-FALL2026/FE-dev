@@ -15,9 +15,21 @@ import { RolesSubtabView } from '../components/roles-subtab-view'
 import { accountStatuses } from '../enums/account-status'
 import { activationStates } from '../enums/activation-state'
 
-export function SuperAdminAccountsView() {
+export function SuperAdminAccountsView({
+  accountId,
+  onCloseAccount,
+  section = 'accounts',
+  invite = false,
+  onCloseInvite
+}: {
+  accountId?: string
+  onCloseAccount?: () => void
+  section?: 'accounts' | 'responsibilities'
+  invite?: boolean
+  onCloseInvite?: () => void
+}) {
   const { t: translate } = useTranslation('adminAccounts')
-  const state = useSuperAdminAccounts()
+  const state = useSuperAdminAccounts(accountId, section, invite)
   const { query, filters } = state
   const data = query.data?.data
   return (
@@ -153,9 +165,14 @@ export function SuperAdminAccountsView() {
                         </td>
                         <td className='block py-2 md:table-cell md:px-4 md:py-3'>
                           <span className='mr-2 text-xs text-muted-foreground md:hidden'>{translate('status')}</span>
-                          {accountStatuses.includes(account.status)
-                            ? translate(`statuses.${account.status}`)
-                            : translate('unknown')}
+                          <span
+                            className={`inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium ${account.status === 'ACTIVE' ? 'bg-success/10 text-success-ink' : account.status === 'LOCKED' ? 'bg-danger/10 text-danger-ink' : 'bg-surface-subtle text-muted-foreground'}`}
+                          >
+                            <span aria-hidden className='size-1.5 rounded-full bg-current' />
+                            {accountStatuses.includes(account.status)
+                              ? translate(`statuses.${account.status}`)
+                              : translate('unknown')}
+                          </span>
                         </td>
                         <td className='block py-2 md:table-cell md:px-4 md:py-3'>
                           <span className='mr-2 text-xs text-muted-foreground md:hidden'>
@@ -169,13 +186,20 @@ export function SuperAdminAccountsView() {
                           <span className='mr-2 text-xs text-muted-foreground md:hidden'>
                             {translate('directRoles')}
                           </span>
-                          {account.roles
-                            .map((role) =>
-                              Object.values(AppUserListRole).includes(role)
-                                ? translate(`roles.${role}`)
-                                : translate('unknown')
-                            )
-                            .join(', ')}
+                          <span
+                            className='block max-w-64 truncate'
+                            title={account.roles
+                              .map((role) => translate(`roles.${role}`, { defaultValue: translate('unknown') }))
+                              .join(', ')}
+                          >
+                            {account.roles
+                              .map((role) =>
+                                Object.values(AppUserListRole).includes(role)
+                                  ? translate(`roles.${role}`)
+                                  : translate('unknown')
+                              )
+                              .join(', ')}
+                          </span>
                         </td>
                         <td className='block bg-surface py-2 text-right md:sticky md:right-0 md:table-cell md:px-4 md:py-3'>
                           <button className={adminButtonClass} onClick={() => state.setSelectedId(account.id)}>
@@ -198,8 +222,23 @@ export function SuperAdminAccountsView() {
       ) : (
         <RolesSubtabView />
       )}
-      {state.inviteOpen && <AccountInviteDialog onClose={() => state.setInviteOpen(false)} />}
-      {state.selectedId && <AccountDetailModal id={state.selectedId} onClose={() => state.setSelectedId(null)} />}
+      {state.inviteOpen && (
+        <AccountInviteDialog
+          onClose={() => {
+            state.setInviteOpen(false)
+            onCloseInvite?.()
+          }}
+        />
+      )}
+      {state.selectedId && (
+        <AccountDetailModal
+          id={state.selectedId}
+          onClose={() => {
+            state.setSelectedId(null)
+            onCloseAccount?.()
+          }}
+        />
+      )}
     </section>
   )
 }

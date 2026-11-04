@@ -1,29 +1,22 @@
-import { useEffect, useRef, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router'
+import { useEffect, useRef } from 'react'
+import { useLocation, useNavigate, useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import type { CreateEmployeeBodyDto, UpdateEmployeeBodyDto } from '~/shared/api/generated/model/employees'
 import { useEmployeeCreate } from '~/shared/api/generated/operations/employees/employee-create'
 import { useEmployeeUpdateOfficialFields } from '~/shared/api/generated/operations/employees/employee-update-official-fields'
-import {
-  useDepartmentMemberList,
-  getDepartmentMemberListQueryKey
-} from '~/shared/api/generated/operations/departments/department-member-list'
+import { getEmployeeListQueryKey } from '~/shared/api/generated/operations/employees/employee-list'
+import { getEmployeeGetQueryKey } from '~/shared/api/generated/operations/employees/employee-get'
 import { getAccountCandidatesListQueryKey } from '~/shared/api/generated/operations/app-users/account-candidates-list'
-import { AdminField, adminButtonClass, adminPrimaryClass } from '../../shared/components/admin-form'
-import { AdminQueryState } from '../../shared/components/admin-query-state'
-import { AdminPagination } from '../../shared/components/admin-pagination'
+import { adminButtonClass, adminPrimaryClass } from '../../shared/components/admin-form'
 import { usePersonnelMutationFeedback } from '../../shared/hooks/use-personnel-mutation-feedback'
-import { PersonnelForm, readBasis, value, type PersonnelField } from '../../shared/components/personnel-form'
-import { DepartmentLookup } from '../../shared/components/department-lookup'
-import { PersonnelCard, PersonnelCode, PersonnelList } from '../../shared/components/personnel-list'
-import { employeeStatuses } from '../enums/employee-status'
+import { PersonnelForm, value, type PersonnelField } from '../../shared/components/personnel-form'
 import { employmentTypes } from '../enums/employment-type'
-import { employeeWorkStates } from '../enums/employee-work-state'
+import { EmployeeDirectory } from './employee-directory'
 
 export function EmployeePanel() {
   const { t: translate } = useTranslation('adminPersonnel')
-  const [departmentId, setDepartmentId] = useState('')
-  const [page, setPage] = useState(1)
+  const [searchParams] = useSearchParams()
+  const employeeId = searchParams.get('employeeId') ?? ''
   const location = useLocation()
   const navigate = useNavigate()
   const action = location.pathname.endsWith('/personnel/new')
@@ -41,13 +34,12 @@ export function EmployeePanel() {
   const closeForm = () => {
     if (mounted.current) void navigate('/dashboard/super-admin?tab=personnel')
   }
-  const query = useDepartmentMemberList(
-    departmentId,
-    { page, pageSize: 20 },
-    { query: { enabled: Boolean(departmentId) } }
-  )
   const feedback = usePersonnelMutationFeedback(
-    [getDepartmentMemberListQueryKey(departmentId), getAccountCandidatesListQueryKey()],
+    [
+      getEmployeeListQueryKey(),
+      getAccountCandidatesListQueryKey(),
+      ...(employeeId ? [getEmployeeGetQueryKey(employeeId)] : [])
+    ],
     closeForm
   )
   const create = useEmployeeCreate({ mutation: { ...feedback, retry: false } })
@@ -56,10 +48,16 @@ export function EmployeePanel() {
   const fields: PersonnelField[] = [
     ...(action === 'create'
       ? [
-          { name: 'employeeCode', maxLength: 50 },
-          { name: 'departmentCode', maxLength: 50, optional: true }
+          { name: 'employeeCode', minLength: 3, maxLength: 20, pattern: '[A-Za-z0-9]+(-[A-Za-z0-9]+)*' },
+          {
+            name: 'departmentCode',
+            minLength: 2,
+            maxLength: 20,
+            pattern: '[A-Za-z0-9]+(-[A-Za-z0-9]+)*',
+            optional: true
+          }
         ]
-      : [{ name: 'employeeId', type: 'uuid' as const }]),
+      : [{ name: 'employeeId', type: 'uuid' as const, initial: employeeId }]),
     { name: 'fullName', maxLength: 200, optional: action === 'update' },
     { name: 'workEmail', type: 'email', maxLength: 254, optional: true },
     { name: 'employmentType', options: employmentTypes, optional: action === 'update' },
@@ -72,7 +70,6 @@ export function EmployeePanel() {
         ]
       : [])
   ]
-  const data = query.data?.data
   return (
     <section className='space-y-5'>
       {!action && (
@@ -88,34 +85,11 @@ export function EmployeePanel() {
               {translate('updateEmployee')}
             </button>
           </div>
-          <p className='text-sm text-muted-foreground'>{translate('memberHelp')}</p>
-          <form
-            className='flex flex-wrap items-end gap-3'
-            onSubmit={(event) => {
-              event.preventDefault()
-              setDepartmentId(value(new FormData(event.currentTarget), 'departmentId'))
-              setPage(1)
-            }}
-          >
-            <AdminField label={translate('fields.departmentId')}>
-              <DepartmentLookup name='departmentId' />
-            </AdminField>
-            <button className={adminButtonClass}>{translate('searchMembers')}</button>
-          </form>
-          {departmentId && (
-            <AdminQueryState query={query}>
-              <PersonnelList empty={!data?.items.length}>
-                {data?.items.map((member) => (
-                  <PersonnelCard key={member.employeeCode} title={member.fullName}>
-                    <p className='font-mono'>{member.employeeCode}</p>
-                    <PersonnelCode code={member.status} values={employeeStatuses} />
-                    <PersonnelCode code={member.workState} values={employeeWorkStates} plain />
-                  </PersonnelCard>
-                ))}
-              </PersonnelList>
-              <AdminPagination pagination={data?.pagination} onPageChange={setPage} disabled={query.isFetching} />
-            </AdminQueryState>
-          )}
+          <EmployeeDirectory
+            onCorrect={(id) =>
+              void navigate(`/dashboard/super-admin/personnel/correct?employeeId=${encodeURIComponent(id)}`)
+            }
+          />
         </>
       )}
       {action && (
@@ -123,7 +97,6 @@ export function EmployeePanel() {
           title={translate(action === 'create' ? 'createEmployee' : 'updateEmployee')}
           pending={pending}
           fields={fields}
-          basis
           onClose={closeForm}
           onSubmit={(values) => {
             if (pending) return
@@ -142,8 +115,7 @@ export function EmployeePanel() {
                 ? { jobTitle: null }
                 : value(values, 'jobTitle')
                   ? { jobTitle: value(values, 'jobTitle') }
-                  : {}),
-              hrBasis: readBasis(values)
+                  : {})
             }
             if (action === 'create')
               create.mutate({

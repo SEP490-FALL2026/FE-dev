@@ -64,7 +64,12 @@ function setup(authorized = true) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })
   client.setQueryData(getMeGetQueryKey(), {
     success: true,
-    data: { appUserId: 'it-1', employee: { id: 'it-employee' }, roles: { effective: authorized ? ['IT_ADMIN'] : [] } }
+    data: {
+      managerScope: null,
+      appUserId: 'it-1',
+      employee: { unplaced: false, id: 'it-employee' },
+      roles: authorized ? ['IT_ADMIN'] : []
+    }
   })
   return render(
     <QueryClientProvider client={client}>
@@ -116,7 +121,8 @@ describe('Provisioning API integration', () => {
     })
     setup()
     fireEvent.click(await screen.findByRole('button', { name: 'Complete revocation' }))
-    fireEvent.change(screen.getByLabelText('Revocation result'), { target: { value: 'ALREADY_GONE' } })
+    fireEvent.click(screen.getByRole('combobox', { name: 'Revocation result' }))
+    fireEvent.click(screen.getByRole('option', { name: 'Already gone' }))
     fireEvent.change(screen.getByLabelText('Note'), {
       target: { value: 'Provider confirms the account was removed earlier' }
     })

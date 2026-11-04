@@ -1,4 +1,5 @@
-﻿import { useState } from 'react'
+import { ItChoiceSelect } from '../../shared/components/it-choice-select'
+import { useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useMeGet } from '~/shared/api/generated/operations/me/me-get'
@@ -16,7 +17,7 @@ import { BoundaryState, BoundaryDecision, RequestState } from '../enums/boundary
 export function ServiceAccountReviewDialog({ requestId, onClose }: { requestId: string; onClose: () => void }) {
   const { t: translate } = useTranslation('itProvisioning')
   const me = useMeGet({ query: { staleTime: 60000 } })
-  const authorized = me.data?.data?.roles.effective.includes('IT_ADMIN') === true
+  const authorized = me.data?.data?.roles.includes('IT_ADMIN') === true
   const [decision, setDecision] = useState<BoundaryDecision>(BoundaryDecision.ACCEPT)
   const [reason, setReason] = useState('')
   const query = useQuery({
@@ -76,19 +77,18 @@ export function ServiceAccountReviewDialog({ requestId, onClose }: { requestId: 
                     <dd>{account.responsible.fullName}</dd>
                   </div>
                 </dl>
-                <ItField label={translate('boundaryDecision')}>
-                  <select
-                    className={itInputClass}
-                    value={decision}
-                    onChange={(event) => setDecision(event.target.value as BoundaryDecision)}
-                  >
-                    {Object.values(BoundaryDecision).map((value) => (
-                      <option key={value} value={value}>
-                        {translate(`boundaryDecisions.${value}`)}
-                      </option>
-                    ))}
-                  </select>
-                </ItField>
+                <ItChoiceSelect
+                  label={translate('boundaryDecision')}
+                  value={decision}
+                  options={Object.values(BoundaryDecision).map((value) => ({
+                    value,
+                    label: translate(`boundaryDecisions.${value}`)
+                  }))}
+                  onChange={(value) => {
+                    const next = Object.values(BoundaryDecision).find((item) => item === value)
+                    if (next) setDecision(next)
+                  }}
+                />
                 {decision === BoundaryDecision.REJECT && (
                   <ItField label={translate('reason')}>
                     <textarea

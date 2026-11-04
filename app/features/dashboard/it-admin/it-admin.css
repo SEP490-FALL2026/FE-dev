@@ -1,0 +1,58 @@
+@layer components {
+  .it-workspace {
+    min-width: 0;
+  }
+  .it-workspace h1,
+  .it-workspace h2,
+  .it-workspace h3 {
+    text-wrap: balance;
+  }
+  .it-eyebrow {
+    color: var(--theme-muted-foreground);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .it-metric {
+    box-shadow: 0 1px 2px color-mix(in srgb, var(--theme-foreground) 4%, transparent);
+    transition:
+      background-color 150ms,
+      border-color 150ms;
+  }
+  .it-metric:enabled:hover {
+    border-color: color-mix(in srgb, var(--theme-primary) 35%, transparent);
+    background-color: var(--theme-surface-subtle);
+  }
+  .it-metric:enabled:active {
+    background-color: var(--theme-primary-soft);
+  }
+  .it-metric:focus-visible {
+    outline: 2px solid var(--theme-primary);
+    outline-offset: 3px;
+  }
+  .it-workspace input[type='checkbox'],
+  .it-workspace input[type='radio'] {
+    accent-color: var(--theme-primary);
+  }
+  .it-workspace textarea {
+    min-height: 6rem;
+    resize: vertical;
+  }
+  .it-workspace [role='dialog'] form > fieldset {
+    align-content: start;
+  }
+  .it-workspace button[aria-pressed='true'] {
+    border-color: color-mix(in srgb, var(--theme-primary) 40%, transparent);
+    background-color: var(--theme-primary-soft);
+    color: var(--theme-primary-ink);
+  }
+  .it-workspace button:focus-visible {
+    outline: 2px solid var(--theme-primary);
+    outline-offset: 2px;
+  }
+  .it-workspace input[aria-invalid='true'],
+  .it-workspace textarea[aria-invalid='true'] {
+    border-color: var(--theme-danger);
+  }
+}

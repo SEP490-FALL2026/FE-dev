@@ -68,7 +68,7 @@ export function AccountDetailModal({ id, onClose }: { id: string; onClose: () =>
               <dt className='text-muted-foreground'>{translate('directRoles')}</dt>
               <dd>{account.roles.map(roleLabel).join(', ') || translate('none')}</dd>
               <dt className='text-muted-foreground'>{translate('createdAt')}</dt>
-              <dd>{formatDate(account.createdAt)}</dd>
+              <dd className='text-right font-mono tabular-nums'>{formatDate(account.createdAt)}</dd>
             </dl>
             {account.invitation && (
               <section className='space-y-2 rounded-md border border-border p-4'>

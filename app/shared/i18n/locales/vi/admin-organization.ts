@@ -1,4 +1,7 @@
+import { adminDepartmentEditor } from './admin-department-editor'
+
 export const adminOrganization = {
+  ...adminDepartmentEditor,
   title: 'Cơ cấu tổ chức',
   subtitle: 'Quản lý phòng ban và trưởng phòng.',
   departments: 'Phòng ban',
@@ -60,7 +63,7 @@ export const adminOrganization = {
     assignHead:
       'Chọn người là thành viên vào ngày hiệu lực, từ hôm nay trở đi. Trưởng phòng cũ kết thúc vào ngày trước đó. Hệ thống kiểm tra điều kiện khi lưu.',
     vacateHead:
-      'Phòng không có trưởng phòng từ ngày đã chọn, từ hôm nay trở đi. Yêu cầu chuyển tới người duyệt dự phòng đã cấu hình.',
+      'Phòng không có trưởng phòng từ ngày đã chọn, từ hôm nay trở đi. Yêu cầu của phòng chờ có kiểm soát tới khi có trưởng phòng mới.',
     designateSuccessor:
       'Người kế nhiệm phải bắt đầu sau hôm nay và là thành viên vào ngày đó. Phòng phải có trưởng phòng hiện tại.',
     clearSuccessor:

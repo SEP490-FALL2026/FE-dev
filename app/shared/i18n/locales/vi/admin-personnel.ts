@@ -1,4 +1,23 @@
+import { adminEmployeeDirectory } from './admin-employee-directory'
+import { adminImportImpact } from './admin-import-impact'
+
 export const adminPersonnel = {
+  ...adminEmployeeDirectory,
+  ...adminImportImpact,
+  fieldPlaceholder: 'Nhập {{field}}',
+  placeholders: {
+    employeeCode: 'VD: NV-001',
+    fullName: 'Nhập họ và tên đầy đủ',
+    workEmail: 'VD: nhanvien@congty.vn',
+    departmentCode: 'VD: CNTT',
+    jobTitle: 'VD: Chuyên viên phân tích',
+    reason: 'Nêu lý do thực hiện thay đổi',
+    type: 'VD: Quyết định điều chuyển',
+    reference: 'VD: 123/QĐ-NS',
+    issuer: 'Tên cơ quan hoặc người có thẩm quyền',
+    transferCancellationReason: 'Nêu lý do hủy lịch điều chuyển đang chờ',
+    verificationReference: 'Số văn bản hoặc thông tin xác minh chính thức'
+  },
   otherImportColumn: 'Cột khác',
   recentImportOption: '{{file}} · {{date}}',
   recentImportsHelp: 'Chọn lần nhập gần đây trong phiên trình duyệt này để tiếp tục.',
@@ -62,7 +81,7 @@ export const adminPersonnel = {
   upload: 'Tải tệp để xem trước',
   file: 'Tệp nhân sự',
   importHelp:
-    'CSV/XLSX, tối đa 2 MiB. Cột bắt buộc: employee_code, full_name, employment_type, hire_date, department_code. Tải tệp chỉ tạo bản xem trước.',
+    'CSV/XLSX, tối đa 2 MiB. Bắt buộc: employee_code, full_name, employment_type, hire_date. department_code, work_email và job_title là tùy chọn; để trống mã phòng để tạo nhân viên chưa xếp phòng. Tải tệp chỉ tạo bản xem trước.',
   resumeImport: 'Đọc lần nhập đã có',
   importIdPlaceholder: 'Nhập mã lần nhập nhân sự đã tạo trước đó',
   refreshPreview: 'Làm mới xem trước',

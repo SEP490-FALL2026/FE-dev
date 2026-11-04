@@ -190,43 +190,91 @@ export const itAdminProvisioningExtra = {
   unitSso: 'SSO access grants',
   provisionedFor: 'Successfully provisioned one {{unit}} for {{beneficiary}}.',
   demoItems: {
-    'REQ-2026-0917-084': { beneficiaryRole: 'Senior Backend Engineer', purpose: 'Analyze technical architecture documents and generate microservice boilerplate code' },
-    'REQ-2026-0917-085': { beneficiaryRole: 'Senior Backend Engineer', purpose: 'Suggest code in VS Code and generate unit tests' },
-    'REQ-MULTI-01': { beneficiaryRole: 'Frontend Developer (Web Team)', purpose: 'Help translate documentation and improve frontend performance' },
-    'REQ-MULTI-02': { beneficiaryRole: 'DevOps & Cloud Engineer', purpose: 'Write Terraform infrastructure automation scripts' },
+    'REQ-2026-0917-084': {
+      beneficiaryRole: 'Senior Backend Engineer',
+      purpose: 'Analyze technical architecture documents and generate microservice boilerplate code'
+    },
+    'REQ-2026-0917-085': {
+      beneficiaryRole: 'Senior Backend Engineer',
+      purpose: 'Suggest code in VS Code and generate unit tests'
+    },
+    'REQ-MULTI-01': {
+      beneficiaryRole: 'Frontend Developer (Web Team)',
+      purpose: 'Help translate documentation and improve frontend performance'
+    },
+    'REQ-MULTI-02': {
+      beneficiaryRole: 'DevOps & Cloud Engineer',
+      purpose: 'Write Terraform infrastructure automation scripts'
+    },
     'REQ-MULTI-03': { beneficiaryRole: 'QA and Automation Test Specialist', purpose: 'Generate automated test cases' },
-    'REQ-ENG-0201': { beneficiaryRole: 'AI/ML Engineer', purpose: 'Integrate Claude Sonnet 3.5 into the data analysis pipeline' },
+    'REQ-ENG-0201': {
+      beneficiaryRole: 'AI/ML Engineer',
+      purpose: 'Integrate Claude Sonnet 3.5 into the data analysis pipeline'
+    },
     'REQ-ENG-0202': { beneficiaryRole: 'Backend Developer', purpose: 'Research internal large language models' },
-    'REQ-ENG-0203': { beneficiaryRole: 'Data Engineer', purpose: 'Use company licensed IntelliJ IDEA Ultimate and DataGrip' },
+    'REQ-ENG-0203': {
+      beneficiaryRole: 'Data Engineer',
+      purpose: 'Use company licensed IntelliJ IDEA Ultimate and DataGrip'
+    },
     'REQ-ENG-BLOCKED': { beneficiaryRole: 'Systems Engineer', purpose: 'Use Cursor AI IDE for the Golang project' },
-    'REQ-DES-0101': { beneficiaryRole: 'UI/UX Design Lead', purpose: 'Manage the Design System and access to product designs' },
-    'REQ-DES-0102': { beneficiaryRole: 'Content and Copywriter', purpose: 'Create articles and social media campaign content' }
+    'REQ-DES-0101': {
+      beneficiaryRole: 'UI/UX Design Lead',
+      purpose: 'Manage the Design System and access to product designs'
+    },
+    'REQ-DES-0102': {
+      beneficiaryRole: 'Content and Copywriter',
+      purpose: 'Create articles and social media campaign content'
+    }
   },
   itSystem: 'IT system',
   provisioningApiSystem: 'Provisioning API system',
   demoDetails: {
     'REQ-2026-0917-084': {
-      audit0Action: 'Request submitted', audit0Details: 'Requested ChatGPT Plus provisioning',
-      audit1Action: 'Approved and assigned to batch', audit1Details: 'Approved and assigned to Batch 1 - October 2026'
+      audit0Action: 'Request submitted',
+      audit0Details: 'Requested ChatGPT Plus provisioning',
+      audit1Action: 'Approved and assigned to batch',
+      audit1Details: 'Approved and assigned to Batch 1 - October 2026'
     },
-    'REQ-2026-0917-085': { audit0Action: 'Request submitted', audit0Details: 'Requested GitHub Copilot Business provisioning' },
-    'REQ-MULTI-01': { audit0Action: 'Split from group request', audit0Details: 'Created provisioning item 1/3 from original request REQ-2026-MULTI-03' },
-    'REQ-MULTI-02': { audit0Action: 'Provisioning succeeded', audit0Details: 'Provisioned an OpenAI Workspace account through the API' },
-    'REQ-MULTI-03': { audit0Action: 'Split from group request', audit0Details: 'Created provisioning item 3/3 from original request REQ-2026-MULTI-03. Awaiting batch assignment' },
-    'REQ-ENG-0201': { audit0Action: 'Provisioning API failed', audit0Details: 'The vendor returned 402 Payment Required. No key was created' },
+    'REQ-2026-0917-085': {
+      audit0Action: 'Request submitted',
+      audit0Details: 'Requested GitHub Copilot Business provisioning'
+    },
+    'REQ-MULTI-01': {
+      audit0Action: 'Split from group request',
+      audit0Details: 'Created provisioning item 1/3 from original request REQ-2026-MULTI-03'
+    },
+    'REQ-MULTI-02': {
+      audit0Action: 'Provisioning succeeded',
+      audit0Details: 'Provisioned an OpenAI Workspace account through the API'
+    },
+    'REQ-MULTI-03': {
+      audit0Action: 'Split from group request',
+      audit0Details: 'Created provisioning item 3/3 from original request REQ-2026-MULTI-03. Awaiting batch assignment'
+    },
+    'REQ-ENG-0201': {
+      audit0Action: 'Provisioning API failed',
+      audit0Details: 'The vendor returned 402 Payment Required. No key was created'
+    },
     'REQ-ENG-0202': {
       lastError: 'HTTP timeout after 30 seconds — no confirmation from Anthropic',
-      audit0Action: 'API timeout', audit0Details: 'The key creation API timed out. IT Admin must recheck the transaction status'
+      audit0Action: 'API timeout',
+      audit0Details: 'The key creation API timed out. IT Admin must recheck the transaction status'
     },
     'REQ-ENG-0203': {
-      recoveryGuide: 'The key was activated in JetBrains Hub, but saving it to the internal Vault was interrupted. IT Admin can restore the key from the JetBrains API and store it securely.',
-      audit0Action: 'Vault handover failed', audit0Details: 'The vendor confirmed order JB-ORDER-99412-CONFIRMED, but the internal handover could not be saved'
+      recoveryGuide:
+        'The key was activated in JetBrains Hub, but saving it to the internal Vault was interrupted. IT Admin can restore the key from the JetBrains API and store it securely.',
+      audit0Action: 'Vault handover failed',
+      audit0Details: 'The vendor confirmed order JB-ORDER-99412-CONFIRMED, but the internal handover could not be saved'
     },
     'REQ-ENG-BLOCKED': {
       blockReason: 'No purchased license is available and the automatic provisioning API is still in draft.',
-      audit0Action: 'Awaiting setup or purchase', audit0Details: 'The request is waiting for purchase documents (IT-06) and catalog API activation (IT-11)'
+      audit0Action: 'Awaiting setup or purchase',
+      audit0Details: 'The request is waiting for purchase documents (IT-06) and catalog API activation (IT-11)'
     },
-    'REQ-DES-0101': { audit0Action: 'Provisioning completed', audit0Details: 'Provisioned a Figma Organization seat and sent the handover notice' },
+    'REQ-DES-0101': {
+      audit0Action: 'Provisioning completed',
+      audit0Details: 'Provisioned a Figma Organization seat and sent the handover notice'
+    },
     'REQ-DES-0102': { audit0Action: 'Request submitted', audit0Details: 'Awaiting IT Admin provisioning in Batch 1' }
   }
 } as const

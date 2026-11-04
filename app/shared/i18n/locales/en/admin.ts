@@ -1,6 +1,8 @@
 import { overviewRedesign } from './admin-overview'
 import { parameterPresentation } from './admin-parameters'
 import { operationPresentation } from './admin-operations-presentation'
+import { overviewMetrics } from './admin-overview-metrics'
+import { parameterContract } from './admin-parameter-contract'
 
 export const admin = {
   retryIn: 'Try again in {{count}}s',
@@ -40,7 +42,13 @@ export const admin = {
     duplicate: 'This identifier, email or date already exists. Choose a different value.',
     financeAssigned: 'A Finance account is already assigned. Review the current assignment first.',
     derivedRole: 'This role comes from a department head assignment or approval responsibility.',
-    transferOnly: 'Use the Super Admin handover workflow to change this responsibility.',
+    transferOnly: 'The Super Admin role can only be changed by operations outside this application.',
+    spendingApproverAssigned: 'A spending approver is already assigned. Review the current holder first.',
+    managerStillHeading:
+      'This person heads, will head, or is the designated successor of a department. End the department assignment before revoking Manager.',
+    openWork: 'This person still has open work. Resolve it before granting Spending Approver.',
+    managerRoleRequired: 'Grant Manager to the account before assigning a department head or successor.',
+    parameterLocked: 'This parameter is locked because business records already use it.',
     alreadyActivated: 'This account is already activated. An invitation is no longer needed.',
     accountLocked: 'This account is locked. Unlock it before continuing.',
     roleCombination: 'These roles or responsibilities cannot be combined on this account.',
@@ -74,6 +82,7 @@ export const admin = {
     ineligible: 'This person is not eligible for the selected responsibility.'
   },
   overview: {
+    metrics: overviewMetrics,
     unknownStep: 'Unknown setup step',
     redesign: overviewRedesign,
     stepNames: {
@@ -138,6 +147,7 @@ export const admin = {
     }
   },
   parameters: {
+    contract: parameterContract,
     ...parameterPresentation,
     title: 'Operating parameters',
     futureOnly: 'Changes apply to newly created work. Existing work keeps its original values.',
@@ -153,6 +163,8 @@ export const admin = {
     changed: 'Changed at'
   },
   settings: {
+    reasonPlaceholder: 'e.g. National holiday',
+    currencyPlaceholder: 'e.g. USD',
     title: 'System settings',
     holidays: 'Non-working dates',
     date: 'Date',
@@ -189,6 +201,7 @@ export const admin = {
     actorKinds: { USER: 'User', SYSTEM: 'System', OPERATOR: 'Operator' }
   },
   operations: {
+    descriptionPlaceholder: 'Describe the blockage, its impact and the action needed',
     ...operationPresentation,
     title: 'Workflow monitoring',
     waits: 'Waiting for configuration',

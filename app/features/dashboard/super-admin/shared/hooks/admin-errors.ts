@@ -4,26 +4,30 @@ const contractErrorKeys = {
   'APP_USER.ALREADY_EXISTS_FOR_EMPLOYEE': 'duplicate',
   'APP_USER.LOGIN_EMAIL_TAKEN': 'duplicate',
   'APP_USER.FINANCE_ALREADY_ASSIGNED': 'financeAssigned',
-  'APP_USER.ROLE_DERIVED': 'derivedRole',
+  'APP_USER.SPENDING_APPROVER_ALREADY_ASSIGNED': 'spendingApproverAssigned',
+  'APP_USER.SPENDING_APPROVER_HEADS_DEPARTMENT': 'successorResponsibilities',
+  'APP_USER.SPENDING_APPROVER_HAS_OPEN_WORK': 'openWork',
+  'APP_USER.SPENDING_APPROVER_EMPLOYEE_NOT_ACTIVE': 'ineligible',
+  'APP_USER.SPENDING_APPROVER_ACCOUNT_NOT_USABLE': 'unusableAccount',
+  'APP_USER.MANAGER_STILL_HEADING': 'managerStillHeading',
+  'APP_USER.EMPLOYEE_TERMINATED': 'ineligible',
+  'APP_USER.LOGIN_EMAIL_REQUIRED': 'validation',
+  'APP_USER.LOGIN_EMAIL_INVALID': 'validation',
   'APP_USER.SUPER_ADMIN_TRANSFER_ONLY': 'transferOnly',
   'APP_USER.ALREADY_ACTIVATED': 'alreadyActivated',
   'APP_USER.ACCOUNT_LOCKED': 'accountLocked',
   'APP_USER.ROLE_COMBINATION_FORBIDDEN': 'roleCombination',
   'APP_USER.SUPER_ADMIN_HOLDER_NOT_LOCKABLE': 'transferOnly',
-  'APPROVAL_ROLE.EMPLOYEE_NOT_ACTIVE': 'ineligible',
-  'APPROVAL_ROLE.NO_USABLE_ACCOUNT': 'unusableAccount',
-  'APPROVAL_ROLE.SUPER_ADMIN_CANNOT_HOLD': 'roleCombination',
-  'APPROVAL_ROLE.SUBSTITUTE_MUST_DIFFER': 'dutyConflict',
-  'SUPER_ADMIN_TRANSFER.ACCOUNT_LOCKED': 'accountLocked',
-  'SUPER_ADMIN_TRANSFER.EMPLOYEE_NOT_WORKING': 'ineligible',
-  'SUPER_ADMIN_TRANSFER.NOT_ACTIVATED': 'unusableAccount',
-  'SUPER_ADMIN_TRANSFER.EMAIL_NOT_VERIFIED': 'unusableAccount',
-  'SUPER_ADMIN_TRANSFER.WORK_ROLE_HELD': 'successorResponsibilities',
-  'SUPER_ADMIN_TRANSFER.APPROVAL_ROLE_HELD': 'successorResponsibilities',
-  'SUPER_ADMIN_TRANSFER.HEADS_DEPARTMENT': 'successorResponsibilities',
   'DEPARTMENT.CODE_TAKEN': 'duplicate',
   'DEPARTMENT.IN_USE': 'departmentInUse',
   'DEPARTMENT.IT_ADMIN_INVALID': 'ineligible',
+  'DEPARTMENT.INACTIVE': 'conflict',
+  'DEPARTMENT.NAME_INVALID': 'validation',
+  'DEPARTMENT.UPDATE_EMPTY': 'validation',
+  'DEPARTMENT.HEAD_MANAGER_ROLE_REQUIRED': 'managerRoleRequired',
+  'DEPARTMENT.HEAD_SPENDING_APPROVER_CANNOT_HEAD': 'roleCombination',
+  'DEPARTMENT.HEAD_SUPER_ADMIN_CANNOT_HEAD': 'roleCombination',
+  'DEPARTMENT.SUCCESSOR_MANAGER_ROLE_REQUIRED': 'managerRoleRequired',
   'DEPARTMENT.HEAD_EMPLOYEE_NOT_ACTIVE': 'ineligible',
   'DEPARTMENT.HEAD_HEADS_ANOTHER_DEPARTMENT': 'successorResponsibilities',
   'DEPARTMENT.HEAD_NOT_A_MEMBER_ON_DATE': 'headMembership',
@@ -72,6 +76,11 @@ const contractErrorKeys = {
   'IMPORT.FILE_UNREADABLE': 'fileInvalid',
   'IMPORT.FILE_MISSING_COLUMNS': 'fileInvalid',
   'PARAMETER.VALUE_INVALID': 'parameterInvalid',
+  'PARAMETER.LOCKED': 'parameterLocked',
+  'EMPLOYEE.DATE_INVALID': 'dateInvalid',
+  'EMPLOYEE.ALREADY_PLACED': 'conflict',
+  'EMPLOYEE.EMPLOYEE_INACTIVE': 'ineligible',
+  'EMPLOYEE.CODE_TAKEN': 'duplicate',
   'NON_WORKING_DATE.TAKEN': 'duplicate',
   'NON_WORKING_DATE.IN_PAST': 'dateInvalid'
 } as const
@@ -79,7 +88,9 @@ const contractErrorKeys = {
 type ContractErrorKey = (typeof contractErrorKeys)[keyof typeof contractErrorKeys]
 
 export function getAdminError(error: unknown) {
-  const response = axios.isAxiosError<{ error?: { code?: string; requestId?: string } }>(error)
+  const response = axios.isAxiosError<{
+    error?: { code?: string; requestId?: string; details?: { issues?: { path?: unknown }[] } }
+  }>(error)
     ? error.response
     : undefined
   const code = response?.data?.error?.code ?? ''
@@ -110,5 +121,16 @@ export function getAdminError(error: unknown) {
     (!response || response.status >= 500)
   )
     key = 'unknownOutcome'
-  return { key, code, requestId: response?.data?.error?.requestId }
+  const issues = response?.data?.error?.details?.issues
+  const invalidFields = new Set<string>(
+    Array.isArray(issues)
+      ? issues.flatMap((issue) => {
+          const path = issue?.path
+          if (typeof path === 'string') return [path.split('.').at(-1) ?? path]
+          if (Array.isArray(path) && typeof path.at(-1) === 'string') return [String(path.at(-1))]
+          return []
+        })
+      : []
+  )
+  return { key, code, invalidFields, requestId: response?.data?.error?.requestId }
 }

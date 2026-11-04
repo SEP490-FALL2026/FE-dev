@@ -1,4 +1,4 @@
-﻿import { useTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import type { AssessmentPatchDto } from '~/shared/api/generated/model/access-requests/assessmentPatchDto'
 import type { AssessmentResponseDtoDataAssessment } from '~/shared/api/generated/model/access-requests/assessmentResponseDtoDataAssessment'
 import { ItField, itInputClass } from '../../shared/components/it-form'
@@ -85,6 +85,7 @@ export function AssessmentFields({
           <input
             className={itInputClass}
             maxLength={1000}
+            placeholder={translate('placeholders.opinion')}
             value={(draft.opinion ?? item.opinion)?.note ?? ''}
             onChange={(event) =>
               set('opinion', {
@@ -110,6 +111,7 @@ export function AssessmentFields({
         ).map((key) => (
           <ItField key={key} label={translate(`fields.${key}`)}>
             <input
+              placeholder={translate(`placeholders.${key}`)}
               className={itInputClass}
               maxLength={key === 'termsSummary' ? 2000 : key === 'vendorName' || key === 'plannedPlanName' ? 200 : 1000}
               value={

@@ -12,4 +12,3 @@
 3. Obey `routes -> features -> entities -> shared`.
 4. Max 500 lines per file. Zero hardcoded text (100% i18n).
 5. Verify changes with `pnpm typecheck` before finishing.
-

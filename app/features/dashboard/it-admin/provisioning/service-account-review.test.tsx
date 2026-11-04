@@ -32,7 +32,7 @@ const detail = {
 } as unknown as Awaited<ReturnType<typeof accessRequestGet>>
 function setup() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })
-  client.setQueryData(getMeGetQueryKey(), { data: { roles: { effective: ['IT_ADMIN'] } } })
+  client.setQueryData(getMeGetQueryKey(), { data: { roles: ['IT_ADMIN'] } })
   return render(
     <QueryClientProvider client={client}>
       <ServiceAccountReviewDialog requestId='request-1' onClose={vi.fn()} />
@@ -78,7 +78,8 @@ describe('Service account boundary review', () => {
     vi.mocked(accessRequestServiceAccountReview).mockRejectedValue(new Error('offline'))
     setup()
     await screen.findByText('Automated billing integration')
-    fireEvent.change(screen.getByLabelText('Boundary decision'), { target: { value: 'REJECT' } })
+    fireEvent.click(screen.getByRole('combobox', { name: 'Boundary decision' }))
+    fireEvent.click(screen.getByRole('option', { name: 'Reject boundary' }))
     expect(screen.getByRole('button', { name: 'Confirm' })).toBeDisabled()
     fireEvent.change(screen.getByLabelText('Reason'), { target: { value: 'This is a personal account' } })
     fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))

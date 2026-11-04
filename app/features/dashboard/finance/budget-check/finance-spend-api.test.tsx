@@ -54,7 +54,7 @@ beforeEach(() => {
         headers: new AxiosHeaders()
       })
     let data: unknown = null
-    if (url.endsWith('/me')) data = { employee: { id: employeeId }, roles: { effective: [role] } }
+    if (url.endsWith('/me')) data = { employee: { id: employeeId }, roles: [role] }
     else if (url.endsWith('/finance-reviews')) data = { items: [], pagination }
     else if (url.endsWith('/finance-review'))
       data = {

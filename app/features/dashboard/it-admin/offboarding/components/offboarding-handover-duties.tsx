@@ -76,7 +76,7 @@ export function OffboardingHandoverDuties({
     </section>
   )
 }
-function HandoverConfirmation({ id, caseId, onClose }: { id: string; caseId: string; onClose: () => void }) {
+export function HandoverConfirmation({ id, caseId, onClose }: { id: string; caseId: string; onClose: () => void }) {
   const { t: translate } = useTranslation('itOffboarding')
   const detail = useHandoverDutyGet(id, { query: { staleTime: 0, refetchOnMount: 'always' } })
   const feedback = useItMutationFeedback(

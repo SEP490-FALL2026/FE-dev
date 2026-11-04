@@ -7,13 +7,24 @@ import { AdminPagination } from './admin-pagination'
 import { adminInputClass, adminButtonClass } from './admin-form'
 import { useAdminSearch } from '../hooks/use-admin-search'
 
-export function EmployeeLookup({ name, required, initial = '', initialLabel = '', purpose = 'personnel', initiallyOpen = false }: {
+export function EmployeeLookup({
+  name,
+  required,
+  initial = '',
+  initialLabel = '',
+  purpose = 'personnel',
+  initiallyOpen = false,
+  invalid = false,
+  descriptionId
+}: {
   name: string
   required: boolean
   initial?: string
   initialLabel?: string
   purpose?: 'personnel' | 'leadership' | 'itAdmin'
   initiallyOpen?: boolean
+  invalid?: boolean
+  descriptionId?: string
 }) {
   const { t: translate } = useTranslation('adminPersonnel')
   const [selected, setSelected] = useState(initial)
@@ -23,28 +34,43 @@ export function EmployeeLookup({ name, required, initial = '', initialLabel = ''
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const debouncedSearch = useAdminSearch(search)
-  const accounts = useAppUserList({
-    page, pageSize: 20,
-    ...(purpose !== 'personnel' ? { status: 'ACTIVE' as const, activationState: 'ACTIVATED' as const } : {}),
-    ...(purpose === 'itAdmin' ? { role: 'IT_ADMIN' as const } : {})
-  }, { query: { enabled: open && source === 'accounts' } })
+  const accounts = useAppUserList(
+    {
+      page,
+      pageSize: 20,
+      ...(purpose !== 'personnel' ? { status: 'ACTIVE' as const, activationState: 'ACTIVATED' as const } : {}),
+      ...(purpose === 'itAdmin' ? { role: 'IT_ADMIN' as const } : {}),
+      ...(purpose === 'leadership' ? { role: 'MANAGER' as const } : {})
+    },
+    { query: { enabled: open && source === 'accounts' } }
+  )
   const candidates = useAccountCandidatesList(debouncedSearch ? { search: debouncedSearch } : undefined, {
     query: { enabled: open && source === 'candidates' }
   })
   const items =
     source === 'accounts'
-      ? accounts.data?.data?.items.flatMap((account) => (
-        account.employee && (purpose === 'personnel' || !account.roles.includes('SUPER_ADMIN')) ? [account.employee] : []
-      ))
+      ? accounts.data?.data?.items.flatMap((account) =>
+          account.employee &&
+          (purpose === 'personnel' || !account.roles.includes('SUPER_ADMIN')) &&
+          (purpose !== 'leadership' ||
+            (account.roles.includes('MANAGER') && !account.roles.includes('SPENDING_APPROVER')))
+            ? [account.employee]
+            : []
+        )
       : candidates.data?.data?.items
   return (
     <div className='grid gap-2'>
       <select
         aria-label={translate(name === 'successorEmployeeId' ? 'fields.successorEmployeeId' : 'fields.employeeId')}
         name={name}
+        aria-invalid={invalid || undefined}
+        aria-describedby={descriptionId}
         required={required}
         value={selected}
-        onChange={() => { setSelected(''); setSelectedLabel('') }}
+        onChange={() => {
+          setSelected('')
+          setSelectedLabel('')
+        }}
         className={adminInputClass}
       >
         <option value=''>{translate(required ? 'choose' : 'noSelection')}</option>
@@ -55,24 +81,26 @@ export function EmployeeLookup({ name, required, initial = '', initialLabel = ''
       </button>
       {open && (
         <div className='space-y-2 rounded-md border border-border p-2'>
-          {purpose !== 'itAdmin' && <div className='flex flex-wrap gap-2'>
-            <button
-              type='button'
-              className={adminButtonClass}
-              aria-pressed={source === 'accounts'}
-              onClick={() => setSource('accounts')}
-            >
-              {translate('withAccounts')}
-            </button>
-            <button
-              type='button'
-              className={adminButtonClass}
-              aria-pressed={source === 'candidates'}
-              onClick={() => setSource('candidates')}
-            >
-              {translate('withoutAccounts')}
-            </button>
-          </div>}
+          {purpose === 'personnel' && (
+            <div className='flex flex-wrap gap-2'>
+              <button
+                type='button'
+                className={adminButtonClass}
+                aria-pressed={source === 'accounts'}
+                onClick={() => setSource('accounts')}
+              >
+                {translate('withAccounts')}
+              </button>
+              <button
+                type='button'
+                className={adminButtonClass}
+                aria-pressed={source === 'candidates'}
+                onClick={() => setSource('candidates')}
+              >
+                {translate('withoutAccounts')}
+              </button>
+            </div>
+          )}
           {source === 'candidates' && (
             <input
               type='search'

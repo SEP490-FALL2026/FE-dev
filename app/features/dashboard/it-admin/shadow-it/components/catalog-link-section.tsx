@@ -7,11 +7,13 @@ import {
 } from '~/shared/api/generated/operations/access-requests/access-request-get'
 import { getAccessRequestAssessmentGetQueryKey } from '~/shared/api/generated/operations/access-requests/access-request-assessment-get'
 import { useAccessRequestCatalogLink } from '~/shared/api/generated/operations/access-requests/access-request-catalog-link'
+import { usePlanGet } from '~/shared/api/generated/operations/plans/plan-get'
 import type { AssessmentResponseDtoDataAssessment } from '~/shared/api/generated/model/access-requests/assessmentResponseDtoDataAssessment'
 import { ItQueryState } from '../../shared/components/it-query-state'
 import { ItFormDialog, itButtonClass } from '../../shared/components/it-form'
 import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
 import { canLinkCatalogPlan } from '../hooks/catalog-link-gates'
+import { CatalogLinkPlanPicker } from './catalog-link-plan-picker'
 
 export function CatalogLinkSection({
   item,
@@ -37,7 +39,10 @@ export function CatalogLinkSection({
             <p className='text-sm text-muted-foreground'>{translate('catalogLink.hint')}</p>
             {item.equivalentTool && (
               <p className='text-sm'>
-                {item.equivalentTool.applicationName} · {item.equivalentTool.planName}
+                {translate('catalogLink.suggestion', {
+                  application: item.equivalentTool.applicationName,
+                  plan: item.equivalentTool.planName
+                })}
               </p>
             )}
             <button className={itButtonClass} disabled={!eligible} onClick={() => setOpen(true)}>
@@ -46,30 +51,29 @@ export function CatalogLinkSection({
           </>
         )}
       </ItQueryState>
-      {open && item.equivalentTool && (
-        <CatalogLinkDialog
-          requestId={item.requestId}
-          plan={item.equivalentTool}
-          eligible={eligible}
-          onClose={() => setOpen(false)}
-        />
-      )}
+      {open && <CatalogLinkDialog requestId={item.requestId} eligible={eligible} onClose={() => setOpen(false)} />}
     </section>
   )
 }
 export function CatalogLinkDialog({
   requestId,
-  plan,
   eligible,
   onClose
 }: {
   requestId: string
-  plan: { planId: string; planName: string; applicationName: string }
   eligible: boolean
   onClose: () => void
 }) {
   const { t: translate } = useTranslation('itNewSoftware')
   const mutation = useAccessRequestCatalogLink()
+  const [applicationId, setApplicationId] = useState('')
+  const [planId, setPlanId] = useState('')
+  const [checking, setChecking] = useState(false)
+  const detail = usePlanGet(planId, { query: { enabled: Boolean(planId), staleTime: 0, refetchOnMount: 'always' } })
+  const plan = detail.data?.data
+  const selectedPlanMatches = Boolean(planId && plan?.id === planId && plan.applicationId === applicationId)
+  const canSubmit = eligible && selectedPlanMatches && !detail.isFetching && !detail.isError
+  const pending = checking || mutation.isPending
   const lock = useRef(false)
   const client = useQueryClient()
   const feedback = useItMutationFeedback(
@@ -77,10 +81,13 @@ export function CatalogLinkDialog({
     onClose
   )
   async function submit() {
-    if (!eligible || !plan.planId || lock.current || mutation.isPending) return
+    if (!canSubmit || lock.current || pending) return
     lock.current = true
+    setChecking(true)
     try {
-      await mutation.mutateAsync({ id: requestId, data: { planId: plan.planId } })
+      const fresh = await detail.refetch({ throwOnError: true })
+      if (fresh.data?.data?.id !== planId || fresh.data.data.applicationId !== applicationId) return
+      await mutation.mutateAsync({ id: requestId, data: { planId } })
       await client.invalidateQueries({
         predicate: (query) =>
           query.queryKey.some(
@@ -92,23 +99,40 @@ export function CatalogLinkDialog({
       await feedback.onError(error)
     } finally {
       lock.current = false
+      setChecking(false)
     }
   }
   return (
     <ItFormDialog
       title={translate('catalogLink.title')}
-      pending={mutation.isPending}
+      pending={pending}
       onClose={onClose}
       submitLabel={translate('confirm')}
-      submitDisabled={!eligible || !plan.planId}
+      submitDisabled={!canSubmit}
       onSubmit={(event) => {
         event.preventDefault()
         void submit()
       }}
     >
-      <p className='text-sm'>
-        {translate('catalogLink.confirm', { application: plan.applicationName, plan: plan.planName })}
-      </p>
+      <CatalogLinkPlanPicker
+        applicationId={applicationId}
+        planId={planId}
+        disabled={pending || !eligible}
+        onApplicationChange={(id) => {
+          setApplicationId(id)
+          setPlanId('')
+        }}
+        onPlanChange={setPlanId}
+      />
+      {planId && (
+        <ItQueryState query={detail}>
+          <p className='text-sm'>
+            {selectedPlanMatches && plan
+              ? translate('catalogLink.confirm', { application: plan.applicationName, plan: plan.name })
+              : translate('catalogLink.selectPlanHint')}
+          </p>
+        </ItQueryState>
+      )}
       <p className='text-sm text-muted-foreground'>{translate('catalogLink.confirmHint')}</p>
     </ItFormDialog>
   )
