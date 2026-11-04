@@ -11,6 +11,8 @@ export default defineConfig({
         tags: [
           'auth',
           'me',
+          'dashboards',
+          'need-decisions',
           'audit',
           'employees',
           'departments',
@@ -59,7 +61,9 @@ export default defineConfig({
           'exchange-rates',
           'spend-approvals',
           'spend-submission',
-          'notifications'
+          'notifications',
+          'requestable-software',
+          'return-requests'
         ]
       }
     },

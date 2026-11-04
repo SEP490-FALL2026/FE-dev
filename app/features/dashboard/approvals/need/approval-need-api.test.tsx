@@ -90,7 +90,7 @@ beforeEach(() => {
     const data = config.url?.endsWith('/me')
       ? {
           employee: { id: employeeId, department: { code: actorDepartmentCode } },
-          roles: { effective: departmentHead ? ['SPENDING_APPROVER', 'MANAGER'] : ['SPENDING_APPROVER'] }
+          roles: departmentHead ? ['SPENDING_APPROVER', 'MANAGER'] : ['SPENDING_APPROVER']
         }
       : {
           request: {

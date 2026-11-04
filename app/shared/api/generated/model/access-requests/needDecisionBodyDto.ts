@@ -9,6 +9,9 @@ import type { NeedDecisionBodyDtoDecision } from './needDecisionBodyDtoDecision'
 import type { NeedDecisionBodyDtoSpend } from './needDecisionBodyDtoSpend'
 import type { NeedDecisionBodyDtoTermConfirmation } from './needDecisionBodyDtoTermConfirmation'
 
+/**
+ * A refusal (REJECT) gives its reason, and neither confirms a term nor chooses a line of the plan. An approval (APPROVE) may confirm a term over twelve months with a reason of its own, and for a request that costs money chooses a line of the plan or that it is outside it.
+ */
 export interface NeedDecisionBodyDto {
   decision: NeedDecisionBodyDtoDecision
   /**
@@ -17,5 +20,6 @@ export interface NeedDecisionBodyDto {
    */
   reason?: string
   termConfirmation?: NeedDecisionBodyDtoTermConfirmation
+  /** Choose exactly one: a line of the plan of the budget (planLine), or that the spend is outside it (offPlan: true). */
   spend?: NeedDecisionBodyDtoSpend
 }

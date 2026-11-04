@@ -10,7 +10,7 @@ vi.mock('~/shared/api/generated/operations/access-requests/access-request-assess
   }
 }))
 vi.mock('~/shared/api/generated/operations/me/me-get', () => ({
-  useMeGet: () => ({ data: { data: { roles: { effective: [] } } } })
+  useMeGet: () => ({ data: { data: { roles: [] } } })
 }))
 afterEach(async () => setAppLanguage('vi', false))
 describe('external software assessment lookup', () => {

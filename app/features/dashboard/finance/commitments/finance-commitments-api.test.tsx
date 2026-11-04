@@ -30,7 +30,7 @@ beforeEach(() => {
     }
     const pagination = { page: config.params?.page ?? 1, pageSize: 20, totalItems: 21, totalPages: 2 }
     const money = { amount: '9007199254740993.25', currency: 'USD' }
-    let data: unknown = { roles: { effective: ['FINANCE'] } }
+    let data: unknown = { roles: ['FINANCE'] }
     if (config.url?.endsWith('/budget-commitments'))
       data = {
         items: [

@@ -48,6 +48,10 @@ import { itIssues as enItIssues } from './locales/en/it-issues'
 import { itIssues as viItIssues } from './locales/vi/it-issues'
 import { itNewSoftware as enItNewSoftware } from './locales/en/it-new-software'
 import { itNewSoftware as viItNewSoftware } from './locales/vi/it-new-software'
+import { employee as enEmployee } from './locales/en/employee'
+import { employee as viEmployee } from './locales/vi/employee'
+import { manager as enManager } from './locales/en/manager'
+import { manager as viManager } from './locales/vi/manager'
 
 export const defaultNS = 'common' as const
 
@@ -67,6 +71,8 @@ export const resources = {
     itCatalog: enItCatalog,
     itOffboarding: enItOffboarding,
     itIssues: enItIssues,
+    manager: enManager,
+    employee: enEmployee,
     admin: enAdmin,
     adminAccounts: enAdminAccounts,
     adminOrganization: enAdminOrganization,
@@ -94,6 +100,8 @@ export const resources = {
     itCatalog: viItCatalog,
     itOffboarding: viItOffboarding,
     itIssues: viItIssues,
+    manager: viManager,
+    employee: viEmployee,
     admin: viAdmin,
     adminAccounts: viAdminAccounts,
     adminOrganization: viAdminOrganization,

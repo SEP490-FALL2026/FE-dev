@@ -12,7 +12,10 @@ export interface ProposalBodyDto {
    * @maxLength 200
    */
   softwareName: string
-  /** @maxLength 500 */
+  /**
+   * An absolute web address, http or https, with a host; surrounding whitespace is trimmed first.
+   * @maxLength 500
+   */
   homepageUrl: string
   /**
    * @minLength 1
@@ -39,5 +42,6 @@ export interface ProposalBodyDto {
    * @maxLength 200
    */
   projectLabel?: string
+  /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
   expectedSpendOn?: string
 }

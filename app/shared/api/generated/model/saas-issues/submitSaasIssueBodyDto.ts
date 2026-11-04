@@ -12,7 +12,10 @@ export interface SubmitSaasIssueBodyDto {
   assignmentId: string
   category: SubmitSaasIssueBodyDtoCategory
   impact: SubmitSaasIssueBodyDtoImpact
-  /** @maxLength 2000 */
+  /**
+   * Required: a value that is only whitespace is refused.
+   * @maxLength 2000
+   */
   description: string
   occurredAt: string
 }

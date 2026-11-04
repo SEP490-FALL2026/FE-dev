@@ -19,7 +19,7 @@ import type { UserRole } from '~/entities/user-role/user-role'
 import { BrandMark } from '~/shared/ui/brand-mark'
 import { ItSidebarNav, type ItAdminTabKey } from '../it-admin'
 import { employeeMenuItems, type EmployeeTabKey } from '../employee'
-import { managerNavItems, type ManagerTabKey, MOCK_TEAM_REQUESTS } from '../manager'
+import { managerNavItems, type ManagerTabKey } from '../manager'
 import { approvalNavItems, type ApprovalTabKey } from '../approvals'
 import { FinanceSidebarNav, type FinanceTabKey } from '../finance'
 import { superAdminNavItems, type SuperAdminTabKey } from '../super-admin'
@@ -38,6 +38,7 @@ const fallbackNavigationItems = [
 ] as const
 
 export interface DashboardSidebarProps {
+  employeeSelfServiceOnly?: boolean
   activeApprovalParent: string
   activeApprovalTab: ApprovalTabKey
   activeEmployeeParent: string
@@ -49,9 +50,7 @@ export interface DashboardSidebarProps {
   activeSuperAdminTab: SuperAdminTabKey
   activeTab: ItAdminTabKey
   managerCreateMenuOpen: boolean
-  managerMarkedRequestIds: string[]
   managerRequestScope: 'team' | 'individual'
-  managerSentRequestIds: string[]
   mobileNavigationOpen: boolean
   onCloseMobileNavigation: () => void
   onSelectApprovalTab: (tab: ApprovalTabKey) => void
@@ -67,6 +66,7 @@ export interface DashboardSidebarProps {
 }
 
 export function DashboardSidebar({
+  employeeSelfServiceOnly = false,
   activeApprovalParent,
   activeEmployeeParent,
   activeFinanceTab,
@@ -75,9 +75,7 @@ export function DashboardSidebar({
   activeSuperAdminTab,
   activeTab,
   managerCreateMenuOpen,
-  managerMarkedRequestIds,
   managerRequestScope,
-  managerSentRequestIds,
   mobileNavigationOpen,
   onCloseMobileNavigation,
   onSelectApprovalTab,
@@ -94,6 +92,8 @@ export function DashboardSidebar({
   const { t } = useTranslation('dashboard')
   const { t: tCommon } = useTranslation('common')
   const { t: translateAdmin } = useTranslation('admin')
+  const { t: translateEmployee } = useTranslation('employee')
+  const { t: translateManager } = useTranslation('manager')
 
   const isItAdmin = role === 'it-admin'
   const isEmployee = role === 'employee'
@@ -153,39 +153,41 @@ export function DashboardSidebar({
             />
           ) : isEmployee ? (
             <ul className='space-y-1.5'>
-              {employeeMenuItems.map((item) => {
-                const isCurrent = activeEmployeeParent === item.key
-                const Icon = item.icon
+              {employeeMenuItems
+                .filter((item) => !employeeSelfServiceOnly || ['overview', 'handovers', 'privacy'].includes(item.key))
+                .map((item) => {
+                  const isCurrent = activeEmployeeParent === item.key
+                  const Icon = item.icon
 
-                return (
-                  <li key={item.key}>
-                    <button
-                      aria-current={isCurrent ? 'page' : undefined}
-                      className={`flex w-full items-center justify-between rounded-xl px-3.5 py-3 text-left text-sm font-semibold transition ${
-                        isCurrent
-                          ? 'bg-primary text-primary-foreground shadow-[0_10px_25px_var(--theme-primary-soft)]'
-                          : 'text-muted-foreground hover:bg-surface hover:text-foreground'
-                      }`}
-                      onClick={() => onSelectEmployeeTab(item.directTabKey!)}
-                      type='button'
-                    >
-                      <div className='flex items-center gap-3'>
-                        <Icon aria-hidden='true' className='size-[1.125rem] shrink-0' />
-                        <span>{t(`employee.nav.${item.translationKey}`)}</span>
-                      </div>
-                      {item.badge !== undefined && (
-                        <span
-                          className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[0.65rem] font-bold ${
-                            isCurrent ? 'bg-white/20 text-white' : 'bg-surface-subtle text-muted-foreground'
-                          }`}
-                        >
-                          {item.badge}
-                        </span>
-                      )}
-                    </button>
-                  </li>
-                )
-              })}
+                  return (
+                    <li key={item.key}>
+                      <button
+                        aria-current={isCurrent ? 'page' : undefined}
+                        className={`flex w-full items-center justify-between rounded-xl px-3.5 py-3 text-left text-sm font-semibold transition ${
+                          isCurrent
+                            ? 'bg-primary text-primary-foreground shadow-[0_10px_25px_var(--theme-primary-soft)]'
+                            : 'text-muted-foreground hover:bg-surface hover:text-foreground'
+                        }`}
+                        onClick={() => onSelectEmployeeTab(item.directTabKey!)}
+                        type='button'
+                      >
+                        <div className='flex items-center gap-3'>
+                          <Icon aria-hidden='true' className='size-[1.125rem] shrink-0' />
+                          <span>{translateEmployee(item.translationKey)}</span>
+                        </div>
+                        {item.badge !== undefined && (
+                          <span
+                            className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[0.65rem] font-bold ${
+                              isCurrent ? 'bg-white/20 text-white' : 'bg-surface-subtle text-muted-foreground'
+                            }`}
+                          >
+                            {item.badge}
+                          </span>
+                        )}
+                      </button>
+                    </li>
+                  )
+                })}
             </ul>
           ) : isManager ? (
             <ul className='space-y-1.5'>
@@ -222,30 +224,15 @@ export function DashboardSidebar({
                       type='button'
                     >
                       <div className='flex items-center gap-3'>
-                        <Icon aria-hidden='true' className='size-[1.125rem] shrink-0' />
-                        <span>{t(`manager.nav.${item.translationKey}`)}</span>
+                        <Icon aria-hidden='true' className='size-[1.125rem] shrink-0' strokeWidth={1.5} />
+                        <span>{translateManager(item.liveLabel)}</span>
                       </div>
                       {item.key === 'create-employee-request' && (
                         <ChevronDown
                           aria-hidden='true'
                           className={`size-4 transition-transform ${managerCreateMenuOpen ? 'rotate-180' : ''}`}
+                          strokeWidth={1.5}
                         />
-                      )}
-                      {item.badge !== undefined && (
-                        <span
-                          className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[0.65rem] font-bold ${
-                            isCurrent ? 'bg-white/20 text-white' : 'bg-surface-subtle text-muted-foreground'
-                          }`}
-                        >
-                          {item.key === 'team-requests'
-                            ? MOCK_TEAM_REQUESTS.filter(
-                                (request) =>
-                                  request.status === 'PENDING' && !managerMarkedRequestIds.includes(request.id)
-                              ).length
-                            : item.key === 'weekly-batch'
-                              ? managerMarkedRequestIds.filter((id) => !managerSentRequestIds.includes(id)).length
-                              : item.badge}
-                        </span>
                       )}
                     </button>
                     {item.key === 'create-employee-request' && managerCreateMenuOpen && (
@@ -262,7 +249,7 @@ export function DashboardSidebar({
                               onClick={() => onSelectManagerTab('create-employee-request', { scope })}
                               type='button'
                             >
-                              {t(scope === 'team' ? 'manager.nav.requestForTeam' : 'manager.nav.requestForIndividual')}
+                              {translateManager(scope === 'team' ? 'group' : 'individual')}
                             </button>
                           </li>
                         ))}

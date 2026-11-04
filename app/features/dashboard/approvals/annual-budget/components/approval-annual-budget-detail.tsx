@@ -22,7 +22,7 @@ export function ApprovalAnnualBudgetDetail({ itemId, onSelectTab }: ApprovalBudg
   const [decisionOpen, setDecisionOpen] = useState(false)
   const [historyOpen, setHistoryOpen] = useState(false)
   const employeeId = identity.data?.data?.employee.id
-  const isSpendingApprover = identity.data?.data?.roles.effective.includes('SPENDING_APPROVER') === true
+  const isSpendingApprover = identity.data?.data?.roles.includes('SPENDING_APPROVER') === true
   const ownVersion = !!employeeId && employeeId === version?.createdBy?.employeeId
   const canDecide =
     version?.state === versionState.SENT &&

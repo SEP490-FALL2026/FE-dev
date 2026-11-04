@@ -38,7 +38,7 @@ export function OffboardingDetails({
   const grants = useOffboardingCaseOpenGrantTaskList(id, { page: grantPage, pageSize: 20 })
   const me = useMeGet()
   const item = detail.data?.data
-  const authorized = !me.isError && (me.data?.data?.roles.effective.includes('IT_ADMIN') ?? false)
+  const authorized = !me.isError && (me.data?.data?.roles.includes('IT_ADMIN') ?? false)
   const active = authorized && !detail.isFetching && item?.state === OffboardingState.LEFT && !item.closed
   const rightData = rights.data?.data
   const requestData = requests.data?.data

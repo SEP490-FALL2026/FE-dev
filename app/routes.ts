@@ -15,6 +15,8 @@ export default [
   route('dashboard/super-admin/personnel/:formMode', 'routes/dashboard.super-admin.personnel.tsx'),
   route('dashboard/it-admin', 'routes/dashboard.it-admin.tsx'),
   route('dashboard/manager', 'routes/dashboard.manager.tsx'),
+  route('dashboard/manager/annual-budget/new', 'routes/dashboard.manager.budget.tsx'),
+  route('dashboard/manager/annual-budget/:proposalId/revise', 'routes/dashboard.manager.budget-revision.tsx'),
   route('dashboard/finance', 'routes/dashboard.finance.tsx'),
   route('dashboard/spending-approver', 'routes/dashboard.spending-approver.tsx'),
   route('dashboard/employee', 'routes/dashboard.employee.tsx'),

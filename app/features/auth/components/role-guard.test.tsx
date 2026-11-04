@@ -56,10 +56,18 @@ describe('RoleGuard', () => {
             success: true,
             message: 'ME.RETRIEVED',
             data: {
+              managerScope: null,
               appUserId: 'u1',
               loginEmail: 'person@example.com',
-              employee: { id: 'e1', employeeCode: '001', fullName: 'Person', department: null, jobTitle: null },
-              roles: { direct: ['EMPLOYEE'], derived: [], effective: ['EMPLOYEE'] },
+              employee: {
+                unplaced: false,
+                id: 'e1',
+                employeeCode: '001',
+                fullName: 'Person',
+                department: null,
+                jobTitle: null
+              },
+              roles: ['EMPLOYEE'],
               selfServiceOnly: false
             }
           }

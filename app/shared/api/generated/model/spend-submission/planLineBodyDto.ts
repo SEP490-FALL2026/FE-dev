@@ -7,6 +7,9 @@
  */
 import type { PlanLineBodyDtoPlanLine } from './planLineBodyDtoPlanLine'
 
+/**
+ * Choose exactly one: a line of the plan of the budget (planLine), or that the spend is outside it (offPlan: true).
+ */
 export interface PlanLineBodyDto {
   planLine?: PlanLineBodyDtoPlanLine
   offPlan?: true

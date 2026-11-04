@@ -32,16 +32,18 @@ beforeEach(async () => {
     http.get(`${endpoint}/me`, () =>
       HttpResponse.json(
         envelope({
+          managerScope: null,
           appUserId: 'previous-admin',
           loginEmail: 'admin@example.com',
           employee: {
+            unplaced: false,
             id: 'previous-employee',
             employeeCode: 'E-001',
             fullName: 'Previous Administrator',
             department: null,
             jobTitle: null
           },
-          roles: { direct: ['EMPLOYEE'], derived: [], effective: ['EMPLOYEE'] },
+          roles: ['EMPLOYEE'],
           selfServiceOnly: false
         })
       )

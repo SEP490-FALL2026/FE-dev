@@ -61,7 +61,7 @@ function AssessmentDetail({ id, onSelectTab }: { id: string; onSelectTab?: (tab:
   const [mode, setMode] = useState<'save' | 'complete' | 'reject' | null>(null)
   const [internalOpen, setInternalOpen] = useState(false)
   const item = query.data?.data?.assessment
-  const authorized = !me.isError && (me.data?.data?.roles.effective.includes('IT_ADMIN') ?? false)
+  const authorized = !me.isError && (me.data?.data?.roles.includes('IT_ADMIN') ?? false)
   const editable =
     authorized &&
     !query.isFetching &&

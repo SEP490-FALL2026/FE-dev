@@ -6,7 +6,8 @@
  * OpenAPI spec version: 1.0
  */
 import type { MeResponseDtoDataEmployee } from './meResponseDtoDataEmployee'
-import type { MeResponseDtoDataRoles } from './meResponseDtoDataRoles'
+import type { MeResponseDtoDataManagerScope } from './meResponseDtoDataManagerScope'
+import type { MeResponseDtoDataRolesItem } from './meResponseDtoDataRolesItem'
 
 /**
  * @nullable
@@ -15,6 +16,8 @@ export type MeResponseDtoData = {
   appUserId: string
   loginEmail: string
   employee: MeResponseDtoDataEmployee
-  roles: MeResponseDtoDataRoles
+  roles: MeResponseDtoDataRolesItem[]
+  /** @nullable */
+  managerScope: MeResponseDtoDataManagerScope
   selfServiceOnly: boolean
 } | null

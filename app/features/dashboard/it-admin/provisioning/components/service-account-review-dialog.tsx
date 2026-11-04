@@ -16,7 +16,7 @@ import { BoundaryState, BoundaryDecision, RequestState } from '../enums/boundary
 export function ServiceAccountReviewDialog({ requestId, onClose }: { requestId: string; onClose: () => void }) {
   const { t: translate } = useTranslation('itProvisioning')
   const me = useMeGet({ query: { staleTime: 60000 } })
-  const authorized = me.data?.data?.roles.effective.includes('IT_ADMIN') === true
+  const authorized = me.data?.data?.roles.includes('IT_ADMIN') === true
   const [decision, setDecision] = useState<BoundaryDecision>(BoundaryDecision.ACCEPT)
   const [reason, setReason] = useState('')
   const query = useQuery({

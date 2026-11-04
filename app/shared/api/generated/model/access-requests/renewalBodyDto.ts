@@ -9,6 +9,7 @@ import type { RenewalBodyDtoTermConfirmation } from './renewalBodyDtoTermConfirm
 
 export interface RenewalBodyDto {
   assignmentId: string
+  /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
   newExpectedEndDate: string
   /**
    * @minLength 1
@@ -20,6 +21,7 @@ export interface RenewalBodyDto {
    * @maxLength 200
    */
   projectLabel?: string
+  /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
   expectedSpendOn?: string
   termConfirmation?: RenewalBodyDtoTermConfirmation
 }

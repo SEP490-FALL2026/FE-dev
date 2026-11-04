@@ -29,7 +29,7 @@ export function ItProvisioningView({
 }) {
   const { t: translate } = useTranslation('itProvisioning')
   const me = useMeGet({ query: { staleTime: 60000 } })
-  const authorized = me.data?.data?.roles.effective.includes('IT_ADMIN') === true
+  const authorized = me.data?.data?.roles.includes('IT_ADMIN') === true
   const actorIds = [me.data?.data?.appUserId ?? '', me.data?.data?.employee.id ?? '']
   const [selectedTask, setSelectedTask] = useState(initialTaskId ?? '')
   const [queue, setQueue] = useState<'tasks' | 'grants' | 'expiry'>('tasks')

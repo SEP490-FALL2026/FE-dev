@@ -9,6 +9,9 @@ import type { LineNeedDecisionBodyDtoLinesItem } from './lineNeedDecisionBodyDto
 import type { LineNeedDecisionBodyDtoSpend } from './lineNeedDecisionBodyDtoSpend'
 import type { LineNeedDecisionBodyDtoTermConfirmation } from './lineNeedDecisionBodyDtoTermConfirmation'
 
+/**
+ * Each person of the step is decided once. A term confirmation and a choice of line of the plan (spend) are accepted only when at least one person is approved.
+ */
 export interface LineNeedDecisionBodyDto {
   /**
    * @minItems 1
@@ -16,5 +19,6 @@ export interface LineNeedDecisionBodyDto {
    */
   lines: LineNeedDecisionBodyDtoLinesItem[]
   termConfirmation?: LineNeedDecisionBodyDtoTermConfirmation
+  /** Choose exactly one: a line of the plan of the budget (planLine), or that the spend is outside it (offPlan: true). */
   spend?: LineNeedDecisionBodyDtoSpend
 }

@@ -7,8 +7,12 @@
  */
 import type { LineNeedDecisionBodyDtoSpendPlanLine } from './lineNeedDecisionBodyDtoSpendPlanLine'
 
+/**
+ * Choose exactly one: a line of the plan of the budget (planLine), or that the spend is outside it (offPlan: true).
+ */
 export type LineNeedDecisionBodyDtoSpend = {
   planLine?: LineNeedDecisionBodyDtoSpendPlanLine
   offPlan?: true
+  /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
   expectedSpendOn?: string
 }

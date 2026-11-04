@@ -43,7 +43,7 @@ export function FinanceQuestionAnswer({
   const disabled =
     !fresh ||
     item.state !== QuestionState.OPEN ||
-    !me.data?.data?.roles.effective.includes('FINANCE') ||
+    !me.data?.data?.roles.includes('FINANCE') ||
     me.isFetching ||
     me.isError ||
     note.trim().length > 2000

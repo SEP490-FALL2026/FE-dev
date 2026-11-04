@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
-import { beforeAll, afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeAll, afterAll, beforeEach, describe, expect, it } from 'vitest'
 import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
 
@@ -9,8 +9,23 @@ import { AppProviders } from '~/providers/app-providers'
 import { setAppLanguage } from '~/shared/i18n/i18n'
 
 import { DashboardPage } from './dashboard-page'
+import { employeeProfile, pageResponse } from '../../../test/fixtures/employee-api'
+import { employeeCatalogHandlers } from '../../../test/fixtures/employee-catalog'
 
 const server = setupServer(
+  ...employeeCatalogHandlers,
+  http.get('*/api/v1/dashboards/employee', () => HttpResponse.json({ success: true, data: null })),
+  http.get('*/api/v1/notifications/unread-count', () => HttpResponse.json({ success: true, data: { unread: 0 } })),
+  ...[
+    'access-requests/drafts',
+    'me/access-requests',
+    'handover-duties',
+    'assignment-expiry-reminders',
+    'return-requests'
+  ].map((route) => http.get('*/api/v1/' + route, () => HttpResponse.json(pageResponse()))),
+  http.get('*/api/v1/me/software-rights', () =>
+    HttpResponse.json({ ...pageResponse(), data: { ...pageResponse().data, asOf: '2026-11-03', view: 'current' } })
+  ),
   http.get('*/api/v1/onboarding-checklist', () => HttpResponse.json({ success: true, data: { steps: [] } })),
   http.get('*/api/v1/super-admin-watch', () =>
     HttpResponse.json({ success: true, data: { status: 'HEALTHY', reasons: {}, warnings: {}, holder: null } })
@@ -44,6 +59,9 @@ beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 afterAll(() => server.close())
 
 function renderDashboard(role: UserRole, initialEntry = '/') {
+  if (role === 'employee') {
+    server.use(http.get('*/api/v1/me', () => HttpResponse.json({ success: true, data: employeeProfile })))
+  }
   return render(
     <MemoryRouter initialEntries={[initialEntry]}>
       <AppProviders>
@@ -55,20 +73,18 @@ function renderDashboard(role: UserRole, initialEntry = '/') {
 
 describe('DashboardPage', () => {
   beforeEach(async () => {
+    server.resetHandlers()
     localStorage.clear()
     localStorage.setItem('saas-sentry.language', 'vi')
     await setAppLanguage('vi', false)
   })
 
-  it('renders the employee dashboard shell', () => {
-    const view = renderDashboard('employee')
-
-    expect(screen.getByRole('heading', { level: 1, name: /Xin chào, Đức Anh!/i })).toBeInTheDocument()
+  it('renders the live employee identity in the current dashboard shell', async () => {
+    renderDashboard('employee')
+    expect(await screen.findByRole('heading', { name: 'Test Employee' })).toBeInTheDocument()
     expect(screen.getByRole('navigation', { name: 'Điều hướng dashboard' })).toBeInTheDocument()
-    expect(screen.getByRole('region', { name: 'Chỉ số tổng quan' })).toBeInTheDocument()
     expect(screen.getByTestId('dashboard-role')).toHaveTextContent('Nhân viên')
-
-    view.unmount()
+    expect(screen.queryByText('Đức Anh')).not.toBeInTheDocument()
   })
 
   it('exposes a keyboard-operable mobile navigation toggle', () => {
@@ -110,135 +126,62 @@ describe('DashboardPage', () => {
     view.unmount()
   })
 
-  it('navigates through Employee menus and activates the corresponding view', () => {
-    const view = renderDashboard('employee')
-    const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
-
-    // Default entrance is Employee Overview
-    const overviewBtn = within(nav).getByRole('button', { current: 'page', name: /Tổng quan/i })
-    expect(overviewBtn).toBeInTheDocument()
-    expect(overviewBtn).toHaveClass('bg-primary')
-    expect(screen.getByText('Bảng điều khiển Nhân viên')).toBeInTheDocument()
-
-    // Click "Phần mềm của tôi"
-    const mySoftwareBtn = within(nav).getByRole('button', { name: /Phần mềm của tôi/i })
-    expect(mySoftwareBtn).not.toHaveClass('bg-primary')
-    fireEvent.click(mySoftwareBtn)
-    expect(mySoftwareBtn).toHaveClass('bg-primary')
-    expect(overviewBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByText('Bản quyền phần mềm của tôi')).toBeInTheDocument()
-
-    // Click "Yêu cầu của tôi"
-    const myRequestsBtn = within(nav).getByRole('button', { name: /Yêu cầu của tôi/i })
-    expect(myRequestsBtn).not.toHaveClass('bg-primary')
-    fireEvent.click(myRequestsBtn)
-    expect(myRequestsBtn).toHaveClass('bg-primary')
-    expect(mySoftwareBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByText('Danh sách yêu cầu của tôi')).toBeInTheDocument()
-
-    // Click "Tạo yêu cầu"
-    const createRequestBtn = within(nav).getByRole('button', { name: 'Tạo yêu cầu' })
-    expect(createRequestBtn).not.toHaveClass('bg-primary')
-    fireEvent.click(createRequestBtn)
-    expect(createRequestBtn).toHaveClass('bg-primary')
-    expect(myRequestsBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByText('Trung tâm tạo yêu cầu phần mềm')).toBeInTheDocument()
-
-    // Click "Quyền riêng tư"
-    const privacyBtn = within(nav).getByRole('button', { name: 'Quyền riêng tư' })
-    expect(privacyBtn).not.toHaveClass('bg-primary')
-    fireEvent.click(privacyBtn)
-    expect(privacyBtn).toHaveClass('bg-primary')
-    expect(createRequestBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByRole('heading', { level: 1, name: 'Quyền riêng tư' })).toBeInTheDocument()
-    expect(screen.queryByText('Thông tin cá nhân')).not.toBeInTheDocument()
-
-    // Return to Overview
-    fireEvent.click(overviewBtn)
-    expect(overviewBtn).toHaveClass('bg-primary')
-    expect(privacyBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByText('Bảng điều khiển Nhân viên')).toBeInTheDocument()
-
-    view.unmount()
-  })
-
-  it('opens the separate employee profile from the header avatar', () => {
+  it('navigates live employee access, requests, catalog and privacy pages', async () => {
     renderDashboard('employee')
+    await screen.findByRole('heading', { name: 'Test Employee' })
     const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
-    const avatar = screen.getByRole('button', { name: 'Mở hồ sơ cá nhân' })
-
-    fireEvent.click(avatar)
-
-    expect(avatar).toHaveAttribute('aria-current', 'page')
-    expect(screen.getByRole('heading', { level: 1, name: 'Hồ sơ cá nhân' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Thông tin cá nhân' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Thông tin tổ chức' })).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: 'Bảo vệ quyền riêng tư & Minh bạch dữ liệu' })).not.toBeInTheDocument()
-    expect(within(nav).getByRole('button', { name: 'Quyền riêng tư' })).not.toHaveAttribute('aria-current')
-
-    fireEvent.click(within(nav).getByRole('button', { name: 'Quyền riêng tư' }))
-    expect(screen.getByRole('button', { name: 'Xuất dữ liệu của tôi' })).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: 'Xuất dữ liệu của tôi' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Quay lại Quyền riêng tư' }))
-    expect(screen.getByRole('heading', { level: 1, name: 'Quyền riêng tư' })).toBeInTheDocument()
-  })
-
-  it('previews a selected employee avatar in the profile and header', () => {
-    const createDescriptor = Object.getOwnPropertyDescriptor(URL, 'createObjectURL')
-    const revokeDescriptor = Object.getOwnPropertyDescriptor(URL, 'revokeObjectURL')
-    const createObjectURL = vi.fn(() => 'blob:employee-avatar')
-    const revokeObjectURL = vi.fn()
-    Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: createObjectURL })
-    Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: revokeObjectURL })
-
-    try {
-      const view = renderDashboard('employee', '/?tab=profile')
-      const avatarButton = screen.getByRole('button', { name: 'Mở hồ sơ cá nhân' })
-      const fileInput = screen.getByLabelText('Chọn ảnh đại diện')
-
-      fireEvent.change(fileInput, {
-        target: { files: [new File(['invalid'], 'avatar.svg', { type: 'image/svg+xml' })] }
-      })
-      expect(screen.getByRole('alert')).toHaveTextContent('Chỉ hỗ trợ ảnh JPG, PNG hoặc WebP.')
-      expect(createObjectURL).not.toHaveBeenCalled()
-
-      fireEvent.change(fileInput, {
-        target: { files: [new File([new Uint8Array(2 * 1024 * 1024 + 1)], 'large.png', { type: 'image/png' })] }
-      })
-      expect(screen.getByRole('alert')).toHaveTextContent('Ảnh phải có dung lượng tối đa 2 MB.')
-      expect(createObjectURL).not.toHaveBeenCalled()
-
-      fireEvent.change(fileInput, {
-        target: { files: [new File(['valid'], 'avatar.png', { type: 'image/png' })] }
-      })
-      expect(screen.queryByRole('alert')).not.toBeInTheDocument()
-      expect(screen.getByRole('img', { name: 'Ảnh đại diện của Nguyễn Văn An' })).toHaveAttribute(
-        'src',
-        'blob:employee-avatar'
-      )
-      expect(avatarButton.querySelector('img')).toHaveAttribute('src', 'blob:employee-avatar')
-      expect(screen.getByRole('button', { name: 'Đổi ảnh đại diện' })).toBeInTheDocument()
-
-      view.unmount()
-      expect(revokeObjectURL).toHaveBeenCalledWith('blob:employee-avatar')
-    } finally {
-      if (createDescriptor) Object.defineProperty(URL, 'createObjectURL', createDescriptor)
-      else Reflect.deleteProperty(URL, 'createObjectURL')
-      if (revokeDescriptor) Object.defineProperty(URL, 'revokeObjectURL', revokeDescriptor)
-      else Reflect.deleteProperty(URL, 'revokeObjectURL')
+    for (const [button, heading] of [
+      ['Quyền sử dụng', 'Quyền sử dụng'],
+      ['Yêu cầu của tôi', 'Yêu cầu của tôi'],
+      ['Tạo yêu cầu', 'Tạo yêu cầu'],
+      ['Quyền riêng tư', 'Quyền riêng tư']
+    ]) {
+      const control = within(nav).getByRole('button', { name: button })
+      fireEvent.click(control)
+      expect(control).toHaveAttribute('aria-current', 'page')
+      expect(await screen.findByRole('heading', { level: 1, name: heading })).toBeInTheDocument()
     }
+    const overview = within(nav).getByRole('button', { name: 'Tổng quan' })
+    fireEvent.click(overview)
+    expect(overview).toHaveAttribute('aria-current', 'page')
+    expect(await screen.findByRole('heading', { name: 'Test Employee' })).toBeInTheDocument()
   })
 
-  it('shows usage from the assigned software samples and opens the software list', () => {
+  it('opens the API employee profile from the current header and keeps privacy separate', async () => {
     renderDashboard('employee')
+    await screen.findByRole('heading', { name: 'Test Employee' })
+    const avatar = screen.getByRole('button', { name: 'Mở hồ sơ cá nhân' })
+    fireEvent.click(avatar)
+    expect(avatar).toHaveAttribute('aria-current', 'page')
+    expect(await screen.findByRole('heading', { level: 1, name: 'Hồ sơ' })).toBeInTheDocument()
+    expect(screen.getByText('EMP-TEST')).toBeInTheDocument()
+    const privacy = within(screen.getByRole('navigation', { name: 'Điều hướng dashboard' })).getByRole('button', {
+      name: 'Quyền riêng tư'
+    })
+    expect(privacy).not.toHaveAttribute('aria-current')
+    fireEvent.click(privacy)
+    expect(await screen.findByRole('heading', { level: 1, name: 'Quyền riêng tư' })).toBeInTheDocument()
+    expect(privacy).toHaveAttribute('aria-current', 'page')
+  })
 
-    const usage = screen.getByRole('region', { name: 'Mức độ sử dụng phần mềm' })
-    expect(within(usage).getByText('74%')).toBeInTheDocument()
-    expect(within(usage).getByText('95%')).toBeInTheDocument()
-    expect(within(usage).getByText('42%')).toBeInTheDocument()
-    expect(within(usage).getByText(/không đo hiệu suất làm việc của nhân viên/)).toBeInTheDocument()
+  it('keeps employee profile changes unavailable without a supporting API', async () => {
+    renderDashboard('employee', '/?tab=profile')
+    expect(await screen.findByText('EMP-TEST')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Chọn ảnh đại diện')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Đổi ảnh đại diện' })).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Đổi mật khẩu' })).toHaveAttribute('href', '/change-password')
+  })
 
-    fireEvent.click(within(usage).getByRole('button', { name: 'Tất cả' }))
-    expect(screen.getByRole('heading', { level: 1, name: 'Bản quyền phần mềm của tôi' })).toBeInTheDocument()
+  it('opens API software rights without showing fabricated sample usage', async () => {
+    renderDashboard('employee')
+    await screen.findByRole('heading', { name: 'Test Employee' })
+    for (const percentage of ['74%', '95%', '42%']) expect(screen.queryByText(percentage)).not.toBeInTheDocument()
+    fireEvent.click(
+      within(screen.getByRole('navigation', { name: 'Điều hướng dashboard' })).getByRole('button', {
+        name: 'Quyền sử dụng'
+      })
+    )
+    expect(await screen.findByRole('heading', { level: 1, name: 'Quyền sử dụng' })).toBeInTheDocument()
+    expect(await screen.findByText('Chưa được cấp quyền phần mềm')).toBeInTheDocument()
   })
 })

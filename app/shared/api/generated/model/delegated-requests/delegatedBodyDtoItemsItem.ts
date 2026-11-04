@@ -8,5 +8,6 @@
 
 export type DelegatedBodyDtoItemsItem = {
   planId: string
+  /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
   expectedSpendOn?: string
 }

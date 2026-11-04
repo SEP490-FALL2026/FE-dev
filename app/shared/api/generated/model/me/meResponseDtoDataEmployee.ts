@@ -13,6 +13,7 @@ export type MeResponseDtoDataEmployee = {
   fullName: string
   /** @nullable */
   department: MeResponseDtoDataEmployeeDepartment
+  unplaced: boolean
   /** @nullable */
   jobTitle: string | null
 }

@@ -10,6 +10,7 @@ import type { SendNoticeBodyDtoKind } from './sendNoticeBodyDtoKind'
 export interface SendNoticeBodyDto {
   employeeId: string
   kind: SendNoticeBodyDtoKind
+  /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
   proposedOn: string
   targetDepartmentId?: string
   /** @maxLength 500 */

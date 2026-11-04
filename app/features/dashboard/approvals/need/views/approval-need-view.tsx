@@ -47,7 +47,7 @@ function NeedDetail({ requestId }: { requestId: string }) {
   const departmentCode = identity?.employee.department?.code
   // Managers head one department and belong to it (QĐ-66a/INV-19); other assigned approvers cannot set spend.
   const canSetSpend = Boolean(
-    identity?.roles.effective.includes('MANAGER') && departmentCode && departmentCode === request?.department.code
+    identity?.roles.includes('MANAGER') && departmentCode && departmentCode === request?.department.code
   )
   const knownBranch = request && Object.values(REQUEST_BRANCH).includes(request.branch)
   const permitted = Boolean(

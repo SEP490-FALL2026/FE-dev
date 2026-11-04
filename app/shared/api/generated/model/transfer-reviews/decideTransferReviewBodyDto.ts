@@ -7,6 +7,9 @@
  */
 import type { DecideTransferReviewBodyDtoDecision } from './decideTransferReviewBodyDtoDecision'
 
+/**
+ * A note (newToolNote) goes only with the decision NEEDS_NEW_TOOL, and it is not blank.
+ */
 export interface DecideTransferReviewBodyDto {
   assignmentId: string
   decision: DecideTransferReviewBodyDtoDecision

@@ -32,7 +32,7 @@ const detail = {
 } as unknown as Awaited<ReturnType<typeof accessRequestGet>>
 function setup() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })
-  client.setQueryData(getMeGetQueryKey(), { data: { roles: { effective: ['IT_ADMIN'] } } })
+  client.setQueryData(getMeGetQueryKey(), { data: { roles: ['IT_ADMIN'] } })
   return render(
     <QueryClientProvider client={client}>
       <ServiceAccountReviewDialog requestId='request-1' onClose={vi.fn()} />

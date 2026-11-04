@@ -8,6 +8,9 @@
 import type { DelegatedBodyDtoItemsItem } from './delegatedBodyDtoItemsItem'
 import type { DelegatedBodyDtoTermConfirmation } from './delegatedBodyDtoTermConfirmation'
 
+/**
+ * One request is made for every person and every tool, so the people times the tools is at most 50.
+ */
 export interface DelegatedBodyDto {
   /**
    * @minItems 1
@@ -15,6 +18,7 @@ export interface DelegatedBodyDto {
    */
   beneficiaryEmployeeIds: string[]
   /**
+   * Each tool is named once: no two items carry the same planId.
    * @minItems 1
    * @maxItems 50
    */
@@ -34,6 +38,7 @@ export interface DelegatedBodyDto {
    * @maxLength 200
    */
   projectLabel?: string
+  /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
   expectedEndDate?: string
   termConfirmation?: DelegatedBodyDtoTermConfirmation
 }

@@ -37,7 +37,7 @@ beforeEach(() => {
       data: {
         success: true,
         data: config.url?.endsWith('/me')
-          ? { roles: { effective: ['FINANCE'] } }
+          ? { roles: ['FINANCE'] }
           : {
               items: [
                 {

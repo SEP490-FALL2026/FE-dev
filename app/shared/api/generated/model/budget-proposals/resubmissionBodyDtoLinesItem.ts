@@ -21,7 +21,9 @@ export type ResubmissionBodyDtoLinesItem = {
    */
   seats?: number
   amount: ResubmissionBodyDtoLinesItemAmount
+  /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
   windowFrom?: string
+  /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
   windowTo?: string
   /**
    * @minimum 1
@@ -29,6 +31,7 @@ export type ResubmissionBodyDtoLinesItem = {
    */
   servicePeriodMonths?: number
   repeatCycle?: ResubmissionBodyDtoLinesItemRepeatCycle
+  /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
   quoteValidUntil?: string
   /**
    * @minLength 1

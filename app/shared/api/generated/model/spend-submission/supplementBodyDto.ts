@@ -6,7 +6,11 @@
  * OpenAPI spec version: 1.0
  */
 
+/**
+ * Give at least one of expectedSpendOn and dropEmployeeIds.
+ */
 export interface SupplementBodyDto {
+  /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
   expectedSpendOn?: string
   /**
    * @minItems 1

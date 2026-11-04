@@ -5,9 +5,8 @@
  * Internal software license and technology cost API
  * OpenAPI spec version: 1.0
  */
+import type { ReturnResponseDto } from './returnResponseDto'
 
-export type MeResponseDtoDataRoles = {
-  direct: string[]
-  derived: string[]
-  effective: string[]
+export type ReturnRequestSubmit201 = ReturnResponseDto & {
+  message?: unknown
 }

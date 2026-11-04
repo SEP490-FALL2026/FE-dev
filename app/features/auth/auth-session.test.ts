@@ -33,10 +33,11 @@ const me = {
   success: true,
   message: 'ME.RETRIEVED',
   data: {
+    managerScope: null,
     appUserId: 'u1',
     loginEmail: 'person@example.com',
-    employee: { id: 'e1', employeeCode: '001', fullName: 'Person', department: null, jobTitle: null },
-    roles: { direct: ['EMPLOYEE'], derived: [], effective: ['EMPLOYEE'] },
+    employee: { unplaced: false, id: 'e1', employeeCode: '001', fullName: 'Person', department: null, jobTitle: null },
+    roles: ['EMPLOYEE'],
     selfServiceOnly: false
   }
 }
@@ -78,6 +79,29 @@ describe('auth session', () => {
     expect(sessionStorage.getItem('saas-sentry.access-token')).toBeNull()
   })
 
+  it.each([
+    { apiRoles: ['EMPLOYEE', 'MANAGER'], expected: 'manager' },
+    { apiRoles: ['EMPLOYEE', 'SPENDING_APPROVER'], expected: 'spending-approver' },
+    { apiRoles: ['EMPLOYEE', 'MANAGER', 'IT_ADMIN'], expected: 'it-admin' },
+    { apiRoles: ['FINANCE'], expected: 'finance' },
+    { apiRoles: ['SUPER_ADMIN'], expected: 'super-admin' },
+    { apiRoles: ['EMPLOYEE'], expected: 'employee' }
+  ])('opens the $expected workspace from API roles regardless of API order', async ({ apiRoles, expected }) => {
+    apiClient.defaults.adapter = async (config) => ({
+      config,
+      data: config.url?.endsWith('/me') ? { ...me, data: { ...me.data, roles: apiRoles } } : tokenPair('role'),
+      headers: new AxiosHeaders(),
+      status: 200,
+      statusText: 'OK'
+    })
+
+    const session = await login('person@example.com', 'secret')
+
+    expect(session.role).toBe(expected)
+    expect(session.roles).toContain(expected)
+    expect(session.roles).toHaveLength(apiRoles.length)
+  })
+
   it('uses one refresh call for concurrent requests and rotates the refresh token', async () => {
     sessionStorage.setItem('saas-sentry.refresh-token', 'refresh-one')
     const refresh = vi.fn(async (config: InternalAxiosRequestConfig) => ({
@@ -96,7 +120,7 @@ describe('auth session', () => {
     expect(sessionStorage.getItem('saas-sentry.refresh-token')).toBeNull()
   })
 
-  it('updates effective permissions when /me is read again after a responsibility change', async () => {
+  it('updates apiRoles permissions when /me is read again after a responsibility change', async () => {
     const client = createQueryClient()
     configureAuthQueryClient(client)
     apiClient.defaults.adapter = async (config) => ({
@@ -109,7 +133,7 @@ describe('auth session', () => {
     await login('person@example.com', 'secret')
     client.setQueryData(getMeGetQueryKey(), {
       ...me,
-      data: { ...me.data, roles: { direct: ['SUPER_ADMIN'], derived: [], effective: ['SUPER_ADMIN'] } }
+      data: { ...me.data, roles: ['SUPER_ADMIN'] }
     })
     expect(getAuthSession()?.roles).toEqual(['super-admin'])
   })
@@ -126,7 +150,7 @@ describe('auth session', () => {
 
     await initializeAuthSession()
 
-    expect(getAuthSession()?.user.roles.effective).toEqual(['EMPLOYEE'])
+    expect(getAuthSession()?.user.roles).toEqual(['EMPLOYEE'])
   })
 
   it('stops checking after a profile timeout without retrying, retains the token, and allows recovery', async () => {

@@ -51,10 +51,18 @@ describe('dashboard route', () => {
             success: true,
             message: 'ME.RETRIEVED',
             data: {
+              managerScope: null,
               appUserId: 'u1',
               loginEmail: 'it@example.com',
-              employee: { id: 'e1', employeeCode: '001', fullName: 'IT Admin', department: null, jobTitle: null },
-              roles: { direct: ['IT_ADMIN'], derived: [], effective: ['IT_ADMIN'] },
+              employee: {
+                unplaced: false,
+                id: 'e1',
+                employeeCode: '001',
+                fullName: 'IT Admin',
+                department: null,
+                jobTitle: null
+              },
+              roles: ['IT_ADMIN'],
               selfServiceOnly: false
             }
           }
