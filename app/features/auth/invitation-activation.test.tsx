@@ -6,6 +6,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 import { toast } from 'sonner'
 
 import { AppProviders } from '~/providers/app-providers'
+import routeConfig from '~/routes'
 import ActivateAccountRoute from '~/routes/activate-account'
 import { configureApiAuth } from '~/shared/api/axios-client'
 import type { AuthRedeemInvitation200 } from '~/shared/api/generated/model/auth/authRedeemInvitation200'
@@ -60,7 +61,11 @@ function openInvitation(url = '/activate-account#token=invitation-token') {
     <MemoryRouter initialEntries={[url]}>
       <AppProviders>
         <Routes>
-          <Route path='/activate-account' element={<ActivateAccountRoute />} />
+          {routeConfig
+            .filter((route) => route.file === 'routes/activate-account.tsx')
+            .map((route) => (
+              <Route key={route.path} path={route.path} element={<ActivateAccountRoute />} />
+            ))}
           <Route path='/login' element={<LoginPage />} />
         </Routes>
         <LocationProbe />
@@ -96,6 +101,8 @@ function errorResponse(code: string, status: number, details?: Record<string, un
 
 describe('employee invitation activation route', () => {
   it.each([
+    ['/activate', 'missing'],
+    ['/activate#token=', 'empty'],
     ['/activate-account', 'missing'],
     ['/activate-account?token=query-token', 'query-only'],
     ['/activate-account#token=', 'empty'],
@@ -111,28 +118,34 @@ describe('employee invitation activation route', () => {
     expect(window.location.hash).toBe('')
   })
 
-  it('accepts the maximum token length and strips the fragment without redeeming on mount', () => {
-    openInvitation(`/activate-account#token=${'a'.repeat(256)}`)
-    expect(screen.getByLabelText('Mật khẩu mới')).toBeInTheDocument()
-    expect(window.location.hash).toBe('')
-    expect(requests).toHaveLength(0)
-    expect(Object.values(localStorage)).not.toContain('a'.repeat(256))
-    expect(sessionStorage.length).toBe(0)
-  })
+  it.each(['/activate', '/activate-account'])(
+    'accepts the maximum token length at %s and strips the fragment without redeeming on mount',
+    (path) => {
+      openInvitation(`${path}#token=${'a'.repeat(256)}`)
+      expect(screen.getByLabelText('Mật khẩu mới')).toBeInTheDocument()
+      expect(window.location.hash).toBe('')
+      expect(requests).toHaveLength(0)
+      expect(Object.values(localStorage)).not.toContain('a'.repeat(256))
+      expect(sessionStorage.length).toBe(0)
+    }
+  )
 
-  it('redeems the decoded fragment token publicly, preserves the password, and replaces the route with login', async () => {
-    openInvitation('/activate-account#token=invitation%2Btoken%2Fvalue')
-    fillPasswords('  new-password-123  ')
-    submitInvitation()
+  it.each(['/activate', '/activate-account'])(
+    'redeems the decoded fragment token publicly at %s, preserves the password, and replaces the route with login',
+    async (path) => {
+      openInvitation(`${path}#token=invitation%2Btoken%2Fvalue`)
+      fillPasswords('  new-password-123  ')
+      submitInvitation()
 
-    await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent('/login:REPLACE'))
-    expect(requests).toEqual([
-      { body: { token: 'invitation+token/value', password: '  new-password-123  ' }, authorization: null }
-    ])
-    expect(refreshAccessToken).not.toHaveBeenCalled()
-    expect(localStorage.getItem('saas-sentry.auth-tokens')).toBeNull()
-    expect(await screen.findByText('Tài khoản đã được kích hoạt. Bạn có thể đăng nhập.')).toBeInTheDocument()
-  })
+      await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent('/login:REPLACE'))
+      expect(requests).toEqual([
+        { body: { token: 'invitation+token/value', password: '  new-password-123  ' }, authorization: null }
+      ])
+      expect(refreshAccessToken).not.toHaveBeenCalled()
+      expect(localStorage.getItem('saas-sentry.auth-tokens')).toBeNull()
+      expect(await screen.findByText('Tài khoản đã được kích hoạt. Bạn có thể đăng nhập.')).toBeInTheDocument()
+    }
+  )
 
   it('blocks duplicate submission while the invitation request is pending', async () => {
     let finishRequest: (response: Response) => void = () => undefined

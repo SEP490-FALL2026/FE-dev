@@ -6,6 +6,7 @@ export default [
   route('logout', 'routes/logout.tsx'),
   route('forgot-password', 'routes/forgot-password.tsx'),
   route('reset-password', 'routes/reset-password.tsx'),
+  route('activate', 'routes/activate-account.tsx', { id: 'routes/activate' }),
   route('activate-account', 'routes/activate-account.tsx'),
   route('change-password', 'routes/change-password.tsx'),
   route('forbidden', 'routes/forbidden.tsx'),
