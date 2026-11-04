@@ -133,6 +133,8 @@ export function configureAuthQueryClient(client: QueryClient | null) {
 
 function sessionFromProfile(user: NonNullable<MeResponseDtoData>): AuthSession {
   const roles = user.roles.map((value) => ROLE_MAP[value]).filter((role): role is UserRole => Boolean(role))
+  // The BE explicitly permits limited self service after all granted roles are revoked.
+  if (user.roles.length === 0 && user.selfServiceOnly) roles.push('employee')
   const role = USER_ROLES.find((candidate) => roles.includes(candidate)) ?? null
   return { user, roles, role }
 }

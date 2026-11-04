@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { adminButtonClass } from './admin-form'
 
 export interface AdminPage {
   page: number
@@ -16,7 +17,7 @@ export function AdminPagination({
   disabled?: boolean
 }) {
   const { t: translate } = useTranslation('admin')
-  if (!pagination) return null
+  if (!pagination || pagination.totalItems === 0) return null
   return (
     <nav aria-label={translate('pagination')} className='flex flex-wrap items-center justify-end gap-3 py-4 text-sm'>
       <span className='font-mono tabular-nums'>
@@ -24,7 +25,7 @@ export function AdminPagination({
       </span>
       <button
         type='button'
-        className='min-h-11 rounded-md border border-border px-3 disabled:opacity-40 md:min-h-9'
+        className={adminButtonClass}
         disabled={disabled || pagination.page <= 1}
         onClick={() => onPageChange(pagination.page - 1)}
       >
@@ -32,7 +33,7 @@ export function AdminPagination({
       </button>
       <button
         type='button'
-        className='min-h-11 rounded-md border border-border px-3 disabled:opacity-40 md:min-h-9'
+        className={adminButtonClass}
         disabled={disabled || pagination.page >= pagination.totalPages}
         onClick={() => onPageChange(pagination.page + 1)}
       >

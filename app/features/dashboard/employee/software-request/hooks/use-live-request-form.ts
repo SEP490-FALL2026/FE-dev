@@ -30,7 +30,6 @@ export function readRequestFields(form: HTMLFormElement) {
     planId: read('planId'),
     businessReason: read('businessReason'),
     termMonths: Number(read('termMonths')),
-    ...(read('projectLabel') ? { projectLabel: read('projectLabel') } : {}),
     ...(read('expectedSpendOn') ? { expectedSpendOn: read('expectedSpendOn') } : {}),
     assignmentId: read('assignmentId'),
     newExpectedEndDate: read('newExpectedEndDate'),
@@ -51,12 +50,11 @@ type PreviewResult = {
   groupCheck?: NonNullable<GroupCheckResponseDtoData>
 }
 export function requestPayload(fields: Fields): SubmitBodyDto {
-  const { planId, businessReason, termMonths, projectLabel, expectedSpendOn } = fields
+  const { planId, businessReason, termMonths, expectedSpendOn } = fields
   return {
     planId,
     businessReason,
     termMonths,
-    ...(projectLabel ? { projectLabel } : {}),
     ...(expectedSpendOn ? { expectedSpendOn } : {})
   }
 }
@@ -98,11 +96,10 @@ export function useLiveRequestForm(
           groupCheck: checked ?? undefined
         }
       }
-      const { planId, termMonths, projectLabel, expectedSpendOn } = requestPayload(fields)
+      const { planId, termMonths, expectedSpendOn } = requestPayload(fields)
       const response = await accessRequestPreview({
         planId,
         termMonths,
-        ...(projectLabel ? { projectLabel } : {}),
         ...(expectedSpendOn ? { expectedSpendOn } : {})
       })
       return {
@@ -131,16 +128,8 @@ export function useLiveRequestForm(
       if (mode === 'individual') return { id: (await accessRequestSubmit(payload)).data?.request.id }
       if (mode === 'group') return { id: (await groupRequestSubmit(groupPayload(fields))).data?.request.id }
       if (mode === 'proposal') {
-        const {
-          softwareName,
-          homepageUrl,
-          purpose,
-          dataDescription,
-          expectedUsers,
-          termMonths,
-          projectLabel,
-          expectedSpendOn
-        } = fields
+        const { softwareName, homepageUrl, purpose, dataDescription, expectedUsers, termMonths, expectedSpendOn } =
+          fields
         return {
           id: (
             await accessRequestPropose({
@@ -150,22 +139,19 @@ export function useLiveRequestForm(
               dataDescription,
               expectedUsers,
               termMonths,
-              ...(projectLabel ? { projectLabel } : {}),
               ...(expectedSpendOn ? { expectedSpendOn } : {})
             })
           ).data?.request.id
         }
       }
       if (mode === 'renewal') {
-        const { assignmentId, newExpectedEndDate, businessReason, projectLabel, expectedSpendOn, termConfirmation } =
-          fields
+        const { assignmentId, newExpectedEndDate, businessReason, expectedSpendOn, termConfirmation } = fields
         return {
           id: (
             await accessRequestRenewalSubmit({
               assignmentId,
               newExpectedEndDate,
               businessReason,
-              ...(projectLabel ? { projectLabel } : {}),
               ...(expectedSpendOn ? { expectedSpendOn } : {}),
               ...(termConfirmation ? { termConfirmation } : {})
             })

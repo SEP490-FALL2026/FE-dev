@@ -847,7 +847,8 @@ export const spendDashboard = {
       windowSaving: 'Tiết kiệm trong {{period}}'
     },
     report: {
-      aiDraft: 'Chi phí phần mềm quý 3/2026 theo kỳ là 408,1 triệu đồng [1], thấp hơn tổng ngân sách 520 triệu đồng [2]. Phòng Vận hành dùng 93,6% ngân sách, cao nhất công ty [3]. Dòng chưa phân bổ trung tâm chi phí còn 6,62 triệu đồng với 3 ngoại lệ đang chờ Người duyệt chi [4]. Tiết kiệm thực hiện ngay 18,4 triệu đồng; tiết kiệm tại kỳ gia hạn kế tiếp 41,2 triệu đồng — hai con số tách riêng [5].',
+      aiDraft:
+        'Chi phí phần mềm quý 3/2026 theo kỳ là 408,1 triệu đồng [1], thấp hơn tổng ngân sách 520 triệu đồng [2]. Phòng Vận hành dùng 93,6% ngân sách, cao nhất công ty [3]. Dòng chưa phân bổ trung tâm chi phí còn 6,62 triệu đồng với 3 ngoại lệ đang chờ Người duyệt chi [4]. Tiết kiệm thực hiện ngay 18,4 triệu đồng; tiết kiệm tại kỳ gia hạn kế tiếp 41,2 triệu đồng — hai con số tách riêng [5].',
       aiSource1: '[1] Ngân sách so với thực chi · cơ sở theo kỳ · tổng',
       aiSource2: '[2] Ngân sách quý 3/2026 · 6 trung tâm chi phí',
       aiSource3: '[3] CC-OPS · thực chi theo kỳ ÷ ngân sách',

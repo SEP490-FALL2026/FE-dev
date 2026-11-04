@@ -9,22 +9,42 @@ const server = setupServer()
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
-it('uses server totals and opens the matching queue', async () => {
+it('uses the scoped dashboard and preserves unavailable and at-source metrics', async () => {
   await setAppLanguage('en', false)
-  for (const [path, total] of [
-    ['provisioning-tasks', 101],
-    ['saas-issues', 12],
-    ['offboarding-cases', 7]
-  ] as const) {
-    server.use(
-      http.get('*/api/v1/' + path, () =>
-        HttpResponse.json({
-          success: true,
-          data: { items: [], pagination: { page: 1, pageSize: 1, totalItems: total, totalPages: total } }
-        })
-      )
+  const counted = (count: number) => ({
+    state: 'COUNTED',
+    count,
+    sourceOperationId: 'provisioningTaskList',
+    reason: null
+  })
+  const unavailable = { state: 'NOT_AVAILABLE', count: null, sourceOperationId: null, reason: 'USAGE_NOT_DELIVERED' }
+  server.use(
+    http.get('*/api/v1/dashboards/it-admin', () =>
+      HttpResponse.json({
+        success: true,
+        data: {
+          asOf: '2026-11-03',
+          scope: { departments: 3 },
+          sections: {
+            grantTasks: counted(101),
+            revocationTasks: counted(5),
+            saasIssues: counted(12),
+            offboardingHandovers: counted(7),
+            licenseKeys: counted(0),
+            termsToReview: counted(2),
+            discrepancies: unavailable,
+            unconfirmedDevices: unavailable,
+            cancellationDeadlines: {
+              state: 'AT_SOURCE',
+              count: null,
+              sourceOperationId: 'subscriptionList',
+              reason: null
+            }
+          }
+        }
+      })
     )
-  }
+  )
   const navigate = vi.fn()
   render(
     <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
@@ -32,6 +52,10 @@ it('uses server totals and opens the matching queue', async () => {
     </QueryClientProvider>
   )
   expect(await screen.findByText('101')).toBeInTheDocument()
-  fireEvent.click(screen.getByRole('button', { name: /Grant and revocation tasks/ }))
-  expect(navigate).toHaveBeenCalledWith('provisioning')
+  expect(screen.getByText('3 departments in your scope')).toBeInTheDocument()
+  expect(screen.getAllByText('Not available')).toHaveLength(2)
+  expect(screen.getByText('View at source')).toBeInTheDocument()
+  expect(screen.getAllByText('0')).toHaveLength(1)
+  fireEvent.click(screen.getByRole('button', { name: /Pending grants/ }))
+  expect(navigate).toHaveBeenCalledWith('provisioning', { scope: 'MINE' })
 })

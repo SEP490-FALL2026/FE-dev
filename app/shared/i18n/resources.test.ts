@@ -28,6 +28,9 @@ describe('translation resources', () => {
       'itNewSoftware',
       'itOffboarding',
       'itProvisioning',
+      'itPurchases',
+      'itRenewals',
+      'itTransfers',
       'landing',
       'manager',
       'notFound',
@@ -71,6 +74,9 @@ describe('translation resources', () => {
       'itNewSoftware',
       'itOffboarding',
       'itProvisioning',
+      'itPurchases',
+      'itRenewals',
+      'itTransfers',
       'employee',
       'manager'
     ] as const) {

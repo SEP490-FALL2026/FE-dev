@@ -1,6 +1,8 @@
 import { overviewRedesign } from './admin-overview'
 import { parameterPresentation } from './admin-parameters'
 import { operationPresentation } from './admin-operations-presentation'
+import { overviewMetrics } from './admin-overview-metrics'
+import { parameterContract } from './admin-parameter-contract'
 
 export const admin = {
   retryIn: 'Thử lại sau {{count}} giây',
@@ -40,7 +42,13 @@ export const admin = {
     duplicate: 'Mã, email hoặc ngày này đã tồn tại. Chọn giá trị khác.',
     financeAssigned: 'Đã có tài khoản giữ vai Finance. Kiểm tra phân công hiện tại trước.',
     derivedRole: 'Vai này được suy ra từ trưởng phòng hoặc trách nhiệm phê duyệt.',
-    transferOnly: 'Dùng quy trình bàn giao Super Admin để thay đổi trách nhiệm này.',
+    transferOnly: 'Vai Quản trị cấp cao chỉ được thay đổi qua bộ phận vận hành ngoài ứng dụng.',
+    spendingApproverAssigned: 'Đã có Người duyệt chi. Kiểm tra người đang giữ vai trước khi thay đổi.',
+    managerStillHeading:
+      'Nhân sự còn làm, sắp làm trưởng phòng hoặc được chỉ định kế nhiệm. Kết thúc phân công ở phòng trước khi thu hồi vai Quản lý.',
+    openWork: 'Nhân sự còn công việc chưa hoàn tất. Xử lý công việc trước khi cấp vai Người duyệt chi.',
+    managerRoleRequired: 'Cấp vai Quản lý cho tài khoản trước khi chỉ định trưởng phòng hoặc người kế nhiệm.',
+    parameterLocked: 'Tham số này đã bị khóa do dữ liệu nghiệp vụ đang sử dụng.',
     alreadyActivated: 'Tài khoản đã kích hoạt, không cần gửi lại lời mời.',
     accountLocked: 'Tài khoản đang bị khóa. Cần mở khóa trước khi tiếp tục.',
     roleCombination: 'Không thể kết hợp các vai hoặc trách nhiệm này trên cùng tài khoản.',
@@ -74,6 +82,7 @@ export const admin = {
     ineligible: 'Nhân sự chưa đủ điều kiện nhận trách nhiệm đã chọn.'
   },
   overview: {
+    metrics: overviewMetrics,
     unknownStep: 'Bước thiết lập chưa xác định',
     redesign: overviewRedesign,
     stepNames: {
@@ -143,6 +152,7 @@ export const admin = {
     }
   },
   parameters: {
+    contract: parameterContract,
     ...parameterPresentation,
     title: 'Tham số vận hành',
     futureOnly: 'Thay đổi áp dụng cho công việc tạo từ nay. Công việc đang chạy giữ nguyên giá trị ban đầu.',
@@ -158,6 +168,8 @@ export const admin = {
     changed: 'Thời điểm thay đổi'
   },
   settings: {
+    reasonPlaceholder: 'VD: Nghỉ lễ Quốc khánh',
+    currencyPlaceholder: 'VD: VND',
     title: 'Cấu hình hệ thống',
     holidays: 'Ngày nghỉ',
     date: 'Ngày',
@@ -194,6 +206,7 @@ export const admin = {
     actorKinds: { USER: 'Người dùng', SYSTEM: 'Hệ thống', OPERATOR: 'Vận hành' }
   },
   operations: {
+    descriptionPlaceholder: 'Mô tả điểm nghẽn, ảnh hưởng và nội dung cần xử lý',
     ...operationPresentation,
     title: 'Giám sát quy trình',
     waits: 'Đang chờ cấu hình',

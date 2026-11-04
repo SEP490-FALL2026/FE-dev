@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import type { CreateEmployeeBodyDtoHrBasis } from '~/shared/api/generated/model/employees'
+import type { RecordTransferBodyDtoGrounds } from '~/shared/api/generated/model/department-transfers'
 import { AdminField, AdminFormDialog, adminInputClass } from './admin-form'
 import { EmployeeLookup } from './employee-lookup'
 import { DepartmentLookup } from './department-lookup'
@@ -14,6 +14,8 @@ export interface PersonnelField {
   initial?: string
   initialLabel?: string
   maxLength?: number
+  minLength?: number
+  pattern?: string
   eventSource?: NoticeEventSource
   employeeId?: string
 }
@@ -24,7 +26,7 @@ export const basisFields: PersonnelField[] = [
   { name: 'issuedOn', type: 'date' }
 ]
 export const uuidPattern = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
-export function readBasis(values: FormData): CreateEmployeeBodyDtoHrBasis {
+export function readBasis(values: FormData): RecordTransferBodyDtoGrounds {
   return {
     type: value(values, 'type'),
     reference: value(values, 'reference'),
@@ -95,9 +97,19 @@ export function PersonnelForm({
             label={translate(`fields.${field.name}`, { defaultValue: translate('unknown') })}
           >
             {field.name === 'employeeId' || field.name === 'successorEmployeeId' ? (
-              <EmployeeLookup name={field.name} required={!field.optional} initial={field.initial} initialLabel={field.initialLabel} />
+              <EmployeeLookup
+                name={field.name}
+                required={!field.optional}
+                initial={field.initial}
+                initialLabel={field.initialLabel}
+              />
             ) : field.name === 'toDepartmentId' || field.name === 'departmentId' ? (
-              <DepartmentLookup name={field.name} required={!field.optional} initial={field.initial} initialLabel={field.initialLabel} />
+              <DepartmentLookup
+                name={field.name}
+                required={!field.optional}
+                initial={field.initial}
+                initialLabel={field.initialLabel}
+              />
             ) : field.name === 'eventId' && field.eventSource && field.employeeId ? (
               <NoticeEventLookup source={field.eventSource} employeeId={field.employeeId} />
             ) : field.options ? (
@@ -118,9 +130,19 @@ export function PersonnelForm({
               <input
                 name={field.name}
                 type={field.type === 'uuid' ? 'text' : (field.type ?? 'text')}
-                pattern={field.type === 'uuid' ? uuidPattern : undefined}
+                pattern={field.type === 'uuid' ? uuidPattern : field.pattern}
+                minLength={field.minLength}
                 maxLength={field.maxLength}
                 defaultValue={field.initial}
+                placeholder={
+                  field.type === 'checkbox' || field.type === 'date'
+                    ? undefined
+                    : translate(`placeholders.${field.name}`, {
+                        defaultValue: translate('fieldPlaceholder', {
+                          field: translate(`fields.${field.name}`, { defaultValue: translate('unknown') })
+                        })
+                      })
+                }
                 required={!field.optional}
                 className={field.type === 'checkbox' ? 'size-5 accent-primary' : adminInputClass}
               />

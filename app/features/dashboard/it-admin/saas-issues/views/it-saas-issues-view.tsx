@@ -1,49 +1,62 @@
+import { ItChoiceSelect } from '../../shared/components/it-choice-select'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSaasIssueList } from '~/shared/api/generated/operations/saas-issues/saas-issue-list'
 import { useDashboardFormat } from '../../../dashboard-ui'
 import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { ItPagination } from '../../shared/components/it-pagination'
-import { ItField, itInputClass, itButtonClass } from '../../shared/components/it-form'
+import { itButtonClass } from '../../shared/components/it-form'
 import { ISSUE_STATE, knownIssueState, type IssueState } from '../enums/issue-state'
 import { IssueDetail } from '../components/issue-detail'
 
-export function ItSaasIssuesView({ initialIssueId }: { initialIssueId?: string }) {
+export function ItSaasIssuesView({
+  initialIssueId,
+  initialScope = 'assigned'
+}: {
+  initialIssueId?: string
+  initialScope?: 'all' | 'assigned'
+}) {
   const { t: translate } = useTranslation('itIssues')
   const { formatDateTime } = useDashboardFormat()
+  const [scope, setScope] = useState(initialScope)
   const [state, setState] = useState<IssueState | ''>('')
   const [page, setPage] = useState(1)
   const [selectedId, setSelectedId] = useState(initialIssueId)
-  const query = useSaasIssueList({ scope: 'all', page, pageSize: 20, ...(state ? { state } : {}) })
+  const query = useSaasIssueList({ scope, page, pageSize: 20, ...(state ? { state } : {}) })
   const result = query.data?.data
   if (selectedId) return <IssueDetail id={selectedId} onClose={() => setSelectedId(undefined)} />
   return (
     <div className='space-y-5'>
       <h1 className='text-2xl font-semibold tracking-tight [text-wrap:balance]'>{translate('title')}</h1>
-      <div className='max-w-xs'>
-        <ItField label={translate('state')}>
-          <select
-            className={itInputClass}
-            value={state}
-            onChange={(event) => {
-              const value = event.target.value
-              if (value === '') {
-                setState('')
-                setPage(1)
-              } else if (knownIssueState(value)) {
-                setState(value)
-                setPage(1)
-              }
-            }}
-          >
-            <option value=''>{translate('all')}</option>
-            {Object.values(ISSUE_STATE).map((value) => (
-              <option key={value} value={value}>
-                {translate(`states.${value}`)}
-              </option>
-            ))}
-          </select>
-        </ItField>
+      <div className='grid gap-3 sm:max-w-2xl sm:grid-cols-2'>
+        <ItChoiceSelect
+          label={translate('scope')}
+          value={scope}
+          options={[
+            { value: 'assigned', label: translate('assigned') },
+            { value: 'all', label: translate('allIssues') }
+          ]}
+          onChange={(value) => {
+            if (value === 'assigned' || value === 'all') {
+              setScope(value)
+              setPage(1)
+            }
+          }}
+        />
+        <ItChoiceSelect
+          label={translate('state')}
+          value={state}
+          options={[
+            { value: '', label: translate('all') },
+            ...Object.values(ISSUE_STATE).map((value) => ({ value, label: translate(`states.${value}`) }))
+          ]}
+          onChange={(value) => {
+            if (value === '' || knownIssueState(value)) {
+              setState(value)
+              setPage(1)
+            }
+          }}
+        />
       </div>
       <ItQueryState query={query}>
         <div className='overflow-x-auto rounded-lg border border-border bg-surface'>

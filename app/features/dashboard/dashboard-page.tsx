@@ -1,15 +1,15 @@
 import { motion, useReducedMotion } from 'motion/react'
-import { useState, useSyncExternalStore } from 'react'
+import { lazy, Suspense, useState, useSyncExternalStore } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate, useSearchParams } from 'react-router'
 
 import type { UserRole } from '~/entities/user-role/user-role'
 import { useDocumentTitle } from '~/shared/lib/use-document-title'
+import { LoadingIndicator } from '~/shared/ui/page-loading'
 import { getAuthState, subscribeAuthSession } from '../auth/auth-session'
 
 import { DashboardHeader } from './components/dashboard-header'
 import { DashboardSidebar } from './components/dashboard-sidebar'
-import { DefaultDashboardView } from './components/default-dashboard-view'
 
 // Role views
 import { getParentMenuKey, isValidItAdminTab, type ItAdminTabKey, ItAdminScreen } from './it-admin'
@@ -25,8 +25,13 @@ import './manager/manager-workspace.css'
 
 import { isValidSuperAdminTab, type SuperAdminTabKey, SuperAdminScreen } from './super-admin'
 
+const DefaultDashboardView = lazy(() =>
+  import('./components/default-dashboard-view').then((module) => ({ default: module.DefaultDashboardView }))
+)
+
 export function DashboardPage({ role }: { role: UserRole }) {
   const { i18n, t } = useTranslation('dashboard')
+  const { t: tErrors } = useTranslation('errors')
   const shouldReduceMotion = useReducedMotion()
   const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false)
   const auth = useSyncExternalStore(subscribeAuthSession, getAuthState, getAuthState)
@@ -232,14 +237,16 @@ export function DashboardPage({ role }: { role: UserRole }) {
           ) : isSuperAdmin ? (
             <SuperAdminScreen tab={activeSuperAdminTab} onSelectTab={handleSelectSuperAdminTab} />
           ) : (
-            <DefaultDashboardView
-              displayName={profile.displayName}
-              formatCompact={formatCompact}
-              formatCurrency={formatCurrency}
-              formatDate={formatDate}
-              formatMonth={formatMonth}
-              formatNumber={formatNumber}
-            />
+            <Suspense fallback={<LoadingIndicator message={tErrors('loading')} />}>
+              <DefaultDashboardView
+                displayName={profile.displayName}
+                formatCompact={formatCompact}
+                formatCurrency={formatCurrency}
+                formatDate={formatDate}
+                formatMonth={formatMonth}
+                formatNumber={formatNumber}
+              />
+            </Suspense>
           )}
         </motion.main>
       </div>

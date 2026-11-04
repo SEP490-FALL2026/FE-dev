@@ -22,7 +22,7 @@ export function AccountInviteDialog({ onClose }: { onClose: () => void }) {
     { ...(debouncedSearch ? { search: debouncedSearch } : {}) },
     { query: { retry: false } }
   )
-  const feedback = useAdminMutationFeedback(accountWriteKeys(), onClose)
+  const feedback = useAdminMutationFeedback(accountWriteKeys(undefined, employeeId), onClose)
   const guard = useAccountWriteGuard()
   const mutation = useAppUserCreate({
     mutation: {
@@ -69,9 +69,13 @@ export function AccountInviteDialog({ onClose }: { onClose: () => void }) {
         <AdminQueryState query={candidates}>
           {!candidates.data?.data?.items.length && <AdminEmpty />}
           {candidates.data?.data?.items.map((candidate) => (
-            <label key={candidate.id} className='flex min-h-11 items-center gap-3 rounded-md border border-border p-3'>
+            <label
+              key={candidate.id}
+              className={`flex min-h-11 cursor-pointer items-center gap-3 rounded-md border p-3 transition-colors ${employeeId === candidate.id ? 'border-primary/40 bg-primary-soft' : 'border-border hover:bg-surface-subtle'}`}
+            >
               <input
                 type='radio'
+                className='size-4 shrink-0 accent-primary'
                 name='candidate'
                 checked={employeeId === candidate.id}
                 onChange={() => {
@@ -99,6 +103,7 @@ export function AccountInviteDialog({ onClose }: { onClose: () => void }) {
           className={adminInputClass}
           type='email'
           maxLength={254}
+          placeholder={translate('loginEmailPlaceholder')}
           value={email}
           onChange={(event) => setEmail(event.target.value)}
         />

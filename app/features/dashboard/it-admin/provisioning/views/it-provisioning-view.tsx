@@ -1,4 +1,5 @@
-﻿import { useState } from 'react'
+import { ItChoiceSelect } from '../../shared/components/it-choice-select'
+import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import {
@@ -8,11 +9,12 @@ import {
   getProvisioningTaskGetQueryKey
 } from '~/shared/api/generated/operations/provisioning-tasks'
 import { useMeGet } from '~/shared/api/generated/operations/me/me-get'
+import { useAccessRequestGet } from '~/shared/api/generated/operations/access-requests/access-request-get'
 import type { ProvisioningTaskListParams } from '~/shared/api/generated/model'
 import type { ItAdminTabKey } from '../../it-admin-nav'
 import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { ItPagination } from '../../shared/components/it-pagination'
-import { ItField, itInputClass, itButtonClass } from '../../shared/components/it-form'
+import { itButtonClass } from '../../shared/components/it-form'
 import { ProvisioningActionDialog } from '../components/provisioning-action-dialog'
 import { taskActions, type TaskAction } from '../task-actions'
 import { ProvisioningExpiryQueue } from '../components/provisioning-expiry-queue'
@@ -46,6 +48,12 @@ export function ItProvisioningView({
     enabled: authorized && !!selectedTask
   })
   const task = detail.data?.data?.task
+  const requestQuery = useAccessRequestGet(task?.requestId ?? '', {
+    query: { enabled: authorized && task?.kind === 'GRANT' && task.status === TaskStatus.FAILED && !!task.requestId }
+  })
+  const requestData = requestQuery.data?.data
+  const request = requestData && 'request' in requestData ? requestData.request : undefined
+  const withdrawn = !requestQuery.isError && !requestQuery.isFetching && !!request?.withdrawal
   const page = list.data?.data
   function filter(key: keyof ProvisioningTaskListParams, value: string) {
     setParams((previous) => ({ ...previous, [key]: value || undefined, page: 1 }))
@@ -155,7 +163,7 @@ export function ItProvisioningView({
                 </p>
               )}
               <div className='flex flex-wrap gap-2'>
-                {taskActions(task)
+                {taskActions(task, withdrawn)
                   .filter(
                     (item) =>
                       !['complete', 'failure', 'revocation'].includes(item) || actorIds.includes(task.claimedBy ?? '')
@@ -191,47 +199,30 @@ export function ItProvisioningView({
           ) : (
             <>
               <div className='grid gap-3 sm:grid-cols-3'>
-                <ItField label={translate('scope')}>
-                  <select
-                    className={itInputClass}
-                    value={params.scope}
-                    onChange={(event) => filter('scope', event.target.value)}
-                  >
-                    {Object.values(TaskScope).map((value) => (
-                      <option key={value} value={value}>
-                        {translate(`values.${value}`)}
-                      </option>
-                    ))}
-                  </select>
-                </ItField>
-                <ItField label={translate('status')}>
-                  <select
-                    className={itInputClass}
-                    value={params.status ?? ''}
-                    onChange={(event) => filter('status', event.target.value)}
-                  >
-                    <option value=''>{translate('allStatuses')}</option>
-                    {Object.values(TaskStatus).map((value) => (
-                      <option key={value} value={value}>
-                        {translate(`values.${value}`)}
-                      </option>
-                    ))}
-                  </select>
-                </ItField>
-                <ItField label={translate('channel')}>
-                  <select
-                    className={itInputClass}
-                    value={params.channel ?? ''}
-                    onChange={(event) => filter('channel', event.target.value)}
-                  >
-                    <option value=''>{translate('allChannels')}</option>
-                    {Object.values(TaskChannel).map((value) => (
-                      <option key={value} value={value}>
-                        {translate(`values.${value}`)}
-                      </option>
-                    ))}
-                  </select>
-                </ItField>
+                <ItChoiceSelect
+                  label={translate('scope')}
+                  value={params.scope ?? TaskScope.MINE}
+                  options={Object.values(TaskScope).map((value) => ({ value, label: translate(`values.${value}`) }))}
+                  onChange={(value) => filter('scope', value)}
+                />
+                <ItChoiceSelect
+                  label={translate('status')}
+                  value={params.status ?? ''}
+                  options={[
+                    { value: '', label: translate('allStatuses') },
+                    ...Object.values(TaskStatus).map((value) => ({ value, label: translate(`values.${value}`) }))
+                  ]}
+                  onChange={(value) => filter('status', value)}
+                />
+                <ItChoiceSelect
+                  label={translate('channel')}
+                  value={params.channel ?? ''}
+                  options={[
+                    { value: '', label: translate('allChannels') },
+                    ...Object.values(TaskChannel).map((value) => ({ value, label: translate(`values.${value}`) }))
+                  ]}
+                  onChange={(value) => filter('channel', value)}
+                />
               </div>
               <ItQueryState query={list}>
                 {page?.items.length ? (

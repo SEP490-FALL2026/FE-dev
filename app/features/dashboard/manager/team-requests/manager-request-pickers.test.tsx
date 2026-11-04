@@ -116,6 +116,7 @@ describe('Manager request dropdowns', () => {
       })
     )
     mount(<ManagerLiveCreate group onOpen={vi.fn()} />)
+    expect(screen.queryByLabelText('Project label (optional)')).not.toBeInTheDocument()
     expect(screen.queryByLabelText('Plan ID')).not.toBeInTheDocument()
     expect(screen.queryByLabelText('Beneficiary employee IDs (one per line)')).not.toBeInTheDocument()
     expect(screen.getAllByRole('combobox')).toHaveLength(3)

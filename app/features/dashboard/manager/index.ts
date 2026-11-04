@@ -1,4 +1,4 @@
-export { ManagerScreen } from './manager-screen'
+export { ManagerScreen } from './manager-screen-entry'
 export { ManagerNotificationBell } from './notifications/components/manager-notification-bell'
 export {
   isValidManagerTab,

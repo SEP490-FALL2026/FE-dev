@@ -189,8 +189,7 @@ it('previews a delegated request using strict fields and requires an explicit co
         beneficiaryEmployeeIds: [employeeId],
         items: [{ planId: assignedTool.plan.id, expectedSpendOn: '2026-11-02' }],
         termMonths: 3,
-        businessReason: 'Onboarding',
-        projectLabel: 'Project'
+        businessReason: 'Onboarding'
       }}
       blocked={false}
       busy={false}
@@ -204,8 +203,7 @@ it('previews a delegated request using strict fields and requires an explicit co
   expect(read).toHaveBeenCalledWith({
     planId: assignedTool.plan.id,
     termMonths: 3,
-    expectedSpendOn: '2026-11-02',
-    projectLabel: 'Project'
+    expectedSpendOn: '2026-11-02'
   })
   expect(confirm).not.toHaveBeenCalled()
   fireEvent.click(button)

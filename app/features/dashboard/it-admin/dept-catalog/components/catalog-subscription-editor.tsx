@@ -1,9 +1,11 @@
-﻿import { useQueryClient } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 import { useCatalogEditorSnapshot } from '../hooks/use-catalog-editor-snapshot'
 import { getSubscriptionSeatUsageQueryKey } from '~/shared/api/generated/operations/subscriptions/subscription-seat-usage'
 import { env } from '~/shared/config/env'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useDashboardFormat } from '../../../dashboard-ui'
+import { NoticeDeadlineSource } from '../enums/notice-deadline-source'
 import { useSubscriptionGet } from '~/shared/api/generated/operations/subscriptions/subscription-get'
 import { useSubscriptionUpdate } from '~/shared/api/generated/operations/subscriptions/subscription-update'
 import { useSubscriptionComplete } from '~/shared/api/generated/operations/subscriptions/subscription-complete'
@@ -61,6 +63,7 @@ function SubscriptionFields({
   onReload: () => void
 }) {
   const { t: translate } = useTranslation('itCatalog')
+  const { formatDate } = useDashboardFormat()
   const [priceError, setPriceError] = useState(false)
   const [dirty, setDirty] = useState(false)
   const queryClient = useQueryClient()
@@ -116,7 +119,8 @@ function SubscriptionFields({
           ...(read('startDate') ? { startDate: read('startDate') } : {}),
           endDate: read('endDate') || null,
           renewalDate: read('renewalDate') || null,
-          ...(read('noticePeriodDays') ? { noticePeriodDays: Number(read('noticePeriodDays')) } : {}),
+          noticeDeadline: read('noticeDeadline') || null,
+          noticePeriodDays: read('noticePeriodDays') ? Number(read('noticePeriodDays')) : null,
           autoRenew: values.has('autoRenew'),
           allowsMidTermReduction: values.has('allowsMidTermReduction')
         }
@@ -153,6 +157,7 @@ function SubscriptionFields({
       >
         <ItField label={translate('quantity')}>
           <input
+            placeholder={translate('placeholders.quantity')}
             name='quantity'
             type='number'
             min={0}
@@ -164,6 +169,7 @@ function SubscriptionFields({
         </ItField>
         <ItField label={translate('unitAmount')} error={priceError ? translate('pricePair') : undefined}>
           <input
+            placeholder={translate('placeholders.amount')}
             name='amount'
             inputMode='decimal'
             pattern='[0-9]+([.][0-9]+)?'
@@ -174,6 +180,7 @@ function SubscriptionFields({
         </ItField>
         <ItField label={translate('currency')}>
           <input
+            placeholder={translate('placeholders.currency')}
             name='currency'
             pattern='[A-Z]{3}'
             maxLength={3}
@@ -186,8 +193,21 @@ function SubscriptionFields({
             <input name={key} type='date' defaultValue={subscription[key] ?? ''} className={itInputClass} />
           </ItField>
         ))}
+        <ItField label={translate('deadline.declared')} hint={translate('deadline.hint')}>
+          <input
+            name='noticeDeadline'
+            type='date'
+            defaultValue={
+              subscription.noticeDeadline?.source === NoticeDeadlineSource.DECLARED
+                ? (subscription.noticeDeadline.value ?? '')
+                : ''
+            }
+            className={itInputClass}
+          />
+        </ItField>
         <ItField label={translate('noticePeriodDays')}>
           <input
+            placeholder={translate('placeholders.days')}
             name='noticePeriodDays'
             type='number'
             min={0}
@@ -198,6 +218,24 @@ function SubscriptionFields({
           />
         </ItField>
       </div>
+      {subscription.noticeDeadline && (
+        <dl className='grid gap-3 rounded-md bg-surface-subtle p-3 text-sm sm:grid-cols-2'>
+          <div>
+            <dt className='text-xs text-muted-foreground'>{translate('deadline.effective')}</dt>
+            <dd className='mt-1 text-right font-mono tabular-nums'>
+              {subscription.noticeDeadline.value ? formatDate(subscription.noticeDeadline.value) : translate('unknown')}
+            </dd>
+          </div>
+          <div>
+            <dt className='text-xs text-muted-foreground'>{translate('deadline.source')}</dt>
+            <dd className='mt-1'>
+              {translate(`deadline.values.${subscription.noticeDeadline.source}`, {
+                defaultValue: translate('unknown')
+              })}
+            </dd>
+          </div>
+        </dl>
+      )}
       <fieldset
         onChange={() => {
           setDirty(true)

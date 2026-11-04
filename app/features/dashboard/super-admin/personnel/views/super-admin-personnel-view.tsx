@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useSearchParams } from 'react-router'
 import type { SuperAdminTabKey } from '../../super-admin-nav'
@@ -18,29 +17,39 @@ const panels = {
 export function SuperAdminPersonnelView({ onSelectTab }: { onSelectTab?: (tab: SuperAdminTabKey) => void }) {
   const { t: translate } = useTranslation('adminPersonnel')
   const formPage = useLocation().pathname.startsWith('/dashboard/super-admin/personnel/')
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const requestedPanel = searchParams.get('section')
-  const [tab, setTab] = useState<keyof typeof panels>(
+  const tab: keyof typeof panels =
     requestedPanel === 'imports' ||
-      requestedPanel === 'leaves' ||
-      requestedPanel === 'offboarding' ||
-      requestedPanel === 'notices'
+    requestedPanel === 'leaves' ||
+    requestedPanel === 'offboarding' ||
+    requestedPanel === 'notices'
       ? requestedPanel
       : 'employees'
-  )
   const Selected = panels[tab]
   return (
     <div className='space-y-5'>
       <h1 className='text-2xl font-semibold'>{translate('title')}</h1>
       {!formPage && (
-        <nav aria-label={translate('title')} className='flex flex-wrap gap-2 border-b border-border pb-3'>
+        <nav
+          aria-label={translate('title')}
+          className='flex gap-1 overflow-x-auto whitespace-nowrap border-b border-border pb-3'
+        >
           {(Object.keys(panels) as (keyof typeof panels)[]).map((key) => (
             <button
               key={key}
               type='button'
               aria-pressed={tab === key}
-              className={`min-h-11 rounded-md px-4 py-2 text-sm ${tab === key ? 'bg-primary-soft text-primary' : 'hover:bg-surface-subtle'}`}
-              onClick={() => setTab(key)}
+              className={`min-h-11 shrink-0 rounded-md px-4 py-2 text-sm font-medium ${tab === key ? 'bg-primary-soft text-primary-ink' : 'text-muted-foreground hover:bg-surface-subtle hover:text-foreground'}`}
+              onClick={() =>
+                setSearchParams((previous) => {
+                  const next = new URLSearchParams(previous)
+                  next.set('tab', 'personnel')
+                  next.set('section', key)
+                  if (key !== 'employees') next.delete('employeeId')
+                  return next
+                })
+              }
             >
               {translate(key)}
             </button>

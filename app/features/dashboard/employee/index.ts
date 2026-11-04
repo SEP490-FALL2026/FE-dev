@@ -1,4 +1,4 @@
-export { EmployeeScreen } from './employee-screen'
+export { EmployeeScreen } from './employee-screen-entry'
 export { EmployeeNotificationBell } from './notifications/components/employee-notification-bell'
 export { isValidEmployeeTab, employeeMenuItems, getParentEmployeeMenuKey } from './employee-nav'
 export type { EmployeeMenuItem, EmployeeSubMenuItem } from './employee-nav'

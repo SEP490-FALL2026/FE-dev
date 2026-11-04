@@ -133,6 +133,7 @@ describe('Manager budget, group and personnel contracts', () => {
           pageResponse(
             [
               {
+                employeeId: `00000000-0000-4000-8000-${String(page).padStart(12, '0')}`,
                 employeeCode: `EMP-${page}`,
                 fullName: `Member ${page}`,
                 status: 'ACTIVE',

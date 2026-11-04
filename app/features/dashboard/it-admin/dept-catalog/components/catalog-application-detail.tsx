@@ -1,4 +1,7 @@
-﻿import { CatalogPlanEditor } from './catalog-plan-editor'
+import { MoreHorizontal } from 'lucide-react'
+import { CatalogRetirement } from './catalog-retirement'
+import { CatalogPlanTerms } from './catalog-plan-terms'
+import { CatalogPlanEditor } from './catalog-plan-editor'
 import { CatalogSubscriptionEditor } from './catalog-subscription-editor'
 import { CatalogApplicationStatus } from '../enums/application-status'
 import { CatalogProvisioningType } from '../enums/provisioning-type'
@@ -6,20 +9,13 @@ import { CatalogLicenseKeys } from './catalog-license-keys'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useApplicationGet } from '~/shared/api/generated/operations/applications/application-get'
-import {
-  useApplicationRetirementGet,
-  getApplicationRetirementGetQueryKey
-} from '~/shared/api/generated/operations/applications/application-retirement-get'
-import { useApplicationRetire } from '~/shared/api/generated/operations/applications/application-retire'
-import { getApplicationListQueryKey } from '~/shared/api/generated/operations/applications/application-list'
 import { usePlanList } from '~/shared/api/generated/operations/plans/plan-list'
 import { useSubscriptionList } from '~/shared/api/generated/operations/subscriptions/subscription-list'
 import { useSubscriptionSeatUsage } from '~/shared/api/generated/operations/subscriptions/subscription-seat-usage'
 import { CatalogSeatBaseline } from './catalog-seat-baseline'
 import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { ItPagination } from '../../shared/components/it-pagination'
-import { ItFormDialog, itButtonClass } from '../../shared/components/it-form'
-import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
+import { itButtonClass } from '../../shared/components/it-form'
 import { CatalogApplicationForm } from './catalog-application-form'
 import { CatalogPurchaseForm } from './catalog-purchase-form'
 function SeatUsage({ id }: { id: string }) {
@@ -42,9 +38,9 @@ export function CatalogApplicationDetail({ id, onBack }: { id: string; onBack: (
   const { t: translate } = useTranslation('itCatalog')
   const [editing, setEditing] = useState(false)
   const [editingPlan, setEditingPlan] = useState<string>()
+  const [termsPlan, setTermsPlan] = useState<string>()
   const [editingSubscription, setEditingSubscription] = useState<string>()
   const [vaultPlanId, setVaultPlanId] = useState<string>()
-  const [confirmRetire, setConfirmRetire] = useState(false)
   const [form, setForm] = useState<'plan' | 'subscription'>()
   const [planPage, setPlanPage] = useState(1)
   const [subscriptionPage, setSubscriptionPage] = useState(1)
@@ -54,13 +50,7 @@ export function CatalogApplicationDetail({ id, onBack }: { id: string; onBack: (
   const plans = usePlanList({ applicationId: id, page: planPage, pageSize: 20 })
   const subscriptions = useSubscriptionList({ applicationId: id, page: subscriptionPage, pageSize: 20 })
 
-  const retirement = useApplicationRetirementGet(id)
-  const feedback = useItMutationFeedback([
-    getApplicationListQueryKey(),
-    application.queryKey,
-    getApplicationRetirementGetQueryKey(id)
-  ])
-  const retire = useApplicationRetire({ mutation: feedback })
+  if (termsPlan) return <CatalogPlanTerms planId={termsPlan} onBack={() => setTermsPlan(undefined)} />
   return (
     <section className='space-y-5'>
       <button className={itButtonClass} onClick={onBack}>
@@ -123,28 +113,41 @@ export function CatalogApplicationDetail({ id, onBack }: { id: string; onBack: (
                   {translate(`enums.${plan.provisioningType}`, { defaultValue: translate('unknown') })}
                 </p>
               </div>
-              <button
-                className={itButtonClass}
-                disabled={
-                  plan.provisioningType === 'K5' ||
-                  plan.provisioningType === 'K3' ||
-                  application.data?.data?.status !== CatalogApplicationStatus.APPROVED
-                }
-                onClick={() => {
-                  setPlanId(plan.id)
-                  setForm('subscription')
-                }}
-              >
-                {translate('addSubscription')}
-              </button>
-              {plan.provisioningType === CatalogProvisioningType.K4 && (
-                <button
-                  className={itButtonClass}
-                  onClick={() => setVaultPlanId(vaultPlanId === plan.id ? undefined : plan.id)}
+              <details className='relative'>
+                <summary
+                  className={itButtonClass + ' list-none cursor-pointer [&::-webkit-details-marker]:hidden'}
+                  aria-label={translate('planActions')}
                 >
-                  {translate('keys.title')}
-                </button>
-              )}
+                  <MoreHorizontal aria-hidden strokeWidth={1.5} className='size-4' />
+                </summary>
+                <div className='absolute right-0 z-20 mt-2 grid min-w-56 gap-1 rounded-md border border-border bg-surface p-2 shadow-lg'>
+                  <button
+                    className={itButtonClass}
+                    disabled={
+                      plan.provisioningType === 'K5' ||
+                      plan.provisioningType === 'K3' ||
+                      application.data?.data?.status !== CatalogApplicationStatus.APPROVED
+                    }
+                    onClick={() => {
+                      setPlanId(plan.id)
+                      setForm('subscription')
+                    }}
+                  >
+                    {translate('addSubscription')}
+                  </button>
+                  {plan.provisioningType === CatalogProvisioningType.K4 && (
+                    <button
+                      className={itButtonClass}
+                      onClick={() => setVaultPlanId(vaultPlanId === plan.id ? undefined : plan.id)}
+                    >
+                      {translate('keys.title')}
+                    </button>
+                  )}
+                  <button type='button' className={itButtonClass} onClick={() => setTermsPlan(plan.id)}>
+                    {translate('terms.open')}
+                  </button>
+                </div>
+              </details>
             </article>
           ))}
           {plans.data?.data?.items.length === 0 && <ItEmpty />}
@@ -194,35 +197,7 @@ export function CatalogApplicationDetail({ id, onBack }: { id: string; onBack: (
       </section>
       {vaultPlanId && <CatalogLicenseKeys key={vaultPlanId} planId={vaultPlanId} />}
       <CatalogSeatBaseline applicationId={id} applicationKind={application.data?.data?.kind} />
-      <section className='space-y-3 rounded-lg border border-border p-4'>
-        <h2 className='font-semibold [text-wrap:balance]'>{translate('retirement')}</h2>
-        <p className='text-sm text-muted-foreground'>{translate('retirementHint')}</p>
-        <ItQueryState query={retirement}>
-          <button
-            className={itButtonClass}
-            disabled={!retirement.data?.data?.retirement.canRetire || retire.isPending}
-            aria-busy={retire.isPending}
-            onClick={() => setConfirmRetire(true)}
-          >
-            {translate('retire')}
-          </button>
-        </ItQueryState>
-      </section>
-      {confirmRetire && (
-        <ItFormDialog
-          title={translate('retire')}
-          pending={retire.isPending}
-          submitLabel={translate('retire')}
-          danger
-          onClose={() => setConfirmRetire(false)}
-          onSubmit={(event) => {
-            event.preventDefault()
-            retire.mutate({ id }, { onSuccess: () => setConfirmRetire(false) })
-          }}
-        >
-          <p>{translate('retirementHint')}</p>
-        </ItFormDialog>
-      )}
+      <CatalogRetirement id={id} application={application.data?.data} />
       {editingPlan && <CatalogPlanEditor id={editingPlan} onClose={() => setEditingPlan(undefined)} />}
       {editingSubscription && (
         <CatalogSubscriptionEditor id={editingSubscription} onClose={() => setEditingSubscription(undefined)} />

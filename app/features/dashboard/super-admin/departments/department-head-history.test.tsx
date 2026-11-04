@@ -22,9 +22,7 @@ const department: NonNullable<DepartmentResponseDtoData> = {
   deactivatedAt: null,
   successor: null,
   headHistory: [],
-  headHistoryHasMore: false,
-  projects: [],
-  projectTotal: 0
+  headHistoryHasMore: false
 }
 
 function HistoryHarness() {

@@ -23,9 +23,13 @@ export function DepartmentLookup({
   const [open, setOpen] = useState(false)
   const [page, setPage] = useState(1)
   const query = useDepartmentList({ page, pageSize: 20, status: 'ACTIVE' }, { query: { enabled: open } })
-  const initialDepartment = useDepartmentGet(initial, { query: { enabled: Boolean(initial && !initialLabel && selected === initial) } })
+  const initialDepartment = useDepartmentGet(initial, {
+    query: { enabled: Boolean(initial && !initialLabel && selected === initial) }
+  })
   const initialData = initialDepartment.data?.data
-  const displayName = selectedName || (initialData && selected === initial ? `${initialData.code} · ${initialData.name}` : translate('currentSelection'))
+  const displayName =
+    selectedName ||
+    (initialData && selected === initial ? `${initialData.code} · ${initialData.name}` : translate('currentSelection'))
   return (
     <div className='grid gap-2'>
       <select
@@ -42,7 +46,9 @@ export function DepartmentLookup({
         <option value=''>{translate(required ? 'choose' : 'noSelection')}</option>
         {selected && <option value={selected}>{displayName}</option>}
       </select>
-      {initialDepartment.isError && selected === initial && <AdminQueryState query={initialDepartment}>{null}</AdminQueryState>}
+      {initialDepartment.isError && selected === initial && (
+        <AdminQueryState query={initialDepartment}>{null}</AdminQueryState>
+      )}
       <button type='button' aria-expanded={open} className={adminButtonClass} onClick={() => setOpen(!open)}>
         {translate('chooseDepartment')}
       </button>

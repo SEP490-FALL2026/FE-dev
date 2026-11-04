@@ -82,7 +82,6 @@ export function EmployeeServiceAccountForm({
               expectedIdentifier: read('expectedIdentifier'),
               businessReason: read('businessReason'),
               termMonths: Number(read('termMonths')),
-              ...(read('projectLabel') ? { projectLabel: read('projectLabel') } : {}),
               ...(read('expectedSpendOn') ? { expectedSpendOn: read('expectedSpendOn') } : {})
             })
           }}
@@ -110,9 +109,6 @@ export function EmployeeServiceAccountForm({
               </EmployeeField>
               <EmployeeField label={translate('term')}>
                 <EmployeeInput type='number' name='termMonths' required min={1} max={120} defaultValue={1} />
-              </EmployeeField>
-              <EmployeeField label={translate('project')}>
-                <EmployeeInput name='projectLabel' maxLength={200} />
               </EmployeeField>
               {selection.details?.costsMoney && (
                 <EmployeeField label={translate('spendOn')}>
@@ -173,12 +169,6 @@ export function EmployeeServiceAccountForm({
               <dt className='text-muted-foreground'>{translate('term')}</dt>
               <dd className='font-mono tabular-nums'>{formatNumber(confirmation.termMonths)}</dd>
             </div>
-            {confirmation.projectLabel && (
-              <div>
-                <dt className='text-muted-foreground'>{translate('project')}</dt>
-                <dd className='break-words'>{confirmation.projectLabel}</dd>
-              </div>
-            )}
             {confirmation.expectedSpendOn && (
               <div className='text-right'>
                 <dt className='text-muted-foreground'>{translate('spendOn')}</dt>

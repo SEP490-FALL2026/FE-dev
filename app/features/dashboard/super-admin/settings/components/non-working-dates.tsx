@@ -133,6 +133,7 @@ export function NonWorkingDates() {
               <input
                 required
                 maxLength={1000}
+                placeholder={translate('settings.reasonPlaceholder')}
                 className={adminInputClass}
                 value={editing.reason}
                 onChange={(event) => setEditing({ ...editing, reason: event.target.value })}

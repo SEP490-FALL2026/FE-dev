@@ -1,7 +1,7 @@
 import { managerReadHandlers } from '../../../test/fixtures/manager-integration'
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
-import { beforeAll, afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { beforeAll, afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
 
@@ -10,6 +10,9 @@ import { AppProviders } from '~/providers/app-providers'
 import { setAppLanguage } from '~/shared/i18n/i18n'
 
 import { DashboardPage } from './dashboard-page'
+// Pre-transform lazy code outside assertion timeouts; production network tests cover deferred downloads.
+import './manager/manager-screen'
+import './employee/employee-screen'
 import { managerProfile } from '../../../test/fixtures/manager-api'
 import { pageResponse } from '../../../test/fixtures/employee-api'
 
@@ -74,14 +77,16 @@ const roleLabels: Record<UserRole, string> = {
   'super-admin': 'Quản trị hệ thống'
 }
 
-function renderDashboard(role: UserRole, initialEntry = '/') {
-  return render(
+async function renderDashboard(role: UserRole, initialEntry = '/') {
+  const view = render(
     <MemoryRouter initialEntries={[initialEntry]}>
       <AppProviders>
         <DashboardPage role={role} />
       </AppProviders>
     </MemoryRouter>
   )
+  await act(() => vi.dynamicImportSettled())
+  return view
 }
 
 describe('Manager dashboard API navigation', () => {
@@ -93,7 +98,7 @@ describe('Manager dashboard API navigation', () => {
 
   it('renders the manager dashboard shell and navigates live tabs', async () => {
     server.use(http.get('*/api/v1/me', () => HttpResponse.json({ success: true, data: managerProfile })))
-    renderDashboard('manager')
+    await renderDashboard('manager')
     expect(await screen.findByRole('heading', { level: 1, name: 'Tổng quan' })).toBeInTheDocument()
     const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
     expect(screen.getByTestId('dashboard-role')).toHaveTextContent(roleLabels.manager)
@@ -113,19 +118,19 @@ describe('Manager dashboard API navigation', () => {
       http.get('*/api/v1/budget-proposals', () => HttpResponse.json(pageResponse([]))),
       http.get('*/api/v1/budgets/mine', () => HttpResponse.json({ success: true, data: { budget: null } }))
     )
-    const view = renderDashboard('manager')
+    const view = await renderDashboard('manager')
     fireEvent.click(screen.getByRole('button', { name: 'Annual budget' }))
     expect(await screen.findByRole('heading', { level: 1, name: 'Annual budget' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'New proposal' })).toBeInTheDocument()
     view.unmount()
     server.resetHandlers()
-    renderDashboard('employee')
+    await renderDashboard('employee')
     expect(screen.queryByRole('button', { name: 'Annual budget' })).not.toBeInTheDocument()
   })
   it('opens group and delegated forms from the Manager sidebar', async () => {
     await setAppLanguage('en', true)
     server.use(http.get('*/api/v1/me', () => HttpResponse.json({ success: true, data: managerProfile })))
-    renderDashboard('manager')
+    await renderDashboard('manager')
     const nav = screen.getByRole('navigation', { name: 'Dashboard navigation' })
     const create = within(nav).getByRole('button', { name: 'Request on behalf' })
     expect(create).toHaveAttribute('aria-expanded', 'false')
@@ -143,7 +148,7 @@ describe('Manager dashboard API navigation', () => {
   it('restores group mode from the Manager URL', async () => {
     await setAppLanguage('en', true)
     server.use(http.get('*/api/v1/me', () => HttpResponse.json({ success: true, data: managerProfile })))
-    renderDashboard('manager', '/?tab=create-employee-request&scope=team')
+    await renderDashboard('manager', '/?tab=create-employee-request&scope=team')
     expect(await screen.findByRole('heading', { level: 1, name: 'Group request' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Request on behalf' })).toHaveAttribute('aria-expanded', 'true')
   })

@@ -15,6 +15,7 @@ export const apiVersion: VersionResponseDtoDataVersion = {
   number: 1,
   kind: 'INITIAL',
   state: 'DRAFT',
+  waitingReason: null,
   proposalId: 'proposal-1',
   basedOnVersionId: null,
   rejectedPredecessorId: null,

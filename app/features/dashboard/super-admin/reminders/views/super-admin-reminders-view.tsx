@@ -9,11 +9,13 @@ import {
 import { getOperatingParameterHistoryQueryKey } from '~/shared/api/generated/operations/operating-parameters/operating-parameter-history'
 import { useOperatingParameterSet } from '~/shared/api/generated/operations/operating-parameters/operating-parameter-set'
 import { AdminEmpty, AdminQueryState } from '../../shared/components/admin-query-state'
-import { AdminField, AdminFormDialog, adminInputClass } from '../../shared/components/admin-form'
+import { AdminFormDialog } from '../../shared/components/admin-form'
 import { useAdminMutationFeedback } from '../../shared/hooks/use-admin-mutation-feedback'
 import { ParameterHistory } from '../components/parameter-history'
 import { ParameterRow } from '../components/parameter-row'
 import { useParameterPresentation } from '../hooks/use-parameter-presentation'
+import { ParameterInput } from '../components/parameter-input'
+import { parseParameterValue } from '../parameter-validation'
 
 export function SuperAdminRemindersView() {
   const { t: translate } = useTranslation('admin')
@@ -31,26 +33,38 @@ export function SuperAdminRemindersView() {
   )
   const mutation = useOperatingParameterSet({ mutation: feedback })
   const items = query.data?.data?.items ?? []
+  const groups = new Map<string, ParameterListResponseDtoDataItemsItem[]>()
+  for (const parameter of items) {
+    const group = parameter.groupLabel || translate('parameters.contract.ungrouped')
+    groups.set(group, [...(groups.get(group) ?? []), parameter])
+  }
   return (
     <div className='space-y-5'>
       <h1 className='text-2xl font-semibold tracking-tight [text-wrap:balance]'>{translate('parameters.title')}</h1>
       <p className='text-sm text-muted-foreground'>{translate('parameters.futureOnly')}</p>
       <AdminQueryState query={query}>
         {!items.length && <AdminEmpty />}
-        <div className='divide-y divide-border/40 rounded-lg border border-border bg-surface'>
-          {items.map((parameter) => (
-            <ParameterRow
-              key={parameter.key}
-              parameter={parameter}
-              disabled={mutation.isPending || Boolean(editing) || Boolean(historyParameter)}
-              historyLoading={historyFetching && historyParameter?.key === parameter.key}
-              onEdit={() => {
-                setEditing(parameter)
-                setValue(Array.isArray(parameter.value) ? parameter.value.join(', ') : String(parameter.value))
-                setInvalid(false)
-              }}
-              onHistory={() => setHistoryParameter(parameter)}
-            />
+        <div className='space-y-5'>
+          {Array.from(groups, ([group, parameters]) => (
+            <section key={group} className='space-y-3'>
+              <h2 className='text-sm font-semibold text-muted-foreground'>{group}</h2>
+              <div className='divide-y divide-border/40 rounded-lg border border-border bg-surface'>
+                {parameters.map((parameter) => (
+                  <ParameterRow
+                    key={parameter.key}
+                    parameter={parameter}
+                    disabled={mutation.isPending || Boolean(editing) || Boolean(historyParameter)}
+                    historyLoading={historyFetching && historyParameter?.key === parameter.key}
+                    onEdit={() => {
+                      setEditing(parameter)
+                      setValue(Array.isArray(parameter.value) ? parameter.value.join(', ') : String(parameter.value))
+                      setInvalid(false)
+                    }}
+                    onHistory={() => setHistoryParameter(parameter)}
+                  />
+                ))}
+              </div>
+            </section>
           ))}
         </div>
       </AdminQueryState>
@@ -61,13 +75,9 @@ export function SuperAdminRemindersView() {
           onClose={() => setEditing(null)}
           onSubmit={(event) => {
             event.preventDefault()
-            let parsed: string | number | number[] = value
-            if (typeof editing.value === 'number') parsed = Number(value)
-            if (Array.isArray(editing.value)) parsed = value.split(',').map((part) => Number(part.trim()))
-            if (
-              (typeof parsed === 'number' && (!value.trim() || !Number.isFinite(parsed))) ||
-              (Array.isArray(parsed) && (!value.trim() || parsed.some((number) => !Number.isFinite(number))))
-            ) {
+            if (mutation.isPending) return
+            const parsed = parseParameterValue(value, editing.constraints)
+            if (parsed === undefined) {
               setInvalid(true)
               return
             }
@@ -75,28 +85,12 @@ export function SuperAdminRemindersView() {
             mutation.mutate({ key: editing.key, data: { value: parsed } })
           }}
         >
-          <p className='text-sm font-semibold'>{presentation.name(editing.key)}</p>
-          <p className='text-sm text-muted-foreground'>{presentation.description(editing.key)}</p>
+          <p className='text-sm font-semibold'>{editing.label || presentation.name(editing.key)}</p>
+          <p className='text-sm text-muted-foreground'>{presentation.description(editing.key, editing.description)}</p>
           <p className='text-xs text-muted-foreground'>
-            {translate('parameters.unit')}: {presentation.unit(editing.unit)}
+            {translate('parameters.unit')}: {editing.unitLabel || presentation.unit(editing.unit)}
           </p>
-          <AdminField
-            label={translate('parameters.value')}
-            error={invalid ? translate('parameters.invalid') : undefined}
-          >
-            <input
-              required
-              aria-invalid={invalid}
-              className={adminInputClass}
-              type={typeof editing.value === 'number' ? 'number' : 'text'}
-              step='any'
-              value={value}
-              onChange={(event) => setValue(event.target.value)}
-            />
-          </AdminField>
-          {Array.isArray(editing.value) && (
-            <p className='text-xs text-muted-foreground'>{translate('parameters.numericArray')}</p>
-          )}
+          <ParameterInput parameter={editing} value={value} invalid={invalid} onChange={setValue} />
         </AdminFormDialog>
       )}
       {historyParameter && <ParameterHistory parameter={historyParameter} onClose={() => setHistoryParameter(null)} />}

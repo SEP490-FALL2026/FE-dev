@@ -91,9 +91,9 @@ export function DashboardSidebar({
 }: DashboardSidebarProps) {
   const { t } = useTranslation('dashboard')
   const { t: tCommon } = useTranslation('common')
-  const { t: translateAdmin } = useTranslation('admin')
-  const { t: translateEmployee } = useTranslation('employee')
-  const { t: translateManager } = useTranslation('manager')
+  const { t: translateAdmin } = useTranslation(role === 'super-admin' ? 'admin' : 'common')
+  const { t: translateEmployee } = useTranslation(role === 'employee' ? 'employee' : 'common')
+  const { t: translateManager } = useTranslation(role === 'manager' ? 'manager' : 'common')
 
   const isItAdmin = role === 'it-admin'
   const isEmployee = role === 'employee'

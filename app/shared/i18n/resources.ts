@@ -37,6 +37,12 @@ import { landing as viLanding } from './locales/vi/landing'
 import { notFound as viNotFound } from './locales/vi/not-found'
 import { theme as viTheme } from './locales/vi/theme'
 import { itAdmin as enItAdmin } from './locales/en/it-admin'
+import { itRenewals as enItRenewals } from './locales/en/it-renewals'
+import { itRenewals as viItRenewals } from './locales/vi/it-renewals'
+import { itPurchases as enItPurchases } from './locales/en/it-purchases'
+import { itPurchases as viItPurchases } from './locales/vi/it-purchases'
+import { itTransfers as enItTransfers } from './locales/en/it-transfers'
+import { itTransfers as viItTransfers } from './locales/vi/it-transfers'
 import { itAdmin as viItAdmin } from './locales/vi/it-admin'
 import { itProvisioning as enItProvisioning } from './locales/en/it-provisioning'
 import { itProvisioning as viItProvisioning } from './locales/vi/it-provisioning'
@@ -53,10 +59,13 @@ import { employee as viEmployee } from './locales/vi/employee'
 import { manager as enManager } from './locales/en/manager'
 import { manager as viManager } from './locales/vi/manager'
 
-export const defaultNS = 'common' as const
+export { defaultNS } from './resource-config'
 
 export const resources = {
   en: {
+    itRenewals: enItRenewals,
+    itPurchases: enItPurchases,
+    itTransfers: enItTransfers,
     approvals: enApprovals,
     approvalsBudget: enApprovalsBudget,
     approvalsSpend: enApprovalsSpend,
@@ -86,6 +95,9 @@ export const resources = {
     theme: enTheme
   },
   vi: {
+    itRenewals: viItRenewals,
+    itPurchases: viItPurchases,
+    itTransfers: viItTransfers,
     approvals: viApprovals,
     approvalsBudget: viApprovalsBudget,
     approvalsSpend: viApprovalsSpend,

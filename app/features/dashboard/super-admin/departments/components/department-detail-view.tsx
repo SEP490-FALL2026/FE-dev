@@ -94,14 +94,6 @@ export function DepartmentDetailView({ id, onBack }: { id: string; onBack: () =>
                     <button className={adminButtonClass} type='button' onClick={() => setAction('edit')}>
                       {translate('editDepartment')}
                     </button>
-                    <button className={adminButtonClass} type='button' onClick={() => setAction('assignHead')}>
-                      {translate('actions.assignHead')}
-                    </button>
-                    {department.head && (
-                      <button className={adminButtonClass} type='button' onClick={() => setAction('vacateHead')}>
-                        {translate('actions.vacateHead')}
-                      </button>
-                    )}
                     {department.head && !department.successor && (
                       <button
                         className={adminButtonClass}

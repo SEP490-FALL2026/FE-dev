@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
 import { MemoryRouter } from 'react-router'
@@ -7,6 +7,8 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vites
 import { setAppLanguage } from '~/shared/i18n/i18n'
 import { employeeProfile, pageResponse } from '../../../test/fixtures/employee-api'
 import { DashboardPage } from './dashboard-page'
+// Pre-transform lazy code outside assertion timeouts; production network tests cover deferred downloads.
+import './employee/employee-screen'
 import { ThemeProvider } from '~/shared/theme/theme-provider'
 
 vi.mock('sonner', () => ({ toast: { loading: vi.fn(), info: vi.fn(), error: vi.fn(), dismiss: vi.fn() } }))
@@ -29,9 +31,9 @@ beforeEach(async () => {
   vi.clearAllMocks()
   await setAppLanguage('en', false)
 })
-function mount(url = '/') {
+async function mount(url = '/') {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
-  return render(
+  const view = render(
     <QueryClientProvider client={client}>
       <ThemeProvider>
         <MemoryRouter initialEntries={[url]}>
@@ -40,10 +42,12 @@ function mount(url = '/') {
       </ThemeProvider>
     </QueryClientProvider>
   )
+  await act(() => vi.dynamicImportSettled())
+  return view
 }
 describe('Employee dashboard shell', () => {
   it('renders the employee returned by /me without sample usage or fake counts', async () => {
-    mount()
+    await mount()
     expect(await screen.findByRole('heading', { name: 'Test Employee' })).toBeInTheDocument()
     expect(screen.queryByText('74%')).not.toBeInTheDocument()
     expect(screen.queryByRole('searchbox')).not.toBeInTheDocument()
@@ -55,7 +59,7 @@ describe('Employee dashboard shell', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Access rights' })).toBeInTheDocument()
   })
   it('opens the notification dropdown from the header without leaving the current page', async () => {
-    mount()
+    await mount()
     await screen.findByRole('heading', { name: 'Test Employee' })
     fireEvent.click(screen.getByRole('button', { name: 'Open my profile' }))
     expect(await screen.findByRole('heading', { level: 1, name: 'Profile' })).toBeInTheDocument()
@@ -71,12 +75,12 @@ describe('Employee dashboard shell', () => {
     expect(screen.queryByRole('heading', { level: 1, name: 'Notifications' })).not.toBeInTheDocument()
   })
   it('falls back to overview for the removed notification page URL', async () => {
-    mount('/?tab=notifications')
+    await mount('/?tab=notifications')
     expect(await screen.findByRole('heading', { name: 'Test Employee' })).toBeInTheDocument()
     expect(screen.queryByRole('heading', { level: 1, name: 'Notifications' })).not.toBeInTheDocument()
   })
-  it('keeps mobile navigation keyboard operable', () => {
-    mount()
+  it('keeps mobile navigation keyboard operable', async () => {
+    await mount()
     const toggle = screen.getByRole('button', { name: 'Open menu' })
     fireEvent.click(toggle)
     expect(screen.getByRole('button', { name: 'Close menu', expanded: true })).toHaveAttribute('aria-expanded', 'true')

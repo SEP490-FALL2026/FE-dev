@@ -6,7 +6,8 @@ import type { TaskResponseDtoDataTask } from '~/shared/api/generated/model'
 
 export type TaskAction =
   'claim' | 'complete' | 'failure' | 'retry' | 'handOff' | 'closeFailed' | 'cancel' | 'revocation' | 'accessCut'
-export function taskActions(task: TaskResponseDtoDataTask): TaskAction[] {
+export function taskActions(task: TaskResponseDtoDataTask, withdrawalRequested = false): TaskAction[] {
+  if (task.kind === TaskKind.GRANT && task.status === TaskStatus.FAILED && withdrawalRequested) return ['cancel']
   const actions: TaskAction[] = []
   if (
     task.channel === TaskChannel.MANUAL &&
@@ -23,7 +24,6 @@ export function taskActions(task: TaskResponseDtoDataTask): TaskAction[] {
     if (task.availableDecisions.includes(TaskDecision.HAND_OFF)) actions.push('handOff')
     if (task.availableDecisions.includes(TaskDecision.CLOSE_FAILED)) actions.push('closeFailed')
   }
-  if (task.kind === TaskKind.GRANT && task.status === TaskStatus.FAILED) actions.push('cancel')
   if (task.kind === TaskKind.REVOKE && task.status === TaskStatus.COMPLETED && task.revocation?.terminating)
     actions.push('accessCut')
   return actions

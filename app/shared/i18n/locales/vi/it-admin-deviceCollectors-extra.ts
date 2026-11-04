@@ -87,7 +87,8 @@ export const itAdminDeviceCollectorsExtra = {
   syncMinutesAgo: '{{minutes}} phút trước',
   syncNoData: 'Chưa có dữ liệu',
   identifiedWorkstation: 'Thiết bị làm việc định danh',
-  workstationIdentityHelp: 'Máy tính được định danh cho nhân sự sau khi phân quyền, giúp Tool Tracking nhận diện chính xác dữ liệu',
+  workstationIdentityHelp:
+    'Máy tính được định danh cho nhân sự sau khi phân quyền, giúp Tool Tracking nhận diện chính xác dữ liệu',
   deviceHardwareId: 'Mã phần cứng (MAC/Serial):',
   trackingToolStatus: 'Trạng thái Tool Tracking:',
   trackingToolActive: 'Đang ánh xạ telemetry về đúng nhân sự'

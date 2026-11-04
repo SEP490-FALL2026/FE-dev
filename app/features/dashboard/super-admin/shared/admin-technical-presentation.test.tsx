@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { Toaster, toast } from 'sonner'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
-import { setAppLanguage } from '~/shared/i18n/i18n'
+import { i18n, setAppLanguage } from '~/shared/i18n/i18n'
 import { SetupChecklist } from '../overview/components/setup-checklist'
 import { AdminQueryState } from './components/admin-query-state'
 import { useAdminMutationFeedback } from './hooks/use-admin-mutation-feedback'
@@ -19,8 +19,8 @@ beforeEach(async () => {
 afterEach(() => toast.dismiss())
 
 it.each([
-  ['en', 'Setup step'],
-  ['vi', 'Bước thiết lập']
+  ['en', 'Unknown setup step'],
+  ['vi', 'Bước thiết lập chưa xác định']
 ] as const)('keeps future setup keys out of visible text and accessible names in %s', async (language, label) => {
   await setAppLanguage(language, false)
   const { container } = render(
@@ -40,7 +40,7 @@ it('retains translated query failure guidance and retry without exposing the tec
   const { container } = render(
     <QueryClientProvider client={new QueryClient()}>
       <AdminQueryState query={{ isPending: false, isError: true, error: failure, refetch: retry }}>
-        <p>Loaded content</p>
+        <p>{i18n.t('saved', { ns: 'admin' })}</p>
       </AdminQueryState>
     </QueryClientProvider>
   )
@@ -53,7 +53,7 @@ it('retains translated query failure guidance and retry without exposing the tec
 
 function FeedbackAction() {
   const feedback = useAdminMutationFeedback([['affected-requests']])
-  return <button onClick={() => void feedback.onError(failure)}>Trigger failure</button>
+  return <button onClick={() => void feedback.onError(failure)}>{i18n.t('retry', { ns: 'admin' })}</button>
 }
 
 it('keeps mutation error guidance and cache invalidation without showing the technical request ID in the toast', async () => {
@@ -65,7 +65,7 @@ it('keeps mutation error guidance and cache invalidation without showing the tec
       <Toaster />
     </QueryClientProvider>
   )
-  fireEvent.click(screen.getByRole('button', { name: 'Trigger failure' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
   expect(await screen.findByText('Check the entered values and required fields.')).toBeInTheDocument()
   await waitFor(() => expect(client.getQueryState(['affected-requests'])?.isInvalidated).toBe(true))
   expect(document.body.textContent).not.toContain(technicalId)

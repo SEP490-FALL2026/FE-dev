@@ -67,6 +67,7 @@ afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
 beforeEach(async () => {
   await setAppLanguage('en', false)
+  server.use(http.get('*/api/v1/dashboards/super-admin', () => HttpResponse.json({ success: true, data: null })))
 })
 
 it('resolves a warning department code through the API and opens its actual detail', async () => {

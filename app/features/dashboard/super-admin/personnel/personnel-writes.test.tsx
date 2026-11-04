@@ -28,16 +28,16 @@ function mount(component: React.ReactNode, entry = '/') {
 function fill(label: string, value: string) {
   fireEvent.change(screen.getByLabelText(label), { target: { value } })
 }
-function basis() {
-  fill('HR document type', 'Decision')
-  fill('HR document reference', 'HR-2026-01')
-  fill('HR document issuer', 'Personnel office')
-  fill('HR document issue date', '2026-10-30')
-}
 
 it('creates a personnel record with only contract fields and keeps the draft when the server rejects it', async () => {
   let received: unknown
   server.use(
+    http.get('*/api/v1/employees', () =>
+      HttpResponse.json({
+        success: true,
+        data: { items: [], pagination: { page: 1, pageSize: 20, totalItems: 0, totalPages: 0 } }
+      })
+    ),
     http.post('*/api/v1/employees', async ({ request }) => {
       received = await request.json()
       return HttpResponse.json({ success: false, error: { code: 'EMPLOYEE.CODE_ALREADY_EXISTS' } }, { status: 409 })
@@ -50,7 +50,6 @@ it('creates a personnel record with only contract fields and keeps the draft whe
   fill('Full name', 'New Employee')
   fill('Employment type', 'STAFF')
   fill('Hire date', '2026-11-02')
-  basis()
   fireEvent.click(screen.getByRole('button', { name: 'Save' }))
   await waitFor(() =>
     expect(received).toEqual({
@@ -58,8 +57,7 @@ it('creates a personnel record with only contract fields and keeps the draft whe
       departmentCode: 'ENG',
       fullName: 'New Employee',
       employmentType: 'STAFF',
-      hireDate: '2026-11-02',
-      hrBasis: { type: 'Decision', reference: 'HR-2026-01', issuer: 'Personnel office', issuedOn: '2026-10-30' }
+      hireDate: '2026-11-02'
     })
   )
   await waitFor(() => expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled())
@@ -80,6 +78,7 @@ it('replays an import confirmation with the same idempotency key after an uncert
       errors: 0,
       existingSame: 0,
       existingDifferent: 0,
+      newUnplaced: 0,
       newPeopleByDepartment: [],
       departmentsWithoutHead: [],
       reviewQueue: { total: 0, items: [] },
@@ -91,7 +90,7 @@ it('replays an import confirmation with the same idempotency key after an uncert
     confirmedAt: null,
     cancelledAt: null
   }
-  const confirmations: Array<{ idempotencyKey: string; previewVersion: number; hrBasis: unknown }> = []
+  const confirmations: Array<{ idempotencyKey: string; previewVersion: number }> = []
   server.use(
     http.get('*/api/v1/employee-imports/:id', () => HttpResponse.json({ success: true, data: preview })),
     http.get('*/api/v1/employee-imports/:id/rows', () =>
@@ -108,7 +107,6 @@ it('replays an import confirmation with the same idempotency key after an uncert
   mount(<ImportPanel />, `/?importId=${importId}`)
   expect(screen.queryByRole('textbox', { name: /UUID|ID/ })).not.toBeInTheDocument()
   fireEvent.click(await screen.findByRole('button', { name: 'Confirm import' }))
-  basis()
   const dialog = screen.getByRole('dialog')
   fireEvent.click(within(dialog).getByRole('button', { name: 'Save' }))
   await waitFor(() => expect(confirmations).toHaveLength(1))
@@ -118,4 +116,5 @@ it('replays an import confirmation with the same idempotency key after an uncert
   expect(confirmations[0].idempotencyKey).toBeTruthy()
   expect(confirmations[1]).toEqual(confirmations[0])
   expect(confirmations[0].previewVersion).toBe(4)
+  expect(confirmations[0]).toEqual({ idempotencyKey: expect.any(String), previewVersion: 4 })
 })

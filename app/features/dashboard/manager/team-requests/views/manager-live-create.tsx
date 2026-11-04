@@ -70,12 +70,10 @@ export function ManagerLiveCreate({ group, onOpen }: { group: boolean; onOpen: (
               const termMonths = Number(form.get('termMonths'))
               const expectedSpendOn = String(form.get('expectedSpendOn') ?? '')
               const expectedEndDate = String(form.get('expectedEndDate') ?? '')
-              const projectLabel = String(form.get('projectLabel') ?? '').trim()
               const term = String(form.get('termConfirmation') ?? '').trim()
               const common = {
                 businessReason,
                 termMonths,
-                ...(projectLabel ? { projectLabel } : {}),
                 ...(term ? { termConfirmation: { reason: term } } : {})
               }
               if (group)
@@ -142,9 +140,6 @@ export function ManagerLiveCreate({ group, onOpen }: { group: boolean; onOpen: (
                 </ManagerField>
                 <ManagerField label={translate('endDate')}>
                   <input className={managerInputClass} name='expectedEndDate' type='date' />
-                </ManagerField>
-                <ManagerField label={translate('project')}>
-                  <input className={managerInputClass} name='projectLabel' maxLength={200} />
                 </ManagerField>
                 <ManagerField label={translate('termConfirmation')}>
                   <textarea className={managerInputClass} name='termConfirmation' maxLength={1000} />

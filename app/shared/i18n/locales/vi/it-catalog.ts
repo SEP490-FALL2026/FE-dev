@@ -1,4 +1,45 @@
-﻿export const itCatalog = {
+import { itCatalogTerms } from './it-catalog-terms'
+export const itCatalog = {
+  terms: itCatalogTerms,
+  deadline: {
+    declared: 'Hạn báo hủy đã khai báo',
+    hint: 'Nhập ngày đã xác nhận trong hợp đồng. Hạn suy ra được hiển thị riêng và không tự được xác nhận khi lưu các trường khác.',
+    effective: 'Hạn báo hủy đang áp dụng',
+    source: 'Căn cứ xác định hạn',
+    values: {
+      DECLARED: 'Đã khai báo theo hợp đồng',
+      INFERRED_UNCONFIRMED: 'Suy ra, chưa xác nhận',
+      BY_END_DATE: 'Theo ngày kết thúc kỳ',
+      MISSING: 'Chưa có dữ liệu hạn',
+      NOT_APPLICABLE: 'Không áp dụng'
+    }
+  },
+  ownerReview: {
+    title: 'Phụ trách nghiệp vụ',
+    confirm: 'Ghi xác nhận',
+    evidence: 'Căn cứ xác nhận',
+    placeholder: 'Business Owner xác nhận ngừng ứng dụng khi nào và bằng cách nào?',
+    hint: 'Ghi xác nhận của Business Owner trong hôm nay. Thao tác này chưa ngừng ứng dụng hoặc thu hồi quyền.',
+    ownerLeft: 'Người phụ trách đã nghỉ việc',
+    assignments: 'Quyền sử dụng đang chặn',
+    subscriptions: 'Thuê bao đang chặn',
+    confirmed: 'Đã có xác nhận của người phụ trách trong hôm nay'
+  },
+  placeholders: {
+    application: 'Ví dụ: Figma',
+    plan: 'Ví dụ: Professional',
+    vendor: 'Ví dụ: Figma, Inc.',
+    employeeId: 'UUID nhân viên phụ trách nghiệp vụ',
+    departmentId: 'UUID phòng ban sở hữu thuê bao',
+    domains: 'app.example.com\nworkspace.example.com',
+    quantity: 'Ví dụ: 20',
+    amount: 'Ví dụ: 250000',
+    currency: 'Ví dụ: VND',
+    days: 'Ví dụ: 30',
+    note: 'Yêu cầu xuất dữ liệu, bàn giao và thu hồi',
+    keys: 'Mỗi dòng nhập một khóa bản quyền'
+  },
+  planActions: 'Thao t?c g?i',
   remoteChanged:
     'Dữ liệu máy chủ đã thay đổi hoặc chưa làm mới được. Bản nháp vẫn được giữ. Tải dữ liệu mới nhất và bỏ bản nháp trước khi lưu.',
   reloadLatest: 'Bỏ bản nháp và tải lại',

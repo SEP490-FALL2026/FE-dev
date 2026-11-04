@@ -12,15 +12,17 @@ import { OffboardingState } from '../enums/offboarding-state'
 
 export function ItOffboardingView({
   onSelectTab,
-  initialCaseId
+  initialCaseId,
+  initialState
 }: {
   onSelectTab: (tab: ItAdminTabKey) => void
   initialCaseId?: string
+  initialState?: OffboardingCaseListParams['state']
 }) {
   const { t: translate } = useTranslation('itOffboarding')
   const { formatDate } = useDashboardFormat()
   const [page, setPage] = useState(1)
-  const [state, setState] = useState<OffboardingCaseListParams['state']>()
+  const [state, setState] = useState<OffboardingCaseListParams['state']>(initialState)
   const [selected, setSelected] = useState(initialCaseId)
   const query = useOffboardingCaseList({ page, pageSize: 20, state })
   const data = query.data?.data

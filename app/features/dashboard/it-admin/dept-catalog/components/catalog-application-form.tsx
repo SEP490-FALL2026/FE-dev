@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { ApplicationDetailResponseDtoData } from '~/shared/api/generated/model/applications'
 import { DeclareApplicationBodyDtoKind } from '~/shared/api/generated/model/applications/declareApplicationBodyDtoKind'
@@ -9,6 +9,7 @@ import { getApplicationListQueryKey } from '~/shared/api/generated/operations/ap
 import { getApplicationGetQueryKey } from '~/shared/api/generated/operations/applications/application-get'
 import { ItField, ItFormDialog, itInputClass } from '../../shared/components/it-form'
 import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
+import { ItDirectoryLookup } from '../../shared/components/it-directory-lookup'
 export const uuidPattern = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
 export function CatalogApplicationForm({
   application,
@@ -19,6 +20,7 @@ export function CatalogApplicationForm({
 }) {
   const { t: translate } = useTranslation('itCatalog')
   const [selectedKind, setSelectedKind] = useState('SAAS')
+  const [ownerId, setOwnerId] = useState(application?.businessOwner.employeeId ?? '')
   const feedback = useItMutationFeedback(
     [getApplicationListQueryKey(), ...(application ? [getApplicationGetQueryKey(application.id)] : [])],
     onClose
@@ -69,7 +71,14 @@ export function CatalogApplicationForm({
       }}
     >
       <ItField label={translate('name')}>
-        <input name='name' required maxLength={1000} defaultValue={application?.name} className={itInputClass} />
+        <input
+          placeholder={translate('placeholders.application')}
+          name='name'
+          required
+          maxLength={1000}
+          defaultValue={application?.name}
+          className={itInputClass}
+        />
       </ItField>
       {!application && (
         <fieldset className='space-y-2'>
@@ -88,6 +97,7 @@ export function CatalogApplicationForm({
           ))}
           <ItField label={translate('vendor')}>
             <input
+              placeholder={translate('placeholders.vendor')}
               name='vendor'
               required={selectedKind !== 'INTERNAL'}
               disabled={selectedKind === 'INTERNAL'}
@@ -99,13 +109,16 @@ export function CatalogApplicationForm({
       )}
       <ItField label={translate('owner')}>
         <input
+          placeholder={translate('placeholders.employeeId')}
           name='owner'
           required
           pattern={uuidPattern}
-          defaultValue={application?.businessOwner.employeeId}
+          value={ownerId}
+          onChange={(event) => setOwnerId(event.target.value)}
           className={itInputClass}
         />
       </ItField>
+      <ItDirectoryLookup mode='employee' onSelect={setOwnerId} />
       <fieldset>
         <legend>{translate('sensitivity')}</legend>
         {Object.values(DeclareApplicationBodyDtoDataSensitivity).map((value) => (
@@ -121,7 +134,12 @@ export function CatalogApplicationForm({
         ))}
       </fieldset>
       <ItField label={translate('domains')}>
-        <textarea name='domains' defaultValue={application?.domains.join('\n')} className={itInputClass} />
+        <textarea
+          placeholder={translate('placeholders.domains')}
+          name='domains'
+          defaultValue={application?.domains.join('\n')}
+          className={itInputClass}
+        />
       </ItField>
       <fieldset>
         <legend>{translate('communication')}</legend>

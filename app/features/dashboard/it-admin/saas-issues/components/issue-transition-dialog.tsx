@@ -1,3 +1,4 @@
+import { ItChoiceSelect } from '../../shared/components/it-choice-select'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { QueryKey } from '@tanstack/react-query'
@@ -73,22 +74,15 @@ export function IssueTransitionDialog({
           />
         </ItField>
       ) : (
-        <ItField label={translate('state')}>
-          <select
-            className={itInputClass}
-            value={to}
-            onChange={(event) => {
-              const value = states.find((state) => state === event.target.value)
-              if (value) setTo(value)
-            }}
-          >
-            {states.map((state) => (
-              <option value={state} key={state}>
-                {translate(`states.${state}`)}
-              </option>
-            ))}
-          </select>
-        </ItField>
+        <ItChoiceSelect
+          label={translate('state')}
+          value={to}
+          options={states.map((value) => ({ value, label: translate(`states.${value}`) }))}
+          onChange={(value) => {
+            const next = states.find((state) => state === value)
+            if (next) setTo(next)
+          }}
+        />
       )}
       <ItField
         label={translate(mode === 'duplicate' ? 'reason' : to === ISSUE_STATE.RESOLVED ? 'resolution' : 'message')}

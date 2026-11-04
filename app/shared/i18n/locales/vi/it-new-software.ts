@@ -1,13 +1,47 @@
 ﻿export const itNewSoftware = {
   title: 'Yêu cầu phần mềm ngoài danh mục',
+  placeholders: {
+    vendorName: 'Ví dụ: Miro',
+    plannedPlanName: 'Ví dụ: Business',
+    termsSummary: 'Tóm tắt điều khoản liên quan đến sử dụng trong công ty',
+    memberUsageMethod: 'Cách xác minh thành viên và hoạt động sử dụng',
+    grantRevokeMethod: 'Các bước cấp, thu hồi và bàn giao dữ liệu',
+    controlRiskNote: 'Rủi ro và căn cứ của kết quả thẩm định',
+    proposedBusinessOwnerEmployeeId: 'UUID nhân viên phụ trách nghiệp vụ',
+    equivalentPlanId: 'UUID gói tương đương đã lưu trong danh mục',
+    opinion: 'Ý kiến nhận được, ngày và căn cứ liên quan'
+  },
+  queue: {
+    title: 'Chờ thẩm định',
+    total: '{{count}} yêu cầu',
+    users: '{{count}} người dùng',
+    missing: 'Thiếu {{count}} trường',
+    sla: 'SLA {{days}} ngày làm việc',
+    actionable: 'Có thể thẩm định',
+    viewOnly: 'Chỉ xem',
+    open: 'Xem thẩm định',
+    back: 'Về hàng đợi',
+    readiness: {
+      COMPLETABLE: 'Đủ điều kiện hoàn tất',
+      INCOMPLETE: 'Chưa đủ thông tin',
+      INTERNAL_BY_REGISTRATION: 'Cần đăng ký phần mềm nội bộ',
+      UNCONTROLLABLE: 'Cần rà soát rủi ro kiểm soát'
+    }
+  },
   catalogLink: {
     title: 'Gói đã đăng ký trong danh mục',
     action: 'Nối gói danh mục đã lưu',
     linked: 'Gói đã nối: {{plan}}',
-    hint: 'Cần bản thẩm định trả phí đã hoàn tất, gói tương đương đã lưu và yêu cầu chưa nối gói đang chờ thực hiện sau duyệt chi. Đăng ký nội bộ tạo gói riêng.',
+    hint: 'Sau duyệt chi, chọn ứng dụng và gói đã đăng ký để thực hiện yêu cầu này. Bản thẩm định trả phí phải hoàn tất và yêu cầu đang chờ thực hiện.',
+    suggestion: 'Công cụ thay thế từ thẩm định (chỉ tham khảo): {{application}} · {{plan}}',
+    searchApplication: 'Tìm ứng dụng đã đăng ký',
+    searchPlaceholder: 'Ví dụ: Figma, Jira',
+    application: 'Ứng dụng đã đăng ký',
+    plan: 'Gói thực hiện yêu cầu',
+    selectPlanHint: 'Chọn gói đã lưu thuộc ứng dụng đã chọn và chờ tải chi tiết gói.',
     confirm: 'Nối {{application}} · {{plan}} với yêu cầu này?',
     confirmHint:
-      'Hệ thống kiểm tra gói đã đăng ký và người phụ trách nghiệp vụ còn làm việc. Thao tác chỉ nối yêu cầu, không tạo phần mềm hoặc cấp quyền.'
+      'Ứng dụng đã đăng ký phải có người phụ trách nghiệp vụ còn làm việc. Nối gói để chuẩn bị cấp phát cho yêu cầu này.'
   },
   requestIdPlaceholder: 'Nhập UUID của yêu cầu',
   unknown: 'Trạng thái chưa xác định',

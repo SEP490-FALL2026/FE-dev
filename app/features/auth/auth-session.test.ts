@@ -102,6 +102,30 @@ describe('auth session', () => {
     expect(session.roles).toHaveLength(apiRoles.length)
   })
 
+  it.each([
+    { selfServiceOnly: true, expectedRole: 'employee', expectedRoles: ['employee'] },
+    { selfServiceOnly: false, expectedRole: null, expectedRoles: [] }
+  ])(
+    'limits an account with no granted roles to self service only when authorized: $selfServiceOnly',
+    async ({ selfServiceOnly, expectedRole, expectedRoles }) => {
+      apiClient.defaults.adapter = async (config) => ({
+        config,
+        data: config.url?.endsWith('/me')
+          ? { ...me, data: { ...me.data, roles: [], selfServiceOnly } }
+          : tokenPair('self-service'),
+        headers: new AxiosHeaders(),
+        status: 200,
+        statusText: 'OK'
+      })
+
+      const session = await login('person@example.com', 'secret')
+
+      expect(session.role).toBe(expectedRole)
+      expect(session.roles).toEqual(expectedRoles)
+      expect(session.user.roles).toEqual([])
+    }
+  )
+
   it('uses one refresh call for concurrent requests and rotates the refresh token', async () => {
     sessionStorage.setItem('saas-sentry.refresh-token', 'refresh-one')
     const refresh = vi.fn(async (config: InternalAxiosRequestConfig) => ({

@@ -3,6 +3,8 @@ import { GrantRoleBodyDtoRole } from '~/shared/api/generated/model/app-users/gra
 export const directRoles = [
   GrantRoleBodyDtoRole.IT_ADMIN,
   GrantRoleBodyDtoRole.FINANCE,
-  GrantRoleBodyDtoRole.EMPLOYEE
+  GrantRoleBodyDtoRole.EMPLOYEE,
+  GrantRoleBodyDtoRole.MANAGER,
+  GrantRoleBodyDtoRole.SPENDING_APPROVER
 ] as const
 export type DirectRole = (typeof directRoles)[number]

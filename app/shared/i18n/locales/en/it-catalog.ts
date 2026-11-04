@@ -1,4 +1,45 @@
-﻿export const itCatalog = {
+import { itCatalogTerms } from './it-catalog-terms'
+export const itCatalog = {
+  terms: itCatalogTerms,
+  deadline: {
+    declared: 'Declared cancellation deadline',
+    hint: 'Enter the date confirmed in the contract. An inferred date is shown separately and is not confirmed by saving other fields.',
+    effective: 'Effective cancellation deadline',
+    source: 'Deadline basis',
+    values: {
+      DECLARED: 'Declared in contract',
+      INFERRED_UNCONFIRMED: 'Inferred, not confirmed',
+      BY_END_DATE: 'Period end date',
+      MISSING: 'No deadline data',
+      NOT_APPLICABLE: 'Not applicable'
+    }
+  },
+  ownerReview: {
+    title: 'Business owners',
+    confirm: 'Record confirmation',
+    evidence: 'Confirmation evidence',
+    placeholder: 'When and how did the business owner confirm retirement?',
+    hint: 'Record the business owner’s confirmation for today. This does not retire the application or revoke any access.',
+    ownerLeft: 'Business owner has left',
+    assignments: 'Blocking assignments',
+    subscriptions: 'Blocking subscriptions',
+    confirmed: 'Owner confirmation recorded for today'
+  },
+  placeholders: {
+    application: 'e.g. Figma',
+    plan: 'e.g. Professional',
+    vendor: 'e.g. Figma, Inc.',
+    employeeId: 'Business owner employee UUID',
+    departmentId: 'Owning department UUID',
+    domains: 'app.example.com\nworkspace.example.com',
+    quantity: 'e.g. 20',
+    amount: 'e.g. 250000',
+    currency: 'e.g. VND',
+    days: 'e.g. 30',
+    note: 'Data export, handover and revocation requirements',
+    keys: 'One license key per line'
+  },
+  planActions: 'Plan actions',
   remoteChanged:
     'Server data changed or could not be refreshed. Your draft is preserved. Reload the latest data to discard this draft before saving.',
   reloadLatest: 'Discard draft and reload',

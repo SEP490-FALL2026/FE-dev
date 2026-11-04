@@ -1,6 +1,30 @@
 export const itAdmin = {
+  overview: {
+    tasksHint: 'Danh sách gồm việc cấp phát và thu hồi; có thể lọc theo trạng thái hoặc kênh.',
+    workspace: 'Không gian IT',
+    scope: '{{count}} phòng ban trong phạm vi phụ trách',
+    asOf: 'Dữ liệu ngày {{date}}',
+    refresh: 'Làm mới',
+    workload: 'Công việc cần theo dõi',
+    serverScope: 'Trong phạm vi được giao',
+    atSource: 'Xem tại nguồn',
+    notAvailable: 'Chưa có dữ liệu',
+    metrics: {
+      grantTasks: 'Chờ cấp phát',
+      revocationTasks: 'Chờ thu hồi',
+      saasIssues: 'Báo lỗi SaaS đang mở',
+      offboardingHandovers: 'Bàn giao khi nghỉ việc',
+      licenseKeys: 'Khóa bản quyền chưa cấp',
+      termsToReview: 'Điều khoản cần rà soát',
+      cancellationDeadlines: 'Hạn báo hủy thuê bao',
+      discrepancies: 'Chênh lệch dữ liệu sử dụng',
+      unconfirmedDevices: 'Thiết bị chưa xác nhận'
+    }
+  },
   retryIn: 'Thử lại sau {{count}} giây',
   navigation: {
+    transfers: 'Xử lý điều chuyển',
+    purchaseDocuments: 'Hợp đồng và chứng từ',
     overview: 'Tổng quan',
     licenses: 'Cấp phát và thu hồi',
     usageSources: 'Dữ liệu sử dụng',
@@ -19,6 +43,19 @@ export const itAdmin = {
   },
   title: 'Trung tâm điều hành IT',
   loading: 'Đang tải dữ liệu',
+  selectPlaceholder: 'Chọn một giá trị',
+  selectedCount: 'Đã chọn {{count}}',
+  selectedList: 'Các mục đã chọn',
+  removeSelection: 'Bỏ chọn {{name}}',
+  fieldPlaceholder: 'Nhập {{field}}',
+  directory: {
+    people: 'Tra cứu nhân viên',
+    departments: 'Tra cứu phòng ban',
+    search: 'Tìm tên hoặc mã phòng ban',
+    changeDepartment: 'Đổi phòng ban',
+    scopeHint:
+      'Chỉ chọn người đang làm việc trên trang này. Danh sách kỹ thuật giới hạn ở phòng bạn phụ trách hoặc đứng thay.'
+  },
   retry: 'Thử lại',
   empty: 'Không có bản ghi phù hợp.',
   saved: 'Đã lưu thay đổi',

@@ -61,7 +61,6 @@ export const accessRequest: AccessRequestResponseDtoDataRequest = {
   lineCount: 1,
   businessReason: 'Development work',
   termMonths: 3,
-  projectLabel: null,
   offPlan: true,
   delegatedBatchId: null,
   expectedEndDate: null,
@@ -91,10 +90,10 @@ export const accessRequest: AccessRequestResponseDtoDataRequest = {
   cancellation: null
 }
 export const requestPreview: PreviewResponseDtoDataPreview = {
+  blockedBy: null,
   plan,
   branch: 'PAID_IN_CATALOG',
   termMonths: 3,
-  projectLabel: null,
   department: { id: employeeId, code: 'ENG', name: 'Engineering' },
   costCenter: null,
   requirements: { termConfirmationByHead: false },

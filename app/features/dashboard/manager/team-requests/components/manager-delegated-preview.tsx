@@ -22,7 +22,6 @@ export function ManagerDelegatedPreview({
   const previewBody = {
     planId: item.planId,
     termMonths: body.termMonths,
-    ...(body.projectLabel ? { projectLabel: body.projectLabel } : {}),
     ...(item.expectedSpendOn ? { expectedSpendOn: item.expectedSpendOn } : {})
   }
   const query = useQuery({

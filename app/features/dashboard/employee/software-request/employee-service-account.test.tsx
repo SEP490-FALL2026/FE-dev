@@ -78,7 +78,7 @@ it('sends a strict service-account payload only after review and blocks duplicat
   )
   mount(<EmployeeLiveCreateView onSelectTab={navigate} />)
   await fill()
-  fireEvent.change(screen.getByLabelText('Project label (optional)'), { target: { value: '  CI platform  ' } })
+  expect(screen.queryByLabelText('Project label (optional)')).not.toBeInTheDocument()
   fireEvent.change(screen.getByLabelText('Expected spend date (optional)'), { target: { value: '2026-11-04' } })
   expect(screen.queryByRole('button', { name: 'Save draft' })).not.toBeInTheDocument()
   const button = review()
@@ -95,7 +95,6 @@ it('sends a strict service-account payload only after review and blocks duplicat
       expectedIdentifier: 'ci-build-bot',
       businessReason: 'Build pipeline',
       termMonths: 6,
-      projectLabel: 'CI platform',
       expectedSpendOn: '2026-11-04'
     })
   )

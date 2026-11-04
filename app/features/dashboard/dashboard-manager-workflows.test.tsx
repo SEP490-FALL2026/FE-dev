@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter, useLocation } from 'react-router'
 import { beforeAll, afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { http, HttpResponse } from 'msw'
@@ -9,6 +9,10 @@ import { AppProviders } from '~/providers/app-providers'
 import { setAppLanguage } from '~/shared/i18n/i18n'
 
 import { DashboardPage } from './dashboard-page'
+// Pre-transform lazy code outside assertion timeouts; production network tests cover deferred downloads.
+import './manager/manager-screen'
+import './it-admin/it-admin-screen'
+import './finance/finance-screen'
 import { managerProfile, managerRequest, queueItem } from '../../../test/fixtures/manager-api'
 import { requestId, employeeId, pageResponse } from '../../../test/fixtures/employee-api'
 
@@ -61,8 +65,8 @@ beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 afterAll(() => server.close())
 afterEach(() => server.resetHandlers())
 
-function renderDashboard(role: UserRole, initialEntry = '/') {
-  return render(
+async function renderDashboard(role: UserRole, initialEntry = '/') {
+  const view = render(
     <MemoryRouter initialEntries={[initialEntry]}>
       <AppProviders>
         <DashboardPage role={role} />
@@ -70,6 +74,8 @@ function renderDashboard(role: UserRole, initialEntry = '/') {
       </AppProviders>
     </MemoryRouter>
   )
+  await act(() => vi.dynamicImportSettled())
+  return view
 }
 function RouteProbe() {
   const location = useLocation()
@@ -90,7 +96,7 @@ describe('DashboardPage Manager workflows', () => {
 
   it('replaces the preview request history with an API request lookup', async () => {
     await setAppLanguage('en', true)
-    renderDashboard('manager', '/?tab=my-requests')
+    await renderDashboard('manager', '/?tab=my-requests')
     expect(
       await screen.findByText('A complete request history is not yet available. Open a request by its ID.')
     ).toBeInTheDocument()
@@ -100,7 +106,7 @@ describe('DashboardPage Manager workflows', () => {
   })
   it('opens the live spending queue and retains the department context when changing tabs', async () => {
     await setAppLanguage('en', true)
-    renderDashboard('manager', '/?departmentId=' + employeeId)
+    await renderDashboard('manager', '/?departmentId=' + employeeId)
     expect(await screen.findByText('Engineering', { selector: 'h2' })).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Submit spending requests' }))
     expect(await screen.findByRole('checkbox', { name: 'Test Software' })).toBeInTheDocument()
@@ -113,7 +119,7 @@ describe('DashboardPage Manager workflows', () => {
   })
   it('removes unsupported usage and periodic-review controls from the live navigation', async () => {
     await setAppLanguage('en', true)
-    renderDashboard('manager', '/?tab=access-review')
+    await renderDashboard('manager', '/?tab=access-review')
     expect(await screen.findByRole('heading', { name: 'This feature is not available yet' })).toBeInTheDocument()
     const nav = screen.getByRole('navigation', { name: 'Dashboard navigation' })
     expect(within(nav).queryByRole('button', { name: /Ghost|Access Review/ })).not.toBeInTheDocument()
@@ -146,7 +152,7 @@ describe('DashboardPage Manager workflows', () => {
         return HttpResponse.json({ success: true })
       })
     )
-    renderDashboard('manager')
+    await renderDashboard('manager')
     fireEvent.click(screen.getByRole('button', { name: 'Notifications' }))
     const dialog = screen.getByRole('dialog', { name: 'Notifications' })
     expect(await screen.findByRole('heading', { level: 1, name: 'Overview' })).toBeInTheDocument()
@@ -158,7 +164,7 @@ describe('DashboardPage Manager workflows', () => {
 
   it('moves legacy personnel notices into the personnel workspace and keeps the reporting flow', async () => {
     await setAppLanguage('en', true)
-    renderDashboard('manager', '/dashboard/manager?tab=personnel-notices&departmentId=' + employeeId)
+    await renderDashboard('manager', '/dashboard/manager?tab=personnel-notices&departmentId=' + employeeId)
     expect(await screen.findByRole('heading', { level: 1, name: 'Department personnel' })).toBeInTheDocument()
     expect(await screen.findByText('No personnel changes reported')).toBeInTheDocument()
     const navigation = screen.getByRole('navigation', { name: 'Dashboard navigation' })
@@ -205,7 +211,7 @@ describe('DashboardPage Manager workflows', () => {
         })
       })
     )
-    renderDashboard('manager', '/dashboard/manager?tab=weekly-batch&page=2')
+    await renderDashboard('manager', '/dashboard/manager?tab=weekly-batch&page=2')
     expect(await screen.findByRole('heading', { level: 1, name: 'Submit spending requests' })).toBeInTheDocument()
     const bell = screen.getByRole('button', { name: 'Notifications' })
     bell.focus()
@@ -223,8 +229,8 @@ describe('DashboardPage Manager workflows', () => {
     expect(screen.getByTestId('route')).not.toHaveTextContent('notifications=')
   })
 
-  it('keeps theme, language, search, and logout controls available', () => {
-    renderDashboard('finance')
+  it('keeps theme, language, search, and logout controls available', async () => {
+    await renderDashboard('finance')
 
     expect(screen.getByRole('searchbox', { name: 'Tìm kiếm' })).toBeInTheDocument()
     expect(screen.getByRole('group', { name: 'Ngôn ngữ' })).toBeInTheDocument()
@@ -241,7 +247,7 @@ describe('DashboardPage Manager workflows', () => {
         })
       )
     )
-    renderDashboard('it-admin')
+    await renderDashboard('it-admin')
     const overview = screen.getByRole('button', { current: 'page', name: /Tổng quan/i })
     expect(screen.getByRole('heading', { name: 'Trung tâm điều hành IT' })).toBeInTheDocument()
     const provisioning = screen.getByRole('button', { name: 'Tác vụ cấp phát / thu hồi' })

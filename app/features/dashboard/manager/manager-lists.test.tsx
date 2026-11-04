@@ -44,6 +44,7 @@ function mount(children: ReactNode, url = `/dashboard/manager?departmentId=${emp
 }
 function member(index: number, fullName = `Member ${index}`): DepartmentMembersResponseDtoDataItemsItem {
   return {
+    employeeId: `00000000-0000-4000-8000-${String(index).padStart(12, '0')}`,
     employeeCode: `EMP-${index}`,
     fullName,
     status: 'ACTIVE',

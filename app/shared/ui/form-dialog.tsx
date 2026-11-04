@@ -4,11 +4,11 @@ import { useTranslation } from 'react-i18next'
 import { useAdminRetryDelay } from '../lib/use-retry-delay'
 
 export const adminInputClass =
-  'min-h-11 w-full rounded-md border border-border bg-background px-3 py-2 text-base outline-none focus-visible:ring-2 focus-visible:ring-primary md:min-h-10 md:text-sm'
+  'min-h-11 w-full rounded-md border border-border bg-background px-3 py-2 text-base text-foreground outline-none placeholder:text-muted-foreground transition-colors duration-150 hover:border-primary/40 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/25 disabled:cursor-not-allowed disabled:opacity-50 md:min-h-10 md:text-sm'
 const adminControlClass =
-  'inline-flex min-h-11 items-center justify-center gap-2 rounded-md border px-4 py-2 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-50 md:min-h-10'
-export const adminButtonClass = `${adminControlClass} border-border bg-surface hover:bg-surface-subtle`
-export const adminPrimaryClass = `${adminControlClass} border-transparent bg-primary text-primary-foreground hover:bg-primary-hover`
+  'inline-flex min-h-11 items-center justify-center gap-2 rounded-md border px-4 py-2 text-sm font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:cursor-not-allowed disabled:opacity-50 md:min-h-10'
+export const adminButtonClass = `${adminControlClass} border-border bg-surface hover:bg-surface-subtle enabled:active:border-primary/50 enabled:active:bg-primary-soft enabled:active:text-primary-ink aria-selected:border-primary/40 aria-selected:bg-primary-soft aria-selected:text-primary-ink aria-pressed:border-primary/40 aria-pressed:bg-primary-soft aria-pressed:text-primary-ink aria-expanded:border-primary/40 aria-expanded:bg-primary-soft`
+export const adminPrimaryClass = `${adminControlClass} border-transparent bg-primary text-primary-foreground hover:bg-primary-hover enabled:active:bg-primary-hover enabled:active:shadow-inner`
 const adminDangerClass = `${adminControlClass} border-danger bg-danger text-white hover:bg-danger/90`
 
 export function AdminField({ label, children, error }: { label: string; children: ReactNode; error?: string }) {

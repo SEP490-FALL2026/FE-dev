@@ -11,7 +11,6 @@ export function canLinkCatalogPlan(
     authorized &&
     assessment.status === AssessmentStatus.COMPLETED &&
     assessment.classification === AssessmentClassification.PAID_LICENSED &&
-    Boolean(assessment.equivalentTool?.planId) &&
     request?.branch === RequestBranch.NEW_SOFTWARE &&
     request.state === RequestState.AWAITING_EXECUTION &&
     request.plan === null

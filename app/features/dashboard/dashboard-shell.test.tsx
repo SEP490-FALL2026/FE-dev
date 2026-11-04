@@ -1,6 +1,6 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
-import { beforeAll, afterAll, beforeEach, describe, expect, it } from 'vitest'
+import { beforeAll, afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
 
@@ -9,6 +9,10 @@ import { AppProviders } from '~/providers/app-providers'
 import { setAppLanguage } from '~/shared/i18n/i18n'
 
 import { DashboardPage } from './dashboard-page'
+// Pre-transform lazy code outside assertion timeouts; production network tests cover deferred downloads.
+import './employee/employee-screen'
+import './it-admin/it-admin-screen'
+import './finance/finance-screen'
 import { employeeProfile, pageResponse } from '../../../test/fixtures/employee-api'
 import { employeeCatalogHandlers } from '../../../test/fixtures/employee-catalog'
 
@@ -58,17 +62,19 @@ const server = setupServer(
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 afterAll(() => server.close())
 
-function renderDashboard(role: UserRole, initialEntry = '/') {
+async function renderDashboard(role: UserRole, initialEntry = '/') {
   if (role === 'employee') {
     server.use(http.get('*/api/v1/me', () => HttpResponse.json({ success: true, data: employeeProfile })))
   }
-  return render(
+  const view = render(
     <MemoryRouter initialEntries={[initialEntry]}>
       <AppProviders>
         <DashboardPage role={role} />
       </AppProviders>
     </MemoryRouter>
   )
+  await act(() => vi.dynamicImportSettled())
+  return view
 }
 
 describe('DashboardPage', () => {
@@ -80,15 +86,15 @@ describe('DashboardPage', () => {
   })
 
   it('renders the live employee identity in the current dashboard shell', async () => {
-    renderDashboard('employee')
+    await renderDashboard('employee')
     expect(await screen.findByRole('heading', { name: 'Test Employee' })).toBeInTheDocument()
     expect(screen.getByRole('navigation', { name: 'Điều hướng dashboard' })).toBeInTheDocument()
     expect(screen.getByTestId('dashboard-role')).toHaveTextContent('Nhân viên')
     expect(screen.queryByText('Đức Anh')).not.toBeInTheDocument()
   })
 
-  it('exposes a keyboard-operable mobile navigation toggle', () => {
-    renderDashboard('employee')
+  it('exposes a keyboard-operable mobile navigation toggle', async () => {
+    await renderDashboard('employee')
 
     const toggle = screen.getByRole('button', { name: 'Mở menu' })
     expect(toggle).toHaveAttribute('aria-expanded', 'false')
@@ -98,8 +104,8 @@ describe('DashboardPage', () => {
     expect(screen.getByRole('button', { expanded: true, name: 'Đóng menu' })).toHaveAttribute('aria-expanded', 'true')
   })
 
-  it('keeps theme, language, search, and logout controls available', () => {
-    renderDashboard('finance')
+  it('keeps theme, language, search, and logout controls available', async () => {
+    await renderDashboard('finance')
 
     expect(screen.getByRole('searchbox', { name: 'Tìm kiếm' })).toBeInTheDocument()
     expect(screen.getByRole('group', { name: 'Ngôn ngữ' })).toBeInTheDocument()
@@ -108,7 +114,7 @@ describe('DashboardPage', () => {
   })
 
   it('navigates IT API screens and identifies features without backend support', async () => {
-    const view = renderDashboard('it-admin')
+    const view = await renderDashboard('it-admin')
     const overviewBtn = screen.getByRole('button', { current: 'page', name: /Tổng quan/i })
     expect(screen.getByRole('heading', { name: 'Trung tâm điều hành IT' })).toBeInTheDocument()
     const provisioningBtn = screen.getByRole('button', { name: 'Tác vụ cấp phát / thu hồi' })
@@ -127,7 +133,7 @@ describe('DashboardPage', () => {
   })
 
   it('navigates live employee access, requests, catalog and privacy pages', async () => {
-    renderDashboard('employee')
+    await renderDashboard('employee')
     await screen.findByRole('heading', { name: 'Test Employee' })
     const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
     for (const [button, heading] of [
@@ -148,7 +154,7 @@ describe('DashboardPage', () => {
   })
 
   it('opens the API employee profile from the current header and keeps privacy separate', async () => {
-    renderDashboard('employee')
+    await renderDashboard('employee')
     await screen.findByRole('heading', { name: 'Test Employee' })
     const avatar = screen.getByRole('button', { name: 'Mở hồ sơ cá nhân' })
     fireEvent.click(avatar)
@@ -165,7 +171,7 @@ describe('DashboardPage', () => {
   })
 
   it('keeps employee profile changes unavailable without a supporting API', async () => {
-    renderDashboard('employee', '/?tab=profile')
+    await renderDashboard('employee', '/?tab=profile')
     expect(await screen.findByText('EMP-TEST')).toBeInTheDocument()
     expect(screen.queryByLabelText('Chọn ảnh đại diện')).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Đổi ảnh đại diện' })).not.toBeInTheDocument()
@@ -173,7 +179,7 @@ describe('DashboardPage', () => {
   })
 
   it('opens API software rights without showing fabricated sample usage', async () => {
-    renderDashboard('employee')
+    await renderDashboard('employee')
     await screen.findByRole('heading', { name: 'Test Employee' })
     for (const percentage of ['74%', '95%', '42%']) expect(screen.queryByText(percentage)).not.toBeInTheDocument()
     fireEvent.click(

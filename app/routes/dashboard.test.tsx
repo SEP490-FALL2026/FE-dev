@@ -12,6 +12,7 @@ import { clearAuthSession, configureAuthQueryClient, login } from '~/features/au
 import DashboardRoute from './dashboard'
 // Pre-transform the workspace outside test timeouts; browser tests verify deferred downloading.
 import '~/features/dashboard/dashboard-page'
+import '~/features/dashboard/it-admin/it-admin-screen'
 
 function renderRoute(role: string) {
   const routeElement = DashboardRoute({ params: { role } } as never)
@@ -78,11 +79,36 @@ describe('dashboard route', () => {
                 refreshExpiresAt: new Date(Date.now() + 3_600_000).toISOString()
               }
             }
-          : {
-              success: true,
-              message: 'TEST.LISTED',
-              data: { items: [], pagination: { page: 1, pageSize: 1, totalItems: 0, totalPages: 0 } }
-            }
+          : config.url?.endsWith('/dashboards/it-admin')
+            ? {
+                success: true,
+                message: 'DASHBOARD.RETRIEVED',
+                data: {
+                  asOf: '2026-11-03',
+                  scope: { departments: 1 },
+                  sections: Object.fromEntries(
+                    [
+                      'grantTasks',
+                      'revocationTasks',
+                      'saasIssues',
+                      'offboardingHandovers',
+                      'licenseKeys',
+                      'termsToReview',
+                      'cancellationDeadlines',
+                      'discrepancies',
+                      'unconfirmedDevices'
+                    ].map((key) => [
+                      key,
+                      { state: 'NOT_AVAILABLE', count: null, sourceOperationId: null, reason: 'USAGE_NOT_DELIVERED' }
+                    ])
+                  )
+                }
+              }
+            : {
+                success: true,
+                message: 'TEST.LISTED',
+                data: { items: [], pagination: { page: 1, pageSize: 1, totalItems: 0, totalPages: 0 } }
+              }
     })
     await login('it@example.com', 'secret')
     renderRoute('it-admin')

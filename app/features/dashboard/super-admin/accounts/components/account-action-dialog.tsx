@@ -31,7 +31,7 @@ export function AccountActionDialog({
     action === 'revoke' ? account.roles.includes(role) : !account.roles.includes(role)
   )
   const [role, setRole] = useState<DirectRole | ''>(allowedRoles[0] ?? '')
-  const feedback = useAdminMutationFeedback(accountWriteKeys(account.id), onClose)
+  const feedback = useAdminMutationFeedback(accountWriteKeys(account.id, account.employee?.id), onClose)
   const guard = useAccountWriteGuard()
   const options = {
     mutation: {
@@ -84,6 +84,7 @@ export function AccountActionDialog({
           <textarea
             required
             maxLength={1000}
+            placeholder={translate('reasonPlaceholder')}
             className={adminInputClass}
             value={reason}
             onChange={(event) => setReason(event.target.value)}

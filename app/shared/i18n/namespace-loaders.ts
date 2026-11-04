@@ -1,0 +1,72 @@
+import type { ResourceKey } from 'i18next'
+
+import { initialResources } from './initial-resources'
+import type { SupportedLanguage, TranslationNamespace } from './resources'
+
+// Explicit imports keep each namespace independently cacheable in production.
+export const namespaceLoaders: Record<SupportedLanguage, Record<TranslationNamespace, () => Promise<ResourceKey>>> = {
+  vi: {
+    itRenewals: () => import('./locales/vi/it-renewals').then((module) => module.itRenewals),
+    itPurchases: () => import('./locales/vi/it-purchases').then((module) => module.itPurchases),
+    itTransfers: () => import('./locales/vi/it-transfers').then((module) => module.itTransfers),
+    approvals: () => import('./locales/vi/approvals').then((module) => module.approvals),
+    approvalsBudget: () => import('./locales/vi/approvals-budget').then((module) => module.approvalsBudget),
+    approvalsSpend: () => import('./locales/vi/approvals-spend').then((module) => module.approvalsSpend),
+    approvalsNeed: () => import('./locales/vi/approvals-need').then((module) => module.approvalsNeed),
+    finance: () => import('./locales/vi/finance').then((module) => module.finance),
+    financeBudget: () => import('./locales/vi/finance-budget').then((module) => module.financeBudget),
+    financeSpend: () => import('./locales/vi/finance-spend').then((module) => module.financeSpend),
+    financeSettings: () => import('./locales/vi/finance-settings').then((module) => module.financeSettings),
+    itNewSoftware: () => import('./locales/vi/it-new-software').then((module) => module.itNewSoftware),
+    itAdmin: () => import('./locales/vi/it-admin').then((module) => module.itAdmin),
+    itProvisioning: () => import('./locales/vi/it-provisioning').then((module) => module.itProvisioning),
+    itCatalog: () => import('./locales/vi/it-catalog').then((module) => module.itCatalog),
+    itOffboarding: () => import('./locales/vi/it-offboarding').then((module) => module.itOffboarding),
+    itIssues: () => import('./locales/vi/it-issues').then((module) => module.itIssues),
+    manager: () => import('./locales/vi/manager').then((module) => module.manager),
+    employee: () => import('./locales/vi/employee').then((module) => module.employee),
+    admin: () => import('./locales/vi/admin').then((module) => module.admin),
+    adminAccounts: () => import('./locales/vi/admin-accounts').then((module) => module.adminAccounts),
+    adminOrganization: () => import('./locales/vi/admin-organization').then((module) => module.adminOrganization),
+    adminPersonnel: () => import('./locales/vi/admin-personnel').then((module) => module.adminPersonnel),
+    auth: () => Promise.resolve(initialResources.vi.auth),
+    common: () => Promise.resolve(initialResources.vi.common),
+    dashboard: () => import('./locales/vi/dashboard').then((module) => module.dashboard),
+    errors: () => Promise.resolve(initialResources.vi.errors),
+    landing: () => import('./locales/vi/landing').then((module) => module.landing),
+    notFound: () => Promise.resolve(initialResources.vi.notFound),
+    theme: () => Promise.resolve(initialResources.vi.theme)
+  },
+  en: {
+    itRenewals: () => import('./locales/en/it-renewals').then((module) => module.itRenewals),
+    itPurchases: () => import('./locales/en/it-purchases').then((module) => module.itPurchases),
+    itTransfers: () => import('./locales/en/it-transfers').then((module) => module.itTransfers),
+    approvals: () => import('./locales/en/approvals').then((module) => module.approvals),
+    approvalsBudget: () => import('./locales/en/approvals-budget').then((module) => module.approvalsBudget),
+    approvalsSpend: () => import('./locales/en/approvals-spend').then((module) => module.approvalsSpend),
+    approvalsNeed: () => import('./locales/en/approvals-need').then((module) => module.approvalsNeed),
+    finance: () => import('./locales/en/finance').then((module) => module.finance),
+    financeBudget: () => import('./locales/en/finance-budget').then((module) => module.financeBudget),
+    financeSpend: () => import('./locales/en/finance-spend').then((module) => module.financeSpend),
+    financeSettings: () => import('./locales/en/finance-settings').then((module) => module.financeSettings),
+    itNewSoftware: () => import('./locales/en/it-new-software').then((module) => module.itNewSoftware),
+    itAdmin: () => import('./locales/en/it-admin').then((module) => module.itAdmin),
+    itProvisioning: () => import('./locales/en/it-provisioning').then((module) => module.itProvisioning),
+    itCatalog: () => import('./locales/en/it-catalog').then((module) => module.itCatalog),
+    itOffboarding: () => import('./locales/en/it-offboarding').then((module) => module.itOffboarding),
+    itIssues: () => import('./locales/en/it-issues').then((module) => module.itIssues),
+    manager: () => import('./locales/en/manager').then((module) => module.manager),
+    employee: () => import('./locales/en/employee').then((module) => module.employee),
+    admin: () => import('./locales/en/admin').then((module) => module.admin),
+    adminAccounts: () => import('./locales/en/admin-accounts').then((module) => module.adminAccounts),
+    adminOrganization: () => import('./locales/en/admin-organization').then((module) => module.adminOrganization),
+    adminPersonnel: () => import('./locales/en/admin-personnel').then((module) => module.adminPersonnel),
+    auth: () => Promise.resolve(initialResources.en.auth),
+    common: () => Promise.resolve(initialResources.en.common),
+    dashboard: () => import('./locales/en/dashboard').then((module) => module.dashboard),
+    errors: () => Promise.resolve(initialResources.en.errors),
+    landing: () => import('./locales/en/landing').then((module) => module.landing),
+    notFound: () => Promise.resolve(initialResources.en.notFound),
+    theme: () => Promise.resolve(initialResources.en.theme)
+  }
+}

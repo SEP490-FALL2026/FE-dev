@@ -121,7 +121,8 @@ describe('Provisioning API integration', () => {
     })
     setup()
     fireEvent.click(await screen.findByRole('button', { name: 'Complete revocation' }))
-    fireEvent.change(screen.getByLabelText('Revocation result'), { target: { value: 'ALREADY_GONE' } })
+    fireEvent.click(screen.getByRole('combobox', { name: 'Revocation result' }))
+    fireEvent.click(screen.getByRole('option', { name: 'Already gone' }))
     fireEvent.change(screen.getByLabelText('Note'), {
       target: { value: 'Provider confirms the account was removed earlier' }
     })

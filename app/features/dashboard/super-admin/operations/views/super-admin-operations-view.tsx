@@ -141,6 +141,7 @@ export function SuperAdminOperationsView() {
               required
               minLength={1}
               maxLength={1000}
+              placeholder={translate('operations.descriptionPlaceholder')}
               className={adminInputClass}
               value={incident.description}
               onChange={(event) => setIncident({ ...incident, description: event.target.value })}

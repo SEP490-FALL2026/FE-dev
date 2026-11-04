@@ -186,9 +186,6 @@ function LiveCreateForm({
             )}
             {mode !== 'return' && (
               <div className='grid gap-5 sm:grid-cols-2'>
-                <EmployeeField label={translate('project')}>
-                  <EmployeeInput name='projectLabel' maxLength={200} />
-                </EmployeeField>
                 <EmployeeField label={translate('spendOn')}>
                   <EmployeeInput type='date' name='expectedSpendOn' />
                 </EmployeeField>

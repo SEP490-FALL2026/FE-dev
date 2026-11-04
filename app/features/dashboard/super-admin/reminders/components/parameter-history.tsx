@@ -21,7 +21,7 @@ export function ParameterHistory({
     <section className='space-y-3 rounded-lg border border-border bg-surface p-5'>
       <div className='flex items-center justify-between gap-3'>
         <h2 className='font-semibold'>
-          {translate('parameters.historyTitle', { name: presentation.name(parameter.key) })}
+          {translate('parameters.historyTitle', { name: parameter.label || presentation.name(parameter.key) })}
         </h2>
         <button type='button' className={adminButtonClass} onClick={onClose}>
           {translate('close')}
@@ -49,7 +49,9 @@ export function ParameterHistory({
                 </div>
                 <div className='flex items-center justify-between gap-3'>
                   <dt className='shrink-0 text-xs text-muted-foreground'>{translate('parameters.unit')}</dt>
-                  <dd className='text-right text-xs font-medium'>{presentation.unit(parameter.unit)}</dd>
+                  <dd className='text-right text-xs font-medium'>
+                    {parameter.unitLabel || presentation.unit(parameter.unit)}
+                  </dd>
                 </div>
               </dl>
             </div>

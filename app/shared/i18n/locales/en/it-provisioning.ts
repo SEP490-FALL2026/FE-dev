@@ -1,5 +1,32 @@
 ﻿export const itProvisioning = {
   expiry: 'Expired rights',
+  handover: {
+    title: 'Data handover',
+    details: 'View handover requirements',
+    confirm: 'Confirm handover handled',
+    confirmer: 'Designated confirmer',
+    dueOn: 'Confirmation due',
+    notConfirmer:
+      'Only the designated IT confirmer can record handling. The handover deadline does not itself authorize access removal.',
+    values: {
+      OPEN: 'Awaiting confirmation',
+      CONFIRMED: 'Confirmed',
+      CANCELLED: 'Cancelled',
+      IT_ADMIN: 'IT Admin',
+      DEPARTMENT_HEAD: 'Department head',
+      REQUESTER: 'Requester',
+      NO_HEAD: 'Waiting for a department head',
+      NO_SUCCESSOR: 'Waiting for a successor'
+    }
+  },
+  placeholders: {
+    account: 'e.g. employee@company.example',
+    employeeId: 'Responsible employee UUID',
+    evidence: 'Record where, when and how access was granted or revoked',
+    reason: 'Describe the error and steps already attempted',
+    note: 'Explain why access had already ended',
+    accessEvidence: 'Record evidence that the vendor access was cut'
+  },
   debt: 'Outstanding obligations',
   anyDebt: 'All obligations',
   withDebt: 'Outstanding obligations',

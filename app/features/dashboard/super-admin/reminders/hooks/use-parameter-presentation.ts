@@ -29,17 +29,19 @@ export function useParameterPresentation() {
       isKnownParameterKey(key)
         ? translate(`parameters.definitions.${OPERATING_PARAMETER_LABELS[key]}.name`)
         : translate('parameters.unknownName'),
-    description: (key: string) =>
+    description: (key: string, fallback?: string) =>
       isKnownParameterKey(key)
         ? translate(`parameters.definitions.${OPERATING_PARAMETER_LABELS[key]}.description`)
-        : translate('parameters.unknownDescription'),
+        : fallback || translate('parameters.unknownDescription'),
     unit: (value: string) =>
       isKnownUnit(value) ? translate(`parameters.units.${unitLabels[value]}`) : translate('parameters.unknownUnit'),
-    value: (value: number | string | number[]) =>
-      Array.isArray(value)
+    value: (value: unknown) =>
+      Array.isArray(value) && value.every((entry) => typeof entry === 'number')
         ? value.map(formatNumber).join(', ')
         : typeof value === 'number'
           ? formatNumber(value)
-          : value
+          : typeof value === 'string'
+            ? value
+            : (JSON.stringify(value) ?? translate('none'))
   }
 }

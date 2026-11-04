@@ -39,7 +39,7 @@ function details(email = colleague.workEmail) {
 }
 
 describe('Employee group request dropdowns', () => {
-  it('puts the beneficiaries above the project label and loads the requester catalog without privileged API calls', async () => {
+  it('omits the retired project field and loads the requester catalog without privileged API calls', async () => {
     const privileged = vi.fn()
     server.use(
       http.get('*/api/v1/plans', () => {
@@ -48,11 +48,8 @@ describe('Employee group request dropdowns', () => {
       })
     )
     mount('/?tab=create-request&mode=group')
-    const people = screen.getByRole('combobox', { name: 'Beneficiaries' })
-    expect(
-      people.compareDocumentPosition(screen.getByLabelText('Project label (optional)')) &
-        Node.DOCUMENT_POSITION_FOLLOWING
-    ).toBeTruthy()
+    expect(screen.getByRole('combobox', { name: 'Beneficiaries' })).toBeInTheDocument()
+    expect(screen.queryByLabelText('Project label (optional)')).not.toBeInTheDocument()
     expect(screen.queryByLabelText('Plan ID supplied by IT')).not.toBeInTheDocument()
     expect(
       screen.queryByText('Use the official plan or assignment ID and explain what you need.')
@@ -124,7 +121,6 @@ describe('Employee group request dropdowns', () => {
     fireEvent.click(await screen.findByRole('option', { name: /colleague@example.test/ }))
     closePeople()
     fireEvent.change(screen.getByLabelText('Business reason'), { target: { value: 'Team development' } })
-    fireEvent.change(screen.getByLabelText('Project label (optional)'), { target: { value: 'Design' } })
     fireEvent.change(within(details()).getByLabelText('Access end date (if applicable)'), {
       target: { value: '2027-01-31' }
     })
@@ -134,7 +130,6 @@ describe('Employee group request dropdowns', () => {
       planId,
       termMonths: 1,
       businessReason: 'Team development',
-      projectLabel: 'Design',
       lines: [{ employeeId, expectedEndDate: '2027-01-31' }]
     })
     fireEvent.click(screen.getByRole('combobox', { name: 'Beneficiaries' }))
@@ -153,7 +148,6 @@ describe('Employee group request dropdowns', () => {
         planId,
         termMonths: 1,
         businessReason: 'Team development',
-        projectLabel: 'Design',
         lines: [{ employeeId, expectedEndDate: '2027-02-28' }]
       })
     )
