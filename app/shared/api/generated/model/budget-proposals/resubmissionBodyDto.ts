@@ -13,4 +13,6 @@ export interface ResubmissionBodyDto {
    * @maxItems 200
    */
   lines: ResubmissionBodyDtoLinesItem[]
+  /** @maxItems 20 */
+  attachmentIds?: string[]
 }

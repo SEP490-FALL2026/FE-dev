@@ -6,8 +6,11 @@
  * OpenAPI spec version: 1.0
  */
 
+/**
+ * @nullable
+ */
 export type OffboardingDetailResponseDtoDataDepartment = {
   id: string
   code: string
   name: string
-}
+} | null

@@ -11,8 +11,7 @@ import {
   pageResponse,
   person,
   pricing,
-  requestId,
-  requestPreview
+  requestId
 } from '../../../../test/fixtures/employee-api'
 import { managerId, managerProfile, managerRequest } from '../../../../test/fixtures/manager-api'
 import { ManagerScreen } from './manager-screen'
@@ -31,7 +30,6 @@ import { ManagerDashboardSummary } from './overview/components/manager-dashboard
 import { ManagerRequestLookup } from './team-requests/views/manager-live-request-lookup'
 import { ManagerLiveRequest } from './team-requests/views/manager-live-request'
 import { ManagerLiveCreate } from './team-requests/views/manager-live-create'
-import { ManagerDelegatedPreview } from './team-requests/components/manager-delegated-preview'
 import { ManagerReturns } from './team/views/manager-returns'
 import { ManagerReturnDetail } from './team/views/manager-return-detail'
 import { ManagerReturnForm } from './team/components/manager-return-form'
@@ -71,8 +69,8 @@ it('shows dashboard availability and routes software cards with authoritative de
   const navigate = vi.fn()
   mount(<ManagerDashboardSummary onSelectTab={navigate} />)
   expect(await screen.findByText('27')).toBeInTheDocument()
-  expect(screen.getAllByText('Not available')).toHaveLength(3)
-  expect(within(screen.getByRole('button', { name: 'Need approvals' })).queryByText('0')).not.toBeInTheDocument()
+  expect(screen.getAllByText('Not available')).toHaveLength(2)
+  expect(within(screen.getByRole('button', { name: 'Need approvals' })).getByText('0')).toBeInTheDocument()
   fireEvent.click(screen.getByRole('button', { name: 'Department software rights' }))
   expect(navigate).toHaveBeenCalledWith('team-software', { departmentId: employeeId })
 })
@@ -94,7 +92,7 @@ it('loads, filters and paginates the NEED queue without sending a decision on ro
   )
   mount(<ManagerRequestLookup onOpen={opened} />)
   expect(await screen.findByText('Test Software')).toBeInTheDocument()
-  expect(screen.getByText(/9,007,199,254,740,993\.25/)).toBeInTheDocument()
+  expect(screen.getByText('Awaiting need approval')).toBeInTheDocument()
   fireEvent.click(screen.getByRole('button', { name: 'Next' }))
   await waitFor(() => expect(reads.at(-1)?.searchParams.get('page')).toBe('2'))
   fireEvent.change(screen.getByLabelText('Request type'), { target: { value: 'GROUP_GRANT' } })
@@ -117,10 +115,7 @@ it('recovers a failed NEED queue and handles empty results', async () => {
   expect(await screen.findByText('No requests awaiting your decision')).toBeInTheDocument()
 })
 it('validates a shared plan through the catalog rather than trusting URL labels', async () => {
-  mount(
-    <ManagerLiveCreate group={false} onOpen={vi.fn()} />,
-    `/dashboard/manager?planId=${assignedTool.plan.id}&planName=Untrusted`
-  )
+  mount(<ManagerLiveCreate onOpen={vi.fn()} />, `/dashboard/manager?planId=${assignedTool.plan.id}&planName=Untrusted`)
   expect(await screen.findByText('Sharing not allowed')).toBeInTheDocument()
   expect(screen.getByRole('combobox', { name: 'Software' })).toHaveTextContent('Test Software')
   expect(screen.getByRole('combobox', { name: 'Software plan' })).toHaveTextContent('Standard')
@@ -128,7 +123,7 @@ it('validates a shared plan through the catalog rather than trusting URL labels'
 })
 it('refuses to send a plan whose detail cannot be read', async () => {
   server.use(http.get('*/api/v1/requestable-plans/:id', () => HttpResponse.json({}, { status: 404 })))
-  mount(<ManagerLiveCreate group onOpen={vi.fn()} />)
+  mount(<ManagerLiveCreate onOpen={vi.fn()} />)
   await chooseCatalogPlan()
   expect(await screen.findByRole('alert')).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Submit' })).toBeDisabled()
@@ -148,7 +143,7 @@ it('searches and filters the application catalog on the server and resets pagina
       })
     })
   )
-  mount(<ManagerLiveCreate group onOpen={vi.fn()} />)
+  mount(<ManagerLiveCreate onOpen={vi.fn()} />)
   fireEvent.click(screen.getByRole('combobox', { name: 'Software' }))
   await screen.findByRole('option', { name: /Test Software/ })
   fireEvent.click(screen.getByRole('button', { name: 'Next' }))
@@ -173,66 +168,6 @@ it('uses requirement flags from the matching cached NEED step to build the decis
     client
   )
   expect(await screen.findByLabelText('Reason for confirming a term beyond policy (if needed)')).toBeRequired()
-})
-it('previews a delegated request using strict fields and requires an explicit confirmation', async () => {
-  const read = vi.fn()
-  const confirm = vi.fn()
-  server.use(
-    http.post('*/api/v1/access-requests/preview', async ({ request }) => {
-      read(await request.json())
-      return HttpResponse.json({ success: true, data: { preview: requestPreview } })
-    })
-  )
-  mount(
-    <ManagerDelegatedPreview
-      body={{
-        beneficiaryEmployeeIds: [employeeId],
-        items: [{ planId: assignedTool.plan.id, expectedSpendOn: '2026-11-02' }],
-        termMonths: 3,
-        businessReason: 'Onboarding'
-      }}
-      blocked={false}
-      busy={false}
-      onConfirm={confirm}
-      onCancel={vi.fn()}
-    />
-  )
-  const button = screen.getByRole('button', { name: 'Confirm' })
-  expect(button).toBeDisabled()
-  await waitFor(() => expect(button).toBeEnabled())
-  expect(read).toHaveBeenCalledWith({
-    planId: assignedTool.plan.id,
-    termMonths: 3,
-    expectedSpendOn: '2026-11-02'
-  })
-  expect(confirm).not.toHaveBeenCalled()
-  fireEvent.click(button)
-  expect(confirm).toHaveBeenCalledOnce()
-})
-it('blocks a delegated preview when the backend says it cannot submit', async () => {
-  server.use(
-    http.post('*/api/v1/access-requests/preview', () =>
-      HttpResponse.json({ success: true, data: { preview: { ...requestPreview, canSubmit: false } } })
-    )
-  )
-  mount(
-    <ManagerDelegatedPreview
-      body={{
-        beneficiaryEmployeeIds: [employeeId],
-        items: [{ planId: assignedTool.plan.id }],
-        termMonths: 3,
-        businessReason: 'Work'
-      }}
-      blocked={false}
-      busy={false}
-      onConfirm={vi.fn()}
-      onCancel={vi.fn()}
-    />
-  )
-  expect(
-    await screen.findByText('The request cannot be sent yet. Check the department financial setup.')
-  ).toBeInTheDocument()
-  expect(screen.getByRole('button', { name: 'Confirm' })).toBeDisabled()
 })
 it('shows proposal assessment and timings in Manager detail', async () => {
   server.use(

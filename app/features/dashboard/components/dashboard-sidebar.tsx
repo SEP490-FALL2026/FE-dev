@@ -50,7 +50,6 @@ export interface DashboardSidebarProps {
   activeSuperAdminTab: SuperAdminTabKey
   activeTab: ItAdminTabKey
   managerCreateMenuOpen: boolean
-  managerRequestScope: 'team' | 'individual'
   mobileNavigationOpen: boolean
   onCloseMobileNavigation: () => void
   onSelectApprovalTab: (tab: ApprovalTabKey) => void
@@ -75,7 +74,6 @@ export function DashboardSidebar({
   activeSuperAdminTab,
   activeTab,
   managerCreateMenuOpen,
-  managerRequestScope,
   mobileNavigationOpen,
   onCloseMobileNavigation,
   onSelectApprovalTab,
@@ -237,22 +235,20 @@ export function DashboardSidebar({
                     </button>
                     {item.key === 'create-employee-request' && managerCreateMenuOpen && (
                       <ul className='mt-1 space-y-1 pl-8' id='manager-create-request-options'>
-                        {(['team', 'individual'] as const).map((scope) => (
-                          <li key={scope}>
-                            <button
-                              aria-current={isCurrent && managerRequestScope === scope ? 'page' : undefined}
-                              className={`min-h-10 w-full rounded-lg px-3 text-left text-sm transition ${
-                                isCurrent && managerRequestScope === scope
-                                  ? 'bg-primary-soft font-semibold text-primary-ink'
-                                  : 'text-muted-foreground hover:bg-surface hover:text-foreground'
-                              }`}
-                              onClick={() => onSelectManagerTab('create-employee-request', { scope })}
-                              type='button'
-                            >
-                              {translateManager(scope === 'team' ? 'group' : 'individual')}
-                            </button>
-                          </li>
-                        ))}
+                        <li>
+                          <button
+                            aria-current={isCurrent ? 'page' : undefined}
+                            className={`min-h-10 w-full rounded-lg px-3 text-left text-sm transition ${
+                              isCurrent
+                                ? 'bg-primary-soft font-semibold text-primary-ink'
+                                : 'text-muted-foreground hover:bg-surface hover:text-foreground'
+                            }`}
+                            onClick={() => onSelectManagerTab('create-employee-request', { scope: 'team' })}
+                            type='button'
+                          >
+                            {translateManager('group')}
+                          </button>
+                        </li>
                       </ul>
                     )}
                   </li>

@@ -162,6 +162,7 @@ export function ManagerStatus({ value }: { value: string }) {
               'RETURNED',
               'AWAITING_SPEND_SUBMISSION',
               'AWAITING_NEED',
+              'NEED',
               'RETURNED_BY_FINANCE'
             ].includes(value)
           ? 'border-warning/25 bg-warning/10 text-warning-ink'

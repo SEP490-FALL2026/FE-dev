@@ -40,7 +40,9 @@ export type OffboardingDetailResponseDtoData = {
   accountLockMissing: boolean
   closed: boolean
   roleFlags: OffboardingDetailResponseDtoDataRoleFlags
+  /** @nullable */
   department: OffboardingDetailResponseDtoDataDepartment
+  firstPlacementRestored?: boolean
   priorWorkState: OffboardingDetailResponseDtoDataPriorWorkState
   departureEffectiveOn: string
   /** @nullable */

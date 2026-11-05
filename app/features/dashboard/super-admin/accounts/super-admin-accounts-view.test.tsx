@@ -119,7 +119,7 @@ describe('Super Admin account requests', () => {
       expect(create).toHaveBeenCalledWith({
         employeeId: 'employee-2',
         loginEmail: 'other@example.com',
-        roles: ['EMPLOYEE']
+        role: 'EMPLOYEE'
       })
     )
     await waitFor(() => expect(within(dialog).getByRole('button', { name: 'Send invitation' })).toBeEnabled())
@@ -162,20 +162,20 @@ describe('Super Admin account requests', () => {
     const dialog = await screen.findByRole('dialog')
     await within(dialog).findByText('Unknown')
     expect(within(dialog).getByRole('button', { name: 'Lock account' })).toBeDisabled()
-    expect(within(dialog).getByRole('button', { name: 'Grant role' })).toBeDisabled()
+    expect(within(dialog).getByRole('button', { name: 'Change role' })).toBeDisabled()
   })
 
-  it('only offers direct grant roles and sends a strict role payload', async () => {
+  it('changes the single account role with the current PUT endpoint', async () => {
     const grant = vi.fn()
     server.use(
-      http.post(`${endpoint}/app-users/:id/role-grants`, async ({ request }) => {
+      http.put(`${endpoint}/app-users/:id/role`, async ({ request }) => {
         grant(await request.json())
         return HttpResponse.json(envelope(account), { status: 201 })
       })
     )
     mount()
     fireEvent.click(await screen.findByRole('button', { name: 'View details' }))
-    fireEvent.click(await screen.findByRole('button', { name: 'Grant role' }))
+    fireEvent.click(await screen.findByRole('button', { name: 'Change role' }))
     const dialog = screen.getByRole('dialog')
     const picker = within(dialog).getByLabelText('Role')
     expect(within(picker).getByRole('option', { name: 'Manager' })).toBeInTheDocument()
@@ -223,7 +223,7 @@ describe('Super Admin account requests', () => {
     fireEvent.click(screen.getByRole('tab', { name: 'Spending approver' }))
     await waitFor(() => expect(requests.at(-1)?.searchParams.get('role')).toBe('SPENDING_APPROVER'))
     fireEvent.click(await screen.findByRole('button', { name: 'View details' }))
-    expect(await screen.findByRole('button', { name: 'Grant role' })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Change role' })).toBeInTheDocument()
   })
 
   it('does not offer the retired Super Admin transfer action', async () => {

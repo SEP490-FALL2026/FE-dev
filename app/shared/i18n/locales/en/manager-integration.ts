@@ -25,10 +25,6 @@ export const managerIntegration = {
   dataLoss: 'Data loss on removal',
   yes: 'Yes',
   no: 'No',
-  previewHint:
-    'Estimated cost for your department. Requests sent on behalf skip the need decision; the approval chain shown for your own request does not apply.',
-  estimatedAmount: 'Estimated cost',
-  previewBlocked: 'The request cannot be sent yet. Check the department financial setup.',
   withdraw: 'Withdraw request',
   withdrawHint: 'A reason is required. The backend checks whether the current stage allows withdrawal.',
   withdrawPeople: 'Withdraw group members',

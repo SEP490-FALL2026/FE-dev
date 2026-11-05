@@ -1,5 +1,7 @@
 import { employeeRequestExtras } from './employee-request-extras'
+import { employeeRequestAssignment } from './employee-request-assignment'
 export const employee = {
+  requestAssignment: employeeRequestAssignment,
   requestExtras: employeeRequestExtras,
   workspace: 'Không gian nhân viên',
   dashboardSummary: {
@@ -353,6 +355,10 @@ export const employee = {
   noValue: 'Chưa có thông tin',
   selfService: 'Tài khoản đang trong giai đoạn bàn giao. Chỉ mở thông báo, bàn giao và hồ sơ cá nhân.',
   errors: {
+    accessUnavailable: 'Quyền này không còn phù hợp với thao tác đã chọn. Làm mới danh sách và chọn quyền khác.',
+    returnPending: 'Quyền này đã có yêu cầu hoàn trả đang được xử lý.',
+    renewalPending: 'Quyền này đang có yêu cầu gia hạn chờ xử lý.',
+    renewalEnd: 'Ngày kết thúc mới phải sau ngày hiện tại và ngày kết thúc đang có.',
     serviceBaseline: employeeRequestExtras.errors.baseline,
     servicePlan: employeeRequestExtras.errors.plan,
     returnSender: employeeRequestExtras.errors.sender,

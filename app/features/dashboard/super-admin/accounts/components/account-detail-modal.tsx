@@ -119,14 +119,6 @@ export function AccountDetailModal({ id, onClose }: { id: string; onClose: () =>
               <button
                 type='button'
                 className={adminButtonClass}
-                disabled={!canWrite || !directRoles.some((role) => account.roles.includes(role))}
-                onClick={() => setAction('revoke')}
-              >
-                {translate('revoke')}
-              </button>
-              <button
-                type='button'
-                className={adminButtonClass}
                 disabled={!canWrite || account.activationState !== 'INVITED' || account.status !== 'ACTIVE'}
                 onClick={() => setAction('resend')}
               >

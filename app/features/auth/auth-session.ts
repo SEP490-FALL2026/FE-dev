@@ -132,10 +132,11 @@ export function configureAuthQueryClient(client: QueryClient | null) {
 }
 
 function sessionFromProfile(user: NonNullable<MeResponseDtoData>): AuthSession {
-  const roles = user.roles.map((value) => ROLE_MAP[value]).filter((role): role is UserRole => Boolean(role))
-  // The BE explicitly permits limited self service after all granted roles are revoked.
-  if (user.roles.length === 0 && user.selfServiceOnly) roles.push('employee')
-  const role = USER_ROLES.find((candidate) => roles.includes(candidate)) ?? null
+  const roles =
+    user.roles.length === 1
+      ? user.roles.map((value) => ROLE_MAP[value]).filter((role): role is UserRole => Boolean(role))
+      : []
+  const role = user.roles.length === 1 ? (USER_ROLES.find((candidate) => roles.includes(candidate)) ?? null) : null
   return { user, roles, role }
 }
 export function subscribeAuthSession(listener: () => void) {

@@ -9,7 +9,7 @@ import type { EmployeeDashboardResponseDtoDataSectionsRequestsReason } from './e
 import type { EmployeeDashboardResponseDtoDataSectionsRequestsState } from './employeeDashboardResponseDtoDataSectionsRequestsState'
 
 /**
- * The requests of the caller waiting and their results; the list of them is not delivered yet.
+ * The requests the caller sent that are not over, as meAccessRequestList with view=open counts them; drafts and requests sent on their behalf are not counted. Counted for every account, zero when none is open: a Super Admin sends none, so only requests sent before the current role can count. The results are read from the list with view=ended, not from here.
  */
 export type EmployeeDashboardResponseDtoDataSectionsRequests = {
   /** COUNTED: count is how many, in the scope of the caller. AT_SOURCE: the rows are listed by sourceOperationId in the same scope and are not counted here. NOT_AVAILABLE: the data has no source yet; reason says why. A section that is not counted is never shown as zero. */

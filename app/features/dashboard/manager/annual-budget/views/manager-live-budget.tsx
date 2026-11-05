@@ -31,6 +31,7 @@ import {
   managerInputClass
 } from '../../shared/components/manager-api-ui'
 import { ManagerCurrentBudget } from '../components/manager-current-budget'
+import { ManagerBudgetFiles } from '../components/manager-budget-files'
 import { PROPOSAL_STATE } from '../enums/budget-status'
 
 export function managerBudgetYear(params: URLSearchParams) {
@@ -175,6 +176,7 @@ function ProposalDetail({ id }: { id: string }) {
             <p className='text-sm whitespace-pre-wrap [overflow-wrap:anywhere]'>{proposal.returned.reason}</p>
           )}
           <ProposalLines id={id} />
+          <ManagerBudgetFiles id={id} />
           <div className='flex flex-wrap justify-end gap-3'>
             {(proposal.state === PROPOSAL_STATE.SUBMITTED || proposal.state === PROPOSAL_STATE.REVIEWED) && (
               <ManagerButton disabled={action.blocked} busy={action.isPending} onClick={() => setConfirm(true)}>

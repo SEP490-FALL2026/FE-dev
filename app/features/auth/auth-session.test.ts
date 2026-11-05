@@ -80,13 +80,13 @@ describe('auth session', () => {
   })
 
   it.each([
-    { apiRoles: ['EMPLOYEE', 'MANAGER'], expected: 'manager' },
-    { apiRoles: ['EMPLOYEE', 'SPENDING_APPROVER'], expected: 'spending-approver' },
-    { apiRoles: ['EMPLOYEE', 'MANAGER', 'IT_ADMIN'], expected: 'it-admin' },
+    { apiRoles: ['MANAGER'], expected: 'manager' },
+    { apiRoles: ['SPENDING_APPROVER'], expected: 'spending-approver' },
+    { apiRoles: ['IT_ADMIN'], expected: 'it-admin' },
     { apiRoles: ['FINANCE'], expected: 'finance' },
     { apiRoles: ['SUPER_ADMIN'], expected: 'super-admin' },
     { apiRoles: ['EMPLOYEE'], expected: 'employee' }
-  ])('opens the $expected workspace from API roles regardless of API order', async ({ apiRoles, expected }) => {
+  ])('opens the $expected workspace from the single API role', async ({ apiRoles, expected }) => {
     apiClient.defaults.adapter = async (config) => ({
       config,
       data: config.url?.endsWith('/me') ? { ...me, data: { ...me.data, roles: apiRoles } } : tokenPair('role'),
@@ -103,7 +103,7 @@ describe('auth session', () => {
   })
 
   it.each([
-    { selfServiceOnly: true, expectedRole: 'employee', expectedRoles: ['employee'] },
+    { selfServiceOnly: true, expectedRole: null, expectedRoles: [] },
     { selfServiceOnly: false, expectedRole: null, expectedRoles: [] }
   ])(
     'limits an account with no granted roles to self service only when authorized: $selfServiceOnly',

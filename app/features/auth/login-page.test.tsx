@@ -128,7 +128,7 @@ describe('LoginPage', () => {
                   department: null,
                   jobTitle: null
                 },
-                roles: ['EMPLOYEE', apiRole],
+                roles: [apiRole],
                 selfServiceOnly: false
               }
             }

@@ -22,8 +22,7 @@ export const employeeProfile: NonNullable<MeResponseDtoData> = {
     department: { code: 'ENG', name: 'Engineering' },
     jobTitle: 'Engineer'
   },
-  roles: ['EMPLOYEE'],
-  selfServiceOnly: false
+  roles: ['EMPLOYEE']
 }
 export const plan = { planId, planName: 'Standard', applicationId: planId, applicationName: 'Test Software' }
 export const person = { employeeId, employeeCode: 'EMP-TEST', fullName: 'Test Employee' }

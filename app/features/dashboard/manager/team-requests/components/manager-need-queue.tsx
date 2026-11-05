@@ -6,10 +6,10 @@ import { useManagerPage } from '../../shared/hooks/use-manager-page'
 import { ManagerDataTable } from '../../shared/components/manager-data-table'
 import {
   ManagerField,
-  ManagerMoney,
   ManagerPagination,
   ManagerQueryState,
   ManagerSection,
+  ManagerStatus,
   managerInputClass
 } from '../../shared/components/manager-api-ui'
 import { NEED_QUEUE_TYPE } from '../enums/need-queue-type'
@@ -98,10 +98,11 @@ export function ManagerNeedQueue({ onOpen }: { onOpen: (id: string) => void }) {
           },
           { key: 'due', label: translate('integration.dueOn'), align: 'right', render: (row) => formatDate(row.dueOn) },
           {
-            key: 'amount',
-            label: translate('total'),
-            align: 'right',
-            render: (row) => <ManagerMoney money={row.pricing.amount} />
+            key: 'status',
+            label: translate('status'),
+            render: (row) => (
+              <ManagerStatus value={row.stepKind === 'NEED' ? 'AWAITING_NEED' : (row.stepKind ?? 'AWAITING_NEED')} />
+            )
           }
         ]}
       />

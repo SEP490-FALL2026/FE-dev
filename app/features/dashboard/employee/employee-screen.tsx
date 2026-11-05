@@ -30,7 +30,7 @@ export function EmployeeScreen({
   const user = me.data?.data
   if (!user || me.isError) return <EmployeeQueryState query={me} empty={!user} />
   const id = searchParams.get('id') ?? ''
-  const selfServiceOnly = user.selfServiceOnly
+  const selfServiceOnly = false
   const restricted = selfServiceOnly && !['overview', 'handovers', 'profile', 'privacy'].includes(tab)
   if (!restricted && ['request-detail', 'issue-detail', 'return-detail'].includes(tab) && !isEmployeeResourceId(id))
     return (
