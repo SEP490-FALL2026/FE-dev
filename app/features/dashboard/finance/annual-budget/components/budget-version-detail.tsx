@@ -1,3 +1,4 @@
+import { ArrowLeft, History, Pencil, Send } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useBudgetVersionGet } from '~/shared/api/generated/operations/budget-versions/budget-version-get'
@@ -11,6 +12,8 @@ import {
   FinanceEmpty,
   FinancePage,
   FinanceQueryState,
+  FinanceStat,
+  FinanceStatGrid,
   FinanceStatus
 } from '../../shared/components/finance-ui'
 import { useFinanceFeedback } from '../../shared/hooks/use-finance-feedback'
@@ -21,6 +24,7 @@ import { canEditVersion, versionState } from '../enums/version-state'
 import { BudgetVersionForm } from './budget-version-form'
 import { BudgetVersionLines } from './budget-version-lines'
 import { BudgetVersionHistory } from './budget-version-history'
+import { BudgetAttachments } from './budget-attachments'
 
 export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & { itemId: string }) {
   const { t: translate, i18n } = useTranslation('financeBudget')
@@ -56,6 +60,7 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
         initial={{ ...version, reason: version.reason ?? undefined }}
         revision={dialog === 'revise'}
         allowReason={dialog !== 'rebuild'}
+        reasonRequired={dialog === 'revise' || (dialog === 'edit' && version.kind === 'REVISION')}
         disabled={query.isError || query.isFetching}
         pending={updateMutation.isPending || reviseMutation.isPending || rebuildMutation.isPending}
         onClose={() => setDialog(undefined)}
@@ -80,47 +85,64 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
   return (
     <FinancePage
       title={translate('versions')}
-      actions={<FinanceButton onClick={() => onSelectTab?.('budget-negotiation')}>{translate('back')}</FinanceButton>}
+      actions={
+        <FinanceButton variant='ghost' onClick={() => onSelectTab?.('budget-negotiation')}>
+          <ArrowLeft aria-hidden className='size-4' strokeWidth={1.5} />
+          {translate('back')}
+        </FinanceButton>
+      }
     >
       <FinanceQueryState query={query}>
         {version ? (
           <>
-            <div className='flex flex-wrap items-center justify-between gap-3'>
-              <div className='min-w-0'>
-                <h2 className='truncate text-lg font-semibold' title={version.costCenter.name}>
+            <div className='min-w-0 space-y-1'>
+              <div className='flex flex-wrap items-center gap-2'>
+                <h2 className='truncate text-lg font-semibold tracking-tight' title={version.costCenter.name}>
                   {version.costCenter.name}
                 </h2>
-                <p className='font-mono tabular-nums'>
-                  {translate('fields.year')}: {version.year} · {translate('fields.number')}: {version.number}
-                </p>
+                <FinanceStatus value={version.state} />
               </div>
-              <FinanceStatus value={version.state} />
+              <p className='font-mono text-xs text-muted-foreground tabular-nums'>
+                {version.costCenter.code} · {translate('fields.year')} {version.year} · {translate('fields.number')}{' '}
+                {version.number}
+              </p>
             </div>
-            <dl className='grid gap-4 rounded-lg border border-border bg-surface p-4 sm:grid-cols-3'>
-              {(['base', 'reserve', 'total'] as const).map((field) => (
-                <div key={field}>
-                  <dt className='text-sm text-muted-foreground'>{translate(`fields.${field}`)}</dt>
-                  <dd className='mt-1 font-mono tabular-nums'>{formatMoney(version[field], i18n.language)}</dd>
-                </div>
-              ))}
-            </dl>
-            {version.reason && (
-              <p className='text-sm'>
-                {translate('fields.reason')}: {version.reason}
-              </p>
+            <FinanceStatGrid>
+              <FinanceStat label={translate('fields.base')} value={formatMoney(version.base, i18n.language)} />
+              <FinanceStat label={translate('fields.reserve')} value={formatMoney(version.reserve, i18n.language)} />
+              <FinanceStat
+                emphasis
+                label={translate('fields.total')}
+                value={formatMoney(version.total, i18n.language)}
+              />
+            </FinanceStatGrid>
+            {(version.reason || version.decision?.reason) && (
+              <dl className='grid gap-3 rounded-lg border border-border/70 bg-surface-subtle/50 p-4 text-sm sm:grid-cols-2'>
+                {version.reason && (
+                  <div className='min-w-0'>
+                    <dt className='text-xs font-medium text-muted-foreground'>{translate('fields.reason')}</dt>
+                    <dd className='mt-1 break-words [text-wrap:pretty]'>{version.reason}</dd>
+                  </div>
+                )}
+                {version.decision?.reason && (
+                  <div className='min-w-0'>
+                    <dt className='text-xs font-medium text-muted-foreground'>{translate('fields.decision')}</dt>
+                    <dd className='mt-1 break-words [text-wrap:pretty]'>{version.decision.reason}</dd>
+                  </div>
+                )}
+              </dl>
             )}
-            {version.decision?.reason && (
-              <p className='text-sm'>
-                {translate('fields.decision')}: {version.decision.reason}
-              </p>
-            )}
-            <div className='flex flex-wrap gap-2'>
+            <div className='flex flex-wrap gap-2 border-t border-border/60 pt-4'>
               {canEditVersion(version.state) && (
                 <>
                   <FinanceButton variant='primary' onClick={() => setDialog('send')}>
+                    <Send aria-hidden className='size-4' strokeWidth={1.5} />
                     {translate('actions.send')}
                   </FinanceButton>
-                  <FinanceButton onClick={() => setDialog('edit')}>{translate('actions.edit')}</FinanceButton>
+                  <FinanceButton onClick={() => setDialog('edit')}>
+                    <Pencil aria-hidden className='size-4' strokeWidth={1.5} />
+                    {translate('actions.edit')}
+                  </FinanceButton>
                 </>
               )}
               {version.state === versionState.APPROVED && (
@@ -133,9 +155,15 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
                   {translate('actions.rebuild')}
                 </FinanceButton>
               )}
-              <FinanceButton onClick={() => setDialog('history')}>{translate('actions.showHistory')}</FinanceButton>
+              <FinanceButton variant='ghost' onClick={() => setDialog('history')}>
+                <History aria-hidden className='size-4' strokeWidth={1.5} />
+                {translate('actions.showHistory')}
+              </FinanceButton>
               {version.proposalId && (
-                <FinanceButton onClick={() => onSelectTab?.('annual-proposals', { id: version.proposalId ?? '' })}>
+                <FinanceButton
+                  variant='ghost'
+                  onClick={() => onSelectTab?.('annual-proposals', { id: version.proposalId ?? '' })}
+                >
                   {translate('fields.proposal')}
                 </FinanceButton>
               )}
@@ -146,6 +174,13 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
         )}
       </FinanceQueryState>
       {version && <BudgetVersionLines version={version} disabled={query.isError || query.isFetching} />}
+      {version && (
+        <BudgetAttachments
+          target='version'
+          ownerId={itemId}
+          editable={canEditVersion(version.state) && !query.isError && !query.isFetching}
+        />
+      )}
       {dialog === 'send' && (
         <FinanceFormDialog
           title={translate('actions.send')}

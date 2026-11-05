@@ -1,3 +1,4 @@
+import { ArrowLeft } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSpendApprovalGet } from '~/shared/api/generated/operations/spend-approvals/spend-approval-get'
 import { useBudgetCheckGet } from '~/shared/api/generated/operations/finance-reviews/budget-check-get'
@@ -12,8 +13,6 @@ import { SpendDecisionForm } from '../components/spend-decision-form'
 import { SpendFinancePanel } from '../components/spend-finance-panel'
 import { BUDGET_CHECK_CODE } from '../enums/budget-check-code'
 import { BUDGET_CHECK_ROUTE } from '../enums/budget-check-route'
-import { SPEND_STEP_STATE } from '../enums/spend-step-state'
-import { BUDGET_INFORMATION_STATE } from '../enums/budget-information-state'
 import { REQUEST_TYPE } from '../enums/request-type'
 
 export function ApprovalRequestView({
@@ -27,7 +26,12 @@ export function ApprovalRequestView({
   return (
     <ApprovalsPage
       title={translate('detail')}
-      actions={<ApprovalsButton onClick={() => onSelectTab('queue')}>{translate('back')}</ApprovalsButton>}
+      actions={
+        <ApprovalsButton variant='ghost' onClick={() => onSelectTab('queue')}>
+          <ArrowLeft aria-hidden className='size-4' strokeWidth={1.5} />
+          {translate('back')}
+        </ApprovalsButton>
+      }
     >
       {itemId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(itemId) ? (
         <SpendRequestContent key={itemId} requestId={itemId} />
@@ -80,15 +84,7 @@ function SpendRequestContent({ requestId }: { requestId: string }) {
               {check && <SpendBudgetPanel check={check} years={yearsQuery.years} />}
             </ApprovalsQueryState>
           </ApprovalsQueryState>
-          <SpendFinancePanel
-            requestId={requestId}
-            canAsk={
-              approval.step.state === SPEND_STEP_STATE.PENDING &&
-              (approval.latestBudgetInformation === null ||
-                Object.values(BUDGET_INFORMATION_STATE).includes(approval.latestBudgetInformation.state))
-            }
-            hasOpenQuestion={approval.latestBudgetInformation?.state === BUDGET_INFORMATION_STATE.OPEN}
-          />
+          <SpendFinancePanel requestId={requestId} />
           <SpendDecisionForm
             key={approval.step.id}
             approval={approval}

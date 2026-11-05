@@ -229,10 +229,10 @@ describe('DashboardPage Manager workflows', () => {
     expect(screen.getByTestId('route')).not.toHaveTextContent('notifications=')
   })
 
-  it('keeps theme, language, search, and logout controls available', async () => {
+  it('keeps theme, language, and logout controls available without a header search', async () => {
     await renderDashboard('finance')
 
-    expect(screen.getByRole('searchbox', { name: 'Tìm kiếm' })).toBeInTheDocument()
+    expect(screen.queryByRole('searchbox')).not.toBeInTheDocument()
     expect(screen.getByRole('group', { name: 'Ngôn ngữ' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Chuyển sang giao diện tối' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Đăng xuất' })).toHaveAttribute('href', '/logout')

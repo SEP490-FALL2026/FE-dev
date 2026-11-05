@@ -1,17 +1,12 @@
 import {
   Building2,
   CalendarRange,
-  ClipboardCheck,
   FileInput,
   FileText,
   Grid2X2,
-  Handshake,
   Landmark,
   LineChart,
-  MessageSquareText,
   ReceiptText,
-  Wallet,
-  Coins,
   Store
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
@@ -23,13 +18,9 @@ export type FinanceTranslationKey =
   | 'overview'
   | 'costCenters'
   | 'budgets'
-  | 'reviews'
-  | 'commitments'
-  | 'questions'
   | 'proposals'
   | 'versions'
   | 'catalog'
-  | 'exchangeRates'
   | 'vendorTax'
   | 'periodClose'
   | 'periodReport'
@@ -49,13 +40,7 @@ export const financeAreas: readonly FinanceArea[] = [
   {
     key: 'budget',
     icon: Landmark,
-    tabs: [
-      { key: 'cost-centers', icon: Building2, translationKey: 'costCenters' },
-      { key: 'budgets', icon: Wallet, translationKey: 'budgets' },
-      { key: 'budget-check', icon: ClipboardCheck, translationKey: 'reviews' },
-      { key: 'commitments', icon: Handshake, translationKey: 'commitments' },
-      { key: 'budget-questions', icon: MessageSquareText, translationKey: 'questions' }
-    ]
+    tabs: [{ key: 'cost-centers', icon: Building2, translationKey: 'costCenters' }]
   },
   {
     key: 'planning',
@@ -70,7 +55,6 @@ export const financeAreas: readonly FinanceArea[] = [
     icon: ReceiptText,
     tabs: [
       { key: 'saas-cost', icon: Store, translationKey: 'catalog' },
-      { key: 'exchange-rates', icon: Coins, translationKey: 'exchangeRates' },
       { key: 'vendor-tax', icon: ReceiptText, translationKey: 'vendorTax' }
     ]
   },

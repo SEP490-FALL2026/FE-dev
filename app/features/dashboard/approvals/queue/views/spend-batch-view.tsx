@@ -1,3 +1,4 @@
+import { ArrowLeft } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -18,6 +19,9 @@ import {
   ApprovalsField,
   ApprovalsPage,
   ApprovalsPagination,
+  ApprovalsSection,
+  ApprovalsStat,
+  ApprovalsStatGrid,
   approvalsInputClass
 } from '../../shared/components/approvals-ui'
 import { useApprovalsFeedback } from '../../shared/hooks/use-approvals-feedback'
@@ -40,7 +44,12 @@ export function ApprovalBatchView({ itemId, onSelectTab }: ApprovalBatchViewProp
   return (
     <ApprovalsPage
       title={translate('batch')}
-      actions={<ApprovalsButton onClick={() => onSelectTab('queue')}>{translate('batchBack')}</ApprovalsButton>}
+      actions={
+        <ApprovalsButton variant='ghost' onClick={() => onSelectTab('queue')}>
+          <ArrowLeft aria-hidden className='size-4' strokeWidth={1.5} />
+          {translate('batchBack')}
+        </ApprovalsButton>
+      }
     >
       {itemId && isBatchId(itemId) ? (
         <BatchWorkspace key={itemId} batchId={itemId} onSelectTab={onSelectTab} />
@@ -71,7 +80,7 @@ function BatchLookup({
       <div className='w-full max-w-md'>
         <ApprovalsField label={translate('batchId')} hint={translate('batchIdHint')}>
           <input
-            className={approvalsInputClass}
+            className={`${approvalsInputClass} font-mono text-xs tabular-nums md:text-xs`}
             value={batchId}
             placeholder={translate('batchPlaceholder')}
             onChange={(event) => setBatchId(event.target.value)}
@@ -168,73 +177,66 @@ function BatchWorkspace({
   }
 
   return (
-    <div className='space-y-5'>
+    <div className='space-y-6'>
       <ApprovalsQueryState query={batchQuery}>
         {batch ? (
           <>
-            <dl className='grid gap-4 rounded-lg border border-border bg-surface p-4 sm:grid-cols-2'>
-              <div>
-                <dt className='text-sm text-muted-foreground'>{translate('batchId')}</dt>
-                <dd className='break-all text-right font-mono text-sm tabular-nums'>{batch.id}</dd>
-              </div>
-              <div>
-                <dt className='text-sm text-muted-foreground'>{translate('batchDepartment')}</dt>
-                <dd className='truncate text-sm' title={batch.department.code}>
-                  {batch.department.code}
-                </dd>
-              </div>
-              <div>
-                <dt className='text-sm text-muted-foreground'>{translate('batchSender')}</dt>
-                <dd className='truncate text-sm' title={batch.submittedBy.fullName}>
+            <ApprovalsStatGrid>
+              <ApprovalsStat label={translate('batchItemCount')} value={batch.itemCount} emphasis />
+              <ApprovalsStat label={translate('batchSubmittedAt')} value={formatDate(batch.submittedAt)} />
+              <ApprovalsStat label={translate('batchDepartment')} value={batch.department.code} />
+            </ApprovalsStatGrid>
+            <dl className='grid gap-4 rounded-lg border border-border/70 bg-surface p-4 sm:grid-cols-2'>
+              <div className='min-w-0'>
+                <dt className='text-xs text-muted-foreground'>{translate('batchSender')}</dt>
+                <dd className='mt-1 truncate text-sm' title={batch.submittedBy.fullName}>
                   {batch.submittedBy.fullName}
                 </dd>
               </div>
-              <div>
-                <dt className='text-sm text-muted-foreground'>{translate('batchSubmittedAt')}</dt>
-                <dd className='text-right font-mono text-sm tabular-nums'>{formatDate(batch.submittedAt)}</dd>
-              </div>
-              <div>
-                <dt className='text-sm text-muted-foreground'>{translate('batchItemCount')}</dt>
-                <dd className='text-right font-mono text-sm tabular-nums'>{batch.itemCount}</dd>
+              <div className='min-w-0'>
+                <dt className='text-xs text-muted-foreground'>{translate('batchId')}</dt>
+                <dd className='mt-1 font-mono text-xs break-all tabular-nums'>{batch.id}</dd>
               </div>
             </dl>
-            <ApprovalsQueryState query={itemQuery}>
-              <SpendBatchItems
-                items={items}
-                selectedIds={eligibleIds}
-                disabled={disabled}
-                onOpen={openRequest}
-                onToggle={(requestId) => {
-                  if (disabled || !items.some((item) => item.requestId === requestId && isBatchItemEligible(item)))
-                    return
-                  setSelectedIds((currentIds) =>
-                    currentIds.includes(requestId)
-                      ? currentIds.filter((currentId) => currentId !== requestId)
-                      : currentIds.length < BATCH_SELECTION_LIMIT
-                        ? [...currentIds, requestId]
-                        : currentIds
-                  )
-                }}
-              />
-              <ApprovalsPagination
-                pagination={itemQuery.data?.data?.pagination}
-                onPageChange={(nextPage) => {
-                  if (mutation.isPending) return
-                  setSelectedIds([])
-                  setPage(nextPage)
-                }}
-              />
-              <SpendBatchDecision
-                decision={decision}
-                reason={reason}
-                selectedCount={eligibleIds.length}
-                pending={mutation.isPending}
-                disabled={disabled}
-                onDecision={setDecision}
-                onReason={setReason}
-                onSubmit={submit}
-              />
-            </ApprovalsQueryState>
+            <ApprovalsSection title={translate('batchItems')}>
+              <ApprovalsQueryState query={itemQuery}>
+                <SpendBatchItems
+                  items={items}
+                  selectedIds={eligibleIds}
+                  disabled={disabled}
+                  onOpen={openRequest}
+                  onToggle={(requestId) => {
+                    if (disabled || !items.some((item) => item.requestId === requestId && isBatchItemEligible(item)))
+                      return
+                    setSelectedIds((currentIds) =>
+                      currentIds.includes(requestId)
+                        ? currentIds.filter((currentId) => currentId !== requestId)
+                        : currentIds.length < BATCH_SELECTION_LIMIT
+                          ? [...currentIds, requestId]
+                          : currentIds
+                    )
+                  }}
+                />
+                <ApprovalsPagination
+                  pagination={itemQuery.data?.data?.pagination}
+                  onPageChange={(nextPage) => {
+                    if (mutation.isPending) return
+                    setSelectedIds([])
+                    setPage(nextPage)
+                  }}
+                />
+                <SpendBatchDecision
+                  decision={decision}
+                  reason={reason}
+                  selectedCount={eligibleIds.length}
+                  pending={mutation.isPending}
+                  disabled={disabled}
+                  onDecision={setDecision}
+                  onReason={setReason}
+                  onSubmit={submit}
+                />
+              </ApprovalsQueryState>
+            </ApprovalsSection>
           </>
         ) : (
           <ApprovalsEmpty />

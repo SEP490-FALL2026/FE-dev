@@ -32,9 +32,12 @@ const server = setupServer(
     'budget-proposals',
     'budget-versions',
     'finance-reviews',
-    'budget-information-requests',
     'budgets',
+    'budget-commitments',
+    'cost-centers',
     'spend-approvals',
+    'subscription-renewals',
+    'subscription-deadline-events',
     'notifications'
   ].map((path) =>
     http.get(`*/api/v1/${path}`, () =>
@@ -107,9 +110,10 @@ describe('DashboardPage', () => {
     await renderDashboard('finance')
     expect(screen.getByRole('heading', { level: 1, name: 'Tổng quan tài chính' })).toBeInTheDocument()
     const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
-    fireEvent.click(within(nav).getByRole('button', { name: 'Trung tâm chi phí & Ngân sách' }))
-    fireEvent.click(within(nav).getByRole('button', { name: 'Ngân sách hiện hành' }))
-    expect(screen.getByRole('heading', { level: 1, name: 'Ngân sách hiện hành' })).toBeInTheDocument()
+    expect(within(nav).queryByRole('button', { name: 'Ngân sách hiện hành' })).not.toBeInTheDocument()
+    fireEvent.click(within(nav).getByRole('button', { name: 'Trung tâm chi phí' }))
+    expect(screen.getByRole('heading', { level: 1, name: 'Trung tâm chi phí' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Tạo mới' })).not.toBeInTheDocument()
     fireEvent.click(within(nav).getByRole('button', { name: 'Đóng kỳ & Báo cáo' }))
     fireEvent.click(within(nav).getByRole('button', { name: 'Báo cáo kỳ' }))
     expect(screen.getByRole('heading', { level: 1, name: 'Chức năng chưa khả dụng' })).toBeInTheDocument()
@@ -129,9 +133,7 @@ describe('DashboardPage', () => {
     expect(queueBtn).toHaveClass('bg-primary')
     expect(screen.getByRole('heading', { level: 1, name: 'Hàng đợi duyệt chi' })).toBeInTheDocument()
     expect(await screen.findByText('Không có bản ghi phù hợp.')).toBeInTheDocument()
-    expect(
-      screen.getByPlaceholderText('Nhập tên phần mềm, người yêu cầu hoặc Cost Center trong trang')
-    ).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('Ví dụ: Figma, Nguyễn Văn A hoặc CC-ENG')).toBeInTheDocument()
 
     expect(within(nav).queryByRole('button', { name: /Báo cáo/i })).not.toBeInTheDocument()
     fireEvent.click(within(nav).getByRole('button', { name: /Ngân sách năm/i }))
@@ -140,11 +142,13 @@ describe('DashboardPage', () => {
     view.unmount()
   })
 
-  it('keeps unsupported report URLs honest and provides supported navigation', async () => {
+  it('sends removed demo tabs back to the overview and opens subscription renewals', async () => {
     await renderDashboard('spending-approver', '/?tab=reports')
-    expect(screen.getByRole('heading', { level: 1, name: 'Chức năng chưa được hỗ trợ' })).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: 'Hàng đợi duyệt chi' }))
-    expect(screen.getByRole('heading', { level: 1, name: 'Hàng đợi duyệt chi' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Tổng quan phê duyệt' })).toBeInTheDocument()
+    const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
+    fireEvent.click(within(nav).getByRole('button', { name: 'Gia hạn thuê bao' }))
+    expect(screen.getByRole('heading', { level: 1, name: 'Gia hạn thuê bao' })).toBeInTheDocument()
+    expect(await screen.findByText('Không có ca gia hạn nào đang chờ bạn quyết định.')).toBeInTheDocument()
   })
 
   it('does not restore a demo Request for a legacy fixture ID', async () => {

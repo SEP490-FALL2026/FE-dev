@@ -8,6 +8,9 @@ import { financeSettings } from '~/shared/i18n/locales/en/finance-settings'
 import { finance } from '~/shared/i18n/locales/en/finance'
 import { FinanceVendorTaxView } from './views/finance-vendor-tax-view'
 
+/** Matches a field label that may be followed by a required marker, hint or error text. */
+const labelStart = (text: string) => new RegExp(`^${text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`)
+
 describe('Finance vendor tax contract integration', () => {
   const previousAdapter = apiClient.defaults.adapter
   const requests: { url?: string; method?: string; params?: Record<string, unknown>; body?: unknown }[] = []
@@ -80,7 +83,9 @@ describe('Finance vendor tax contract integration', () => {
     fireEvent.click(await screen.findByRole('button', { name: financeSettings.declareProfile }))
     const dialog = screen.getByRole('dialog', { name: financeSettings.declareProfile })
     fireEvent.change(within(dialog).getByLabelText(new RegExp(financeSettings.taxGroup)), { target: { value: 'T3' } })
-    fireEvent.change(within(dialog).getByLabelText(financeSettings.ratePercent), { target: { value: '8.5000' } })
+    fireEvent.change(within(dialog).getByLabelText(labelStart(financeSettings.ratePercent)), {
+      target: { value: '8.5000' }
+    })
     fireEvent.submit(dialog.querySelector('form')!)
     await waitFor(() => expect(requests.some((request) => request.method === 'put')).toBe(true))
     expect(requests.find((request) => request.method === 'put')?.body).toEqual({
@@ -88,15 +93,15 @@ describe('Finance vendor tax contract integration', () => {
       lines: [{ taxType: 'VAT', ratePercent: '8.5000', deductible: true }]
     })
     await waitFor(() => expect(within(dialog).getByRole('button', { name: financeSettings.save })).toBeEnabled())
-    expect(within(dialog).getByLabelText(financeSettings.ratePercent)).toHaveValue('8.5000')
+    expect(within(dialog).getByLabelText(labelStart(financeSettings.ratePercent))).toHaveValue('8.5000')
   })
   it('requests an estimate only after submitting exact amount and currency', async () => {
     mount()
     await screen.findByRole('button', { name: financeSettings.declareProfile })
     expect(requests.some((request) => request.url?.endsWith('/tax-estimate'))).toBe(false)
-    fireEvent.change(screen.getByLabelText(financeSettings.netAmount), { target: { value: '100.0001' } })
+    fireEvent.change(screen.getByLabelText(labelStart(financeSettings.netAmount)), { target: { value: '100.0001' } })
     await screen.findByRole('option', { name: 'USD' })
-    fireEvent.change(screen.getByLabelText(financeSettings.currency), { target: { value: 'USD' } })
+    fireEvent.change(screen.getByLabelText(labelStart(financeSettings.currency)), { target: { value: 'USD' } })
     fireEvent.click(screen.getByRole('button', { name: financeSettings.estimate }))
     await waitFor(() =>
       expect(requests.find((request) => request.url?.endsWith('/tax-estimate'))?.params).toEqual({

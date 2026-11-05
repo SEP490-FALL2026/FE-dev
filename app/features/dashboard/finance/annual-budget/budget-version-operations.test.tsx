@@ -7,6 +7,7 @@ import {
   apiLine,
   apiPage,
   apiResponse,
+  budgetSideList,
   apiVersion,
   budgetTestLanguage,
   exactMoney,
@@ -24,6 +25,8 @@ describe('budget version API operations', () => {
     currentVersion = apiVersion
     rejectWrite = false
     apiClient.defaults.adapter = async (config) => {
+      const sideList = budgetSideList(config)
+      if (sideList) return sideList
       requests.push(config)
       if (rejectWrite && config.method !== 'get')
         throw new AxiosError('Rejected', 'ERR_BAD_REQUEST', config, undefined, {
@@ -102,7 +105,7 @@ describe('budget version API operations', () => {
     currentVersion = { ...apiVersion, state: 'APPROVED' }
     mount()
     fireEvent.click(await screen.findByRole('button', { name: 'Create revision' }))
-    fireEvent.change(screen.getByLabelText('Reason'), { target: { value: 'New service needs' } })
+    fireEvent.change(screen.getByLabelText(/^Reason/), { target: { value: 'New service needs' } })
     fireEvent.click(screen.getByRole('button', { name: 'Save version' }))
     await waitFor(() => expect(write('/revisions')).toBeDefined())
     expect(JSON.parse(write('/revisions')?.data)).toMatchObject({
@@ -115,7 +118,7 @@ describe('budget version API operations', () => {
   it('adds a line using the generated lines body', async () => {
     mount()
     fireEvent.click(await screen.findByRole('button', { name: 'Add line' }))
-    fireEvent.change(screen.getByLabelText('Description'), { target: { value: 'New planned tool' } })
+    fireEvent.change(screen.getByLabelText(/^Description/), { target: { value: 'New planned tool' } })
     fireEvent.change(screen.getByLabelText(/^Amount/), { target: { value: exactMoney.amount } })
     fireEvent.click(screen.getByRole('button', { name: 'Save line' }))
     await waitFor(() => expect(write('/version-1/lines')).toBeDefined())
@@ -142,8 +145,8 @@ describe('budget version API operations', () => {
     mount()
     await openLine()
     fireEvent.click(screen.getByRole('button', { name: 'Move purchase window' }))
-    fireEvent.change(screen.getByLabelText('Purchase window from'), { target: { value: '2027-02-01' } })
-    fireEvent.change(screen.getByLabelText('Reason'), { target: { value: 'Quote delayed' } })
+    fireEvent.change(screen.getByLabelText(/^Purchase window from/), { target: { value: '2027-02-01' } })
+    fireEvent.change(screen.getByLabelText(/^Reason/), { target: { value: 'Quote delayed' } })
     fireEvent.click(screen.getByRole('button', { name: 'Save window' }))
     await waitFor(() => expect(write('/lines/1/window')).toBeDefined())
     expect(JSON.parse(write('/lines/1/window')?.data)).toEqual({

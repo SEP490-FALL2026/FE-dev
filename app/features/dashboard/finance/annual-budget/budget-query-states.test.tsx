@@ -4,7 +4,15 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { apiClient } from '~/shared/api/axios-client'
 import { FinanceAnnualProposalsView } from './views/finance-annual-proposals-view'
 import { FinanceBudgetNegotiationView } from './views/finance-budget-negotiation-view'
-import { apiLine, apiPage, apiResponse, apiVersion, budgetTestLanguage, renderBudget } from './budget-test-fixtures'
+import {
+  apiLine,
+  apiPage,
+  apiResponse,
+  budgetSideList,
+  apiVersion,
+  budgetTestLanguage,
+  renderBudget
+} from './budget-test-fixtures'
 
 describe('budget server states and pending writes', () => {
   const originalAdapter = apiClient.defaults.adapter
@@ -18,6 +26,8 @@ describe('budget server states and pending writes', () => {
       complete = resolve
     })
     apiClient.defaults.adapter = async (config) => {
+      const sideList = budgetSideList(config)
+      if (sideList) return sideList
       await gate
       return apiResponse(config, apiPage([]))
     }
@@ -29,6 +39,8 @@ describe('budget server states and pending writes', () => {
   it('offers retry for a failed list and then displays the server response', async () => {
     let failed = true
     apiClient.defaults.adapter = async (config) => {
+      const sideList = budgetSideList(config)
+      if (sideList) return sideList
       if (failed) throw new AxiosError('Network down', 'ERR_NETWORK', config)
       return apiResponse(config, apiPage([]))
     }
@@ -40,6 +52,7 @@ describe('budget server states and pending writes', () => {
   })
   it('uses the unknown status fallback and exposes no edit/send/approve action', async () => {
     apiClient.defaults.adapter = async (config) =>
+      budgetSideList(config) ??
       apiResponse(
         config,
         config.url?.endsWith('/lines') ? apiPage([apiLine]) : { version: { ...apiVersion, state: 'FUTURE_STATE' } }
@@ -58,6 +71,8 @@ describe('budget server states and pending writes', () => {
       complete = resolve
     })
     apiClient.defaults.adapter = async (config) => {
+      const sideList = budgetSideList(config)
+      if (sideList) return sideList
       if (config.url?.endsWith('/submission')) {
         sends += 1
         await gate

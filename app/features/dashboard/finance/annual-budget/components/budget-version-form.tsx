@@ -5,6 +5,9 @@ import { AdminFormDialog as FinanceFormDialog } from '~/shared/ui/form-dialog'
 import { FinanceField, financeInputClass } from '../../shared/components/finance-ui'
 import { isDecimal } from '../../shared/finance-money'
 
+const sectionTitleClass = 'text-xs font-semibold tracking-wider text-muted-foreground uppercase'
+const amountClass = `${financeInputClass} text-right font-mono tabular-nums`
+
 export type BudgetFigures = Omit<VersionBodyDto, 'proposalId'> & { reason?: string }
 
 export function BudgetVersionForm({
@@ -14,6 +17,7 @@ export function BudgetVersionForm({
   pending,
   revision = false,
   allowReason = true,
+  reasonRequired = false,
   disabled = false
 }: {
   initial: BudgetFigures
@@ -22,6 +26,8 @@ export function BudgetVersionForm({
   pending: boolean
   revision?: boolean
   allowReason?: boolean
+  /** A revision cannot be sent without a reason (BUDGET.REVISION_REASON_REQUIRED). */
+  reasonRequired?: boolean
   disabled?: boolean
 }) {
   const { t: translate } = useTranslation('financeBudget')
@@ -46,11 +52,12 @@ export function BudgetVersionForm({
     Number(percent) >= 0 &&
     Number(percent) <= 100 &&
     (!highValue || isDecimal(highValue)) &&
-    (Object.values(quarters).every((amount) => !amount) || Object.values(quarters).every(isDecimal))
+    (Object.values(quarters).every((amount) => !amount) || Object.values(quarters).every(isDecimal)) &&
+    (!reasonRequired || reason.trim() !== '')
   const money = (amount: string) => ({ amount, currency })
   return (
     <FinanceFormDialog
-      wide
+      page
       title={translate(revision ? 'actions.revise' : 'actions.save')}
       pending={pending}
       submitDisabled={disabled}
@@ -75,54 +82,70 @@ export function BudgetVersionForm({
         })
       }}
     >
-      <p className='text-sm text-muted-foreground'>
-        {translate('fields.currency')}: {currency}
+      <p className='inline-flex w-fit items-center gap-2 rounded-md bg-surface-subtle px-2.5 py-1 text-xs text-muted-foreground'>
+        {translate('fields.currency')}
+        <span className='font-mono font-semibold text-foreground'>{currency}</span>
       </p>
+      <h3 className={sectionTitleClass}>{translate('sections.figures')}</h3>
       <div className='grid gap-4 sm:grid-cols-2'>
-        <FinanceField label={translate('fields.base')} hint={translate('decimalHint')}>
+        <FinanceField
+          required
+          label={translate('fields.base')}
+          hint={translate('decimalHint')}
+          error={invalid && !isDecimal(base) ? translate('fieldInvalid') : null}
+        >
           <input
             required
             inputMode='decimal'
             maxLength={40}
             aria-invalid={invalid && !isDecimal(base)}
-            className={financeInputClass}
+            className={amountClass}
+            placeholder={translate('placeholders.amount')}
             value={base}
             onChange={(event) => setBase(event.target.value)}
           />
         </FinanceField>
-        <FinanceField label={translate('fields.reserve')}>
+        <FinanceField
+          required
+          label={translate('fields.reserve')}
+          error={invalid && !isDecimal(reserve) ? translate('fieldInvalid') : null}
+        >
           <input
             required
             inputMode='decimal'
             maxLength={40}
             aria-invalid={invalid && !isDecimal(reserve)}
-            className={financeInputClass}
+            className={amountClass}
+            placeholder={translate('placeholders.reserve')}
             value={reserve}
             onChange={(event) => setReserve(event.target.value)}
           />
         </FinanceField>
-        <FinanceField label={translate('fields.highValuePercent')}>
+        <FinanceField required label={translate('fields.highValuePercent')} hint={translate('percentHint')}>
           <input
             required
             type='number'
             min={0}
             max={100}
             step={1}
-            className={financeInputClass}
+            className={amountClass}
+            placeholder={translate('placeholders.percent')}
             value={percent}
             onChange={(event) => setPercent(event.target.value)}
           />
         </FinanceField>
-        <FinanceField label={translate('fields.highValueAmount')}>
+        <FinanceField label={translate('fields.highValueAmount')} hint={translate('optionalHint')}>
           <input
             inputMode='decimal'
             maxLength={40}
-            className={financeInputClass}
+            className={amountClass}
+            placeholder={translate('placeholders.highValueAmount')}
             value={highValue}
             onChange={(event) => setHighValue(event.target.value)}
           />
         </FinanceField>
       </div>
+      <h3 className={sectionTitleClass}>{translate('sections.quarters')}</h3>
       <p className='text-sm text-muted-foreground'>{translate('optionalQuarters')}</p>
       <div className='grid gap-4 sm:grid-cols-2'>
         {(Object.keys(quarters) as Array<keyof typeof quarters>).map((quarter) => (
@@ -130,7 +153,8 @@ export function BudgetVersionForm({
             <input
               inputMode='decimal'
               maxLength={40}
-              className={financeInputClass}
+              className={amountClass}
+              placeholder={translate('placeholders.quarter')}
               value={quarters[quarter]}
               onChange={(event) => setQuarters({ ...quarters, [quarter]: event.target.value })}
             />
@@ -138,10 +162,19 @@ export function BudgetVersionForm({
         ))}
       </div>
       {allowReason && (
-        <FinanceField label={translate('fields.reason')}>
+        <FinanceField
+          required={reasonRequired}
+          label={translate('fields.reason')}
+          hint={reasonRequired ? translate('revisionReasonHint') : undefined}
+          error={invalid && reasonRequired && !reason.trim() ? translate('fieldInvalid') : null}
+        >
           <textarea
+            required={reasonRequired}
+            aria-invalid={invalid && reasonRequired && !reason.trim()}
+            rows={3}
             maxLength={1000}
             className={financeInputClass}
+            placeholder={translate('placeholders.versionReason')}
             value={reason}
             onChange={(event) => setReason(event.target.value)}
           />

@@ -32,10 +32,14 @@ function ApprovalBudgetLists({ onSelectTab }: ApprovalBudgetViewProps) {
   const { t: translate } = useTranslation('approvalsBudget')
   const [section, setSection] = useState<'versions' | 'proposals'>('versions')
   return (
-    <ApprovalsPage title={translate('title')}>
-      <div role='group' aria-label={translate('title')} className='flex flex-wrap gap-2'>
+    <ApprovalsPage title={translate('title')} description={translate('pageDescription')}>
+      <div
+        role='group'
+        aria-label={translate('title')}
+        className='inline-flex flex-wrap gap-1 rounded-lg border border-border/70 bg-surface-subtle p-1'
+      >
         {(['versions', 'proposals'] as const).map((item) => (
-          <ApprovalsButton key={item} aria-pressed={section === item} onClick={() => setSection(item)}>
+          <ApprovalsButton key={item} variant='ghost' aria-pressed={section === item} onClick={() => setSection(item)}>
             {translate(item)}
           </ApprovalsButton>
         ))}
@@ -82,6 +86,11 @@ function VersionList({ onOpen }: { onOpen: (id: string) => void }) {
             { key: 'year', label: translate('year'), numeric: true, render: (version) => version.year },
             { key: 'number', label: translate('number'), numeric: true, render: (version) => version.number },
             {
+              key: 'kind',
+              label: translate('kindLabel'),
+              render: (version) => translate(`kind.${version.kind}`, { defaultValue: translate('unavailable') })
+            },
+            {
               key: 'total',
               label: translate('total'),
               numeric: true,
@@ -110,7 +119,9 @@ function ProposalList({ onOpen }: { onOpen: (id: string) => void }) {
   const query = useBudgetProposalList({ ...filters, page, pageSize: 20 })
   return (
     <>
-      <p className='text-sm text-muted-foreground'>{translate('readOnly')}</p>
+      <p role='note' className='text-sm text-muted-foreground'>
+        {translate('readOnly')}
+      </p>
       <ApprovalAnnualBudgetFilters
         states={Object.values(proposalState)}
         state={filters.state}

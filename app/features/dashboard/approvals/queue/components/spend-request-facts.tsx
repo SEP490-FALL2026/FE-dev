@@ -1,121 +1,154 @@
+import { AlertTriangle, Clock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { spendApprovalGet } from '~/shared/api/generated/operations/spend-approvals/spend-approval-get'
-import { ApprovalsStatus } from '../../shared/components/approvals-ui'
+import {
+  ApprovalsSection,
+  ApprovalsStat,
+  ApprovalsStatGrid,
+  ApprovalsStatus
+} from '../../shared/components/approvals-ui'
 import { formatMoney } from '../../shared/approvals-money'
 import { useDashboardFormat } from '../../../dashboard-ui'
 
 export type SpendApproval = NonNullable<Awaited<ReturnType<typeof spendApprovalGet>>['data']>['spendApproval']
 
+const noticeClass = 'flex items-start gap-2 rounded-lg border px-4 py-3 text-sm'
+
+function FactList({ facts }: { facts: { label: string; value: string; numeric?: boolean }[] }) {
+  return (
+    <>
+      {facts.map(({ label, value, numeric }) => (
+        <div key={label} className='min-w-0'>
+          <dt className='text-xs text-muted-foreground'>{label}</dt>
+          <dd className={`mt-1 truncate text-sm ${numeric ? 'font-mono tabular-nums' : ''}`} title={value}>
+            {value}
+          </dd>
+        </div>
+      ))}
+    </>
+  )
+}
+
 export function SpendRequestFacts({ approval, isGroup }: { approval: SpendApproval; isGroup: boolean }) {
   const { t: translate, i18n } = useTranslation('approvalsSpend')
-  const { formatDate, formatNumber } = useDashboardFormat()
+  const { formatDate, formatDateTime, formatNumber } = useDashboardFormat()
   const { request, step, need, cost, assessment, decision } = approval
-  const facts = [
-    { label: translate('requester'), value: request.requester.fullName },
-    {
-      label: translate('beneficiary'),
-      value: request.beneficiary?.fullName ?? translate(isGroup ? 'group' : 'unavailable')
-    },
-    { label: translate('costCenter'), value: request.costCenter.code },
-    { label: translate('assignee'), value: step.assignee?.fullName ?? translate('unavailable') },
-    { label: translate('term'), value: formatNumber(request.termMonths), numeric: true },
-    {
-      label: translate('expectedSpend'),
-      value: request.expectedSpendOn ? formatDate(request.expectedSpendOn) : translate('unavailable'),
-      numeric: true
-    },
-    { label: translate('need'), value: need?.decidedBy.fullName ?? translate('unavailable') }
-  ]
+  const headlineCost = cost?.totalPayable ?? cost?.estimatedCost ?? null
   return (
-    <div className='space-y-5'>
+    <div className='space-y-6'>
       <div className='flex flex-wrap items-center gap-3'>
         <ApprovalsStatus value={step.state} />
         {request.offPlan && <span className='text-sm text-muted-foreground'>{translate('offPlan')}</span>}
       </div>
-      <dl className='grid gap-4 rounded-lg border border-border bg-surface p-4 sm:grid-cols-2'>
-        {facts.map(({ label, value, numeric }) => (
-          <div key={label}>
-            <dt className='text-xs text-muted-foreground'>{label}</dt>
-            <dd className={`truncate text-sm ${numeric ? 'text-right font-mono tabular-nums' : ''}`} title={value}>
-              {value}
-            </dd>
-          </div>
-        ))}
-        <div className='sm:col-span-2'>
-          <dt className='text-xs text-muted-foreground'>{translate('reason')}</dt>
-          <dd className='text-sm whitespace-pre-wrap [overflow-wrap:anywhere]'>{request.businessReason}</dd>
-        </div>
-      </dl>
+      {step.waitingReason && (
+        <p role='status' className={`${noticeClass} border-warning/30 bg-warning/10 text-warning-ink`}>
+          <Clock aria-hidden className='mt-0.5 size-4 shrink-0' strokeWidth={1.5} />
+          {translate(`waitingReason.${step.waitingReason}`, { defaultValue: translate('waitingReason.unknown') })}
+        </p>
+      )}
       {(step.samePersonAsSpend || step.noIndependentReview) && (
-        <div className='space-y-1 border-l-2 border-warning pl-3 text-sm text-muted-foreground'>
-          {step.samePersonAsSpend && <p>{translate('samePerson')}</p>}
-          {step.noIndependentReview && <p>{translate('noReview')}</p>}
+        <div className={`${noticeClass} border-warning/30 bg-warning/10 text-warning-ink`}>
+          <AlertTriangle aria-hidden className='mt-0.5 size-4 shrink-0' strokeWidth={1.5} />
+          <div className='space-y-1'>
+            {step.samePersonAsSpend && <p>{translate('samePerson')}</p>}
+            {step.noIndependentReview && <p>{translate('noReview')}</p>}
+          </div>
         </div>
       )}
+      <ApprovalsStatGrid>
+        <ApprovalsStat
+          label={translate('totalPayable')}
+          value={headlineCost ? formatMoney(headlineCost, i18n.language) : translate('unavailable')}
+          emphasis
+        />
+        <ApprovalsStat label={translate('term')} value={formatNumber(request.termMonths)} />
+        <ApprovalsStat
+          label={translate('expectedSpend')}
+          value={request.expectedSpendOn ? formatDate(request.expectedSpendOn) : translate('unavailable')}
+        />
+        <ApprovalsStat label={translate('openedAt')} value={formatDate(step.openedAt)} />
+        <ApprovalsStat label={translate('sla')} value={formatNumber(step.slaWorkingDays)} />
+        <ApprovalsStat label={translate('budgetYear')} value={request.budgetYear ?? translate('unavailable')} />
+      </ApprovalsStatGrid>
+      <ApprovalsSection title={translate('requestInfo')}>
+        <dl className='grid gap-4 rounded-lg border border-border/70 bg-surface p-4 sm:grid-cols-2 lg:grid-cols-3'>
+          <FactList
+            facts={[
+              { label: translate('requester'), value: request.requester.fullName },
+              {
+                label: translate('beneficiary'),
+                value: request.beneficiary?.fullName ?? translate(isGroup ? 'group' : 'unavailable')
+              },
+              { label: translate('costCenter'), value: request.costCenter.code, numeric: true },
+              { label: translate('assignee'), value: step.assignee?.fullName ?? translate('unavailable') },
+              { label: translate('need'), value: need?.decidedBy.fullName ?? translate('unavailable') }
+            ]}
+          />
+          <div className='min-w-0 sm:col-span-2 lg:col-span-3'>
+            <dt className='text-xs text-muted-foreground'>{translate('reason')}</dt>
+            <dd className='mt-1 text-sm whitespace-pre-wrap [overflow-wrap:anywhere]'>{request.businessReason}</dd>
+          </div>
+        </dl>
+      </ApprovalsSection>
       {cost && (
-        <section className='space-y-3'>
-          <h2 className='text-lg font-semibold'>{translate('costs')}</h2>
-          <ApprovalsStatus value={cost.label} />
-          <dl className='grid gap-4 sm:grid-cols-2'>
+        <ApprovalsSection title={translate('costs')} actions={<ApprovalsStatus value={cost.label} />}>
+          <dl className='grid gap-px overflow-hidden rounded-lg border border-border/70 bg-border/70 sm:grid-cols-2 lg:grid-cols-3'>
             {(['preTax', 'tax', 'deductibleTax', 'nonDeductibleTax', 'estimatedCost', 'totalPayable'] as const).map(
               (key) => (
-                <div key={key}>
-                  <dt className='text-sm text-muted-foreground'>
-                    {translate(key === 'estimatedCost' ? 'amount' : key)}
-                  </dt>
-                  <dd className='text-right font-mono tabular-nums'>{formatMoney(cost[key], i18n.language)}</dd>
-                </div>
+                <ApprovalsStat
+                  key={key}
+                  label={translate(key === 'estimatedCost' ? 'amount' : key)}
+                  value={formatMoney(cost[key], i18n.language)}
+                />
               )
             )}
           </dl>
-        </section>
+        </ApprovalsSection>
       )}
       {assessment && (
-        <section className='space-y-3'>
-          <h2 className='text-lg font-semibold'>{translate('assessment')}</h2>
-          <dl className='grid gap-4 sm:grid-cols-2'>
+        <ApprovalsSection title={translate('assessment')}>
+          <dl className='grid gap-4 rounded-lg border border-border/70 bg-surface p-4 sm:grid-cols-2'>
             <div>
-              <dt className='text-sm text-muted-foreground'>{translate('classification')}</dt>
-              <dd>
+              <dt className='text-xs text-muted-foreground'>{translate('classification')}</dt>
+              <dd className='mt-1'>
                 <ApprovalsStatus value={assessment.classification} />
               </dd>
             </div>
             <div>
-              <dt className='text-sm text-muted-foreground'>{translate('controlLevel')}</dt>
-              <dd>
+              <dt className='text-xs text-muted-foreground'>{translate('controlLevel')}</dt>
+              <dd className='mt-1'>
                 <ApprovalsStatus value={assessment.controlLevel} />
               </dd>
             </div>
-            <div>
-              <dt className='text-sm text-muted-foreground'>{translate('controlRisk')}</dt>
-              <dd className='text-sm whitespace-pre-wrap'>{assessment.controlRiskNote ?? translate('unavailable')}</dd>
-            </div>
-            <div>
-              <dt className='text-sm text-muted-foreground'>{translate('sensitivity')}</dt>
-              <dd className='text-sm'>{assessment.dataSensitivity ?? translate('unavailable')}</dd>
-            </div>
-            <div>
-              <dt className='text-sm text-muted-foreground'>{translate('equivalent')}</dt>
-              <dd className='truncate text-sm' title={assessment.equivalentTool?.planName}>
-                {assessment.equivalentTool?.planName ?? translate('unavailable')}
-              </dd>
-            </div>
+            <FactList
+              facts={[
+                {
+                  label: translate('controlRisk'),
+                  value: assessment.controlRiskNote ?? translate('unavailable')
+                },
+                { label: translate('sensitivity'), value: assessment.dataSensitivity ?? translate('unavailable') },
+                {
+                  label: translate('equivalent'),
+                  value: assessment.equivalentTool?.planName ?? translate('unavailable')
+                }
+              ]}
+            />
           </dl>
-        </section>
+        </ApprovalsSection>
       )}
       {decision && (
-        <section className='space-y-3 rounded-lg border border-border bg-surface p-4'>
-          <h2 className='text-lg font-semibold'>{translate('savedDecision')}</h2>
-          <ApprovalsStatus value={decision.decision} />
-          <p className='text-sm'>{decision.decidedBy.fullName}</p>
-          <p className='text-right font-mono text-xs tabular-nums'>
-            {new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium', timeStyle: 'short' }).format(
-              new Date(decision.decidedAt)
-            )}
-          </p>
-          {decision.reason && <p className='text-sm whitespace-pre-wrap'>{decision.reason}</p>}
-          {decision.overrideReason && <p className='text-sm whitespace-pre-wrap'>{decision.overrideReason}</p>}
-        </section>
+        <ApprovalsSection title={translate('savedDecision')} actions={<ApprovalsStatus value={decision.decision} />}>
+          <div className='space-y-2 rounded-lg border border-border/70 bg-surface p-4'>
+            <div className='flex flex-wrap items-center justify-between gap-2 text-sm'>
+              <span>{decision.decidedBy.fullName}</span>
+              <span className='font-mono text-xs text-muted-foreground tabular-nums'>
+                {formatDateTime(decision.decidedAt)}
+              </span>
+            </div>
+            {decision.reason && <p className='text-sm whitespace-pre-wrap'>{decision.reason}</p>}
+            {decision.overrideReason && <p className='text-sm whitespace-pre-wrap'>{decision.overrideReason}</p>}
+          </div>
+        </ApprovalsSection>
       )}
     </div>
   )

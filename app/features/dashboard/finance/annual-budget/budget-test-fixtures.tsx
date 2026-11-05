@@ -55,6 +55,12 @@ export const apiPage = <Item,>(items: Item[], page = 1) => ({
   items,
   pagination: { page, pageSize: 20, totalItems: 21, totalPages: 2 }
 })
+/** Side lists that budget screens load next to the record under test: attachments and the plan picker. */
+export function budgetSideList(config: InternalAxiosRequestConfig) {
+  const path = config.url?.split('?')[0] ?? ''
+  if (!/\/attachments$|\/plans$/.test(path)) return undefined
+  return apiResponse(config, { items: [], pagination: { page: 1, pageSize: 10, totalItems: 0, totalPages: 0 } })
+}
 export function apiResponse(config: InternalAxiosRequestConfig, data: unknown) {
   return {
     config,

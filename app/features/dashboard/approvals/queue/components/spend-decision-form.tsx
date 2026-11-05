@@ -6,6 +6,7 @@ import type { LineSpendDecisionBodyDto } from '~/shared/api/generated/model/grou
 import {
   ApprovalsButton,
   ApprovalsField,
+  ApprovalsSection,
   ApprovalsSelect,
   approvalsInputClass
 } from '../../shared/components/approvals-ui'
@@ -102,8 +103,7 @@ export function SpendDecisionForm({
       [id]: { ...(previous[id] ?? { decision: '', reason: '' }), ...patch }
     }))
   return (
-    <section className='space-y-4 border-t border-border pt-5' aria-label={translate('decision')}>
-      <h2 className='text-lg font-semibold'>{translate('decision')}</h2>
+    <ApprovalsSection title={translate('decision')}>
       <ApprovalsQueryState query={me}>{null}</ApprovalsQueryState>
       {!canDecide && !mutations.isPending && (
         <p className='text-sm text-muted-foreground'>{translate(!ready ? 'yearLoading' : 'waiting')}</p>
@@ -147,13 +147,13 @@ export function SpendDecisionForm({
             mutations.single.mutate({ id: approval.requestId, data }, submissionOptions)
           }
         }}
-        className='space-y-4'
+        className='space-y-4 rounded-lg border border-border/70 bg-surface p-5 shadow-[0_1px_2px_0_rgba(0,0,0,0.04)]'
       >
         <fieldset disabled={!canDecide} className='space-y-4 disabled:opacity-60'>
           {isGroup ? (
             <div className='space-y-3'>
               {confirmedLines.map((line) => (
-                <div key={line.employee.employeeId} className='space-y-3 rounded-lg border border-border p-4'>
+                <div key={line.employee.employeeId} className='space-y-3 rounded-md border border-border/70 p-4'>
                   <p className='truncate text-sm font-medium' title={line.employee.fullName}>
                     {line.employee.fullName}
                   </p>
@@ -165,8 +165,9 @@ export function SpendDecisionForm({
                     disabled={!canDecide}
                   />
                   {lineDrafts[line.employee.employeeId]?.decision === SPEND_DECISION.REJECT && (
-                    <ApprovalsField label={translate('lineReason', { name: line.employee.fullName })}>
+                    <ApprovalsField label={translate('lineReason', { name: line.employee.fullName })} required>
                       <textarea
+                        rows={3}
                         className={approvalsInputClass}
                         value={lineDrafts[line.employee.employeeId]?.reason ?? ''}
                         onChange={(event) => changeLine(line.employee.employeeId, { reason: event.target.value })}
@@ -189,8 +190,9 @@ export function SpendDecisionForm({
                 disabled={!canDecide}
               />
               {decision === SPEND_DECISION.REJECT && (
-                <ApprovalsField label={translate('rejectReason')}>
+                <ApprovalsField label={translate('rejectReason')} required>
                   <textarea
+                    rows={3}
                     className={approvalsInputClass}
                     value={reason}
                     onChange={(event) => setReason(event.target.value)}
@@ -205,7 +207,12 @@ export function SpendDecisionForm({
           {hasApproval && (
             <div className='space-y-3'>
               <label className='flex min-h-11 items-center gap-3 text-sm'>
-                <input type='checkbox' checked={override} onChange={(event) => setOverride(event.target.checked)} />
+                <input
+                  type='checkbox'
+                  className='size-4 accent-primary'
+                  checked={override}
+                  onChange={(event) => setOverride(event.target.checked)}
+                />
                 {translate('override')}
               </label>
               {(needsOverride || override) && (
@@ -213,8 +220,9 @@ export function SpendDecisionForm({
               )}
               {override && (
                 <>
-                  <ApprovalsField label={translate('overrideReason')}>
+                  <ApprovalsField label={translate('overrideReason')} required>
                     <textarea
+                      rows={3}
                       className={approvalsInputClass}
                       value={overrideReason}
                       onChange={(event) => setOverrideReason(event.target.value)}
@@ -233,6 +241,7 @@ export function SpendDecisionForm({
                         >
                           <input
                             type='checkbox'
+                            className='size-4 accent-primary'
                             checked={overrideYears.includes(year.year)}
                             onChange={(event) =>
                               setOverrideYears((previous) =>
@@ -253,7 +262,7 @@ export function SpendDecisionForm({
           )}
           <label className='flex min-h-11 items-start gap-3 text-sm'>
             <input
-              className='mt-1'
+              className='mt-0.5 size-4 accent-primary'
               type='checkbox'
               checked={confirmed}
               onChange={(event) => setConfirmed(event.target.checked)}
@@ -261,10 +270,12 @@ export function SpendDecisionForm({
             {translate('decisionConfirmation')}
           </label>
         </fieldset>
-        <ApprovalsButton variant='primary' type='submit' disabled={!valid} pending={mutations.isPending}>
-          {translate('decide')}
-        </ApprovalsButton>
+        <div className='flex justify-end border-t border-border/60 pt-4'>
+          <ApprovalsButton variant='primary' type='submit' disabled={!valid} pending={mutations.isPending}>
+            {translate('decide')}
+          </ApprovalsButton>
+        </div>
       </form>
-    </section>
+    </ApprovalsSection>
   )
 }

@@ -178,7 +178,7 @@ it('requires a rejection reason and sends only the strict rejection payload', as
   await choose('Reject')
   confirm()
   expect(screen.getByRole('button', { name: 'Confirm decision' })).toBeDisabled()
-  fireEvent.change(screen.getByPlaceholderText('Explain why this request should be rejected'), {
+  fireEvent.change(screen.getByPlaceholderText('E.g. The team already has an equivalent tool under contract'), {
     target: { value: '  No business need  ' }
   })
   fireEvent.click(screen.getByRole('button', { name: 'Confirm decision' }))
@@ -193,10 +193,9 @@ it('requires explicit override reason and selected years for insufficient budget
   confirm()
   expect(screen.getByRole('button', { name: 'Confirm decision' })).toBeDisabled()
   fireEvent.click(screen.getByRole('checkbox', { name: 'Approve with a budget override' }))
-  fireEvent.change(
-    screen.getByPlaceholderText('Explain why the expense should be approved without sufficient budget'),
-    { target: { value: 'Urgent delivery' } }
-  )
+  fireEvent.change(screen.getByPlaceholderText('E.g. Q4 overrun, covered from the department reserve'), {
+    target: { value: 'Urgent delivery' }
+  })
   expect(screen.getByRole('button', { name: 'Confirm decision' })).toBeDisabled()
   fireEvent.click(screen.getByRole('checkbox', { name: '2026' }))
   fireEvent.click(screen.getByRole('button', { name: 'Confirm decision' }))
@@ -225,12 +224,14 @@ it('keeps a failed decision draft and refreshes authoritative data after conflic
   mount()
   await choose('Reject')
   confirm()
-  fireEvent.change(screen.getByPlaceholderText('Explain why this request should be rejected'), {
+  fireEvent.change(screen.getByPlaceholderText('E.g. The team already has an equivalent tool under contract'), {
     target: { value: 'Keep this reason' }
   })
   fireEvent.click(screen.getByRole('button', { name: 'Confirm decision' }))
   await waitFor(() => expect(readCount).toBeGreaterThan(1))
-  expect(screen.getByPlaceholderText('Explain why this request should be rejected')).toHaveValue('Keep this reason')
+  expect(screen.getByPlaceholderText('E.g. The team already has an equivalent tool under contract')).toHaveValue(
+    'Keep this reason'
+  )
   expect(screen.queryByText('Internal message')).not.toBeInTheDocument()
 })
 
@@ -260,7 +261,7 @@ it('loads all beneficiary pages and sends a decision for every confirmed person'
   mount()
   await choose('Approve', 0)
   await choose('Reject', 1)
-  fireEvent.change(screen.getByPlaceholderText('Explain why this beneficiary is rejected'), {
+  fireEvent.change(screen.getByPlaceholderText('E.g. This person already has a seat on another plan'), {
     target: { value: 'Duplicate seat' }
   })
   confirm()

@@ -1,10 +1,6 @@
 export const finance = {
-  commitments: 'Budget commitments',
   periodClose: 'Period close',
   periodReport: 'Period report',
-  searchLabel: 'Search',
-  searchPlaceholder: 'Find a function: budgets, exchange rates…',
-  searchEmpty: 'No matching functions.',
   areas: {
     overview: 'Overview',
     budget: 'Cost centers & budgets',
@@ -21,6 +17,7 @@ export const finance = {
   unknown: 'Unknown status',
   close: 'Close',
   open: 'View details',
+  backToList: 'Back to list',
   actions: 'Actions',
   pagination: 'Pagination',
   page: 'Page {{page}} / {{pages}} · {{count}} records',
@@ -29,24 +26,83 @@ export const finance = {
   requestId: 'Reference: {{value}}',
   all: 'All',
   year: 'Fiscal year',
-  yearHint: 'Enter a year, e.g. 2027',
   unavailable: 'This feature is not available yet',
   unavailableHint: 'This workflow is awaiting backend support. There are no records or actions available here yet.',
   backToBudgets: 'View current budgets',
-  preview: 'Preview workspace',
-  previewHint: 'Spending Approver still uses sample data. Its actions do not save changes to the backend.',
   overview: 'Finance overview',
+  overviewDescription: 'Work waiting for Finance and shortcuts to frequently used records.',
+  shortcuts: 'Quick access',
   overviewHint: 'Work waiting for Finance',
   proposals: 'Submitted proposals',
   versions: 'Budget drafts',
-  reviews: 'Pending Finance reviews',
-  questions: 'Open budget questions',
   budgets: 'Current budgets',
   costCenters: 'Cost centers',
-  exchangeRates: 'Exchange rates',
   vendorTax: 'Vendor tax profiles',
   catalog: 'SaaS catalog',
-  overviewLoadError: 'Could not load this count.',
+  analytics: {
+    title: 'Budget and commitments',
+    view: 'Display',
+    views: { chart: 'Chart', table: 'Data table' },
+    modes: { year: 'Full year', quarter: 'By quarter', month: 'By month' },
+    filters: {
+      year: 'Fiscal year',
+      previousYear: 'Previous year',
+      nextYear: 'Next year',
+      period: 'Period',
+      quarter: 'Quarter',
+      month: 'Month'
+    },
+    quarterShort: 'Q{{quarter}}',
+    periodLabel: {
+      year: '{{year}}',
+      quarter: 'Q{{quarter}} {{year}}',
+      month: '{{month}}/{{year}}'
+    },
+    scope: {
+      year: 'Full-year figures for {{year}}',
+      highlight: 'Highlighting {{period}}'
+    },
+    kpis: {
+      total: 'Annual budget',
+      committed: 'Committed',
+      spent: 'Spent',
+      period: 'Committed in {{period}}',
+      remaining: '{{value}} remaining',
+      ofBudget: '{{value}} of the annual budget',
+      overCommitted: '{{count}} cost centers over-committed',
+      periodCount: '{{count}} new commitments'
+    },
+    charts: {
+      costCenters: 'Budget by cost center',
+      share: 'Budget mix',
+      commitments: 'New commitments by month',
+      quarters: 'Planned budget by quarter'
+    },
+    series: {
+      total: 'Budget',
+      committed: 'Committed',
+      spent: 'Spent',
+      remaining: 'Remaining',
+      committedAmount: 'Committed amount',
+      commitmentCount: 'Commitments',
+      planned: 'Planned'
+    },
+    columns: {
+      costCenter: 'Cost center',
+      share: 'Share',
+      month: 'Month',
+      quarter: 'Quarter'
+    },
+    other: 'Other',
+    empty: {
+      budgets: 'No current budget for {{year}}.',
+      commitments: 'No commitments were created in {{year}}.',
+      quarters: 'This year’s budget versions have no quarterly split.'
+    },
+    commitmentNote: 'Grouped by the date each commitment was created.',
+    withoutSplit: '{{count}} versions have no quarterly split and are not in the chart.',
+    truncated: 'There is more data than the overview shows; open the detail screen for the full list.'
+  },
   status: {
     ACTIVE: 'Active',
     INACTIVE: 'Inactive',
@@ -129,6 +185,30 @@ export const finance = {
     MANUAL: 'Manually recorded'
   },
   errors: {
+    reviewNotOpen: 'The request is no longer waiting for a Finance review. The data has been reloaded.',
+    alreadyAwaitingBudget:
+      'The request is already waiting for a budget. Choose another outcome or wait for the budget version to be approved.',
+    planLineNotUpdated:
+      'The plan line is still past its purchase window. Move the window in the current budget version before concluding.',
+    noBudgetToMake:
+      'Every year of the request already has enough budget. Choose "Assessed" or return it to the department head.',
+    noDepartmentHead: 'The department has no head to propose a budget. Ask the Super Admin to assign one.',
+    questionNotOpen: 'The question is already answered or closed. The data has been reloaded.',
+    money: 'The amount is invalid: check the currency, decimal places and allowed range.',
+    proposalNotOpen: 'The proposal is no longer waiting for Finance. The data has been reloaded.',
+    lineIncomplete: 'A plan line is missing its purchase window, service period or repeat cycle.',
+    versionInFlight: 'This cost center already has a version being prepared or awaiting a decision for this year.',
+    currentExists: 'This cost center already has a current budget for this year. Use "Create revision" to change it.',
+    versionNotCurrent: 'Purchase windows can only be moved on the current version.',
+    revisionRequired: 'Changing amounts needs a revision; moving the purchase window only changes timing.',
+    commitmentNotHeld: 'The commitment is no longer held. The data has been reloaded.',
+    commitmentRequestOpen: 'The request linked to this commitment has not ended, so it cannot be released yet.',
+    setupIncomplete: 'The department cost center is not set up or is no longer in use.',
+    attachmentType: 'Only PDF, XLSX, DOCX, CSV, PNG or JPG files are accepted.',
+    attachmentSize: 'Attachments can be up to 10 MiB.',
+    attachmentInvalid: 'The file name or size is invalid.',
+    attachmentLimit: 'This record has reached the attachment limit.',
+    attachmentUpload: 'The upload did not finish. Choose the file again and retry.',
     window: 'The purchase window end must follow its start.',
     importFile: 'Check the budget import file format and rows.',
     yearEnded: 'This fiscal year has ended. The budget can no longer be changed.',
