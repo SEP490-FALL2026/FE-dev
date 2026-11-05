@@ -1,10 +1,10 @@
 import { useEffect, type ReactNode } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { LoaderCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { getMeGetQueryKey, getMeGetQueryOptions } from '~/shared/api/generated/operations/me/me-get'
 import { getApprovalsError } from '../approvals-errors'
 import { recordApprovalsRetry, useApprovalsRetry } from '../hooks/use-approvals-retry'
+import { ApprovalsSkeleton } from './approvals-skeleton'
 
 export function ApprovalsQueryState({
   query,
@@ -31,13 +31,7 @@ export function ApprovalsQueryState({
       void queryClient.fetchQuery({ ...getMeGetQueryOptions(), staleTime: 0, retry: false }).catch(() => undefined)
     }
   }, [query.isError, query.error, queryClient, isIdentityQuery])
-  if (query.isPending)
-    return (
-      <div role='status' className='flex items-center gap-2 p-6 text-sm'>
-        <LoaderCircle aria-hidden className='size-5 animate-spin' strokeWidth={1.5} />
-        {translate('loading')}
-      </div>
-    )
+  if (query.isPending) return <ApprovalsSkeleton label={translate('loading')} />
   if (query.isError) {
     const failure = getApprovalsError(query.error)
     return (

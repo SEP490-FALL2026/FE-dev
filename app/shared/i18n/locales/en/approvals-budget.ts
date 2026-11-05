@@ -1,5 +1,16 @@
 export const approvalsBudget = {
   title: 'Annual budget approvals',
+  pageDescription: 'Review budget versions sent by Finance and the department proposals behind them.',
+  versionTitle: 'Budget version',
+  versionSubtitle: '{{code}} · Fiscal year {{year}} · Version {{number}}',
+  versionInfo: 'Version details',
+  kindLabel: 'Version type',
+  recordedDecision: 'Recorded decision',
+  proposalTitle: 'Department proposal',
+  proposalInfo: 'Proposal details',
+  submittedBy: 'Submitted by',
+  returnedTitle: 'Returned to the department',
+  note: 'Department note',
   versions: 'Budget versions',
   proposals: 'Department proposals',
   back: 'Back to budgets',
@@ -35,7 +46,7 @@ export const approvalsBudget = {
   reject: 'Reject',
   requestChanges: 'Request changes',
   approvalHint: 'Approval makes this version the current budget for its Cost Center and year.',
-  reasonPlaceholder: 'Explain why this budget needs changes or cannot be approved',
+  reasonPlaceholder: 'E.g. Q4 licence costs exceed last year by 30% without a quote',
   ownVersion: 'The person who prepared or submitted a version cannot decide it.',
   reasonRequired: 'A reason is required to reject a version or request changes.',
   relatedProposal: 'View department proposal',
@@ -72,6 +83,19 @@ export const approvalsBudget = {
     REVIEWED: 'Reviewed',
     CLOSED_FISCAL_YEAR_ENDED: 'Fiscal year ended'
   },
+  waitingReason: {
+    NO_SPENDING_APPROVER: 'Waiting for a Spending Approver to be assigned. The Super Admin has been notified.',
+    NO_DEPARTMENT_HEAD: 'Waiting for the department head to be assigned.',
+    unknown: 'This version is waiting for a condition the system has not described yet.'
+  },
+  attachments: {
+    title: 'Supporting documents',
+    empty: 'No supporting documents attached.',
+    download: 'Download {{name}}',
+    downloadShort: 'Download',
+    removed: 'Removed',
+    system: 'System'
+  },
   kind: { INITIAL: 'Initial budget', REVISION: 'Revision' },
   repeat: { MONTHLY: 'Monthly', QUARTERLY: 'Quarterly', ANNUAL: 'Annual', ONE_TIME: 'One-off' },
   historyKind: {
@@ -79,6 +103,8 @@ export const approvalsBudget = {
     LINE_UPDATED: 'Line updated',
     LINES_ADDED: 'Lines added',
     LINES_IMPORTED: 'Lines imported',
-    WINDOW_MOVED: 'Purchase window updated'
+    WINDOW_MOVED: 'Purchase window updated',
+    ATTACHMENT_ADDED: 'Attachment added',
+    ATTACHMENT_REMOVED: 'Attachment removed'
   }
 } as const

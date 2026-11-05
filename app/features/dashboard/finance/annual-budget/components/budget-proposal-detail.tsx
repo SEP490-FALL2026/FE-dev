@@ -1,3 +1,4 @@
+import { ArrowLeft } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useBudgetProposalGet } from '~/shared/api/generated/operations/budget-proposals/budget-proposal-get'
@@ -12,6 +13,8 @@ import {
   FinancePage,
   FinancePagination,
   FinanceQueryState,
+  FinanceStat,
+  FinanceStatGrid,
   FinanceStatus,
   financeInputClass
 } from '../../shared/components/finance-ui'
@@ -23,6 +26,7 @@ import type { BudgetViewProps } from '../budget-view-props'
 import { proposalState } from '../enums/proposal-state'
 import { BudgetVersionForm } from './budget-version-form'
 import { BudgetPlanLineFacts } from './budget-plan-line-facts'
+import { BudgetAttachments } from './budget-attachments'
 
 export function BudgetProposalDetail({ itemId, onSelectTab }: BudgetViewProps & { itemId: string }) {
   const { t: translate, i18n } = useTranslation('financeBudget')
@@ -75,22 +79,35 @@ export function BudgetProposalDetail({ itemId, onSelectTab }: BudgetViewProps & 
   return (
     <FinancePage
       title={translate('proposals')}
-      actions={<FinanceButton onClick={() => onSelectTab?.('annual-proposals')}>{translate('back')}</FinanceButton>}
+      actions={
+        <FinanceButton variant='ghost' onClick={() => onSelectTab?.('annual-proposals')}>
+          <ArrowLeft aria-hidden className='size-4' strokeWidth={1.5} />
+          {translate('back')}
+        </FinanceButton>
+      }
     >
       <FinanceQueryState query={query}>
         {proposal ? (
           <>
-            <div className='flex flex-wrap items-center justify-between gap-3'>
-              <div className='min-w-0'>
-                <h2 className='truncate text-lg font-semibold' title={proposal.costCenter.name}>
-                  {proposal.costCenter.name}
-                </h2>
-                <p className='font-mono tabular-nums'>{proposal.year}</p>
-              </div>
+            <div className='flex flex-wrap items-center gap-2'>
+              <h2 className='truncate text-lg font-semibold tracking-tight' title={proposal.costCenter.name}>
+                {proposal.costCenter.name}
+              </h2>
               <FinanceStatus value={proposal.state} />
-              <p className='font-mono tabular-nums'>{formatMoney(proposal.total, i18n.language)}</p>
             </div>
-            {proposal.returned && <p>{proposal.returned.reason}</p>}
+            <FinanceStatGrid>
+              <FinanceStat label={translate('fields.year')} value={proposal.year} />
+              <FinanceStat
+                emphasis
+                label={translate('fields.total')}
+                value={formatMoney(proposal.total, i18n.language)}
+              />
+            </FinanceStatGrid>
+            {proposal.returned && (
+              <p className='rounded-lg border border-info/25 bg-info/5 p-4 text-sm break-words [text-wrap:pretty]'>
+                {proposal.returned.reason}
+              </p>
+            )}
             {proposal.state === proposalState.SUBMITTED && (
               <div className='flex flex-wrap gap-2'>
                 <FinanceButton variant='primary' onClick={() => setDialog('create')}>
@@ -99,7 +116,7 @@ export function BudgetProposalDetail({ itemId, onSelectTab }: BudgetViewProps & 
                 <FinanceButton onClick={() => setDialog('return')}>{translate('actions.return')}</FinanceButton>
               </div>
             )}
-            <h3 className='font-semibold'>{translate('lines')}</h3>
+            <h3 className='text-base font-semibold tracking-tight'>{translate('lines')}</h3>
             <FinanceQueryState query={linesQuery}>
               <FinanceTable
                 items={lines?.items ?? []}
@@ -130,6 +147,7 @@ export function BudgetProposalDetail({ itemId, onSelectTab }: BudgetViewProps & 
               <FinancePagination pagination={lines?.pagination} onPageChange={setPage} />
             </FinanceQueryState>
             {selectedLine && <BudgetPlanLineFacts line={selectedLine} onClose={() => setLinePosition(undefined)} />}
+            <BudgetAttachments target='proposal' ownerId={itemId} />
           </>
         ) : (
           <FinanceEmpty />
@@ -149,11 +167,13 @@ export function BudgetProposalDetail({ itemId, onSelectTab }: BudgetViewProps & 
             if (reason.trim()) returnMutation.mutate({ id: itemId, data: { reason: reason.trim() } })
           }}
         >
-          <FinanceField label={translate('fields.reason')}>
+          <FinanceField required label={translate('fields.reason')} hint={translate('returnHint')}>
             <textarea
               required
+              rows={4}
               maxLength={1000}
               className={financeInputClass}
+              placeholder={translate('placeholders.returnReason')}
               value={reason}
               onChange={(event) => setReason(event.target.value)}
             />

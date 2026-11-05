@@ -1,10 +1,6 @@
 export const finance = {
-  commitments: 'Cam kết ngân sách',
   periodClose: 'Đóng kỳ',
   periodReport: 'Báo cáo kỳ',
-  searchLabel: 'Tìm kiếm',
-  searchPlaceholder: 'Tìm chức năng: ngân sách, tỷ giá…',
-  searchEmpty: 'Không tìm thấy chức năng phù hợp.',
   areas: {
     overview: 'Tổng quan',
     budget: 'Trung tâm chi phí & Ngân sách',
@@ -21,6 +17,7 @@ export const finance = {
   unknown: 'Trạng thái chưa xác định',
   close: 'Đóng',
   open: 'Xem chi tiết',
+  backToList: 'Quay lại danh sách',
   actions: 'Thao tác',
   pagination: 'Phân trang',
   page: 'Trang {{page}} / {{pages}} · {{count}} bản ghi',
@@ -29,24 +26,83 @@ export const finance = {
   requestId: 'Mã tra cứu: {{value}}',
   all: 'Tất cả',
   year: 'Năm tài chính',
-  yearHint: 'Nhập năm, ví dụ 2027',
   unavailable: 'Chức năng chưa khả dụng',
   unavailableHint: 'Quy trình này đang chờ hệ thống hỗ trợ. Hiện chưa có dữ liệu và thao tác tại đây.',
   backToBudgets: 'Xem ngân sách hiện hành',
-  preview: 'Không gian dùng thử',
-  previewHint: 'Vai Người duyệt chi vẫn dùng dữ liệu minh họa. Thao tác tại đây chưa lưu lên hệ thống.',
   overview: 'Tổng quan tài chính',
+  overviewDescription: 'Việc đang chờ Tài chính xử lý và lối tắt tới các danh mục thường dùng.',
+  shortcuts: 'Truy cập nhanh',
   overviewHint: 'Công việc đang chờ Tài chính',
   proposals: 'Đề xuất đã gửi',
   versions: 'Phiên bản ngân sách nháp',
-  reviews: 'Yêu cầu chờ rà soát',
-  questions: 'Câu hỏi ngân sách chưa trả lời',
   budgets: 'Ngân sách hiện hành',
   costCenters: 'Trung tâm chi phí',
-  exchangeRates: 'Tỷ giá',
   vendorTax: 'Hồ sơ thuế nhà cung cấp',
   catalog: 'Danh mục SaaS',
-  overviewLoadError: 'Không tải được số lượng.',
+  analytics: {
+    title: 'Ngân sách và cam kết',
+    view: 'Kiểu hiển thị',
+    views: { chart: 'Biểu đồ', table: 'Bảng số liệu' },
+    modes: { year: 'Cả năm', quarter: 'Theo quý', month: 'Theo tháng' },
+    filters: {
+      year: 'Năm tài chính',
+      previousYear: 'Năm trước',
+      nextYear: 'Năm sau',
+      period: 'Kỳ xem',
+      quarter: 'Quý',
+      month: 'Tháng'
+    },
+    quarterShort: 'Q{{quarter}}',
+    periodLabel: {
+      year: 'năm {{year}}',
+      quarter: 'quý {{quarter}}/{{year}}',
+      month: 'tháng {{month}}/{{year}}'
+    },
+    scope: {
+      year: 'Số liệu cả năm {{year}}',
+      highlight: 'Đang làm nổi {{period}}'
+    },
+    kpis: {
+      total: 'Ngân sách năm',
+      committed: 'Đã cam kết',
+      spent: 'Đã chi',
+      period: 'Cam kết {{period}}',
+      remaining: 'Còn lại {{value}}',
+      ofBudget: '{{value}} ngân sách năm',
+      overCommitted: '{{count}} trung tâm chi phí vượt cam kết',
+      periodCount: '{{count}} khoản cam kết mới'
+    },
+    charts: {
+      costCenters: 'Ngân sách theo trung tâm chi phí',
+      share: 'Cơ cấu ngân sách',
+      commitments: 'Cam kết mới theo tháng',
+      quarters: 'Kế hoạch ngân sách theo quý'
+    },
+    series: {
+      total: 'Ngân sách',
+      committed: 'Đã cam kết',
+      spent: 'Đã chi',
+      remaining: 'Còn lại',
+      committedAmount: 'Giá trị cam kết',
+      commitmentCount: 'Số khoản',
+      planned: 'Kế hoạch'
+    },
+    columns: {
+      costCenter: 'Trung tâm chi phí',
+      share: 'Tỷ trọng',
+      month: 'Tháng',
+      quarter: 'Quý'
+    },
+    other: 'Khác',
+    empty: {
+      budgets: 'Chưa có ngân sách hiện hành cho năm {{year}}.',
+      commitments: 'Chưa có khoản cam kết nào trong năm {{year}}.',
+      quarters: 'Các phiên bản ngân sách năm này chưa phân bổ theo quý.'
+    },
+    commitmentNote: 'Tính theo ngày tạo khoản cam kết.',
+    withoutSplit: '{{count}} phiên bản chưa phân bổ theo quý nên không có trong biểu đồ.',
+    truncated: 'Dữ liệu vượt giới hạn hiển thị; mở màn hình chi tiết để xem đầy đủ.'
+  },
   status: {
     ACTIVE: 'Đang hoạt động',
     INACTIVE: 'Ngừng hoạt động',
@@ -129,6 +185,28 @@ export const finance = {
     MANUAL: 'Ghi nhận thủ công'
   },
   errors: {
+    reviewNotOpen: 'Yêu cầu không còn chờ Tài chính rà soát. Dữ liệu đã được tải lại.',
+    alreadyAwaitingBudget: 'Yêu cầu đã đang chờ ngân sách. Chọn kết cục khác hoặc chờ phiên bản ngân sách được duyệt.',
+    planLineNotUpdated:
+      'Dòng kế hoạch vẫn quá cửa sổ mua. Dời cửa sổ mua trong phiên bản ngân sách hiện hành trước khi kết luận.',
+    noBudgetToMake: 'Các năm của yêu cầu đều đã đủ ngân sách. Chọn "Đã thẩm định" hoặc trả về trưởng phòng.',
+    noDepartmentHead: 'Phòng chưa có trưởng phòng để lập đề xuất ngân sách. Đề nghị Super Admin gán trưởng phòng.',
+    questionNotOpen: 'Câu hỏi đã được trả lời hoặc đã đóng. Dữ liệu đã được tải lại.',
+    money: 'Số tiền không hợp lệ: kiểm tra tiền tệ, số chữ số thập phân và giới hạn cho phép.',
+    proposalNotOpen: 'Đề xuất không còn chờ Tài chính xử lý. Dữ liệu đã được tải lại.',
+    lineIncomplete: 'Dòng kế hoạch thiếu cửa sổ mua, thời gian dịch vụ hoặc chu kỳ lặp.',
+    versionInFlight: 'Trung tâm chi phí đã có một phiên bản đang lập hoặc chờ quyết định cho năm này.',
+    currentExists: 'Trung tâm chi phí đã có ngân sách hiện hành cho năm này. Dùng "Lập bản sửa đổi" để thay đổi.',
+    versionNotCurrent: 'Chỉ dời cửa sổ mua trên phiên bản đang hiện hành.',
+    revisionRequired: 'Đổi số tiền cần lập bản sửa đổi; dời cửa sổ mua chỉ đổi thời gian.',
+    commitmentNotHeld: 'Khoản cam kết không còn được giữ. Dữ liệu đã được tải lại.',
+    commitmentRequestOpen: 'Yêu cầu gắn với khoản cam kết chưa kết thúc nên chưa thể giải phóng.',
+    setupIncomplete: 'Trung tâm chi phí của phòng chưa được thiết lập hoặc đã ngừng sử dụng.',
+    attachmentType: 'Chỉ nhận tệp PDF, XLSX, DOCX, CSV, PNG hoặc JPG.',
+    attachmentSize: 'Tệp đính kèm tối đa 10 MiB.',
+    attachmentInvalid: 'Tên hoặc kích thước tệp không hợp lệ.',
+    attachmentLimit: 'Đã đạt số tệp đính kèm tối đa cho hồ sơ này.',
+    attachmentUpload: 'Tải tệp lên chưa hoàn tất. Chọn lại tệp và thử lại.',
     window: 'Ngày kết thúc cửa sổ mua phải sau ngày bắt đầu.',
     importFile: 'Kiểm tra định dạng và các dòng trong tệp nhập ngân sách.',
     yearEnded: 'Năm tài chính đã kết thúc. Không thể thay đổi ngân sách.',

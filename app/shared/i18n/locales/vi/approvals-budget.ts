@@ -1,12 +1,23 @@
 export const approvalsBudget = {
   title: 'Phê duyệt ngân sách năm',
+  pageDescription: 'Xem xét phiên bản ngân sách Finance gửi duyệt và đề xuất gốc của các phòng ban.',
+  versionTitle: 'Phiên bản ngân sách',
+  versionSubtitle: '{{code}} · Năm {{year}} · Phiên bản {{number}}',
+  versionInfo: 'Thông tin phiên bản',
+  kindLabel: 'Loại phiên bản',
+  recordedDecision: 'Quyết định đã ghi nhận',
+  proposalTitle: 'Đề xuất của phòng ban',
+  proposalInfo: 'Thông tin đề xuất',
+  submittedBy: 'Người gửi đề xuất',
+  returnedTitle: 'Đã trả lại phòng ban',
+  note: 'Ghi chú của phòng',
   versions: 'Phiên bản ngân sách',
   proposals: 'Đề xuất của phòng ban',
   back: 'Về danh sách ngân sách',
   all: 'Tất cả trạng thái',
   state: 'Trạng thái',
   year: 'Năm ngân sách',
-  yearPlaceholder: 'Nhập năm, ví dụ 2027',
+  yearPlaceholder: 'Ví dụ: 2027',
   apply: 'Áp dụng bộ lọc',
   center: 'Trung tâm chi phí',
   number: 'Phiên bản',
@@ -35,7 +46,7 @@ export const approvalsBudget = {
   reject: 'Từ chối',
   requestChanges: 'Yêu cầu chỉnh sửa',
   approvalHint: 'Phê duyệt sẽ đưa phiên bản này thành ngân sách hiện hành của trung tâm chi phí và năm tương ứng.',
-  reasonPlaceholder: 'Nhập lý do cần chỉnh sửa hoặc từ chối ngân sách này',
+  reasonPlaceholder: 'Ví dụ: Chi phí license quý 4 tăng 30% so với năm trước nhưng chưa có báo giá',
   ownVersion: 'Người lập hoặc gửi phiên bản không được tự quyết định phiên bản đó.',
   reasonRequired: 'Cần nhập lý do khi từ chối hoặc yêu cầu chỉnh sửa phiên bản.',
   relatedProposal: 'Xem đề xuất của phòng ban',
@@ -72,6 +83,19 @@ export const approvalsBudget = {
     REVIEWED: 'Đã rà soát',
     CLOSED_FISCAL_YEAR_ENDED: 'Năm ngân sách đã kết thúc'
   },
+  waitingReason: {
+    NO_SPENDING_APPROVER: 'Đang chờ chỉ định Người duyệt chi. Super Admin đã được thông báo.',
+    NO_DEPARTMENT_HEAD: 'Đang chờ chỉ định trưởng phòng.',
+    unknown: 'Phiên bản đang chờ một điều kiện hệ thống chưa mô tả.'
+  },
+  attachments: {
+    title: 'Hồ sơ đính kèm',
+    empty: 'Chưa có hồ sơ đính kèm.',
+    download: 'Tải xuống {{name}}',
+    downloadShort: 'Tải xuống',
+    removed: 'Đã gỡ',
+    system: 'Hệ thống'
+  },
   kind: { INITIAL: 'Ngân sách ban đầu', REVISION: 'Bản sửa đổi' },
   repeat: { MONTHLY: 'Hàng tháng', QUARTERLY: 'Hàng quý', ANNUAL: 'Hàng năm', ONE_TIME: 'Một lần' },
   historyKind: {
@@ -79,6 +103,8 @@ export const approvalsBudget = {
     LINE_UPDATED: 'Đã cập nhật dòng',
     LINES_ADDED: 'Đã thêm các dòng',
     LINES_IMPORTED: 'Đã nhập các dòng',
-    WINDOW_MOVED: 'Đã cập nhật cửa sổ mua'
+    WINDOW_MOVED: 'Đã cập nhật cửa sổ mua',
+    ATTACHMENT_ADDED: 'Đã đính kèm hồ sơ',
+    ATTACHMENT_REMOVED: 'Đã gỡ hồ sơ đính kèm'
   }
 } as const

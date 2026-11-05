@@ -96,8 +96,9 @@ export function ApprovalAnnualBudgetDecision({
         }}
       />
       {requiresReason ? (
-        <ApprovalsField label={translate('reason')} hint={translate('reasonRequired')}>
+        <ApprovalsField label={translate('reason')} hint={translate('reasonRequired')} required>
           <textarea
+            rows={4}
             className={approvalsInputClass}
             value={reason}
             maxLength={1000}

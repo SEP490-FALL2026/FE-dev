@@ -7,7 +7,7 @@ export const employeeDashboard: NonNullable<EmployeeDashboardResponseDtoData> = 
   sections: {
     softwareRights: { state: 'COUNTED', count: 12, sourceOperationId: 'meSoftwareRightList', reason: null },
     expiringRights: { state: 'COUNTED', count: 0, sourceOperationId: null, reason: null },
-    requests: { state: 'NOT_AVAILABLE', count: null, sourceOperationId: null, reason: 'REQUEST_QUEUE_NOT_DELIVERED' },
+    requests: { state: 'NOT_AVAILABLE', count: null, sourceOperationId: null, reason: 'NO_DATA_SOURCE' },
     saasIssues: { state: 'AT_SOURCE', count: null, sourceOperationId: 'saasIssueList', reason: null }
   }
 }

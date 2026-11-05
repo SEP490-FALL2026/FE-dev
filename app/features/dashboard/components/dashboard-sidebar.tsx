@@ -94,6 +94,7 @@ export function DashboardSidebar({
   const { t: translateAdmin } = useTranslation(role === 'super-admin' ? 'admin' : 'common')
   const { t: translateEmployee } = useTranslation(role === 'employee' ? 'employee' : 'common')
   const { t: translateManager } = useTranslation(role === 'manager' ? 'manager' : 'common')
+  const { t: translateApprovals } = useTranslation(role === 'spending-approver' ? 'approvals' : 'common')
 
   const isItAdmin = role === 'it-admin'
   const isEmployee = role === 'employee'
@@ -279,7 +280,7 @@ export function DashboardSidebar({
                     >
                       <div className='flex items-center gap-3'>
                         <Icon aria-hidden='true' className='size-[1.125rem] shrink-0' />
-                        <span>{t(`approvals.nav.${item.translationKey}`)}</span>
+                        <span>{translateApprovals(`nav.${item.translationKey}`)}</span>
                       </div>
                       {item.badge !== undefined && (
                         <span

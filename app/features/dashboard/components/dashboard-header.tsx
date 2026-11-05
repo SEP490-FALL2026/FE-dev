@@ -4,8 +4,6 @@ import type { UserRole } from '~/entities/user-role/user-role'
 import { LanguageSwitch } from '~/shared/ui/language-switch'
 import { ThemeSwitch } from '~/shared/ui/theme-switch'
 import type { RoleProfile } from '../dashboard-data'
-import { FinanceWorkspaceSearch } from '../finance'
-import { ApprovalsWorkspaceSearch } from '../approvals'
 import { EmployeeNotificationBell } from '../employee'
 import { ManagerNotificationBell } from '../manager'
 
@@ -50,9 +48,7 @@ export function DashboardHeader({
           )}
         </button>
 
-        {role === 'finance' && <FinanceWorkspaceSearch />}
-        {role === 'spending-approver' && <ApprovalsWorkspaceSearch />}
-        <div className={role === 'finance' || role === 'spending-approver' ? 'max-sm:ml-auto' : 'ml-auto'}>
+        <div className='ml-auto'>
           <ThemeSwitch />
         </div>
         <LanguageSwitch />

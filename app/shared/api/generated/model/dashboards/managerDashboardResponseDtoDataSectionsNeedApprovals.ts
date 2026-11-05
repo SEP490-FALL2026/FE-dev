@@ -9,7 +9,7 @@ import type { ManagerDashboardResponseDtoDataSectionsNeedApprovalsReason } from 
 import type { ManagerDashboardResponseDtoDataSectionsNeedApprovalsState } from './managerDashboardResponseDtoDataSectionsNeedApprovalsState'
 
 /**
- * The requests waiting for the need decision of the caller; the queue is not delivered yet.
+ * The need steps given to the caller now, as needDecisionList counts them: requests of the caller, steps already decided and steps handed to somebody else are not counted.
  */
 export type ManagerDashboardResponseDtoDataSectionsNeedApprovals = {
   /** COUNTED: count is how many, in the scope of the caller. AT_SOURCE: the rows are listed by sourceOperationId in the same scope and are not counted here. NOT_AVAILABLE: the data has no source yet; reason says why. A section that is not counted is never shown as zero. */

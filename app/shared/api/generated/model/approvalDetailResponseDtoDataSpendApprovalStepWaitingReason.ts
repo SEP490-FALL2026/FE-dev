@@ -15,6 +15,5 @@ export type ApprovalDetailResponseDtoDataSpendApprovalStepWaitingReason =
 
 export const ApprovalDetailResponseDtoDataSpendApprovalStepWaitingReason = {
   NO_SPENDING_APPROVER: 'NO_SPENDING_APPROVER',
-  SPENDING_APPROVER_IS_PARTY: 'SPENDING_APPROVER_IS_PARTY',
-  NO_CONFLICT_SUBSTITUTE: 'NO_CONFLICT_SUBSTITUTE'
+  SPENDING_APPROVER_IS_PARTY: 'SPENDING_APPROVER_IS_PARTY'
 } as const

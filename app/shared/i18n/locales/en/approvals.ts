@@ -6,7 +6,6 @@ export const approvals = {
   retry: 'Retry',
   retryAfter: 'Retry in {{seconds}} seconds',
   unknown: 'Unknown status',
-  close: 'Close',
   open: 'View details',
   actions: 'Actions',
   pagination: 'Pagination',
@@ -14,9 +13,12 @@ export const approvals = {
   previous: 'Previous page',
   next: 'Next page',
   requestId: 'Reference: {{value}}',
-  all: 'All',
-  unavailable: 'Feature unavailable',
-  unavailableHint: 'This workflow is not supported by the system yet.',
+  nav: {
+    overview: 'Overview',
+    queue: 'Approval queue',
+    renewal: 'Subscription renewals',
+    annualBudget: 'Annual budget approval'
+  },
   status: {
     ESTIMATE: 'Estimated cost',
     ESTIMATE_NO_PROFILE: 'Estimated cost without a tax profile',
@@ -82,6 +84,8 @@ export const approvals = {
     NO_BUDGET: 'No budget',
     SKIPPED: 'Skipped',
     DECIDED: 'Decided',
+    PROPOSED: 'Awaiting decision',
+    OUTCOME_RECORDED: 'Outcome recorded',
     SENT_TO_APPROVER: 'Sent to spending approver',
     SENT_TO_FINANCE: 'Sent to Finance',
     AWAITING_NEED_APPROVAL: 'Awaiting need approval',
@@ -110,6 +114,11 @@ export const approvals = {
     NEEDS_BUDGET: 'Budget revision needed'
   },
   errors: {
+    conflictOfInterest: 'You sent the original budget proposal behind this version, so you cannot decide it.',
+    lineHoldsAccess: 'Someone in the group already holds a seat of this plan. Reject that person and decide again.',
+    groupUsesLines: 'Group requests are decided per person. The data has been reloaded.',
+    stepNotPending: 'This step is already decided or waiting for someone to hold it. The data has been reloaded.',
+    spendNotApplicable: 'The request has no cost, so no plan line or off-plan choice is needed.',
     forbidden: 'You no longer have permission to perform this action.',
     ownRequest: 'You cannot approve your own request or access.',
     ownVersion: 'You cannot decide a budget version you created or sent.',
@@ -120,7 +129,6 @@ export const approvals = {
     overrideNotNeeded: 'An override is not required by the latest budget check. Remove it before submitting.',
     recheckedFinance: 'The budget check changed. This request has returned to Finance for review.',
     recheckedHead: 'The budget check changed. This request has returned to its department head.',
-    questionOpen: 'There is already an open question for this approval step.',
     linesMismatch: 'The beneficiary list has changed. Reload it and decide all confirmed beneficiaries.',
     termConfirmation: 'Confirm the term longer than twelve months before approving.',
     planLineRequired: 'Select a plan line or explicitly confirm this request is outside the plan.',

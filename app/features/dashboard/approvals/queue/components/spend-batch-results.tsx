@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import type { BatchDecisionResponseDtoDataResultsItem } from '~/shared/api/generated/model/spend-approvals/batchDecisionResponseDtoDataResultsItem'
 import { ApprovalsTable } from '../../shared/components/approvals-table'
-import { ApprovalsStatus } from '../../shared/components/approvals-ui'
+import { ApprovalsSection, ApprovalsStatus } from '../../shared/components/approvals-ui'
 
 export function SpendBatchResults({
   results,
@@ -13,8 +13,7 @@ export function SpendBatchResults({
   const { t: translate } = useTranslation('approvalsSpend')
   const { t: translateCommon } = useTranslation('approvals')
   return (
-    <section aria-label={translate('batchResults')} className='space-y-3'>
-      <h2 className='text-lg font-semibold tracking-tight'>{translate('batchResults')}</h2>
+    <ApprovalsSection title={translate('batchResults')}>
       <ApprovalsTable
         items={results}
         rowKey={(result) => result.requestId}
@@ -36,6 +35,6 @@ export function SpendBatchResults({
           }
         ]}
       />
-    </section>
+    </ApprovalsSection>
   )
 }

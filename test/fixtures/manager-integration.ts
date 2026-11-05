@@ -21,7 +21,7 @@ export const managerDashboard: NonNullable<ManagerDashboardResponseDtoData> = {
   asOf: '2026-11-02',
   department: { id: employeeId, code: 'ENG', name: 'Engineering' },
   sections: {
-    needApprovals: { ...unavailable, reason: 'REQUEST_QUEUE_NOT_DELIVERED' },
+    needApprovals: { ...unavailable, reason: 'NO_DATA_SOURCE' },
     departmentSoftware: { state: 'COUNTED', count: 27, sourceOperationId: 'departmentToolsInUse', reason: null },
     transferReviews: { state: 'COUNTED', count: 0, sourceOperationId: 'transferReviewList', reason: null },
     ghostSeats: { ...unavailable, reason: 'USAGE_DATA_NOT_DELIVERED' },

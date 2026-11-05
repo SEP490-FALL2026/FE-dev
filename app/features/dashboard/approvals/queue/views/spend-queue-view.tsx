@@ -11,10 +11,52 @@ import {
   ApprovalsPage,
   ApprovalsPagination,
   ApprovalsSearch,
+  ApprovalsSection,
   ApprovalsStatus,
+  ApprovalsToolbar,
   approvalsInputClass
 } from '../../shared/components/approvals-ui'
 import { formatMoney } from '../../shared/approvals-money'
+import { useDashboardFormat } from '../../../dashboard-ui'
+
+const isUuid = (value: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value.trim())
+
+function LookupForm({
+  label,
+  placeholder,
+  submitLabel,
+  onOpen
+}: {
+  label: string
+  placeholder: string
+  submitLabel: string
+  onOpen: (id: string) => void
+}) {
+  const [value, setValue] = useState('')
+  return (
+    <form
+      className='flex items-end gap-2'
+      onSubmit={(event) => {
+        event.preventDefault()
+        if (isUuid(value)) onOpen(value.trim())
+      }}
+    >
+      <div className='min-w-0 flex-1'>
+        <ApprovalsField label={label}>
+          <input
+            className={`${approvalsInputClass} font-mono text-xs tabular-nums md:text-xs`}
+            placeholder={placeholder}
+            value={value}
+            onChange={(event) => setValue(event.target.value)}
+          />
+        </ApprovalsField>
+      </div>
+      <ApprovalsButton type='submit' disabled={!isUuid(value)}>
+        {submitLabel}
+      </ApprovalsButton>
+    </form>
+  )
+}
 
 export function ApprovalQueueView({
   onSelectTab
@@ -24,8 +66,7 @@ export function ApprovalQueueView({
   const { t: translate, i18n } = useTranslation('approvalsSpend')
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
-  const [requestId, setRequestId] = useState('')
-  const [batchId, setBatchId] = useState('')
+  const { formatDate } = useDashboardFormat()
   const query = useSpendApprovalList({ page, pageSize: 20 })
   const items = query.data?.data?.items ?? []
   const term = search.trim().toLocaleLowerCase(i18n.language)
@@ -41,59 +82,21 @@ export function ApprovalQueueView({
         ].some((value) => value?.toLocaleLowerCase(i18n.language).includes(term))
       )
     : items
-  const isUuid = (value: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value.trim())
   return (
-    <ApprovalsPage title={translate('queue')}>
-      <div className='grid gap-4 rounded-lg border border-border bg-surface p-4 md:grid-cols-2'>
-        <form
-          className='flex items-end gap-2'
-          onSubmit={(event) => {
-            event.preventDefault()
-            if (isUuid(requestId)) onSelectTab('request', { id: requestId.trim() })
-          }}
-        >
-          <div className='min-w-0 flex-1'>
-            <ApprovalsField label={translate('openId')}>
-              <input
-                className={approvalsInputClass}
-                placeholder={translate('idPlaceholder')}
-                value={requestId}
-                onChange={(event) => setRequestId(event.target.value)}
-              />
-            </ApprovalsField>
-          </div>
-          <ApprovalsButton type='submit' disabled={!isUuid(requestId)}>
-            {translate('open')}
-          </ApprovalsButton>
-        </form>
-        <form
-          className='flex items-end gap-2'
-          onSubmit={(event) => {
-            event.preventDefault()
-            if (isUuid(batchId)) onSelectTab('batch', { id: batchId.trim() })
-          }}
-        >
-          <div className='min-w-0 flex-1'>
-            <ApprovalsField label={translate('batchId')}>
-              <input
-                className={approvalsInputClass}
-                placeholder={translate('batchPlaceholder')}
-                value={batchId}
-                onChange={(event) => setBatchId(event.target.value)}
-              />
-            </ApprovalsField>
-          </div>
-          <ApprovalsButton type='submit' disabled={!isUuid(batchId)}>
-            {translate('batchOpen')}
-          </ApprovalsButton>
-        </form>
-      </div>
-      <ApprovalsSearch
-        label={translate('pageSearch')}
-        placeholder={translate('pagePlaceholder')}
-        value={search}
-        onChange={setSearch}
-      />
+    <ApprovalsPage
+      title={translate('queue')}
+      description={
+        query.data?.data ? translate('queueTotal', { count: query.data.data.pagination.totalItems }) : undefined
+      }
+    >
+      <ApprovalsToolbar>
+        <ApprovalsSearch
+          label={translate('pageSearch')}
+          placeholder={translate('pagePlaceholder')}
+          value={search}
+          onChange={setSearch}
+        />
+      </ApprovalsToolbar>
       <p className='text-xs text-muted-foreground'>{translate('pageScope')}</p>
       <ApprovalsQueryState query={query}>
         <ApprovalsTable
@@ -141,11 +144,16 @@ export function ApprovalQueueView({
                 )
             },
             {
+              key: 'dueOn',
+              label: translate('dueOn'),
+              numeric: true,
+              render: (item) => formatDate(item.dueOn)
+            },
+            {
               key: 'openedAt',
               label: translate('openedAt'),
               numeric: true,
-              render: (item) =>
-                new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium' }).format(new Date(item.openedAt))
+              render: (item) => formatDate(item.openedAt)
             }
           ]}
         />
@@ -157,6 +165,22 @@ export function ApprovalQueueView({
           }}
         />
       </ApprovalsQueryState>
+      <ApprovalsSection title={translate('lookupTitle')}>
+        <div className='grid gap-4 rounded-lg border border-border/70 bg-surface p-4 md:grid-cols-2'>
+          <LookupForm
+            label={translate('openId')}
+            placeholder={translate('idPlaceholder')}
+            submitLabel={translate('open')}
+            onOpen={(id) => onSelectTab('request', { id })}
+          />
+          <LookupForm
+            label={translate('batchId')}
+            placeholder={translate('batchPlaceholder')}
+            submitLabel={translate('batchOpen')}
+            onOpen={(id) => onSelectTab('batch', { id })}
+          />
+        </div>
+      </ApprovalsSection>
     </ApprovalsPage>
   )
 }

@@ -13,6 +13,7 @@ const item = {
   requestId: '83c00000-0000-4000-8000-000000000001',
   stepId: 'step-1',
   openedAt: '2026-10-28T00:00:00Z',
+  dueOn: '2026-10-31',
   slaWorkingDays: 3,
   plan: { planId: 'plan-1', applicationName: 'Live application', planName: 'Team' },
   softwareName: null,
@@ -64,7 +65,7 @@ it('renders authoritative queue data, exact money and server pagination', async 
   expect(screen.getAllByText(/9,007,199,254,740,993.25/)).not.toHaveLength(0)
   fireEvent.click(screen.getByRole('button', { name: 'Next page' }))
   await waitFor(() => expect(calls.some((config) => config.params?.page === 2)).toBe(true))
-  expect(screen.getByPlaceholderText('Filter this page by software, requester or Cost Center')).toBeInTheDocument()
+  expect(screen.getByPlaceholderText('E.g. Figma, Nguyen Van A or CC-ENG')).toBeInTheDocument()
 })
 
 it('shows an empty state without restoring demo queue rows', async () => {
