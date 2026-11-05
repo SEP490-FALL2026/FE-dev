@@ -21,7 +21,7 @@ export const managerDashboard: NonNullable<ManagerDashboardResponseDtoData> = {
   asOf: '2026-11-02',
   department: { id: employeeId, code: 'ENG', name: 'Engineering' },
   sections: {
-    needApprovals: { ...unavailable, reason: 'REQUEST_QUEUE_NOT_DELIVERED' },
+    needApprovals: { state: 'COUNTED', count: 0, sourceOperationId: 'needDecisionList', reason: null },
     departmentSoftware: { state: 'COUNTED', count: 27, sourceOperationId: 'departmentToolsInUse', reason: null },
     transferReviews: { state: 'COUNTED', count: 0, sourceOperationId: 'transferReviewList', reason: null },
     ghostSeats: { ...unavailable, reason: 'USAGE_DATA_NOT_DELIVERED' },
@@ -102,7 +102,29 @@ export const managerCatalogHandlers = [
   )
 ]
 export const managerReadHandlers = [
+  http.get('*/api/v1/departments/:id', ({ params }) =>
+    HttpResponse.json({
+      success: true,
+      data: {
+        id: params.id,
+        code: 'ENG',
+        name: 'Engineering',
+        costCenter: { id: employeeId, code: 'ENG', name: 'Engineering' }
+      }
+    })
+  ),
+  http.get('*/api/v1/budget-attachments/mine', () => HttpResponse.json(pageResponse([]))),
+  http.get('*/api/v1/budget-proposals/:id/attachments', () => HttpResponse.json(pageResponse([]))),
   http.get('*/api/v1/dashboards/manager', () => HttpResponse.json({ success: true, data: managerDashboard })),
-  http.get('*/api/v1/need-decisions', () => HttpResponse.json(pageResponse())),
+  http.get('*/api/v1/need-decisions', ({ request }) =>
+    HttpResponse.json(
+      pageResponse(
+        new URL(request.url).searchParams.get('pageSize') === '100'
+          ? [{ ...needItem, stepId: requestId, termMonths: 3, termConfirmationRequired: false }]
+          : []
+      )
+    )
+  ),
+  http.get('*/api/v1/access-requests/:id/plan-line-suggestions', () => HttpResponse.json(pageResponse())),
   http.get('*/api/v1/access-requests/:id/timings', () => HttpResponse.json({ success: true, data: null }))
 ]

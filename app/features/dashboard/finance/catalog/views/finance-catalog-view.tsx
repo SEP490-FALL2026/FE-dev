@@ -7,16 +7,17 @@ import { ApplicationListStatus } from '../enums/application-status'
 
 import { useApplicationList } from '~/shared/api/generated/operations/applications'
 import {
-  FinanceField,
+  FinanceDetailPage,
   FinancePage,
   FinancePagination,
   FinanceQueryState,
   FinanceSearch,
   FinanceStatus,
-  financeInputClass
+  FinanceToolbar
 } from '../../shared/components/finance-ui'
 import { FinanceTable } from '../../shared/components/finance-table'
 import { FinanceCatalogDetail } from '../components/finance-catalog-detail'
+import { CatalogEnumFilter } from '../components/catalog-enum-filter'
 
 export function FinanceCatalogView() {
   const { t: translate } = useTranslation('financeSettings')
@@ -32,9 +33,15 @@ export function FinanceCatalogView() {
     page,
     pageSize: 20
   })
+  if (selected)
+    return (
+      <FinanceDetailPage>
+        <FinanceCatalogDetail key={selected.id} application={selected} onClose={() => setSelected(null)} />
+      </FinanceDetailPage>
+    )
   return (
-    <FinancePage title={translate('catalog')}>
-      <div className='flex flex-wrap items-end gap-4'>
+    <FinancePage title={translate('catalog')} description={translate('catalogDescription')}>
+      <FinanceToolbar>
         <FinanceSearch
           label={translate('searchApplications')}
           placeholder={translate('searchApplicationsPlaceholder')}
@@ -44,41 +51,25 @@ export function FinanceCatalogView() {
             setPage(1)
           }}
         />
-        <FinanceField label={translate('kind')}>
-          <select
-            className={financeInputClass}
-            value={kind}
-            onChange={(event) => {
-              setKind(Object.values(ApplicationListKind).find((value) => value === event.target.value) ?? '')
-              setPage(1)
-            }}
-          >
-            <option value=''>{translate('all')}</option>
-            {Object.values(ApplicationListKind).map((value) => (
-              <option key={value} value={value}>
-                {translate(`enum.${value}`)}
-              </option>
-            ))}
-          </select>
-        </FinanceField>
-        <FinanceField label={translate('status')}>
-          <select
-            className={financeInputClass}
-            value={status}
-            onChange={(event) => {
-              setStatus(Object.values(ApplicationListStatus).find((value) => value === event.target.value) ?? '')
-              setPage(1)
-            }}
-          >
-            <option value=''>{translate('all')}</option>
-            {Object.values(ApplicationListStatus).map((value) => (
-              <option key={value} value={value}>
-                {translate(`enum.${value}`)}
-              </option>
-            ))}
-          </select>
-        </FinanceField>
-      </div>
+        <CatalogEnumFilter
+          label={translate('kind')}
+          options={ApplicationListKind}
+          value={kind}
+          onChange={(value) => {
+            setKind(value)
+            setPage(1)
+          }}
+        />
+        <CatalogEnumFilter
+          label={translate('status')}
+          options={ApplicationListStatus}
+          value={status}
+          onChange={(value) => {
+            setStatus(value)
+            setPage(1)
+          }}
+        />
+      </FinanceToolbar>
       <FinanceQueryState query={applications}>
         <FinanceTable
           items={applications.data?.data?.items ?? []}
@@ -97,7 +88,6 @@ export function FinanceCatalogView() {
         />
         <FinancePagination pagination={applications.data?.data?.pagination} onPageChange={setPage} />
       </FinanceQueryState>
-      {selected && <FinanceCatalogDetail key={selected.id} application={selected} onClose={() => setSelected(null)} />}
     </FinancePage>
   )
 }

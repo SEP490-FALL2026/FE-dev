@@ -15,7 +15,7 @@ export function AccountInviteDialog({ onClose }: { onClose: () => void }) {
   const [search, setSearch] = useState('')
   const [employeeId, setEmployeeId] = useState('')
   const [email, setEmail] = useState('')
-  const [roles, setRoles] = useState<DirectRole[]>(['EMPLOYEE'])
+  const [role, setRole] = useState<DirectRole>('EMPLOYEE')
   const [invalid, setInvalid] = useState(false)
   const debouncedSearch = useAdminSearch(search)
   const candidates = useAccountCandidatesList(
@@ -51,7 +51,7 @@ export function AccountInviteDialog({ onClose }: { onClose: () => void }) {
           return
         }
         if (guard.acquire())
-          mutation.mutate({ data: { employeeId, ...(email.trim() ? { loginEmail: email.trim() } : {}), roles } })
+          mutation.mutate({ data: { employeeId, ...(email.trim() ? { loginEmail: email.trim() } : {}), role } })
       }}
     >
       <AdminField label={translate('employeeSearch')}>
@@ -110,21 +110,15 @@ export function AccountInviteDialog({ onClose }: { onClose: () => void }) {
       </AdminField>
       <p className='text-xs text-muted-foreground'>{translate('emailHint')}</p>
       <fieldset>
-        <legend className='mb-2 text-sm font-medium'>{translate('directRoles')}</legend>
-        {directRoles.map((role) => (
-          <label key={role} className='flex min-h-11 items-center gap-3'>
-            <input
-              type='checkbox'
-              checked={roles.includes(role)}
-              onChange={(event) =>
-                setRoles((previous) =>
-                  event.target.checked ? [...previous, role] : previous.filter((value) => value !== role)
-                )
-              }
-            />
-            {translate(`roles.${role}`)}
-          </label>
-        ))}
+        <legend className='mb-2 text-sm font-medium'>{translate('role')}</legend>
+        {directRoles
+          .filter((value) => value !== 'SPENDING_APPROVER')
+          .map((value) => (
+            <label key={value} className='flex min-h-11 items-center gap-3'>
+              <input type='radio' name='role' checked={role === value} onChange={() => setRole(value)} />
+              {translate(`roles.${value}`)}
+            </label>
+          ))}
       </fieldset>
     </AdminFormDialog>
   )

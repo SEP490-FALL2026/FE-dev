@@ -33,15 +33,19 @@ export function SpendBatchDecision({
   const valid = selectedCount > 0 && selectedCount <= BATCH_SELECTION_LIMIT && (!isRejection || Boolean(reason.trim()))
   return (
     <form
-      className='space-y-4 rounded-lg border border-border bg-surface p-4'
+      className='space-y-4 rounded-lg border border-border/70 bg-surface p-5 shadow-[0_1px_2px_0_rgba(0,0,0,0.04)]'
       onSubmit={(event) => {
         event.preventDefault()
         if (!pending && !disabled && valid) onSubmit()
       }}
     >
-      <p className='text-sm text-muted-foreground'>{translate('batchHint')}</p>
-      <p className='text-sm text-muted-foreground'>{translate('batchPageScope')}</p>
-      <p className='text-right font-mono text-sm tabular-nums'>{translate('selected', { count: selectedCount })}</p>
+      <div className='flex flex-wrap items-start justify-between gap-3'>
+        <div className='space-y-1 text-sm text-muted-foreground'>
+          <p>{translate('batchHint')}</p>
+          <p>{translate('batchPageScope')}</p>
+        </div>
+        <p className='font-mono text-sm font-medium tabular-nums'>{translate('selected', { count: selectedCount })}</p>
+      </div>
       <div className='grid gap-4 sm:grid-cols-2'>
         <ApprovalsSelect
           label={translate('decision')}
@@ -56,8 +60,9 @@ export function SpendBatchDecision({
           disabled={pending || disabled}
         />
         {isRejection && (
-          <ApprovalsField label={translate('rejectReason')}>
+          <ApprovalsField label={translate('rejectReason')} required>
             <textarea
+              aria-label={translate('rejectReason')}
               required
               maxLength={1000}
               rows={3}
@@ -70,7 +75,7 @@ export function SpendBatchDecision({
           </ApprovalsField>
         )}
       </div>
-      <div className='flex justify-end'>
+      <div className='flex justify-end border-t border-border/60 pt-4'>
         <ApprovalsButton type='submit' variant='primary' pending={pending} disabled={disabled || !valid}>
           {translate('batchConfirm')}
         </ApprovalsButton>

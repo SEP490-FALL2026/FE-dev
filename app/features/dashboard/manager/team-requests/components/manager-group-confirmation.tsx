@@ -1,9 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import type { GroupBodyDto } from '~/shared/api/generated/model/group-requests/groupBodyDto'
+import type { GroupCheckResponseDtoDataLinesItem } from '~/shared/api/generated/model/group-requests/groupCheckResponseDtoDataLinesItem'
 import { groupRequestCheck } from '~/shared/api/generated/operations/group-requests/group-request-check'
 import { ManagerButton, ManagerMoney, ManagerQueryState } from '../../shared/components/manager-api-ui'
 import type { ManagerChoice } from '../../shared/components/manager-choice-select'
+import { GROUP_ELIGIBILITY_REASON } from '../enums/group-eligibility'
 
 export function ManagerGroupConfirmation({
   body,
@@ -11,7 +13,8 @@ export function ManagerGroupConfirmation({
   blocked,
   busy,
   onConfirm,
-  onCancel
+  onCancel,
+  onEditDates
 }: {
   body: GroupBodyDto
   people: readonly ManagerChoice[]
@@ -19,6 +22,7 @@ export function ManagerGroupConfirmation({
   busy: boolean
   onConfirm: () => void
   onCancel: () => void
+  onEditDates?: (issues: GroupCheckResponseDtoDataLinesItem[]) => void
 }) {
   const { t: translate } = useTranslation('manager')
   const { t: employeeTranslate } = useTranslation('employee')
@@ -34,6 +38,13 @@ export function ManagerGroupConfirmation({
     check.lines.length === body.lines.length &&
     check.lines.every((line) => line.ok === true && body.lines.some((person) => person.employeeId === line.employeeId))
   const failures = new Map<string | null, ManagerChoice[]>()
+  const dateIssues =
+    check?.lines.filter(
+      (line) =>
+        !line.ok &&
+        (line.reason === GROUP_ELIGIBILITY_REASON.END_DATE_REQUIRED ||
+          line.reason === GROUP_ELIGIBILITY_REASON.END_DATE_TOO_EARLY)
+    ) ?? []
   for (const line of check?.lines ?? []) {
     if (line.ok) continue
     const person = people.find((choice) => choice.value === line.employeeId) ?? {
@@ -74,7 +85,12 @@ export function ManagerGroupConfirmation({
           ))}
         </>
       )}
-      <div className='flex justify-end gap-3'>
+      <div className='flex flex-wrap justify-end gap-3'>
+        {!!dateIssues.length && onEditDates && (
+          <ManagerButton disabled={busy} onClick={() => onEditDates(dateIssues)}>
+            {translate('requestForm.editEndDates')}
+          </ManagerButton>
+        )}
         <ManagerButton disabled={busy} onClick={onCancel}>
           {translate('cancel')}
         </ManagerButton>

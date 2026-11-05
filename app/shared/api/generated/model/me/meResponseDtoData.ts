@@ -19,5 +19,4 @@ export type MeResponseDtoData = {
   roles: MeResponseDtoDataRolesItem[]
   /** @nullable */
   managerScope: MeResponseDtoDataManagerScope
-  selfServiceOnly: boolean
 } | null

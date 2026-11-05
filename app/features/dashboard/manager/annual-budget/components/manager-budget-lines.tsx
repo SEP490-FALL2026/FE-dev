@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import type { BudgetProposalBodyDtoLinesItem } from '~/shared/api/generated/model/budget-proposals/budgetProposalBodyDtoLinesItem'
 import { ManagerField, managerInputClass } from '../../shared/components/manager-api-ui'
-import { resourceIdPattern } from '../../shared/manager-identifiers'
+import { ManagerBudgetPlanPicker } from './manager-budget-plan-picker'
 import { REPEAT_CYCLE } from '../enums/budget-status'
 
 export function budgetLineFromForm(form: FormData, index: number): BudgetProposalBodyDtoLinesItem {
@@ -24,16 +24,18 @@ export function ManagerBudgetLine({ index, initial }: { index: number; initial?:
   const { t: translate } = useTranslation('manager')
   const name = (field: string) => `lines.${index}.${field}`
   return (
-    <div className='grid gap-x-4 sm:grid-cols-2 lg:grid-cols-3'>
-      <ManagerField label={translate('description')}>
-        <input
-          name={name('description')}
-          className={managerInputClass}
-          required
-          maxLength={200}
-          defaultValue={initial?.description}
-        />
-      </ManagerField>
+    <div className='grid items-start gap-x-5 gap-y-2 sm:grid-cols-2'>
+      <div className='sm:col-span-2'>
+        <ManagerField label={translate('description')}>
+          <input
+            name={name('description')}
+            className={managerInputClass}
+            required
+            maxLength={200}
+            defaultValue={initial?.description}
+          />
+        </ManagerField>
+      </div>
       <ManagerField label={translate('amount')}>
         <input
           name={name('amount.amount')}
@@ -55,14 +57,7 @@ export function ManagerBudgetLine({ index, initial }: { index: number; initial?:
           defaultValue={initial?.amount.currency}
         />
       </ManagerField>
-      <ManagerField label={translate('planId')}>
-        <input
-          name={name('planId')}
-          className={managerInputClass}
-          pattern={resourceIdPattern}
-          defaultValue={initial?.planId}
-        />
-      </ManagerField>
+      <ManagerBudgetPlanPicker name={name('planId')} initialId={initial?.planId} />
       <ManagerField label={translate('seats')}>
         <input
           name={name('seats')}
@@ -77,7 +72,6 @@ export function ManagerBudgetLine({ index, initial }: { index: number; initial?:
       <ManagerField label={translate('serviceMonths')}>
         <input
           name={name('servicePeriodMonths')}
-          required
           className={managerInputClass}
           type='number'
           min={1}
@@ -104,21 +98,8 @@ export function ManagerBudgetLine({ index, initial }: { index: number; initial?:
           defaultValue={initial?.windowTo}
         />
       </ManagerField>
-      <ManagerField label={translate('quoteUntil')}>
-        <input
-          name={name('quoteValidUntil')}
-          className={managerInputClass}
-          type='date'
-          defaultValue={initial?.quoteValidUntil}
-        />
-      </ManagerField>
       <ManagerField label={translate('repeatCycle')}>
-        <select
-          name={name('repeatCycle')}
-          required
-          className={managerInputClass}
-          defaultValue={initial?.repeatCycle ?? ''}
-        >
+        <select name={name('repeatCycle')} className={managerInputClass} defaultValue={initial?.repeatCycle ?? ''}>
           <option value=''>{translate('repeatCycle')}</option>
           {Object.values(REPEAT_CYCLE).map((cycle) => (
             <option key={cycle} value={cycle}>
@@ -127,9 +108,26 @@ export function ManagerBudgetLine({ index, initial }: { index: number; initial?:
           ))}
         </select>
       </ManagerField>
-      <ManagerField label={translate('note')}>
-        <textarea name={name('note')} className={managerInputClass} maxLength={1000} defaultValue={initial?.note} />
-      </ManagerField>
+      <p className='text-xs text-muted-foreground sm:col-span-2'>{translate('budgetForm.periodHint')}</p>
+      <details
+        className='mt-3 border-t border-border/40 pt-4 sm:col-span-2'
+        open={!!initial?.quoteValidUntil || !!initial?.note || undefined}
+      >
+        <summary className='min-h-11 cursor-pointer text-sm font-medium'>{translate('budgetForm.details')}</summary>
+        <div className='grid gap-4 sm:grid-cols-2'>
+          <ManagerField label={translate('quoteUntil')}>
+            <input
+              name={name('quoteValidUntil')}
+              className={managerInputClass}
+              type='date'
+              defaultValue={initial?.quoteValidUntil}
+            />
+          </ManagerField>
+          <ManagerField label={translate('note')}>
+            <textarea name={name('note')} className={managerInputClass} maxLength={1000} defaultValue={initial?.note} />
+          </ManagerField>
+        </div>
+      </details>
     </div>
   )
 }

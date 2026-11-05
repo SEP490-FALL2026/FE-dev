@@ -3,7 +3,15 @@ import { AxiosError, type InternalAxiosRequestConfig } from 'axios'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { apiClient } from '~/shared/api/axios-client'
 import { FinanceBudgetNegotiationView } from './views/finance-budget-negotiation-view'
-import { apiLine, apiPage, apiResponse, apiVersion, budgetTestLanguage, renderBudget } from './budget-test-fixtures'
+import {
+  apiLine,
+  apiPage,
+  apiResponse,
+  budgetSideList,
+  apiVersion,
+  budgetTestLanguage,
+  renderBudget
+} from './budget-test-fixtures'
 
 describe('budget recovery workflows', () => {
   const originalAdapter = apiClient.defaults.adapter
@@ -16,6 +24,8 @@ describe('budget recovery workflows', () => {
     currentVersion = apiVersion
     requests = []
     apiClient.defaults.adapter = async (config) => {
+      const sideList = budgetSideList(config)
+      if (sideList) return sideList
       requests.push(config)
       if (offline) throw new AxiosError('Offline', 'ERR_NETWORK', config)
       if (config.method === 'post' && config.url?.endsWith('/budget-versions'))
@@ -43,13 +53,13 @@ describe('budget recovery workflows', () => {
   it('keeps a line draft when both the write and the refresh fail', async () => {
     renderBudget(<FinanceBudgetNegotiationView itemId={apiVersion.id} />)
     fireEvent.click(await screen.findByRole('button', { name: 'Add line' }))
-    fireEvent.change(screen.getByLabelText('Description'), { target: { value: 'Unsaved line draft' } })
+    fireEvent.change(screen.getByLabelText(/^Description/), { target: { value: 'Unsaved line draft' } })
     fireEvent.change(screen.getByLabelText(/^Amount/), { target: { value: '123.45' } })
     offline = true
     fireEvent.click(screen.getByRole('button', { name: 'Save line' }))
     await waitFor(() => expect(requests.some((item) => item.method === 'post')).toBe(true))
     await waitFor(() => expect(screen.getAllByRole('alert').length).toBeGreaterThan(0))
-    expect(screen.getByLabelText('Description')).toHaveValue('Unsaved line draft')
+    expect(screen.getByLabelText(/^Description/)).toHaveValue('Unsaved line draft')
     expect(screen.getByLabelText(/^Amount/)).toHaveValue('123.45')
     expect(screen.getByRole('button', { name: 'Save line' })).toBeDisabled()
   })
@@ -58,6 +68,8 @@ describe('budget recovery workflows', () => {
     const baseAdapter = apiClient.defaults.adapter
     let failLines = false
     apiClient.defaults.adapter = async (config) => {
+      const sideList = budgetSideList(config)
+      if (sideList) return sideList
       if (config.method === 'put') {
         failLines = true
         throw new AxiosError('Offline write', 'ERR_NETWORK', config)
@@ -69,13 +81,13 @@ describe('budget recovery workflows', () => {
     renderBudget(<FinanceBudgetNegotiationView itemId={apiVersion.id} />)
     fireEvent.click((await screen.findAllByRole('button', { name: 'View details' }))[0])
     fireEvent.click(screen.getByRole('button', { name: 'Edit line' }))
-    fireEvent.change(screen.getByLabelText('Description'), { target: { value: 'Keep edited draft' } })
+    fireEvent.change(screen.getByLabelText(/^Description/), { target: { value: 'Keep edited draft' } })
     fireEvent.click(screen.getByRole('button', { name: 'Save line' }))
     const retry = await screen.findByRole('button', { name: 'Try again' })
-    expect(screen.getByLabelText('Description')).toHaveValue('Keep edited draft')
+    expect(screen.getByLabelText(/^Description/)).toHaveValue('Keep edited draft')
     failLines = false
     fireEvent.click(retry)
     await waitFor(() => expect(screen.getByRole('button', { name: 'Save line' })).toBeEnabled())
-    expect(screen.getByLabelText('Description')).toHaveValue('Keep edited draft')
+    expect(screen.getByLabelText(/^Description/)).toHaveValue('Keep edited draft')
   })
 })

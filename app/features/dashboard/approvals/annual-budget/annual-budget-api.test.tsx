@@ -72,6 +72,17 @@ const proposal = {
   closedAt: null
 }
 
+const attachment = {
+  id: 'attachment-1',
+  fileName: 'vendor-quote.pdf',
+  contentType: 'application/pdf',
+  sizeBytes: 2048,
+  status: 'ATTACHED',
+  uploadedBy: { employeeId: 'finance-1', employeeCode: 'FIN', fullName: 'Finance uploader' },
+  attachedAt: '2026-11-01T00:00:00Z',
+  removedAt: null
+}
+
 describe('Spending Approver annual budget API', () => {
   const previousAdapter = apiClient.defaults.adapter
   let requests: InternalAxiosRequestConfig[]
@@ -154,6 +165,22 @@ describe('Spending Approver annual budget API', () => {
         decided = true
         data = { version: { ...version, state: 'APPROVED' } }
       }
+      if (path === '/budget-versions/version-1/attachments' || path === '/budget-proposals/proposal-1/attachments')
+        data = {
+          items: [
+            attachment,
+            {
+              ...attachment,
+              id: 'attachment-2',
+              fileName: 'old-quote.xlsx',
+              status: 'REMOVED',
+              removedAt: '2026-11-02T00:00:00Z'
+            }
+          ],
+          pagination: { page: 1, pageSize: 10, totalItems: 2, totalPages: 1 }
+        }
+      if (path === '/budget-attachments/attachment-1/links')
+        data = { url: 'https://files.example.test/quote.pdf', expiresAt: '2026-11-04T01:00:00Z' }
       if (path === '/budget-proposals') data = page([proposal])
       if (path === '/budget-proposals/proposal-1') data = { proposal }
       if (path === '/budget-proposals/proposal-1/lines')
@@ -335,5 +362,34 @@ describe('Spending Approver annual budget API', () => {
         )
       ).toBe(true)
     )
+  })
+
+  it('lists version attachments read-only and opens a server download link', async () => {
+    const open = vi.spyOn(window, 'open').mockReturnValue(null)
+    mount('version-1')
+    const region = await screen.findByRole('region', { name: 'Supporting documents' })
+    expect(await within(region).findByText('vendor-quote.pdf')).toBeInTheDocument()
+    expect(within(region).getAllByText(/Finance uploader/)).toHaveLength(2)
+    expect(within(region).getAllByText(/^2 KB$/)).toHaveLength(2)
+    expect(within(region).getByText('old-quote.xlsx')).toHaveClass('line-through')
+    expect(within(region).queryByRole('button', { name: 'Download old-quote.xlsx' })).not.toBeInTheDocument()
+    expect(within(region).queryByRole('button', { name: /remove|upload/i })).not.toBeInTheDocument()
+    fireEvent.click(within(region).getByRole('button', { name: 'Download vendor-quote.pdf' }))
+    await waitFor(() =>
+      expect(open).toHaveBeenCalledWith('https://files.example.test/quote.pdf', '_blank', 'noopener,noreferrer')
+    )
+    expect(
+      requests.some(
+        (request) => request.method === 'post' && request.url?.endsWith('/budget-attachments/attachment-1/links')
+      )
+    ).toBe(true)
+    open.mockRestore()
+  })
+
+  it('lists proposal attachments from the proposal endpoint', async () => {
+    mount('proposal:proposal-1')
+    const region = await screen.findByRole('region', { name: 'Supporting documents' })
+    expect(await within(region).findByText('vendor-quote.pdf')).toBeInTheDocument()
+    expect(requests.some((request) => request.url?.endsWith('/budget-proposals/proposal-1/attachments'))).toBe(true)
   })
 })

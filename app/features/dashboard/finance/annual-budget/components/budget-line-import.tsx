@@ -38,7 +38,7 @@ export function BudgetLineImport({
             type='file'
             aria-invalid={tooLarge}
             aria-describedby='budget-import-file-error'
-            className={financeInputClass}
+            className={`${financeInputClass} file:mr-3 file:rounded-md file:border-0 file:bg-primary-soft file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-primary-ink hover:file:bg-primary-soft/80`}
             disabled={mutation.isPending}
             onChange={(event) => {
               setFile(event.target.files?.[0])

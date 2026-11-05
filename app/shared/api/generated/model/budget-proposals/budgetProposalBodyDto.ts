@@ -19,4 +19,6 @@ export interface BudgetProposalBodyDto {
    * @maxItems 200
    */
   lines: BudgetProposalBodyDtoLinesItem[]
+  /** @maxItems 20 */
+  attachmentIds?: string[]
 }

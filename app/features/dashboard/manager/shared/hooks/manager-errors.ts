@@ -8,6 +8,7 @@ const errorKeys = {
   'ACCESS_REQUEST.TERM_CONFIRMATION_REQUIRED': 'termRequired',
   'RENEWAL_REQUEST.TERM_CONFIRMATION_REQUIRED': 'termRequired',
   'BUDGET.CURRENCY_NOT_REPORTING': 'currency',
+  'BUDGET_ATTACHMENT.NOT_ATTACHABLE': 'budgetAttachments',
   'ACCESS_REQUEST.OWN_REQUEST': 'ownRequest',
   'ACCESS_REQUEST.NOT_THE_ASSIGNEE': 'notAssigned',
   'TRANSFER_REVIEW.NOT_REVIEWER': 'notAssigned'
@@ -22,6 +23,7 @@ export function getManagerError(error: unknown, writing = false) {
         retryAfterSeconds?: number
         issues?: { path?: unknown }[]
         lines?: { line?: number; fields?: string[] }[]
+        attachmentIds?: string[]
       }
     }
   }>(error)
@@ -58,6 +60,7 @@ export function getManagerError(error: unknown, writing = false) {
     requestId: response?.data?.error?.requestId,
     retrySeconds: Number.isFinite(seconds) ? Math.max(1, Math.ceil(seconds)) : 60,
     fields: [
+      ...(response?.data?.error?.details?.attachmentIds?.length ? ['attachmentIds'] : []),
       ...(response?.data?.error?.details?.issues ?? [])
         .map((issue) =>
           typeof issue.path === 'string' ? issue.path : Array.isArray(issue.path) ? issue.path.join('.') : ''

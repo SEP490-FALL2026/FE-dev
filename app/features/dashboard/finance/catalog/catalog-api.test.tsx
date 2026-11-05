@@ -64,7 +64,9 @@ it('reads plans and subscriptions for the chosen application without inventing m
   )
   expect(screen.getByPlaceholderText(financeSettings.searchApplicationsPlaceholder)).toBeInTheDocument()
   fireEvent.click((await screen.findAllByRole('button', { name: finance.open }))[0])
-  const detail = screen.getByRole('dialog')
+  // The detail replaces the list as its own screen; its outer region comes first.
+  const detail = screen.getAllByRole('region')[0]
+  expect(screen.queryByPlaceholderText(financeSettings.searchApplicationsPlaceholder)).not.toBeInTheDocument()
   await waitFor(() =>
     expect(requests.some((request) => request.url?.endsWith('/plans') && request.params?.applicationId === 'app')).toBe(
       true

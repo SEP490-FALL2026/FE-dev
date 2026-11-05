@@ -3,10 +3,6 @@ export const FINANCE_TAB_KEYS = [
   'department-budget',
   'budgets',
   'budget-allocation',
-  'budget-check',
-  'commitments',
-  'budget-questions',
-  'budget-exceptions',
   'budget-periods',
   'decision-history',
   'department-summary',
@@ -21,7 +17,6 @@ export const FINANCE_TAB_KEYS = [
   'cost-analysis',
   'period-report',
   'cost-centers',
-  'exchange-rates',
   'vendor-tax'
 ] as const
 

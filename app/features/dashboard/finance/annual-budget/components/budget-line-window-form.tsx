@@ -37,7 +37,7 @@ export function BudgetLineWindowForm({
     >
       <p className='text-sm text-muted-foreground'>{translate('windowHint')}</p>
       <div className='grid gap-4 sm:grid-cols-2'>
-        <FinanceField label={translate('fields.windowFrom')}>
+        <FinanceField required label={translate('fields.windowFrom')}>
           <input
             required
             type='date'
@@ -46,7 +46,11 @@ export function BudgetLineWindowForm({
             onChange={(event) => setFrom(event.target.value)}
           />
         </FinanceField>
-        <FinanceField label={translate('fields.windowTo')}>
+        <FinanceField
+          required
+          label={translate('fields.windowTo')}
+          error={from && to && from > to ? translate('windowOrder') : null}
+        >
           <input
             required
             type='date'
@@ -57,11 +61,13 @@ export function BudgetLineWindowForm({
           />
         </FinanceField>
       </div>
-      <FinanceField label={translate('fields.reason')}>
+      <FinanceField required label={translate('fields.reason')}>
         <textarea
           required
+          rows={3}
           maxLength={1000}
           className={financeInputClass}
+          placeholder={translate('placeholders.windowReason')}
           value={reason}
           onChange={(event) => setReason(event.target.value)}
         />

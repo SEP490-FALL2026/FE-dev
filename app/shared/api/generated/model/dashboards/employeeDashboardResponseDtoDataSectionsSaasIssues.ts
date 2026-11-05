@@ -9,7 +9,7 @@ import type { EmployeeDashboardResponseDtoDataSectionsSaasIssuesReason } from '.
 import type { EmployeeDashboardResponseDtoDataSectionsSaasIssuesState } from './employeeDashboardResponseDtoDataSectionsSaasIssuesState'
 
 /**
- * The SaaS error reports the caller sent that are not resolved, closed or marked duplicate.
+ * The SaaS error reports the caller sent that are not resolved, closed or marked duplicate, as saasIssueList with scope=mine lists them.
  */
 export type EmployeeDashboardResponseDtoDataSectionsSaasIssues = {
   /** COUNTED: count is how many, in the scope of the caller. AT_SOURCE: the rows are listed by sourceOperationId in the same scope and are not counted here. NOT_AVAILABLE: the data has no source yet; reason says why. A section that is not counted is never shown as zero. */

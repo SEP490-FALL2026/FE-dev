@@ -7,12 +7,14 @@ import { VendorListTaxProfile } from '../enums/tax-profile-status'
 import { useVendorList } from '~/shared/api/generated/operations/vendors'
 import {
   FinanceField,
+  FinanceDetailPage,
   FinancePage,
   FinancePagination,
   FinanceQueryState,
   FinanceSearch,
+  FinanceSelect,
   FinanceStatus,
-  financeInputClass
+  FinanceToolbar
 } from '../../shared/components/finance-ui'
 import { FinanceTable } from '../../shared/components/finance-table'
 import { VendorTaxDetail } from '../components/vendor-tax-detail'
@@ -31,9 +33,15 @@ export function FinanceVendorTaxView({ itemId }: { itemId?: string } = {}) {
     page,
     pageSize: 20
   })
+  if (selected)
+    return (
+      <FinanceDetailPage>
+        <VendorTaxDetail key={selected.id} id={selected.id} name={selected.name} onClose={() => setSelected(null)} />
+      </FinanceDetailPage>
+    )
   return (
-    <FinancePage title={translate('vendorTax')}>
-      <div className='flex flex-wrap items-end gap-4'>
+    <FinancePage title={translate('vendorTax')} description={translate('vendorTaxDescription')}>
+      <FinanceToolbar>
         <FinanceSearch
           label={translate('searchVendors')}
           placeholder={translate('searchVendorsPlaceholder')}
@@ -43,24 +51,25 @@ export function FinanceVendorTaxView({ itemId }: { itemId?: string } = {}) {
             setPage(1)
           }}
         />
-        <FinanceField label={translate('taxProfile')}>
-          <select
-            className={financeInputClass}
-            value={taxProfile}
-            onChange={(event) => {
-              setTaxProfile(Object.values(VendorListTaxProfile).find((value) => value === event.target.value) ?? '')
-              setPage(1)
-            }}
-          >
-            <option value=''>{translate('all')}</option>
-            {Object.values(VendorListTaxProfile).map((value) => (
-              <option key={value} value={value}>
-                {translate(`enum.${value}`)}
-              </option>
-            ))}
-          </select>
-        </FinanceField>
-      </div>
+        <div className='sm:w-52'>
+          <FinanceField label={translate('taxProfile')}>
+            <FinanceSelect
+              value={taxProfile}
+              onChange={(event) => {
+                setTaxProfile(Object.values(VendorListTaxProfile).find((value) => value === event.target.value) ?? '')
+                setPage(1)
+              }}
+            >
+              <option value=''>{translate('all')}</option>
+              {Object.values(VendorListTaxProfile).map((value) => (
+                <option key={value} value={value}>
+                  {translate(`enum.${value}`)}
+                </option>
+              ))}
+            </FinanceSelect>
+          </FinanceField>
+        </div>
+      </FinanceToolbar>
       <FinanceQueryState query={vendors}>
         <FinanceTable
           items={vendors.data?.data?.items ?? []}
@@ -82,9 +91,6 @@ export function FinanceVendorTaxView({ itemId }: { itemId?: string } = {}) {
         />
         <FinancePagination pagination={vendors.data?.data?.pagination} onPageChange={setPage} />
       </FinanceQueryState>
-      {selected && (
-        <VendorTaxDetail key={selected.id} id={selected.id} name={selected.name} onClose={() => setSelected(null)} />
-      )}
     </FinancePage>
   )
 }

@@ -1,6 +1,6 @@
 import { managerReadHandlers } from '../../../test/fixtures/manager-integration'
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
-import { MemoryRouter } from 'react-router'
+import { MemoryRouter, useLocation } from 'react-router'
 import { beforeAll, afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
@@ -77,11 +77,17 @@ const roleLabels: Record<UserRole, string> = {
   'super-admin': 'Quản trị hệ thống'
 }
 
+function CurrentLocation() {
+  const location = useLocation()
+  return <output data-testid='current-location'>{location.search}</output>
+}
+
 async function renderDashboard(role: UserRole, initialEntry = '/') {
   const view = render(
     <MemoryRouter initialEntries={[initialEntry]}>
       <AppProviders>
         <DashboardPage role={role} />
+        <CurrentLocation />
       </AppProviders>
     </MemoryRouter>
   )
@@ -127,7 +133,7 @@ describe('Manager dashboard API navigation', () => {
     await renderDashboard('employee')
     expect(screen.queryByRole('button', { name: 'Annual budget' })).not.toBeInTheDocument()
   })
-  it('opens group and delegated forms from the Manager sidebar', async () => {
+  it('opens only the group form from the Manager sidebar', async () => {
     await setAppLanguage('en', true)
     server.use(http.get('*/api/v1/me', () => HttpResponse.json({ success: true, data: managerProfile })))
     await renderDashboard('manager')
@@ -140,8 +146,7 @@ describe('Manager dashboard API navigation', () => {
     expect(screen.getByRole('combobox', { name: 'Software plan' })).toBeInTheDocument()
     expect(screen.queryByLabelText('Plan ID')).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Save preview' })).not.toBeInTheDocument()
-    fireEvent.click(within(nav).getByRole('button', { name: 'Delegated requests' }))
-    expect(await screen.findByRole('heading', { level: 1, name: 'Delegated requests' })).toBeInTheDocument()
+    expect(within(nav).queryByRole('button', { name: 'Delegated requests' })).not.toBeInTheDocument()
     expect(screen.getByRole('combobox', { name: 'Beneficiaries' })).toBeInTheDocument()
     expect(screen.queryByLabelText('Beneficiary employee IDs (one per line)')).not.toBeInTheDocument()
   })
@@ -151,5 +156,37 @@ describe('Manager dashboard API navigation', () => {
     await renderDashboard('manager', '/?tab=create-employee-request&scope=team')
     expect(await screen.findByRole('heading', { level: 1, name: 'Group request' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Request on behalf' })).toHaveAttribute('aria-expanded', 'true')
+  })
+  it.each([
+    ['vi', 'individual', 'Yêu cầu nhóm', 'Yêu cầu gửi hộ'],
+    ['en', 'individual', 'Group request', 'Delegated requests'],
+    ['en', '', 'Group request', 'Delegated requests'],
+    ['en', 'invalid', 'Group request', 'Delegated requests']
+  ])('opens the group form for %s links with scope "%s"', async (language, scope, title, removedTitle) => {
+    await setAppLanguage(language as 'vi' | 'en', true)
+    const delegated = vi.fn()
+    server.use(
+      http.get('*/api/v1/me', () => HttpResponse.json({ success: true, data: managerProfile })),
+      http.post('*/api/v1/delegated-requests', () => {
+        delegated()
+        return HttpResponse.json({ success: true })
+      }),
+      http.post('*/api/v1/access-requests/preview', () => {
+        delegated()
+        return HttpResponse.json({ success: true })
+      })
+    )
+    await renderDashboard(
+      'manager',
+      `/?tab=create-employee-request&departmentId=test-department&planId=invalid${scope ? `&scope=${scope}` : ''}`
+    )
+    expect(await screen.findByRole('heading', { level: 1, name: title })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: removedTitle })).not.toBeInTheDocument()
+    const search = screen.getByTestId('current-location').textContent ?? ''
+    const params = new URLSearchParams(search)
+    expect(params.get('scope')).toBe('team')
+    expect(params.get('departmentId')).toBe('test-department')
+    expect(params.get('planId')).toBe('invalid')
+    expect(delegated).not.toHaveBeenCalled()
   })
 })

@@ -6,7 +6,6 @@ export const approvals = {
   retry: 'Thử lại',
   retryAfter: 'Thử lại sau {{seconds}} giây',
   unknown: 'Trạng thái chưa xác định',
-  close: 'Đóng',
   open: 'Xem chi tiết',
   actions: 'Thao tác',
   pagination: 'Phân trang',
@@ -14,9 +13,12 @@ export const approvals = {
   previous: 'Trang trước',
   next: 'Trang sau',
   requestId: 'Mã tra cứu: {{value}}',
-  all: 'Tất cả',
-  unavailable: 'Chức năng chưa khả dụng',
-  unavailableHint: 'Hệ thống chưa hỗ trợ quy trình này.',
+  nav: {
+    overview: 'Tổng quan',
+    queue: 'Hàng chờ duyệt',
+    renewal: 'Gia hạn thuê bao',
+    annualBudget: 'Duyệt ngân sách năm'
+  },
   status: {
     ESTIMATE: 'Chi phí ước tính',
     ESTIMATE_NO_PROFILE: 'Ước tính khi chưa có hồ sơ thuế',
@@ -82,6 +84,8 @@ export const approvals = {
     NO_BUDGET: 'Chưa có ngân sách',
     SKIPPED: 'Đã bỏ qua',
     DECIDED: 'Đã quyết định',
+    PROPOSED: 'Chờ quyết định',
+    OUTCOME_RECORDED: 'Đã ghi kết quả',
     SENT_TO_APPROVER: 'Đã gửi người duyệt chi',
     SENT_TO_FINANCE: 'Đã gửi Tài chính',
     AWAITING_NEED_APPROVAL: 'Chờ duyệt nhu cầu',
@@ -110,6 +114,11 @@ export const approvals = {
     NEEDS_BUDGET: 'Cần điều chỉnh ngân sách'
   },
   errors: {
+    conflictOfInterest: 'Bạn đã gửi đề xuất ngân sách gốc của phiên bản này nên không thể quyết định nó.',
+    lineHoldsAccess: 'Có người trong nhóm đã giữ ghế của gói này. Từ chối dòng của người đó rồi quyết lại.',
+    groupUsesLines: 'Yêu cầu nhóm phải được quyết theo từng người. Dữ liệu đã được tải lại.',
+    stepNotPending: 'Bước này đã được quyết hoặc đang chờ người giữ bước. Dữ liệu đã được tải lại.',
+    spendNotApplicable: 'Yêu cầu không phát sinh chi phí nên không cần chọn dòng kế hoạch hay chi ngoài kế hoạch.',
     forbidden: 'Bạn không còn quyền thực hiện thao tác này.',
     ownRequest: 'Bạn không thể duyệt yêu cầu hoặc quyền truy cập của chính mình.',
     ownVersion: 'Bạn không thể quyết phiên bản ngân sách do mình lập hoặc gửi.',
@@ -120,7 +129,6 @@ export const approvals = {
     overrideNotNeeded: 'Kiểm tra mới nhất không cần chi vượt ngân sách. Bỏ phần xác nhận trước khi gửi.',
     recheckedFinance: 'Kết quả kiểm tra ngân sách đã thay đổi. Yêu cầu đã được trả về Tài chính để rà soát.',
     recheckedHead: 'Kết quả kiểm tra ngân sách đã thay đổi. Yêu cầu đã được trả về trưởng phòng.',
-    questionOpen: 'Bước duyệt này đã có một câu hỏi chưa được trả lời.',
     linesMismatch: 'Danh sách người thụ hưởng đã thay đổi. Tải lại và quyết cho tất cả người đã được xác nhận nhu cầu.',
     termConfirmation: 'Xác nhận thời hạn trên mười hai tháng trước khi duyệt.',
     planLineRequired: 'Chọn dòng kế hoạch hoặc xác nhận yêu cầu nằm ngoài kế hoạch.',

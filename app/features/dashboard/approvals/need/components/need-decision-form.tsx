@@ -1,3 +1,4 @@
+import { Check, X } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { AccessRequestResponseDtoDataRequest } from '~/shared/api/generated/model/access-requests/accessRequestResponseDtoDataRequest'
@@ -12,6 +13,7 @@ import { ApprovalsButton, ApprovalsField, approvalsInputClass } from '../../shar
 import { useApprovalsFeedback } from '../../shared/hooks/use-approvals-feedback'
 import { NEED_DECISION } from '../enums/need-decision'
 import { REQUEST_BRANCH } from '../enums/request-branch'
+import { rejectPressedClass, segmentClass } from './segment-classes'
 import { NeedMemberDecisions, type MemberDecision } from './need-member-decisions'
 
 export function NeedDecisionForm({
@@ -80,7 +82,7 @@ export function NeedDecisionForm({
   const pending = mutation.isPending || groupMutation.isPending
   return (
     <form
-      className='space-y-5 rounded-lg border border-border bg-surface p-5'
+      className='space-y-5 rounded-lg border border-border/70 bg-surface p-5 shadow-[0_1px_2px_0_rgba(0,0,0,0.04)]'
       onSubmit={(event) => {
         event.preventDefault()
         if (!valid || pending || submissionLocked.current) return
@@ -107,7 +109,7 @@ export function NeedDecisionForm({
       }}
     >
       <fieldset disabled={pending || disabled} className='space-y-5'>
-        <legend className='mb-3 font-semibold'>{translate('decision')}</legend>
+        <legend className='sr-only'>{translate('decision')}</legend>
         {lines ? (
           <NeedMemberDecisions
             lines={lines}
@@ -117,30 +119,32 @@ export function NeedDecisionForm({
             }
           />
         ) : (
-          <div className='flex flex-wrap gap-5'>
-            <label className='inline-flex min-h-11 items-center gap-2 text-sm'>
-              <input
-                type='radio'
-                name='need-decision'
-                checked={approving}
-                onChange={() => setDecision(NEED_DECISION.APPROVE)}
-              />
+          <div role='group' aria-label={translate('decision')} className={segmentClass}>
+            <ApprovalsButton
+              variant='ghost'
+              aria-label={translate('approve')}
+              aria-pressed={approving}
+              onClick={() => setDecision(NEED_DECISION.APPROVE)}
+            >
+              <Check aria-hidden className='size-4' strokeWidth={1.5} />
               {translate('approve')}
-            </label>
-            <label className='inline-flex min-h-11 items-center gap-2 text-sm'>
-              <input
-                type='radio'
-                name='need-decision'
-                checked={!approving}
-                onChange={() => setDecision(NEED_DECISION.REJECT)}
-              />
+            </ApprovalsButton>
+            <ApprovalsButton
+              variant='ghost'
+              aria-label={translate('reject')}
+              aria-pressed={!approving}
+              className={rejectPressedClass}
+              onClick={() => setDecision(NEED_DECISION.REJECT)}
+            >
+              <X aria-hidden className='size-4' strokeWidth={1.5} />
               {translate('reject')}
-            </label>
+            </ApprovalsButton>
           </div>
         )}
         {!lines && !approving && (
-          <ApprovalsField label={translate('reason')}>
+          <ApprovalsField label={translate('reason')} required>
             <textarea
+              aria-label={translate('reason')}
               className={approvalsInputClass}
               rows={3}
               required
@@ -152,8 +156,9 @@ export function NeedDecisionForm({
           </ApprovalsField>
         )}
         {approving && longTerm && (
-          <ApprovalsField label={translate('termReason')}>
+          <ApprovalsField label={translate('termReason')} required>
             <textarea
+              aria-label={translate('termReason')}
               className={approvalsInputClass}
               rows={3}
               required
@@ -167,25 +172,33 @@ export function NeedDecisionForm({
         {approving && paid && (
           <fieldset className='space-y-4'>
             <legend className='mb-2 text-sm font-medium'>{translate('spendRoute')}</legend>
-            <div className='flex flex-wrap gap-5'>
-              <label className='inline-flex min-h-11 items-center gap-2 text-sm'>
-                <input type='radio' name='need-plan' checked={!offPlan} onChange={() => setOffPlan(false)} />
+            <div role='group' aria-label={translate('spendRoute')} className={segmentClass}>
+              <ApprovalsButton
+                variant='ghost'
+                aria-label={translate('planned')}
+                aria-pressed={!offPlan}
+                onClick={() => setOffPlan(false)}
+              >
                 {translate('planned')}
-              </label>
-              <label className='inline-flex min-h-11 items-center gap-2 text-sm'>
-                <input type='radio' name='need-plan' checked={offPlan} onChange={() => setOffPlan(true)} />
+              </ApprovalsButton>
+              <ApprovalsButton
+                variant='ghost'
+                aria-label={translate('offPlan')}
+                aria-pressed={offPlan}
+                onClick={() => setOffPlan(true)}
+              >
                 {translate('offPlan')}
-              </label>
+              </ApprovalsButton>
             </div>
             <div className='grid gap-4 sm:grid-cols-2'>
               {!offPlan && (
-                <ApprovalsField label={translate('planPosition')} hint={translate('planPositionHint')}>
+                <ApprovalsField label={translate('planPosition')} hint={translate('planPositionHint')} required>
                   <input
                     type='number'
                     aria-label={translate('planPosition')}
                     min={1}
                     step={1}
-                    className={approvalsInputClass}
+                    className={`${approvalsInputClass} text-right font-mono tabular-nums sm:max-w-40`}
                     placeholder={translate('planPositionPlaceholder')}
                     value={position}
                     onChange={(event) => setPosition(event.target.value)}
@@ -197,7 +210,6 @@ export function NeedDecisionForm({
                 <input
                   type='date'
                   className={approvalsInputClass}
-                  placeholder={translate('datePlaceholder')}
                   value={expectedSpendOn}
                   onChange={(event) => setExpectedSpendOn(event.target.value)}
                 />
@@ -207,6 +219,7 @@ export function NeedDecisionForm({
               <label className='flex min-h-11 items-center gap-2 text-sm'>
                 <input
                   type='checkbox'
+                  className='size-4 accent-primary'
                   checked={stillNeeded}
                   onChange={(event) => setStillNeeded(event.target.checked)}
                 />
@@ -216,7 +229,7 @@ export function NeedDecisionForm({
           </fieldset>
         )}
       </fieldset>
-      <div className='flex justify-end'>
+      <div className='flex justify-end border-t border-border/60 pt-4'>
         <ApprovalsButton type='submit' variant='primary' pending={pending} disabled={!valid}>
           {translate('submit')}
         </ApprovalsButton>

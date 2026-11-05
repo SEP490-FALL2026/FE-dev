@@ -1,5 +1,7 @@
 import { employeeRequestExtras } from './employee-request-extras'
+import { employeeRequestAssignment } from './employee-request-assignment'
 export const employee = {
+  requestAssignment: employeeRequestAssignment,
   requestExtras: employeeRequestExtras,
   workspace: 'Employee workspace',
   dashboardSummary: {
@@ -359,6 +361,11 @@ export const employee = {
   noValue: 'Not available',
   selfService: 'Your account is in the handover phase. Only notifications, handovers and your profile are available.',
   errors: {
+    accessUnavailable:
+      'This access is no longer suitable for the selected action. Refresh the list and choose another assignment.',
+    returnPending: 'This access already has a return request being processed.',
+    renewalPending: 'This access already has a pending renewal request.',
+    renewalEnd: 'The new end date must be after today and the existing end date.',
     serviceBaseline: employeeRequestExtras.errors.baseline,
     servicePlan: employeeRequestExtras.errors.plan,
     returnSender: employeeRequestExtras.errors.sender,

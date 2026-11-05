@@ -7,7 +7,7 @@ import { i18n, setAppLanguage } from '~/shared/i18n/i18n'
 import { financeBudget } from '~/shared/i18n/locales/en/finance-budget'
 import { FinanceAnnualProposalsView } from './views/finance-annual-proposals-view'
 import { FinanceBudgetNegotiationView } from './views/finance-budget-negotiation-view'
-import { FinanceBudgetsView } from './views/finance-budgets-view'
+import { budgetSideList } from './budget-test-fixtures'
 
 const money = { amount: '9007199254740993.25', currency: 'USD' }
 const costCenter = { id: 'center-1', code: 'ENG', name: 'Engineering API' }
@@ -74,6 +74,8 @@ describe('finance annual budget API workflows', () => {
     i18n.addResourceBundle('en', 'financeBudget', financeBudget)
     await setAppLanguage('en', false)
     apiClient.defaults.adapter = async (config) => {
+      const sideList = budgetSideList(config)
+      if (sideList) return sideList
       requests.push(config)
       const path = config.url?.split('/api/v1')[1] ?? ''
       let data: unknown = null
@@ -140,7 +142,7 @@ describe('finance annual budget API workflows', () => {
     await waitFor(() => expect(requests.some((request) => request.url?.endsWith('/proposal-1/lines'))).toBe(true))
     await screen.findAllByText('API plan line')
     fireEvent.click(screen.getByRole('button', { name: 'Return proposal' }))
-    fireEvent.change(screen.getByLabelText('Reason'), { target: { value: 'Please review seats' } })
+    fireEvent.change(screen.getByLabelText(/^Reason/), { target: { value: 'Please review seats' } })
     fireEvent.click(screen.getByRole('button', { name: 'Confirm return' }))
     await waitFor(() =>
       expect(
@@ -176,10 +178,5 @@ describe('finance annual budget API workflows', () => {
     )
     expect(screen.queryByRole('button', { name: 'Approve' })).toBeNull()
     await waitFor(() => expect(screen.queryByRole('button', { name: 'Send for decision' })).toBeNull())
-  })
-  it('reads the current budget table from the server', async () => {
-    mount(<FinanceBudgetsView formatCurrency={() => ''} onSelectTab={vi.fn()} />)
-    await waitFor(() => expect(requests.some((request) => request.url?.endsWith('/budgets'))).toBe(true))
-    expect(await screen.findAllByText('Engineering API')).not.toHaveLength(0)
   })
 })

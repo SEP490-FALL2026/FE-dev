@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 import type { PlanLineBodyDto } from '~/shared/api/generated/model/spend-submission/planLineBodyDto'
 import type { SupplementBodyDto } from '~/shared/api/generated/model/spend-submission/supplementBodyDto'
 import { accessRequestPlanLineSet } from '~/shared/api/generated/operations/spend-submission/access-request-plan-line-set'
@@ -88,6 +89,10 @@ function CorrectionDialog({ id, mode, onClose }: { id: string; mode: 'plan' | 's
             const form = new FormData(event.currentTarget)
             if (mode === 'plan') {
               const allocation = allocationFromForm(form)
+              if (!allocation) {
+                toast.error(translate('validation'), { id: 'manager-spend-allocation' })
+                return
+              }
               plan.mutate(allocation.offPlan ? { offPlan: true } : { planLine: allocation.planLine })
               return
             }

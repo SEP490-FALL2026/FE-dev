@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
-import { ArrowLeft, Landmark } from 'lucide-react'
+import { ArrowLeft, Landmark, Plus } from 'lucide-react'
+import { toast } from 'sonner'
 import { ManagerPageHeader } from '../../shared/components/manager-page-header'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router'
@@ -28,12 +29,24 @@ import {
   ManagerSection,
   managerInputClass
 } from '../../shared/components/manager-api-ui'
-import { resourceIdPattern } from '../../shared/manager-identifiers'
+import { isResourceId } from '../../shared/manager-identifiers'
 import { ManagerBudgetLine, budgetLineFromForm } from '../components/manager-budget-lines'
+import { ManagerBudgetAttachments } from '../components/manager-budget-attachments'
+import { ManagerBudgetFiles } from '../components/manager-budget-files'
+import { useBudgetAttachments } from '../hooks/use-budget-attachments'
+import { getBudgetAttachmentMineListQueryKey } from '~/shared/api/generated/operations/budgets/budget-attachment-mine-list'
 import { PROPOSAL_STATE } from '../enums/budget-status'
 import { managerBudgetYear } from './manager-live-budget'
 
-export function ManagerBudgetForm({ id, costCenterId }: { id?: string; costCenterId?: string }) {
+export function ManagerBudgetForm({
+  id,
+  costCenterId,
+  costCenterName
+}: {
+  id?: string
+  costCenterId?: string
+  costCenterName?: string
+}) {
   const { t: translate } = useTranslation('manager')
   const navigate = useNavigate()
   const [params] = useSearchParams()
@@ -55,7 +68,11 @@ export function ManagerBudgetForm({ id, costCenterId }: { id?: string; costCente
           </ManagerButton>
         }
       />
-      {id ? <RevisionLoader id={id} /> : <ProposalForm costCenterId={costCenterId} year={managerBudgetYear(params)} />}
+      {id ? (
+        <RevisionLoader id={id} />
+      ) : (
+        <ProposalForm costCenterId={costCenterId} costCenterName={costCenterName} year={managerBudgetYear(params)} />
+      )}
     </div>
   )
 }
@@ -101,6 +118,7 @@ function RevisionLoader({ id }: { id: string }) {
                 id={id}
                 year={current.year}
                 costCenterId={current.costCenter.id}
+                costCenterName={current.costCenter.name}
                 initialLines={lines.data}
               />
             )}
@@ -112,11 +130,13 @@ function RevisionLoader({ id }: { id: string }) {
 function ProposalForm({
   id,
   costCenterId,
+  costCenterName,
   year,
   initialLines
 }: {
   id?: string
   costCenterId?: string
+  costCenterName?: string
   year: number
   initialLines?: BudgetProposalBodyDtoLinesItem[]
 }) {
@@ -127,12 +147,21 @@ function ProposalForm({
     (initialLines?.length ? initialLines : [undefined]).map((initial, index) => ({ key: index, initial }))
   )
   const [nextKey, setNextKey] = useState(lines.length)
+  const attachments = useBudgetAttachments()
+  const [invalidFields, setInvalidFields] = useState<string[]>([])
+  const validCostCenter = isResourceId(costCenterId ?? '')
   const action = useManagerAction({
     mutationFn: (body: BudgetProposalBodyDto) =>
-      id ? budgetProposalResubmit(id, { lines: body.lines }) : budgetProposalSubmit(body),
+      id
+        ? budgetProposalResubmit(id, {
+            lines: body.lines,
+            ...(body.attachmentIds?.length ? { attachmentIds: body.attachmentIds } : {})
+          })
+        : budgetProposalSubmit(body),
     invalidate: [
       getBudgetProposalListQueryKey(),
       getBudgetMineQueryKey(),
+      getBudgetAttachmentMineListQueryKey(),
       ...(id ? [getBudgetProposalGetQueryKey(id)] : [])
     ],
     onSuccess: (result) => {
@@ -147,31 +176,41 @@ function ProposalForm({
     }
   })
   return (
-    <ManagerFormErrors fields={action.fields}>
+    <ManagerFormErrors fields={[...action.fields, ...invalidFields]}>
       <form
         className='space-y-6'
         onSubmit={(event) => {
           event.preventDefault()
-          if (action.blocked) return
+          if (action.blocked || attachments.blocked || !validCostCenter) return
           const form = new FormData(event.currentTarget)
+          const bodyLines = lines.map((_, index) => budgetLineFromForm(form, index))
+          const fields = bodyLines.flatMap((line, index) => [
+            ...(!line.servicePeriodMonths && !line.repeatCycle
+              ? [`lines.${index}.servicePeriodMonths`, `lines.${index}.repeatCycle`]
+              : []),
+            ...(line.windowFrom && line.windowTo && line.windowTo < line.windowFrom ? [`lines.${index}.windowTo`] : [])
+          ])
+          setInvalidFields(fields)
+          if (fields.length) {
+            toast.error(translate('validation'), { id: 'budget-form' })
+            return
+          }
           action.mutate({
-            costCenterId: String(form.get('costCenterId')).trim(),
+            costCenterId: costCenterId!,
             year: Number(form.get('year')),
-            lines: lines.map((_, index) => budgetLineFromForm(form, index))
+            lines: bodyLines,
+            ...(attachments.selected.length ? { attachmentIds: attachments.selected } : {})
           })
         }}
       >
         <fieldset disabled={action.blocked} className='space-y-6'>
           <ManagerSection title={translate('proposal')}>
             <div className='grid gap-4 sm:grid-cols-2'>
-              <ManagerField label={translate('costCenter')}>
+              <ManagerField label={translate('budgetForm.costCenter')}>
                 <input
-                  name='costCenterId'
                   className={managerInputClass}
-                  required
-                  pattern={resourceIdPattern}
-                  defaultValue={costCenterId}
-                  readOnly={!!id}
+                  value={costCenterName ?? (validCostCenter ? translate('budgetForm.costCenter') : '')}
+                  readOnly
                 />
               </ManagerField>
               <ManagerField label={translate('year')}>
@@ -189,8 +228,13 @@ function ProposalForm({
               </ManagerField>
             </div>
           </ManagerSection>
+          {!validCostCenter && (
+            <p role='alert' className='text-sm text-warning-ink'>
+              {translate('budgetForm.noCostCenter')}
+            </p>
+          )}
           {lines.map((line, index) => (
-            <ManagerSection key={line.key} title={`${translate('plan')} ${index + 1}`}>
+            <ManagerSection key={line.key} title={translate('budgetForm.line', { number: index + 1 })}>
               <ManagerBudgetLine index={index} initial={line.initial} />
               <div className='flex justify-end'>
                 <ManagerButton
@@ -209,12 +253,29 @@ function ProposalForm({
               setNextKey(nextKey + 1)
             }}
           >
-            {translate('add')}
+            <Plus aria-hidden strokeWidth={1.5} className='size-4' />
+            {translate('budgetForm.addLine')}
           </ManagerButton>
+          <ManagerBudgetAttachments
+            files={attachments}
+            disabled={action.blocked}
+            invalid={action.fields.includes('attachmentIds')}
+          />
+          {id && (
+            <ManagerSection title={translate('budgetForm.previousFiles')}>
+              <p className='mb-4 text-sm text-muted-foreground'>{translate('budgetForm.previousHint')}</p>
+              <ManagerBudgetFiles id={id} />
+            </ManagerSection>
+          )}
         </fieldset>
         <ManagerActionState action={action} />
         <div className='sticky bottom-0 flex justify-end border-t border-border/60 bg-background py-4 pb-[calc(1rem+env(safe-area-inset-bottom))]'>
-          <ManagerButton primary type='submit' disabled={action.blocked} busy={action.isPending}>
+          <ManagerButton
+            primary
+            type='submit'
+            disabled={action.blocked || attachments.blocked || !validCostCenter}
+            busy={action.isPending}
+          >
             {action.retrySeconds
               ? translate('retryAfter', { seconds: action.retrySeconds })
               : translate(id ? 'resubmit' : 'submit')}

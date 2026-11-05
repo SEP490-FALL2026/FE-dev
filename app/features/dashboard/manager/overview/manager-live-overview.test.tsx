@@ -82,7 +82,7 @@ it('shows one set of work metrics, retains server totals and scopes open handove
   expect(screen.queryByRole('button', { name: 'Request software for staff' })).not.toBeInTheDocument()
   expect(screen.getAllByRole('button', { name: 'Request on behalf' })).toHaveLength(1)
   fireEvent.click(screen.getByRole('button', { name: 'Request on behalf' }))
-  expect(select).toHaveBeenCalledWith('create-employee-request', { scope: 'individual' })
+  expect(select).toHaveBeenCalledWith('create-employee-request', { scope: 'team' })
 })
 
 it('keeps a failed count unavailable instead of presenting it as zero', async () => {

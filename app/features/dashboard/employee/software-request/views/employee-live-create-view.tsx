@@ -1,9 +1,9 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { FilePlus2 } from 'lucide-react'
 import { EmployeePageHeader } from '../../shared/components/employee-page-header'
 import { EmployeeRequestGuide } from '../components/employee-request-guide'
 import { useTranslation } from 'react-i18next'
-import { useSearchParams } from 'react-router'
+import { Navigate, useLocation, useSearchParams } from 'react-router'
 import {
   EmployeeFormErrors,
   EmployeeButton,
@@ -13,13 +13,13 @@ import {
   employeeInputClass
 } from '../../shared/components/employee-api-ui'
 import { readRequestFields, useLiveRequestForm, type RequestMode } from '../hooks/use-live-request-form'
-import { uuidPattern } from '../../shared/employee-identifiers'
 import { LiveRequestPreview } from '../components/live-request-preview'
 import { LiveGroupMembers } from '../components/live-group-members'
 import { LiveGroupEligibility } from '../components/live-group-eligibility'
 import { EmployeeCatalogPicker } from '../components/employee-catalog-picker'
 import { EmployeeCatalogPlanDetails } from '../components/employee-catalog-plan-details'
-import { EmployeeServiceAccountForm } from '../components/employee-service-account-form'
+import { EmployeeAssignmentPicker } from '../components/employee-assignment-picker'
+import { useRequestAssignments } from '../hooks/use-request-assignments'
 import { useEmployeeCatalogSelection } from '../hooks/use-employee-catalog-selection'
 import type { EmployeeTabKey } from '../../enums'
 
@@ -30,16 +30,20 @@ export function EmployeeLiveCreateView({
 }) {
   const { t: translate } = useTranslation('employee')
   const [searchParams, setSearchParams] = useSearchParams()
+  const location = useLocation()
   const value = searchParams.get('mode')
-  const mode: RequestMode | 'service' =
-    value === 'group' || value === 'proposal' || value === 'renewal' || value === 'return' || value === 'service'
-      ? value
-      : 'individual'
+  const mode: RequestMode =
+    value === 'group' || value === 'proposal' || value === 'renewal' || value === 'return' ? value : 'individual'
+  if (value === 'service') {
+    const next = new URLSearchParams(searchParams)
+    next.set('mode', 'individual')
+    return <Navigate replace to={{ pathname: location.pathname, search: next.toString() }} />
+  }
   return (
     <div className='space-y-6'>
       <EmployeePageHeader title={translate('create')} icon={FilePlus2} />
       <nav aria-label={translate('mode')} className='flex gap-1 overflow-x-auto border-b border-border/60 pb-3'>
-        {(['individual', 'group', 'proposal', 'renewal', 'return', 'service'] as const).map((option) => (
+        {(['individual', 'group', 'proposal', 'renewal', 'return'] as const).map((option) => (
           <button
             key={option}
             type='button'
@@ -47,29 +51,20 @@ export function EmployeeLiveCreateView({
             className={`min-h-11 shrink-0 rounded-md px-4 text-sm font-medium whitespace-nowrap transition-colors ${mode === option ? 'bg-primary-soft text-primary-ink' : 'text-muted-foreground hover:bg-surface-subtle'}`}
             onClick={() => setSearchParams({ tab: 'create-request', mode: option })}
           >
-            {translate(option === 'service' ? 'requestExtras.serviceAccount.title' : option)}
+            {translate(option)}
           </button>
         ))}
       </nav>
       <div className='grid items-start gap-5 2xl:grid-cols-[minmax(0,1fr)_300px]'>
-        {mode === 'service' ? (
-          <EmployeeServiceAccountForm
-            onCreated={(id) => onSelectTab('request-detail', { id })}
-            onDismiss={() => setSearchParams({ tab: 'create-request', mode: 'individual' })}
-          />
-        ) : (
-          <LiveCreateForm
-            key={`${mode}:${searchParams.get('assignmentId') ?? ''}`}
-            mode={mode}
-            assignmentId={searchParams.get('assignmentId') ?? ''}
-            onSelectTab={onSelectTab}
-          />
-        )}
-        {mode !== 'service' && (
-          <aside className='hidden min-w-0 2xl:block'>
-            <EmployeeRequestGuide needsPreview={mode === 'individual' || mode === 'group'} group={mode === 'group'} />
-          </aside>
-        )}
+        <LiveCreateForm
+          key={`${mode}:${searchParams.get('assignmentId') ?? ''}`}
+          mode={mode}
+          assignmentId={searchParams.get('assignmentId') ?? ''}
+          onSelectTab={onSelectTab}
+        />
+        <aside className='hidden min-w-0 2xl:block'>
+          <EmployeeRequestGuide needsPreview={mode === 'individual' || mode === 'group'} group={mode === 'group'} />
+        </aside>
       </div>
     </div>
   )
@@ -86,6 +81,9 @@ function LiveCreateForm({
 }) {
   const { t: translate } = useTranslation('employee')
   const formRef = useRef<HTMLFormElement>(null)
+  const [selectedAssignmentId, setAssignmentId] = useState(assignmentId)
+  const assignments = useRequestAssignments(mode)
+  const selectedAssignment = assignments.items.find((item) => item.assignmentId === selectedAssignmentId)
   const selection = useEmployeeCatalogSelection()
   const { plan, setPlan } = selection
   const workflow = useLiveRequestForm(
@@ -97,8 +95,10 @@ function LiveCreateForm({
   const needsPreview = mode === 'individual' || mode === 'group'
   const preview = workflow.previewResult
   const selectionIncomplete =
-    needsPreview &&
-    (!selection.ready || (mode === 'group' && (!workflow.members.length || workflow.members.length > 10)))
+    (needsPreview &&
+      (!selection.ready || (mode === 'group' && (!workflow.members.length || workflow.members.length > 10)))) ||
+    ((mode === 'renewal' || mode === 'return') &&
+      (!selectedAssignment || assignments.query.isFetching || assignments.query.isError))
   const onReview = () => {
     if (!selectionIncomplete && formRef.current?.reportValidity())
       workflow.preview.mutate(readRequestFields(formRef.current))
@@ -141,15 +141,29 @@ function LiveCreateForm({
                 <EmployeeCatalogPlanDetails selection={selection} />
               </>
             )}
-            <div className='grid gap-5 sm:grid-cols-2'>
+            <div className='grid items-start gap-5 sm:grid-cols-2'>
               {(mode === 'renewal' || mode === 'return') && (
-                <EmployeeField label={translate('assignmentId')}>
-                  <EmployeeInput required name='assignmentId' defaultValue={assignmentId} pattern={uuidPattern} />
-                </EmployeeField>
+                <EmployeeAssignmentPicker
+                  assignments={assignments}
+                  value={selectedAssignmentId}
+                  onChange={setAssignmentId}
+                  disabled={busy || workflow.feedback.blocked}
+                  invalid={workflow.feedback.invalidFields.includes('assignmentId')}
+                />
               )}
               {mode === 'renewal' && (
                 <EmployeeField label={translate('newEndDate')}>
-                  <EmployeeInput required type='date' name='newExpectedEndDate' />
+                  <EmployeeInput
+                    required
+                    type='date'
+                    name='newExpectedEndDate'
+                    disabled={!selectedAssignment}
+                    min={
+                      selectedAssignment?.expectedEndDate && assignments.asOf
+                        ? laterEndDate(selectedAssignment.expectedEndDate, assignments.asOf)
+                        : undefined
+                    }
+                  />
                 </EmployeeField>
               )}
               {mode !== 'return' && mode !== 'renewal' && (
@@ -275,4 +289,10 @@ function LiveCreateForm({
       </form>
     </EmployeeSection>
   )
+}
+
+function laterEndDate(endDate: string, asOf: string) {
+  const date = new Date(`${endDate > asOf ? endDate : asOf}T00:00:00Z`)
+  date.setUTCDate(date.getUTCDate() + 1)
+  return date.toISOString().slice(0, 10)
 }

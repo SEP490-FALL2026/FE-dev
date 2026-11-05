@@ -1,3 +1,4 @@
+import { ArrowLeft } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useBudgetProposalGet } from '~/shared/api/generated/operations/budget-proposals/budget-proposal-get'
@@ -8,58 +9,71 @@ import {
   ApprovalsEmpty,
   ApprovalsPage,
   ApprovalsPagination,
+  ApprovalsSection,
+  ApprovalsStat,
+  ApprovalsStatGrid,
   ApprovalsStatus
 } from '../../shared/components/approvals-ui'
 import { ApprovalsQueryState } from '../../shared/components/approvals-query-state'
 import { ApprovalsTable } from '../../shared/components/approvals-table'
 import { formatMoney } from '../../shared/approvals-money'
 import type { ApprovalBudgetViewProps } from '../budget-view-props'
+import { ApprovalBudgetAttachments } from './approval-budget-attachments'
 
 export function ApprovalBudgetProposalDetail({ itemId, onSelectTab }: ApprovalBudgetViewProps & { itemId: string }) {
   const { t: translate, i18n } = useTranslation('approvalsBudget')
-  const { formatDate } = useDashboardFormat()
+  const { formatDate, formatDateTime } = useDashboardFormat()
   const query = useBudgetProposalGet(itemId)
   const proposal = query.data?.data?.proposal
   return (
     <ApprovalsPage
-      title={translate('proposals')}
-      actions={<ApprovalsButton onClick={() => onSelectTab('annual-budget')}>{translate('back')}</ApprovalsButton>}
+      title={proposal ? proposal.costCenter.name : translate('proposalTitle')}
+      description={translate('readOnly')}
+      actions={
+        <ApprovalsButton variant='ghost' onClick={() => onSelectTab('annual-budget')}>
+          <ArrowLeft aria-hidden className='size-4' strokeWidth={1.5} />
+          {translate('back')}
+        </ApprovalsButton>
+      }
     >
-      <p className='text-sm text-muted-foreground'>{translate('readOnly')}</p>
       <ApprovalsQueryState query={query}>
         {proposal ? (
-          <>
-            <div className='flex flex-wrap items-start justify-between gap-3'>
-              <h2 className='truncate text-xl font-semibold' title={proposal.costCenter.name}>
-                {proposal.costCenter.name}
-              </h2>
-              <ApprovalsStatus value={proposal.state} />
-            </div>
-            <dl className='grid gap-4 rounded-lg border border-border bg-surface p-4 sm:grid-cols-2'>
-              <div>
-                <dt className='text-sm text-muted-foreground'>{translate('center')}</dt>
-                <dd className='text-right font-mono tabular-nums'>{proposal.costCenter.code}</dd>
-              </div>
-              <div>
-                <dt className='text-sm text-muted-foreground'>{translate('year')}</dt>
-                <dd className='text-right font-mono tabular-nums'>{proposal.year}</dd>
-              </div>
-              <div>
-                <dt className='text-sm text-muted-foreground'>{translate('total')}</dt>
-                <dd className='text-right font-mono tabular-nums'>{formatMoney(proposal.total, i18n.language)}</dd>
-              </div>
-              <div>
-                <dt className='text-sm text-muted-foreground'>{translate('submittedAt')}</dt>
-                <dd className='text-right font-mono tabular-nums'>{formatDate(proposal.submittedAt)}</dd>
-              </div>
-            </dl>
+          <div className='space-y-6'>
+            <ApprovalsStatus value={proposal.state} />
+            <ApprovalsStatGrid>
+              <ApprovalsStat label={translate('total')} value={formatMoney(proposal.total, i18n.language)} emphasis />
+              <ApprovalsStat label={translate('year')} value={proposal.year} />
+              <ApprovalsStat label={translate('submittedAt')} value={formatDate(proposal.submittedAt)} />
+            </ApprovalsStatGrid>
+            <ApprovalsSection title={translate('proposalInfo')}>
+              <dl className='grid gap-4 rounded-lg border border-border/70 bg-surface p-4 sm:grid-cols-2'>
+                <div className='min-w-0'>
+                  <dt className='text-xs text-muted-foreground'>{translate('center')}</dt>
+                  <dd className='mt-1 truncate font-mono text-sm tabular-nums' title={proposal.costCenter.code}>
+                    {proposal.costCenter.code}
+                  </dd>
+                </div>
+                <div className='min-w-0'>
+                  <dt className='text-xs text-muted-foreground'>{translate('submittedBy')}</dt>
+                  <dd className='mt-1 truncate text-sm' title={proposal.submittedBy?.fullName}>
+                    {proposal.submittedBy?.fullName ?? translate('unavailable')}
+                  </dd>
+                </div>
+              </dl>
+            </ApprovalsSection>
             {proposal.returned && (
-              <p className='break-words text-sm'>
-                {translate('reason')}: {proposal.returned.reason}
-              </p>
+              <ApprovalsSection title={translate('returnedTitle')}>
+                <div className='space-y-2 rounded-lg border border-border/70 bg-surface p-4'>
+                  <p className='text-sm whitespace-pre-wrap [overflow-wrap:anywhere]'>{proposal.returned.reason}</p>
+                  <p className='text-right font-mono text-xs text-muted-foreground tabular-nums'>
+                    {formatDateTime(proposal.returned.at)}
+                  </p>
+                </div>
+              </ApprovalsSection>
             )}
             <ProposalLines itemId={itemId} />
-          </>
+            <ApprovalBudgetAttachments target='proposal' ownerId={itemId} />
+          </div>
         ) : (
           <ApprovalsEmpty />
         )}
@@ -74,8 +88,7 @@ function ProposalLines({ itemId }: { itemId: string }) {
   const [page, setPage] = useState(1)
   const query = useBudgetProposalLineList(itemId, { page, pageSize: 20 })
   return (
-    <section className='space-y-3'>
-      <h2 className='text-lg font-semibold'>{translate('lines')}</h2>
+    <ApprovalsSection title={translate('lines')}>
       <ApprovalsQueryState query={query}>
         <ApprovalsTable
           items={query.data?.data?.items ?? []}
@@ -115,11 +128,16 @@ function ProposalLines({ itemId }: { itemId: string }) {
               label: translate('quoteValidUntil'),
               numeric: true,
               render: (line) => (line.quoteValidUntil ? formatDate(line.quoteValidUntil) : translate('unavailable'))
+            },
+            {
+              key: 'note',
+              label: translate('note'),
+              render: (line) => <span title={line.note ?? undefined}>{line.note ?? translate('unavailable')}</span>
             }
           ]}
         />
         <ApprovalsPagination pagination={query.data?.data?.pagination} onPageChange={setPage} />
       </ApprovalsQueryState>
-    </section>
+    </ApprovalsSection>
   )
 }

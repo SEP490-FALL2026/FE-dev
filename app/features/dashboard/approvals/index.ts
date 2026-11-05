@@ -1,5 +1,4 @@
 export { ApprovalScreen } from './approval-screen-entry'
-export { ApprovalsWorkspaceSearch } from './shared/components/approvals-workspace-search'
 export { useApprovalsTabs } from './shared/hooks/use-approvals-tabs'
 export {
   isValidApprovalTab,
