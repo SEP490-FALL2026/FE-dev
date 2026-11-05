@@ -19,6 +19,7 @@ import { getReturnRequestListQueryKey } from '~/shared/api/generated/operations/
 import { getMeAccessRequestListQueryKey } from '~/shared/api/generated/operations/me/me-access-request-list'
 import { useEmployeeFeedback } from '../../shared/hooks/use-employee-feedback'
 import { DRAFT_KIND } from '../../shared/enums/draft-kind'
+import { getMeSoftwareRightListQueryKey } from '~/shared/api/generated/operations/me/me-software-right-list'
 
 export type RequestMode = 'individual' | 'group' | 'proposal' | 'renewal' | 'return'
 export type GroupSelection = { employeeId: string; fullName: string; workEmail?: string; expectedEndDate: string }
@@ -68,6 +69,7 @@ export function useLiveRequestForm(
   const feedback = useEmployeeFeedback([
     getAccessRequestDraftListQueryKey(),
     getReturnRequestListQueryKey(),
+    getMeSoftwareRightListQueryKey(),
     getMeAccessRequestListQueryKey()
   ])
   const groupPayload = (fields: Fields): GroupBodyDto => ({

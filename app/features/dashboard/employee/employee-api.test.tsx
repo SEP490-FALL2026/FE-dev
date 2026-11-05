@@ -210,19 +210,17 @@ describe('Employee API workflows', () => {
     expect(await screen.findByText('Unsupported status')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Withdraw request' })).not.toBeInTheDocument()
   })
-  it('loads personal data from /me and suppresses business calls for self-service-only sessions', async () => {
+  it('opens Employee request creation with the current /me contract and no legacy access flag', async () => {
     server.use(
-      http.get('*/api/v1/me', () =>
-        HttpResponse.json({ success: true, data: { ...employeeProfile, selfServiceOnly: true } })
-      ),
+      http.get('*/api/v1/me', () => HttpResponse.json({ success: true, data: employeeProfile })),
       http.get('*/api/v1/me/departure-notice', () => HttpResponse.json({ success: true, data: null })),
       http.get('*/api/v1/handover-duties', () => HttpResponse.json(pageResponse())),
       http.get('*/api/v1/notifications/unread-count', () => HttpResponse.json({ success: true, data: { unread: 0 } }))
     )
     mount(<EmployeeScreen tab='create-request' onSelectTab={vi.fn()} />)
-    expect(await screen.findByRole('heading', { name: 'Test Employee' })).toBeInTheDocument()
-    expect(screen.getByText(/Your account is in the handover phase/)).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Create request' })).not.toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Create request' })).toBeInTheDocument()
+    expect(screen.queryByText(/Your account is in the handover phase/)).not.toBeInTheDocument()
+    expect(screen.getByRole('combobox', { name: 'Software' })).toBeInTheDocument()
   })
   it('shows a safe fallback for a status absent from the contract', () => {
     mount(<EmployeeStatus value='FUTURE_STATUS' />)
