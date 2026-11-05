@@ -1,10 +1,10 @@
-import { GrantRoleBodyDtoRole } from '~/shared/api/generated/model/app-users/grantRoleBodyDtoRole'
+import { ChangeRoleBodyDtoRole } from '~/shared/api/generated/model/app-users/changeRoleBodyDtoRole'
 
 export const directRoles = [
-  GrantRoleBodyDtoRole.IT_ADMIN,
-  GrantRoleBodyDtoRole.FINANCE,
-  GrantRoleBodyDtoRole.EMPLOYEE,
-  GrantRoleBodyDtoRole.MANAGER,
-  GrantRoleBodyDtoRole.SPENDING_APPROVER
+  ChangeRoleBodyDtoRole.IT_ADMIN,
+  ChangeRoleBodyDtoRole.FINANCE,
+  ChangeRoleBodyDtoRole.EMPLOYEE,
+  ChangeRoleBodyDtoRole.MANAGER,
+  ChangeRoleBodyDtoRole.SPENDING_APPROVER
 ] as const
 export type DirectRole = (typeof directRoles)[number]

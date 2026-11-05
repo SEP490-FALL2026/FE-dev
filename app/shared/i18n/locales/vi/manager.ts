@@ -1,5 +1,9 @@
 import { managerIntegration } from './manager-integration'
+import { managerRequestForm } from './manager-request-form'
+import { managerBudgetForm } from './manager-budget-form'
 export const manager = {
+  budgetForm: managerBudgetForm,
+  requestForm: managerRequestForm,
   integration: managerIntegration,
   title: 'Không gian phòng ban',
   overview: 'Tổng quan',
@@ -86,7 +90,7 @@ export const manager = {
   viewAll: 'Xem tất cả',
   quickActions: 'Thao tác nhanh',
   quickCreate: 'Gửi yêu cầu phần mềm cho nhân viên',
-  quickCreateHint: 'Lập yêu cầu nhóm hoặc gửi từng yêu cầu thay nhân viên.',
+  quickCreateHint: 'Lập yêu cầu phần mềm cho nhóm.',
   quickBudget: 'Lập ngân sách năm',
   quickBudgetHint: 'Xem kế hoạch hiện tại và gửi đề xuất chi phí cho Finance.',
   quickPersonnel: 'Quản lý biến động nhân sự',
@@ -183,8 +187,7 @@ export const manager = {
   dropEmployees: 'ID người cần loại khỏi đơn (mỗi dòng một ID)',
   participants: 'Người được cấp',
   groupIncomplete: 'Tải đủ các trang thành viên trước khi gửi quyết định cho những người đang chờ.',
-  groupHint: 'Đơn nhóm có quản lý làm người đại diện. Khi gửi thay cho nhân viên mới, dùng yêu cầu cá nhân gửi hộ.',
-  individual: 'Yêu cầu gửi hộ',
+  groupHint: 'Đơn nhóm có quản lý làm người đại diện.',
   group: 'Yêu cầu nhóm',
   createGroupRequest: 'Tạo yêu cầu nhóm',
   beneficiaries: 'Người được cấp',
@@ -197,7 +200,7 @@ export const manager = {
   proposals: 'Lịch sử đề xuất',
   newProposal: 'Lập đề xuất',
   currentBudget: 'Ngân sách năm hiện hành',
-  budgetHint: 'Gửi các dòng kế hoạch có số tiền để Finance thẩm tra. Đề xuất ngân sách chưa hỗ trợ tải tệp đính kèm.',
+  budgetHint: 'Lập các dòng kế hoạch và đính kèm tài liệu để Finance thẩm tra.',
   budgetMissing: 'Năm này chưa có ngân sách hiện hành',
   windowFrom: 'Bắt đầu cửa sổ mua',
   windowTo: 'Kết thúc cửa sổ mua',
@@ -329,6 +332,7 @@ export const manager = {
     confirmRejectText: 'Bạn có chắc chắn muốn TỪ CHỐI nhu cầu phần mềm này?'
   },
   errors: {
+    budgetAttachments: 'Một số tệp không còn sẵn sàng. Làm mới danh sách tệp và chọn lại trước khi gửi.',
     unavailable: 'Không tải được dữ liệu. Vui lòng thử lại.',
     forbidden: 'Quyền của bạn đã thay đổi. Vui lòng cập nhật phiên.',
     missing: 'Bản ghi không khả dụng trong phạm vi của bạn.',

@@ -9,7 +9,7 @@ import type { SecondParameter } from './app-users.helpers'
 import { useMutation } from '@tanstack/react-query'
 import type { MutationFunction, QueryClient, UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 
-import type { AppUserGrantRole201, ErrorEnvelopeDto, GrantRoleBodyDto } from '../../model'
+import type { AppUserChangeRole200, ChangeRoleBodyDto, ErrorEnvelopeDto } from '../../model'
 
 import { env } from '~/shared/config/env'
 
@@ -17,41 +17,44 @@ import { customAxios } from '../../../mutator/custom-axios'
 import type { ErrorType, BodyType } from '../../../mutator/custom-axios'
 
 /**
- * @summary Grant a role to an account
+ * @summary Change the role of an account
  */
-export const appUserGrantRole = (
+export const appUserChangeRole = (
   id: string,
-  grantRoleBodyDto: BodyType<GrantRoleBodyDto>,
+  changeRoleBodyDto: BodyType<ChangeRoleBodyDto>,
   options?: SecondParameter<typeof customAxios>,
   signal?: AbortSignal
 ) => {
-  return customAxios<AppUserGrantRole201>(
+  return customAxios<AppUserChangeRole200>(
     {
-      url: `${env.API_BASE_URL}/api/v1/app-users/${id}/role-grants`,
-      method: 'POST',
+      url: `${env.API_BASE_URL}/api/v1/app-users/${id}/role`,
+      method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      data: grantRoleBodyDto,
+      data: changeRoleBodyDto,
       signal
     },
     options
   )
 }
 
-export const getAppUserGrantRoleMutationOptions = <TError = ErrorType<ErrorEnvelopeDto>, TContext = unknown>(options?: {
+export const getAppUserChangeRoleMutationOptions = <
+  TError = ErrorType<ErrorEnvelopeDto>,
+  TContext = unknown
+>(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof appUserGrantRole>>,
+    Awaited<ReturnType<typeof appUserChangeRole>>,
     TError,
-    { id: string; data: BodyType<GrantRoleBodyDto> },
+    { id: string; data: BodyType<ChangeRoleBodyDto> },
     TContext
   >
   request?: SecondParameter<typeof customAxios>
 }): UseMutationOptions<
-  Awaited<ReturnType<typeof appUserGrantRole>>,
+  Awaited<ReturnType<typeof appUserChangeRole>>,
   TError,
-  { id: string; data: BodyType<GrantRoleBodyDto> },
+  { id: string; data: BodyType<ChangeRoleBodyDto> },
   TContext
 > => {
-  const mutationKey = ['appUserGrantRole']
+  const mutationKey = ['appUserChangeRole']
   const { mutation: mutationOptions, request: requestOptions } = options
     ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
@@ -59,40 +62,40 @@ export const getAppUserGrantRoleMutationOptions = <TError = ErrorType<ErrorEnvel
     : { mutation: { mutationKey }, request: undefined }
 
   const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof appUserGrantRole>>,
-    { id: string; data: BodyType<GrantRoleBodyDto> }
+    Awaited<ReturnType<typeof appUserChangeRole>>,
+    { id: string; data: BodyType<ChangeRoleBodyDto> }
   > = (props) => {
     const { id, data } = props ?? {}
 
-    return appUserGrantRole(id, data, requestOptions)
+    return appUserChangeRole(id, data, requestOptions)
   }
 
   return { mutationFn, ...mutationOptions }
 }
 
-export type AppUserGrantRoleMutationResult = NonNullable<Awaited<ReturnType<typeof appUserGrantRole>>>
-export type AppUserGrantRoleMutationBody = BodyType<GrantRoleBodyDto>
-export type AppUserGrantRoleMutationError = ErrorType<ErrorEnvelopeDto>
+export type AppUserChangeRoleMutationResult = NonNullable<Awaited<ReturnType<typeof appUserChangeRole>>>
+export type AppUserChangeRoleMutationBody = BodyType<ChangeRoleBodyDto>
+export type AppUserChangeRoleMutationError = ErrorType<ErrorEnvelopeDto>
 
 /**
- * @summary Grant a role to an account
+ * @summary Change the role of an account
  */
-export const useAppUserGrantRole = <TError = ErrorType<ErrorEnvelopeDto>, TContext = unknown>(
+export const useAppUserChangeRole = <TError = ErrorType<ErrorEnvelopeDto>, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof appUserGrantRole>>,
+      Awaited<ReturnType<typeof appUserChangeRole>>,
       TError,
-      { id: string; data: BodyType<GrantRoleBodyDto> },
+      { id: string; data: BodyType<ChangeRoleBodyDto> },
       TContext
     >
     request?: SecondParameter<typeof customAxios>
   },
   queryClient?: QueryClient
 ): UseMutationResult<
-  Awaited<ReturnType<typeof appUserGrantRole>>,
+  Awaited<ReturnType<typeof appUserChangeRole>>,
   TError,
-  { id: string; data: BodyType<GrantRoleBodyDto> },
+  { id: string; data: BodyType<ChangeRoleBodyDto> },
   TContext
 > => {
-  return useMutation(getAppUserGrantRoleMutationOptions(options), queryClient)
+  return useMutation(getAppUserChangeRoleMutationOptions(options), queryClient)
 }

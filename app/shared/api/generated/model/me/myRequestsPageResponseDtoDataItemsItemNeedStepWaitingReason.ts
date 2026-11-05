@@ -15,7 +15,5 @@ export type MyRequestsPageResponseDtoDataItemsItemNeedStepWaitingReason =
 
 export const MyRequestsPageResponseDtoDataItemsItemNeedStepWaitingReason = {
   NO_SPENDING_APPROVER: 'NO_SPENDING_APPROVER',
-  NO_DEPARTMENT_HEAD: 'NO_DEPARTMENT_HEAD',
-  NO_FALLBACK_APPROVER: 'NO_FALLBACK_APPROVER',
-  FALLBACK_IS_REQUESTER: 'FALLBACK_IS_REQUESTER'
+  NO_DEPARTMENT_HEAD: 'NO_DEPARTMENT_HEAD'
 } as const

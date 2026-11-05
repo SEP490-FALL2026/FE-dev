@@ -213,8 +213,7 @@ export type AccessRequestOrDraftResponseDtoData =
            */
           routingRow: number
           /** @nullable */
-          waitingReason:
-            'NO_SPENDING_APPROVER' | 'NO_DEPARTMENT_HEAD' | 'NO_FALLBACK_APPROVER' | 'FALLBACK_IS_REQUESTER' | null
+          waitingReason: 'NO_SPENDING_APPROVER' | 'NO_DEPARTMENT_HEAD' | null
           samePersonAsSpend: boolean
           /**
            * @maximum 9007199254740991

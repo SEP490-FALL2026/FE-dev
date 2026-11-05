@@ -5,14 +5,12 @@
  * Internal software license and technology cost API. A text field whose description says it is trimmed has its leading and trailing whitespace removed before it is checked; for the other text fields the description makes no such promise.
  * OpenAPI spec version: 1.0
  */
+import type { BudgetAttachmentCompletedResponseDtoData } from './budgetAttachmentCompletedResponseDtoData'
 
-export type GrantRoleBodyDtoRole = (typeof GrantRoleBodyDtoRole)[keyof typeof GrantRoleBodyDtoRole]
-
-export const GrantRoleBodyDtoRole = {
-  SUPER_ADMIN: 'SUPER_ADMIN',
-  IT_ADMIN: 'IT_ADMIN',
-  FINANCE: 'FINANCE',
-  EMPLOYEE: 'EMPLOYEE',
-  MANAGER: 'MANAGER',
-  SPENDING_APPROVER: 'SPENDING_APPROVER'
-} as const
+export interface BudgetAttachmentCompletedResponseDto {
+  success: true
+  /** @pattern ^[A-Z][A-Z0-9_]*(\.[A-Z0-9_]+)+$ */
+  message: string
+  /** @nullable */
+  data: BudgetAttachmentCompletedResponseDtoData
+}

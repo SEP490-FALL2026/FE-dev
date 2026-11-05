@@ -15,7 +15,6 @@ export type SuperAdminDashboardResponseDtoDataSectionsAccountCandidatesReason =
   | null
 
 export const SuperAdminDashboardResponseDtoDataSectionsAccountCandidatesReason = {
-  REQUEST_QUEUE_NOT_DELIVERED: 'REQUEST_QUEUE_NOT_DELIVERED',
   FINANCE_FIGURES_NOT_DELIVERED: 'FINANCE_FIGURES_NOT_DELIVERED',
   USAGE_DATA_NOT_DELIVERED: 'USAGE_DATA_NOT_DELIVERED',
   DEVICE_REGISTRY_NOT_DELIVERED: 'DEVICE_REGISTRY_NOT_DELIVERED',

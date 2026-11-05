@@ -1,5 +1,9 @@
 import { managerIntegration } from './manager-integration'
+import { managerRequestForm } from './manager-request-form'
+import { managerBudgetForm } from './manager-budget-form'
 export const manager = {
+  budgetForm: managerBudgetForm,
+  requestForm: managerRequestForm,
   integration: managerIntegration,
   title: 'Department workspace',
   overview: 'Overview',
@@ -88,7 +92,7 @@ export const manager = {
   viewAll: 'View all',
   quickActions: 'Start a task',
   quickCreate: 'Request software for staff',
-  quickCreateHint: 'Prepare a group request or send individual requests on behalf of employees.',
+  quickCreateHint: 'Prepare a software request for the group.',
   quickBudget: 'Plan the annual budget',
   quickBudgetHint: 'Review the current plan and submit priced proposals to Finance.',
   quickPersonnel: 'Manage personnel changes',
@@ -186,9 +190,7 @@ export const manager = {
   dropEmployees: 'Employee IDs to remove (one per line)',
   participants: 'Participants',
   groupIncomplete: 'Load all participant pages before submitting decisions for the pending members.',
-  groupHint:
-    'A group request contains the manager as its representative. For onboarding on behalf of staff, use individual delegated requests.',
-  individual: 'Delegated requests',
+  groupHint: 'A group request contains the manager as its representative.',
   group: 'Group request',
   createGroupRequest: 'Create group request',
   beneficiaries: 'Beneficiaries',
@@ -201,8 +203,7 @@ export const manager = {
   proposals: 'Proposal history',
   newProposal: 'New proposal',
   currentBudget: 'Current annual budget',
-  budgetHint:
-    'Submit priced plan lines for Finance to review. Supporting-file upload is not available for budget proposals.',
+  budgetHint: 'Prepare plan lines and attach supporting documents for Finance review.',
   budgetMissing: 'No active budget for this year',
   windowFrom: 'Purchase window starts',
   windowTo: 'Purchase window ends',
@@ -335,6 +336,8 @@ export const manager = {
     confirmRejectText: 'Are you sure you want to REJECT this software need?'
   },
   errors: {
+    budgetAttachments:
+      'Some files are no longer available. Refresh the file list and select files again before submitting.',
     unavailable: 'Unable to load data. Try again.',
     forbidden: 'Your permissions have changed. Refresh your session.',
     missing: 'This record is unavailable in your current scope.',

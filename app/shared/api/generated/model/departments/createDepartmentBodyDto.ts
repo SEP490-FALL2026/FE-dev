@@ -8,7 +8,7 @@
 
 export interface CreateDepartmentBodyDto {
   /**
-   * 2 to 20 letters or digits in hyphen-separated groups; normalized to uppercase, e.g. P-ENG.
+   * 2 to 20 ASCII letters or digits in hyphen-separated groups; lowercase is accepted and converted to uppercase, e.g. p-eng becomes P-ENG.
    * @minLength 2
    * @maxLength 20
    * @pattern ^[A-Z0-9]+(-[A-Z0-9]+)*$

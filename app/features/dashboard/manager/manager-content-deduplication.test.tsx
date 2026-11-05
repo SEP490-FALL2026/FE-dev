@@ -101,7 +101,7 @@ it('retains line decisions and hides withdrawal actions while a group is awaitin
     )
   )
   mount(<ManagerLiveRequest id={requestId} employeeId={managerId} departmentCode='ENG' onBack={vi.fn()} />)
-  expect(await screen.findByLabelText('Decision')).toBeInTheDocument()
+  expect(await screen.findByRole('group', { name: 'Decision for the whole group' })).toBeInTheDocument()
   expect(screen.getAllByRole('heading', { name: 'Participants' })).toHaveLength(1)
   expect(screen.queryByRole('button', { name: 'Withdraw member' })).not.toBeInTheDocument()
 })

@@ -9,7 +9,8 @@ export const managerId = '55555555-5555-4555-8555-555555555555'
 export const managerProfile = {
   ...employeeProfile,
   employee: { ...employeeProfile.employee, id: managerId, fullName: 'Test Manager' },
-  roles: ['EMPLOYEE', 'MANAGER']
+  roles: ['MANAGER'],
+  managerScope: { departmentId: employeeId, departmentCode: 'ENG', departmentName: 'Engineering' }
 }
 export const managerRequest: AccessRequestResponseDtoDataRequest = {
   ...accessRequest,

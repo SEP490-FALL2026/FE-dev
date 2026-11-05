@@ -9,7 +9,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 import { setAppLanguage } from '~/shared/i18n/i18n'
 import { getSpendQueueListQueryKey } from '~/shared/api/generated/operations/spend-submission/spend-queue-list'
 import { managerId, managerProfile, managerRequest, queueItem } from '../../../../test/fixtures/manager-api'
-import { requestId, employeeId, planId, pageResponse } from '../../../../test/fixtures/employee-api'
+import { requestId, employeeId, planId, pageResponse, groupCheck } from '../../../../test/fixtures/employee-api'
 import { ManagerLiveRequest } from './team-requests/views/manager-live-request'
 import { ManagerLiveBatch } from './team-requests/views/manager-live-batch'
 import { ManagerLiveCreate } from './team-requests/views/manager-live-create'
@@ -167,36 +167,37 @@ describe('Manager need approval and spend submission', () => {
   it('never fetches the privileged department directory to fill a missing department ID', async () => {
     const calls: string[] = []
     server.use(
-      http.get('*/api/v1/me', () => HttpResponse.json({ success: true, data: managerProfile })),
+      http.get('*/api/v1/me', () =>
+        HttpResponse.json({ success: true, data: { ...managerProfile, managerScope: null } })
+      ),
       http.get('*/api/v1/departments', ({ request }) => {
         calls.push(request.url)
         return HttpResponse.json(pageResponse([]))
       })
     )
     mount(<ManagerScreen tab='my-team' onSelectTab={vi.fn()} />)
-    expect(await screen.findByLabelText('Department ID')).toBeInTheDocument()
+    expect(await screen.findByRole('alert')).toBeInTheDocument()
     expect(calls).toEqual([])
   })
-  it('creates delegated requests with official IDs and no fixture fields', async () => {
+  it('creates group requests with official IDs and no fixture fields', async () => {
     const written = vi.fn()
     server.use(
       http.get('*/api/v1/group-request-candidates', () =>
         HttpResponse.json(pageResponse([{ employeeId, fullName: 'Test Employee', workEmail: 'employee@example.test' }]))
       ),
-      http.post('*/api/v1/delegated-requests', async ({ request }) => {
+      http.post('*/api/v1/group-requests/check', () => HttpResponse.json({ success: true, data: groupCheck })),
+      http.post('*/api/v1/group-requests', async ({ request }) => {
         written(await request.json())
-        return HttpResponse.json(
-          { success: true, data: { batchId: planId, requests: [managerRequest] } },
-          { status: 201 }
-        )
+        return HttpResponse.json({ success: true, data: { request: managerRequest } }, { status: 201 })
       })
     )
-    mount(<ManagerLiveCreate group={false} onOpen={vi.fn()} />, '/dashboard/manager')
+    mount(<ManagerLiveCreate onOpen={vi.fn()} />, '/dashboard/manager')
     await chooseCatalogPlan()
     await screen.findByText('Sharing not allowed')
     fireEvent.change(screen.getByLabelText('Term (months)'), { target: { value: '3' } })
     fireEvent.click(screen.getByRole('combobox', { name: 'Beneficiaries' }))
     fireEvent.click(await screen.findByRole('option', { name: /Test Employee/ }))
+    fireEvent.keyDown(screen.getByRole('searchbox'), { key: 'Escape' })
     fireEvent.change(screen.getByLabelText('Reason'), { target: { value: 'Onboarding' } })
     fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
     await waitFor(() =>
@@ -207,8 +208,8 @@ describe('Manager need approval and spend submission', () => {
     expect(written).toHaveBeenCalledWith({
       businessReason: 'Onboarding',
       termMonths: 3,
-      beneficiaryEmployeeIds: [employeeId],
-      items: [{ planId }]
+      planId,
+      lines: [{ employeeId }]
     })
   })
   it('falls back safely for an unknown status', () => {

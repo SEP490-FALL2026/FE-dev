@@ -25,10 +25,6 @@ export const managerIntegration = {
   dataLoss: 'Mất dữ liệu khi gỡ quyền',
   yes: 'Có',
   no: 'Không',
-  previewHint:
-    'Chi phí ước tính theo phòng của bạn. Yêu cầu gửi hộ bỏ qua bước duyệt nhu cầu; không áp dụng chuỗi duyệt của yêu cầu cho bản thân.',
-  estimatedAmount: 'Chi phí ước tính',
-  previewBlocked: 'Chưa thể gửi yêu cầu. Kiểm tra cấu hình tài chính của phòng.',
   withdraw: 'Rút yêu cầu',
   withdrawHint: 'Bắt buộc nhập lý do. Hệ thống kiểm tra giai đoạn hiện tại trước khi cho rút.',
   withdrawPeople: 'Rút người khỏi yêu cầu nhóm',

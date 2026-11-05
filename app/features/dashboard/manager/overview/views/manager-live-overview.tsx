@@ -37,7 +37,7 @@ export function ManagerLiveOverview({
           <button
             type='button'
             className='inline-flex min-h-11 items-center gap-2 rounded-md border border-current/25 px-4 py-2 text-sm font-medium transition-colors hover:bg-white/10'
-            onClick={() => onSelectTab('create-employee-request', { scope: 'individual' })}
+            onClick={() => onSelectTab('create-employee-request', { scope: 'team' })}
           >
             <FilePlus2 aria-hidden strokeWidth={1.5} className='size-4' />
             {translate('create')}

@@ -44,11 +44,12 @@ export function ManagerScreen({
   const needsDepartment =
     form || ['overview', 'my-team', 'team-software', 'employee-detail', 'tool-detail'].includes(tab)
   const department = useDepartmentGet(departmentId, {
-    query: { enabled: !!user && !user.selfServiceOnly && validDepartment && needsDepartment }
+    query: {
+      enabled: !!user && user.roles.includes('MANAGER') && !!user.managerScope && validDepartment && needsDepartment
+    }
   })
   if (!user) return <ManagerQueryState query={me} empty={!user} syncPermissions={false} />
-  if (user.selfServiceOnly || !user.roles.includes('MANAGER'))
-    return <p role='alert'>{translate('errors.forbidden')}</p>
+  if (!user.roles.includes('MANAGER') || !user.managerScope) return <p role='alert'>{translate('errors.forbidden')}</p>
   if (tab === 'notifications' || tab === 'personnel-notices') {
     const next = new URLSearchParams(params)
     next.set('tab', tab === 'notifications' ? 'overview' : 'my-team')
@@ -56,6 +57,11 @@ export function ManagerScreen({
     return <Navigate replace to={{ pathname: '/dashboard/manager', search: next.toString() }} />
   }
   const openRequest = (id: string) => onSelectTab('request-approval', { id })
+  if (tab === 'create-employee-request' && params.get('scope') !== 'team') {
+    const next = new URLSearchParams(params)
+    next.set('scope', 'team')
+    return <Navigate replace to={{ pathname: location.pathname, search: next.toString() }} />
+  }
   const id = params.get('id') ?? ''
   const returnContext: Record<string, string> = { toolsView: 'returns' }
   for (const key of ['returnState', 'returnPage', 'departmentId']) {
@@ -68,11 +74,14 @@ export function ManagerScreen({
     content =
       proposalId && !isResourceId(proposalId) ? (
         <p>{translate('errors.missing')}</p>
+      ) : department.isPending || department.isError ? (
+        <ManagerQueryState query={department} />
       ) : (
         <ManagerBudgetForm
           key={proposalId ?? 'new'}
           id={proposalId}
           costCenterId={!department.isError ? department.data?.data?.costCenter?.id : undefined}
+          costCenterName={!department.isError ? department.data?.data?.costCenter?.name : undefined}
         />
       )
   else if (tab === 'overview')
@@ -230,10 +239,7 @@ export function ManagerScreen({
     ) : (
       <ManagerRequestLookup onOpen={openRequest} />
     )
-  else if (tab === 'create-employee-request')
-    content = (
-      <ManagerLiveCreate key={params.get('scope')} group={params.get('scope') === 'team'} onOpen={openRequest} />
-    )
+  else if (tab === 'create-employee-request') content = <ManagerLiveCreate onOpen={openRequest} />
   else if (tab === 'weekly-batch')
     content = (
       <ManagerLiveBatch

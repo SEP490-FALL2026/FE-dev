@@ -3,6 +3,7 @@ import { getNeedDecisionListQueryKey } from '~/shared/api/generated/operations/n
 import { getManagerDashboardGetQueryKey } from '~/shared/api/generated/operations/dashboards/manager-dashboard-get'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 import { Check, CheckCircle2, X, XCircle } from 'lucide-react'
 import type { NeedDecisionBodyDto } from '~/shared/api/generated/model/access-requests/needDecisionBodyDto'
 import { accessRequestNeedDecide } from '~/shared/api/generated/operations/access-requests/access-request-need-decide'
@@ -53,11 +54,21 @@ export function ManagerNeedForm({
           const form = new FormData(event.currentTarget)
           const reason = String(form.get('reason') ?? '').trim()
           const term = String(form.get('termConfirmation') ?? '').trim()
+          if (
+            (decision === NEED_DECISION.REJECT && !reason) ||
+            (decision === NEED_DECISION.APPROVE && termRequired && !term)
+          )
+            return
+          const spend = decision === NEED_DECISION.APPROVE && hasSpend ? allocationFromForm(form) : undefined
+          if (decision === NEED_DECISION.APPROVE && hasSpend && !spend) {
+            toast.error(translate('validation'), { id: 'manager-need-allocation' })
+            return
+          }
           setConfirmation({
             decision,
-            ...(reason ? { reason } : {}),
-            ...(decision === NEED_DECISION.APPROVE && term ? { termConfirmation: { reason: term } } : {}),
-            ...(decision === NEED_DECISION.APPROVE && hasSpend ? { spend: allocationFromForm(form) } : {})
+            ...(decision === NEED_DECISION.REJECT ? { reason } : {}),
+            ...(decision === NEED_DECISION.APPROVE && termRequired ? { termConfirmation: { reason: term } } : {}),
+            ...(spend ? { spend } : {})
           })
         }}
       >
@@ -65,7 +76,7 @@ export function ManagerNeedForm({
           {/* Card-based decision selector */}
           <div className='grid gap-3 sm:grid-cols-2'>
             <div
-              className={`rounded-xl border p-3.5 transition-all ${
+              className={`rounded-md border p-3.5 transition-colors ${
                 decision === NEED_DECISION.APPROVE
                   ? 'border-emerald-500/50 bg-emerald-50/50 shadow-xs ring-1 ring-emerald-500/30 dark:bg-emerald-950/20'
                   : 'border-border/70 bg-surface hover:bg-surface-subtle/60'
@@ -94,7 +105,7 @@ export function ManagerNeedForm({
             </div>
 
             <div
-              className={`rounded-xl border p-3.5 transition-all ${
+              className={`rounded-md border p-3.5 transition-colors ${
                 decision === NEED_DECISION.REJECT
                   ? 'border-rose-500/50 bg-rose-50/50 shadow-xs ring-1 ring-rose-500/30 dark:bg-rose-950/20'
                   : 'border-border/70 bg-surface hover:bg-surface-subtle/60'
@@ -110,9 +121,7 @@ export function ManagerNeedForm({
                 />
                 <XCircle
                   className={`size-4 ${
-                    decision === NEED_DECISION.REJECT
-                      ? 'text-rose-600 dark:text-rose-400'
-                      : 'text-muted-foreground'
+                    decision === NEED_DECISION.REJECT ? 'text-rose-600 dark:text-rose-400' : 'text-muted-foreground'
                   }`}
                 />
                 {translate('reject')}
@@ -123,35 +132,35 @@ export function ManagerNeedForm({
             </div>
           </div>
 
-          <ManagerField label={translate('requestDetail.reasonLabel')}>
-            <textarea
-              className={managerInputClass}
-              name='reason'
-              aria-label={translate('reason')}
-              rows={3}
-              required={decision === NEED_DECISION.REJECT}
-              maxLength={1000}
-              placeholder={
-                decision === NEED_DECISION.REJECT
-                  ? translate('requestDetail.reasonPlaceholderReject')
-                  : translate('requestDetail.reasonPlaceholderApprove')
-              }
-            />
-          </ManagerField>
+          {decision === NEED_DECISION.REJECT && (
+            <ManagerField label={translate('requestForm.rejectionReason')}>
+              <textarea
+                className={managerInputClass}
+                name='reason'
+                aria-label={translate('reason')}
+                rows={3}
+                required
+                maxLength={1000}
+                placeholder={translate('requestDetail.reasonPlaceholderReject')}
+              />
+            </ManagerField>
+          )}
 
           {decision === NEED_DECISION.APPROVE && (
             <>
-              <ManagerField label={translate('requestDetail.termConfirmationLabel')}>
-                <textarea
-                  className={managerInputClass}
-                  name='termConfirmation'
-                  aria-label={translate('termConfirmation')}
-                  rows={2}
-                  required={termRequired}
-                  maxLength={1000}
-                  placeholder={translate('requestDetail.termConfirmationPlaceholder')}
-                />
-              </ManagerField>
+              {termRequired && (
+                <ManagerField label={translate('requestForm.termConfirmation')}>
+                  <textarea
+                    className={managerInputClass}
+                    name='termConfirmation'
+                    aria-label={translate('termConfirmation')}
+                    rows={2}
+                    required
+                    maxLength={1000}
+                    placeholder={translate('requestDetail.termConfirmationPlaceholder')}
+                  />
+                </ManagerField>
+              )}
               {hasSpend && <ManagerPlanAllocation id={id} />}
             </>
           )}

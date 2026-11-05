@@ -5,8 +5,16 @@
  * Internal software license and technology cost API. A text field whose description says it is trimmed has its leading and trailing whitespace removed before it is checked; for the other text fields the description makes no such promise.
  * OpenAPI spec version: 1.0
  */
-import type { AccountDetailResponseDto } from './accountDetailResponseDto'
 
-export type AppUserRevokeRole200 = AccountDetailResponseDto & {
-  message?: unknown
+export type BudgetVersionAttachmentListParams = {
+  /**
+   * @maximum 9007199254740991
+   * @exclusiveMinimum 0
+   */
+  page?: number
+  /**
+   * @maximum 100
+   * @exclusiveMinimum 0
+   */
+  pageSize?: number
 }

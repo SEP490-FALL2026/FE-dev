@@ -1,16 +1,8 @@
 import { ArrowLeft, Boxes, Building2, Calendar, UserCheck, UserRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { useQueryClient } from '@tanstack/react-query'
-import type { NeedQueueResponseDtoDataItemsItem } from '~/shared/api/generated/model/need-decisions/needQueueResponseDtoDataItemsItem'
-import { getNeedDecisionListQueryKey } from '~/shared/api/generated/operations/need-decisions/need-decision-list'
 import { useAccessRequestGet } from '~/shared/api/generated/operations/access-requests/access-request-get'
 import { useDashboardFormat } from '../../../dashboard-ui'
-import {
-  ManagerButton,
-  ManagerMoney,
-  ManagerQueryState,
-  ManagerSection
-} from '../../shared/components/manager-api-ui'
+import { ManagerButton, ManagerMoney, ManagerQueryState, ManagerSection } from '../../shared/components/manager-api-ui'
 import { ManagerNeedForm } from '../components/manager-need-form'
 import { ManagerGroupDecisions } from '../components/manager-group-decisions'
 import { ManagerSpendCorrections } from '../components/manager-spend-corrections'
@@ -20,6 +12,7 @@ import { ManagerRequestWithdraw } from '../components/manager-request-withdraw'
 import { ManagerLineWithdrawals } from '../components/manager-line-withdrawals'
 import { isHeadWithdrawalStage } from '../enums/withdrawal'
 import { ManagerSimilarSeats } from '../components/manager-similar-seats'
+import { useManagerNeedRequirements } from '../hooks/use-manager-need-requirements'
 
 export function ManagerLiveRequest({
   id,
@@ -37,19 +30,19 @@ export function ManagerLiveRequest({
   const query = useAccessRequestGet(id)
   const data = !query.isError ? query.data?.data : null
   const request = data && 'request' in data ? data.request : null
-  const client = useQueryClient()
-  const queueContext = client
-    .getQueriesData<{ data?: { items: NeedQueueResponseDtoDataItemsItem[] } | null }>({
-      queryKey: getNeedDecisionListQueryKey()
-    })
-    .flatMap(([, page]) => page?.data?.items ?? [])
-    .find((row) => row.requestId === id && row.stepId === request?.needStep.id)
   const mayWithdraw = !!request && request.department.code === departmentCode && isHeadWithdrawalStage(request.state)
   const canDecide =
     request?.state === REQUEST_STATE.PENDING &&
     request.needStep.state === NEED_STEP_STATE.PENDING &&
     request.needStep.assignee?.employeeId === employeeId &&
     request.requester.employeeId !== employeeId
+  const needsRequirements =
+    !!request && request.state === REQUEST_STATE.PENDING && (canDecide || request.type === REQUEST_TYPE.GROUP_GRANT)
+  const { requirements: queueContext, query: requirementsQuery } = useManagerNeedRequirements(
+    id,
+    request?.needStep.id,
+    needsRequirements
+  )
 
   const softwareTitle =
     request?.plan?.applicationName ?? request?.proposal?.softwareName ?? translate('requestDetail.title')
@@ -88,11 +81,7 @@ export function ManagerLiveRequest({
 
       {request && (
         <div
-          className={
-            request.type === REQUEST_TYPE.GROUP_GRANT
-              ? 'space-y-6'
-              : 'grid items-start gap-6 lg:grid-cols-2'
-          }
+          className={request.type === REQUEST_TYPE.GROUP_GRANT ? 'space-y-6' : 'grid items-start gap-6 lg:grid-cols-2'}
         >
           {/* Left Column: Request Details Card */}
           <ManagerSection title={translate('requestDetail.requestInfo')}>
@@ -200,28 +189,36 @@ export function ManagerLiveRequest({
           </ManagerSection>
 
           {/* Right Column: Decision Actions */}
+          {needsRequirements && !queueContext && (
+            <ManagerSection title={translate('decision')}>
+              <ManagerQueryState query={requirementsQuery} />
+              {requirementsQuery.isSuccess && (
+                <p className='text-sm text-muted-foreground'>{translate('requestForm.requirementsUnavailable')}</p>
+              )}
+            </ManagerSection>
+          )}
           {request.type === REQUEST_TYPE.GROUP_GRANT && mayWithdraw ? (
             <ManagerLineWithdrawals id={id} />
           ) : request.type === REQUEST_TYPE.GROUP_GRANT ? (
             <ManagerGroupDecisions
               id={id}
               employeeId={employeeId}
-              hasSpend={queueContext?.planLineRequired ?? request.policy.hasSpendStep}
+              hasSpend={queueContext?.planLineRequired ?? false}
               termRequired={queueContext?.termConfirmationRequired}
-              requestPending={request.state === REQUEST_STATE.PENDING}
+              requestPending={request.state === REQUEST_STATE.PENDING && !!queueContext}
             />
-          ) : canDecide ? (
+          ) : canDecide && queueContext ? (
             <ManagerSection title={translate('requestDetail.decisionTitle')}>
               <ManagerNeedForm
                 id={id}
-                hasSpend={queueContext?.planLineRequired ?? request.policy.hasSpendStep}
-                termRequired={queueContext?.termConfirmationRequired}
+                hasSpend={queueContext.planLineRequired}
+                termRequired={queueContext.termConfirmationRequired}
               />
               <div className='border-t border-border/50 pt-4'>
                 <ManagerSimilarSeats id={id} />
               </div>
             </ManagerSection>
-          ) : (
+          ) : canDecide ? null : (
             <ManagerSection title={translate('requestDetail.decisionTitle')}>
               <p className='py-4 text-center text-sm text-muted-foreground'>{translate('noPermission')}</p>
             </ManagerSection>

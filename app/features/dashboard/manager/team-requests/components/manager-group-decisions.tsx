@@ -3,6 +3,7 @@ import { getNeedDecisionListQueryKey } from '~/shared/api/generated/operations/n
 import { getManagerDashboardGetQueryKey } from '~/shared/api/generated/operations/dashboards/manager-dashboard-get'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 import type { LineNeedDecisionBodyDto } from '~/shared/api/generated/model/group-requests/lineNeedDecisionBodyDto'
 import {
   useAccessRequestLineList,
@@ -25,6 +26,7 @@ import {
 } from '../../shared/components/manager-api-ui'
 import { NEED_STEP_STATE, NEED_DECISION, GROUP_LINE_STATE } from '../enums/need-decision'
 import { allocationFromForm, ManagerPlanAllocation } from './manager-plan-allocation'
+import { ManagerDecisionFields, type ManagerDecisionChoice } from './manager-decision-fields'
 
 export function ManagerGroupDecisions({
   id,
@@ -51,7 +53,18 @@ export function ManagerGroupDecisions({
   )
   const complete = query.isSuccess && query.data?.data?.pagination.totalPages === 1
   const [confirmation, setConfirmation] = useState<LineNeedDecisionBodyDto | null>(null)
-  const [rejected, setRejected] = useState<string[]>([])
+  const [individual, setIndividual] = useState(false)
+  const [common, setCommon] = useState<ManagerDecisionChoice>({ decision: '', reason: '' })
+  const [choices, setChoices] = useState<Record<string, ManagerDecisionChoice>>({})
+  const choiceFor = (personId: string) => (individual ? (choices[personId] ?? { decision: '', reason: '' }) : common)
+  const hasApproval = pending.some((line) => choiceFor(line.employee.employeeId).decision === NEED_DECISION.APPROVE)
+  const confirmationCurrent =
+    !!confirmation &&
+    requestPending &&
+    complete &&
+    !query.isFetching &&
+    pending.length === confirmation.lines.length &&
+    pending.every((line) => confirmation.lines.some((decision) => decision.employeeId === line.employee.employeeId))
   const action = useManagerAction({
     mutationFn: (body: LineNeedDecisionBodyDto) => accessRequestLineNeedDecide(id, body),
     invalidate: [
@@ -72,27 +85,58 @@ export function ManagerGroupDecisions({
           className='space-y-4'
           onSubmit={(event) => {
             event.preventDefault()
-            if (action.blocked || !complete || !requestPending) return
+            if (action.blocked || !complete || query.isFetching || !requestPending || !pending.length) return
             const form = new FormData(event.currentTarget)
-            const decisions = pending.map((line, index) => {
-              const decision =
-                form.get(`lines.${index}.decision`) === NEED_DECISION.REJECT
-                  ? NEED_DECISION.REJECT
-                  : NEED_DECISION.APPROVE
-              const reason = String(form.get(`lines.${index}.reason`) ?? '').trim()
-              return { employeeId: line.employee.employeeId, decision, ...(reason ? { reason } : {}) }
-            })
+            const decisions: LineNeedDecisionBodyDto['lines'] = []
+            for (const line of pending) {
+              const choice = choiceFor(line.employee.employeeId)
+              if (!choice.decision || (choice.decision === NEED_DECISION.REJECT && !choice.reason.trim())) return
+              decisions.push({
+                employeeId: line.employee.employeeId,
+                decision: choice.decision,
+                ...(choice.decision === NEED_DECISION.REJECT ? { reason: choice.reason.trim() } : {})
+              })
+            }
+            const spend = hasSpend && hasApproval ? allocationFromForm(form) : undefined
+            if (hasSpend && hasApproval && !spend) {
+              toast.error(translate('validation'), { id: 'manager-group-allocation' })
+              return
+            }
             const term = String(form.get('termConfirmation') ?? '').trim()
+            if (termRequired && hasApproval && !term) return
             setConfirmation({
               lines: decisions,
-              ...(term ? { termConfirmation: { reason: term } } : {}),
-              ...(hasSpend && decisions.some((line) => line.decision === NEED_DECISION.APPROVE)
-                ? { spend: allocationFromForm(form) }
-                : {})
+              ...(termRequired && hasApproval ? { termConfirmation: { reason: term } } : {}),
+              ...(spend ? { spend } : {})
             })
           }}
         >
           <fieldset disabled={action.blocked || !requestPending} className='space-y-4'>
+            {!!pending.length && requestPending && (
+              <>
+                <label className='flex min-h-11 items-center gap-2 text-sm'>
+                  <input
+                    type='checkbox'
+                    checked={individual}
+                    onChange={(event) => {
+                      if (event.target.checked) {
+                        setChoices(Object.fromEntries(pending.map((line) => [line.employee.employeeId, { ...common }])))
+                      }
+                      setIndividual(event.target.checked)
+                    }}
+                  />
+                  {translate('requestForm.individualDecisions')}
+                </label>
+                {!individual && (
+                  <ManagerDecisionFields
+                    label={translate('requestForm.commonDecision')}
+                    name='common'
+                    value={common}
+                    onChange={setCommon}
+                  />
+                )}
+              </>
+            )}
             {lines.map((line) => (
               <article key={line.employee.employeeId} className='space-y-3 border-b border-border/40 pb-4'>
                 <div className='flex flex-wrap justify-between gap-2'>
@@ -101,54 +145,24 @@ export function ManagerGroupDecisions({
                   </p>
                   <ManagerStatus value={line.state} />
                 </div>
-                {pending.includes(line) && (
-                  <>
-                    <ManagerField label={translate('decision')}>
-                      <select
-                        name={`lines.${pending.indexOf(line)}.decision`}
-                        className={managerInputClass}
-                        defaultValue=''
-                        required
-                        onChange={(event) =>
-                          setRejected((previous) =>
-                            event.target.value === NEED_DECISION.REJECT
-                              ? [...previous, line.employee.employeeId]
-                              : previous.filter((id) => id !== line.employee.employeeId)
-                          )
-                        }
-                      >
-                        <option value='' disabled>
-                          {translate('decision')}
-                        </option>
-                        <option value={NEED_DECISION.APPROVE}>{translate('approve')}</option>
-                        <option value={NEED_DECISION.REJECT}>{translate('reject')}</option>
-                      </select>
-                    </ManagerField>
-                    <ManagerField label={translate('reason')}>
-                      <textarea
-                        className={managerInputClass}
-                        name={`lines.${pending.indexOf(line)}.reason`}
-                        required={rejected.includes(line.employee.employeeId)}
-                        maxLength={1000}
-                      />
-                    </ManagerField>
-                  </>
+                {individual && pending.includes(line) && (
+                  <ManagerDecisionFields
+                    label={translate('requestForm.personDecision', { name: line.employee.fullName })}
+                    name={`lines.${pending.indexOf(line)}`}
+                    value={choiceFor(line.employee.employeeId)}
+                    onChange={(value) => setChoices((previous) => ({ ...previous, [line.employee.employeeId]: value }))}
+                  />
                 )}
               </article>
             ))}
             {!!pending.length && requestPending && (
               <>
-                <ManagerField label={translate('termConfirmation')}>
-                  <textarea
-                    name='termConfirmation'
-                    required={termRequired && pending.some((line) => !rejected.includes(line.employee.employeeId))}
-                    maxLength={1000}
-                    className={managerInputClass}
-                  />
-                </ManagerField>
-                {hasSpend && pending.some((line) => !rejected.includes(line.employee.employeeId)) && (
-                  <ManagerPlanAllocation id={id} />
+                {termRequired && hasApproval && (
+                  <ManagerField label={translate('requestForm.termConfirmation')}>
+                    <textarea name='termConfirmation' required maxLength={1000} className={managerInputClass} />
+                  </ManagerField>
                 )}
+                {hasSpend && hasApproval && <ManagerPlanAllocation id={id} />}
               </>
             )}
           </fieldset>
@@ -160,7 +174,12 @@ export function ManagerGroupDecisions({
           )}
           {!!pending.length && requestPending && (
             <div className='flex justify-end'>
-              <ManagerButton primary type='submit' disabled={action.blocked || !complete} busy={action.isPending}>
+              <ManagerButton
+                primary
+                type='submit'
+                disabled={action.blocked || !complete || query.isFetching}
+                busy={action.isPending}
+              >
                 {action.retrySeconds ? translate('retryAfter', { seconds: action.retrySeconds }) : translate('confirm')}
               </ManagerButton>
             </div>
@@ -176,6 +195,12 @@ export function ManagerGroupDecisions({
             if (!action.isPending) setConfirmation(null)
           }}
         >
+          <p className='mb-4 text-sm'>
+            {translate('requestForm.decisionsSummary', {
+              approved: confirmation.lines.filter((line) => line.decision === NEED_DECISION.APPROVE).length,
+              rejected: confirmation.lines.filter((line) => line.decision === NEED_DECISION.REJECT).length
+            })}
+          </p>
           <div className='flex justify-end gap-3'>
             <ManagerButton disabled={action.isPending} onClick={() => setConfirmation(null)}>
               {translate('cancel')}
@@ -183,9 +208,9 @@ export function ManagerGroupDecisions({
             <ManagerButton
               primary
               busy={action.isPending}
-              disabled={action.blocked}
+              disabled={action.blocked || !confirmationCurrent}
               onClick={() => {
-                if (!action.blocked) action.mutate(confirmation)
+                if (!action.blocked && confirmationCurrent) action.mutate(confirmation)
               }}
             >
               {translate('confirm')}

@@ -15,8 +15,8 @@ export type EmployeeDashboardResponseDtoDataSections = {
   softwareRights: EmployeeDashboardResponseDtoDataSectionsSoftwareRights
   /** Of those, the rights in force whose expected end day is within seven days. */
   expiringRights: EmployeeDashboardResponseDtoDataSectionsExpiringRights
-  /** The requests of the caller waiting and their results; the list of them is not delivered yet. */
+  /** The requests the caller sent that are not over, as meAccessRequestList with view=open counts them; drafts and requests sent on their behalf are not counted. Counted for every account, zero when none is open: a Super Admin sends none, so only requests sent before the current role can count. The results are read from the list with view=ended, not from here. */
   requests: EmployeeDashboardResponseDtoDataSectionsRequests
-  /** The SaaS error reports the caller sent that are not resolved, closed or marked duplicate. */
+  /** The SaaS error reports the caller sent that are not resolved, closed or marked duplicate, as saasIssueList with scope=mine lists them. */
   saasIssues: EmployeeDashboardResponseDtoDataSectionsSaasIssues
 }

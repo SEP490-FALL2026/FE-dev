@@ -15,7 +15,7 @@ import type { ManagerDashboardResponseDtoDataSectionsSpendQueue } from './manage
 import type { ManagerDashboardResponseDtoDataSectionsTransferReviews } from './managerDashboardResponseDtoDataSectionsTransferReviews'
 
 export type ManagerDashboardResponseDtoDataSections = {
-  /** The requests waiting for the need decision of the caller; the queue is not delivered yet. */
+  /** The need steps given to the caller now, as needDecisionList counts them: requests of the caller, steps already decided and steps handed to somebody else are not counted. */
   needApprovals: ManagerDashboardResponseDtoDataSectionsNeedApprovals
   /** The seats the department is granted or manages on the business day: a read of the records, not a proof of use. */
   departmentSoftware: ManagerDashboardResponseDtoDataSectionsDepartmentSoftware
