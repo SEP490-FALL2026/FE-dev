@@ -101,23 +101,12 @@ export function FinanceCommitmentsView({
                 {
                   key: 'requester',
                   label: translate('commitments.columns.requester'),
-                  render: (commitment) =>
-                    commitment.request ? (
-                      <span
-                        title={`${commitment.request.requester.fullName} · ${commitment.request.requester.employeeCode}`}
-                      >
-                        {commitment.request.requester.fullName}
-                      </span>
-                    ) : (
-                      translate('noValue')
-                    )
-                },
-                {
-                  key: 'costCenter',
-                  label: translate('commitments.columns.costCenter'),
                   render: (commitment) => (
-                    <span title={`${commitment.costCenter.code} · ${commitment.costCenter.name}`}>
-                      {commitment.costCenter.name}
+                    <span className='block' title={`${commitment.costCenter.code} · ${commitment.costCenter.name}`}>
+                      <span className='block truncate'>
+                        {commitment.request ? commitment.request.requester.fullName : translate('noValue')}
+                      </span>
+                      <span className='block truncate text-xs text-muted-foreground'>{commitment.costCenter.name}</span>
                     </span>
                   )
                 },
@@ -126,12 +115,6 @@ export function FinanceCommitmentsView({
                   label: translate('commitments.columns.amount'),
                   numeric: true,
                   render: (commitment) => money(commitment.amount)
-                },
-                {
-                  key: 'released',
-                  label: translate('commitments.columns.released'),
-                  numeric: true,
-                  render: (commitment) => money(commitment.released)
                 },
                 {
                   key: 'held',
@@ -143,31 +126,31 @@ export function FinanceCommitmentsView({
                   key: 'invoiced',
                   label: translate('commitments.columns.invoiced'),
                   numeric: true,
-                  render: (commitment) => money(commitment.invoiced)
-                },
-                {
-                  key: 'invoiceCount',
-                  label: translate('commitments.columns.invoiceCount'),
-                  numeric: true,
-                  render: (commitment) => commitment.invoiceCount
+                  render: (commitment) => (
+                    <span className='block'>
+                      <span className='block'>{money(commitment.invoiced)}</span>
+                      {commitment.invoiceCount > 0 && (
+                        <span className='block text-xs text-muted-foreground'>
+                          {translate('commitments.invoiceCountValue', { count: commitment.invoiceCount })}
+                        </span>
+                      )}
+                    </span>
+                  )
                 },
                 {
                   key: 'state',
                   label: translate('commitments.columns.state'),
-                  render: (commitment) => <FinanceStatus value={commitment.state} />
-                },
-                {
-                  key: 'discrepancy',
-                  label: translate('commitments.columns.discrepancy'),
-                  render: (commitment) =>
-                    commitment.hasDiscrepancy ? (
-                      <span className='inline-flex items-center gap-1.5 text-danger-ink'>
-                        <AlertTriangle aria-hidden className='size-4 shrink-0' strokeWidth={1.5} />
-                        {translate('commitments.discrepancy')}
-                      </span>
-                    ) : (
-                      <span className='text-muted-foreground'>{translate('commitments.noDiscrepancy')}</span>
-                    )
+                  render: (commitment) => (
+                    <span className='flex flex-col items-start gap-1'>
+                      <FinanceStatus value={commitment.state} />
+                      {commitment.hasDiscrepancy && (
+                        <span className='inline-flex items-center gap-1 text-xs text-danger-ink'>
+                          <AlertTriangle aria-hidden className='size-3.5 shrink-0' strokeWidth={1.5} />
+                          {translate('commitments.discrepancy')}
+                        </span>
+                      )}
+                    </span>
+                  )
                 }
               ]}
             />

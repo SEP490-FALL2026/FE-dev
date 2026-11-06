@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { BudgetTablePageResponseDtoDataItemsItem } from '~/shared/api/generated/model/budgets/budgetTablePageResponseDtoDataItemsItem'
 import { useBudgetSummary } from '~/shared/api/generated/operations/budgets/budget-summary'
@@ -18,15 +18,17 @@ import { BudgetUtilization } from '../../shared/components/budget-utilization'
 import { FinanceTable } from '../../shared/components/finance-table'
 import { formatMoney } from '../../shared/finance-money'
 import { usedShare } from '../budget-usage'
-import { CostCenterDetail } from '../components/cost-center-detail'
+import { CostCenterDetail, type CommitmentTarget } from '../components/cost-center-detail'
 import { CostCenterKpis } from '../components/cost-center-kpis'
 
 const validYear = (value: string) => /^\d{4}$/.test(value) && Number(value) >= 2000 && Number(value) <= 2200
 
 export function FinanceCostCentersView({
-  onSelectTab
+  onSelectTab,
+  renderCommitment
 }: {
   onSelectTab?: (tab: FinanceTabKey, extraParams?: Record<string, string>) => void
+  renderCommitment?: (target: CommitmentTarget) => ReactNode
 }) {
   const { t: translate, i18n } = useTranslation('financeSettings')
   const [year, setYear] = useState(String(new Date().getFullYear()))
@@ -44,6 +46,7 @@ export function FinanceCostCentersView({
           row={table.data?.data?.items.find((item) => item.versionId === selected.versionId) ?? selected}
           onClose={() => setSelected(null)}
           onSelectTab={onSelectTab}
+          renderCommitment={renderCommitment}
         />
       </FinanceDetailPage>
     )

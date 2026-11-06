@@ -6,6 +6,7 @@ export const financeSettings = {
   approvedAt: 'Ngày duyệt chi',
   requester: 'Người yêu cầu',
   software: 'Phần mềm',
+  backToCostCenter: 'Quay lại {{name}}',
   approvedSpend: 'Các khoản đã duyệt chi',
   openVersion: 'Phiên bản {{number}}',
   kpis: {

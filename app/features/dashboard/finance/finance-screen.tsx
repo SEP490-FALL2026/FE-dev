@@ -1,6 +1,7 @@
 import type { FinanceTabKey } from './enums'
 import { FinanceAnnualProposalsView } from './annual-budget/views/finance-annual-proposals-view'
 import { FinanceBudgetNegotiationView } from './annual-budget/views/finance-budget-negotiation-view'
+import { CommitmentDetail } from './commitments/components/commitment-detail'
 import { FinanceCommitmentsView } from './commitments/views/finance-commitments-view'
 import { FinanceInvoiceIntakeView } from './commitments/views/finance-invoice-intake-view'
 import { FinanceCostCentersView } from './cost-centers/views/finance-cost-centers-view'
@@ -34,7 +35,20 @@ export function FinanceScreen({ itemId, onSelectTab, tab }: FinanceScreenProps) 
     case 'budgets':
     case 'department-budget':
     case 'budget-allocation':
-      return <FinanceCostCentersView onSelectTab={onSelectTab} />
+      return (
+        <FinanceCostCentersView
+          onSelectTab={onSelectTab}
+          renderCommitment={(target) => (
+            <CommitmentDetail
+              key={target.id}
+              id={target.id}
+              requestId={target.requestId}
+              onClose={target.onClose}
+              backLabel={target.backLabel}
+            />
+          )}
+        />
+      )
     case 'commitments':
       return <FinanceCommitmentsView {...details} />
     case 'invoice-intake':

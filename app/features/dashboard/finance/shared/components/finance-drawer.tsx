@@ -20,13 +20,15 @@ interface DrawerProps {
   children: ReactNode
   onClose: () => void
   pending?: boolean
+  /** Full-page form only: names where the back link leads when it is not the list. */
+  backLabel?: string
 }
 
 export function FinanceDrawer(props: DrawerProps) {
   return useContext(DetailPageContext) ? <DetailPagePanel {...props} /> : <DrawerPanel {...props} />
 }
 
-function DetailPagePanel({ title, children, onClose, pending = false }: DrawerProps) {
+function DetailPagePanel({ title, children, onClose, pending = false, backLabel }: DrawerProps) {
   const { t: translate } = useTranslation('finance')
   const titleId = useId()
   const heading = useRef<HTMLHeadingElement>(null)
@@ -43,7 +45,7 @@ function DetailPagePanel({ title, children, onClose, pending = false }: DrawerPr
           className='-ml-2 inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-md px-2 text-sm font-medium text-muted-foreground transition-colors duration-150 hover:bg-surface-subtle hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-none active:bg-primary-soft active:text-primary-ink disabled:cursor-not-allowed disabled:opacity-50 md:min-h-9'
         >
           <ArrowLeft aria-hidden className='size-4' strokeWidth={1.5} />
-          {translate('backToList')}
+          {backLabel ?? translate('backToList')}
         </button>
         <h1
           ref={heading}

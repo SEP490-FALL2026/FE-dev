@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
+import { MemoryRouter } from 'react-router'
 import { toast } from 'sonner'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { apiClient } from '~/shared/api/axios-client'
@@ -64,7 +65,8 @@ let overrideRequired = false
 let pendingMutation: Promise<void> | undefined
 let readCount = 0
 let groupPages: Record<number, unknown[]> = {}
-let requestType = 'GRANT'
+let linesFail = false
+let requestGetCalls = 0
 let checkRoute = 'SPEND_APPROVAL'
 
 beforeEach(async () => {
@@ -76,7 +78,8 @@ beforeEach(async () => {
   pendingMutation = undefined
   readCount = 0
   groupPages = {}
-  requestType = 'GRANT'
+  linesFail = false
+  requestGetCalls = 0
   checkRoute = 'SPEND_APPROVAL'
   await setAppLanguage('en', false)
   apiClient.defaults.adapter = async (config) => {
@@ -109,7 +112,8 @@ beforeEach(async () => {
       return response({ spendApproval: approval })
     }
     if (config.url?.endsWith('/me')) return response({ employee: { id: actor.employeeId } })
-    if (config.url?.endsWith(`/access-requests/${requestId}`)) return response({ request: { type: requestType } })
+    // The server refuses accessRequestGet to the spend step holder; the screen must not depend on it.
+    if (config.url?.endsWith(`/access-requests/${requestId}`)) requestGetCalls++
     if (config.url?.endsWith('/spend-approval')) {
       readCount++
       return response({ spendApproval: approval })
@@ -141,7 +145,16 @@ beforeEach(async () => {
       })
     if (config.url?.endsWith('/budget-information-requests'))
       return response({ items: [], pagination: { ...page, totalItems: 0, totalPages: 0 } })
-    if (config.url?.endsWith('/lines'))
+    if (config.url?.endsWith('/lines')) {
+      if (linesFail) throw new AxiosError('offline', 'ERR_NETWORK', config)
+      if (!Object.keys(groupPages).length)
+        throw new AxiosError('not a group', 'ERR_BAD_REQUEST', config, undefined, {
+          config,
+          status: 404,
+          statusText: 'Not Found',
+          headers: {},
+          data: { success: false, error: { code: 'ACCESS_REQUEST.NOT_FOUND', message: 'Internal message' } }
+        })
       return response({
         items: groupPages[config.params?.page ?? 1] ?? [],
         pagination: {
@@ -151,25 +164,28 @@ beforeEach(async () => {
           totalPages: Object.keys(groupPages).length
         }
       })
+    }
     throw new AxiosError('unexpected test request', 'ERR_NETWORK', config)
   }
 })
 afterEach(() => {
   apiClient.defaults.adapter = originalAdapter
 })
-function mount() {
+function mount(initialUrl = '/', onSelectTab = vi.fn()) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })
   render(
-    <QueryClientProvider client={client}>
-      <ApprovalRequestView itemId={requestId} onSelectTab={vi.fn()} />
-    </QueryClientProvider>
+    <MemoryRouter initialEntries={[initialUrl]}>
+      <QueryClientProvider client={client}>
+        <ApprovalRequestView itemId={requestId} onSelectTab={onSelectTab} />
+      </QueryClientProvider>
+    </MemoryRouter>
   )
   return client
 }
 async function choose(value: 'Approve' | 'Reject', index = 0) {
-  const fields = await screen.findAllByRole('combobox', { name: 'Decision' })
-  await waitFor(() => expect(fields[index]).toBeEnabled())
-  fireEvent.click(fields[index])
+  // Re-query on every attempt: the one-decision field is replaced by per-person fields once the group is known.
+  await waitFor(() => expect(screen.getAllByRole('combobox', { name: 'Decision' })[index]).toBeEnabled())
+  fireEvent.click(screen.getAllByRole('combobox', { name: 'Decision' })[index])
   fireEvent.click(screen.getByRole('option', { name: value }))
 }
 function confirm() {
@@ -266,7 +282,6 @@ it('keeps a failed decision draft and refreshes authoritative data after conflic
 })
 
 it('loads all beneficiary pages and sends a decision for every confirmed person', async () => {
-  requestType = 'GROUP_GRANT'
   approval.request.beneficiary = null
   approval.request.lineCount = 2
   const line = (employee: typeof beneficiary) => ({
@@ -323,8 +338,7 @@ it('allows a pending step created by Finance despite its original FINANCE_REVIEW
   expect(posted[0].body).toEqual({ decision: 'APPROVE' })
 })
 
-it('uses the authoritative service-account type when the beneficiary is null', async () => {
-  requestType = 'SERVICE_ACCOUNT'
+it('treats a request without beneficiary and without group lines as one decision', async () => {
   approval.request.beneficiary = null
   mount()
   await choose('Approve')
@@ -343,4 +357,37 @@ it('refreshes the active request once after a confirmed decision', async () => {
   await waitFor(() => expect(readCount).toBeGreaterThan(1))
   await waitFor(() => expect(submit).not.toHaveAttribute('aria-busy', 'true'))
   expect(readCount).toBe(2)
+})
+
+it('offers the batch of the request only when the queue passed a valid batch id', () => {
+  const batchId = '81000000-0000-4000-8000-000000000001'
+  const onSelectTab = vi.fn()
+  mount(`/?tab=request&id=${requestId}&batch=${batchId}`, onSelectTab)
+  fireEvent.click(screen.getByRole('button', { name: 'View whole submission' }))
+  expect(onSelectTab).toHaveBeenCalledWith('batch', { id: batchId })
+})
+
+it('hides the batch action when the batch id is missing or malformed', () => {
+  mount(`/?tab=request&id=${requestId}&batch=not-a-uuid`)
+  expect(screen.queryByRole('button', { name: 'View whole submission' })).not.toBeInTheDocument()
+})
+
+it('never reads accessRequestGet and decides a named-beneficiary request at once', async () => {
+  mount()
+  await choose('Approve')
+  confirm()
+  fireEvent.click(screen.getByRole('button', { name: 'Confirm decision' }))
+  await waitFor(() => expect(posted).toHaveLength(1))
+  expect(posted[0].url).toMatch(/spend-approval$/)
+  expect(requestGetCalls).toBe(0)
+  expect(screen.queryByText(/outside your access/i)).not.toBeInTheDocument()
+})
+
+it('keeps the decision closed and offers a retry when the group check fails for another reason', async () => {
+  approval.request.beneficiary = null
+  linesFail = true
+  mount()
+  expect(await screen.findByRole('button', { name: 'Retry' })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Confirm decision' })).toBeDisabled()
+  expect(posted).toHaveLength(0)
 })

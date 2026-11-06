@@ -160,4 +160,32 @@ describe('Finance cost center budgets', () => {
     fireEvent.click(screen.getByRole('button', { name: /Version 2/ }))
     expect(onSelectTab).toHaveBeenCalledWith('budget-negotiation', { id: 'version-eng' })
   })
+
+  it('opens a commitment in place and comes back to the same department, without leaving the tab', async () => {
+    const onSelectTab = vi.fn()
+    render(
+      <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+        <FinanceCostCentersView
+          onSelectTab={onSelectTab}
+          renderCommitment={(target) => (
+            <section>
+              <p>{`${target.id}/${target.requestId}`}</p>
+              <button type='button' onClick={target.onClose}>
+                {target.backLabel}
+              </button>
+            </section>
+          )}
+        />
+      </QueryClientProvider>
+    )
+    fireEvent.click((await screen.findAllByRole('button', { name: finance.open }))[0])
+    const spend = await screen.findByRole('region', { name: financeSettings.approvedSpend })
+    await within(spend).findAllByText('Figma · Professional')
+    fireEvent.click(within(spend).getAllByRole('button', { name: finance.open })[0])
+    expect(await screen.findByText('commitment/request')).toBeInTheDocument()
+    expect(screen.queryByRole('region', { name: financeSettings.approvedSpend })).not.toBeInTheDocument()
+    expect(onSelectTab).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByRole('button', { name: 'Back to Engineering cost' }))
+    expect(await screen.findByRole('region', { name: financeSettings.approvedSpend })).toBeInTheDocument()
+  })
 })

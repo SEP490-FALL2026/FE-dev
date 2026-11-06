@@ -135,19 +135,16 @@ export const financeSpend = {
     columns: {
       software: 'Phần mềm',
       requester: 'Người yêu cầu',
-      costCenter: 'Trung tâm chi phí',
       amount: 'Đã duyệt',
       released: 'Đã giải phóng',
-      held: 'Đã duyệt, chưa chi',
+      held: 'Đang giữ',
       invoiced: 'Thực chi',
-      invoiceCount: 'Hóa đơn',
-      state: 'Trạng thái',
-      discrepancy: 'Sai lệch'
+      state: 'Trạng thái'
     },
     noPlan: 'Không có gói',
     requestUnavailable: 'Không đọc được yêu cầu',
     discrepancy: 'Vượt số đã duyệt',
-    noDiscrepancy: 'Không',
+    invoiceCountValue: '{{count}} hóa đơn',
     detail: {
       fallbackTitle: 'Khoản cam kết',
       missingRequest: 'Liên kết thiếu thông tin yêu cầu. Mở lại khoản cam kết từ danh sách.',

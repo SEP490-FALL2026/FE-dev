@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { MemoryRouter } from 'react-router'
 import { AxiosError, type AxiosAdapter, type InternalAxiosRequestConfig } from 'axios'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { apiClient } from '~/shared/api/axios-client'
@@ -28,13 +29,15 @@ const item = {
   noIndependentReview: false,
   batchId: null
 }
-function setup(adapter: AxiosAdapter) {
+function setup(adapter: AxiosAdapter, onSelectTab = vi.fn(), initialUrl = '/?tab=queue') {
   apiClient.defaults.adapter = adapter
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })
   render(
-    <QueryClientProvider client={client}>
-      <ApprovalQueueView onSelectTab={vi.fn()} />
-    </QueryClientProvider>
+    <MemoryRouter initialEntries={[initialUrl]}>
+      <QueryClientProvider client={client}>
+        <ApprovalQueueView onSelectTab={onSelectTab} />
+      </QueryClientProvider>
+    </MemoryRouter>
   )
   return client
 }
@@ -86,4 +89,94 @@ it('shows a recoverable network error without demo fallback', async () => {
   })
   expect(await screen.findByRole('button', { name: 'Retry' })).toBeInTheDocument()
   expect(screen.queryByText('REQ-2026-089')).not.toBeInTheDocument()
+})
+
+it('keeps the queue compact and carries the batch into the request detail', async () => {
+  const batchId = '81000000-0000-4000-8000-000000000001'
+  const onSelectTab = vi.fn()
+  setup(
+    async (config) => ({
+      config,
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      data: { success: true, data: { items: [{ ...item, batchId }], pagination } }
+    }),
+    onSelectTab
+  )
+  expect(await screen.findAllByText('Live application')).not.toHaveLength(0)
+  expect(screen.getAllByText('CC-LIVE')).not.toHaveLength(0)
+  expect(screen.queryByRole('columnheader', { name: 'Submission ID' })).not.toBeInTheDocument()
+  expect(screen.queryByRole('columnheader', { name: 'Opened' })).not.toBeInTheDocument()
+  expect(screen.queryByText('Open by ID')).not.toBeInTheDocument()
+  fireEvent.click(screen.getAllByRole('button', { name: 'View details' })[0])
+  expect(onSelectTab).toHaveBeenCalledWith('request', { id: item.requestId, batch: batchId })
+})
+
+const needItem = {
+  requestId: '12345678-1234-4234-8234-123456789012',
+  stepId: 'need-step',
+  stepKind: 'NEED',
+  deciderRole: 'SPENDING_APPROVER',
+  type: 'GROUP_GRANT',
+  openedAt: '2026-11-01T00:00:00Z',
+  assignedAt: '2026-11-01T00:00:00Z',
+  slaWorkingDays: 3,
+  dueOn: '2026-11-05',
+  plan: { planId: 'plan', planName: 'Team', applicationName: 'Need application' },
+  softwareName: null,
+  requester: { employeeId: 'head', employeeCode: 'H01', fullName: 'Department head' },
+  beneficiary: null,
+  lineCount: 1,
+  department: { id: 'dept', code: 'ENG', name: 'Engineering' },
+  businessReasonExcerpt: 'Project',
+  termMonths: 12,
+  pricing: { status: 'PRICED', amount: { amount: '120.00', currency: 'USD' } },
+  samePersonAsSpend: false
+}
+
+function bothQueues(): AxiosAdapter {
+  return async (config) => {
+    calls.push(config)
+    const isNeed = config.url?.endsWith('/need-decisions') ?? false
+    const total = isNeed ? 5 : 37
+    return {
+      config,
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      data: {
+        success: true,
+        data: {
+          items: isNeed ? [needItem] : [item],
+          pagination: { page: config.params?.page ?? 1, pageSize: 20, totalItems: total, totalPages: 2 }
+        }
+      }
+    }
+  }
+}
+
+it('shows both lists with server totals and switches through the URL', async () => {
+  const onSelectTab = vi.fn()
+  setup(bothQueues(), onSelectTab)
+  expect(await screen.findByRole('button', { name: /^Spend decisions\s*37$/ })).toHaveAttribute('aria-pressed', 'true')
+  expect(await screen.findByRole('button', { name: /^Department heads' requests\s*5$/ })).toHaveAttribute(
+    'aria-pressed',
+    'false'
+  )
+  fireEvent.click(screen.getByRole('button', { name: /Department heads' requests/ }))
+  expect(onSelectTab).toHaveBeenCalledWith('queue', { list: 'need' })
+})
+
+it('lists need confirmations on the server and opens the need detail', async () => {
+  const onSelectTab = vi.fn()
+  setup(bothQueues(), onSelectTab, '/?tab=queue&list=need')
+  expect((await screen.findAllByText('Need application')).length).toBeGreaterThan(0)
+  expect(screen.queryByText('Live application')).not.toBeInTheDocument()
+  fireEvent.click(screen.getAllByRole('button', { name: 'View details' })[0])
+  expect(onSelectTab).toHaveBeenCalledWith('need', { id: needItem.requestId })
+  fireEvent.click(screen.getByRole('button', { name: 'Next page' }))
+  await waitFor(() =>
+    expect(calls.some((config) => config.url?.endsWith('/need-decisions') && config.params?.page === 2)).toBe(true)
+  )
 })

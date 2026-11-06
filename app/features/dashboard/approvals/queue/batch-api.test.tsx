@@ -120,14 +120,14 @@ describe('Spending Approver batch API', () => {
   it('allows a reviewed Finance request that is now awaiting the spending decision', async () => {
     financeState = 'AWAITING_SPEND_DECISION'
     setup()
-    const controls = await screen.findAllByRole('checkbox', { name: `Select request ${financeRequestId}` })
+    const controls = await screen.findAllByRole('checkbox', { name: 'Select request #3' })
     expect(controls[0]).toBeEnabled()
   })
   it('paginates on the server and only selects eligible visible requests', async () => {
     setup()
     expect(await screen.findByText('Batch sender')).toBeInTheDocument()
-    expect(screen.getAllByRole('checkbox', { name: `Select request ${financeRequestId}` })[0]).toBeDisabled()
-    fireEvent.click(screen.getAllByRole('checkbox', { name: `Select request ${firstRequestId}` })[0])
+    expect(screen.getAllByRole('checkbox', { name: 'Select request #3' })[0]).toBeDisabled()
+    fireEvent.click(screen.getAllByRole('checkbox', { name: 'Select request #1' })[0])
     expect(screen.getByText('1 requests selected')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Next page' }))
     await waitFor(() => expect(calls.some((config) => config.params?.page === 2)).toBe(true))
@@ -139,9 +139,9 @@ describe('Spending Approver batch API', () => {
     const success = vi.spyOn(toast, 'success')
     setup()
     await screen.findByText('Batch sender')
-    fireEvent.click(screen.getAllByRole('checkbox', { name: `Select request ${firstRequestId}` })[0])
-    fireEvent.click(screen.getAllByRole('checkbox', { name: `Select request ${skippedRequestId}` })[0])
-    fireEvent.click(screen.getByRole('button', { name: 'Confirm batch decision' }))
+    fireEvent.click(screen.getAllByRole('checkbox', { name: 'Select request #1' })[0])
+    fireEvent.click(screen.getAllByRole('checkbox', { name: 'Select request #2' })[0])
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm submission decision' }))
     await waitFor(() => expect(calls.some((config) => config.method === 'post')).toBe(true))
     expect(JSON.parse(calls.find((config) => config.method === 'post')?.data)).toEqual({
       decision: 'APPROVE',
@@ -150,16 +150,16 @@ describe('Spending Approver batch API', () => {
     expect(await screen.findAllByText('A budget year is short of budget or has none')).not.toHaveLength(0)
     await waitFor(() => expect(warning).toHaveBeenCalledOnce())
     expect(success).not.toHaveBeenCalled()
-    expect(screen.getByRole('button', { name: 'Confirm batch decision' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Confirm submission decision' })).toBeDisabled()
   })
 
   it('requires a rejection reason and keeps the draft after an API refusal', async () => {
     setup()
     await screen.findByText('Batch sender')
-    fireEvent.click(screen.getAllByRole('checkbox', { name: `Select request ${firstRequestId}` })[0])
+    fireEvent.click(screen.getAllByRole('checkbox', { name: 'Select request #1' })[0])
     fireEvent.click(screen.getByRole('combobox', { name: 'Decision' }))
     fireEvent.click(screen.getByRole('option', { name: 'Reject' }))
-    const submit = screen.getByRole('button', { name: 'Confirm batch decision' })
+    const submit = screen.getByRole('button', { name: 'Confirm submission decision' })
     expect(submit).toBeDisabled()
     fireEvent.change(screen.getByLabelText('Reason for rejection'), { target: { value: 'Insufficient business need' } })
     failMutation = true

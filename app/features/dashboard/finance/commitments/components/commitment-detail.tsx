@@ -27,11 +27,13 @@ const commitmentsOfRequestPageSize = 100
 export function CommitmentDetail({
   id,
   requestId,
-  onClose
+  onClose,
+  backLabel
 }: {
   id: string
   requestId: string | null
   onClose: () => void
+  backLabel?: string
 }) {
   const { t: translate } = useTranslation('financeSpend')
   const commitments = useBudgetCommitmentList(
@@ -43,7 +45,7 @@ export function CommitmentDetail({
     ? `${commitment.request.software.name} · ${commitment.costCenter.name}`
     : translate('commitments.detail.fallbackTitle')
   return (
-    <FinanceDrawer title={title} onClose={onClose}>
+    <FinanceDrawer title={title} onClose={onClose} backLabel={backLabel}>
       {!requestId ? (
         <FinanceEmpty message={translate('commitments.detail.missingRequest')} />
       ) : (

@@ -136,19 +136,16 @@ export const financeSpend = {
     columns: {
       software: 'Software',
       requester: 'Requester',
-      costCenter: 'Cost center',
       amount: 'Approved',
       released: 'Released',
-      held: 'Approved, not yet spent',
+      held: 'Held',
       invoiced: 'Actual spend',
-      invoiceCount: 'Invoices',
-      state: 'State',
-      discrepancy: 'Discrepancy'
+      state: 'State'
     },
     noPlan: 'No plan',
     requestUnavailable: 'Request unavailable',
     discrepancy: 'Over approved amount',
-    noDiscrepancy: 'No',
+    invoiceCountValue: 'Invoices: {{count}}',
     detail: {
       fallbackTitle: 'Commitment',
       missingRequest: 'The link is missing the request. Open the commitment again from the list.',

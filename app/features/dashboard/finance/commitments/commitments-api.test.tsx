@@ -179,6 +179,13 @@ describe('Finance held commitments and invoices', () => {
     expect(screen.getAllByText('Professional').length).toBeGreaterThan(0)
     expect(screen.getAllByText(financeSpend.commitments.discrepancy).length).toBeGreaterThan(0)
     expect(screen.getAllByText(financeSpend.commitments.requestUnavailable).length).toBeGreaterThan(0)
+    // The list keeps the key figures only; released money and the invoice list live on the detail page.
+    expect(
+      screen.queryByRole('columnheader', { name: financeSpend.commitments.columns.released })
+    ).not.toBeInTheDocument()
+    expect(
+      screen.getAllByText(financeSpend.commitments.invoiceCountValue.replace('{{count}}', '1')).length
+    ).toBeGreaterThan(0)
     fireEvent.click(screen.getAllByRole('button', { name: finance.open })[0])
     expect(onSelectTab).toHaveBeenCalledWith('commitments', { id: 'c1', requestId: 'request-c1' })
     const costCenter = screen.getByLabelText(new RegExp(`^${financeSpend.commitments.costCenter}`))

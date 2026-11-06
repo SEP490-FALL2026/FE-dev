@@ -6,6 +6,7 @@ export const financeSettings = {
   approvedAt: 'Approved on',
   requester: 'Requester',
   software: 'Software',
+  backToCostCenter: 'Back to {{name}}',
   approvedSpend: 'Approved spend',
   openVersion: 'Version {{number}}',
   kpis: {

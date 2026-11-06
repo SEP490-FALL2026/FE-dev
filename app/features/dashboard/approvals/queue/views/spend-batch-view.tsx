@@ -148,6 +148,7 @@ function BatchWorkspace({
     }
   })
   const items = itemQuery.data?.data?.items ?? []
+  const positions = new Map(items.map((item) => [item.requestId, item.position]))
   const eligibleIds = items
     .filter((item) => isBatchItemEligible(item) && selectedIds.includes(item.requestId))
     .map((item) => item.requestId)
@@ -186,16 +187,12 @@ function BatchWorkspace({
               <ApprovalsStat label={translate('batchSubmittedAt')} value={formatDate(batch.submittedAt)} />
               <ApprovalsStat label={translate('batchDepartment')} value={batch.department.code} />
             </ApprovalsStatGrid>
-            <dl className='grid gap-4 rounded-lg border border-border/70 bg-surface p-4 sm:grid-cols-2'>
+            <dl className='rounded-lg border border-border/70 bg-surface p-4'>
               <div className='min-w-0'>
                 <dt className='text-xs text-muted-foreground'>{translate('batchSender')}</dt>
                 <dd className='mt-1 truncate text-sm' title={batch.submittedBy.fullName}>
                   {batch.submittedBy.fullName}
                 </dd>
-              </div>
-              <div className='min-w-0'>
-                <dt className='text-xs text-muted-foreground'>{translate('batchId')}</dt>
-                <dd className='mt-1 font-mono text-xs break-all tabular-nums'>{batch.id}</dd>
               </div>
             </dl>
             <ApprovalsSection title={translate('batchItems')}>
@@ -242,7 +239,7 @@ function BatchWorkspace({
           <ApprovalsEmpty />
         )}
       </ApprovalsQueryState>
-      {results && <SpendBatchResults results={results} onOpen={openRequest} />}
+      {results && <SpendBatchResults results={results} positions={positions} onOpen={openRequest} />}
     </div>
   )
 }

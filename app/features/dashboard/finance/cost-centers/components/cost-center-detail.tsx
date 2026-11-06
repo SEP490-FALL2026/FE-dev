@@ -1,5 +1,5 @@
 import { ArrowUpRight } from 'lucide-react'
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { BudgetTablePageResponseDtoDataItemsItem } from '~/shared/api/generated/model/budgets/budgetTablePageResponseDtoDataItemsItem'
 import { useBudgetCommitmentList } from '~/shared/api/generated/operations/budget-commitments/budget-commitment-list'
@@ -21,20 +21,31 @@ import { formatMoney } from '../../shared/finance-money'
 import { useDashboardFormat } from '../../../dashboard-ui'
 import { usedShare } from '../budget-usage'
 
+export interface CommitmentTarget {
+  id: string
+  requestId: string
+  backLabel: string
+  onClose: () => void
+}
+
 /** One department's budget for the year: figures, approved spend (commitments) and the plan lines. */
 export function CostCenterDetail({
   row,
   onClose,
-  onSelectTab
+  onSelectTab,
+  renderCommitment
 }: {
   row: BudgetTablePageResponseDtoDataItemsItem
   onClose: () => void
   onSelectTab?: (tab: FinanceTabKey, extraParams?: Record<string, string>) => void
+  /** Shows one commitment in place, so reading it never leaves the cost center (supplied by the role screen). */
+  renderCommitment?: (target: CommitmentTarget) => ReactNode
 }) {
   const { t: translate, i18n } = useTranslation('financeSettings')
   const { formatDate } = useDashboardFormat()
   const [commitmentPage, setCommitmentPage] = useState(1)
   const [linePage, setLinePage] = useState(1)
+  const [openCommitment, setOpenCommitment] = useState<{ id: string; requestId: string } | null>(null)
   const commitments = useBudgetCommitmentList({
     costCenterId: row.costCenter.id,
     year: row.year,
@@ -43,6 +54,13 @@ export function CostCenterDetail({
   })
   const lines = useBudgetVersionLineList(row.versionId, { page: linePage, pageSize: 10 })
   const money = (value: { amount: string; currency: string }) => formatMoney(value, i18n.language)
+  // Rendered instead of this page, not inside it, so the commitment reads as its own page and not a slide-over.
+  if (openCommitment && renderCommitment)
+    return renderCommitment({
+      ...openCommitment,
+      backLabel: translate('backToCostCenter', { name: row.costCenter.name }),
+      onClose: () => setOpenCommitment(null)
+    })
   return (
     <FinanceDrawer title={`${row.costCenter.code} · ${row.costCenter.name}`} onClose={onClose}>
       <FinanceSection
@@ -79,7 +97,7 @@ export function CostCenterDetail({
             items={commitments.data?.data?.items ?? []}
             rowKey={(item) => item.id}
             onOpen={
-              onSelectTab ? (item) => onSelectTab('commitments', { id: item.id, requestId: item.requestId }) : undefined
+              renderCommitment ? (item) => setOpenCommitment({ id: item.id, requestId: item.requestId }) : undefined
             }
             columns={[
               {
