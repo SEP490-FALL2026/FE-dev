@@ -8,7 +8,9 @@
 import type { CommitmentListResponseDtoDataItemsItemAmount } from './commitmentListResponseDtoDataItemsItemAmount'
 import type { CommitmentListResponseDtoDataItemsItemCostCenter } from './commitmentListResponseDtoDataItemsItemCostCenter'
 import type { CommitmentListResponseDtoDataItemsItemHeld } from './commitmentListResponseDtoDataItemsItemHeld'
+import type { CommitmentListResponseDtoDataItemsItemInvoiced } from './commitmentListResponseDtoDataItemsItemInvoiced'
 import type { CommitmentListResponseDtoDataItemsItemReleased } from './commitmentListResponseDtoDataItemsItemReleased'
+import type { CommitmentListResponseDtoDataItemsItemRequest } from './commitmentListResponseDtoDataItemsItemRequest'
 import type { CommitmentListResponseDtoDataItemsItemState } from './commitmentListResponseDtoDataItemsItemState'
 import type { CommitmentListResponseDtoDataItemsItemUnattachedReason } from './commitmentListResponseDtoDataItemsItemUnattachedReason'
 
@@ -25,6 +27,15 @@ export type CommitmentListResponseDtoDataItemsItem = {
   released: CommitmentListResponseDtoDataItemsItemReleased
   held: CommitmentListResponseDtoDataItemsItemHeld
   state: CommitmentListResponseDtoDataItemsItemState
+  /** @nullable */
+  request: CommitmentListResponseDtoDataItemsItemRequest
+  invoiced: CommitmentListResponseDtoDataItemsItemInvoiced
+  /**
+   * @minimum 0
+   * @maximum 9007199254740991
+   */
+  invoiceCount: number
+  hasDiscrepancy: boolean
   attached: boolean
   /** @nullable */
   attachedAt: string | null

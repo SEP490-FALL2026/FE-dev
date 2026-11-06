@@ -1,6 +1,7 @@
 export * from './budget-mine'
 export * from './budget-mine-line-list'
 export * from './budget-mine-version-list'
+export * from './budget-summary'
 export * from './budget-table'
 export * from './budget-version-attachment-declare'
 export * from './budget-version-attachment-list'
