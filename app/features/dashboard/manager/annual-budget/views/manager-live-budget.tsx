@@ -168,8 +168,7 @@ function ProposalDetail({ id }: { id: string }) {
       <ManagerQueryState query={query} empty={!proposal} />
       {proposal && (
         <>
-          <div className='flex flex-wrap justify-between gap-3'>
-            <p className='break-all font-mono text-xs'>{proposal.id}</p>
+          <div className='flex flex-wrap gap-3'>
             <ManagerStatus value={proposal.state} />
           </div>
           {proposal.returned && (

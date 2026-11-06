@@ -38,12 +38,7 @@ function mount(departmentId?: string) {
   render(
     <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
       <MemoryRouter initialEntries={[departmentId ? `/?departmentId=${departmentId}` : '/']}>
-        <ManagerLiveOverview
-          name='Test Manager'
-          departmentName='Engineering'
-          departmentId={departmentId}
-          onSelectTab={select}
-        />
+        <ManagerLiveOverview name='Test Manager' departmentId={departmentId} onSelectTab={select} />
       </MemoryRouter>
     </QueryClientProvider>
   )
@@ -121,10 +116,14 @@ it('keeps an unavailable dashboard metric unavailable without a duplicate fallba
   expect(screen.queryByRole('article', { name: 'Open transfer reviews' })).not.toBeInTheDocument()
 })
 
-it.each([undefined, employeeId])('shows the department name once with department context %s', async (departmentId) => {
-  mount(departmentId)
-  if (departmentId) await screen.findByRole('heading', { name: 'Engineering' })
-  if (departmentId) expect(screen.getAllByRole('heading', { name: 'Engineering' })).toHaveLength(1)
-  else expect(screen.getAllByText(/Engineering/)).toHaveLength(1)
-  expect(screen.getByLabelText('Department ID')).toHaveValue(departmentId ?? '')
-})
+it.each([undefined, employeeId])(
+  'shows the department summary without an ID field for context %s',
+  async (departmentId) => {
+    mount(departmentId)
+    if (departmentId) {
+      await screen.findByRole('heading', { name: 'Engineering' })
+      expect(screen.getAllByRole('heading', { name: 'Engineering' })).toHaveLength(1)
+    } else expect(screen.queryByText(/Engineering/)).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Department ID')).not.toBeInTheDocument()
+  }
+)

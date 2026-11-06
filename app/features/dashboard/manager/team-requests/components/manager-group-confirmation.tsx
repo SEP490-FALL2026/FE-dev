@@ -40,7 +40,7 @@ export function ManagerGroupConfirmation({
     if (line.ok) continue
     const person = people.find((choice) => choice.value === line.employeeId) ?? {
       value: line.employeeId,
-      label: line.employeeId
+      label: translate('unknownPerson')
     }
     failures.set(line.reason, [...(failures.get(line.reason) ?? []), person])
   }

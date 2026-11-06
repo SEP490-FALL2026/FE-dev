@@ -7,7 +7,7 @@ import { setupServer } from 'msw/node'
 import { MemoryRouter } from 'react-router'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { setAppLanguage } from '~/shared/i18n/i18n'
-import { managerId, managerRequest, proposal } from '../../../../test/fixtures/manager-api'
+import { managerId, managerProfile, managerRequest, proposal } from '../../../../test/fixtures/manager-api'
 import {
   employeeId,
   requestId,
@@ -32,6 +32,30 @@ afterAll(() => server.close())
 beforeEach(async () => {
   await setAppLanguage('en', false)
 })
+const memberHandlers = [
+  http.get('*/api/v1/me', () => HttpResponse.json({ success: true, data: managerProfile })),
+  http.get('*/api/v1/departments/:id/employees', () =>
+    HttpResponse.json(
+      pageResponse([
+        {
+          employeeId,
+          employeeCode: 'EMP-001',
+          fullName: 'Test Employee',
+          status: 'ACTIVE',
+          workState: 'WORKING',
+          hasWorkEmail: true,
+          memberSince: '2026-01-01'
+        }
+      ])
+    )
+  )
+]
+async function chooseEmployee() {
+  const select = await screen.findByLabelText('Employee')
+  await screen.findByRole('option', { name: 'Test Employee · EMP-001' })
+  fireEvent.change(select, { target: { value: employeeId } })
+  return select
+}
 function mount(children: React.ReactNode, url = '/dashboard/manager') {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })
   return render(
@@ -95,9 +119,10 @@ describe('Manager budget, group and personnel contracts', () => {
         return HttpResponse.json({ success: true, data: { id: requestId } }, { status: 201 })
       })
     )
+    server.use(...memberHandlers)
     mount(<ManagerNoticeForm onCreated={closed} onClose={vi.fn()} />)
     expect(screen.queryByRole('option', { name: 'Job title change' })).not.toBeInTheDocument()
-    fireEvent.change(screen.getByLabelText('Employee ID'), { target: { value: employeeId } })
+    await chooseEmployee()
     fireEvent.change(screen.getByLabelText('Proposed effective date'), { target: { value: '2026-11-15' } })
     const submit = screen.getByRole('button', { name: 'Submit' })
     fireEvent.click(submit)
@@ -255,11 +280,12 @@ describe('Manager budget, group and personnel contracts', () => {
         )
       )
     )
+    server.use(...memberHandlers)
     mount(<ManagerNoticeForm onCreated={vi.fn()} onClose={vi.fn()} />)
-    fireEvent.change(screen.getByLabelText('Employee ID'), { target: { value: employeeId } })
+    const employeeSelect = await chooseEmployee()
     fireEvent.change(screen.getByLabelText('Proposed effective date'), { target: { value: '2026-11-15' } })
     fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
     expect(await screen.findByRole('button', { name: 'Retry in 2s' })).toBeDisabled()
-    expect(screen.getByLabelText('Employee ID')).toHaveValue(employeeId)
+    expect(employeeSelect).toHaveValue(employeeId)
   })
 })

@@ -45,15 +45,6 @@ export function EmployeeAccessReturns({
                 </div>
               )
             },
-            {
-              key: 'id',
-              label: translate('requestCode'),
-              render: (item) => (
-                <p className='truncate font-mono text-xs' title={item.id}>
-                  {item.id}
-                </p>
-              )
-            },
             { key: 'status', label: translate('state'), render: (item) => <EmployeeStatus value={item.state} /> }
           ]}
           onOpen={(item) => onSelectTab('return-detail', { id: item.id })}

@@ -82,18 +82,12 @@ export function EmployeeLiveRequestDetail({
             <div className='space-y-3'>
               <h2 className='font-semibold'>{translate('drafts')}</h2>
               <EmployeeStatus value={draft.kind} />
-              <p className='truncate text-right font-mono text-xs' title={draft.planId}>
-                {translate('planId')}: {draft.planId}
-              </p>
               <EmployeeButton onClick={onBack}>{translate('drafts')}</EmployeeButton>
             </div>
           )}
           {request && (
             <>
-              <div className='flex flex-wrap items-center justify-between gap-3'>
-                <p className='min-w-0 truncate font-mono text-xs' title={request.id}>
-                  {request.id}
-                </p>
+              <div className='flex flex-wrap items-center gap-3'>
                 <EmployeeStatus value={request.state} />
               </div>
               <dl className='grid gap-5 sm:grid-cols-2'>

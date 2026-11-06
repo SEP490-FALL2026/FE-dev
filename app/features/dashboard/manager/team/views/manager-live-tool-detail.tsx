@@ -136,13 +136,6 @@ export function ManagerLiveToolDetail({ departmentId, id, onBack, onReturnCreate
               </h3>
               <dl className='mt-4 space-y-3.5 text-sm'>
                 <div className='border-b border-border/40 pb-3'>
-                  <dt className='text-xs text-muted-foreground'>{translate('assignmentId')}</dt>
-                  <dd className='mt-1 select-all font-mono text-xs text-foreground [overflow-wrap:anywhere]'>
-                    {assignment.assignmentId}
-                  </dd>
-                </div>
-
-                <div className='border-b border-border/40 pb-3'>
                   <dt className='text-xs text-muted-foreground'>{translate('application')}</dt>
                   <dd className='mt-1 font-medium text-foreground'>{assignment.application.name}</dd>
                 </div>

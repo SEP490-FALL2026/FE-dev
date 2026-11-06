@@ -43,16 +43,6 @@ export function ManagerSimilarSeats({ id }: { id: string }) {
               </p>
             )
           },
-          {
-            key: 'assignment',
-            label: translate('integration.assignment'),
-            align: 'right',
-            render: (seat) => (
-              <p className='max-w-40 truncate text-xs' title={seat.assignmentId}>
-                {seat.assignmentId}
-              </p>
-            )
-          },
           { key: 'since', label: translate('since'), align: 'right', render: (seat) => formatDate(seat.heldSince) }
         ]}
       />

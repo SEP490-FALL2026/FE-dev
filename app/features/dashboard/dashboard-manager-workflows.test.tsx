@@ -97,10 +97,8 @@ describe('DashboardPage Manager workflows', () => {
   it('replaces the preview request history with an API request lookup', async () => {
     await setAppLanguage('en', true)
     await renderDashboard('manager', '/?tab=my-requests')
-    expect(
-      await screen.findByText('A complete request history is not yet available. Open a request by its ID.')
-    ).toBeInTheDocument()
-    expect(screen.getByLabelText('Request ID')).toBeInTheDocument()
+    expect(await screen.findByText('A complete request history is not yet available.')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Request ID')).not.toBeInTheDocument()
     expect(screen.queryByText('No previews yet')).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Save preview' })).not.toBeInTheDocument()
   })
@@ -113,9 +111,7 @@ describe('DashboardPage Manager workflows', () => {
     expect(screen.queryByText('REQ-M01')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Department personnel' }))
     expect(await screen.findByRole('heading', { level: 1, name: 'Department personnel' })).toBeInTheDocument()
-    expect(
-      screen.queryByText('Enter the official department ID provided by your administrator.', { exact: false })
-    ).not.toBeVisible()
+    expect(screen.queryByLabelText('Department ID')).not.toBeInTheDocument()
   })
   it('removes unsupported usage and periodic-review controls from the live navigation', async () => {
     await setAppLanguage('en', true)
@@ -180,7 +176,8 @@ describe('DashboardPage Manager workflows', () => {
     expect(screen.getByTestId('route')).toHaveTextContent('departmentId=' + employeeId)
     fireEvent.click(screen.getByRole('button', { name: 'Report personnel change' }))
     expect(screen.getByRole('dialog', { name: 'Personnel notice' })).toBeInTheDocument()
-    expect(screen.getByLabelText('Employee ID')).toBeInTheDocument()
+    expect(screen.getByLabelText('Employee')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Employee ID')).not.toBeInTheDocument()
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Close' }))
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })

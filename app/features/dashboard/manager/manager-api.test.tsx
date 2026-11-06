@@ -104,7 +104,8 @@ describe('Manager need approval and spend submission', () => {
       )
     )
     mount(<ManagerLiveRequest id={requestId} employeeId={managerId} onBack={vi.fn()} />)
-    expect(await screen.findByText(requestId)).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Test Software' })).toBeInTheDocument()
+    expect(screen.queryByText(requestId)).not.toBeInTheDocument()
     expect(screen.queryByRole('radio')).not.toBeInTheDocument()
   })
   it('keeps input and blocks resubmission after an uncertain write', async () => {
