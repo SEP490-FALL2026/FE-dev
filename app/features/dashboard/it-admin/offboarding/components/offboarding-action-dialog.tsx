@@ -30,14 +30,17 @@ export function OffboardingActionDialog({ action, onClose }: { action: Offboardi
   const closeLine = useAccessRequestLineCloseForDeparture()
   const pending = lock.isPending || revoke.isPending || close.isPending || cancel.isPending || closeLine.isPending
   async function submit() {
-    if (sending.current || pending || (action.kind !== 'close' && !note.trim())) return
+    if (sending.current || pending || (['lock', 'cancel'].includes(action.kind) && !note.trim())) return
     sending.current = true
     try {
       if (action.kind === 'lock') await lock.mutateAsync({ id: action.caseId, data: { note: note.trim() } })
       if (action.kind === 'revoke')
         await revoke.mutateAsync({
           id: action.caseId,
-          data: { assignmentIds: action.assignmentIds, count: action.assignmentIds?.length ?? 0, reason: note.trim() }
+          data: {
+            ...(action.assignmentIds ? { assignmentIds: action.assignmentIds } : {}),
+            ...(note.trim() ? { note: note.trim() } : {})
+          }
         })
       if (action.kind === 'close') await close.mutateAsync({ id: action.caseId })
       if (action.kind === 'cancel') {
@@ -82,7 +85,7 @@ export function OffboardingActionDialog({ action, onClose }: { action: Offboardi
       pending={pending}
       onClose={onClose}
       submitLabel={translate('confirm')}
-      submitDisabled={action.kind !== 'close' && !note.trim()}
+      submitDisabled={['lock', 'cancel'].includes(action.kind) && !note.trim()}
       onSubmit={(event) => {
         event.preventDefault()
         void submit()
@@ -93,7 +96,7 @@ export function OffboardingActionDialog({ action, onClose }: { action: Offboardi
       {action.kind !== 'close' && (
         <ItField label={translate(action.kind === 'cancel' ? 'cancellationReason' : 'note')}>
           <textarea
-            required
+            required={action.kind !== 'revoke'}
             maxLength={1000}
             value={note}
             onChange={(event) => setNote(event.target.value)}

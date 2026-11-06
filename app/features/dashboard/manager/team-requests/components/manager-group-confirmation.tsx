@@ -5,7 +5,6 @@ import type { GroupCheckResponseDtoDataLinesItem } from '~/shared/api/generated/
 import { groupRequestCheck } from '~/shared/api/generated/operations/group-requests/group-request-check'
 import { ManagerButton, ManagerMoney, ManagerQueryState } from '../../shared/components/manager-api-ui'
 import type { ManagerChoice } from '../../shared/components/manager-choice-select'
-import { GROUP_ELIGIBILITY_REASON } from '../enums/group-eligibility'
 
 export function ManagerGroupConfirmation({
   body,
@@ -35,16 +34,12 @@ export function ManagerGroupConfirmation({
   const eligible =
     check?.plan.eligible === true &&
     !check.tooManyLines &&
+    !check.tooFewLines &&
+    !check.termBeyondLimit &&
     check.lines.length === body.lines.length &&
     check.lines.every((line) => line.ok === true && body.lines.some((person) => person.employeeId === line.employeeId))
   const failures = new Map<string | null, ManagerChoice[]>()
-  const dateIssues =
-    check?.lines.filter(
-      (line) =>
-        !line.ok &&
-        (line.reason === GROUP_ELIGIBILITY_REASON.END_DATE_REQUIRED ||
-          line.reason === GROUP_ELIGIBILITY_REASON.END_DATE_TOO_EARLY)
-    ) ?? []
+  const dateIssues: GroupCheckResponseDtoDataLinesItem[] = []
   for (const line of check?.lines ?? []) {
     if (line.ok) continue
     const person = people.find((choice) => choice.value === line.employeeId) ?? {

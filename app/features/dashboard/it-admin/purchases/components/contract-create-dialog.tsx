@@ -40,7 +40,7 @@ export function ContractCreateDialog({ onClose, onCreated }: { onClose: () => vo
         if (!mutation.isPending && !uncertain) mutation.mutate({ data: name ? { name } : {} })
       }}
     >
-      <ItField label={translate('name')}>
+      <ItField label={translate('name')} hint={translate('help.name')}>
         <input name='name' maxLength={200} placeholder={translate('namePlaceholder')} className={itInputClass} />
       </ItField>
       {uncertain && (

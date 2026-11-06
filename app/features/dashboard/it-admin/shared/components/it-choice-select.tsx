@@ -7,6 +7,7 @@ export function ItChoiceSelect({
   value,
   options,
   onChange,
+  hint,
   disabled = false
 }: {
   label: string
@@ -14,6 +15,7 @@ export function ItChoiceSelect({
   options: readonly WorkspaceChoice[]
   onChange: (value: string) => void
   disabled?: boolean
+  hint?: string
 }) {
   const { t: translate } = useTranslation('itAdmin')
   const [remembered, setRemembered] = useState<WorkspaceChoice>()
@@ -22,6 +24,7 @@ export function ItChoiceSelect({
   return (
     <WorkspaceChoiceSelect
       label={label}
+      hint={hint}
       placeholder={translate('selectPlaceholder')}
       options={options}
       selected={current ? [current] : []}

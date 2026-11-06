@@ -100,6 +100,8 @@ export const adminPersonnel = {
   allRows: 'All rows',
   invalidFile: 'Choose a CSV/XLSX file no larger than 2 MiB.',
   fields: {
+    blockAccessNow: 'Block access immediately',
+    cancelPendingTransfer: 'Cancel the pending transfer',
     employeeId: 'Employee',
     employeeCode: 'Employee code',
     fullName: 'Full name',
@@ -136,6 +138,9 @@ export const adminPersonnel = {
     clearJobTitle: 'Clear job title'
   },
   codes: {
+    HR_DECISION: 'Personnel decision',
+    APPROVED_APPLICATION: 'Approved application',
+    WRITTEN_DIRECTIVE: 'Written directive',
     STAFF: 'Staff',
     CONTRACTOR: 'Contractor',
     FREELANCER: 'Freelancer',

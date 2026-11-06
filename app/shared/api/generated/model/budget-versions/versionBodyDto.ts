@@ -6,21 +6,18 @@
  * OpenAPI spec version: 1.0
  */
 import type { VersionBodyDtoBase } from './versionBodyDtoBase'
-import type { VersionBodyDtoHighValueAmount } from './versionBodyDtoHighValueAmount'
 import type { VersionBodyDtoQuarters } from './versionBodyDtoQuarters'
 import type { VersionBodyDtoReserve } from './versionBodyDtoReserve'
 
 export interface VersionBodyDto {
   proposalId: string
   base: VersionBodyDtoBase
-  reserve: VersionBodyDtoReserve
+  reserve?: VersionBodyDtoReserve
   /**
-   * @minimum 0
-   * @maximum 100
+   * @minLength 1
+   * @maxLength 1000
    */
-  highValuePercent: number
-  /** @nullable */
-  highValueAmount?: VersionBodyDtoHighValueAmount
+  reserveReason?: string
   /** @nullable */
   quarters?: VersionBodyDtoQuarters
 }

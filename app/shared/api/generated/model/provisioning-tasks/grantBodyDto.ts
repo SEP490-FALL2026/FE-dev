@@ -11,8 +11,6 @@ export interface GrantBodyDto {
   subscriptionId?: string
   /** @maxLength 254 */
   accountIdentifier?: string
-  /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
-  expectedEndDate?: string
   responsibleEmployeeId?: string
   beneficiaryEmployeeId?: string
 }

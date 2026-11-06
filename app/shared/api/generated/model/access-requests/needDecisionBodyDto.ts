@@ -6,11 +6,9 @@
  * OpenAPI spec version: 1.0
  */
 import type { NeedDecisionBodyDtoDecision } from './needDecisionBodyDtoDecision'
-import type { NeedDecisionBodyDtoSpend } from './needDecisionBodyDtoSpend'
-import type { NeedDecisionBodyDtoTermConfirmation } from './needDecisionBodyDtoTermConfirmation'
 
 /**
- * A refusal (REJECT) gives its reason, and neither confirms a term nor chooses a line of the plan. An approval (APPROVE) may confirm a term over twelve months with a reason of its own, and for a request that costs money chooses a line of the plan or that it is outside it.
+ * A refusal (REJECT) gives its reason. An approval (APPROVE) gives none.
  */
 export interface NeedDecisionBodyDto {
   decision: NeedDecisionBodyDtoDecision
@@ -19,7 +17,4 @@ export interface NeedDecisionBodyDto {
    * @maxLength 1000
    */
   reason?: string
-  termConfirmation?: NeedDecisionBodyDtoTermConfirmation
-  /** Choose exactly one: a line of the plan of the budget (planLine), or that the spend is outside it (offPlan: true). */
-  spend?: NeedDecisionBodyDtoSpend
 }

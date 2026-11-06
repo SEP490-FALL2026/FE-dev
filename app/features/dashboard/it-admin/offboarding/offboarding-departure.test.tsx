@@ -8,9 +8,13 @@ import { OffboardingDetails } from './components/offboarding-details'
 vi.mock('~/shared/api/mutator/custom-axios', () => ({ customAxios: vi.fn() }))
 const request = vi.mocked(customAxios)
 let group = true
+let accessBlocked = true
+let caseState = 'LEFT'
 beforeEach(async () => {
   vi.resetAllMocks()
   group = true
+  accessBlocked = true
+  caseState = 'LEFT'
   await setAppLanguage('en', false)
   request.mockImplementation(async (config) => {
     if (config.method === 'POST') return { data: {} }
@@ -19,7 +23,8 @@ beforeEach(async () => {
       return {
         data: {
           employee: { id: 'departing-employee', fullName: 'Departing employee' },
-          state: 'LEFT',
+          state: caseState,
+          accessBlocked,
           lastWorkingDay: '2026-11-01',
           blockers: {},
           checklist: {},
@@ -178,4 +183,24 @@ it('shows the plan instructions and returned handover context without treating i
   expect(screen.getByText('Waiting for a successor')).toBeInTheDocument()
   expect(screen.getByText('Handover confirmation overdue')).toBeInTheDocument()
   expect(screen.getByText('Revocation continued without handover confirmation')).toBeInTheDocument()
+})
+
+it('opens revocations while access is blocked before the employee leaves and sends only the new strict body', async () => {
+  caseState = 'HANDING_OVER'
+  mount()
+  fireEvent.click(await screen.findByRole('checkbox'))
+  fireEvent.click(screen.getByRole('button', { name: 'Open selected revocations' }))
+  const dialog = screen.getByRole('dialog')
+  fireEvent.change(within(dialog).getByRole('textbox'), { target: { value: '  Blocked access checked  ' } })
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Confirm' }))
+  await waitFor(() => expect(request.mock.calls.some(([config]) => config.method === 'POST')).toBe(true))
+  const post = request.mock.calls.find(([config]) => config.method === 'POST')![0]
+  expect(post.url).toContain('/case-1/revocations')
+  expect(post.data).toStrictEqual({ assignmentIds: ['right-1'], note: 'Blocked access checked' })
+})
+
+it('keeps revocations blocked when the backend says access is not blocked', async () => {
+  accessBlocked = false
+  mount()
+  expect(await screen.findByRole('checkbox')).toBeDisabled()
 })

@@ -40,7 +40,7 @@ export function OffboardingDetails({
   const me = useMeGet()
   const item = detail.data?.data
   const authorized = !me.isError && (me.data?.data?.roles.includes('IT_ADMIN') ?? false)
-  const active = authorized && !detail.isFetching && item?.state === OffboardingState.LEFT && !item.closed
+  const active = authorized && !detail.isFetching && item?.accessBlocked === true && !item.closed
   const rightData = rights.data?.data
   const requestData = requests.data?.data
   const grantData = grants.data?.data
@@ -197,7 +197,7 @@ export function OffboardingDetails({
                       </div>
                       <button
                         className={itButtonClass}
-                        disabled={!active || !request.cancellable}
+                        disabled={!active || item.state !== OffboardingState.LEFT || !request.cancellable}
                         onClick={() =>
                           setAction({
                             kind: 'cancel',

@@ -6,10 +6,9 @@
  * OpenAPI spec version: 1.0
  */
 import type { SpendDecisionBodyDtoDecision } from './spendDecisionBodyDtoDecision'
-import type { SpendDecisionBodyDtoOverride } from './spendDecisionBodyDtoOverride'
 
 /**
- * A refusal (REJECT) gives its reason and no exception. An approval (APPROVE) gives no reason, and may accept an exception (override) with its own reason and the years it names.
+ * A refusal (REJECT) gives its reason. An approval (APPROVE) gives no reason.
  */
 export interface SpendDecisionBodyDto {
   decision: SpendDecisionBodyDtoDecision
@@ -18,5 +17,4 @@ export interface SpendDecisionBodyDto {
    * @maxLength 1000
    */
   reason?: string
-  override?: SpendDecisionBodyDtoOverride
 }

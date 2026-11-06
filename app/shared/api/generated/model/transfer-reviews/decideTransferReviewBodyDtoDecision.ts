@@ -11,6 +11,5 @@ export type DecideTransferReviewBodyDtoDecision =
 
 export const DecideTransferReviewBodyDtoDecision = {
   STILL_NEEDED: 'STILL_NEEDED',
-  NOT_NEEDED: 'NOT_NEEDED',
-  NEEDS_NEW_TOOL: 'NEEDS_NEW_TOOL'
+  NOT_NEEDED: 'NOT_NEEDED'
 } as const

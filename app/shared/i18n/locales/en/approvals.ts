@@ -123,7 +123,7 @@ export const approvals = {
     ownRequest: 'You cannot approve your own request or access.',
     ownVersion: 'You cannot decide a budget version you created or sent.',
     independentReview: 'Finance review and spending approval must be performed by different people.',
-    overrideRequired: 'Approval requires an explicit budget override, a reason and the affected years.',
+    overrideRequired: 'This request cannot be approved with the current budget. Update the budget before approving it.',
     overrideMismatch:
       'The override years do not match the latest budget check. Refresh the check and select the required years.',
     overrideNotNeeded: 'An override is not required by the latest budget check. Remove it before submitting.',

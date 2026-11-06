@@ -30,7 +30,7 @@ export function RenewalOverview({ renewal }: { renewal: Renewal }) {
       <div className='flex flex-wrap items-center gap-3 text-sm'>
         <ApprovalsStatus value={renewal.state} />
         {renewal.lateFlagged && <span className='font-medium text-danger'>{translate('lateBadge')}</span>}
-        {renewal.waitingReason === WAITING_REASON.NO_SPENDING_APPROVER && (
+        {renewal.waitingReason === WAITING_REASON.NO_HEAD && (
           <span className='text-muted-foreground'>{translate('waitingNoApprover')}</span>
         )}
       </div>

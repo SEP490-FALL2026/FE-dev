@@ -38,7 +38,6 @@ export function SpendRequestFacts({ approval, isGroup }: { approval: SpendApprov
     <div className='space-y-6'>
       <div className='flex flex-wrap items-center gap-3'>
         <ApprovalsStatus value={step.state} />
-        {request.offPlan && <span className='text-sm text-muted-foreground'>{translate('offPlan')}</span>}
       </div>
       {step.waitingReason && (
         <p role='status' className={`${noticeClass} border-warning/30 bg-warning/10 text-warning-ink`}>
@@ -62,10 +61,6 @@ export function SpendRequestFacts({ approval, isGroup }: { approval: SpendApprov
           emphasis
         />
         <ApprovalsStat label={translate('term')} value={formatNumber(request.termMonths)} />
-        <ApprovalsStat
-          label={translate('expectedSpend')}
-          value={request.expectedSpendOn ? formatDate(request.expectedSpendOn) : translate('unavailable')}
-        />
         <ApprovalsStat label={translate('openedAt')} value={formatDate(step.openedAt)} />
         <ApprovalsStat label={translate('sla')} value={formatNumber(step.slaWorkingDays)} />
         <ApprovalsStat label={translate('budgetYear')} value={request.budgetYear ?? translate('unavailable')} />
@@ -146,7 +141,6 @@ export function SpendRequestFacts({ approval, isGroup }: { approval: SpendApprov
               </span>
             </div>
             {decision.reason && <p className='text-sm whitespace-pre-wrap'>{decision.reason}</p>}
-            {decision.overrideReason && <p className='text-sm whitespace-pre-wrap'>{decision.overrideReason}</p>}
           </div>
         </ApprovalsSection>
       )}

@@ -67,15 +67,12 @@ it('resolves direct-link requirements across pages, ignores a different cached s
     pageResponse([{ ...matching, stepId: assignmentId }])
   )
   mount(client)
-  const term = await screen.findByLabelText('Reason for confirming a term beyond policy (if needed)')
-  expect(term).toBeRequired()
+  await screen.findByRole('radio', { name: 'Approve need' })
+  expect(screen.queryByLabelText('Reason for confirming a term beyond policy (if needed)')).not.toBeInTheDocument()
   expect(screen.queryByRole('combobox', { name: 'Budget plan line' })).not.toBeInTheDocument()
-  fireEvent.change(term, { target: { value: 'Long project' } })
   fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
   fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm' }))
-  await waitFor(() =>
-    expect(written).toHaveBeenCalledWith({ decision: 'APPROVE', termConfirmation: { reason: 'Long project' } })
-  )
+  await waitFor(() => expect(written).toHaveBeenCalledWith({ decision: 'APPROVE' }))
   expect(pages.slice(0, 2)).toEqual([1, 2])
 })
 it('keeps decisions unavailable after a failed requirements read, then allows retry', async () => {

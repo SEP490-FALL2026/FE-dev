@@ -42,3 +42,4 @@ export type SubscriptionRenewalResponseDtoDataRenewalDecisionSnapshot =
       source: 'NOT_CONNECTED'
       takenAt: string
     }
+  | null

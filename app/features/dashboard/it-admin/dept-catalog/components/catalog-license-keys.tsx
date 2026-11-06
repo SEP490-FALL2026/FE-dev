@@ -17,14 +17,33 @@ import { ItField, ItFormDialog, itInputClass, itButtonClass } from '../../shared
 import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
 import { CatalogKeyStatus } from '../enums/license-key-status'
 import { ItPendingIcon } from '../../shared/components/it-pending-icon'
-export function CatalogLicenseKeys({ planId }: { planId: string }) {
+export function CatalogLicenseKeys({ planId, onBack }: { planId: string; onBack?: () => void }) {
   const { t: translate } = useTranslation('itCatalog')
   const [page, setPage] = useState(1)
   const [selected, setSelected] = useState('')
   const query = useSubscriptionList({ planId, page, pageSize: 20 })
+  const pageRef = useRef<HTMLElement>(null)
+  useEffect(() => {
+    pageRef.current?.focus()
+  }, [selected])
+  if (selected)
+    return (
+      <section ref={pageRef} tabIndex={-1} className='space-y-4 outline-none'>
+        <button type='button' className={itButtonClass} onClick={() => setSelected('')}>
+          {translate('detailBack')}
+        </button>
+        <h1 className='text-2xl font-semibold tracking-tight [text-wrap:balance]'>{translate('keys.title')}</h1>
+        <CatalogKeyVault key={selected} subscriptionId={selected} />
+      </section>
+    )
   return (
-    <section className='space-y-4 rounded-lg border border-border p-4'>
-      <h2 className='font-semibold [text-wrap:balance]'>{translate('keys.title')}</h2>
+    <section ref={pageRef} tabIndex={-1} className='space-y-4 outline-none'>
+      {onBack && (
+        <button type='button' className={itButtonClass} onClick={onBack}>
+          {translate('detailBack')}
+        </button>
+      )}
+      <h1 className='text-2xl font-semibold tracking-tight [text-wrap:balance]'>{translate('keys.title')}</h1>
       <ItQueryState query={query}>
         <fieldset>
           <legend>{translate('import.subscription')}</legend>
@@ -51,7 +70,6 @@ export function CatalogLicenseKeys({ planId }: { planId: string }) {
           setSelected('')
         }}
       />
-      {selected && <CatalogKeyVault key={selected} subscriptionId={selected} />}
     </section>
   )
 }
@@ -183,7 +201,7 @@ export function CatalogKeyVault({ subscriptionId }: { subscriptionId: string }) 
           if (!invalid && !imported.isPending && !retrySeconds) imported.mutate()
         }}
       >
-        <ItField label={translate('keys.lines')}>
+        <ItField label={translate('keys.lines')} hint={translate('keys.limit')}>
           <textarea
             autoComplete='off'
             spellCheck={false}

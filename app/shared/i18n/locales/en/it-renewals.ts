@@ -20,7 +20,9 @@ export const itRenewals = {
   notePlaceholder: 'Why renew, reduce or cancel this subscription?',
   opinionPlaceholder: 'Record the business owner’s opinion, if provided',
   proposalHint:
-    'The spending approver decides this proposal. No access or vendor subscription changes until execution is confirmed.',
+    'The head of the subscription’s owning department confirms this proposal. IT records the vendor’s actual outcome afterward.',
+  releaseSeats: 'Seats to revoke',
+  releaseSelection: 'Select exactly {{count}} excess seats. Selected: {{selected}}.',
   outcome: 'Vendor outcome',
   outcomeNote: 'Outcome evidence',
   outcomeNotePlaceholder: 'Record the vendor confirmation or remaining follow-up',
@@ -47,12 +49,14 @@ export const itRenewals = {
   seatsInUse: 'Assigned seats',
   milestone: 'Decision deadline',
   proposal: 'IT proposal',
-  decision: 'Spending decision',
+  decision: 'Department head confirmation',
   outcomeDetail: 'Recorded outcome',
   usageUnavailable: 'Usage data is not available. Assigned seats do not prove usage.',
   waitingReason: 'Waiting reason',
   ranking: 'Seat review order',
   rankingHint: 'Review priority from the backend; no automatic revocation.',
+  proposedOnly: 'Proposed seats only',
+  inProposal: 'Proposed for revocation',
   rank: 'Priority',
   holder: 'Holder',
   group: 'Reason',
@@ -72,6 +76,7 @@ export const itRenewals = {
     PROPOSED: 'Awaiting decision',
     DECIDED: 'Awaiting vendor outcome',
     OUTCOME_RECORDED: 'Outcome recorded',
+    STALE: 'Proposal changed; submit a new proposal',
     AS_DECIDED: 'As decided',
     VENDOR_REFUSED: 'Vendor refused',
     DIFFERENT: 'Different result',
@@ -92,6 +97,6 @@ export const itRenewals = {
     AS_PLANNED: 'As planned',
     MID_TERM: 'During current period',
     NEXT_RENEWAL: 'Next renewal',
-    NO_SPENDING_APPROVER: 'Waiting for a spending approver'
+    NO_HEAD: 'Waiting for the owning department head'
   }
 } as const

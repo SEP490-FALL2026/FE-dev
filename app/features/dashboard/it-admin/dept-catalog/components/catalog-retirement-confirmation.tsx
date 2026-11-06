@@ -37,7 +37,7 @@ export function CatalogRetirementConfirmation({
       <p className='truncate text-sm font-medium' title={owner.fullName}>
         {owner.fullName}
       </p>
-      <ItField label={translate('ownerReview.evidence')}>
+      <ItField label={translate('ownerReview.evidence')} hint={translate('help.ownerEvidence')}>
         <textarea
           value={note}
           onChange={(event) => setNote(event.target.value)}

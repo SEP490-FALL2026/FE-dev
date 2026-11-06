@@ -11,8 +11,11 @@ import type { RescheduleTransferBodyDtoSuccessor } from './rescheduleTransferBod
 export interface RescheduleTransferBodyDto {
   /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
   newEffectiveOn: string
-  /** @maxLength 1000 */
-  reason?: string
-  grounds?: RescheduleTransferBodyDtoGrounds
+  /**
+   * @minLength 1
+   * @maxLength 1000
+   */
+  reason: string
+  grounds: RescheduleTransferBodyDtoGrounds
   successor?: RescheduleTransferBodyDtoSuccessor
 }

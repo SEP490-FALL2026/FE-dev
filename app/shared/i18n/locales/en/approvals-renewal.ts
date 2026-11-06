@@ -28,7 +28,9 @@ export const approvalsRenewal = {
   emptyQueue: 'No renewals are waiting for your decision.',
   emptyFiltered: 'No renewals match the filters.',
   lateBadge: 'Late',
-  waitingNoApprover: 'Waiting for a Spending Approver to be configured',
+  waitingNoApprover: 'Waiting for the owning department head',
+  readOnly:
+    'The head of the subscription’s owning department confirms renewals. Spending Approvers cannot decide these proposals.',
   stats: {
     purchased: 'Seats bought',
     inUse: 'Seats held',
@@ -144,7 +146,8 @@ export const approvalsRenewal = {
     state: {
       PROPOSED: 'Awaiting decision',
       DECIDED: 'Decided, awaiting outcome',
-      OUTCOME_RECORDED: 'Outcome recorded'
+      OUTCOME_RECORDED: 'Outcome recorded',
+      STALE: 'Proposal changed'
     },
     choice: {
       RENEW: 'Renew as is',
@@ -178,6 +181,7 @@ export const approvalsRenewal = {
       EXPIRY_MARKED: 'Marked to end'
     },
     deciderRole: {
+      OWNER_DEPARTMENT_HEAD: 'Owning department head',
       SPENDING_APPROVER: 'Spending Approver',
       CONFLICT_SUBSTITUTE: 'Substitute approver'
     },

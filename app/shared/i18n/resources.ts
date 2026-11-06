@@ -37,6 +37,8 @@ import { landing as viLanding } from './locales/vi/landing'
 import { notFound as viNotFound } from './locales/vi/not-found'
 import { theme as viTheme } from './locales/vi/theme'
 import { itAdmin as enItAdmin } from './locales/en/it-admin'
+import { itDepartmentWork as enItDepartmentWork } from './locales/en/it-department-work'
+import { itDepartmentWork as viItDepartmentWork } from './locales/vi/it-department-work'
 import { itRenewals as enItRenewals } from './locales/en/it-renewals'
 import { itRenewals as viItRenewals } from './locales/vi/it-renewals'
 import { itPurchases as enItPurchases } from './locales/en/it-purchases'
@@ -58,11 +60,15 @@ import { employee as enEmployee } from './locales/en/employee'
 import { employee as viEmployee } from './locales/vi/employee'
 import { manager as enManager } from './locales/en/manager'
 import { manager as viManager } from './locales/vi/manager'
+import { itDevices as enItDevices } from './locales/en/it-devices'
+import { itDevices as viItDevices } from './locales/vi/it-devices'
 
 export { defaultNS } from './resource-config'
 
 export const resources = {
   en: {
+    itDepartmentWork: enItDepartmentWork,
+    itDevices: enItDevices,
     itRenewals: enItRenewals,
     itPurchases: enItPurchases,
     itTransfers: enItTransfers,
@@ -95,6 +101,8 @@ export const resources = {
     theme: enTheme
   },
   vi: {
+    itDepartmentWork: viItDepartmentWork,
+    itDevices: viItDevices,
     itRenewals: viItRenewals,
     itPurchases: viItPurchases,
     itTransfers: viItTransfers,

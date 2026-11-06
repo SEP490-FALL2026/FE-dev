@@ -14,11 +14,9 @@ export interface OpenRevocationsBodyDto {
    */
   assignmentIds?: string[]
   /**
-   * @minimum 0
-   * @maximum 1000
+   * @minLength 1
+   * @maxLength 1000
    */
-  count: number
-  /** @maxLength 1000 */
-  reason?: string
+  note?: string
   accountLock?: OpenRevocationsBodyDtoAccountLock
 }

@@ -49,9 +49,7 @@ export const needItem: NeedQueueResponseDtoDataItemsItem = {
   department: { id: employeeId, code: 'ENG', name: 'Engineering' },
   businessReasonExcerpt: 'Design work',
   termMonths: 13,
-  termConfirmationRequired: true,
   pricing: { status: 'PRICED', amount: pricing.amount },
-  planLineRequired: true,
   samePersonAsSpend: false
 }
 export const assignedTool: DepartmentToolsResponseDtoDataItemsItem = {

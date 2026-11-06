@@ -6,7 +6,6 @@
  * OpenAPI spec version: 1.0
  */
 import type { VersionPatchDtoBase } from './versionPatchDtoBase'
-import type { VersionPatchDtoHighValueAmount } from './versionPatchDtoHighValueAmount'
 import type { VersionPatchDtoQuarters } from './versionPatchDtoQuarters'
 import type { VersionPatchDtoReserve } from './versionPatchDtoReserve'
 
@@ -17,18 +16,11 @@ export interface VersionPatchDto {
   base?: VersionPatchDtoBase
   reserve?: VersionPatchDtoReserve
   /**
-   * @minimum 0
-   * @maximum 100
-   */
-  highValuePercent?: number
-  /** @nullable */
-  highValueAmount?: VersionPatchDtoHighValueAmount
-  /** @nullable */
-  quarters?: VersionPatchDtoQuarters
-  /**
    * @minLength 1
    * @maxLength 1000
    * @nullable
    */
-  reason?: string | null
+  reserveReason?: string | null
+  /** @nullable */
+  quarters?: VersionPatchDtoQuarters
 }

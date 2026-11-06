@@ -4,11 +4,8 @@ import { useSubscriptionRenewalGet } from '~/shared/api/generated/operations/sub
 import type { ApprovalTabKey } from '../../enums'
 import { ApprovalsQueryState } from '../../shared/components/approvals-query-state'
 import { ApprovalsButton, ApprovalsEmpty, ApprovalsPage } from '../../shared/components/approvals-ui'
-import { RenewalDecisionForm } from '../components/renewal-decision-form'
 import { RenewalDecisionRecord } from '../components/renewal-decision-record'
 import { RenewalOverview } from '../components/renewal-overview'
-import { RenewalSeatRanking } from '../components/renewal-seat-ranking'
-import { RENEWAL_STATE } from '../enums/renewal-state'
 import { renewalFilterParams, useRenewalFilters } from '../hooks/use-renewal-filters'
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -47,14 +44,8 @@ export function RenewalDetailView({
           {renewal ? (
             <div className='space-y-6'>
               <RenewalOverview renewal={renewal} />
-              {renewal.state === RENEWAL_STATE.PROPOSED ? (
-                <RenewalDecisionForm key={renewal.id} renewal={renewal} />
-              ) : (
-                <>
-                  <RenewalDecisionRecord renewal={renewal} />
-                  <RenewalSeatRanking renewalId={renewal.id} />
-                </>
-              )}
+              <p className='text-sm text-muted-foreground'>{translate('readOnly')}</p>
+              <RenewalDecisionRecord renewal={renewal} />
             </div>
           ) : (
             <ApprovalsEmpty />

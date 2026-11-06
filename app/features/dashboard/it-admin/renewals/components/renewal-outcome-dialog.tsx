@@ -25,6 +25,8 @@ export function RenewalOutcomeDialog({
   const [outcome, setOutcome] = useState<RenewalOutcome>(RenewalOutcome.AS_DECIDED)
   const [confirmedPeriod, setConfirmedPeriod] = useState(false)
   const [billingCycle, setBillingCycle] = useState<BillingCycle>(BillingCycle.MONTHLY)
+  const [note, setNote] = useState('')
+  const needsNote = outcome === RenewalOutcome.VENDOR_REFUSED || outcome === RenewalOutcome.DIFFERENT
   const needsPeriod = outcome === RenewalOutcome.AS_DECIDED && renewal.decidedChoice !== 'CANCEL'
   const showPeriod = needsPeriod || (outcome === RenewalOutcome.DIFFERENT && confirmedPeriod)
   const feedback = useItMutationFeedback(
@@ -45,13 +47,13 @@ export function RenewalOutcomeDialog({
       pending={mutation.isPending}
       onClose={onClose}
       submitLabel={translate('recordOutcome')}
-      submitDisabled={renewal.state !== 'DECIDED' || cancellationBlocked}
+      submitDisabled={renewal.state !== 'DECIDED' || cancellationBlocked || (needsNote && !note.trim())}
       onSubmit={(event) => {
         event.preventDefault()
-        if (mutation.isPending || renewal.state !== 'DECIDED' || cancellationBlocked) return
+        if (mutation.isPending || renewal.state !== 'DECIDED' || cancellationBlocked || (needsNote && !note.trim()))
+          return
         const form = new FormData(event.currentTarget)
         const text = (key: string) => String(form.get(key) ?? '').trim()
-        const note = text('note')
         const nextPeriod: SubscriptionRenewalOutcomeBodyDto['nextPeriod'] = showPeriod
           ? {
               purchasedQuantity: Number(text('purchasedQuantity')),
@@ -68,7 +70,7 @@ export function RenewalOutcomeDialog({
           : undefined
         mutation.mutate({
           id: renewal.id,
-          data: { outcome, ...(note ? { note } : {}), ...(nextPeriod ? { nextPeriod } : {}) }
+          data: { outcome, ...(note.trim() ? { note: note.trim() } : {}), ...(nextPeriod ? { nextPeriod } : {}) }
         })
       }}
     >
@@ -90,6 +92,9 @@ export function RenewalOutcomeDialog({
       <ItField label={translate('outcomeNote')}>
         <textarea
           name='note'
+          required={needsNote}
+          value={note}
+          onChange={(event) => setNote(event.target.value)}
           maxLength={2000}
           placeholder={translate('outcomeNotePlaceholder')}
           className={itInputClass}

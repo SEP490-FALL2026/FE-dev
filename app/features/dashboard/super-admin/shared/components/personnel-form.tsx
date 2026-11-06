@@ -20,15 +20,19 @@ export interface PersonnelField {
   employeeId?: string
 }
 export const basisFields: PersonnelField[] = [
-  { name: 'type', maxLength: 100 },
+  { name: 'type', options: ['HR_DECISION', 'APPROVED_APPLICATION', 'WRITTEN_DIRECTIVE'] },
   { name: 'reference', maxLength: 200 },
   { name: 'issuer', maxLength: 200 },
   { name: 'issuedOn', type: 'date' }
 ]
 export const uuidPattern = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
 export function readBasis(values: FormData): RecordTransferBodyDtoGrounds {
+  const type = value(values, 'type')
+  if (type !== 'HR_DECISION' && type !== 'APPROVED_APPLICATION' && type !== 'WRITTEN_DIRECTIVE') {
+    throw new Error('Invalid personnel grounds type')
+  }
   return {
-    type: value(values, 'type'),
+    type,
     reference: value(values, 'reference'),
     issuer: value(values, 'issuer'),
     issuedOn: value(values, 'issuedOn')

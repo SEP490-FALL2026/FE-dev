@@ -13,6 +13,6 @@ export interface RecordTransferBodyDto {
   toDepartmentId: string
   /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
   effectiveOn: string
-  grounds?: RecordTransferBodyDtoGrounds
+  grounds: RecordTransferBodyDtoGrounds
   successor?: RecordTransferBodyDtoSuccessor
 }

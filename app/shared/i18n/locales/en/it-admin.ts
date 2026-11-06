@@ -87,6 +87,12 @@ export const itAdmin = {
     renewals: 'Renewal proposals have no API.'
   },
   errors: {
+    accessNotBlocked: 'Access has not been blocked. Review the departure case before opening revocations.',
+    nothingToRevoke: 'No rights are eligible for revocation. Refresh the rights list.',
+    excessSelection: 'Select the correct rights to release before reducing the seat quantity.',
+    excessNotRevoked: 'The excess rights have not been revoked. Check the tasks before recording the outcome.',
+    proposalStale: 'The proposal is stale because its source data changed. Refresh and create a new proposal.',
+    ownerHeadProposal: 'The owning department head cannot both propose and confirm the adjustment.',
     boundaryRequired: 'Confirm the service-account boundary before granting access.',
     quantityUnknown: 'The subscription seat quantity has not been confirmed.',
     subscriptionDraft: 'This subscription is a draft. Complete its setup first.',

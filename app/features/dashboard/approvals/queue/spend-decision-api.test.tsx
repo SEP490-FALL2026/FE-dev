@@ -186,21 +186,14 @@ it('requires a rejection reason and sends only the strict rejection payload', as
   expect(posted[0].body).toEqual({ decision: 'REJECT', reason: 'No business need' })
 })
 
-it('requires explicit override reason and selected years for insufficient budget', async () => {
+it('blocks insufficient-budget approval without offering removed override fields', async () => {
   years = [year('INSUFFICIENT_BUDGET')]
   mount()
   await choose('Approve')
   confirm()
+  expect(screen.queryByRole('checkbox', { name: 'Approve with a budget override' })).not.toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Confirm decision' })).toBeDisabled()
-  fireEvent.click(screen.getByRole('checkbox', { name: 'Approve with a budget override' }))
-  fireEvent.change(screen.getByPlaceholderText('E.g. Q4 overrun, covered from the department reserve'), {
-    target: { value: 'Urgent delivery' }
-  })
-  expect(screen.getByRole('button', { name: 'Confirm decision' })).toBeDisabled()
-  fireEvent.click(screen.getByRole('checkbox', { name: '2026' }))
-  fireEvent.click(screen.getByRole('button', { name: 'Confirm decision' }))
-  await waitFor(() => expect(posted).toHaveLength(1))
-  expect(posted[0].body).toEqual({ decision: 'APPROVE', override: { reason: 'Urgent delivery', years: [2026] } })
+  expect(posted).toHaveLength(0)
 })
 
 it('blocks repeated decisions while the server has not confirmed the write', async () => {

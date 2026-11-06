@@ -39,6 +39,7 @@ export const financeBudget = {
     total: 'Total',
     base: 'Base amount',
     reserve: 'Reserve amount',
+    reserveReason: 'Reason for the reserve amount',
     highValuePercent: 'High value threshold (%)',
     highValueAmount: 'High value amount',
     q1: 'Quarter 1',

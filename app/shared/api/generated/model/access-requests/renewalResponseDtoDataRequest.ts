@@ -50,20 +50,14 @@ export type RenewalResponseDtoDataRequest = {
    * @exclusiveMinimum 0
    */
   termMonths: number
-  offPlan: boolean
-  /** @nullable */
-  delegatedBatchId: string | null
   /** @nullable */
   expectedEndDate: string | null
   /** @nullable */
   serviceAccount: RenewalResponseDtoDataRequestServiceAccount
   /** @nullable */
   renewal: RenewalResponseDtoDataRequestRenewal
-  planLineAttached: boolean
   /** @nullable */
   spend: RenewalResponseDtoDataRequestSpend
-  /** @nullable */
-  expectedSpendOn: string | null
   /**
    * @minimum -9007199254740991
    * @maximum 9007199254740991

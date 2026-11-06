@@ -15,8 +15,8 @@ import type { PreviewResponseDtoDataPreviewExistingAccess } from './previewRespo
 import type { PreviewResponseDtoDataPreviewPlan } from './previewResponseDtoDataPreviewPlan'
 import type { PreviewResponseDtoDataPreviewPossibleExtraStepsItem } from './previewResponseDtoDataPreviewPossibleExtraStepsItem'
 import type { PreviewResponseDtoDataPreviewPricing } from './previewResponseDtoDataPreviewPricing'
-import type { PreviewResponseDtoDataPreviewRequirements } from './previewResponseDtoDataPreviewRequirements'
 import type { PreviewResponseDtoDataPreviewSpendSubmission } from './previewResponseDtoDataPreviewSpendSubmission'
+import type { PreviewResponseDtoDataPreviewTermLimit } from './previewResponseDtoDataPreviewTermLimit'
 
 export type PreviewResponseDtoDataPreview = {
   plan: PreviewResponseDtoDataPreviewPlan
@@ -29,14 +29,12 @@ export type PreviewResponseDtoDataPreview = {
   department: PreviewResponseDtoDataPreviewDepartment
   /** @nullable */
   costCenter: PreviewResponseDtoDataPreviewCostCenter
-  requirements: PreviewResponseDtoDataPreviewRequirements
+  termLimit: PreviewResponseDtoDataPreviewTermLimit
   /** @nullable */
   existingAccess: PreviewResponseDtoDataPreviewExistingAccess
   /** @nullable */
   blockedBy: PreviewResponseDtoDataPreviewBlockedBy
   canSubmit: boolean
-  /** @nullable */
-  expectedSpendOn: string | null
   /**
    * @minimum -9007199254740991
    * @maximum 9007199254740991

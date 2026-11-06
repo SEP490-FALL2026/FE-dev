@@ -49,8 +49,6 @@ export type NeedQueueResponseDtoDataItemsItem = {
    * @exclusiveMinimum 0
    */
   termMonths: number
-  termConfirmationRequired: boolean
   pricing: NeedQueueResponseDtoDataItemsItemPricing
-  planLineRequired: boolean
   samePersonAsSpend: boolean
 }

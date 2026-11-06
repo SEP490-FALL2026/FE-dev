@@ -6,11 +6,9 @@
  * OpenAPI spec version: 1.0
  */
 import type { LineNeedDecisionBodyDtoLinesItem } from './lineNeedDecisionBodyDtoLinesItem'
-import type { LineNeedDecisionBodyDtoSpend } from './lineNeedDecisionBodyDtoSpend'
-import type { LineNeedDecisionBodyDtoTermConfirmation } from './lineNeedDecisionBodyDtoTermConfirmation'
 
 /**
- * Each person of the step is decided once. A term confirmation and a choice of line of the plan (spend) are accepted only when at least one person is approved.
+ * Each person of the step is decided once. A choice of line of the plan (spend) is accepted only when at least one person is approved.
  */
 export interface LineNeedDecisionBodyDto {
   /**
@@ -18,7 +16,4 @@ export interface LineNeedDecisionBodyDto {
    * @maxItems 100
    */
   lines: LineNeedDecisionBodyDtoLinesItem[]
-  termConfirmation?: LineNeedDecisionBodyDtoTermConfirmation
-  /** Choose exactly one: a line of the plan of the budget (planLine), or that the spend is outside it (offPlan: true). */
-  spend?: LineNeedDecisionBodyDtoSpend
 }

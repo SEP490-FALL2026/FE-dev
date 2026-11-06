@@ -8,6 +8,73 @@ export const finance = {
     spend: 'Catalog & money',
     close: 'Period close & reports'
   },
+  spendBatches: 'Approved spend batches',
+  spendBatchesDescription: 'Report on amounts due for employee account provisioning batches across departments.',
+  commitments: 'Commitments & Invoices',
+  commitmentsDescription: 'Manage spending commitments per department and record actual vendor invoices.',
+  costCenterPayments: 'Payment batches & Commitments',
+  held: 'Held commitment',
+  heldLabel: 'Approved, not yet spent',
+  invoiced: 'Invoiced',
+  invoiceCount: 'Invoices',
+  recordInvoice: 'Record invoice',
+  viewInvoices: 'View invoices',
+  releaseRemainder: 'Release remainder',
+  invoiceNumber: 'Invoice number',
+  issuedOn: 'Issued on',
+  netAmount: 'Net amount',
+  deductibleTax: 'Deductible tax (VAT)',
+  nonDeductibleTax: 'Non-deductible tax',
+  actualCost: 'Actual cost',
+  matchResult: 'Match result',
+  matchResults: {
+    MATCHED: 'Fully matched',
+    TAX_ONLY: 'Tax/fee discrepancy only',
+    PRICE_QUANTITY_EXCEPTION: 'Price / quantity exception'
+  },
+  hasDiscrepancy: 'Has discrepancy',
+  discrepancyBadge: 'Discrepancy',
+  batchItems: 'Requests in batch',
+  itemPosition: 'No.',
+  batchOutcome: 'Batch outcome',
+  requestState: 'Request state',
+  approvedAmounts: 'Approved amount',
+  itemCount: 'Item count',
+  approvedCount: 'Approved count',
+  pendingCount: 'Pending count',
+  submittedBy: 'Submitted by',
+  submittedAt: 'Submitted at',
+  lastInvoiceAt: 'Last invoice: {{time}}',
+  overBudgetWarning: '{{count}} departments over budget',
+  outcomes: {
+    SENT_TO_APPROVER: 'Sent to approver',
+    SENT_TO_FINANCE: 'Sent to Finance',
+    STOPPED: 'Stopped'
+  },
+  stopReasons: {
+    STALE_COST_EVIDENCE: 'Stale cost evidence',
+    CLOSED_OR_EXPIRED_BUDGET_PERIOD: 'Budget period closed or expired',
+    PRICE_MISSING: 'Price missing',
+    RATE_MISSING: 'Exchange rate missing'
+  },
+  leftReasons: {
+    RETURNED_BY_FINANCE: 'Returned by Finance',
+    CONFLICT_OF_INTEREST: 'Conflict of interest',
+    REQUEST_WITHDRAWN: 'Request withdrawn',
+    REQUEST_CANCELLED: 'Request cancelled'
+  },
+  heldStatusOption: 'Approved, not yet spent (HELD)',
+  expensedStatusOption: 'Expensed (EXPENSED)',
+  releasedStatusOption: 'Released (RELEASED)',
+  invoices: {
+    matchedToast: 'Invoice matched and recorded successfully.',
+    taxOnlyToast: 'Invoice recorded (tax discrepancy only).',
+    exceptionToast: 'Invoice recorded as expense (exceeded commitment - flagged for discrepancy).',
+    matchedDesc: 'Invoice fully matches the approved commitment.',
+    taxOnlyDesc: 'Invoice includes tax. Tax is separated and recorded as an expense if non-deductible.',
+    exceptionDesc: 'Price or amount exceeded approved commitment. Discrepancy case opened, invoice recorded as actual expense.',
+    exceedPreviewNotice: 'Net amount exceeds held commitment. System will flag as a price/quantity exception.'
+  },
   loading: 'Loading data…',
   refreshing: 'Updating data…',
   empty: 'No matching records.',
@@ -185,6 +252,9 @@ export const finance = {
     MANUAL: 'Manually recorded'
   },
   errors: {
+    invoiceDuplicate: 'An invoice with this number already exists for this vendor.',
+    invoiceCommitmentReleased: 'The commitment has been fully released and cannot receive invoices.',
+    invoiceVendorUnknown: 'Unable to identify the vendor for this request.',
     reviewNotOpen: 'The request is no longer waiting for a Finance review. The data has been reloaded.',
     alreadyAwaitingBudget:
       'The request is already waiting for a budget. Choose another outcome or wait for the budget version to be approved.',

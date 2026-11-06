@@ -45,15 +45,10 @@ export function ManagerLiveEmployeeDetail({ departmentId, id, onBack, onSelectTa
     { query: { enabled: !!departmentId && !!memberCode } }
   )
 
-  const tools =
-    toolsQuery.data?.data?.items?.filter(
-      (tool) => memberCode && tool.employeeCode === memberCode
-    ) ?? []
+  const tools = toolsQuery.data?.data?.items?.filter((tool) => memberCode && tool.employeeCode === memberCode) ?? []
 
   const hasData = !!deptMember
-  const isPending =
-    !hasData &&
-    (deptMembersQuery.isPending && pagedMembersQuery.isPending)
+  const isPending = !hasData && deptMembersQuery.isPending && pagedMembersQuery.isPending
 
   const fullName = deptMember?.fullName ?? ''
   const employeeCode = deptMember?.employeeCode ?? ''
@@ -100,9 +95,7 @@ export function ManagerLiveEmployeeDetail({ departmentId, id, onBack, onSelectTa
             description={translate('employeeDetail.notFoundHint')}
           />
           <div className='mt-6 flex justify-center'>
-            <ManagerButton onClick={onBack}>
-              {translate('employeeDetail.backToTeam')}
-            </ManagerButton>
+            <ManagerButton onClick={onBack}>{translate('employeeDetail.backToTeam')}</ManagerButton>
           </div>
         </ManagerSection>
       )}
@@ -126,16 +119,12 @@ export function ManagerLiveEmployeeDetail({ departmentId, id, onBack, onSelectTa
                     </h2>
                     <ManagerStatus value={deptMember?.workState ?? ''} />
                   </div>
-                  <p className='mt-1 truncate font-mono text-xs text-muted-foreground'>
-                    {employeeCode}
-                  </p>
+                  <p className='mt-1 truncate font-mono text-xs text-muted-foreground'>{employeeCode}</p>
                 </div>
               </div>
 
               <div className='flex items-center gap-2'>
-                {deptMember?.status ? (
-                  <ManagerStatus value={deptMember.status} />
-                ) : null}
+                {deptMember?.status ? <ManagerStatus value={deptMember.status} /> : null}
               </div>
             </div>
           </ManagerSection>
@@ -174,11 +163,7 @@ export function ManagerLiveEmployeeDetail({ departmentId, id, onBack, onSelectTa
               <div className='border-b border-border/40 pb-3'>
                 <dt className='text-xs text-muted-foreground'>{translate('employeeDetail.employmentType')}</dt>
                 <dd className='mt-1 text-sm font-medium text-foreground'>
-                  {deptMember?.status ? (
-                    <ManagerStatus value={deptMember.status} />
-                  ) : (
-                    translate('profile.notAssigned')
-                  )}
+                  {deptMember?.status ? <ManagerStatus value={deptMember.status} /> : translate('profile.notAssigned')}
                 </dd>
               </div>
 
@@ -236,9 +221,7 @@ export function ManagerLiveEmployeeDetail({ departmentId, id, onBack, onSelectTa
           <ManagerSection>
             <div className='flex items-center justify-between border-b border-border/50 pb-3'>
               <h3 className='text-sm font-bold text-foreground'>{translate('employeeDetail.toolsTitle')}</h3>
-              <span className='font-mono text-xs text-muted-foreground tabular-nums'>
-                {tools.length}
-              </span>
+              <span className='font-mono text-xs text-muted-foreground tabular-nums'>{tools.length}</span>
             </div>
 
             {toolsQuery.isPending && (
@@ -249,11 +232,7 @@ export function ManagerLiveEmployeeDetail({ departmentId, id, onBack, onSelectTa
 
             {!toolsQuery.isPending && tools.length === 0 && (
               <div className='py-6'>
-                <WorkspaceEmptyState
-                  icon={Boxes}
-                  title={translate('employeeDetail.toolsEmpty')}
-                  description=''
-                />
+                <WorkspaceEmptyState icon={Boxes} title={translate('employeeDetail.toolsEmpty')} description='' />
               </div>
             )}
 

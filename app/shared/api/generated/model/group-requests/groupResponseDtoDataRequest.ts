@@ -50,20 +50,14 @@ export type GroupResponseDtoDataRequest = {
    * @exclusiveMinimum 0
    */
   termMonths: number
-  offPlan: boolean
-  /** @nullable */
-  delegatedBatchId: string | null
   /** @nullable */
   expectedEndDate: string | null
   /** @nullable */
   serviceAccount: GroupResponseDtoDataRequestServiceAccount
   /** @nullable */
   renewal: GroupResponseDtoDataRequestRenewal
-  planLineAttached: boolean
   /** @nullable */
   spend: GroupResponseDtoDataRequestSpend
-  /** @nullable */
-  expectedSpendOn: string | null
   /**
    * @minimum -9007199254740991
    * @maximum 9007199254740991
