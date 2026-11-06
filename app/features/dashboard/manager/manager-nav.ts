@@ -6,7 +6,7 @@ import {
   Grid2X2,
   Handshake,
   Landmark,
-  Plus,
+  RefreshCw,
   UsersRound,
   type LucideIcon
 } from 'lucide-react'
@@ -14,6 +14,7 @@ import { MANAGER_TAB_KEYS, type ManagerTabKey } from './enums'
 export { MANAGER_TAB_KEYS, type ManagerTabKey }
 
 export type ManagerTranslationKey =
+  | 'renewals'
   | 'overview'
   | 'myTeam'
   | 'teamSoftware'
@@ -21,19 +22,18 @@ export type ManagerTranslationKey =
   | 'myRequests'
   | 'ghostSeatReview'
   | 'accessReview'
-  | 'createEmployeeRequest'
   | 'weeklyBatch'
   | 'annualBudget'
   | 'transfers'
   | 'notices'
   | 'handovers'
 type LiveLabel =
+  | 'renewals'
   | 'overview'
   | 'team'
   | 'personnel'
   | 'tools'
   | 'requests'
-  | 'create'
   | 'batch'
   | 'budget'
   | 'transfers'
@@ -50,9 +50,9 @@ export const managerNavItems: ManagerNavItem[] = [
   { icon: UsersRound, key: 'my-team', translationKey: 'myTeam', liveLabel: 'personnel' },
   { icon: Boxes, key: 'team-software', translationKey: 'teamSoftware', liveLabel: 'tools' },
   { icon: ClipboardList, key: 'team-requests', translationKey: 'teamRequests', liveLabel: 'requests' },
-  { icon: Plus, key: 'create-employee-request', translationKey: 'createEmployeeRequest', liveLabel: 'create' },
   { icon: Files, key: 'weekly-batch', translationKey: 'weeklyBatch', liveLabel: 'batch' },
   { icon: Landmark, key: 'annual-budget', translationKey: 'annualBudget', liveLabel: 'budget' },
+  { icon: RefreshCw, key: 'subscription-renewals', translationKey: 'renewals', liveLabel: 'renewals' },
   { icon: ArrowRightLeft, key: 'transfer-reviews', translationKey: 'transfers', liveLabel: 'transfers' },
   { icon: Handshake, key: 'handovers', translationKey: 'handovers', liveLabel: 'handovers' }
 ]
@@ -65,6 +65,7 @@ export function getParentManagerMenuKey(tab: ManagerTabKey, from?: string | null
   if (tab === 'personnel-notices') return 'my-team'
   if (tab === 'employee-detail') return from === 'access-review' ? 'access-review' : 'my-team'
   if (tab === 'request-approval') return 'team-requests'
+  if (tab === 'create-employee-request') return 'weekly-batch'
   if (tab === 'ghost-seat-detail') return 'ghost-seat-review'
   if (tab === 'profile') return 'profile'
   return tab

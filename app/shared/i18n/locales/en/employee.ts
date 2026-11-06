@@ -1,6 +1,9 @@
 import { employeeRequestExtras } from './employee-request-extras'
 import { employeeRequestAssignment } from './employee-request-assignment'
 export const employee = {
+  termLimit: 'Up to {{months}} months, ending by {{date}}',
+  estimatedBudgetYear: 'Estimated budget year',
+  extensionMonths: 'Extension in months',
   requestAssignment: employeeRequestAssignment,
   requestExtras: employeeRequestExtras,
   workspace: 'Employee workspace',
@@ -119,7 +122,7 @@ export const employee = {
     quickAccess: 'View software access',
     quickAccessHint: 'Check expiry dates, renew access or follow a return request.',
     quickRequests: 'Continue a request',
-    quickRequestsHint: 'Review saved drafts or track a submitted request by ID.',
+    quickRequestsHint: 'Review saved drafts or track submitted requests.',
     quickIssues: 'Get help with software',
     quickIssuesHint: 'Report an issue and follow replies from the support team.',
     account: 'Your account',
@@ -144,7 +147,6 @@ export const employee = {
     application: 'Software',
     issueCode: 'Issue reference',
     createdAt: 'Created',
-    draftId: 'Draft ID',
     peopleCount: 'Beneficiaries',
     actions: 'Actions',
     requestFields: 'Request information',
@@ -156,8 +158,8 @@ export const employee = {
     guidePreview: 'Check the preview',
     guidePreviewHint:
       'For individual and group access, review eligibility, cost and approval routing before submitting.',
-    guideTrack: 'Keep the request ID',
-    guideTrackHint: 'Use the returned ID to track processing and view decisions.',
+    guideTrack: 'Track the request',
+    guideTrackHint: 'See progress and decisions under My requests.',
     accessHint: 'Review your software access, expiry reminders and return requests.',
     profileDetails: 'Account details',
     security: 'Account security',
@@ -201,9 +203,6 @@ export const employee = {
   myRequests: 'My requests',
   drafts: 'Drafts',
   requestDetail: 'Request details',
-  lookup: 'Track by ID',
-  requestCode: 'Request ID (UUID)',
-  lookupHint: 'Open a request using the ID returned on submission or a notification.',
   requestList: {
     title: 'Submitted requests',
     filters: 'Request filters',
@@ -262,14 +261,12 @@ export const employee = {
   renewal: 'Renew access',
   return: 'Return access',
   mode: 'Request type',
-  planId: 'Plan ID supplied by IT',
   catalogGap:
     'The employee catalog is not available yet. Use an official plan ID supplied by IT or propose new software.',
   reason: 'Business reason',
   term: 'Term (months)',
   project: 'Project label (optional)',
   spendOn: 'Expected spend date (optional)',
-  assignmentId: 'Assignment ID',
   newEndDate: 'New end date',
   termReason: 'Long-term confirmation reason (when required)',
   softwareName: 'Software name',
@@ -280,6 +277,7 @@ export const employee = {
   preview: 'Request preview',
   cannotSubmit: 'This plan cannot currently be requested. Check existing access or contact IT.',
   members: 'Beneficiaries',
+  unknownMember: 'Unknown employee',
   selectedMembers: 'Selected beneficiaries',
   removeMember: 'Remove {{name}}',
   groupPicker: {
@@ -361,6 +359,10 @@ export const employee = {
   noValue: 'Not available',
   selfService: 'Your account is in the handover phase. Only notifications, handovers and your profile are available.',
   errors: {
+    termLimit: 'The term exceeds the plan limit. Check the maximum months and preview again.',
+    groupMinimum: 'A group request requires 2 to 10 different people.',
+    renewalHolder: 'Only the current holder can request an extension of this access.',
+    requestParty: 'The requester or beneficiary is not eligible. Check their role and department.',
     accessUnavailable:
       'This access is no longer suitable for the selected action. Refresh the list and choose another assignment.',
     returnPending: 'This access already has a return request being processed.',

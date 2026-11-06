@@ -6,8 +6,8 @@ import { ManagerBudgetPlanPicker } from './manager-budget-plan-picker'
 export function budgetLineFromForm(form: FormData, index: number): BudgetProposalBodyDtoLinesItem {
   const value = (field: string) => String(form.get(`lines.${index}.${field}`) ?? '').trim()
   return {
-    description: value('description'),
     amount: { amount: value('amount.amount') },
+    ...(value('description') ? { description: value('description') } : {}),
     ...(value('planId') ? { planId: value('planId') } : {}),
     ...(value('seats') ? { seats: Number(value('seats')) } : {}),
     ...(value('note') ? { note: value('note') } : {})
@@ -39,7 +39,6 @@ export function ManagerBudgetLine({ index, initial }: { index: number; initial?:
           defaultValue={initial?.amount.amount}
         />
       </ManagerField>
-      <ManagerBudgetPlanPicker name={name('planId')} initialId={initial?.planId} />
       <ManagerField label={translate('seats')}>
         <input
           name={name('seats')}
@@ -51,11 +50,10 @@ export function ManagerBudgetLine({ index, initial }: { index: number; initial?:
           defaultValue={initial?.seats}
         />
       </ManagerField>
-      <div className='sm:col-span-2'>
-        <ManagerField label={translate('note')}>
-          <textarea name={name('note')} className={managerInputClass} maxLength={1000} defaultValue={initial?.note} />
-        </ManagerField>
-      </div>
+      <ManagerBudgetPlanPicker name={name('planId')} initialId={initial?.planId} />
+      <ManagerField label={translate('note')}>
+        <textarea name={name('note')} className={managerInputClass} maxLength={1000} defaultValue={initial?.note} />
+      </ManagerField>
     </div>
   )
 }

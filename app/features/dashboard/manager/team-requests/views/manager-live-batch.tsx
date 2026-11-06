@@ -15,17 +15,15 @@ import { getAccessRequestGetQueryKey } from '~/shared/api/generated/operations/a
 import { Dialog } from '../../../dashboard-ui'
 import { useManagerPage } from '../../shared/hooks/use-manager-page'
 import { useManagerAction } from '../../shared/hooks/use-manager-action'
-import { isResourceId, resourceIdPattern } from '../../shared/manager-identifiers'
+import { isResourceId } from '../../shared/manager-identifiers'
 import {
   ManagerActionState,
   ManagerButton,
-  ManagerField,
   ManagerMoney,
   ManagerPagination,
   ManagerQueryState,
   ManagerSection,
-  ManagerStatus,
-  managerInputClass
+  ManagerStatus
 } from '../../shared/components/manager-api-ui'
 
 export function ManagerLiveBatch({
@@ -166,33 +164,8 @@ export function ManagerLiveBatch({
         />
         <ManagerActionState action={action} />
       </ManagerSection>
-      <details className='rounded-lg border border-border/60 bg-surface p-4 sm:p-5'>
-        <summary className='cursor-pointer text-sm font-medium'>{translate('batchLookup')}</summary>
-        <form
-          className='mt-5 flex flex-wrap items-start gap-3'
-          onSubmit={(event) => {
-            event.preventDefault()
-            const id = String(new FormData(event.currentTarget).get('batchId')).trim()
-            setParams((previous) => {
-              const next = new URLSearchParams(previous)
-              next.set('batchId', id)
-              next.delete('batchPage')
-              return next
-            })
-          }}
-        >
-          <div className='w-full max-w-md'>
-            <ManagerField label={translate('batchId')}>
-              <input name='batchId' required pattern={resourceIdPattern} className={managerInputClass} />
-            </ManagerField>
-          </div>
-          <div className='pt-7'>
-            <ManagerButton type='submit'>{translate('open')}</ManagerButton>
-          </div>
-        </form>
-      </details>
       {isResourceId(batchId) && (
-        <ManagerSection title={translate('batchId')}>
+        <ManagerSection title={translate('batchResult')}>
           <BatchResult key={batchId} id={batchId} onOpen={onOpen} />
         </ManagerSection>
       )}
@@ -240,7 +213,6 @@ function BatchResult({ id, onOpen }: { id: string; onOpen: (id: string) => void 
       <ManagerQueryState query={batch} />
       {!batch.isError && batch.data?.data && (
         <>
-          <p className='break-all text-right font-mono text-xs'>{batch.data.data.batch.id}</p>
           <ManagerQueryState query={items} empty={!items.data?.data?.items.length} />
           {!items.isError &&
             items.data?.data?.items.map((item) => (
@@ -248,6 +220,7 @@ function BatchResult({ id, onOpen }: { id: string; onOpen: (id: string) => void 
                 key={item.requestId}
                 className='flex flex-wrap items-center justify-between gap-3 border-b border-border/40 py-3'
               >
+                <p className='text-sm font-medium'>{translate('batchItem', { position: item.position })}</p>
                 <ManagerButton onClick={() => onOpen(item.requestId)}>{translate('open')}</ManagerButton>
                 <ManagerStatus value={item.outcome} />
                 <ManagerStatus value={item.requestState} />

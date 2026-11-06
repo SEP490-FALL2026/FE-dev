@@ -1,23 +1,20 @@
-import { ArrowRight, FilePlus2, Landmark, LayoutDashboard, UsersRound } from 'lucide-react'
+import { ArrowRight, Landmark, LayoutDashboard, UsersRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useId } from 'react'
 import { useDepartmentGet } from '~/shared/api/generated/operations/departments/department-get'
 import type { ManagerTabKey } from '../../enums'
 import { ManagerQueryState, ManagerSection, ManagerStatus } from '../../shared/components/manager-api-ui'
 import { ManagerPageHeader } from '../../shared/components/manager-page-header'
-import { ManagerDepartmentContext } from '../../shared/components/manager-department-context'
 import { ManagerOverviewWork } from '../components/manager-overview-work'
 import { ManagerDashboardSummary } from '../components/manager-dashboard-summary'
 
 type SelectTab = (tab: ManagerTabKey, params?: Record<string, string>) => void
 export function ManagerLiveOverview({
   departmentId,
-  departmentName,
   name,
   onSelectTab
 }: {
   departmentId?: string
-  departmentName?: string
   name: string
   onSelectTab: SelectTab
 }) {
@@ -27,21 +24,11 @@ export function ManagerLiveOverview({
     <div className='space-y-6'>
       <ManagerPageHeader title={translate('overview')} icon={LayoutDashboard} />
       <section className='manager-overview-hero rounded-lg px-5 py-6 sm:px-7 sm:py-7'>
-        <div className='flex flex-wrap items-center justify-between gap-5'>
-          <div className='min-w-0'>
-            <h2 className='text-xl font-semibold tracking-tight [text-wrap:balance] sm:text-2xl'>
-              {translate('greeting', { name })}
-            </h2>
-            <p className='mt-3 max-w-xl text-sm leading-relaxed opacity-75'>{translate('overviewHint')}</p>
-          </div>
-          <button
-            type='button'
-            className='inline-flex min-h-11 items-center gap-2 rounded-md border border-current/25 px-4 py-2 text-sm font-medium transition-colors hover:bg-white/10'
-            onClick={() => onSelectTab('create-employee-request', { scope: 'team' })}
-          >
-            <FilePlus2 aria-hidden strokeWidth={1.5} className='size-4' />
-            {translate('create')}
-          </button>
+        <div className='min-w-0'>
+          <h2 className='text-xl font-semibold tracking-tight [text-wrap:balance] sm:text-2xl'>
+            {translate('greeting', { name })}
+          </h2>
+          <p className='mt-3 max-w-xl text-sm leading-relaxed opacity-75'>{translate('overviewHint')}</p>
         </div>
       </section>
       <ManagerDashboardSummary onSelectTab={onSelectTab} />
@@ -82,10 +69,7 @@ export function ManagerLiveOverview({
             ))}
           </div>
         </ManagerSection>
-        <div className='space-y-4'>
-          {departmentId && <DepartmentOverview id={departmentId} />}
-          <ManagerDepartmentContext departmentId={departmentId} name={departmentId ? undefined : departmentName} />
-        </div>
+        <div className='space-y-4'>{departmentId && <DepartmentOverview id={departmentId} />}</div>
       </div>
     </div>
   )

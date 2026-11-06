@@ -6,6 +6,8 @@ import { getPersonnelNoticeListQueryKey } from '~/shared/api/generated/operation
 import { Dialog } from '../../../dashboard-ui'
 import { useManagerAction } from '../../shared/hooks/use-manager-action'
 import { resourceIdPattern } from '../../shared/manager-identifiers'
+import { useMeGet } from '~/shared/api/generated/operations/me/me-get'
+import { useDepartmentMemberSearch } from '../../team/hooks/use-department-search'
 import {
   ManagerActionState,
   ManagerButton,
@@ -18,6 +20,9 @@ import { NOTICE_KIND } from '../enums/notice-status'
 export function ManagerNoticeForm({ onClose, onCreated }: { onClose: () => void; onCreated: (id: string) => void }) {
   const { t: translate } = useTranslation('manager')
   const [kind, setKind] = useState<SendNoticeBodyDto['kind']>(NOTICE_KIND.DEPARTURE)
+  const me = useMeGet()
+  const departmentId = (!me.isError ? me.data?.data?.managerScope?.departmentId : undefined) ?? ''
+  const members = useDepartmentMemberSearch(departmentId, !!departmentId)
   const action = useManagerAction({
     mutationFn: (body: SendNoticeBodyDto) => personnelNoticeSend(body),
     invalidate: [getPersonnelNoticeListQueryKey()],
@@ -53,10 +58,18 @@ export function ManagerNoticeForm({ onClose, onCreated }: { onClose: () => void;
           }}
         >
           <fieldset disabled={action.blocked} className='space-y-4'>
-            <ManagerField label={translate('employeeId')}>
-              <input name='employeeId' required pattern={resourceIdPattern} className={managerInputClass} />
+            <ManagerField label={translate('employee')}>
+              <select name='employeeId' required defaultValue='' className={managerInputClass}>
+                <option value='' disabled>
+                  {translate(members.isPending ? 'loading' : 'chooseEmployee')}
+                </option>
+                {(!members.isError ? (members.data ?? []) : []).map((member) => (
+                  <option key={member.employeeId} value={member.employeeId}>
+                    {member.fullName} · {member.employeeCode}
+                  </option>
+                ))}
+              </select>
             </ManagerField>
-            <p className='text-xs text-muted-foreground'>{translate('employeeHint')}</p>
             <div className='grid gap-4 sm:grid-cols-2'>
               <ManagerField label={translate('kind')}>
                 <select

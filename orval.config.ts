@@ -42,12 +42,12 @@ export default defineConfig({
           'seat-baseline',
           'seat-baseline-imports',
           'provisioning-tasks',
+          'grant-queue',
           'license-keys',
           'handover-duties',
           'assignment-expiry',
           'saas-issues',
           'access-requests',
-          'grant-queue',
           'group-requests',
           'transfer-reviews',
           'cost-centers',
@@ -70,7 +70,8 @@ export default defineConfig({
           'collector-allowlist',
           'ai-usage',
           'ai-tool-status',
-          'intake-rejections'
+          'intake-rejections',
+          'ai-assist'
         ]
       }
     },

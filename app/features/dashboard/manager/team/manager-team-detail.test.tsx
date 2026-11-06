@@ -75,6 +75,43 @@ const mockToolsInUse = {
 }
 
 const server = setupServer(
+  http.get(`*/api/v1/departments/${testDeptId}/employees/${testEmpId}`, () =>
+    HttpResponse.json({
+      success: true,
+      data: {
+        employeeId: testEmpId,
+        employeeCode: 'EMP-001',
+        fullName: 'Nguyen Van A',
+        status: 'ACTIVE',
+        hasWorkEmail: true,
+        memberSince: '2024-01-15',
+        heldSoftwareCount: 1,
+        openRequestCount: 0
+      }
+    })
+  ),
+  http.get(`*/api/v1/departments/${testDeptId}/employees/${testEmpId}/software-rights`, () =>
+    HttpResponse.json({
+      success: true,
+      data: {
+        ...mockToolsInUse,
+        items: mockToolsInUse.items.map((tool) => ({
+          assignmentId: tool.assignmentId,
+          applicationName: tool.application.name,
+          planName: tool.plan.name,
+          grantedOn: tool.effectiveFrom,
+          endsOn: null
+        }))
+      }
+    })
+  ),
+  http.get(`*/api/v1/departments/${testDeptId}/employees/${testEmpId}/open-requests`, () =>
+    HttpResponse.json({
+      success: true,
+      data: { items: [], pagination: { page: 1, pageSize: 20, totalItems: 0, totalPages: 0 } }
+    })
+  ),
+
   http.get('*/api/v1/me', () =>
     HttpResponse.json({
       success: true,
@@ -356,8 +393,8 @@ describe('Manager Personal Profile & Employee Detail Integration', () => {
       <ManagerLiveRequest id='req-1' employeeId={managerProfile.employee.id} departmentCode='ENG' onBack={vi.fn()} />
     )
 
-    expect(await screen.findByText('req-1')).toBeInTheDocument()
-    expect(screen.getByText('Vu Thi Giang')).toBeInTheDocument()
+    expect(await screen.findByText('Vu Thi Giang')).toBeInTheDocument()
+    expect(screen.queryByText('req-1')).not.toBeInTheDocument()
     expect(screen.queryByText('Pending')).not.toBeInTheDocument()
     expect(screen.queryByText('Awaiting need approval')).not.toBeInTheDocument()
     expect(screen.queryByText('PAID_IN_CATALOG')).not.toBeInTheDocument()
@@ -392,7 +429,7 @@ describe('Manager Personal Profile & Employee Detail Integration', () => {
 
     expect(await screen.findByRole('heading', { level: 1, name: 'JetBrains IntelliJ' })).toBeInTheDocument()
     expect(screen.getAllByText('Ultimate Annual').length).toBeGreaterThan(0)
-    expect(screen.getByText('assign-1')).toBeInTheDocument()
+    expect(screen.queryByText('assign-1')).not.toBeInTheDocument()
     expect(screen.getByText('Nguyen Van A')).toBeInTheDocument()
     expect(screen.getByText('EMP-001')).toBeInTheDocument()
 

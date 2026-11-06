@@ -22,7 +22,7 @@ import { DRAFT_KIND } from '../../shared/enums/draft-kind'
 import { getMeSoftwareRightListQueryKey } from '~/shared/api/generated/operations/me/me-software-right-list'
 
 export type RequestMode = 'individual' | 'group' | 'proposal' | 'renewal' | 'return'
-export type GroupSelection = { employeeId: string; fullName: string; workEmail?: string; expectedEndDate: string }
+export type GroupSelection = { employeeId: string; fullName: string; workEmail?: string }
 
 export function readRequestFields(form: HTMLFormElement) {
   const fields = new FormData(form)
@@ -85,8 +85,8 @@ export function useLiveRequestForm(
           canSubmit:
             !!checked &&
             checked.plan.eligible === true &&
-            !checked.tooManyLines &&
             !checked.tooFewLines &&
+            !checked.tooManyLines &&
             !checked.termBeyondLimit &&
             checked.lines.length === members.length &&
             checked.lines.every((line) => line.ok),
@@ -94,7 +94,10 @@ export function useLiveRequestForm(
         }
       }
       const { planId, termMonths } = requestPayload(fields)
-      const response = await accessRequestPreview({ planId, termMonths })
+      const response = await accessRequestPreview({
+        planId,
+        termMonths
+      })
       return {
         fingerprint: fingerprint(fields),
         canSubmit: response.data?.preview.canSubmit === true,

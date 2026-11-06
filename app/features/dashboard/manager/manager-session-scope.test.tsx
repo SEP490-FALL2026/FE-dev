@@ -47,7 +47,7 @@ it('loads the signed-in manager department from /me without requiring a departme
 
   expect(await screen.findByText('No members to display')).toBeInTheDocument()
   expect(screen.queryByText('Link your department to load the list')).not.toBeInTheDocument()
-  expect(screen.getByLabelText('Department ID')).toHaveValue(employeeId)
+  expect(screen.queryByLabelText('Department ID')).not.toBeInTheDocument()
 })
 
 it('blocks Manager workspace access when /me has no manager scope', async () => {

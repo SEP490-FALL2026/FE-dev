@@ -39,8 +39,8 @@ export function LiveGroupEligibility({
               line.reason && Object.values(GROUP_ELIGIBILITY_REASON).some((reason) => reason === line.reason)
             return (
               <li key={line.employeeId} className='flex flex-wrap justify-between gap-2 text-sm'>
-                <span className='truncate font-medium' title={member?.fullName ?? line.employeeId}>
-                  {member?.fullName ?? line.employeeId}
+                <span className='truncate font-medium' title={member?.fullName ?? translate('unknownMember')}>
+                  {member?.fullName ?? translate('unknownMember')}
                 </span>
                 <span className='text-warning'>
                   {known

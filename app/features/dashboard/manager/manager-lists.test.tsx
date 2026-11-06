@@ -10,7 +10,7 @@ import type {
   DepartmentToolsResponseDtoDataItemsItem
 } from '~/shared/api/generated/model'
 import { setAppLanguage } from '~/shared/i18n/i18n'
-import { employeeId, planId, requestId } from '../../../../test/fixtures/employee-api'
+import { employeeId, planId } from '../../../../test/fixtures/employee-api'
 import { managerRequest } from '../../../../test/fixtures/manager-api'
 import { ManagerRequestLookup } from './team-requests/views/manager-live-request-lookup'
 import { ManagerLiveTeam } from './team/views/manager-live-team'
@@ -81,7 +81,7 @@ function search(name: string, value: string) {
 }
 
 describe('Manager searchable lists', () => {
-  it('loads the NEED list and searches a real request before opening it', async () => {
+  it('loads the NEED list without offering a lookup by request ID', async () => {
     const opened = vi.fn()
     const read = vi.fn()
     server.use(
@@ -94,21 +94,9 @@ describe('Manager searchable lists', () => {
     expect(screen.getByRole('table', { name: 'Requests awaiting need approval' })).toBeInTheDocument()
     expect(await screen.findByText('No requests awaiting your decision')).toBeInTheDocument()
     expect(screen.queryByText('Need approval process')).not.toBeInTheDocument()
+    expect(screen.queryByRole('searchbox', { name: 'Request ID' })).not.toBeInTheDocument()
     expect(read).not.toHaveBeenCalled()
-
-    search('Request ID', 'partial-id')
-    expect(screen.getByText('Enter the complete request ID to search')).toBeInTheDocument()
-    expect(read).not.toHaveBeenCalled()
-    search('Request ID', requestId)
-    const table = await screen.findByRole('table', { name: 'Search results' })
-    expect(await within(table).findByText('Test Software')).toBeInTheDocument()
-    expect(read).toHaveBeenCalledWith(requestId)
     expect(opened).not.toHaveBeenCalled()
-    fireEvent.click(within(table).getByRole('button', { name: 'Open' }))
-    expect(opened).toHaveBeenCalledWith(requestId)
-    fireEvent.click(screen.getByRole('button', { name: 'Clear' }))
-    expect(await screen.findByText('No requests awaiting your decision')).toBeInTheDocument()
-    expect(screen.queryByText('Test Software')).not.toBeInTheDocument()
   })
 
   it('finds members beyond the current server page and paginates all accent-insensitive matches', async () => {
@@ -195,7 +183,7 @@ describe('Manager searchable lists', () => {
     mount(<ManagerLiveTeam />)
     expect(screen.getByRole('table', { name: 'Department members' })).toBeInTheDocument()
     expect(screen.getByRole('searchbox')).toBeDisabled()
-    expect(screen.getByText('Link your department to load the list')).toBeInTheDocument()
+    expect(screen.getByText('No department to load the list for')).toBeInTheDocument()
     expect(within(screen.getByRole('table')).queryByRole('status')).not.toBeInTheDocument()
   })
 })

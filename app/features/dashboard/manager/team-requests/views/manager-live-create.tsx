@@ -25,21 +25,25 @@ export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) 
   const { t: translate } = useTranslation('manager')
   const [people, setPeople] = useState<ManagerChoice[]>([])
   const [plan, setPlan] = useState<ManagerCatalogPlan | null>(null)
-  const [created, setCreated] = useState<string[]>([])
+  const [created, setCreated] = useState<{ id: string; label: string }[]>([])
   const [pending, setPending] = useState<GroupBodyDto | null>(null)
   const [termMonths, setTermMonths] = useState('')
   const action = useManagerAction({
     mutationFn: (body: GroupBodyDto) => groupRequestSubmit(body),
     invalidate: [getSpendQueueListQueryKey()],
     onSuccess: (result) => {
-      setCreated(result.data ? [result.data.request.id] : [])
+      setCreated(
+        result.data
+          ? [{ id: result.data.request.id, label: plan ? `${plan.application.name} · ${plan.name}` : '' }]
+          : []
+      )
       setPending(null)
     }
   })
   return (
     <div className='space-y-6'>
       <ManagerPageHeader title={translate('group')} icon={FilePlus2} description={translate('groupHint')} />
-      <ManagerSection title={translate('create')}>
+      <ManagerSection title={translate('groupDetails')}>
         <ManagerFormErrors fields={action.fields}>
           <form
             className='space-y-5'
@@ -51,12 +55,9 @@ export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) 
               const businessReason = String(form.get('businessReason')).trim()
               const months = Number(termMonths)
               if (!businessReason || !Number.isInteger(months) || months < 1 || months > 12) return
-              const common = {
-                businessReason,
-                termMonths: months
-              }
               setPending({
-                ...common,
+                businessReason,
+                termMonths: months,
                 planId,
                 lines: people.map((person) => ({ employeeId: person.value }))
               })
@@ -112,10 +113,12 @@ export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) 
       </ManagerSection>
       {!!created.length && (
         <ManagerSection title={translate('created')}>
-          {created.map((id) => (
-            <div key={id} className='flex flex-wrap justify-between gap-3'>
-              <p className='break-all text-right font-mono text-sm'>{id}</p>
-              <ManagerButton onClick={() => onOpen(id)}>{translate('open')}</ManagerButton>
+          {created.map((item) => (
+            <div key={item.id} className='flex flex-wrap items-center justify-between gap-3'>
+              <p className='min-w-0 truncate text-sm font-medium' title={item.label}>
+                {item.label}
+              </p>
+              <ManagerButton onClick={() => onOpen(item.id)}>{translate('open')}</ManagerButton>
             </div>
           ))}
         </ManagerSection>
@@ -123,7 +126,7 @@ export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) 
       {pending && plan && (
         <Dialog
           presentation='sheet'
-          title={translate('create')}
+          title={translate('groupDetails')}
           hint={translate('confirmAction')}
           onClose={() => {
             if (!action.isPending) setPending(null)

@@ -1,3 +1,4 @@
+import { ManagerSubscriptionRenewals } from './subscription-renewals/views/manager-subscription-renewals'
 import { useTranslation } from 'react-i18next'
 import { Navigate, useLocation, useParams, useSearchParams } from 'react-router'
 import { Boxes, Plus, UsersRound } from 'lucide-react'
@@ -5,7 +6,6 @@ import { useMeGet } from '~/shared/api/generated/operations/me/me-get'
 import { useDepartmentGet } from '~/shared/api/generated/operations/departments/department-get'
 import type { ManagerTabKey } from './enums'
 import { isResourceId } from './shared/manager-identifiers'
-import { ManagerDepartmentContext } from './shared/components/manager-department-context'
 import { ManagerButton, ManagerQueryState } from './shared/components/manager-api-ui'
 import { ManagerPageHeader } from './shared/components/manager-page-header'
 import { ManagerLiveOverview } from './overview/views/manager-live-overview'
@@ -88,7 +88,6 @@ export function ManagerScreen({
     content = (
       <ManagerLiveOverview
         name={user.employee.fullName}
-        departmentName={user.employee.department?.name}
         departmentId={validDepartment ? departmentId : undefined}
         onSelectTab={onSelectTab}
       />
@@ -126,7 +125,6 @@ export function ManagerScreen({
           <ManagerNotices />
         ) : (
           <>
-            <ManagerDepartmentContext departmentId={departmentId} name={user.employee.department?.name} />
             <ManagerLiveTeam
               departmentId={validDepartment ? departmentId : undefined}
               embedded
@@ -181,7 +179,6 @@ export function ManagerScreen({
           <ManagerReturns onOpen={openReturn} />
         ) : (
           <>
-            <ManagerDepartmentContext departmentId={departmentId} name={user.employee.department?.name} />
             <ManagerLiveTeam
               departmentId={validDepartment ? departmentId : undefined}
               tools
@@ -247,6 +244,7 @@ export function ManagerScreen({
         onCreateGroup={() => onSelectTab('create-employee-request', { scope: 'team' })}
       />
     )
+  else if (tab === 'subscription-renewals') content = <ManagerSubscriptionRenewals />
   else if (tab === 'annual-budget') content = <ManagerLiveBudget />
   else if (tab === 'transfer-reviews') content = <ManagerTransferReviews />
   else if (tab === 'handovers') content = <ManagerHandovers />

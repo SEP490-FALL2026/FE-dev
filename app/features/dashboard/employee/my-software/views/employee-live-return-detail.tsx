@@ -42,9 +42,6 @@ export function EmployeeLiveReturnDetail({
         {request && (
           <>
             <EmployeeStatus value={request.state} />
-            <p className='truncate font-mono text-xs' title={request.id}>
-              {request.id}
-            </p>
             <p className='text-sm'>{request.reason}</p>
             <p className='text-sm text-muted-foreground'>{translate('returnHint')}</p>
             {request.failureReason && <p className='text-sm'>{request.failureReason}</p>}

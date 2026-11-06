@@ -169,7 +169,8 @@ function Decision({ id, assignmentId, onClose }: { id: string; assignmentId: str
             event.preventDefault()
             if (action.blocked) return
             const reason = String(new FormData(event.currentTarget).get('reason') ?? '').trim()
-            if (reason) action.mutate({ assignmentId, decision, reason })
+            if (!reason) return
+            action.mutate({ assignmentId, decision, reason })
           }}
         >
           <fieldset disabled={action.blocked} className='space-y-4'>

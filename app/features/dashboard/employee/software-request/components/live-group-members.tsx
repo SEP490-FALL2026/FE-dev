@@ -56,8 +56,7 @@ export function LiveGroupMembers({
                 members.find((member) => member.employeeId === choice.value) ?? {
                   employeeId: choice.value,
                   fullName: choice.label,
-                  workEmail: choice.description,
-                  expectedEndDate: ''
+                  workEmail: choice.description
                 }
             )
           )

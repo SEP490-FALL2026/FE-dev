@@ -1,5 +1,0 @@
-export * from './document-create'
-export * from './document-complete'
-export * from './document-attach'
-export * from './document-get'
-export * from './document-link'

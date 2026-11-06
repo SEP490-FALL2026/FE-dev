@@ -80,7 +80,7 @@ describe('Manager need approval and spend submission', () => {
     )
     const view = mount(<ManagerLiveRequest id={requestId} employeeId={managerId} onBack={vi.fn()} />)
     view.client.setQueryData(getSpendQueueListQueryKey(), { success: true })
-    await screen.findByLabelText('Approve need')
+    await screen.findByRole('radio', { name: 'Approve need' })
     fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
     const dialog = screen.getByRole('dialog')
     const confirm = within(dialog).getByRole('button', { name: 'Confirm' })
@@ -104,7 +104,8 @@ describe('Manager need approval and spend submission', () => {
       )
     )
     mount(<ManagerLiveRequest id={requestId} employeeId={managerId} onBack={vi.fn()} />)
-    expect(await screen.findByText(requestId)).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Test Software' })).toBeInTheDocument()
+    expect(screen.queryByText(requestId)).not.toBeInTheDocument()
     expect(screen.queryByRole('radio')).not.toBeInTheDocument()
   })
   it('keeps input and blocks resubmission after an uncertain write', async () => {
@@ -186,7 +187,7 @@ describe('Manager need approval and spend submission', () => {
         HttpResponse.json(
           pageResponse([
             { employeeId, fullName: 'Test Employee', workEmail: 'employee@example.test' },
-            { employeeId: planId, fullName: 'Other Employee', workEmail: 'other@example.test' }
+            { employeeId: planId, fullName: 'Second Employee', workEmail: 'second@example.test' }
           ])
         )
       ),
@@ -213,7 +214,7 @@ describe('Manager need approval and spend submission', () => {
     fireEvent.change(screen.getByLabelText('Term (months)'), { target: { value: '3' } })
     fireEvent.click(screen.getByRole('combobox', { name: 'Beneficiaries' }))
     fireEvent.click(await screen.findByRole('option', { name: /Test Employee/ }))
-    fireEvent.click(screen.getByRole('option', { name: /Other Employee/ }))
+    fireEvent.click(screen.getByRole('option', { name: /Second Employee/ }))
     fireEvent.keyDown(screen.getByRole('searchbox'), { key: 'Escape' })
     fireEvent.change(screen.getByLabelText('Reason'), { target: { value: 'Onboarding' } })
     fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
