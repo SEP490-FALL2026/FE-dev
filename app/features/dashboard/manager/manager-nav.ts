@@ -7,7 +7,6 @@ import {
   Handshake,
   Landmark,
   RefreshCw,
-  Plus,
   UsersRound,
   type LucideIcon
 } from 'lucide-react'
@@ -23,7 +22,6 @@ export type ManagerTranslationKey =
   | 'myRequests'
   | 'ghostSeatReview'
   | 'accessReview'
-  | 'createEmployeeRequest'
   | 'weeklyBatch'
   | 'annualBudget'
   | 'transfers'
@@ -36,7 +34,6 @@ type LiveLabel =
   | 'personnel'
   | 'tools'
   | 'requests'
-  | 'create'
   | 'batch'
   | 'budget'
   | 'transfers'
@@ -53,7 +50,6 @@ export const managerNavItems: ManagerNavItem[] = [
   { icon: UsersRound, key: 'my-team', translationKey: 'myTeam', liveLabel: 'personnel' },
   { icon: Boxes, key: 'team-software', translationKey: 'teamSoftware', liveLabel: 'tools' },
   { icon: ClipboardList, key: 'team-requests', translationKey: 'teamRequests', liveLabel: 'requests' },
-  { icon: Plus, key: 'create-employee-request', translationKey: 'createEmployeeRequest', liveLabel: 'create' },
   { icon: Files, key: 'weekly-batch', translationKey: 'weeklyBatch', liveLabel: 'batch' },
   { icon: Landmark, key: 'annual-budget', translationKey: 'annualBudget', liveLabel: 'budget' },
   { icon: RefreshCw, key: 'subscription-renewals', translationKey: 'renewals', liveLabel: 'renewals' },
@@ -69,6 +65,7 @@ export function getParentManagerMenuKey(tab: ManagerTabKey, from?: string | null
   if (tab === 'personnel-notices') return 'my-team'
   if (tab === 'employee-detail') return from === 'access-review' ? 'access-review' : 'my-team'
   if (tab === 'request-approval') return 'team-requests'
+  if (tab === 'create-employee-request') return 'weekly-batch'
   if (tab === 'ghost-seat-detail') return 'ghost-seat-review'
   if (tab === 'profile') return 'profile'
   return tab

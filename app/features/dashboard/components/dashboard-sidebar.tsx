@@ -1,5 +1,4 @@
 import {
-  ChevronDown,
   LogOut,
   X,
   Grid2X2,
@@ -49,7 +48,6 @@ export interface DashboardSidebarProps {
   activeParent: string
   activeSuperAdminTab: SuperAdminTabKey
   activeTab: ItAdminTabKey
-  managerCreateMenuOpen: boolean
   mobileNavigationOpen: boolean
   onCloseMobileNavigation: () => void
   onSelectApprovalTab: (tab: ApprovalTabKey) => void
@@ -60,7 +58,6 @@ export interface DashboardSidebarProps {
   onSelectSuperAdminTab: (tab: SuperAdminTabKey) => void
   openSections: Record<string, boolean>
   role: UserRole
-  setManagerCreateMenuOpen: React.Dispatch<React.SetStateAction<boolean>>
   toggleSection: (key: string) => void
 }
 
@@ -73,7 +70,6 @@ export function DashboardSidebar({
   activeParent,
   activeSuperAdminTab,
   activeTab,
-  managerCreateMenuOpen,
   mobileNavigationOpen,
   onCloseMobileNavigation,
   onSelectApprovalTab,
@@ -84,7 +80,6 @@ export function DashboardSidebar({
   onSelectSuperAdminTab,
   openSections,
   role,
-  setManagerCreateMenuOpen,
   toggleSection
 }: DashboardSidebarProps) {
   const { t } = useTranslation('dashboard')
@@ -197,61 +192,20 @@ export function DashboardSidebar({
                 return (
                   <li key={item.key}>
                     <button
-                      aria-current={
-                        isCurrent && (item.key !== 'create-employee-request' || !managerCreateMenuOpen)
-                          ? 'page'
-                          : undefined
-                      }
+                      aria-current={isCurrent ? 'page' : undefined}
                       className={`flex w-full items-center justify-between rounded-xl px-3.5 py-3 text-left text-sm font-semibold transition ${
                         isCurrent
                           ? 'bg-primary text-primary-foreground shadow-[0_10px_25px_var(--theme-primary-soft)]'
                           : 'text-muted-foreground hover:bg-surface hover:text-foreground'
                       }`}
-                      onClick={() => {
-                        if (item.key === 'create-employee-request') {
-                          setManagerCreateMenuOpen((open) => !open)
-                        } else {
-                          onSelectManagerTab(item.key)
-                        }
-                      }}
-                      aria-expanded={item.key === 'create-employee-request' ? managerCreateMenuOpen : undefined}
-                      aria-controls={
-                        item.key === 'create-employee-request' && managerCreateMenuOpen
-                          ? 'manager-create-request-options'
-                          : undefined
-                      }
+                      onClick={() => onSelectManagerTab(item.key)}
                       type='button'
                     >
                       <div className='flex items-center gap-3'>
                         <Icon aria-hidden='true' className='size-[1.125rem] shrink-0' strokeWidth={1.5} />
                         <span>{translateManager(item.liveLabel)}</span>
                       </div>
-                      {item.key === 'create-employee-request' && (
-                        <ChevronDown
-                          aria-hidden='true'
-                          className={`size-4 transition-transform ${managerCreateMenuOpen ? 'rotate-180' : ''}`}
-                          strokeWidth={1.5}
-                        />
-                      )}
                     </button>
-                    {item.key === 'create-employee-request' && managerCreateMenuOpen && (
-                      <ul className='mt-1 space-y-1 pl-8' id='manager-create-request-options'>
-                        <li>
-                          <button
-                            aria-current={isCurrent ? 'page' : undefined}
-                            className={`min-h-10 w-full rounded-lg px-3 text-left text-sm transition ${
-                              isCurrent
-                                ? 'bg-primary-soft font-semibold text-primary-ink'
-                                : 'text-muted-foreground hover:bg-surface hover:text-foreground'
-                            }`}
-                            onClick={() => onSelectManagerTab('create-employee-request', { scope: 'team' })}
-                            type='button'
-                          >
-                            {translateManager('group')}
-                          </button>
-                        </li>
-                      </ul>
-                    )}
                   </li>
                 )
               })}

@@ -133,16 +133,21 @@ describe('Manager dashboard API navigation', () => {
     await renderDashboard('employee')
     expect(screen.queryByRole('button', { name: 'Annual budget' })).not.toBeInTheDocument()
   })
-  it('opens only the group form from the Manager sidebar', async () => {
+  it('opens the group form only from the spending submission page', async () => {
     await setAppLanguage('en', true)
     server.use(http.get('*/api/v1/me', () => HttpResponse.json({ success: true, data: managerProfile })))
     await renderDashboard('manager')
     const nav = screen.getByRole('navigation', { name: 'Dashboard navigation' })
-    const create = within(nav).getByRole('button', { name: 'Request on behalf' })
-    expect(create).toHaveAttribute('aria-expanded', 'false')
-    fireEvent.click(create)
-    fireEvent.click(within(nav).getByRole('button', { name: 'Group request' }))
-    expect(await screen.findByRole('heading', { level: 1, name: 'Group request' })).toBeInTheDocument()
+    expect(within(nav).queryByRole('button', { name: 'Request on behalf' })).not.toBeInTheDocument()
+    expect(within(nav).queryByRole('button', { name: 'Group request' })).not.toBeInTheDocument()
+    expect(within(nav).queryByRole('button', { name: 'Team plan request' })).not.toBeInTheDocument()
+    fireEvent.click(within(nav).getByRole('button', { name: 'Submit spending requests' }))
+    fireEvent.click(await screen.findByRole('button', { name: 'Create group request' }))
+    expect(await screen.findByRole('heading', { level: 1, name: 'Team plan request' })).toBeInTheDocument()
+    expect(within(nav).getByRole('button', { name: 'Submit spending requests' })).toHaveAttribute(
+      'aria-current',
+      'page'
+    )
     expect(screen.getByRole('combobox', { name: 'Software plan' })).toBeInTheDocument()
     expect(screen.queryByLabelText('Plan ID')).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Save preview' })).not.toBeInTheDocument()
@@ -154,14 +159,14 @@ describe('Manager dashboard API navigation', () => {
     await setAppLanguage('en', true)
     server.use(http.get('*/api/v1/me', () => HttpResponse.json({ success: true, data: managerProfile })))
     await renderDashboard('manager', '/?tab=create-employee-request&scope=team')
-    expect(await screen.findByRole('heading', { level: 1, name: 'Group request' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Request on behalf' })).toHaveAttribute('aria-expanded', 'true')
+    expect(await screen.findByRole('heading', { level: 1, name: 'Team plan request' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Request on behalf' })).not.toBeInTheDocument()
   })
   it.each([
-    ['vi', 'individual', 'Yêu cầu nhóm', 'Yêu cầu gửi hộ'],
-    ['en', 'individual', 'Group request', 'Delegated requests'],
-    ['en', '', 'Group request', 'Delegated requests'],
-    ['en', 'invalid', 'Group request', 'Delegated requests']
+    ['vi', 'individual', 'Yêu cầu cấp gói nhóm', 'Yêu cầu gửi hộ'],
+    ['en', 'individual', 'Team plan request', 'Delegated requests'],
+    ['en', '', 'Team plan request', 'Delegated requests'],
+    ['en', 'invalid', 'Team plan request', 'Delegated requests']
   ])('opens the group form for %s links with scope "%s"', async (language, scope, title, removedTitle) => {
     await setAppLanguage(language as 'vi' | 'en', true)
     const delegated = vi.fn()

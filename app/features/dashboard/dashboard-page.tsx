@@ -77,7 +77,6 @@ export function DashboardPage({ role }: { role: UserRole }) {
   const activeManagerParent = isManager
     ? getParentManagerMenuKey(activeManagerTab, searchParams.get('from'))
     : 'overview'
-  const [managerCreateMenuOpen, setManagerCreateMenuOpen] = useState(activeManagerTab === 'create-employee-request')
 
   // Approval Tabs
   const activeApprovalTab: ApprovalTabKey = isApprover && isValidApprovalTab(tabParam) ? tabParam : 'overview'
@@ -122,7 +121,6 @@ export function DashboardPage({ role }: { role: UserRole }) {
   const handleSelectEmployeeTab = (tab: EmployeeTabKey, extraParams?: Record<string, string>) =>
     updateTab(tab, extraParams)
   const handleSelectManagerTab = (tab: ManagerTabKey, extraParams?: Record<string, string>) => {
-    if (tab === 'create-employee-request') setManagerCreateMenuOpen(true)
     const departmentId = searchParams.get('departmentId')
     const next = new URLSearchParams({
       ...(departmentId ? { departmentId } : {}),
@@ -168,7 +166,6 @@ export function DashboardPage({ role }: { role: UserRole }) {
         activeParent={activeParent}
         activeSuperAdminTab={activeSuperAdminTab}
         activeTab={activeTab}
-        managerCreateMenuOpen={managerCreateMenuOpen}
         mobileNavigationOpen={mobileNavigationOpen}
         onCloseMobileNavigation={() => setMobileNavigationOpen(false)}
         onSelectApprovalTab={handleSelectApprovalTab}
@@ -179,7 +176,6 @@ export function DashboardPage({ role }: { role: UserRole }) {
         onSelectSuperAdminTab={handleSelectSuperAdminTab}
         openSections={openSections}
         role={role}
-        setManagerCreateMenuOpen={setManagerCreateMenuOpen}
         toggleSection={toggleSection}
       />
 

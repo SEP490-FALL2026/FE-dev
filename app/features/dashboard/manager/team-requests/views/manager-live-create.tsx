@@ -39,7 +39,7 @@ export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) 
   return (
     <div className='space-y-6'>
       <ManagerPageHeader title={translate('group')} icon={FilePlus2} description={translate('groupHint')} />
-      <ManagerSection title={translate('create')}>
+      <ManagerSection title={translate('groupDetails')}>
         <ManagerFormErrors fields={action.fields}>
           <form
             className='space-y-5'
@@ -120,7 +120,7 @@ export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) 
       {pending && plan && (
         <Dialog
           presentation='sheet'
-          title={translate('create')}
+          title={translate('groupDetails')}
           hint={translate('confirmAction')}
           onClose={() => {
             if (!action.isPending) setPending(null)
