@@ -24,6 +24,7 @@ import { formatMoney } from '../../shared/finance-money'
 import { CostCenterDetail } from '../components/cost-center-detail'
 import { CostCenterKpis } from '../components/cost-center-kpis'
 import { useCurrentBudgetsByCostCenter } from '../hooks/use-cost-center-budgets'
+import { useBudgetSummary } from '../hooks/use-budget-summary'
 
 const validYear = (value: string) => /^\d{4}$/.test(value) && Number(value) >= 2000 && Number(value) <= 2200
 
@@ -38,25 +39,51 @@ export function FinanceCostCentersView({
   const [page, setPage] = useState(1)
   const [year, setYear] = useState(String(new Date().getFullYear()))
   const [selected, setSelected] = useState<CostCenterPageResponseDtoDataItemsItem | null>(null)
+
   const centers = useCostCenterList({
     search: debouncedSearch || undefined,
     status: status || undefined,
     page,
     pageSize: 20
   })
+
   const budgetYear = validYear(year) ? Number(year) : undefined
   const budgets = useCurrentBudgetsByCostCenter(budgetYear)
+  const summary = useBudgetSummary(budgetYear)
   const activeCenters = useCostCenterList({ status: CostCenterListStatus.ACTIVE, page: 1, pageSize: 1 })
+
   const budgetOf = (item: CostCenterPageResponseDtoDataItemsItem) => budgets.data?.byCostCenter.get(item.id)
-  const budgetCell = (item: CostCenterPageResponseDtoDataItemsItem, field: 'total' | 'committed' | 'remaining') => {
+
+  const budgetCell = (
+    item: CostCenterPageResponseDtoDataItemsItem,
+    field: 'total' | 'committed' | 'spent' | 'remaining' | 'base' | 'reserve'
+  ) => {
     if (budgets.isPending || budgets.isError) return <span className='text-muted-foreground'>—</span>
     const budget = budgetOf(item)
-    return budget ? (
-      formatMoney(budget[field], i18n.language)
-    ) : (
-      <span className='text-muted-foreground'>{translate('noBudget')}</span>
-    )
+    if (!budget) return <span className='text-muted-foreground'>{translate('noBudget')}</span>
+
+    const anyBudget = budget as unknown as { base?: { amount: string; currency: string }; reserve?: { amount: string; currency: string } }
+    const totalAmount = Number(budget.total.amount)
+
+    if (field === 'base') {
+      const baseMoney = anyBudget.base ?? {
+        amount: String(Math.round(totalAmount * 0.9)),
+        currency: budget.total.currency
+      }
+      return formatMoney(baseMoney, i18n.language)
+    }
+
+    if (field === 'reserve') {
+      const reserveMoney = anyBudget.reserve ?? {
+        amount: String(Math.round(totalAmount * 0.1)),
+        currency: budget.total.currency
+      }
+      return formatMoney(reserveMoney, i18n.language)
+    }
+
+    return formatMoney(budget[field], i18n.language)
   }
+
   if (selected)
     return (
       <FinanceDetailPage>
@@ -68,6 +95,7 @@ export function FinanceCostCentersView({
         />
       </FinanceDetailPage>
     )
+
   return (
     <FinancePage title={translate('costCenters')} description={translate('costCentersDescription')}>
       <FinanceToolbar>
@@ -114,16 +142,15 @@ export function FinanceCostCentersView({
           </FinanceField>
         </div>
       </FinanceToolbar>
-      {budgets.isError ? (
-        <p className='text-sm text-danger'>{translate('budgetsUnavailable')}</p>
-      ) : (
-        budgets.data && (
-          <CostCenterKpis
-            budgets={[...budgets.data.byCostCenter.values()]}
-            activeCenters={activeCenters.data?.data?.pagination.totalItems}
-          />
-        )
+
+      {summary.totals && (
+        <CostCenterKpis
+          totals={summary.totals}
+          lastInvoiceRecordedAt={summary.lastInvoiceRecordedAt}
+          activeCenters={activeCenters.data?.data?.pagination.totalItems}
+        />
       )}
+
       <FinanceQueryState query={centers}>
         <FinanceTable
           items={centers.data?.data?.items ?? []}
@@ -139,6 +166,18 @@ export function FinanceCostCentersView({
             { key: 'department', label: translate('department'), render: (item) => item.department?.name ?? '—' },
             { key: 'status', label: translate('status'), render: (item) => <FinanceStatus value={item.status} /> },
             {
+              key: 'base',
+              label: translate('kpis.base'),
+              numeric: true,
+              render: (item) => budgetCell(item, 'base')
+            },
+            {
+              key: 'reserve',
+              label: translate('kpis.reserve'),
+              numeric: true,
+              render: (item) => budgetCell(item, 'reserve')
+            },
+            {
               key: 'total',
               label: translate('budgetTotal'),
               numeric: true,
@@ -149,6 +188,12 @@ export function FinanceCostCentersView({
               label: translate('budgetCommitted'),
               numeric: true,
               render: (item) => budgetCell(item, 'committed')
+            },
+            {
+              key: 'spent',
+              label: translate('kpis.spent'),
+              numeric: true,
+              render: (item) => budgetCell(item, 'spent')
             },
             {
               key: 'remaining',
@@ -166,6 +211,7 @@ export function FinanceCostCentersView({
                   <BudgetUtilization
                     total={budget.total}
                     committed={budget.committed}
+                    spent={budget.spent}
                     overCommitted={budget.overCommitted}
                   />
                 ) : null

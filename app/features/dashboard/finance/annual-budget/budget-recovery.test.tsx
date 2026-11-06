@@ -47,7 +47,10 @@ describe('budget recovery workflows', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save version' }))
     await waitFor(() => expect(navigate).toHaveBeenCalledWith('budget-negotiation', { id: 'replacement-version' }))
     const request = requests.find((item) => item.method === 'post' && item.url?.endsWith('/budget-versions'))
-    expect(JSON.parse(request?.data)).toMatchObject({ proposalId: 'proposal-1', base: apiVersion.base })
+    expect(JSON.parse(request?.data)).toMatchObject({
+      proposalId: 'proposal-1',
+      base: { amount: apiVersion.base.amount }
+    })
   })
 
   it('keeps a line draft when both the write and the refresh fail', async () => {

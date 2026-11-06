@@ -1,0 +1,28 @@
+export const itCatalogHelp = {
+  name: 'Dùng tên sản phẩm mà nhân viên dễ nhận biết khi yêu cầu quyền truy cập.',
+  vendor: 'Nhập nhà cung cấp hoặc nhà phát hành sản phẩm. Phần mềm nội bộ không cần nhà cung cấp bên ngoài.',
+  owner: 'Chọn nhân viên đang làm việc theo phòng ban hoặc dán UUID nhân viên. Người này phụ trách nhu cầu nghiệp vụ.',
+  domains: 'Chỉ nhập tên miền, mỗi dòng một tên. Dữ liệu này giúp nhận diện ứng dụng khi phát hiện phần mềm.',
+  planName: 'Dùng tên gói hoặc phiên bản của nhà cung cấp để phân biệt các lựa chọn cấp quyền và mua sắm.',
+  quantity: 'Ghi số ghế được mua. Để trống nếu chưa xác nhận được số lượng.',
+  unitAmount: 'Nhập giá cho một đơn vị tính phí dưới dạng số thập phân. Khi có giá phải chọn tiền tệ.',
+  currency: 'Dùng mã tiền tệ ba chữ cái trên hợp đồng, ví dụ VND hoặc USD.',
+  startDate: 'Ngày đầu tiên được bao phủ bởi kỳ mua này.',
+  endDate: 'Ngày cuối cùng của kỳ mua. Để trống nếu chưa có ngày kết thúc.',
+  renewalDate: 'Ngày gia hạn tiếp theo đã xác nhận với nhà cung cấp.',
+  noticePeriodDays: 'Số ngày cần thông báo hủy trước khi hợp đồng kết thúc.',
+  revocationNote: 'Mô tả cách thu hồi an toàn, gồm xuất dữ liệu và bàn giao. Bắt buộc khi thu hồi gây mất dữ liệu.',
+  department: 'Chọn phòng ban sở hữu giao dịch mua hoặc dán UUID phòng ban.',
+  kind: 'SaaS dùng tài khoản nhà cung cấp, phần mềm bản quyền dùng khóa và phần mềm nội bộ do tổ chức vận hành.',
+  sensitivity: 'Chọn mức độ nhạy cảm của thông tin công ty mà ứng dụng xử lý.',
+  communication: 'Đánh dấu các chức năng trao đổi thông tin có trong ứng dụng.',
+  provisioning: 'Chọn cách cấp quyền. Các lựa chọn phụ thuộc loại ứng dụng.',
+  pricingModel: 'Chọn đơn vị nhà cung cấp dùng để tính phí, ví dụ ghế, máy chủ hoặc mức tiêu thụ.',
+  controlLevel: 'Ghi mức độ tổ chức có thể kiểm soát và thu hồi quyền truy cập.',
+  subscriptionKind: 'Chọn mua theo kỳ hoặc bản quyền vĩnh viễn theo thỏa thuận.',
+  billingCycle: 'Chọn chu kỳ nhà cung cấp xuất hóa đơn cho thuê bao.',
+  autoRenew: 'Chỉ bật nếu thỏa thuận tự gia hạn mà không cần giao dịch mua mới.',
+  allowsMidTermReduction: 'Chỉ bật khi thỏa thuận cho phép giảm số ghế trong kỳ hiện tại.',
+  ownerEvidence:
+    'Ghi thời điểm và cách người phụ trách nghiệp vụ xác nhận ngừng ứng dụng. Không ghi thông tin đăng nhập.'
+} as const

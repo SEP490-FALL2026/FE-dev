@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 import type { BudgetCommitmentListAttached } from './budgetCommitmentListAttached'
+import type { BudgetCommitmentListState } from './budgetCommitmentListState'
 
 export type BudgetCommitmentListParams = {
   attached?: BudgetCommitmentListAttached
@@ -16,6 +17,7 @@ export type BudgetCommitmentListParams = {
   year?: number
   costCenterId?: string
   requestId?: string
+  state?: BudgetCommitmentListState
   /**
    * @maximum 9007199254740991
    * @exclusiveMinimum 0

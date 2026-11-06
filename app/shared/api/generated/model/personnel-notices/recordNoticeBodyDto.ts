@@ -11,6 +11,6 @@ import type { RecordNoticeBodyDtoVerification } from './recordNoticeBodyDtoVerif
 
 export interface RecordNoticeBodyDto {
   verification: RecordNoticeBodyDtoVerification
-  grounds?: RecordNoticeBodyDtoGrounds
+  grounds: RecordNoticeBodyDtoGrounds
   event: RecordNoticeBodyDtoEvent
 }

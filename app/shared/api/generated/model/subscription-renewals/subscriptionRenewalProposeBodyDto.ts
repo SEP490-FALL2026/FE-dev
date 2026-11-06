@@ -25,4 +25,6 @@ export interface SubscriptionRenewalProposeBodyDto {
    * @maxLength 2000
    */
   businessOwnerOpinion?: string
+  /** @maxItems 10000 */
+  releasedAssignmentIds?: string[]
 }

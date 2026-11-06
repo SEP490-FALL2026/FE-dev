@@ -43,9 +43,6 @@ export function SpendDecisionForm({
   const [decision, setDecision] = useState('')
   const [reason, setReason] = useState('')
   const [confirmed, setConfirmed] = useState(false)
-  const [override, setOverride] = useState(false)
-  const [overrideReason, setOverrideReason] = useState('')
-  const [overrideYears, setOverrideYears] = useState<number[]>([])
   const [lineDrafts, setLineDrafts] = useState<Record<string, { decision: string; reason: string }>>({})
   const confirmedLines = beneficiaries.lines.filter((line) => line.state === BENEFICIARY_STATE.NEED_CONFIRMED)
   const ownsRequest =
@@ -83,15 +80,11 @@ export function SpendDecisionForm({
   const hasApproval = isGroup
     ? confirmedLines.some((line) => lineDrafts[line.employee.employeeId]?.decision === SPEND_DECISION.APPROVE)
     : decision === SPEND_DECISION.APPROVE
-  // The approved subset of a group is rechecked by BE and may no longer need an override.
-  const needsOverride = !isGroup && hasApproval && deficientYears.length > 0
-  const overrideValid =
-    !override ||
-    (!hasApproval ? false : Boolean(overrideReason.trim() && overrideYears.length > 0 && overrideYears.length <= 20))
+  const insufficientBudget = !isGroup && hasApproval && deficientYears.length > 0
   const decisionValid = isGroup
     ? allLinesDecided
     : decision === SPEND_DECISION.APPROVE || (decision === SPEND_DECISION.REJECT && Boolean(reason.trim()))
-  const valid = canDecide && confirmed && decisionValid && overrideValid && (!needsOverride || override)
+  const valid = canDecide && confirmed && decisionValid && !insufficientBudget
   const options = [
     { value: '', label: translate('choose') },
     { value: SPEND_DECISION.APPROVE, label: translate('approve') },
@@ -128,8 +121,6 @@ export function SpendDecisionForm({
               submissionLocked.current = false
             }
           }
-          const overrideBody =
-            override && hasApproval ? { override: { reason: overrideReason.trim(), years: overrideYears } } : {}
           if (isGroup) {
             const lines: LineSpendDecisionBodyDto['lines'] = confirmedLines.map((line) => {
               const draft = lineDrafts[line.employee.employeeId]
@@ -137,12 +128,11 @@ export function SpendDecisionForm({
                 ? { employeeId: line.employee.employeeId, decision: SPEND_DECISION.APPROVE }
                 : { employeeId: line.employee.employeeId, decision: SPEND_DECISION.REJECT, reason: draft.reason.trim() }
             })
-            mutations.group.mutate({ id: approval.requestId, data: { lines, ...overrideBody } }, submissionOptions)
+            mutations.group.mutate({ id: approval.requestId, data: { lines } }, submissionOptions)
           } else if (decision === SPEND_DECISION.APPROVE || decision === SPEND_DECISION.REJECT) {
             const data: SpendDecisionBodyDto = {
               decision,
-              ...(decision === SPEND_DECISION.REJECT ? { reason: reason.trim() } : {}),
-              ...overrideBody
+              ...(decision === SPEND_DECISION.REJECT ? { reason: reason.trim() } : {})
             }
             mutations.single.mutate({ id: approval.requestId, data }, submissionOptions)
           }
@@ -204,62 +194,7 @@ export function SpendDecisionForm({
               )}
             </>
           )}
-          {hasApproval && (
-            <div className='space-y-3'>
-              <label className='flex min-h-11 items-center gap-3 text-sm'>
-                <input
-                  type='checkbox'
-                  className='size-4 accent-primary'
-                  checked={override}
-                  onChange={(event) => setOverride(event.target.checked)}
-                />
-                {translate('override')}
-              </label>
-              {(needsOverride || override) && (
-                <p className='text-sm text-muted-foreground'>{translate('overrideHint')}</p>
-              )}
-              {override && (
-                <>
-                  <ApprovalsField label={translate('overrideReason')} required>
-                    <textarea
-                      rows={3}
-                      className={approvalsInputClass}
-                      value={overrideReason}
-                      onChange={(event) => setOverrideReason(event.target.value)}
-                      placeholder={translate('overridePlaceholder')}
-                      maxLength={1000}
-                      required
-                    />
-                  </ApprovalsField>
-                  <fieldset>
-                    <legend className='text-sm font-medium'>{translate('overrideYears')}</legend>
-                    <div className='flex flex-wrap gap-x-5'>
-                      {years.map((year) => (
-                        <label
-                          key={year.year}
-                          className='flex min-h-11 items-center gap-2 font-mono text-sm tabular-nums'
-                        >
-                          <input
-                            type='checkbox'
-                            className='size-4 accent-primary'
-                            checked={overrideYears.includes(year.year)}
-                            onChange={(event) =>
-                              setOverrideYears((previous) =>
-                                event.target.checked
-                                  ? [...previous, year.year]
-                                  : previous.filter((value) => value !== year.year)
-                              )
-                            }
-                          />
-                          {year.year}
-                        </label>
-                      ))}
-                    </div>
-                  </fieldset>
-                </>
-              )}
-            </div>
-          )}
+          {insufficientBudget && <p className='text-sm text-danger'>{translate('budgetInsufficient')}</p>}
           <label className='flex min-h-11 items-start gap-3 text-sm'>
             <input
               className='mt-0.5 size-4 accent-primary'

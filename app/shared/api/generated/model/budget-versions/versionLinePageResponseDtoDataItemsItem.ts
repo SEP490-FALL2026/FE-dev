@@ -6,7 +6,6 @@
  * OpenAPI spec version: 1.0
  */
 import type { VersionLinePageResponseDtoDataItemsItemAmount } from './versionLinePageResponseDtoDataItemsItemAmount'
-import type { VersionLinePageResponseDtoDataItemsItemRepeatCycle } from './versionLinePageResponseDtoDataItemsItemRepeatCycle'
 
 export type VersionLinePageResponseDtoDataItemsItem = {
   /**
@@ -30,19 +29,8 @@ export type VersionLinePageResponseDtoDataItemsItem = {
    */
   seats: number | null
   amount: VersionLinePageResponseDtoDataItemsItemAmount
-  windowFrom: string
-  windowTo: string
-  /**
-   * @minimum -9007199254740991
-   * @maximum 9007199254740991
-   */
-  servicePeriodMonths: number
-  repeatCycle: VersionLinePageResponseDtoDataItemsItemRepeatCycle
-  /** @nullable */
-  quoteValidUntil: string | null
   /** @nullable */
   financeComment: string | null
   /** @nullable */
   adjustmentReason: string | null
-  overdue: boolean
 }

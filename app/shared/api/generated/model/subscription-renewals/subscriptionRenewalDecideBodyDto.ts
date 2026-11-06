@@ -5,22 +5,14 @@
  * Internal software license and technology cost API. A text field whose description says it is trimmed has its leading and trailing whitespace removed before it is checked; for the other text fields the description makes no such promise.
  * OpenAPI spec version: 1.0
  */
-import type { SubscriptionRenewalDecideBodyDtoChoice } from './subscriptionRenewalDecideBodyDtoChoice'
+import type { SubscriptionRenewalDecideBodyDtoDecision } from './subscriptionRenewalDecideBodyDtoDecision'
 
 export interface SubscriptionRenewalDecideBodyDto {
-  choice: SubscriptionRenewalDecideBodyDtoChoice
-  /**
-   * @minimum 0
-   * @maximum 1000000000
-   */
-  quantity?: number
+  decision: SubscriptionRenewalDecideBodyDtoDecision
   /**
    * @minLength 1
    * @maxLength 2000
    */
   reason?: string
-  withinCurrentTerm?: boolean
   acknowledgeActiveUsers?: boolean
-  /** @maxItems 10000 */
-  releasedAssignmentIds?: string[]
 }

@@ -28,7 +28,8 @@ export const approvalsRenewal = {
   emptyQueue: 'Không có ca gia hạn nào đang chờ bạn quyết định.',
   emptyFiltered: 'Không có ca gia hạn khớp bộ lọc.',
   lateBadge: 'Trễ',
-  waitingNoApprover: 'Đang chờ cấu hình Người duyệt chi',
+  waitingNoApprover: 'Đang chờ trưởng phòng sở hữu thuê bao',
+  readOnly: 'Trưởng phòng sở hữu thuê bao xác nhận điều chỉnh. Người duyệt chi không quyết định những đề xuất này.',
   stats: {
     purchased: 'Ghế đã mua',
     inUse: 'Ghế đang giữ',
@@ -144,7 +145,8 @@ export const approvalsRenewal = {
     state: {
       PROPOSED: 'Chờ quyết định',
       DECIDED: 'Đã quyết, chờ ghi kết quả',
-      OUTCOME_RECORDED: 'Đã ghi kết quả'
+      OUTCOME_RECORDED: 'Đã ghi kết quả',
+      STALE: 'Đề xuất đã thay đổi'
     },
     choice: {
       RENEW: 'Gia hạn nguyên trạng',
@@ -178,6 +180,7 @@ export const approvalsRenewal = {
       EXPIRY_MARKED: 'Đánh dấu sẽ kết thúc'
     },
     deciderRole: {
+      OWNER_DEPARTMENT_HEAD: 'Trưởng phòng sở hữu thuê bao',
       SPENDING_APPROVER: 'Người duyệt chi',
       CONFLICT_SUBSTITUTE: 'Người duyệt chi thay thế'
     },

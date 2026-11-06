@@ -6,7 +6,6 @@
  * OpenAPI spec version: 1.0
  */
 import type { LineResponseDtoDataLineAmount } from './lineResponseDtoDataLineAmount'
-import type { LineResponseDtoDataLineRepeatCycle } from './lineResponseDtoDataLineRepeatCycle'
 
 export type LineResponseDtoDataLine = {
   /**
@@ -30,19 +29,8 @@ export type LineResponseDtoDataLine = {
    */
   seats: number | null
   amount: LineResponseDtoDataLineAmount
-  windowFrom: string
-  windowTo: string
-  /**
-   * @minimum -9007199254740991
-   * @maximum 9007199254740991
-   */
-  servicePeriodMonths: number
-  repeatCycle: LineResponseDtoDataLineRepeatCycle
-  /** @nullable */
-  quoteValidUntil: string | null
   /** @nullable */
   financeComment: string | null
   /** @nullable */
   adjustmentReason: string | null
-  overdue: boolean
 }

@@ -77,23 +77,17 @@ it('requires an explicit decision and applies one approval to all and only the a
   fireEvent.click(within(group).getByRole('radio', { name: 'Approve need' }))
   expect(screen.queryByLabelText('Reason for rejection')).not.toBeInTheDocument()
   expect(screen.queryByLabelText('Reason for confirming a term over 12 months')).not.toBeInTheDocument()
-  fireEvent.click(screen.getByLabelText('Outside the annual plan'))
   await confirm()
   expect(written).toHaveBeenCalledWith({
     lines: [
       { employeeId, decision: 'APPROVE' },
       { employeeId: planId, decision: 'APPROVE' }
-    ],
-    spend: { offPlan: true }
+    ]
   })
 })
 it('requires one nonempty common reason and omits spend and term confirmation when rejecting everyone', async () => {
   mount(true)
   fireEvent.click(await screen.findByRole('radio', { name: 'Approve need' }))
-  fireEvent.change(screen.getByLabelText('Reason for confirming a term over 12 months'), {
-    target: { value: 'Long project' }
-  })
-  fireEvent.click(screen.getByLabelText('Outside the annual plan'))
   fireEvent.click(screen.getByRole('radio', { name: 'Reject need' }))
   expect(screen.queryByLabelText('Outside the annual plan')).not.toBeInTheDocument()
   expect(screen.queryByLabelText('Reason for confirming a term over 12 months')).not.toBeInTheDocument()
@@ -117,27 +111,26 @@ it('allows mixed decisions and discards an inherited rejection reason on the app
   const alex = screen.getByRole('group', { name: 'Decision for Alex' })
   fireEvent.click(within(alex).getByRole('radio', { name: 'Approve need' }))
   expect(within(alex).queryByLabelText('Reason for rejection')).not.toBeInTheDocument()
-  fireEvent.click(screen.getByLabelText('Outside the annual plan'))
   await confirm()
   expect(written).toHaveBeenCalledWith({
     lines: [
       { employeeId, decision: 'APPROVE' },
       { employeeId: planId, decision: 'REJECT', reason: 'Existing tool is sufficient' }
-    ],
-    spend: { offPlan: true }
+    ]
   })
 })
-it('requires term confirmation only when the server flag is true and someone is approved', async () => {
+it('ignores retired requirement flags and submits only assigned line decisions', async () => {
   mount(true)
   fireEvent.click(await screen.findByRole('radio', { name: 'Approve need' }))
-  fireEvent.click(screen.getByLabelText('Outside the annual plan'))
-  fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
-  expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-  fireEvent.change(screen.getByLabelText('Reason for confirming a term over 12 months'), {
-    target: { value: '  Project commitment  ' }
-  })
+  expect(screen.queryByLabelText('Reason for confirming a term over 12 months')).not.toBeInTheDocument()
+  expect(screen.queryByLabelText('Outside the annual plan')).not.toBeInTheDocument()
   await confirm()
-  expect(written.mock.calls[0]?.[0]).toMatchObject({ termConfirmation: { reason: 'Project commitment' } })
+  expect(written).toHaveBeenCalledWith({
+    lines: [
+      { employeeId, decision: 'APPROVE' },
+      { employeeId: planId, decision: 'APPROVE' }
+    ]
+  })
 })
 it('refuses a partially loaded participant list', async () => {
   server.use(http.get('*/api/v1/access-requests/:id/lines', () => HttpResponse.json(pageResponse(lines, 1, 2))))

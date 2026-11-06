@@ -31,14 +31,10 @@ export type ApprovalDetailResponseDtoDataSpendApprovalRequest = {
    * @exclusiveMinimum 0
    */
   termMonths: number
-  /** @nullable */
-  expectedSpendOn: string | null
   /**
    * @minimum -9007199254740991
    * @maximum 9007199254740991
    * @nullable
    */
   budgetYear: number | null
-  offPlan: boolean
-  planLineAttached: boolean
 }

@@ -22,9 +22,7 @@ export type ReviewDetailResponseDtoDataFinanceReviewCheck = {
   /** @nullable */
   primaryCode: ReviewDetailResponseDtoDataFinanceReviewCheckPrimaryCode
   staleCostEvidence: boolean
-  planLineOverdue: boolean
   periodClosed: boolean
-  offPlan: boolean
   noIndependentReview: boolean
   bindingTotal: ReviewDetailResponseDtoDataFinanceReviewCheckBindingTotal
   /**

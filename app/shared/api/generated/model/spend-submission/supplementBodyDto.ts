@@ -7,16 +7,14 @@
  */
 
 /**
- * Give at least one of expectedSpendOn and dropEmployeeIds.
+ * The people of the group the head leaves out, and why.
  */
 export interface SupplementBodyDto {
-  /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
-  expectedSpendOn?: string
   /**
    * @minItems 1
    * @maxItems 100
    */
-  dropEmployeeIds?: string[]
+  dropEmployeeIds: string[]
   /**
    * @minLength 1
    * @maxLength 1000

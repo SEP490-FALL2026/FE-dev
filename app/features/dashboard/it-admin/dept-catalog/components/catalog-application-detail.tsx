@@ -6,7 +6,7 @@ import { CatalogSubscriptionEditor } from './catalog-subscription-editor'
 import { CatalogApplicationStatus } from '../enums/application-status'
 import { CatalogProvisioningType } from '../enums/provisioning-type'
 import { CatalogLicenseKeys } from './catalog-license-keys'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useApplicationGet } from '~/shared/api/generated/operations/applications/application-get'
 import { usePlanList } from '~/shared/api/generated/operations/plans/plan-list'
@@ -18,6 +18,7 @@ import { ItPagination } from '../../shared/components/it-pagination'
 import { itButtonClass } from '../../shared/components/it-form'
 import { CatalogApplicationForm } from './catalog-application-form'
 import { CatalogPurchaseForm } from './catalog-purchase-form'
+import { ItDetailDialog } from '../../shared/components/it-detail-dialog'
 function SeatUsage({ id }: { id: string }) {
   const { t: translate } = useTranslation('itCatalog')
   const query = useSubscriptionSeatUsage(id)
@@ -46,13 +47,23 @@ export function CatalogApplicationDetail({ id, onBack }: { id: string; onBack: (
   const [subscriptionPage, setSubscriptionPage] = useState(1)
   const [seatId, setSeatId] = useState<string>()
   const [planId, setPlanId] = useState<string>()
+  const pageRef = useRef<HTMLElement>(null)
   const application = useApplicationGet(id)
   const plans = usePlanList({ applicationId: id, page: planPage, pageSize: 20 })
   const subscriptions = useSubscriptionList({ applicationId: id, page: subscriptionPage, pageSize: 20 })
+  useEffect(() => {
+    pageRef.current?.focus()
+  }, [vaultPlanId, termsPlan])
 
   if (termsPlan) return <CatalogPlanTerms planId={termsPlan} onBack={() => setTermsPlan(undefined)} />
+  if (vaultPlanId)
+    return (
+      <section ref={pageRef} tabIndex={-1} className='space-y-5 outline-none'>
+        <CatalogLicenseKeys key={vaultPlanId} planId={vaultPlanId} onBack={() => setVaultPlanId(undefined)} />
+      </section>
+    )
   return (
-    <section className='space-y-5'>
+    <section ref={pageRef} tabIndex={-1} className='space-y-5 outline-none'>
       <button className={itButtonClass} onClick={onBack}>
         {translate('back')}
       </button>
@@ -136,10 +147,7 @@ export function CatalogApplicationDetail({ id, onBack }: { id: string; onBack: (
                     {translate('addSubscription')}
                   </button>
                   {plan.provisioningType === CatalogProvisioningType.K4 && (
-                    <button
-                      className={itButtonClass}
-                      onClick={() => setVaultPlanId(vaultPlanId === plan.id ? undefined : plan.id)}
-                    >
+                    <button className={itButtonClass} onClick={() => setVaultPlanId(plan.id)}>
                       {translate('keys.title')}
                     </button>
                   )}
@@ -176,14 +184,10 @@ export function CatalogApplicationDetail({ id, onBack }: { id: string; onBack: (
                     {translate(`enums.${subscription.status}`, { defaultValue: translate('unknown') })}
                   </p>
                 </div>
-                <button
-                  className={itButtonClass}
-                  onClick={() => setSeatId(seatId === subscription.id ? undefined : subscription.id)}
-                >
+                <button className={itButtonClass} onClick={() => setSeatId(subscription.id)}>
                   {translate('seats')}
                 </button>
               </div>
-              {seatId === subscription.id && <SeatUsage id={subscription.id} />}
             </article>
           ))}
           {subscriptions.data?.data?.items.length === 0 && <ItEmpty />}
@@ -195,7 +199,11 @@ export function CatalogApplicationDetail({ id, onBack }: { id: string; onBack: (
           onChange={setSubscriptionPage}
         />
       </section>
-      {vaultPlanId && <CatalogLicenseKeys key={vaultPlanId} planId={vaultPlanId} />}
+      {seatId && (
+        <ItDetailDialog title={translate('seats')} onClose={() => setSeatId(undefined)}>
+          <SeatUsage id={seatId} />
+        </ItDetailDialog>
+      )}
       <CatalogSeatBaseline applicationId={id} applicationKind={application.data?.data?.kind} />
       <CatalogRetirement id={id} application={application.data?.data} />
       {editingPlan && <CatalogPlanEditor id={editingPlan} onClose={() => setEditingPlan(undefined)} />}

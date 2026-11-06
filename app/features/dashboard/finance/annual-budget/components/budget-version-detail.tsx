@@ -3,7 +3,6 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useBudgetVersionGet } from '~/shared/api/generated/operations/budget-versions/budget-version-get'
 import { useBudgetVersionUpdate } from '~/shared/api/generated/operations/budget-versions/budget-version-update'
-import { useBudgetVersionRevise } from '~/shared/api/generated/operations/budget-versions/budget-version-revise'
 import { useBudgetVersionSend } from '~/shared/api/generated/operations/budget-versions/budget-version-send'
 import { useBudgetVersionCreate } from '~/shared/api/generated/operations/budget-versions/budget-version-create'
 import { AdminFormDialog as FinanceFormDialog } from '~/shared/ui/form-dialog'
@@ -30,7 +29,7 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
   const { t: translate, i18n } = useTranslation('financeBudget')
   const query = useBudgetVersionGet(itemId)
   const version = query.data?.data?.version
-  const [dialog, setDialog] = useState<'edit' | 'revise' | 'send' | 'history' | 'rebuild'>()
+  const [dialog, setDialog] = useState<'edit' | 'send' | 'history' | 'rebuild'>()
   const feedback = useFinanceFeedback(budgetQueryKeys(itemId, version?.proposalId ?? undefined), () =>
     setDialog(undefined)
   )
@@ -45,24 +44,18 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
       }
     }
   })
-  const reviseMutation = useBudgetVersionRevise({
-    mutation: {
-      onError: feedback.onError,
-      onSuccess: async (result) => {
-        await feedback.onSuccess()
-        if (result.data?.version) onSelectTab?.('budget-negotiation', { id: result.data.version.id })
-      }
-    }
-  })
-  if (version && (dialog === 'edit' || dialog === 'revise' || dialog === 'rebuild'))
+  if (version && (dialog === 'edit' || dialog === 'rebuild'))
     return (
       <BudgetVersionForm
-        initial={{ ...version, reason: version.reason ?? undefined }}
-        revision={dialog === 'revise'}
-        allowReason={dialog !== 'rebuild'}
-        reasonRequired={dialog === 'revise' || (dialog === 'edit' && version.kind === 'REVISION')}
+        initial={{
+          base: version.base,
+          reserve: version.reserve,
+          reserveReason: version.reserveReason ?? undefined,
+          quarters: version.quarters
+        }}
+        currency={version.total.currency}
         disabled={query.isError || query.isFetching}
-        pending={updateMutation.isPending || reviseMutation.isPending || rebuildMutation.isPending}
+        pending={updateMutation.isPending || rebuildMutation.isPending}
         onClose={() => setDialog(undefined)}
         onSubmit={(figures) => {
           if (dialog === 'rebuild' && version.proposalId) {
@@ -71,14 +64,11 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
                 proposalId: version.proposalId,
                 base: figures.base,
                 reserve: figures.reserve,
-                highValuePercent: figures.highValuePercent,
-                highValueAmount: figures.highValueAmount,
+                reserveReason: figures.reserveReason,
                 quarters: figures.quarters
               }
             })
-          } else if (dialog === 'revise')
-            reviseMutation.mutate({ data: { costCenterId: version.costCenter.id, year: version.year, ...figures } })
-          else updateMutation.mutate({ id: itemId, data: figures })
+          } else updateMutation.mutate({ id: itemId, data: figures })
         }}
       />
     )
@@ -144,11 +134,6 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
                     {translate('actions.edit')}
                   </FinanceButton>
                 </>
-              )}
-              {version.state === versionState.APPROVED && (
-                <FinanceButton variant='primary' onClick={() => setDialog('revise')}>
-                  {translate('actions.revise')}
-                </FinanceButton>
               )}
               {version.state === versionState.REJECTED && version.proposalId && (
                 <FinanceButton variant='primary' onClick={() => setDialog('rebuild')}>

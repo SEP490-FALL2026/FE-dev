@@ -3,7 +3,6 @@ import { getNeedDecisionListQueryKey } from '~/shared/api/generated/operations/n
 import { getManagerDashboardGetQueryKey } from '~/shared/api/generated/operations/dashboards/manager-dashboard-get'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { toast } from 'sonner'
 import { Check, CheckCircle2, X, XCircle } from 'lucide-react'
 import type { NeedDecisionBodyDto } from '~/shared/api/generated/model/access-requests/needDecisionBodyDto'
 import { accessRequestNeedDecide } from '~/shared/api/generated/operations/access-requests/access-request-need-decide'
@@ -19,17 +18,8 @@ import {
   managerInputClass
 } from '../../shared/components/manager-api-ui'
 import { NEED_DECISION } from '../enums/need-decision'
-import { allocationFromForm, ManagerPlanAllocation } from './manager-plan-allocation'
 
-export function ManagerNeedForm({
-  id,
-  hasSpend,
-  termRequired = false
-}: {
-  id: string
-  hasSpend: boolean
-  termRequired?: boolean
-}) {
+export function ManagerNeedForm({ id }: { id: string; hasSpend: boolean; termRequired?: boolean }) {
   const { t: translate } = useTranslation('manager')
   const [decision, setDecision] = useState<NeedDecisionBodyDto['decision']>(NEED_DECISION.APPROVE)
   const [confirmation, setConfirmation] = useState<NeedDecisionBodyDto | null>(null)
@@ -53,22 +43,10 @@ export function ManagerNeedForm({
           if (action.blocked) return
           const form = new FormData(event.currentTarget)
           const reason = String(form.get('reason') ?? '').trim()
-          const term = String(form.get('termConfirmation') ?? '').trim()
-          if (
-            (decision === NEED_DECISION.REJECT && !reason) ||
-            (decision === NEED_DECISION.APPROVE && termRequired && !term)
-          )
-            return
-          const spend = decision === NEED_DECISION.APPROVE && hasSpend ? allocationFromForm(form) : undefined
-          if (decision === NEED_DECISION.APPROVE && hasSpend && !spend) {
-            toast.error(translate('validation'), { id: 'manager-need-allocation' })
-            return
-          }
+          if (decision === NEED_DECISION.REJECT && !reason) return
           setConfirmation({
             decision,
-            ...(decision === NEED_DECISION.REJECT ? { reason } : {}),
-            ...(decision === NEED_DECISION.APPROVE && termRequired ? { termConfirmation: { reason: term } } : {}),
-            ...(spend ? { spend } : {})
+            ...(decision === NEED_DECISION.REJECT ? { reason } : {})
           })
         }}
       >
@@ -144,25 +122,6 @@ export function ManagerNeedForm({
                 placeholder={translate('requestDetail.reasonPlaceholderReject')}
               />
             </ManagerField>
-          )}
-
-          {decision === NEED_DECISION.APPROVE && (
-            <>
-              {termRequired && (
-                <ManagerField label={translate('requestForm.termConfirmation')}>
-                  <textarea
-                    className={managerInputClass}
-                    name='termConfirmation'
-                    aria-label={translate('termConfirmation')}
-                    rows={2}
-                    required
-                    maxLength={1000}
-                    placeholder={translate('requestDetail.termConfirmationPlaceholder')}
-                  />
-                </ManagerField>
-              )}
-              {hasSpend && <ManagerPlanAllocation id={id} />}
-            </>
           )}
         </fieldset>
 

@@ -6,7 +6,6 @@
  * OpenAPI spec version: 1.0
  */
 import type { LinePatchDtoAmount } from './linePatchDtoAmount'
-import type { LinePatchDtoRepeatCycle } from './linePatchDtoRepeatCycle'
 
 /**
  * Give at least one field.
@@ -26,21 +25,6 @@ export interface LinePatchDto {
    */
   seats?: number | null
   amount?: LinePatchDtoAmount
-  /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
-  windowFrom?: string
-  /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
-  windowTo?: string
-  /**
-   * @minimum 1
-   * @maximum 120
-   */
-  servicePeriodMonths?: number
-  repeatCycle?: LinePatchDtoRepeatCycle
-  /**
-   * A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused).
-   * @nullable
-   */
-  quoteValidUntil?: string | null
   /**
    * @minLength 1
    * @maxLength 1000

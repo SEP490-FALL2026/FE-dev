@@ -38,5 +38,4 @@ export type YearListResponseDtoDataItemsItem = {
   shareBasisPoints: number | null
   /** @nullable */
   pending: YearListResponseDtoDataItemsItemPending
-  overridden: boolean
 }

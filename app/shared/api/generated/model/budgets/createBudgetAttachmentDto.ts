@@ -18,7 +18,7 @@ export interface CreateBudgetAttachmentDto {
    */
   contentType: string
   /**
-   * @minimum 0
+   * @minimum 1
    * @maximum 1000000000
    */
   sizeBytes: number

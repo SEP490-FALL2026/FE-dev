@@ -31,6 +31,8 @@ export type TransferReviewItemPageResponseDtoDataItemsItem = {
   /** @nullable */
   newToolNote: string | null
   /** @nullable */
+  reason: string | null
+  /** @nullable */
   revocationTaskId: string | null
   needsNewRequest: boolean
 }

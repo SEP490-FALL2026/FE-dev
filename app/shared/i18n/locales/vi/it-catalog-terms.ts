@@ -1,4 +1,10 @@
 export const itCatalogTerms = {
+  help: {
+    termsUrl: 'Liên kết điều khoản của nhà cung cấp đã được xem xét cho gói này.',
+    lastReviewedOn: 'Ngày IT gần nhất kiểm tra điều khoản áp dụng cho gói.',
+    maxDevicesPerKey: 'Số thiết bị tối đa mà một khóa bản quyền được phép kích hoạt theo điều khoản.',
+    installNote: 'Mô tả giới hạn kích hoạt, chuyển giao và cài đặt mà IT cần tuân thủ.'
+  },
   title: 'Điều khoản gói',
   uncertain: 'Chưa xác định được kết quả ghi. Đóng biểu mẫu và kiểm tra lịch sử ý kiến trước khi ghi lại.',
   edit: 'Sửa điều khoản',

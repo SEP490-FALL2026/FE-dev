@@ -10,5 +10,5 @@ import type { ChangeReturnDateBodyDtoGrounds } from './changeReturnDateBodyDtoGr
 export interface ChangeReturnDateBodyDto {
   /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
   newApprovedReturnOn: string
-  grounds?: ChangeReturnDateBodyDtoGrounds
+  grounds: ChangeReturnDateBodyDtoGrounds
 }

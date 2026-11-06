@@ -7,6 +7,7 @@ import { itButtonClass, itPrimaryClass } from '../../shared/components/it-form'
 import { RenewalOutcomeDialog } from './renewal-outcome-dialog'
 import { RenewalSeatRanking } from './renewal-seat-ranking'
 import { RenewalState } from '../enums/renewal-state'
+import { ItDetailDialog } from '../../shared/components/it-detail-dialog'
 
 export function RenewalDetail({ id, onBack }: { id: string; onBack: () => void }) {
   const { t: translate } = useTranslation('itRenewals')
@@ -140,7 +141,11 @@ export function RenewalDetail({ id, onBack }: { id: string; onBack: () => void }
             >
               {translate('ranking')}
             </button>
-            {rankingOpen && <RenewalSeatRanking id={id} />}
+            {rankingOpen && (
+              <ItDetailDialog title={translate('ranking')} onClose={() => setRankingOpen(false)}>
+                <RenewalSeatRanking id={id} />
+              </ItDetailDialog>
+            )}
           </>
         ) : (
           <ItEmpty />

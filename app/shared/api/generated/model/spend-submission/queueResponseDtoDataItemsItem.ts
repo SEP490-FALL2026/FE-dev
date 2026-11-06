@@ -28,8 +28,6 @@ export type QueueResponseDtoDataItemsItem = {
   lineCount: number
   /** @nullable */
   amount: QueueResponseDtoDataItemsItemAmount
-  /** @nullable */
-  expectedSpendOn: string | null
   /**
    * @minimum -9007199254740991
    * @maximum 9007199254740991
@@ -41,8 +39,6 @@ export type QueueResponseDtoDataItemsItem = {
   blockedReason: QueueResponseDtoDataItemsItemBlockedReason
   /** @nullable */
   financeReturnReason: string | null
-  offPlan: boolean
-  planLineAttached: boolean
   readyToSubmit: boolean
   updatedAt: string
   /** @nullable */

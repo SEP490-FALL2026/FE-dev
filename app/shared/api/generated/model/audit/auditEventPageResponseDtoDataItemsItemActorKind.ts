@@ -12,5 +12,6 @@ export type AuditEventPageResponseDtoDataItemsItemActorKind =
 export const AuditEventPageResponseDtoDataItemsItemActorKind = {
   USER: 'USER',
   SYSTEM: 'SYSTEM',
-  OPERATOR: 'OPERATOR'
+  OPERATOR: 'OPERATOR',
+  DEVICE: 'DEVICE'
 } as const

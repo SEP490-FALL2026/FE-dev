@@ -168,8 +168,8 @@ function Decision({ id, assignmentId, onClose }: { id: string; assignmentId: str
           onSubmit={(event) => {
             event.preventDefault()
             if (action.blocked) return
-            const note = String(new FormData(event.currentTarget).get('newToolNote') ?? '').trim()
-            action.mutate({ assignmentId, decision, ...(note ? { newToolNote: note } : {}) })
+            const reason = String(new FormData(event.currentTarget).get('reason') ?? '').trim()
+            if (reason) action.mutate({ assignmentId, decision, reason })
           }}
         >
           <fieldset disabled={action.blocked} className='space-y-4'>
@@ -190,11 +190,9 @@ function Decision({ id, assignmentId, onClose }: { id: string; assignmentId: str
                 ))}
               </select>
             </ManagerField>
-            {decision === TRANSFER_DECISION.NEEDS_NEW_TOOL && (
-              <ManagerField label={translate('newToolNote')}>
-                <textarea className={managerInputClass} name='newToolNote' maxLength={500} required />
-              </ManagerField>
-            )}
+            <ManagerField label={translate('reason')}>
+              <textarea className={managerInputClass} name='reason' maxLength={500} required />
+            </ManagerField>
           </fieldset>
           <ManagerActionState action={action} />
           <div className='flex justify-end'>

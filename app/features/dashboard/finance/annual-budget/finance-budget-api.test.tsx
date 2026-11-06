@@ -163,7 +163,7 @@ describe('finance annual budget API workflows', () => {
       )
     )
     const request = requests.find((request) => request.method === 'post' && request.url?.endsWith('/budget-versions'))
-    expect(JSON.parse(request?.data).base).toEqual(money)
+    expect(JSON.parse(request?.data)).toEqual({ proposalId: 'proposal-1', base: { amount: money.amount } })
     await waitFor(() => expect(navigate).toHaveBeenCalledWith('budget-negotiation', { id: 'version-1' }))
   })
   it('sends a draft and refetches its server state; Finance has no approval action', async () => {

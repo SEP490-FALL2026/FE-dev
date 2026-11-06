@@ -50,9 +50,6 @@ export function ApprovalAnnualBudgetSummary({ version }: { version: VersionRespo
         <ApprovalsStat label={translate('total')} value={money(version.total)} emphasis />
         <ApprovalsStat label={translate('base')} value={money(version.base)} />
         <ApprovalsStat label={translate('reserve')} value={money(version.reserve)} />
-        <ApprovalsStat label={translate('previousTotal')} value={money(version.previousTotal)} />
-        <ApprovalsStat label={translate('highValueAmount')} value={money(version.highValueAmount)} />
-        <ApprovalsStat label={translate('highValuePercent')} value={`${version.highValuePercent}%`} />
       </ApprovalsStatGrid>
       <ApprovalsSection title={translate('versionInfo')}>
         <dl className='grid gap-4 rounded-lg border border-border/70 bg-surface p-4 sm:grid-cols-2 lg:grid-cols-4'>

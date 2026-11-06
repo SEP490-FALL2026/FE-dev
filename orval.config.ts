@@ -47,7 +47,7 @@ export default defineConfig({
           'assignment-expiry',
           'saas-issues',
           'access-requests',
-          'delegated-requests',
+          'grant-queue',
           'group-requests',
           'transfer-reviews',
           'cost-centers',
@@ -62,7 +62,15 @@ export default defineConfig({
           'spend-submission',
           'notifications',
           'requestable-software',
-          'return-requests'
+          'return-requests',
+          'devices',
+          'device-credentials',
+          'monitoring-notices',
+          'my-devices',
+          'collector-allowlist',
+          'ai-usage',
+          'ai-tool-status',
+          'intake-rejections'
         ]
       }
     },

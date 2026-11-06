@@ -5,9 +5,11 @@
  * Internal software license and technology cost API. A text field whose description says it is trimmed has its leading and trailing whitespace removed before it is checked; for the other text fields the description makes no such promise.
  * OpenAPI spec version: 1.0
  */
+import type { BudgetTablePageResponseDtoDataItemsItemBase } from './budgetTablePageResponseDtoDataItemsItemBase'
 import type { BudgetTablePageResponseDtoDataItemsItemCommitted } from './budgetTablePageResponseDtoDataItemsItemCommitted'
 import type { BudgetTablePageResponseDtoDataItemsItemCostCenter } from './budgetTablePageResponseDtoDataItemsItemCostCenter'
 import type { BudgetTablePageResponseDtoDataItemsItemRemaining } from './budgetTablePageResponseDtoDataItemsItemRemaining'
+import type { BudgetTablePageResponseDtoDataItemsItemReserve } from './budgetTablePageResponseDtoDataItemsItemReserve'
 import type { BudgetTablePageResponseDtoDataItemsItemSpent } from './budgetTablePageResponseDtoDataItemsItemSpent'
 import type { BudgetTablePageResponseDtoDataItemsItemTotal } from './budgetTablePageResponseDtoDataItemsItemTotal'
 
@@ -24,6 +26,8 @@ export type BudgetTablePageResponseDtoDataItemsItem = {
    * @exclusiveMinimum 0
    */
   number: number
+  base: BudgetTablePageResponseDtoDataItemsItemBase
+  reserve: BudgetTablePageResponseDtoDataItemsItemReserve
   total: BudgetTablePageResponseDtoDataItemsItemTotal
   committed: BudgetTablePageResponseDtoDataItemsItemCommitted
   spent: BudgetTablePageResponseDtoDataItemsItemSpent

@@ -9,6 +9,4 @@
 export type VersionBodyDtoQuartersQ2 = {
   /** @maxLength 40 */
   amount: string
-  /** @pattern ^[A-Z]{3}$ */
-  currency: string
 }

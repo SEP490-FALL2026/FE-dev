@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import {
   grantQueueList,
   getGrantQueueListQueryKey
-} from '~/shared/api/generated/operations/delegated-requests/grant-queue-list'
+} from '~/shared/api/generated/operations/grant-queue/grant-queue-list'
 import {
   provisioningTaskGrant,
   getProvisioningTaskListQueryKey
@@ -34,8 +34,7 @@ function GrantDialog({
   const { t: translate } = useTranslation('itProvisioning')
   const [draft, setDraft] = useState<GrantBodyDto>({
     requestId: request.requestId,
-    beneficiaryEmployeeId: request.beneficiary.employeeId,
-    ...(request.expectedEndDate ? { expectedEndDate: request.expectedEndDate } : {})
+    beneficiaryEmployeeId: request.beneficiary.employeeId
   })
   const [page, setPage] = useState(1)
   const subscriptions = useQuery({
@@ -110,14 +109,11 @@ function GrantDialog({
           }
         />
       </ItField>
-      <ItField label={translate('expectedEndDate')}>
-        <input
-          type='date'
-          className={itInputClass}
-          value={draft.expectedEndDate ?? ''}
-          onChange={(event) => update('expectedEndDate', event.target.value)}
-        />
-      </ItField>
+      {request.expectedEndDate && (
+        <p className='text-sm'>
+          {translate('expectedEndDate')}: {request.expectedEndDate}
+        </p>
+      )}
       {request.type === 'SERVICE_ACCOUNT' && (
         <ItField label={translate('responsibleEmployeeId')}>
           <input

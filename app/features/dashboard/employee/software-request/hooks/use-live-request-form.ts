@@ -31,15 +31,13 @@ export function readRequestFields(form: HTMLFormElement) {
     planId: read('planId'),
     businessReason: read('businessReason'),
     termMonths: Number(read('termMonths')),
-    ...(read('expectedSpendOn') ? { expectedSpendOn: read('expectedSpendOn') } : {}),
     assignmentId: read('assignmentId'),
-    newExpectedEndDate: read('newExpectedEndDate'),
+    extensionMonths: Number(read('extensionMonths')),
     softwareName: read('softwareName'),
     homepageUrl: read('homepageUrl'),
     purpose: read('purpose'),
     dataDescription: read('dataDescription'),
-    expectedUsers: Number(read('expectedUsers')),
-    ...(read('termReason') ? { termConfirmation: { reason: read('termReason') } } : {})
+    expectedUsers: Number(read('expectedUsers'))
   }
 }
 
@@ -51,12 +49,11 @@ type PreviewResult = {
   groupCheck?: NonNullable<GroupCheckResponseDtoData>
 }
 export function requestPayload(fields: Fields): SubmitBodyDto {
-  const { planId, businessReason, termMonths, expectedSpendOn } = fields
+  const { planId, businessReason, termMonths } = fields
   return {
     planId,
     businessReason,
-    termMonths,
-    ...(expectedSpendOn ? { expectedSpendOn } : {})
+    termMonths
   }
 }
 
@@ -74,11 +71,7 @@ export function useLiveRequestForm(
   ])
   const groupPayload = (fields: Fields): GroupBodyDto => ({
     ...requestPayload(fields),
-    lines: members.map(({ employeeId, expectedEndDate }) => ({
-      employeeId,
-      ...(expectedEndDate ? { expectedEndDate } : {})
-    })),
-    ...(fields.termConfirmation ? { termConfirmation: fields.termConfirmation } : {})
+    lines: members.map(({ employeeId }) => ({ employeeId }))
   })
   const fingerprint = (fields: Fields) => JSON.stringify({ mode, fields, members })
   const preview = useMutation({
@@ -93,17 +86,15 @@ export function useLiveRequestForm(
             !!checked &&
             checked.plan.eligible === true &&
             !checked.tooManyLines &&
+            !checked.tooFewLines &&
+            !checked.termBeyondLimit &&
             checked.lines.length === members.length &&
             checked.lines.every((line) => line.ok),
           groupCheck: checked ?? undefined
         }
       }
-      const { planId, termMonths, expectedSpendOn } = requestPayload(fields)
-      const response = await accessRequestPreview({
-        planId,
-        termMonths,
-        ...(expectedSpendOn ? { expectedSpendOn } : {})
-      })
+      const { planId, termMonths } = requestPayload(fields)
+      const response = await accessRequestPreview({ planId, termMonths })
       return {
         fingerprint: fingerprint(fields),
         canSubmit: response.data?.preview.canSubmit === true,
@@ -130,8 +121,7 @@ export function useLiveRequestForm(
       if (mode === 'individual') return { id: (await accessRequestSubmit(payload)).data?.request.id }
       if (mode === 'group') return { id: (await groupRequestSubmit(groupPayload(fields))).data?.request.id }
       if (mode === 'proposal') {
-        const { softwareName, homepageUrl, purpose, dataDescription, expectedUsers, termMonths, expectedSpendOn } =
-          fields
+        const { softwareName, homepageUrl, purpose, dataDescription, expectedUsers, termMonths } = fields
         return {
           id: (
             await accessRequestPropose({
@@ -140,22 +130,19 @@ export function useLiveRequestForm(
               purpose,
               dataDescription,
               expectedUsers,
-              termMonths,
-              ...(expectedSpendOn ? { expectedSpendOn } : {})
+              termMonths
             })
           ).data?.request.id
         }
       }
       if (mode === 'renewal') {
-        const { assignmentId, newExpectedEndDate, businessReason, expectedSpendOn, termConfirmation } = fields
+        const { assignmentId, extensionMonths, businessReason } = fields
         return {
           id: (
             await accessRequestRenewalSubmit({
               assignmentId,
-              newExpectedEndDate,
-              businessReason,
-              ...(expectedSpendOn ? { expectedSpendOn } : {}),
-              ...(termConfirmation ? { termConfirmation } : {})
+              extensionMonths,
+              businessReason
             })
           ).data?.request.id
         }

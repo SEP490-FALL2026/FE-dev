@@ -2,10 +2,14 @@ export const financeSettings = {
   kpis: {
     total: 'Tổng ngân sách',
     totalCaption: '{{budgeted}}/{{total}} trung tâm chi phí đã có ngân sách',
+    base: 'Phí cơ sở',
+    baseCaption: 'Ngân sách cơ sở các phòng',
+    reserve: 'Phí dự trù',
+    reserveCaption: 'Khoản đệm dự phòng phát sinh',
     spent: 'Thực chi',
     spentCaption: 'Tất cả trung tâm chi phí',
     held: 'Cam kết đang giữ',
-    heldCaption: 'Đã duyệt, chưa thành chi phí',
+    heldCaption: 'Đã duyệt, chưa chi',
     remaining: 'Còn lại',
     remainingCaption: 'Chỉ tính trung tâm chi phí đã có ngân sách'
   },

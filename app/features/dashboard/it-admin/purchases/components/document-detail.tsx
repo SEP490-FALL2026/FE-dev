@@ -69,7 +69,7 @@ export function DocumentDetail({ id, contractId }: { id: string; contractId?: st
               }}
             >
               <div className='min-w-0 flex-1'>
-                <ItField label={translate('contractId')}>
+                <ItField label={translate('contractId')} hint={translate('help.contractId')}>
                   <input
                     required
                     pattern='[0-9a-fA-F-]{36}'

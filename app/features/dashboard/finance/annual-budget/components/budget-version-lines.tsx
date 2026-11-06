@@ -1,24 +1,18 @@
 import { useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
-import { useDashboardFormat } from '../../../dashboard-ui'
 import { useTranslation } from 'react-i18next'
 import type { VersionResponseDtoDataVersion } from '~/shared/api/generated/model/budget-versions/versionResponseDtoDataVersion'
 import type { VersionLinePageResponseDtoDataItemsItem } from '~/shared/api/generated/model/budget-versions/versionLinePageResponseDtoDataItemsItem'
 import { useBudgetVersionLineList } from '~/shared/api/generated/operations/budget-versions/budget-version-line-list'
 import { useBudgetVersionLineAdd } from '~/shared/api/generated/operations/budget-versions/budget-version-line-add'
 import { useBudgetVersionLineUpdate } from '~/shared/api/generated/operations/budget-versions/budget-version-line-update'
-import { useBudgetVersionLineWindow } from '~/shared/api/generated/operations/budget-versions/budget-version-line-window'
 import { FinanceButton, FinanceDrawer, FinancePagination, FinanceQueryState } from '../../shared/components/finance-ui'
 import { FinanceTable } from '../../shared/components/finance-table'
 import { useFinanceFeedback } from '../../shared/hooks/use-finance-feedback'
 import { formatMoney } from '../../shared/finance-money'
-import { budgetQueryKeys, invalidateRequestBudgetChecks } from '../budget-query-keys'
-import { getFinanceError } from '../../shared/finance-errors'
-import { canEditVersion, versionState } from '../enums/version-state'
+import { budgetQueryKeys } from '../budget-query-keys'
+import { canEditVersion } from '../enums/version-state'
 import { BudgetLineForm } from './budget-line-form'
-import { BudgetLineWindowForm } from './budget-line-window-form'
 import { BudgetLineImport } from './budget-line-import'
-import { BudgetLineHistory } from './budget-line-history'
 
 export function BudgetVersionLines({
   version,
@@ -28,31 +22,17 @@ export function BudgetVersionLines({
   disabled?: boolean
 }) {
   const { t: translate, i18n } = useTranslation('financeBudget')
-  const queryClient = useQueryClient()
-  const { formatDate } = useDashboardFormat()
   const [page, setPage] = useState(1)
   const [selected, setSelected] = useState<VersionLinePageResponseDtoDataItemsItem>()
-  const [dialog, setDialog] = useState<'add' | 'edit' | 'import' | 'window' | 'history'>()
+  const [dialog, setDialog] = useState<'add' | 'edit' | 'import'>()
   const query = useBudgetVersionLineList(version.id, { page, pageSize: 20 })
   const result = query.data?.data
-  const feedback = useFinanceFeedback(budgetQueryKeys(version.id, undefined, selected?.position), () => {
+  const feedback = useFinanceFeedback(budgetQueryKeys(version.id), () => {
     setDialog(undefined)
     setSelected(undefined)
   })
   const addMutation = useBudgetVersionLineAdd({ mutation: feedback })
   const updateMutation = useBudgetVersionLineUpdate({ mutation: feedback })
-  const windowMutation = useBudgetVersionLineWindow({
-    mutation: {
-      onSuccess: async () => {
-        await invalidateRequestBudgetChecks(queryClient)
-        await feedback.onSuccess()
-      },
-      onError: async (error) => {
-        if (getFinanceError(error).key !== 'rateLimit') await invalidateRequestBudgetChecks(queryClient)
-        await feedback.onError(error)
-      }
-    }
-  })
   const editable = canEditVersion(version.state)
   const writeDisabled = disabled || query.isError || query.isFetching
   if (dialog === 'add' || (dialog === 'edit' && selected))
@@ -81,13 +61,8 @@ export function BudgetVersionLines({
                 data: {
                   description: line.description,
                   amount: line.amount,
-                  windowFrom: line.windowFrom,
-                  windowTo: line.windowTo,
-                  servicePeriodMonths: line.servicePeriodMonths,
-                  repeatCycle: line.repeatCycle,
                   planId: line.planId ?? null,
                   seats: line.seats ?? null,
-                  quoteValidUntil: line.quoteValidUntil ?? null,
                   financeComment: line.financeComment ?? null,
                   adjustmentReason: line.adjustmentReason ?? null
                 }
@@ -131,18 +106,6 @@ export function BudgetVersionLines({
               label: translate('fields.seats'),
               numeric: true,
               render: (line) => line.seats ?? translate('none')
-            },
-            {
-              key: 'windowFrom',
-              label: translate('fields.windowFrom'),
-              numeric: true,
-              render: (line) => formatDate(line.windowFrom)
-            },
-            {
-              key: 'windowTo',
-              label: translate('fields.windowTo'),
-              numeric: true,
-              render: (line) => formatDate(line.windowTo)
             }
           ]}
         />
@@ -151,26 +114,13 @@ export function BudgetVersionLines({
       {selected && !dialog && (
         <FinanceDrawer title={selected.description} onClose={() => setSelected(undefined)}>
           <dl className='grid gap-3'>
-            {(
-              [
-                'amount',
-                'planId',
-                'seats',
-                'servicePeriodMonths',
-                'repeatCycle',
-                'quoteValidUntil',
-                'financeComment',
-                'adjustmentReason'
-              ] as const
-            ).map((field) => (
+            {(['amount', 'planId', 'seats', 'financeComment', 'adjustmentReason'] as const).map((field) => (
               <div key={field} className='grid gap-1 border-b border-border/40 pb-2 sm:grid-cols-2'>
                 <dt className='text-sm text-muted-foreground'>{translate(`fields.${field}`)}</dt>
                 <dd className='break-words text-sm'>
                   {field === 'amount'
                     ? formatMoney(selected.amount, i18n.language)
-                    : field === 'repeatCycle'
-                      ? translate(`cycles.${selected.repeatCycle}`, { defaultValue: translate('unknown') })
-                      : (selected[field] ?? translate('none'))}
+                    : (selected[field] ?? translate('none'))}
                 </dd>
               </div>
             ))}
@@ -181,12 +131,6 @@ export function BudgetVersionLines({
                 {translate('actions.editLine')}
               </FinanceButton>
             )}
-            {version.state === versionState.APPROVED && (
-              <FinanceButton disabled={writeDisabled} variant='primary' onClick={() => setDialog('window')}>
-                {translate('actions.moveWindow')}
-              </FinanceButton>
-            )}
-            <FinanceButton onClick={() => setDialog('history')}>{translate('lineHistory')}</FinanceButton>
           </div>
         </FinanceDrawer>
       )}
@@ -196,18 +140,6 @@ export function BudgetVersionLines({
           disabled={disabled || !editable}
           onClose={() => setDialog(undefined)}
         />
-      )}
-      {dialog === 'window' && selected && (
-        <BudgetLineWindowForm
-          line={selected}
-          pending={windowMutation.isPending}
-          disabled={writeDisabled || version.state !== versionState.APPROVED}
-          onClose={() => setDialog(undefined)}
-          onSubmit={(window) => windowMutation.mutate({ id: version.id, position: selected.position, data: window })}
-        />
-      )}
-      {dialog === 'history' && selected && (
-        <BudgetLineHistory versionId={version.id} position={selected.position} onClose={() => setDialog(undefined)} />
       )}
     </section>
   )

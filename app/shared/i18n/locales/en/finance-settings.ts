@@ -2,6 +2,10 @@ export const financeSettings = {
   kpis: {
     total: 'Total budget',
     totalCaption: '{{budgeted}}/{{total}} cost centers have a budget',
+    base: 'Base budget',
+    baseCaption: 'Core department budget',
+    reserve: 'Reserve budget',
+    reserveCaption: 'Contingency buffer',
     spent: 'Actual spend',
     spentCaption: 'All cost centers',
     held: 'Held commitments',

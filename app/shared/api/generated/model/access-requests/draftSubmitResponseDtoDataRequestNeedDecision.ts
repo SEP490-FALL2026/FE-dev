@@ -18,7 +18,5 @@ export type DraftSubmitResponseDtoDataRequestNeedDecision = {
   deciderRole: DraftSubmitResponseDtoDataRequestNeedDecisionDeciderRole
   /** @nullable */
   reason: string | null
-  /** @nullable */
-  termConfirmationReason: string | null
   decidedAt: string
 } | null

@@ -8,7 +8,9 @@
 import type { CommitmentResponseDtoDataCommitmentAmount } from './commitmentResponseDtoDataCommitmentAmount'
 import type { CommitmentResponseDtoDataCommitmentCostCenter } from './commitmentResponseDtoDataCommitmentCostCenter'
 import type { CommitmentResponseDtoDataCommitmentHeld } from './commitmentResponseDtoDataCommitmentHeld'
+import type { CommitmentResponseDtoDataCommitmentInvoiced } from './commitmentResponseDtoDataCommitmentInvoiced'
 import type { CommitmentResponseDtoDataCommitmentReleased } from './commitmentResponseDtoDataCommitmentReleased'
+import type { CommitmentResponseDtoDataCommitmentRequest } from './commitmentResponseDtoDataCommitmentRequest'
 import type { CommitmentResponseDtoDataCommitmentState } from './commitmentResponseDtoDataCommitmentState'
 import type { CommitmentResponseDtoDataCommitmentUnattachedReason } from './commitmentResponseDtoDataCommitmentUnattachedReason'
 
@@ -25,6 +27,15 @@ export type CommitmentResponseDtoDataCommitment = {
   released: CommitmentResponseDtoDataCommitmentReleased
   held: CommitmentResponseDtoDataCommitmentHeld
   state: CommitmentResponseDtoDataCommitmentState
+  /** @nullable */
+  request: CommitmentResponseDtoDataCommitmentRequest
+  invoiced: CommitmentResponseDtoDataCommitmentInvoiced
+  /**
+   * @minimum 0
+   * @maximum 9007199254740991
+   */
+  invoiceCount: number
+  hasDiscrepancy: boolean
   attached: boolean
   /** @nullable */
   attachedAt: string | null

@@ -1,4 +1,5 @@
 export const approvalsSpend = {
+  budgetInsufficient: 'Approval requires sufficient approved budget. Update the budget before approving this request.',
   batchSelection: 'Select',
   batchPosition: 'Position',
   batchRequestId: 'Request ID',
@@ -99,7 +100,7 @@ export const approvalsSpend = {
   selected: '{{count}} requests selected',
   selectRequest: 'Select request {{id}}',
   batchHint:
-    'Choose up to 50 requests from this batch. Budget overrides and group decisions must be processed individually.',
+    'Choose up to 50 requests from this batch. Group decisions must be processed individually; insufficient budget must be corrected before approval.',
   batchConfirm: 'Confirm batch decision',
   batchResults: 'Batch results',
   skippedReason: 'Reason',
@@ -137,7 +138,7 @@ export const approvalsSpend = {
     REVIEWER_IS_APPROVER: 'Finance reviewer cannot approve the same request',
     STEP_NOT_PENDING: 'The step is no longer pending',
     NO_SPEND_STEP: 'No open spend step',
-    OVERRIDE_REQUIRED: 'An individual budget override is required',
+    OVERRIDE_REQUIRED: 'Insufficient budget must be corrected before approval',
     NOT_CHECKABLE: 'Budget cannot be checked',
     RECHECKED_NEEDS_FINANCE_REVIEW: 'Returned to Finance after recheck',
     RECHECKED_RETURNED_TO_HEAD: 'Returned to department head after recheck'

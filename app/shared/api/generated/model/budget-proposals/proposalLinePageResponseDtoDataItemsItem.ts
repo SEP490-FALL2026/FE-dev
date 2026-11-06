@@ -6,7 +6,6 @@
  * OpenAPI spec version: 1.0
  */
 import type { ProposalLinePageResponseDtoDataItemsItemAmount } from './proposalLinePageResponseDtoDataItemsItemAmount'
-import type { ProposalLinePageResponseDtoDataItemsItemRepeatCycle } from './proposalLinePageResponseDtoDataItemsItemRepeatCycle'
 
 export type ProposalLinePageResponseDtoDataItemsItem = {
   /**
@@ -24,16 +23,6 @@ export type ProposalLinePageResponseDtoDataItemsItem = {
    */
   seats: number | null
   amount: ProposalLinePageResponseDtoDataItemsItemAmount
-  windowFrom: string
-  windowTo: string
-  /**
-   * @minimum -9007199254740991
-   * @maximum 9007199254740991
-   */
-  servicePeriodMonths: number
-  repeatCycle: ProposalLinePageResponseDtoDataItemsItemRepeatCycle
-  /** @nullable */
-  quoteValidUntil: string | null
   /** @nullable */
   note: string | null
 }

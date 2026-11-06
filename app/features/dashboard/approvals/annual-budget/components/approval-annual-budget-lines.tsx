@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useBudgetVersionLineList } from '~/shared/api/generated/operations/budget-versions/budget-version-line-list'
-import { useDashboardFormat } from '../../../dashboard-ui'
 import { ApprovalsPagination, ApprovalsSection } from '../../shared/components/approvals-ui'
 import { ApprovalsQueryState } from '../../shared/components/approvals-query-state'
 import { ApprovalsTable } from '../../shared/components/approvals-table'
@@ -9,7 +8,6 @@ import { formatMoney } from '../../shared/approvals-money'
 
 export function ApprovalAnnualBudgetLines({ itemId }: { itemId: string }) {
   const { t: translate, i18n } = useTranslation('approvalsBudget')
-  const { formatDate } = useDashboardFormat()
   const [page, setPage] = useState(1)
   const query = useBudgetVersionLineList(itemId, { page, pageSize: 20 })
   return (
@@ -36,24 +34,6 @@ export function ApprovalAnnualBudgetLines({ itemId }: { itemId: string }) {
                 label: translate('seats'),
                 numeric: true,
                 render: (line) => line.seats ?? translate('unavailable')
-              },
-              {
-                key: 'window',
-                label: translate('window'),
-                numeric: true,
-                render: (line) => `${formatDate(line.windowFrom)} – ${formatDate(line.windowTo)}`
-              },
-              { key: 'period', label: translate('period'), numeric: true, render: (line) => line.servicePeriodMonths },
-              {
-                key: 'repeat',
-                label: translate('repeatCycle'),
-                render: (line) => translate(`repeat.${line.repeatCycle}`, { defaultValue: translate('unavailable') })
-              },
-              {
-                key: 'quote',
-                label: translate('quoteValidUntil'),
-                numeric: true,
-                render: (line) => (line.quoteValidUntil ? formatDate(line.quoteValidUntil) : translate('unavailable'))
               },
               {
                 key: 'comment',

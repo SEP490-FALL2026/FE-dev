@@ -155,7 +155,7 @@ function SubscriptionFields({
           onDirty()
         }}
       >
-        <ItField label={translate('quantity')}>
+        <ItField label={translate('quantity')} hint={translate('help.quantity')}>
           <input
             placeholder={translate('placeholders.quantity')}
             name='quantity'
@@ -167,7 +167,11 @@ function SubscriptionFields({
             className={itInputClass}
           />
         </ItField>
-        <ItField label={translate('unitAmount')} error={priceError ? translate('pricePair') : undefined}>
+        <ItField
+          label={translate('unitAmount')}
+          hint={translate('help.unitAmount')}
+          error={priceError ? translate('pricePair') : undefined}
+        >
           <input
             placeholder={translate('placeholders.amount')}
             name='amount'
@@ -178,7 +182,7 @@ function SubscriptionFields({
             className={itInputClass}
           />
         </ItField>
-        <ItField label={translate('currency')}>
+        <ItField label={translate('currency')} hint={translate('help.currency')}>
           <input
             placeholder={translate('placeholders.currency')}
             name='currency'
@@ -189,7 +193,7 @@ function SubscriptionFields({
           />
         </ItField>
         {(['startDate', 'endDate', 'renewalDate'] as const).map((key) => (
-          <ItField key={key} label={translate(key)}>
+          <ItField key={key} label={translate(key)} hint={translate(`help.${key}`)}>
             <input name={key} type='date' defaultValue={subscription[key] ?? ''} className={itInputClass} />
           </ItField>
         ))}
@@ -205,7 +209,7 @@ function SubscriptionFields({
             className={itInputClass}
           />
         </ItField>
-        <ItField label={translate('noticePeriodDays')}>
+        <ItField label={translate('noticePeriodDays')} hint={translate('help.noticePeriodDays')}>
           <input
             placeholder={translate('placeholders.days')}
             name='noticePeriodDays'
@@ -243,6 +247,7 @@ function SubscriptionFields({
         }}
       >
         <legend>{translate('billingCycle')}</legend>
+        <p className='text-xs font-normal text-muted-foreground'>{translate('help.billingCycle')}</p>
         {Object.values(UpdateSubscriptionBodyDtoBillingCycle).map((value) => (
           <label key={value} className='mr-4 inline-flex min-h-11 items-center gap-2'>
             <input

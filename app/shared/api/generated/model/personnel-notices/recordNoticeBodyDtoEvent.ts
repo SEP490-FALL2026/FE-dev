@@ -5,7 +5,7 @@
  * Internal software license and technology cost API. A text field whose description says it is trimmed has its leading and trailing whitespace removed before it is checked; for the other text fields the description makes no such promise.
  * OpenAPI spec version: 1.0
  */
-import type { RecordNoticeBodyDtoEventPendingTransferCancellation } from './recordNoticeBodyDtoEventPendingTransferCancellation'
+import type { RecordNoticeBodyDtoEventAccessBlockMode } from './recordNoticeBodyDtoEventAccessBlockMode'
 import type { RecordNoticeBodyDtoEventSuccessor } from './recordNoticeBodyDtoEventSuccessor'
 
 export type RecordNoticeBodyDtoEvent = {
@@ -14,8 +14,9 @@ export type RecordNoticeBodyDtoEvent = {
   effectiveOn?: string
   /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
   lastWorkingDay?: string
+  accessBlockMode?: RecordNoticeBodyDtoEventAccessBlockMode
   successor?: RecordNoticeBodyDtoEventSuccessor
-  pendingTransferCancellation?: RecordNoticeBodyDtoEventPendingTransferCancellation
+  cancelPendingTransfer?: true
   /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
   startedOn?: string
   /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */

@@ -28,6 +28,47 @@ describe('Finance cost center contract integration', () => {
       const pagination = { page: config.params?.page ?? 1, pageSize: 20, totalItems: 21, totalPages: 2 }
       const money = (amount: string) => ({ amount, currency: 'VND' })
       const single = { page: 1, pageSize: 100, totalItems: 2, totalPages: 1 }
+      if (config.url?.endsWith('/budgets/summary'))
+        return {
+          config,
+          status: 200,
+          statusText: 'OK',
+          headers: new AxiosHeaders(),
+          data: {
+            success: true,
+            data: {
+              year: 2026,
+              totals: {
+                VND: {
+                  currency: 'VND',
+                  base: money('108000000'),
+                  reserve: money('12000000'),
+                  total: money('120000000'),
+                  committed: money('30000000'),
+                  spent: money('0'),
+                  remaining: money('90000000'),
+                  costCenterCount: 1,
+                  overBudgetCount: 0
+                }
+              },
+              lastInvoiceRecordedAt: null
+            }
+          }
+        }
+      if (config.url?.includes('/budget-commitments'))
+        return {
+          config,
+          status: 200,
+          statusText: 'OK',
+          headers: new AxiosHeaders(),
+          data: {
+            success: true,
+            data: {
+              items: [],
+              pagination: single
+            }
+          }
+        }
       if (config.url?.endsWith('/budgets'))
         return {
           config,

@@ -8,7 +8,6 @@
 import type { BudgetProposalBodyDtoLinesItem } from './budgetProposalBodyDtoLinesItem'
 
 export interface BudgetProposalBodyDto {
-  costCenterId: string
   /**
    * @minimum 2000
    * @maximum 2200

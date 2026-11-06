@@ -12,5 +12,6 @@ export type SubscriptionRenewalPageResponseDtoDataItemsItemState =
 export const SubscriptionRenewalPageResponseDtoDataItemsItemState = {
   PROPOSED: 'PROPOSED',
   DECIDED: 'DECIDED',
-  OUTCOME_RECORDED: 'OUTCOME_RECORDED'
+  OUTCOME_RECORDED: 'OUTCOME_RECORDED',
+  STALE: 'STALE'
 } as const

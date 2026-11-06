@@ -9,9 +9,8 @@ import type { VersionResponseDtoDataVersionBase } from './versionResponseDtoData
 import type { VersionResponseDtoDataVersionCostCenter } from './versionResponseDtoDataVersionCostCenter'
 import type { VersionResponseDtoDataVersionCreatedBy } from './versionResponseDtoDataVersionCreatedBy'
 import type { VersionResponseDtoDataVersionDecision } from './versionResponseDtoDataVersionDecision'
-import type { VersionResponseDtoDataVersionHighValueAmount } from './versionResponseDtoDataVersionHighValueAmount'
+import type { VersionResponseDtoDataVersionDefaultReserve } from './versionResponseDtoDataVersionDefaultReserve'
 import type { VersionResponseDtoDataVersionKind } from './versionResponseDtoDataVersionKind'
-import type { VersionResponseDtoDataVersionPreviousTotal } from './versionResponseDtoDataVersionPreviousTotal'
 import type { VersionResponseDtoDataVersionQuarters } from './versionResponseDtoDataVersionQuarters'
 import type { VersionResponseDtoDataVersionReserve } from './versionResponseDtoDataVersionReserve'
 import type { VersionResponseDtoDataVersionState } from './versionResponseDtoDataVersionState'
@@ -36,25 +35,24 @@ export type VersionResponseDtoDataVersion = {
   /** @nullable */
   proposalId: string | null
   /** @nullable */
-  basedOnVersionId: string | null
-  /** @nullable */
   rejectedPredecessorId: string | null
   base: VersionResponseDtoDataVersionBase
   reserve: VersionResponseDtoDataVersionReserve
-  total: VersionResponseDtoDataVersionTotal
   /**
    * @minimum -9007199254740991
    * @maximum 9007199254740991
+   * @nullable
    */
-  highValuePercent: number
+  reservePercent: number | null
   /** @nullable */
-  highValueAmount: VersionResponseDtoDataVersionHighValueAmount
+  defaultReserve: VersionResponseDtoDataVersionDefaultReserve
+  /** @nullable */
+  reserveReason: string | null
+  total: VersionResponseDtoDataVersionTotal
   /** @nullable */
   quarters: VersionResponseDtoDataVersionQuarters
   /** @nullable */
   reason: string | null
-  /** @nullable */
-  previousTotal: VersionResponseDtoDataVersionPreviousTotal
   /** @nullable */
   waitingReason: VersionResponseDtoDataVersionWaitingReason
   /** @nullable */

@@ -41,7 +41,9 @@ export function ManagerRequestTimings({ id }: { id: string }) {
                   </p>
                   <p className='font-mono text-xs text-muted-foreground tabular-nums'>
                     <span>{formatDateTime(segment.startedAt)}</span>
-                    {segment.endedAt && <span className='ml-2 text-foreground/70'>→ {formatDateTime(segment.endedAt)}</span>}
+                    {segment.endedAt && (
+                      <span className='ml-2 text-foreground/70'>→ {formatDateTime(segment.endedAt)}</span>
+                    )}
                   </p>
                 </div>
               </li>

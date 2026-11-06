@@ -1,5 +1,20 @@
 import { itCatalogTerms } from './it-catalog-terms'
+import { itCatalogHelp } from './it-catalog-help'
 export const itCatalog = {
+  help: itCatalogHelp,
+  detailBack: 'Quay lại',
+  groups: {
+    title: 'Nhóm chức năng',
+    create: 'Tạo nhóm chức năng',
+    name: 'Tên nhóm',
+    nameHint: 'Dùng chức năng nghiệp vụ chung, ví dụ thiết kế, trao đổi thông tin hoặc quản lý dự án.',
+    hint: 'Nhóm các ứng dụng có cùng chức năng nghiệp vụ để nhận diện công cụ tương tự.',
+    field: 'Nhóm chức năng',
+    fieldHint: 'Không bắt buộc. Chọn chức năng nghiệp vụ mà ứng dụng phục vụ. Quản lý nhóm tại danh mục.',
+    none: 'Không có nhóm chức năng',
+    uncertain: 'Chưa xác định được kết quả. Đóng biểu mẫu và kiểm tra danh sách nhóm trước khi tạo lại.',
+    states: { ACTIVE: 'Đang hoạt động', INACTIVE: 'Ngừng hoạt động' }
+  },
   terms: itCatalogTerms,
   deadline: {
     declared: 'Hạn báo hủy đã khai báo',

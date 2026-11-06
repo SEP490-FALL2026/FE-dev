@@ -6,7 +6,7 @@ import type { RevocationCompletionBodyDto, TaskResponseDtoDataTask } from '~/sha
 import * as api from '~/shared/api/generated/operations/provisioning-tasks'
 import { getSubscriptionListQueryKey } from '~/shared/api/generated/operations/subscriptions/subscription-list'
 import { getAssignmentExpiryQueueListQueryKey } from '~/shared/api/generated/operations/assignment-expiry'
-import { getGrantQueueListQueryKey } from '~/shared/api/generated/operations/delegated-requests/grant-queue-list'
+import { getGrantQueueListQueryKey } from '~/shared/api/generated/operations/grant-queue/grant-queue-list'
 import { ItField, ItFormDialog, itInputClass } from '../../shared/components/it-form'
 import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
 import type { TaskAction } from '../task-actions'

@@ -10,5 +10,5 @@ export type TransferRecordedResponseDtoDataWarningsItemCode =
   (typeof TransferRecordedResponseDtoDataWarningsItemCode)[keyof typeof TransferRecordedResponseDtoDataWarningsItemCode]
 
 export const TransferRecordedResponseDtoDataWarningsItemCode = {
-  BUSINESS_OWNER_REPLACEMENT_NEEDED: 'BUSINESS_OWNER_REPLACEMENT_NEEDED'
+  BUSINESS_OWNER_KEEP_OR_CHANGE: 'BUSINESS_OWNER_KEEP_OR_CHANGE'
 } as const

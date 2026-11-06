@@ -1,4 +1,10 @@
 export const itCatalogTerms = {
+  help: {
+    termsUrl: 'Link to the vendor terms reviewed for this plan.',
+    lastReviewedOn: 'The date IT last checked the terms against this plan.',
+    maxDevicesPerKey: 'The maximum devices one license key may activate under these terms.',
+    installNote: 'Describe activation, transfer and installation limits that IT must follow.'
+  },
   title: 'Plan terms',
   uncertain: 'The result is uncertain. Close this form and review the opinion history before recording it again.',
   edit: 'Edit terms',

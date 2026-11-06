@@ -10,6 +10,8 @@ export const FINANCE_TAB_KEYS = [
   'budget-negotiation',
   'cost-forecast',
   'cost-optimization',
+  'spend-batches',
+  'commitments',
   'saas-cost',
   'spend-import',
   'charge-exceptions',
