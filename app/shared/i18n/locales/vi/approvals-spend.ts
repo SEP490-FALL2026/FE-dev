@@ -1,5 +1,5 @@
 export const approvalsSpend = {
-  budgetBlocked: 'Không thể duyệt yêu cầu vì chưa có hoặc không đủ ngân sách cần thiết.',
+  budgetInsufficient: 'Cần có ngân sách được duyệt đủ chi phí. Cập nhật ngân sách trước khi phê duyệt yêu cầu này.',
   batchSelection: 'Chọn',
   batchPosition: 'Thứ tự',
   batchRequestId: 'Mã yêu cầu',
@@ -138,7 +138,7 @@ export const approvalsSpend = {
     REVIEWER_IS_APPROVER: 'Người rà soát Finance không được duyệt cùng yêu cầu',
     STEP_NOT_PENDING: 'Bước không còn chờ quyết định',
     NO_SPEND_STEP: 'Không có bước chi đang mở',
-    OVERRIDE_REQUIRED: 'Cần phê duyệt ngoại lệ riêng',
+    OVERRIDE_REQUIRED: 'Cần bổ sung ngân sách trước khi phê duyệt',
     NOT_CHECKABLE: 'Chưa thể kiểm tra ngân sách',
     RECHECKED_NEEDS_FINANCE_REVIEW: 'Đã trả về Finance sau kiểm tra lại',
     RECHECKED_RETURNED_TO_HEAD: 'Đã trả về trưởng phòng sau kiểm tra lại'

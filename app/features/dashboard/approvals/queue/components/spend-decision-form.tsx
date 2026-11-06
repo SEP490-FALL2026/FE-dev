@@ -80,12 +80,11 @@ export function SpendDecisionForm({
   const hasApproval = isGroup
     ? confirmedLines.some((line) => lineDrafts[line.employee.employeeId]?.decision === SPEND_DECISION.APPROVE)
     : decision === SPEND_DECISION.APPROVE
-  // BE rechecks the approved subset of a group. The single-request check is already definitive.
-  const budgetBlocksApproval = !isGroup && hasApproval && deficientYears.length > 0
+  const insufficientBudget = !isGroup && hasApproval && deficientYears.length > 0
   const decisionValid = isGroup
     ? allLinesDecided
     : decision === SPEND_DECISION.APPROVE || (decision === SPEND_DECISION.REJECT && Boolean(reason.trim()))
-  const valid = canDecide && confirmed && decisionValid && !budgetBlocksApproval
+  const valid = canDecide && confirmed && decisionValid && !insufficientBudget
   const options = [
     { value: '', label: translate('choose') },
     { value: SPEND_DECISION.APPROVE, label: translate('approve') },
@@ -195,11 +194,7 @@ export function SpendDecisionForm({
               )}
             </>
           )}
-          {budgetBlocksApproval && (
-            <p role='status' className='text-sm text-warning'>
-              {translate('budgetBlocked')}
-            </p>
-          )}
+          {insufficientBudget && <p className='text-sm text-danger'>{translate('budgetInsufficient')}</p>}
           <label className='flex min-h-11 items-start gap-3 text-sm'>
             <input
               className='mt-0.5 size-4 accent-primary'

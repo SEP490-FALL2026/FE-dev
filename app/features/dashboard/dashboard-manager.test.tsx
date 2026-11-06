@@ -111,10 +111,10 @@ describe('Manager dashboard API navigation', () => {
     const members = within(nav).getByRole('button', { name: 'Nhân sự phòng ban' })
     fireEvent.click(members)
     expect(members).toHaveAttribute('aria-current', 'page')
-    expect(screen.getByLabelText('ID phòng ban')).toBeInTheDocument()
+    expect(screen.queryByLabelText('ID phòng ban')).not.toBeInTheDocument()
     fireEvent.click(within(nav).getByRole('button', { name: 'Duyệt nhu cầu' }))
     expect(await screen.findByRole('heading', { level: 1, name: 'Duyệt nhu cầu' })).toBeInTheDocument()
-    expect(screen.getByLabelText('ID yêu cầu')).toBeInTheDocument()
+    expect(screen.queryByLabelText('ID yêu cầu')).not.toBeInTheDocument()
     expect(screen.queryByText('REQ-M01')).not.toBeInTheDocument()
   })
   it('opens the annual budget only from Manager navigation', async () => {

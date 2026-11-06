@@ -29,7 +29,7 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
   const { t: translate, i18n } = useTranslation('financeBudget')
   const query = useBudgetVersionGet(itemId)
   const version = query.data?.data?.version
-  const [dialog, setDialog] = useState<'edit' | 'revise' | 'send' | 'history' | 'rebuild'>()
+  const [dialog, setDialog] = useState<'edit' | 'send' | 'history' | 'rebuild'>()
   const feedback = useFinanceFeedback(budgetQueryKeys(itemId, version?.proposalId ?? undefined), () =>
     setDialog(undefined)
   )
@@ -48,19 +48,12 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
     return (
       <BudgetVersionForm
         initial={{
-          base: { amount: version.base.amount },
-          reserve: { amount: version.reserve.amount },
+          base: version.base,
+          reserve: version.reserve,
           reserveReason: version.reserveReason ?? undefined,
           quarters: version.quarters
-            ? {
-                q1: { amount: version.quarters.q1.amount },
-                q2: { amount: version.quarters.q2.amount },
-                q3: { amount: version.quarters.q3.amount },
-                q4: { amount: version.quarters.q4.amount }
-              }
-            : null
         }}
-        allowReason={dialog !== 'rebuild'}
+        currency={version.total.currency}
         disabled={query.isError || query.isFetching}
         pending={updateMutation.isPending || rebuildMutation.isPending}
         onClose={() => setDialog(undefined)}

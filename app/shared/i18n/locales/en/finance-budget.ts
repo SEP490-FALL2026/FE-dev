@@ -33,13 +33,13 @@ export const financeBudget = {
     showHistory: 'View history'
   },
   fields: {
-    reserveReason: 'Reserve reason',
     costCenter: 'Cost Center',
     year: 'Fiscal year',
     state: 'State',
     total: 'Total',
     base: 'Base amount',
     reserve: 'Reserve amount',
+    reserveReason: 'Reason for the reserve amount',
     highValuePercent: 'High value threshold (%)',
     highValueAmount: 'High value amount',
     q1: 'Quarter 1',

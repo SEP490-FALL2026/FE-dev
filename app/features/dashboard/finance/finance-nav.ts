@@ -5,9 +5,9 @@ import {
   FileText,
   Grid2X2,
   Landmark,
+  Layers,
   LineChart,
-  ReceiptText,
-  Store
+  ReceiptText
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { FINANCE_TAB_KEYS, type FinanceTabKey } from './enums'
@@ -20,10 +20,13 @@ export type FinanceTranslationKey =
   | 'budgets'
   | 'proposals'
   | 'versions'
+  | 'spendBatches'
+  | 'commitments'
   | 'catalog'
   | 'vendorTax'
   | 'periodClose'
   | 'periodReport'
+
 export interface FinanceTab {
   key: FinanceTabKey
   icon: LucideIcon
@@ -54,8 +57,8 @@ export const financeAreas: readonly FinanceArea[] = [
     key: 'spend',
     icon: ReceiptText,
     tabs: [
-      { key: 'saas-cost', icon: Store, translationKey: 'catalog' },
-      { key: 'vendor-tax', icon: ReceiptText, translationKey: 'vendorTax' }
+      { key: 'spend-batches', icon: Layers, translationKey: 'spendBatches' },
+      { key: 'commitments', icon: ReceiptText, translationKey: 'commitments' }
     ]
   },
   {

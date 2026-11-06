@@ -87,11 +87,11 @@ it('selects employees without accounts and requires an actual selection', async 
       fields={[{ name: 'employeeId', type: 'uuid' }]}
     />
   )
-  expect(container.querySelector('form')!.checkValidity()).toBe(false)
+  expect(screen.getByRole('dialog').querySelector('form')!.checkValidity()).toBe(false)
   fireEvent.click(screen.getByRole('button', { name: 'Find employee' }))
   fireEvent.click(screen.getByRole('button', { name: 'Without accounts' }))
   fireEvent.click(await screen.findByRole('button', { name: /No Account/ }))
-  expect(container.querySelector('form')!.checkValidity()).toBe(true)
+  expect(screen.getByRole('dialog').querySelector('form')!.checkValidity()).toBe(true)
   fireEvent.click(screen.getByRole('button', { name: 'Save' }))
   expect(onSubmit.mock.calls[0][0].get('employeeId')).toBe(employeeId)
   expectNoVisibleIds(container)

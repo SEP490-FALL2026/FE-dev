@@ -130,13 +130,12 @@ function mount() {
   )
 }
 
-it('approves without removed plan allocation or term-confirmation fields', async () => {
+it('approves a department head need with only the current strict decision body', async () => {
   departmentHead = true
   mount()
   const submit = await screen.findByRole('button', { name: 'submit' })
-  expect(submit).toBeEnabled()
   expect(screen.queryByLabelText('planPosition')).not.toBeInTheDocument()
-  expect(screen.queryByLabelText('termReason')).not.toBeInTheDocument()
+  expect(screen.queryByLabelText('expectedSpendOn')).not.toBeInTheDocument()
   fireEvent.click(submit)
   await waitFor(() => expect(posts).toEqual([{ decision: 'APPROVE' }]))
 })

@@ -8,6 +8,7 @@ import {
 } from '~/shared/api/generated/operations/access-requests/access-request-draft-list'
 import { useAccessRequestDraftDelete } from '~/shared/api/generated/operations/access-requests/access-request-draft-delete'
 import { useAccessRequestDraftSubmit } from '~/shared/api/generated/operations/access-requests/access-request-draft-submit'
+import { useRequestablePlanGet } from '~/shared/api/generated/operations/requestable-software/requestable-plan-get'
 import { Dialog, useDashboardFormat } from '../../../dashboard-ui'
 import { useEmployeeFeedback } from '../../shared/hooks/use-employee-feedback'
 import { useEmployeePage } from '../../shared/hooks/use-employee-page'
@@ -56,6 +57,7 @@ export function EmployeeDraftRequests({
     }
   })
   const busy = deletion.isPending || submission.isPending
+  const actionDraft = action ? query.data?.data?.items.find((draft) => draft.id === action.id) : undefined
   return (
     <>
       <EmployeeSection title={translate('drafts')}>
@@ -74,18 +76,13 @@ export function EmployeeDraftRequests({
             columns={[
               {
                 key: 'draft',
-                label: translate('redesign.draftId'),
+                label: translate('redesign.application'),
                 render: (draft) => (
-                  <div>
-                    <p className='truncate font-mono text-xs' title={draft.id}>
-                      {draft.id}
-                    </p>
+                  <div className='min-w-0'>
+                    <DraftPlanName planId={draft.planId} />
                     <div className='mt-2'>
                       <EmployeeStatus value={draft.kind} />
                     </div>
-                    <p className='mt-2 truncate text-xs text-muted-foreground' title={draft.planId}>
-                      {translate('planId')}: {draft.planId}
-                    </p>
                   </div>
                 )
               },
@@ -139,9 +136,7 @@ export function EmployeeDraftRequests({
             if (!busy) setAction(null)
           }}
         >
-          <p className='truncate font-mono text-xs' title={action.id}>
-            {action.id}
-          </p>
+          {actionDraft && <DraftPlanName planId={actionDraft.planId} />}
           <div className='mt-5 flex justify-end gap-3'>
             <EmployeeButton disabled={busy} onClick={() => setAction(null)}>
               {translate('cancel')}
@@ -164,6 +159,22 @@ export function EmployeeDraftRequests({
           </div>
         </Dialog>
       )}
+    </>
+  )
+}
+
+function DraftPlanName({ planId }: { planId: string }) {
+  const plan = useRequestablePlanGet(planId)
+  const detail = !plan.isError ? plan.data?.data : null
+  if (!detail) return null
+  return (
+    <>
+      <p className='max-w-64 truncate font-medium' title={detail.application.name}>
+        {detail.application.name}
+      </p>
+      <p className='mt-1 max-w-64 truncate text-xs text-muted-foreground' title={detail.name}>
+        {detail.name}
+      </p>
     </>
   )
 }

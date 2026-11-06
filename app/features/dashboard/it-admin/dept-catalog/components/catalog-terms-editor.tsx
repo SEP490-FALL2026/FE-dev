@@ -94,7 +94,7 @@ function TermsFields({
         </div>
       )}
       <div className='grid gap-4 sm:grid-cols-2' onChange={onDirty}>
-        <ItField label={translate('terms.termsUrl')}>
+        <ItField label={translate('terms.termsUrl')} hint={translate('terms.help.termsUrl')}>
           <input
             name='termsUrl'
             type='url'
@@ -104,7 +104,7 @@ function TermsFields({
             className={itInputClass}
           />
         </ItField>
-        <ItField label={translate('terms.lastReviewedOn')}>
+        <ItField label={translate('terms.lastReviewedOn')} hint={translate('terms.help.lastReviewedOn')}>
           <input
             name='lastReviewedOn'
             type='date'
@@ -113,7 +113,7 @@ function TermsFields({
           />
         </ItField>
         {(['aiTraining', 'dataLocation', 'commercialUse', 'cancellationRefund'] as const).map((key) => (
-          <ItField key={key} label={translate(`terms.${key}`)}>
+          <ItField key={key} label={translate(`terms.${key}`)} hint={translate(`terms.placeholders.${key}`)}>
             <textarea
               name={key}
               maxLength={10000}
@@ -123,7 +123,7 @@ function TermsFields({
             />
           </ItField>
         ))}
-        <ItField label={translate('terms.maxDevicesPerKey')}>
+        <ItField label={translate('terms.maxDevicesPerKey')} hint={translate('terms.help.maxDevicesPerKey')}>
           <input
             name='maxDevicesPerKey'
             type='number'
@@ -135,7 +135,7 @@ function TermsFields({
             className={itInputClass}
           />
         </ItField>
-        <ItField label={translate('terms.installNote')}>
+        <ItField label={translate('terms.installNote')} hint={translate('terms.help.installNote')}>
           <textarea
             name='installNote'
             maxLength={10000}

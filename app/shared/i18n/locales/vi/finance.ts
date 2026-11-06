@@ -8,6 +8,73 @@ export const finance = {
     spend: 'Danh mục & Tiền tệ',
     close: 'Đóng kỳ & Báo cáo'
   },
+  spendBatches: 'Đã duyệt chi theo đợt',
+  spendBatchesDescription: 'Báo cáo số tiền cần thanh toán theo từng đợt yêu cầu cấp phát tài khoản từ các phòng ban.',
+  commitments: 'Cam kết & Hóa đơn',
+  commitmentsDescription: 'Quản lý các khoản cam kết chi tiêu của từng phòng ban và ghi nhận hóa đơn chứng từ thực tế.',
+  costCenterPayments: 'Các đợt thanh toán & Cam kết chi tiêu',
+  held: 'Cam kết đang giữ',
+  heldLabel: 'Đã duyệt, chưa chi',
+  invoiced: 'Đã ghi hóa đơn',
+  invoiceCount: 'Hóa đơn',
+  recordInvoice: 'Ghi hóa đơn',
+  viewInvoices: 'Xem hóa đơn',
+  releaseRemainder: 'Giải phóng phần dư',
+  invoiceNumber: 'Số hóa đơn',
+  issuedOn: 'Ngày hóa đơn',
+  netAmount: 'Tiền trước thuế',
+  deductibleTax: 'Thuế khấu trừ (VAT)',
+  nonDeductibleTax: 'Thuế không khấu trừ',
+  actualCost: 'Chi phí thực chịu',
+  matchResult: 'Kết quả so khớp',
+  matchResults: {
+    MATCHED: 'Khớp hoàn toàn',
+    TAX_ONLY: 'Chỉ lệch thuế/phí',
+    PRICE_QUANTITY_EXCEPTION: 'Ngoại lệ giá / số lượng'
+  },
+  hasDiscrepancy: 'Có sai lệch',
+  discrepancyBadge: 'Sai lệch giá/SL',
+  batchItems: 'Danh sách đơn trong đợt',
+  itemPosition: 'STT',
+  batchOutcome: 'Kết quả xét đợt',
+  requestState: 'Trạng thái đơn',
+  approvedAmounts: 'Số tiền cần thanh toán',
+  itemCount: 'Số lượng đơn',
+  approvedCount: 'Số đơn đã duyệt',
+  pendingCount: 'Số đơn đang chờ',
+  submittedBy: 'Người trình duyệt',
+  submittedAt: 'Thời điểm trình',
+  lastInvoiceAt: 'Hóa đơn gần nhất: {{time}}',
+  overBudgetWarning: '{{count}} phòng ban vượt ngân sách',
+  outcomes: {
+    SENT_TO_APPROVER: 'Chuyển Người duyệt chi',
+    SENT_TO_FINANCE: 'Chuyển Finance rà soát',
+    STOPPED: 'Bị dừng'
+  },
+  stopReasons: {
+    STALE_COST_EVIDENCE: 'Bằng chứng giá cũ',
+    CLOSED_OR_EXPIRED_BUDGET_PERIOD: 'Kỳ ngân sách đã đóng/hết hạn',
+    PRICE_MISSING: 'Chưa có giá',
+    RATE_MISSING: 'Chưa có tỷ giá'
+  },
+  leftReasons: {
+    RETURNED_BY_FINANCE: 'Tài chính trả về',
+    CONFLICT_OF_INTEREST: 'Xung đột lợi ích',
+    REQUEST_WITHDRAWN: 'Yêu cầu đã rút',
+    REQUEST_CANCELLED: 'Yêu cầu đã hủy'
+  },
+  heldStatusOption: 'Đã duyệt, chưa chi (HELD)',
+  expensedStatusOption: 'Đã thành chi phí (EXPENSED)',
+  releasedStatusOption: 'Đã giải phóng (RELEASED)',
+  invoices: {
+    matchedToast: 'Hóa đơn đã được ghi khớp thành công.',
+    taxOnlyToast: 'Hóa đơn đã ghi thành công (chỉ lệch thuế/phí).',
+    exceptionToast: 'Hóa đơn đã ghi vào thực chi (vượt số đã duyệt - mở hồ sơ sai lệch).',
+    matchedDesc: 'Hóa đơn hoàn toàn khớp với cam kết đã duyệt.',
+    taxOnlyDesc: 'Hóa đơn có thuế phát sinh. Phần thuế được tách riêng, chi phí thực tính theo chi phí thực chịu.',
+    exceptionDesc: 'Đơn giá hoặc số tiền vượt số đã duyệt. Hệ thống mở hồ sơ sai lệch, hóa đơn vẫn được tính vào thực chi.',
+    exceedPreviewNotice: 'Số tiền trước thuế vượt phần cam kết còn giữ. Hệ thống sẽ ghi nhận ngoại lệ giá/số lượng.'
+  },
   loading: 'Đang tải dữ liệu…',
   refreshing: 'Đang cập nhật dữ liệu…',
   empty: 'Không có bản ghi phù hợp.',
@@ -185,6 +252,9 @@ export const finance = {
     MANUAL: 'Ghi nhận thủ công'
   },
   errors: {
+    invoiceDuplicate: 'Số hóa đơn này đã tồn tại cho nhà cung cấp này.',
+    invoiceCommitmentReleased: 'Khoản cam kết đã bị giải phóng hết, không thể ghi hóa đơn.',
+    invoiceVendorUnknown: 'Không xác định được nhà cung cấp của yêu cầu.',
     reviewNotOpen: 'Yêu cầu không còn chờ Tài chính rà soát. Dữ liệu đã được tải lại.',
     alreadyAwaitingBudget: 'Yêu cầu đã đang chờ ngân sách. Chọn kết cục khác hoặc chờ phiên bản ngân sách được duyệt.',
     planLineNotUpdated:

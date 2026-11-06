@@ -108,6 +108,7 @@ export function CatalogSeatBaseline({
                 />
                 <ItField
                   label={translate('import.file')}
+                  hint={translate('import.fileHint')}
                   error={fileError ? translate('import.fileInvalid') : undefined}
                 >
                   <input
@@ -126,7 +127,6 @@ export function CatalogSeatBaseline({
                     }}
                   />
                 </ItField>
-                <p className='text-xs text-muted-foreground'>{translate('import.fileHint')}</p>
                 <button
                   type='submit'
                   className={itButtonClass}

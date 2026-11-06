@@ -15,6 +15,7 @@ import {
   accessRequest,
   pageResponse
 } from '../../../../../test/fixtures/employee-api'
+import { catalogPlanDetails } from '../../../../../test/fixtures/employee-catalog'
 import { EmployeeLiveRequestsView } from './views/employee-live-requests-view'
 
 const item: MyRequestsPageResponseDtoDataItemsItem = {
@@ -45,7 +46,8 @@ const draft = {
 }
 const server = setupServer(
   http.get('*/api/v1/me/access-requests', () => HttpResponse.json(pageResponse([item]))),
-  http.get('*/api/v1/access-requests/drafts', () => HttpResponse.json(pageResponse([])))
+  http.get('*/api/v1/access-requests/drafts', () => HttpResponse.json(pageResponse([]))),
+  http.get('*/api/v1/requestable-plans/:id', () => HttpResponse.json({ success: true, data: catalogPlanDetails }))
 )
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 afterEach(() => server.resetHandlers())
@@ -74,10 +76,9 @@ function section(name: string) {
 }
 
 describe('Employee submitted request list', () => {
-  it('orders lookup before submitted requests and drafts, loads actual rows and opens the selected request', async () => {
+  it('lists submitted requests before drafts, loads actual rows and opens the selected request', async () => {
     const navigate = mount()
     expect(screen.getAllByRole('heading', { level: 2 }).map((heading) => heading.textContent)).toEqual([
-      'Track by ID',
       'Submitted requests',
       'Drafts'
     ])
@@ -88,19 +89,6 @@ describe('Employee submitted request list', () => {
     fireEvent.click(list.getByRole('button', { name: 'View details' }))
     expect(navigate).toHaveBeenCalledWith('request-detail', { id: requestId })
     expect(list.queryByRole('button', { name: 'Submit draft' })).not.toBeInTheDocument()
-  })
-
-  it('opens a valid lookup ID and rejects malformed IDs without touching the list filters', async () => {
-    const navigate = mount('/?tab=my-requests&requestState=PENDING')
-    const lookup = section('Track by ID')
-    fireEvent.change(lookup.getByLabelText('Request ID (UUID)'), { target: { value: 'not-an-id' } })
-    fireEvent.click(lookup.getByRole('button', { name: 'View details' }))
-    expect(navigate).not.toHaveBeenCalled()
-    fireEvent.change(lookup.getByLabelText('Request ID (UUID)'), { target: { value: requestId } })
-    fireEvent.click(lookup.getByRole('button', { name: 'View details' }))
-    expect(navigate).toHaveBeenCalledWith('request-detail', { id: requestId })
-    expect(screen.getByTestId('route').textContent).toContain('requestState=PENDING')
-    await screen.findByText('Test Software')
   })
 
   it('paginates from the server and resets to page one when filtering by state, type and processing view', async () => {

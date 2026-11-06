@@ -34,8 +34,7 @@ function GrantDialog({
   const { t: translate } = useTranslation('itProvisioning')
   const [draft, setDraft] = useState<GrantBodyDto>({
     requestId: request.requestId,
-    beneficiaryEmployeeId: request.beneficiary.employeeId,
-    ...(request.expectedEndDate ? { expectedEndDate: request.expectedEndDate } : {})
+    beneficiaryEmployeeId: request.beneficiary.employeeId
   })
   const [page, setPage] = useState(1)
   const subscriptions = useQuery({
@@ -110,6 +109,11 @@ function GrantDialog({
           }
         />
       </ItField>
+      {request.expectedEndDate && (
+        <p className='text-sm'>
+          {translate('expectedEndDate')}: {request.expectedEndDate}
+        </p>
+      )}
       {request.type === 'SERVICE_ACCOUNT' && (
         <ItField label={translate('responsibleEmployeeId')}>
           <input

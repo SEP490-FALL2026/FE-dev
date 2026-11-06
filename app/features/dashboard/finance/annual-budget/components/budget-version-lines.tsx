@@ -1,4 +1,3 @@
-import { budgetQueryKeys } from '../budget-query-keys'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { VersionResponseDtoDataVersion } from '~/shared/api/generated/model/budget-versions/versionResponseDtoDataVersion'
@@ -10,6 +9,7 @@ import { FinanceButton, FinanceDrawer, FinancePagination, FinanceQueryState } fr
 import { FinanceTable } from '../../shared/components/finance-table'
 import { useFinanceFeedback } from '../../shared/hooks/use-finance-feedback'
 import { formatMoney } from '../../shared/finance-money'
+import { budgetQueryKeys } from '../budget-query-keys'
 import { canEditVersion } from '../enums/version-state'
 import { BudgetLineForm } from './budget-line-form'
 import { BudgetLineImport } from './budget-line-import'
@@ -24,7 +24,7 @@ export function BudgetVersionLines({
   const { t: translate, i18n } = useTranslation('financeBudget')
   const [page, setPage] = useState(1)
   const [selected, setSelected] = useState<VersionLinePageResponseDtoDataItemsItem>()
-  const [dialog, setDialog] = useState<'add' | 'edit' | 'import' | 'window' | 'history'>()
+  const [dialog, setDialog] = useState<'add' | 'edit' | 'import'>()
   const query = useBudgetVersionLineList(version.id, { page, pageSize: 20 })
   const result = query.data?.data
   const feedback = useFinanceFeedback(budgetQueryKeys(version.id), () => {

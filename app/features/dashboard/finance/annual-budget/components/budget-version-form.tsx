@@ -8,25 +8,21 @@ import { isDecimal } from '../../shared/finance-money'
 const sectionTitleClass = 'text-xs font-semibold tracking-wider text-muted-foreground uppercase'
 const amountClass = `${financeInputClass} text-right font-mono tabular-nums`
 
-export type BudgetFigures = Omit<VersionBodyDto, 'proposalId'> & { reason?: string }
+export type BudgetFigures = Omit<VersionBodyDto, 'proposalId'>
 
 export function BudgetVersionForm({
   initial,
   onSubmit,
   onClose,
   pending,
-  revision = false,
-  reasonRequired = false,
+  currency,
   disabled = false
 }: {
   initial: BudgetFigures
   onSubmit: (figures: BudgetFigures) => void
   onClose: () => void
   pending: boolean
-  revision?: boolean
-  allowReason?: boolean
-  /** A revision cannot be sent without a reason (BUDGET.REVISION_REASON_REQUIRED). */
-  reasonRequired?: boolean
+  currency: string
   disabled?: boolean
 }) {
   const { t: translate } = useTranslation('financeBudget')
@@ -43,13 +39,12 @@ export function BudgetVersionForm({
   const valid =
     isDecimal(base) &&
     (!reserve || isDecimal(reserve)) &&
-    (Object.values(quarters).every((amount) => !amount) || Object.values(quarters).every(isDecimal)) &&
-    (!reasonRequired || reason.trim() !== '')
+    (Object.values(quarters).every((amount) => !amount) || Object.values(quarters).every(isDecimal))
   const money = (amount: string) => ({ amount })
   return (
     <FinanceFormDialog
       page
-      title={translate(revision ? 'actions.revise' : 'actions.save')}
+      title={translate('actions.save')}
       pending={pending}
       submitDisabled={disabled}
       onClose={onClose}
@@ -64,13 +59,24 @@ export function BudgetVersionForm({
         onSubmit({
           base: money(base),
           ...(reserve ? { reserve: money(reserve) } : {}),
-          quarters: quarters.q1
-            ? { q1: money(quarters.q1), q2: money(quarters.q2), q3: money(quarters.q3), q4: money(quarters.q4) }
-            : null,
+          ...(quarters.q1
+            ? {
+                quarters: {
+                  q1: money(quarters.q1),
+                  q2: money(quarters.q2),
+                  q3: money(quarters.q3),
+                  q4: money(quarters.q4)
+                }
+              }
+            : {}),
           ...(reason.trim() ? { reserveReason: reason.trim() } : {})
         })
       }}
     >
+      <p className='inline-flex w-fit items-center gap-2 rounded-md bg-surface-subtle px-2.5 py-1 text-xs text-muted-foreground'>
+        {translate('fields.currency')}
+        <span className='font-mono font-semibold text-foreground'>{currency}</span>
+      </p>
       <h3 className={sectionTitleClass}>{translate('sections.figures')}</h3>
       <div className='grid gap-4 sm:grid-cols-2'>
         <FinanceField
@@ -92,7 +98,7 @@ export function BudgetVersionForm({
         </FinanceField>
         <FinanceField
           label={translate('fields.reserve')}
-          error={invalid && !!reserve && !isDecimal(reserve) ? translate('fieldInvalid') : null}
+          error={invalid && !isDecimal(reserve) ? translate('fieldInvalid') : null}
         >
           <input
             inputMode='decimal'
@@ -121,25 +127,16 @@ export function BudgetVersionForm({
           </FinanceField>
         ))}
       </div>
-      {
-        <FinanceField
-          required={reasonRequired}
-          label={translate('fields.reserveReason')}
-          hint={reasonRequired ? translate('revisionReasonHint') : undefined}
-          error={invalid && reasonRequired && !reason.trim() ? translate('fieldInvalid') : null}
-        >
-          <textarea
-            required={reasonRequired}
-            aria-invalid={invalid && reasonRequired && !reason.trim()}
-            rows={3}
-            maxLength={1000}
-            className={financeInputClass}
-            placeholder={translate('placeholders.versionReason')}
-            value={reason}
-            onChange={(event) => setReason(event.target.value)}
-          />
-        </FinanceField>
-      }
+      <FinanceField label={translate('fields.reserveReason')}>
+        <textarea
+          rows={3}
+          maxLength={1000}
+          className={financeInputClass}
+          value={reason}
+          onChange={(event) => setReason(event.target.value)}
+          placeholder={translate('placeholders.versionReason')}
+        />
+      </FinanceField>
       <p className='min-h-5 text-sm text-danger' role={invalid ? 'alert' : undefined}>
         {invalid ? translate('invalid') : null}
       </p>

@@ -1,5 +1,20 @@
 import { itCatalogTerms } from './it-catalog-terms'
+import { itCatalogHelp } from './it-catalog-help'
 export const itCatalog = {
+  help: itCatalogHelp,
+  detailBack: 'Back',
+  groups: {
+    title: 'Functional groups',
+    create: 'Create functional group',
+    name: 'Group name',
+    nameHint: 'Use the shared business function, such as design, communication or project management.',
+    hint: 'Group applications with the same business function to help identify similar tools.',
+    field: 'Functional group',
+    fieldHint: 'Optional. Choose the business function this application serves. Groups are managed from the catalog.',
+    none: 'No functional group',
+    uncertain: 'The result is uncertain. Close this form and review the group list before creating it again.',
+    states: { ACTIVE: 'Active', INACTIVE: 'Inactive' }
+  },
   terms: itCatalogTerms,
   deadline: {
     declared: 'Declared cancellation deadline',

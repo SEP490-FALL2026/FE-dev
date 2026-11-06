@@ -63,7 +63,6 @@ export function ManagerLiveRequest({
           </button>
           <div>
             <h1 className='text-2xl font-bold tracking-tight text-foreground'>{softwareTitle}</h1>
-            {request && <span className='sr-only'>{request.id}</span>}
             <p className='text-xs text-muted-foreground'>{planSubtitle}</p>
           </div>
         </div>

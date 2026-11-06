@@ -37,7 +37,7 @@ function mount(children: React.ReactNode, url: string) {
   )
 }
 describe('Employee support and group contracts', () => {
-  it('selects department candidates from server pages and sends IDs with per-person end dates', async () => {
+  it('selects department candidates from server pages and sends only IDs for the checked people', async () => {
     const check = vi.fn()
     server.use(
       http.get('*/api/v1/group-request-candidates', () =>

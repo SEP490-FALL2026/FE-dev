@@ -1,4 +1,12 @@
 export const itPurchases = {
+  back: 'Back',
+  help: {
+    name: 'Use the agreement name shown in the signed contract so it can be identified later.',
+    contractId:
+      'Paste the contract reference saved when the contract was created. The attachment will belong to that contract.',
+    documentId: 'Paste a saved document reference to check its upload status, attachment and download link.',
+    purpose: 'Choose what this attachment records. This does not approve a purchase or record a payment.'
+  },
   title: 'Contracts & documents',
   contractUncertain:
     'The creation result is uncertain. Check the contract with the administrator before creating it again.',

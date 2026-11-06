@@ -1,7 +1,7 @@
-import { useDashboardFormat } from '../../../dashboard-ui'
 import { ArrowLeft } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useDashboardFormat } from '../../../dashboard-ui'
 import { useBudgetProposalGet } from '~/shared/api/generated/operations/budget-proposals/budget-proposal-get'
 import { useBudgetProposalLineList } from '~/shared/api/generated/operations/budget-proposals/budget-proposal-line-list'
 import {

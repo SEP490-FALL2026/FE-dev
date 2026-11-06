@@ -5,19 +5,16 @@ import { useDepartmentGet } from '~/shared/api/generated/operations/departments/
 import type { ManagerTabKey } from '../../enums'
 import { ManagerQueryState, ManagerSection, ManagerStatus } from '../../shared/components/manager-api-ui'
 import { ManagerPageHeader } from '../../shared/components/manager-page-header'
-import { ManagerDepartmentContext } from '../../shared/components/manager-department-context'
 import { ManagerOverviewWork } from '../components/manager-overview-work'
 import { ManagerDashboardSummary } from '../components/manager-dashboard-summary'
 
 type SelectTab = (tab: ManagerTabKey, params?: Record<string, string>) => void
 export function ManagerLiveOverview({
   departmentId,
-  departmentName,
   name,
   onSelectTab
 }: {
   departmentId?: string
-  departmentName?: string
   name: string
   onSelectTab: SelectTab
 }) {
@@ -72,10 +69,7 @@ export function ManagerLiveOverview({
             ))}
           </div>
         </ManagerSection>
-        <div className='space-y-4'>
-          {departmentId && <DepartmentOverview id={departmentId} />}
-          <ManagerDepartmentContext departmentId={departmentId} name={departmentId ? undefined : departmentName} />
-        </div>
+        <div className='space-y-4'>{departmentId && <DepartmentOverview id={departmentId} />}</div>
       </div>
     </div>
   )

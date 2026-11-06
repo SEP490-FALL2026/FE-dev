@@ -6,7 +6,6 @@ import { getBudgetVersionLineListQueryKey } from '~/shared/api/generated/operati
 import { getBudgetVersionHistoryListQueryKey } from '~/shared/api/generated/operations/budget-versions/budget-version-history-list'
 import { getBudgetTableQueryKey } from '~/shared/api/generated/operations/budgets/budget-table'
 import { getFinanceReviewListQueryKey } from '~/shared/api/generated/operations/finance-reviews/finance-review-list'
-import type { QueryClient } from '@tanstack/react-query'
 
 export function budgetQueryKeys(versionId?: string, proposalId?: string) {
   return [
@@ -23,13 +22,4 @@ export function budgetQueryKeys(versionId?: string, proposalId?: string) {
         ]
       : [])
   ]
-}
-
-/** Moving a purchase window reruns the checks of linked requests on the server. */
-export function invalidateRequestBudgetChecks(queryClient: QueryClient) {
-  return queryClient.invalidateQueries({
-    predicate: ({ queryKey }) =>
-      typeof queryKey[0] === 'string' &&
-      /\/access-requests\/[^/]+(?:\/(?:budget-check(?:\/years)?|finance-review))?$/.test(queryKey[0])
-  })
 }

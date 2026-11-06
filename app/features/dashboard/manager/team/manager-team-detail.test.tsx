@@ -393,8 +393,8 @@ describe('Manager Personal Profile & Employee Detail Integration', () => {
       <ManagerLiveRequest id='req-1' employeeId={managerProfile.employee.id} departmentCode='ENG' onBack={vi.fn()} />
     )
 
-    expect(await screen.findByText('req-1')).toBeInTheDocument()
-    expect(screen.getByText('Vu Thi Giang')).toBeInTheDocument()
+    expect(await screen.findByText('Vu Thi Giang')).toBeInTheDocument()
+    expect(screen.queryByText('req-1')).not.toBeInTheDocument()
     expect(screen.queryByText('Pending')).not.toBeInTheDocument()
     expect(screen.queryByText('Awaiting need approval')).not.toBeInTheDocument()
     expect(screen.queryByText('PAID_IN_CATALOG')).not.toBeInTheDocument()
@@ -429,7 +429,7 @@ describe('Manager Personal Profile & Employee Detail Integration', () => {
 
     expect(await screen.findByRole('heading', { level: 1, name: 'JetBrains IntelliJ' })).toBeInTheDocument()
     expect(screen.getAllByText('Ultimate Annual').length).toBeGreaterThan(0)
-    expect(screen.getByText('assign-1')).toBeInTheDocument()
+    expect(screen.queryByText('assign-1')).not.toBeInTheDocument()
     expect(screen.getByText('Nguyen Van A')).toBeInTheDocument()
     expect(screen.getByText('EMP-001')).toBeInTheDocument()
 

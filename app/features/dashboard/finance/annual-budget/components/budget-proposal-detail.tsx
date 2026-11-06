@@ -53,10 +53,10 @@ export function BudgetProposalDetail({ itemId, onSelectTab }: BudgetViewProps & 
   if (proposal && dialog === 'create')
     return (
       <BudgetVersionForm
-        allowReason={false}
         initial={{
           base: { amount: proposal.total.amount }
         }}
+        currency={proposal.total.currency}
         pending={createMutation.isPending}
         disabled={query.isError || query.isFetching || proposal.state !== proposalState.SUBMITTED}
         onClose={() => setDialog(undefined)}

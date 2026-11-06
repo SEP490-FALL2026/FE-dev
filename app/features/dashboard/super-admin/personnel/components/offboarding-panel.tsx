@@ -89,7 +89,7 @@ export function OffboardingPanel() {
               ? [
                   { name: 'employeeId', type: 'uuid' },
                   { name: 'lastWorkingDay', type: 'date' },
-                  { name: 'accessBlockMode', options: ['WITH_LAST_DAY', 'BLOCK_NOW'] },
+                  { name: 'blockAccessNow', type: 'checkbox', optional: true },
                   ...successorFields,
                   { name: 'cancelPendingTransfer', type: 'checkbox', optional: true }
                 ]
@@ -97,7 +97,7 @@ export function OffboardingPanel() {
                 ? [{ name: 'lastWorkingDay', type: 'date' }, { name: 'reason', maxLength: 1000 }, ...successorFields]
                 : action.kind === 'left'
                   ? []
-                  : [{ name: 'reason', maxLength: 2000 }]
+                  : [{ name: 'reason', maxLength: 1000 }]
           }
           onSubmit={(values) => {
             if (pending) return
@@ -106,10 +106,10 @@ export function OffboardingPanel() {
                 data: {
                   employeeId: value(values, 'employeeId'),
                   lastWorkingDay: value(values, 'lastWorkingDay'),
-                  accessBlockMode: value(values, 'accessBlockMode') === 'BLOCK_NOW' ? 'BLOCK_NOW' : 'WITH_LAST_DAY',
+                  accessBlockMode: values.get('blockAccessNow') ? 'BLOCK_NOW' : 'WITH_LAST_DAY',
                   grounds: readBasis(values),
                   successor: readSuccessor(values),
-                  ...(values.get('cancelPendingTransfer') ? { cancelPendingTransfer: true as const } : {})
+                  ...(values.get('cancelPendingTransfer') ? { cancelPendingTransfer: true } : {})
                 }
               })
             else if (action.kind === 'change' && action.id)

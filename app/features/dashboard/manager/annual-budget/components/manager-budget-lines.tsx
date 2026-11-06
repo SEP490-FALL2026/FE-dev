@@ -13,22 +13,21 @@ export function budgetLineFromForm(form: FormData, index: number): BudgetProposa
     ...(value('note') ? { note: value('note') } : {})
   }
 }
+
 export function ManagerBudgetLine({ index, initial }: { index: number; initial?: BudgetProposalBodyDtoLinesItem }) {
   const { t: translate } = useTranslation('manager')
   const name = (field: string) => `lines.${index}.${field}`
   return (
-    <div className='grid items-start gap-x-5 gap-y-2 sm:grid-cols-2'>
-      <div className='sm:col-span-2'>
-        <ManagerField label={translate('description')}>
-          <input
-            name={name('description')}
-            className={managerInputClass}
-            required
-            maxLength={200}
-            defaultValue={initial?.description}
-          />
-        </ManagerField>
-      </div>
+    <div className='grid items-start gap-5 sm:grid-cols-2'>
+      <ManagerField label={translate('description')}>
+        <input
+          name={name('description')}
+          className={managerInputClass}
+          required
+          maxLength={200}
+          defaultValue={initial?.description}
+        />
+      </ManagerField>
       <ManagerField label={translate('amount')}>
         <input
           name={name('amount.amount')}

@@ -186,16 +186,13 @@ it('requires a rejection reason and sends only the strict rejection payload', as
   expect(posted[0].body).toEqual({ decision: 'REJECT', reason: 'No business need' })
 })
 
-it('blocks approval when the checked budget is insufficient without offering an override', async () => {
+it('blocks insufficient-budget approval without offering removed override fields', async () => {
   years = [year('INSUFFICIENT_BUDGET')]
   mount()
   await choose('Approve')
   confirm()
-  expect(screen.getByRole('button', { name: 'Confirm decision' })).toBeDisabled()
   expect(screen.queryByRole('checkbox', { name: 'Approve with a budget override' })).not.toBeInTheDocument()
-  expect(
-    screen.getByText('This request cannot be approved because the required budget is missing or insufficient.')
-  ).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Confirm decision' })).toBeDisabled()
   expect(posted).toHaveLength(0)
 })
 

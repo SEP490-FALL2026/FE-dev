@@ -63,8 +63,14 @@ export default defineConfig({
           'notifications',
           'requestable-software',
           'return-requests',
-          'my-devices',
+          'devices',
+          'device-credentials',
           'monitoring-notices',
+          'my-devices',
+          'collector-allowlist',
+          'ai-usage',
+          'ai-tool-status',
+          'intake-rejections',
           'ai-assist'
         ]
       }

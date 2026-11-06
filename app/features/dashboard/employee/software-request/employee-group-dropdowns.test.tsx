@@ -59,7 +59,7 @@ describe('Employee group request dropdowns', () => {
     expect(privileged).not.toHaveBeenCalled()
   })
 
-  it('keeps selected names and per-person end dates across server pages and searches', async () => {
+  it('keeps selected names  across server pages and searches', async () => {
     const reads: string[] = []
     server.use(
       http.get('*/api/v1/group-request-candidates', ({ request }) => {

@@ -123,7 +123,7 @@ export const approvals = {
     ownRequest: 'Bạn không thể duyệt yêu cầu hoặc quyền truy cập của chính mình.',
     ownVersion: 'Bạn không thể quyết phiên bản ngân sách do mình lập hoặc gửi.',
     independentReview: 'Người rà soát tài chính và người duyệt chi phải là hai người khác nhau.',
-    overrideRequired: 'Cần xác nhận chi vượt ngân sách, nhập lý do và chọn các năm bị ảnh hưởng.',
+    overrideRequired: 'Ngân sách hiện tại chưa đủ để phê duyệt yêu cầu. Cần cập nhật ngân sách trước khi duyệt.',
     overrideMismatch:
       'Các năm chi vượt ngân sách không khớp kiểm tra mới nhất. Tải lại kết quả và chọn đúng các năm cần xác nhận.',
     overrideNotNeeded: 'Kiểm tra mới nhất không cần chi vượt ngân sách. Bỏ phần xác nhận trước khi gửi.',

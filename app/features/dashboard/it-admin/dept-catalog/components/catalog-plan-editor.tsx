@@ -100,7 +100,7 @@ function PlanFields({
         </div>
       )}
       <div className='contents' onChange={onDirty}>
-        <ItField label={translate('planName')}>
+        <ItField label={translate('planName')} hint={translate('help.planName')}>
           <input
             placeholder={translate('placeholders.plan')}
             name='name'
@@ -122,6 +122,7 @@ function PlanFields({
           ).map(([key, options, initial]) => (
             <fieldset key={key}>
               <legend>{translate(key)}</legend>
+              <p className='text-xs font-normal text-muted-foreground'>{translate(`help.${key}`)}</p>
               {Object.values(options).map((value) => (
                 <label key={value} className='flex min-h-11 items-center gap-2'>
                   <input type='radio' required name={key} value={value} defaultChecked={value === initial} />
@@ -134,7 +135,7 @@ function PlanFields({
           <input type='checkbox' checked={dataLoss} onChange={(event) => setDataLoss(event.target.checked)} />
           {translate('dataLoss')}
         </label>
-        <ItField label={translate('revocationNote')}>
+        <ItField label={translate('revocationNote')} hint={translate('help.revocationNote')}>
           <textarea
             placeholder={translate('placeholders.note')}
             name='note'

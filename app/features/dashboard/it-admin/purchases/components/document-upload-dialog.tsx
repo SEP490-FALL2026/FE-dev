@@ -56,6 +56,7 @@ export function DocumentUploadDialog({
       </ItField>
       <ItChoiceSelect
         label={translate('purpose')}
+        hint={translate('help.purpose')}
         value={purpose}
         disabled={operation.started || operation.uncertain}
         options={Object.values(DocumentPurpose).map((value) => ({ value, label: translate(`values.${value}`) }))}

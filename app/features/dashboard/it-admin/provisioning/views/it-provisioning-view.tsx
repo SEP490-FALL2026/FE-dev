@@ -24,9 +24,13 @@ import { TaskChannel } from '../enums/task-channel'
 import { TaskScope } from '../enums/task-scope'
 
 export function ItProvisioningView({
-  initialTaskId
+  initialTaskId,
+  initialScope = TaskScope.MINE,
+  initialQueue = 'tasks'
 }: {
   initialTaskId?: string
+  initialScope?: TaskScope
+  initialQueue?: 'tasks' | 'grants' | 'expiry'
   onSelectTab?: (tab: ItAdminTabKey) => void
 }) {
   const { t: translate } = useTranslation('itProvisioning')
@@ -34,8 +38,8 @@ export function ItProvisioningView({
   const authorized = me.data?.data?.roles.includes('IT_ADMIN') === true
   const actorIds = [me.data?.data?.appUserId ?? '', me.data?.data?.employee.id ?? '']
   const [selectedTask, setSelectedTask] = useState(initialTaskId ?? '')
-  const [queue, setQueue] = useState<'tasks' | 'grants' | 'expiry'>('tasks')
-  const [params, setParams] = useState<ProvisioningTaskListParams>({ page: 1, pageSize: 20, scope: TaskScope.MINE })
+  const [queue, setQueue] = useState<'tasks' | 'grants' | 'expiry'>(initialQueue)
+  const [params, setParams] = useState<ProvisioningTaskListParams>({ page: 1, pageSize: 20, scope: initialScope })
   const [action, setAction] = useState<TaskAction | null>(null)
   const list = useQuery({
     queryKey: getProvisioningTaskListQueryKey(params),

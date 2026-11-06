@@ -11,6 +11,8 @@ import { ItOffboardingView } from './offboarding/views/it-offboarding-view'
 import { ItSaasIssuesView } from './saas-issues/views/it-saas-issues-view'
 import { ItShadowItView } from './shadow-it/views/it-shadow-it-view'
 import { ItUnavailableView } from './shared/components/it-unavailable-view'
+import { ItDevicesView } from './device-collectors/views/it-devices-view'
+import { TaskScope } from './provisioning/enums/task-scope'
 
 export function ItAdminScreen({
   tab,
@@ -42,7 +44,17 @@ function ItAdminContent({
     case 'overview':
       return <ItOverviewView onSelectTab={onSelectTab} />
     case 'provisioning':
-      return <ItProvisioningView key={itemId ?? tab} initialTaskId={itemId} onSelectTab={onSelectTab} />
+      return (
+        <ItProvisioningView
+          key={itemId ?? tab}
+          initialTaskId={itemId}
+          initialScope={params.get('scope') === 'ALL' ? TaskScope.ALL : TaskScope.MINE}
+          initialQueue={
+            params.get('queue') === 'grants' ? 'grants' : params.get('queue') === 'expiry' ? 'expiry' : 'tasks'
+          }
+          onSelectTab={onSelectTab}
+        />
+      )
     case 'dept-catalog':
       return (
         <ItDeptCatalogView
@@ -81,6 +93,8 @@ function ItAdminContent({
       return <ItTransfersView key={itemId ?? tab} initialId={itemId} />
     case 'shadow-it':
       return <ItShadowItView key={itemId ?? tab} initialRequestId={itemId} onSelectTab={onSelectTab} />
+    case 'device-collectors':
+      return <ItDevicesView key={itemId ?? tab} initialId={itemId} />
     default:
       return <ItUnavailableView tab={tab} />
   }
