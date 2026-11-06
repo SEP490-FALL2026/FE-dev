@@ -38,12 +38,7 @@ function mount(departmentId?: string) {
   render(
     <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
       <MemoryRouter initialEntries={[departmentId ? `/?departmentId=${departmentId}` : '/']}>
-        <ManagerLiveOverview
-          name='Test Manager'
-          departmentName='Engineering'
-          departmentId={departmentId}
-          onSelectTab={select}
-        />
+        <ManagerLiveOverview name='Test Manager' departmentId={departmentId} onSelectTab={select} />
       </MemoryRouter>
     </QueryClientProvider>
   )
@@ -80,9 +75,8 @@ it('shows one set of work metrics, retains server totals and scopes open handove
   fireEvent.click(screen.getByRole('button', { name: 'Open transfer reviews' }))
   expect(select).toHaveBeenCalledWith('transfer-reviews', { departmentId: employeeId })
   expect(screen.queryByRole('button', { name: 'Request software for staff' })).not.toBeInTheDocument()
-  expect(screen.getAllByRole('button', { name: 'Request on behalf' })).toHaveLength(1)
-  fireEvent.click(screen.getByRole('button', { name: 'Request on behalf' }))
-  expect(select).toHaveBeenCalledWith('create-employee-request', { scope: 'team' })
+  expect(screen.queryByRole('button', { name: 'Request on behalf' })).not.toBeInTheDocument()
+  expect(select).not.toHaveBeenCalledWith('create-employee-request', expect.anything())
 })
 
 it('keeps a failed count unavailable instead of presenting it as zero', async () => {
@@ -122,9 +116,14 @@ it('keeps an unavailable dashboard metric unavailable without a duplicate fallba
   expect(screen.queryByRole('article', { name: 'Open transfer reviews' })).not.toBeInTheDocument()
 })
 
-it.each([undefined, employeeId])('shows the department name once with department context %s', async (departmentId) => {
-  mount(departmentId)
-  if (departmentId) await screen.findByRole('heading', { name: 'Engineering' })
-  expect(screen.getAllByRole('heading', { name: departmentId ? 'Engineering' : /Test Manager/ })).toHaveLength(1)
-  expect(screen.getByLabelText('Department ID')).toHaveValue(departmentId ?? '')
-})
+it.each([undefined, employeeId])(
+  'shows the department summary without an ID field for context %s',
+  async (departmentId) => {
+    mount(departmentId)
+    if (departmentId) {
+      await screen.findByRole('heading', { name: 'Engineering' })
+      expect(screen.getAllByRole('heading', { name: 'Engineering' })).toHaveLength(1)
+    } else expect(screen.queryByText(/Engineering/)).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Department ID')).not.toBeInTheDocument()
+  }
+)

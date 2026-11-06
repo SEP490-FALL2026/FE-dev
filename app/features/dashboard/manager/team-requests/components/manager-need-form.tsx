@@ -19,7 +19,7 @@ import {
 } from '../../shared/components/manager-api-ui'
 import { NEED_DECISION } from '../enums/need-decision'
 
-export function ManagerNeedForm({ id }: { id: string; hasSpend: boolean; termRequired?: boolean }) {
+export function ManagerNeedForm({ id }: { id: string }) {
   const { t: translate } = useTranslation('manager')
   const [decision, setDecision] = useState<NeedDecisionBodyDto['decision']>(NEED_DECISION.APPROVE)
   const [confirmation, setConfirmation] = useState<NeedDecisionBodyDto | null>(null)
@@ -44,10 +44,7 @@ export function ManagerNeedForm({ id }: { id: string; hasSpend: boolean; termReq
           const form = new FormData(event.currentTarget)
           const reason = String(form.get('reason') ?? '').trim()
           if (decision === NEED_DECISION.REJECT && !reason) return
-          setConfirmation({
-            decision,
-            ...(decision === NEED_DECISION.REJECT ? { reason } : {})
-          })
+          setConfirmation({ decision, ...(decision === NEED_DECISION.REJECT ? { reason } : {}) })
         }}
       >
         <fieldset disabled={action.blocked} className='space-y-4'>

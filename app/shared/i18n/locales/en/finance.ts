@@ -95,7 +95,8 @@ export const finance = {
     exceptionToast: 'Invoice recorded as expense (exceeded commitment - flagged for discrepancy).',
     matchedDesc: 'Invoice fully matches the approved commitment.',
     taxOnlyDesc: 'Invoice includes tax. Tax is separated and recorded as an expense if non-deductible.',
-    exceptionDesc: 'Price or amount exceeded approved commitment. Discrepancy case opened, invoice recorded as actual expense.',
+    exceptionDesc:
+      'Price or amount exceeded approved commitment. Discrepancy case opened, invoice recorded as actual expense.',
     exceedPreviewNotice: 'Net amount exceeds held commitment. System will flag as a price/quantity exception.'
   },
   loading: 'Loading data…',

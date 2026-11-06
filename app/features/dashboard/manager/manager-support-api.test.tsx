@@ -7,7 +7,7 @@ import { setupServer } from 'msw/node'
 import { MemoryRouter } from 'react-router'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { setAppLanguage } from '~/shared/i18n/i18n'
-import { managerId, managerRequest, proposal } from '../../../../test/fixtures/manager-api'
+import { managerId, managerProfile, managerRequest, proposal } from '../../../../test/fixtures/manager-api'
 import {
   employeeId,
   requestId,
@@ -32,6 +32,30 @@ afterAll(() => server.close())
 beforeEach(async () => {
   await setAppLanguage('en', false)
 })
+const memberHandlers = [
+  http.get('*/api/v1/me', () => HttpResponse.json({ success: true, data: managerProfile })),
+  http.get('*/api/v1/departments/:id/employees', () =>
+    HttpResponse.json(
+      pageResponse([
+        {
+          employeeId,
+          employeeCode: 'EMP-001',
+          fullName: 'Test Employee',
+          status: 'ACTIVE',
+          workState: 'WORKING',
+          hasWorkEmail: true,
+          memberSince: '2026-01-01'
+        }
+      ])
+    )
+  )
+]
+async function chooseEmployee() {
+  const select = await screen.findByLabelText('Employee')
+  await screen.findByRole('option', { name: 'Test Employee · EMP-001' })
+  fireEvent.change(select, { target: { value: employeeId } })
+  return select
+}
 function mount(children: React.ReactNode, url = '/dashboard/manager') {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })
   return render(
@@ -41,7 +65,7 @@ function mount(children: React.ReactNode, url = '/dashboard/manager') {
   )
 }
 describe('Manager budget, group and personnel contracts', () => {
-  it('offers the current supplement form without retired plan allocation or spending date controls', async () => {
+  it('adds a supplement without using removed plan allocation routes', async () => {
     const written = vi.fn()
     server.use(
       http.get('*/api/v1/access-requests/:id/supplements', () => HttpResponse.json(pageResponse([]))),
@@ -53,11 +77,9 @@ describe('Manager budget, group and personnel contracts', () => {
     mount(<ManagerSpendCorrections id={requestId} />)
     expect(screen.queryByRole('button', { name: 'Budget plan allocation' })).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Supplement request' }))
-    const dialog = screen.getByRole('dialog')
-    expect(within(dialog).queryByLabelText('Expected spending date')).not.toBeInTheDocument()
-    fireEvent.change(within(dialog).getByLabelText('Reason'), { target: { value: 'Updated scope' } })
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Confirm' }))
-    await waitFor(() => expect(written).toHaveBeenCalledWith({ reason: 'Updated scope', dropEmployeeIds: [] }))
+    fireEvent.change(screen.getByLabelText('Reason'), { target: { value: 'Update participants' } })
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm' }))
+    await waitFor(() => expect(written).toHaveBeenCalledWith({ reason: 'Update participants', dropEmployeeIds: [] }))
   })
   it('submits decimal money unchanged and omits empty optional budget fields', async () => {
     const written = vi.fn()
@@ -97,9 +119,10 @@ describe('Manager budget, group and personnel contracts', () => {
         return HttpResponse.json({ success: true, data: { id: requestId } }, { status: 201 })
       })
     )
+    server.use(...memberHandlers)
     mount(<ManagerNoticeForm onCreated={closed} onClose={vi.fn()} />)
     expect(screen.queryByRole('option', { name: 'Job title change' })).not.toBeInTheDocument()
-    fireEvent.change(screen.getByLabelText('Employee ID'), { target: { value: employeeId } })
+    await chooseEmployee()
     fireEvent.change(screen.getByLabelText('Proposed effective date'), { target: { value: '2026-11-15' } })
     const submit = screen.getByRole('button', { name: 'Submit' })
     fireEvent.click(submit)
@@ -149,7 +172,7 @@ describe('Manager budget, group and personnel contracts', () => {
         HttpResponse.json(
           pageResponse([
             { employeeId, fullName: 'Test Employee', workEmail: 'employee@example.test' },
-            { employeeId: planId, fullName: 'Other Employee', workEmail: 'other@example.test' }
+            { employeeId: planId, fullName: 'Second Employee', workEmail: 'second@example.test' }
           ])
         )
       ),
@@ -170,7 +193,7 @@ describe('Manager budget, group and personnel contracts', () => {
     fireEvent.change(screen.getByLabelText('Term (months)'), { target: { value: '3' } })
     fireEvent.click(screen.getByRole('combobox', { name: 'Beneficiaries' }))
     fireEvent.click(await screen.findByRole('option', { name: /Test Employee/ }))
-    fireEvent.click(screen.getByRole('option', { name: /Other Employee/ }))
+    fireEvent.click(screen.getByRole('option', { name: /Second Employee/ }))
     fireEvent.keyDown(screen.getByRole('searchbox'), { key: 'Escape' })
     fireEvent.change(screen.getByLabelText('Reason'), { target: { value: 'Team development' } })
     fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
@@ -204,7 +227,7 @@ describe('Manager budget, group and personnel contracts', () => {
         return HttpResponse.json({ success: true, data: { request: managerRequest } })
       })
     )
-    mount(<ManagerGroupDecisions id={requestId} employeeId={managerId} hasSpend requestPending />)
+    mount(<ManagerGroupDecisions id={requestId} employeeId={managerId} requestPending />)
     fireEvent.click(await screen.findByRole('radio', { name: 'Approve need' }))
     fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm' }))
@@ -242,9 +265,7 @@ describe('Manager budget, group and personnel contracts', () => {
     )
     mount(<ManagerTransferReviews />, `/?reviewId=${requestId}`)
     fireEvent.click(await screen.findByRole('button', { name: 'Decision' }))
-    fireEvent.change(within(screen.getByRole('dialog')).getByLabelText('Reason'), {
-      target: { value: 'No longer needed' }
-    })
+    fireEvent.change(screen.getByLabelText('Reason'), { target: { value: 'No longer needed' } })
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm' }))
     await waitFor(() =>
       expect(written).toHaveBeenCalledWith({ assignmentId, decision: 'NOT_NEEDED', reason: 'No longer needed' })
@@ -259,11 +280,12 @@ describe('Manager budget, group and personnel contracts', () => {
         )
       )
     )
+    server.use(...memberHandlers)
     mount(<ManagerNoticeForm onCreated={vi.fn()} onClose={vi.fn()} />)
-    fireEvent.change(screen.getByLabelText('Employee ID'), { target: { value: employeeId } })
+    const employeeSelect = await chooseEmployee()
     fireEvent.change(screen.getByLabelText('Proposed effective date'), { target: { value: '2026-11-15' } })
     fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
     expect(await screen.findByRole('button', { name: 'Retry in 2s' })).toBeDisabled()
-    expect(screen.getByLabelText('Employee ID')).toHaveValue(employeeId)
+    expect(employeeSelect).toHaveValue(employeeId)
   })
 })

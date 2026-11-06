@@ -88,13 +88,13 @@ export const accessRequest: AccessRequestResponseDtoDataRequest = {
   cancellation: null
 }
 export const requestPreview: PreviewResponseDtoDataPreview = {
+  termLimit: { maxMonths: 12, endsBy: null },
   blockedBy: null,
   plan,
   branch: 'PAID_IN_CATALOG',
   termMonths: 3,
   department: { id: employeeId, code: 'ENG', name: 'Engineering' },
   costCenter: null,
-  termLimit: { maxMonths: 12, endsBy: null },
   existingAccess: null,
   canSubmit: true,
   budgetYear: null,

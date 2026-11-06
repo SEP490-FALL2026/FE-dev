@@ -31,9 +31,7 @@ export function ManagerGroupDecisions({
 }: {
   id: string
   employeeId: string
-  hasSpend: boolean
   requestPending: boolean
-  termRequired?: boolean
 }) {
   const { t: translate } = useTranslation('manager')
   // Group creation is capped at ten; still refuse a partial response if that contract changes.

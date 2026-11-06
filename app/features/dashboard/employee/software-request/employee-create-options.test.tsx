@@ -85,7 +85,7 @@ async function openPicker() {
   return picker
 }
 function fillRenewal() {
-  fireEvent.change(screen.getByLabelText('Term (months)'), { target: { value: '2' } })
+  fireEvent.change(screen.getByLabelText('Extension in months'), { target: { value: '3' } })
   fireEvent.change(screen.getByLabelText('Business reason'), { target: { value: 'Continue project work' } })
 }
 it('removes the service-account tab and redirects old links without opening its drawer', async () => {
@@ -153,13 +153,13 @@ it('resolves preselected links on later pages and submits a strict renewal paylo
   )
   const { navigate } = mount('renewal', secondId)
   await waitFor(() => expect(screen.getByRole('combobox', { name: 'Software access' })).toHaveTextContent('Extended'))
-  expect(screen.getByLabelText('Term (months)')).toHaveAttribute('min', '1')
+  expect(screen.getByLabelText('Extension in months')).toHaveAttribute('min', '1')
   fillRenewal()
   fireEvent.click(screen.getByRole('button', { name: 'Submit request' }))
   await waitFor(() =>
     expect(written).toHaveBeenCalledWith({
       assignmentId: secondId,
-      extensionMonths: 2,
+      extensionMonths: 3,
       businessReason: 'Continue project work'
     })
   )
@@ -175,13 +175,13 @@ it('does not trust an assignment ID in the URL that is absent from personal righ
   )
   mount('renewal', secondId)
   await screen.findByText('The access in this link is no longer selectable. Choose another assignment.')
-  expect(screen.getByLabelText('Term (months)')).toBeDisabled()
+  expect(screen.getByLabelText('Extension in months')).toBeDisabled()
   expect(screen.getByRole('button', { name: 'Submit request' })).toBeDisabled()
   fireEvent.submit(screen.getByRole('button', { name: 'Submit request' }).closest('form')!)
   expect(written).not.toHaveBeenCalled()
   await openPicker()
   fireEvent.click(screen.getByRole('option', { name: /Team Software/ }))
-  expect(screen.getByLabelText('Term (months)')).toBeEnabled()
+  expect(screen.getByLabelText('Extension in months')).toBeEnabled()
   fillRenewal()
   expect(screen.getByRole('button', { name: 'Submit request' })).toBeEnabled()
 })
@@ -235,7 +235,7 @@ it('keeps an empty renewal form neutral until the dropdown is opened', async () 
   )
   mount('renewal')
   expect(screen.getByRole('button', { name: 'Submit request' })).toBeDisabled()
-  expect(screen.getByLabelText('Term (months)')).toBeDisabled()
+  expect(screen.getByLabelText('Extension in months')).toBeDisabled()
   await act(async () => finish())
   await waitFor(() => expect(screen.getByRole('combobox', { name: 'Software access' })).toBeEnabled())
   expect(

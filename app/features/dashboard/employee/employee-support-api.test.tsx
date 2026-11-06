@@ -44,7 +44,7 @@ describe('Employee support and group contracts', () => {
         HttpResponse.json(
           pageResponse([
             { employeeId, fullName: 'Test Colleague', workEmail: 'colleague@example.test' },
-            { employeeId: requestId, fullName: 'Other Colleague', workEmail: 'other@example.test' }
+            { employeeId: planId, fullName: 'Second Employee', workEmail: 'second@example.test' }
           ])
         )
       ),
@@ -54,10 +54,7 @@ describe('Employee support and group contracts', () => {
           success: true,
           data: {
             ...groupCheck,
-            lines: [
-              { employeeId, ok: false, reason: 'NOT_ACTIVE' },
-              { employeeId: requestId, ok: true, reason: null }
-            ]
+            lines: [{ employeeId, ok: false, reason: 'HAS_ACCESS' }]
           }
         })
       })
@@ -70,18 +67,17 @@ describe('Employee support and group contracts', () => {
     fireEvent.change(screen.getByLabelText('Business reason'), { target: { value: 'Team development' } })
     fireEvent.click(screen.getByRole('combobox', { name: 'Beneficiaries' }))
     fireEvent.click(await screen.findByRole('option', { name: /Test Colleague/ }))
-    fireEvent.click(screen.getByRole('option', { name: /Other Colleague/ }))
+    fireEvent.click(screen.getByRole('option', { name: /Second Employee/ }))
     fireEvent.keyDown(screen.getByRole('searchbox'), { key: 'Escape' })
-    fireEvent.change(screen.getByLabelText('Access end date (if applicable)'), { target: { value: '2027-01-31' } })
     fireEvent.click(screen.getByRole('button', { name: 'Preview request' }))
     expect(await screen.findByRole('button', { name: 'Submit request' })).toBeDisabled()
-    expect(screen.getByText('Cannot submit yet. Review the preview.')).toBeInTheDocument()
+    expect(screen.getByText('Already has access')).toBeInTheDocument()
     expect(screen.getByText('$9,007,199,254,740,993.25')).toBeInTheDocument()
     expect(check).toHaveBeenCalledWith({
       planId,
       businessReason: 'Team development',
       termMonths: 1,
-      lines: [{ employeeId }, { employeeId: requestId }]
+      lines: [{ employeeId }, { employeeId: planId }]
     })
   })
   it('blocks a group request when the plan is ineligible even if every person is eligible', async () => {
@@ -90,7 +86,7 @@ describe('Employee support and group contracts', () => {
         HttpResponse.json(
           pageResponse([
             { employeeId, fullName: 'Test Colleague', workEmail: 'colleague@example.test' },
-            { employeeId: requestId, fullName: 'Other Colleague', workEmail: 'other@example.test' }
+            { employeeId: planId, fullName: 'Second Employee', workEmail: 'second@example.test' }
           ])
         )
       ),
@@ -109,7 +105,7 @@ describe('Employee support and group contracts', () => {
     fireEvent.change(screen.getByLabelText('Business reason'), { target: { value: 'Team development' } })
     fireEvent.click(screen.getByRole('combobox', { name: 'Beneficiaries' }))
     fireEvent.click(await screen.findByRole('option', { name: /Test Colleague/ }))
-    fireEvent.click(screen.getByRole('option', { name: /Other Colleague/ }))
+    fireEvent.click(screen.getByRole('option', { name: /Second Employee/ }))
     fireEvent.keyDown(screen.getByRole('searchbox'), { key: 'Escape' })
     fireEvent.click(screen.getByRole('button', { name: 'Preview request' }))
     expect(await screen.findByText('This plan does not support multiple seats')).toBeInTheDocument()

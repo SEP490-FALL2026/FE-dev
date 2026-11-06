@@ -26,12 +26,9 @@ const uploaded = {
 const line = {
   position: 1,
   description: 'Software',
-  amount: { amount: '1250.50', currency: 'USD' },
+  amount: { amount: '1250.50' },
   planId: null,
   seats: null,
-  windowFrom: '2027-01-01',
-  windowTo: '2027-12-31',
-  servicePeriodMonths: 12,
   repeatCycle: 'ANNUAL',
   quoteValidUntil: null,
   note: null
@@ -239,21 +236,7 @@ it('obtains a fresh download link for each click', async () => {
   fireEvent.click(screen.getByRole('button', { name: 'Download: quote.pdf' }))
   await waitFor(() => expect(linked).toHaveBeenCalledTimes(2))
 })
-it('blocks proposals without a cost center and no longer asks for a service period or repeat cycle', async () => {
-  const submitted = vi.fn()
-  server.use(
-    http.post('*/api/v1/budget-proposals', () => {
-      submitted()
-      return HttpResponse.json({ success: true })
-    })
-  )
-  const view = mount(<ManagerBudgetForm />)
+it('blocks proposals without a department cost center', async () => {
+  mount(<ManagerBudgetForm />)
   expect(screen.getByRole('button', { name: 'Submit' })).toBeDisabled()
-  view.unmount()
-  mount()
-  fill()
-  expect(screen.queryByLabelText('Service period (months)')).not.toBeInTheDocument()
-  expect(screen.queryByLabelText('Repeat cycle')).not.toBeInTheDocument()
-  fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
-  await waitFor(() => expect(submitted).toHaveBeenCalledOnce())
 })

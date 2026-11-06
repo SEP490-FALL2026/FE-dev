@@ -84,14 +84,21 @@ export function FinanceCommitmentsView() {
             <FinanceSelect
               value={state}
               onChange={(e) => {
-                setState(e.target.value as any)
+                const next = ['HELD', 'RELEASED', 'EXPENSED'].find((value) => value === e.target.value)
+                setState(next === 'HELD' || next === 'RELEASED' || next === 'EXPENSED' ? next : '')
                 setPage(1)
               }}
             >
               <option value=''>{translate('all')}</option>
-              <option value='HELD'>{translateFinance('heldStatusOption', { defaultValue: 'Đã duyệt, chưa chi (HELD)' })}</option>
-              <option value='EXPENSED'>{translateFinance('expensedStatusOption', { defaultValue: 'Đã thành chi phí (EXPENSED)' })}</option>
-              <option value='RELEASED'>{translateFinance('releasedStatusOption', { defaultValue: 'Đã giải phóng (RELEASED)' })}</option>
+              <option value='HELD'>
+                {translateFinance('heldStatusOption', { defaultValue: 'Đã duyệt, chưa chi (HELD)' })}
+              </option>
+              <option value='EXPENSED'>
+                {translateFinance('expensedStatusOption', { defaultValue: 'Đã thành chi phí (EXPENSED)' })}
+              </option>
+              <option value='RELEASED'>
+                {translateFinance('releasedStatusOption', { defaultValue: 'Đã giải phóng (RELEASED)' })}
+              </option>
             </FinanceSelect>
           </FinanceField>
         </div>
@@ -153,7 +160,7 @@ export function FinanceCommitmentsView() {
             {
               key: 'requester',
               label: translateFinance('submittedBy'),
-              render: (item) => (
+              render: (item) =>
                 item.request?.requester ? (
                   <div className='text-xs'>
                     <div className='font-medium text-foreground'>{item.request.requester.fullName}</div>
@@ -165,7 +172,6 @@ export function FinanceCommitmentsView() {
                 ) : (
                   '—'
                 )
-              )
             },
             {
               key: 'amount',
@@ -178,9 +184,7 @@ export function FinanceCommitmentsView() {
               label: translateFinance('heldLabel', { defaultValue: 'Đã duyệt, chưa chi' }),
               numeric: true,
               render: (item) => (
-                <span className='font-mono font-bold text-warning-ink'>
-                  {formatMoney(item.held, i18n.language)}
-                </span>
+                <span className='font-mono font-bold text-warning-ink'>{formatMoney(item.held, i18n.language)}</span>
               )
             },
             {
@@ -225,26 +229,17 @@ export function FinanceCommitmentsView() {
 
       {/* Dialog Ghi hóa đơn */}
       {recordingCommitment && (
-        <InvoiceRecordDialog
-          commitment={recordingCommitment}
-          onClose={() => setRecordingCommitment(null)}
-        />
+        <InvoiceRecordDialog commitment={recordingCommitment} onClose={() => setRecordingCommitment(null)} />
       )}
 
       {/* Drawer Xem danh sách hóa đơn */}
       {viewingCommitment && (
-        <CommitmentInvoicesDrawer
-          commitment={viewingCommitment}
-          onClose={() => setViewingCommitment(null)}
-        />
+        <CommitmentInvoicesDrawer commitment={viewingCommitment} onClose={() => setViewingCommitment(null)} />
       )}
 
       {/* Dialog Giải phóng phần dư */}
       {releasingCommitment && (
-        <CommitmentReleaseDialog
-          commitment={releasingCommitment}
-          onClose={() => setReleasingCommitment(null)}
-        />
+        <CommitmentReleaseDialog commitment={releasingCommitment} onClose={() => setReleasingCommitment(null)} />
       )}
     </FinancePage>
   )

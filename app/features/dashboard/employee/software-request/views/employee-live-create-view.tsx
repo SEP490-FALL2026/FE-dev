@@ -152,21 +152,30 @@ function LiveCreateForm({
                 />
               )}
               {mode === 'renewal' && (
-                <EmployeeField label={translate('term')}>
+                <EmployeeField label={translate('extensionMonths')}>
                   <EmployeeInput
                     required
                     type='number'
                     name='extensionMonths'
-                    disabled={!selectedAssignment}
                     min={1}
                     max={12}
+                    step={1}
                     defaultValue={1}
+                    disabled={!selectedAssignment}
                   />
                 </EmployeeField>
               )}
               {mode !== 'return' && mode !== 'renewal' && (
                 <EmployeeField label={translate('term')}>
-                  <EmployeeInput required type='number' name='termMonths' min={1} max={12} defaultValue={1} />
+                  <EmployeeInput
+                    required
+                    type='number'
+                    name='termMonths'
+                    min={1}
+                    max={preview?.preview?.termLimit?.maxMonths ?? preview?.groupCheck?.termLimit?.maxMonths ?? 12}
+                    step={1}
+                    defaultValue={1}
+                  />
                 </EmployeeField>
               )}
               {mode === 'proposal' && (

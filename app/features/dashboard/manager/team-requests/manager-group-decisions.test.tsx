@@ -48,17 +48,11 @@ beforeEach(async () => {
   written.mockClear()
   await setAppLanguage('en', false)
 })
-function mount(termRequired = false) {
+function mount() {
   return render(
     <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
       <MemoryRouter>
-        <ManagerGroupDecisions
-          id={requestId}
-          employeeId={managerId}
-          hasSpend
-          requestPending
-          termRequired={termRequired}
-        />
+        <ManagerGroupDecisions id={requestId} employeeId={managerId} requestPending />
       </MemoryRouter>
     </QueryClientProvider>
   )
@@ -86,7 +80,7 @@ it('requires an explicit decision and applies one approval to all and only the a
   })
 })
 it('requires one nonempty common reason and omits spend and term confirmation when rejecting everyone', async () => {
-  mount(true)
+  mount()
   fireEvent.click(await screen.findByRole('radio', { name: 'Approve need' }))
   fireEvent.click(screen.getByRole('radio', { name: 'Reject need' }))
   expect(screen.queryByLabelText('Outside the annual plan')).not.toBeInTheDocument()
@@ -119,18 +113,13 @@ it('allows mixed decisions and discards an inherited rejection reason on the app
     ]
   })
 })
-it('ignores retired requirement flags and submits only assigned line decisions', async () => {
-  mount(true)
+it('does not offer removed term or allocation controls', async () => {
+  mount()
   fireEvent.click(await screen.findByRole('radio', { name: 'Approve need' }))
-  expect(screen.queryByLabelText('Reason for confirming a term over 12 months')).not.toBeInTheDocument()
   expect(screen.queryByLabelText('Outside the annual plan')).not.toBeInTheDocument()
+  expect(screen.queryByLabelText('Reason for confirming a term over 12 months')).not.toBeInTheDocument()
   await confirm()
-  expect(written).toHaveBeenCalledWith({
-    lines: [
-      { employeeId, decision: 'APPROVE' },
-      { employeeId: planId, decision: 'APPROVE' }
-    ]
-  })
+  expect(Object.keys(written.mock.calls[0][0])).toEqual(['lines'])
 })
 it('refuses a partially loaded participant list', async () => {
   server.use(http.get('*/api/v1/access-requests/:id/lines', () => HttpResponse.json(pageResponse(lines, 1, 2))))

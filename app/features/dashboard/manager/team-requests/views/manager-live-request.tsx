@@ -63,7 +63,6 @@ export function ManagerLiveRequest({
           </button>
           <div>
             <h1 className='text-2xl font-bold tracking-tight text-foreground'>{softwareTitle}</h1>
-            {request && <span className='sr-only'>{request.id}</span>}
             <p className='text-xs text-muted-foreground'>{planSubtitle}</p>
           </div>
         </div>
@@ -203,12 +202,11 @@ export function ManagerLiveRequest({
             <ManagerGroupDecisions
               id={id}
               employeeId={employeeId}
-              hasSpend={request.policy.hasSpendStep}
               requestPending={request.state === REQUEST_STATE.PENDING && !!queueContext}
             />
           ) : canDecide && queueContext ? (
             <ManagerSection title={translate('requestDetail.decisionTitle')}>
-              <ManagerNeedForm id={id} hasSpend={request.policy.hasSpendStep} />
+              <ManagerNeedForm id={id} />
               <div className='border-t border-border/50 pt-4'>
                 <ManagerSimilarSeats id={id} />
               </div>

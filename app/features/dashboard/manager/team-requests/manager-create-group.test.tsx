@@ -14,7 +14,7 @@ import { ManagerLiveCreate } from './views/manager-live-create'
 
 const checked = vi.fn()
 const submitted = vi.fn()
-let rejectRobin = false
+let maxMonths = 12
 const server = setupServer(
   ...managerCatalogHandlers,
   ...managerReadHandlers,
@@ -33,10 +33,13 @@ const server = setupServer(
       success: true,
       data: {
         ...groupCheck,
+        termLimit: { maxMonths, endsBy: null },
+        termBeyondLimit: body.termMonths > maxMonths,
+        tooFewLines: body.lines.length < 2 ? { min: 2 } : null,
         lines: body.lines.map((line) => ({
           employeeId: line.employeeId,
-          ok: !(rejectRobin && line.employeeId === planId),
-          reason: rejectRobin && line.employeeId === planId ? 'NOT_ACTIVE' : null
+          ok: true,
+          reason: null
         }))
       }
     })
@@ -50,7 +53,7 @@ beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 afterAll(() => server.close())
 afterEach(() => server.resetHandlers())
 beforeEach(async () => {
-  rejectRobin = false
+  maxMonths = 12
   checked.mockClear()
   submitted.mockClear()
   await setAppLanguage('en', false)
@@ -78,38 +81,32 @@ async function confirm() {
   fireEvent.click(button)
   await waitFor(() => expect(submitted).toHaveBeenCalledOnce())
 }
-it('submits the exact checked two-person body without retired fields', async () => {
+it('checks and submits the same strict group body without removed fields', async () => {
   await mount()
-  expect(screen.queryByLabelText('Shared access end date')).not.toBeInTheDocument()
   expect(screen.queryByLabelText('Expected spend date')).not.toBeInTheDocument()
+  expect(screen.queryByLabelText('Access end date (if applicable)')).not.toBeInTheDocument()
   fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
   await confirm()
   const body = { planId, businessReason: 'Design work', termMonths: 3, lines: [{ employeeId }, { employeeId: planId }] }
   expect(checked).toHaveBeenCalledWith(body)
   expect(submitted).toHaveBeenCalledWith(body)
 })
-it('keeps an ineligible person blocked after the backend check', async () => {
-  rejectRobin = true
-  await mount()
-  fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
-  const dialog = screen.getByRole('dialog')
-  await within(dialog).findByText('Robin')
-  expect(within(dialog).getByRole('button', { name: 'Confirm' })).toBeDisabled()
-  expect(submitted).not.toHaveBeenCalled()
-})
-it('rejects a term over twelve months and permits a valid shorter term', async () => {
+it('requires at least two people and refuses terms over twelve months', async () => {
   await mount()
   fireEvent.change(screen.getByLabelText('Term (months)'), { target: { value: '13' } })
-  fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
+  fireEvent.submit(screen.getByRole('button', { name: 'Submit' }).closest('form')!)
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-  expect(screen.queryByLabelText('Reason for confirming a term over 12 months')).not.toBeInTheDocument()
-  fireEvent.change(screen.getByLabelText('Term (months)'), { target: { value: '12' } })
+  expect(submitted).not.toHaveBeenCalled()
+  fireEvent.change(screen.getByLabelText('Term (months)'), { target: { value: '3' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Remove Robin' }))
+  expect(screen.getByRole('button', { name: 'Submit' })).toBeDisabled()
+})
+it('blocks confirmation when the backend term limit is lower than the entered term', async () => {
+  maxMonths = 2
+  await mount()
   fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
-  await confirm()
-  expect(submitted).toHaveBeenCalledWith({
-    planId,
-    businessReason: 'Design work',
-    termMonths: 12,
-    lines: [{ employeeId }, { employeeId: planId }]
-  })
+  const dialog = await screen.findByRole('dialog')
+  await within(dialog).findAllByText('Maximum term: 2 months')
+  expect(within(dialog).getByRole('button', { name: 'Confirm' })).toBeDisabled()
+  expect(submitted).not.toHaveBeenCalled()
 })

@@ -19,8 +19,11 @@ const errorKeys = {
   'FINANCE.SETUP_INCOMPLETE': 'financeSetup',
   'ACCESS_REQUEST.ALREADY_HOLDS_ACCESS': 'existingAccess',
   'ACCESS_REQUEST.APPLICATION_RETIRED': 'planUnavailable',
-  'ACCESS_REQUEST.TERM_CONFIRMATION_REQUIRED': 'termConfirmation',
-  'RENEWAL_REQUEST.TERM_CONFIRMATION_REQUIRED': 'termConfirmation',
+  'ACCESS_REQUEST.TERM_BEYOND_LIMIT': 'termLimit',
+  'GROUP_REQUEST.TERM_BEYOND_LIMIT': 'termLimit',
+  'GROUP_REQUEST.TOO_FEW_LINES': 'groupMinimum',
+  'RENEWAL_REQUEST.NOT_HOLDER': 'renewalHolder',
+  'REQUEST_PARTY.INELIGIBLE': 'requestParty',
   'SAAS_ISSUE.REOPEN_WINDOW_ENDED': 'reopenExpired'
 } as const
 

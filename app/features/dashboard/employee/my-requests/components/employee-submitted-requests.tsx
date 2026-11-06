@@ -148,9 +148,6 @@ export function EmployeeSubmittedRequests({ onOpen }: { onOpen: (id: string) => 
                     {item.plan.planName}
                   </p>
                 )}
-                <p className='mt-1 truncate font-mono text-xs text-muted-foreground' title={item.id}>
-                  {item.id}
-                </p>
               </div>
             )
           },

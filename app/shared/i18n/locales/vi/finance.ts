@@ -95,7 +95,8 @@ export const finance = {
     exceptionToast: 'Hóa đơn đã ghi vào thực chi (vượt số đã duyệt - mở hồ sơ sai lệch).',
     matchedDesc: 'Hóa đơn hoàn toàn khớp với cam kết đã duyệt.',
     taxOnlyDesc: 'Hóa đơn có thuế phát sinh. Phần thuế được tách riêng, chi phí thực tính theo chi phí thực chịu.',
-    exceptionDesc: 'Đơn giá hoặc số tiền vượt số đã duyệt. Hệ thống mở hồ sơ sai lệch, hóa đơn vẫn được tính vào thực chi.',
+    exceptionDesc:
+      'Đơn giá hoặc số tiền vượt số đã duyệt. Hệ thống mở hồ sơ sai lệch, hóa đơn vẫn được tính vào thực chi.',
     exceedPreviewNotice: 'Số tiền trước thuế vượt phần cam kết còn giữ. Hệ thống sẽ ghi nhận ngoại lệ giá/số lượng.'
   },
   loading: 'Đang tải dữ liệu…',

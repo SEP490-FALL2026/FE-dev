@@ -138,7 +138,10 @@ describe('Finance spend batches integration', () => {
         status: 200,
         statusText: 'OK',
         headers: new AxiosHeaders(),
-        data: { success: true, data: { items: [], pagination: { page: 1, pageSize: 20, totalItems: 0, totalPages: 0 } } }
+        data: {
+          success: true,
+          data: { items: [], pagination: { page: 1, pageSize: 20, totalItems: 0, totalPages: 0 } }
+        }
       }
     }
   })
@@ -176,4 +179,3 @@ describe('Finance spend batches integration', () => {
     })
   })
 })
-

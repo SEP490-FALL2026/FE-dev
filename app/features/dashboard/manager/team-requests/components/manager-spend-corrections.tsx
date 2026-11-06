@@ -25,13 +25,13 @@ import {
 
 export function ManagerSpendCorrections({ id }: { id: string }) {
   const { t: translate } = useTranslation('manager')
-  const [mode, setMode] = useState<'plan' | 'supplement' | null>(null)
+  const [mode, setMode] = useState(false)
   const paging = useManagerPage('supplementPage')
   const query = useAccessRequestSupplementList(id, { page: paging.page, pageSize: paging.pageSize })
   return (
     <ManagerSection title={translate('supplements')}>
       <div className='flex flex-wrap gap-3'>
-        <ManagerButton onClick={() => setMode('supplement')}>{translate('supplement')}</ManagerButton>
+        <ManagerButton onClick={() => setMode(true)}>{translate('supplement')}</ManagerButton>
       </div>
       <ManagerQueryState query={query} empty={!query.data?.data?.items.length} />
       {!query.isError &&
@@ -44,11 +44,11 @@ export function ManagerSpendCorrections({ id }: { id: string }) {
           </p>
         ))}
       <ManagerPagination pagination={query.data?.data?.pagination} onPage={paging.onPage} busy={query.isFetching} />
-      {mode && <CorrectionDialog id={id} mode={mode} onClose={() => setMode(null)} />}
+      {mode && <CorrectionDialog id={id} onClose={() => setMode(false)} />}
     </ManagerSection>
   )
 }
-function CorrectionDialog({ id, mode, onClose }: { id: string; mode: 'plan' | 'supplement'; onClose: () => void }) {
+function CorrectionDialog({ id, onClose }: { id: string; onClose: () => void }) {
   const { t: translate } = useTranslation('manager')
   const keys = [
     getAccessRequestGetQueryKey(id),
@@ -63,8 +63,8 @@ function CorrectionDialog({ id, mode, onClose }: { id: string; mode: 'plan' | 's
   const action = supplement
   return (
     <Dialog
-      presentation={mode === 'plan' ? 'drawer' : 'sheet'}
-      title={translate(mode === 'plan' ? 'selectPlan' : 'supplement')}
+      presentation='sheet'
+      title={translate('supplement')}
       hint={translate('confirmAction')}
       onClose={() => {
         if (!action.isPending) onClose()
@@ -85,26 +85,24 @@ function CorrectionDialog({ id, mode, onClose }: { id: string; mode: 'plan' | 's
           }}
         >
           <fieldset disabled={action.blocked} className='space-y-4'>
-            <>
-              <ManagerField label={translate('dropEmployees')}>
-                <textarea
-                  name='dropEmployeeIds'
-                  className={managerInputClass}
-                  onChange={(event) =>
-                    event.target.setCustomValidity(
-                      parseEmployeeIds(event.target.value).every((value) =>
-                        new RegExp(`^${resourceIdPattern}$`).test(value)
-                      )
-                        ? ''
-                        : translate('validation')
+            <ManagerField label={translate('dropEmployees')}>
+              <textarea
+                name='dropEmployeeIds'
+                className={managerInputClass}
+                onChange={(event) =>
+                  event.target.setCustomValidity(
+                    parseEmployeeIds(event.target.value).every((value) =>
+                      new RegExp(`^${resourceIdPattern}$`).test(value)
                     )
-                  }
-                />
-              </ManagerField>
-              <ManagerField label={translate('reason')}>
-                <textarea name='reason' required maxLength={1000} className={managerInputClass} />
-              </ManagerField>
-            </>
+                      ? ''
+                      : translate('validation')
+                  )
+                }
+              />
+            </ManagerField>
+            <ManagerField label={translate('reason')}>
+              <textarea name='reason' required maxLength={1000} className={managerInputClass} />
+            </ManagerField>
           </fieldset>
           <ManagerActionState action={action} />
           <div className='flex justify-end'>

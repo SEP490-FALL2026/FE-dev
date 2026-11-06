@@ -54,10 +54,7 @@ export function FinanceCostCentersView({
 
   const budgetOf = (item: CostCenterPageResponseDtoDataItemsItem) => budgets.data?.byCostCenter.get(item.id)
 
-  const budgetCell = (
-    item: CostCenterPageResponseDtoDataItemsItem,
-    field: 'total' | 'remaining'
-  ) => {
+  const budgetCell = (item: CostCenterPageResponseDtoDataItemsItem, field: 'total' | 'remaining') => {
     if (budgets.isPending || budgets.isError) return <span className='text-muted-foreground'>—</span>
     const budget = budgetOf(item)
     if (!budget) return <span className='text-muted-foreground'>{translate('noBudget')}</span>

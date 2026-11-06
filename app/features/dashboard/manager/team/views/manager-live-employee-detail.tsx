@@ -1,12 +1,14 @@
 import { ArrowLeft, Boxes, Building2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useDepartmentGet } from '~/shared/api/generated/operations/departments/department-get'
-import { useDepartmentMemberList } from '~/shared/api/generated/operations/departments/department-member-list'
-import { useDepartmentToolsInUse } from '~/shared/api/generated/operations/departments/department-tools-in-use'
+import { useDepartmentMemberGet } from '~/shared/api/generated/operations/departments/department-member-get'
+import { useDepartmentMemberSoftwareRightList } from '~/shared/api/generated/operations/departments/department-member-software-right-list'
 import { useDashboardFormat } from '../../../dashboard-ui'
 import { ManagerButton, ManagerSection, ManagerStatus } from '../../shared/components/manager-api-ui'
 import { WorkspaceEmptyState } from '~/shared/ui/workspace-empty-state'
-import { useDepartmentMemberSearch } from '../hooks/use-department-search'
+import { useManagerPage } from '../../shared/hooks/use-manager-page'
+import { ManagerMemberRequests } from '../components/manager-member-requests'
+import { ManagerPagination, ManagerQueryState } from '../../shared/components/manager-api-ui'
 import type { ManagerTabKey } from '../../manager-nav'
 
 interface Props {
@@ -26,29 +28,25 @@ export function ManagerLiveEmployeeDetail({ departmentId, id, onBack, onSelectTa
   })
   const departmentData = departmentQuery.data?.data
 
-  const deptMembersQuery = useDepartmentMemberSearch(departmentId ?? '', !!departmentId)
-  const pagedMembersQuery = useDepartmentMemberList(
+  const memberQuery = useDepartmentMemberGet(departmentId ?? '', id, { query: { enabled: !!departmentId } })
+  const deptMember = !memberQuery.isError ? memberQuery.data?.data : null
+  const paging = useManagerPage('softwarePage')
+  const toolsQuery = useDepartmentMemberSoftwareRightList(
     departmentId ?? '',
-    { page: 1, pageSize: 100 },
-    { query: { enabled: !!departmentId } }
+    id,
+    { page: paging.page, pageSize: paging.pageSize },
+    { query: { enabled: !!deptMember } }
   )
-
-  const deptMember =
-    deptMembersQuery.data?.find((m) => m.employeeId === id || m.employeeCode === id) ??
-    pagedMembersQuery.data?.data?.items?.find((m) => m.employeeId === id || m.employeeCode === id)
-
-  const memberCode = deptMember?.employeeCode
-
-  const toolsQuery = useDepartmentToolsInUse(
-    departmentId ?? '',
-    { pageSize: 100 },
-    { query: { enabled: !!departmentId && !!memberCode } }
-  )
-
-  const tools = toolsQuery.data?.data?.items?.filter((tool) => memberCode && tool.employeeCode === memberCode) ?? []
-
+  const tools = !toolsQuery.isError
+    ? (toolsQuery.data?.data?.items ?? []).map((right) => ({
+        assignmentId: right.assignmentId,
+        application: { name: right.applicationName },
+        plan: { name: right.planName },
+        effectiveFrom: right.grantedOn
+      }))
+    : []
   const hasData = !!deptMember
-  const isPending = !hasData && deptMembersQuery.isPending && pagedMembersQuery.isPending
+  const isPending = memberQuery.isPending
 
   const fullName = deptMember?.fullName ?? ''
   const employeeCode = deptMember?.employeeCode ?? ''
@@ -88,7 +86,8 @@ export function ManagerLiveEmployeeDetail({ departmentId, id, onBack, onSelectTa
         </ManagerSection>
       )}
 
-      {!isPending && !hasData && (
+      <ManagerQueryState query={memberQuery} />
+      {!isPending && !memberQuery.isError && !hasData && (
         <ManagerSection>
           <WorkspaceEmptyState
             title={translate('employeeDetail.notFound')}
@@ -117,7 +116,6 @@ export function ManagerLiveEmployeeDetail({ departmentId, id, onBack, onSelectTa
                     <h2 className='truncate text-lg font-bold text-foreground' title={fullName}>
                       {fullName}
                     </h2>
-                    <ManagerStatus value={deptMember?.workState ?? ''} />
                   </div>
                   <p className='mt-1 truncate font-mono text-xs text-muted-foreground'>{employeeCode}</p>
                 </div>
@@ -221,16 +219,13 @@ export function ManagerLiveEmployeeDetail({ departmentId, id, onBack, onSelectTa
           <ManagerSection>
             <div className='flex items-center justify-between border-b border-border/50 pb-3'>
               <h3 className='text-sm font-bold text-foreground'>{translate('employeeDetail.toolsTitle')}</h3>
-              <span className='font-mono text-xs text-muted-foreground tabular-nums'>{tools.length}</span>
+              <span className='font-mono text-xs text-muted-foreground tabular-nums'>
+                {deptMember?.heldSoftwareCount ?? '?'}
+              </span>
             </div>
 
-            {toolsQuery.isPending && (
-              <p role='status' className='py-6 text-center text-xs text-muted-foreground'>
-                {translate('loading')}
-              </p>
-            )}
-
-            {!toolsQuery.isPending && tools.length === 0 && (
+            <ManagerQueryState query={toolsQuery} />
+            {!toolsQuery.isPending && !toolsQuery.isError && tools.length === 0 && (
               <div className='py-6'>
                 <WorkspaceEmptyState icon={Boxes} title={translate('employeeDetail.toolsEmpty')} description='' />
               </div>
@@ -262,7 +257,6 @@ export function ManagerLiveEmployeeDetail({ departmentId, id, onBack, onSelectTa
                         ) : (
                           <span className='font-semibold text-foreground'>{tool.application.name}</span>
                         )}
-                        <ManagerStatus value={tool.kind} />
                       </div>
                       <p className='text-muted-foreground'>{tool.plan.name}</p>
                       <div className='flex justify-between border-t border-border/40 pt-2 text-[11px] text-muted-foreground'>
@@ -280,9 +274,6 @@ export function ManagerLiveEmployeeDetail({ departmentId, id, onBack, onSelectTa
                       <tr className='border-b border-border/60 bg-surface-subtle text-xs text-muted-foreground'>
                         <th scope='col' className='py-2.5 px-4 font-semibold'>
                           {translate('employeeDetail.softwareName')}
-                        </th>
-                        <th scope='col' className='py-2.5 px-4 font-semibold'>
-                          {translate('employeeDetail.kind')}
                         </th>
                         <th scope='col' className='py-2.5 px-4 text-right font-semibold'>
                           {translate('employeeDetail.effectiveFrom')}
@@ -312,9 +303,6 @@ export function ManagerLiveEmployeeDetail({ departmentId, id, onBack, onSelectTa
                             )}
                             <p className='mt-0.5 text-xs text-muted-foreground'>{tool.plan.name}</p>
                           </td>
-                          <td className='py-3 px-4'>
-                            <ManagerStatus value={tool.kind} />
-                          </td>
                           <td className='py-3 px-4 text-right font-mono text-xs tabular-nums text-muted-foreground'>
                             {formatDate(tool.effectiveFrom)}
                           </td>
@@ -325,7 +313,13 @@ export function ManagerLiveEmployeeDetail({ departmentId, id, onBack, onSelectTa
                 </div>
               </div>
             )}
+            <ManagerPagination
+              pagination={toolsQuery.data?.data?.pagination}
+              onPage={paging.onPage}
+              busy={toolsQuery.isFetching}
+            />
           </ManagerSection>
+          <ManagerMemberRequests departmentId={departmentId ?? ''} employeeId={id} onSelectTab={onSelectTab} />
         </div>
       )}
     </div>
