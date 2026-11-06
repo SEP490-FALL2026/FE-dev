@@ -1,9 +1,8 @@
-import { AlertTriangle, FileText, Layers, Plus, Unlock } from 'lucide-react'
+import { AlertTriangle } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useCostCenterList } from '~/shared/api/generated/operations/cost-centers'
 import {
-  FinanceButton,
   FinanceField,
   FinancePage,
   FinancePagination,
@@ -19,6 +18,7 @@ import { useFinanceCommitments } from '../hooks/use-finance-commitments'
 import { InvoiceRecordDialog } from '../components/invoice-record-dialog'
 import { CommitmentInvoicesDrawer } from '../components/commitment-invoices-drawer'
 import { CommitmentReleaseDialog } from '../components/commitment-release-dialog'
+import { CommitmentRowActions } from '../components/commitment-row-actions'
 import type { ExtendedCommitmentItem } from '../../shared/finance-api-extensions'
 
 const validYear = (value: string) => /^\d{4}$/.test(value) && Number(value) >= 2000 && Number(value) <= 2200
@@ -84,14 +84,21 @@ export function FinanceCommitmentsView() {
             <FinanceSelect
               value={state}
               onChange={(e) => {
-                setState(e.target.value as any)
+                const next = ['HELD', 'RELEASED', 'EXPENSED'].find((value) => value === e.target.value)
+                setState(next === 'HELD' || next === 'RELEASED' || next === 'EXPENSED' ? next : '')
                 setPage(1)
               }}
             >
               <option value=''>{translate('all')}</option>
-              <option value='HELD'>{translateFinance('heldStatusOption', { defaultValue: 'Đã duyệt, chưa chi (HELD)' })}</option>
-              <option value='EXPENSED'>{translateFinance('expensedStatusOption', { defaultValue: 'Đã thành chi phí (EXPENSED)' })}</option>
-              <option value='RELEASED'>{translateFinance('releasedStatusOption', { defaultValue: 'Đã giải phóng (RELEASED)' })}</option>
+              <option value='HELD'>
+                {translateFinance('heldStatusOption', { defaultValue: 'Đã duyệt, chưa chi (HELD)' })}
+              </option>
+              <option value='EXPENSED'>
+                {translateFinance('expensedStatusOption', { defaultValue: 'Đã thành chi phí (EXPENSED)' })}
+              </option>
+              <option value='RELEASED'>
+                {translateFinance('releasedStatusOption', { defaultValue: 'Đã giải phóng (RELEASED)' })}
+              </option>
             </FinanceSelect>
           </FinanceField>
         </div>
@@ -153,7 +160,7 @@ export function FinanceCommitmentsView() {
             {
               key: 'requester',
               label: translateFinance('submittedBy'),
-              render: (item) => (
+              render: (item) =>
                 item.request?.requester ? (
                   <div className='text-xs'>
                     <div className='font-medium text-foreground'>{item.request.requester.fullName}</div>
@@ -165,7 +172,6 @@ export function FinanceCommitmentsView() {
                 ) : (
                   '—'
                 )
-              )
             },
             {
               key: 'amount',
@@ -178,9 +184,7 @@ export function FinanceCommitmentsView() {
               label: translateFinance('heldLabel', { defaultValue: 'Đã duyệt, chưa chi' }),
               numeric: true,
               render: (item) => (
-                <span className='font-mono font-bold text-warning-ink'>
-                  {formatMoney(item.held, i18n.language)}
-                </span>
+                <span className='font-mono font-bold text-warning-ink'>{formatMoney(item.held, i18n.language)}</span>
               )
             },
             {
@@ -208,49 +212,14 @@ export function FinanceCommitmentsView() {
             {
               key: 'actions',
               label: translateFinance('actions'),
+              actions: true,
               render: (item) => (
-                <div className='flex items-center gap-1.5 justify-end'>
-                  {item.state !== 'RELEASED' && (
-                    <FinanceButton
-                      variant='primary'
-                      className='px-2.5 py-1 text-xs'
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setRecordingCommitment(item)
-                      }}
-                    >
-                      <Plus className='size-3.5' />
-                      {translateFinance('recordInvoice')}
-                    </FinanceButton>
-                  )}
-
-                  {(item.invoiceCount ?? 0) > 0 && (
-                    <FinanceButton
-                      className='px-2.5 py-1 text-xs'
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setViewingCommitment(item)
-                      }}
-                    >
-                      <FileText className='size-3.5' />
-                      {translateFinance('viewInvoices')}
-                    </FinanceButton>
-                  )}
-
-                  {Number(item.held.amount) > 0 && (
-                    <FinanceButton
-                      variant='ghost'
-                      className='px-2.5 py-1 text-xs'
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setReleasingCommitment(item)
-                      }}
-                    >
-                      <Unlock className='size-3.5' />
-                      {translateFinance('releaseRemainder')}
-                    </FinanceButton>
-                  )}
-                </div>
+                <CommitmentRowActions
+                  commitment={item}
+                  onRecordInvoice={() => setRecordingCommitment(item)}
+                  onViewInvoices={() => setViewingCommitment(item)}
+                  onRelease={() => setReleasingCommitment(item)}
+                />
               )
             }
           ]}
@@ -260,26 +229,17 @@ export function FinanceCommitmentsView() {
 
       {/* Dialog Ghi hóa đơn */}
       {recordingCommitment && (
-        <InvoiceRecordDialog
-          commitment={recordingCommitment}
-          onClose={() => setRecordingCommitment(null)}
-        />
+        <InvoiceRecordDialog commitment={recordingCommitment} onClose={() => setRecordingCommitment(null)} />
       )}
 
       {/* Drawer Xem danh sách hóa đơn */}
       {viewingCommitment && (
-        <CommitmentInvoicesDrawer
-          commitment={viewingCommitment}
-          onClose={() => setViewingCommitment(null)}
-        />
+        <CommitmentInvoicesDrawer commitment={viewingCommitment} onClose={() => setViewingCommitment(null)} />
       )}
 
       {/* Dialog Giải phóng phần dư */}
       {releasingCommitment && (
-        <CommitmentReleaseDialog
-          commitment={releasingCommitment}
-          onClose={() => setReleasingCommitment(null)}
-        />
+        <CommitmentReleaseDialog commitment={releasingCommitment} onClose={() => setReleasingCommitment(null)} />
       )}
     </FinancePage>
   )

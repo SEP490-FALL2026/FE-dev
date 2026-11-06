@@ -24,7 +24,7 @@ export function ApprovalNeedView({ itemId, onSelectTab }: NeedViewProps) {
     <ApprovalsPage
       title={translate('needTitle')}
       actions={
-        <ApprovalsButton variant='ghost' onClick={() => onSelectTab('overview')}>
+        <ApprovalsButton variant='ghost' onClick={() => onSelectTab('queue', { list: 'need' })}>
           <ArrowLeft aria-hidden className='size-4' strokeWidth={1.5} />
           {translate('back')}
         </ApprovalsButton>

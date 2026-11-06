@@ -44,7 +44,7 @@ export function SpendBatchItems({
             <label className='inline-flex min-h-11 min-w-11 items-center justify-center md:min-h-8 md:min-w-8'>
               <input
                 type='checkbox'
-                aria-label={translate('selectRequest', { id: item.requestId })}
+                aria-label={translate('selectRequest', { position: item.position })}
                 checked={selectedIds.includes(item.requestId)}
                 disabled={
                   disabled ||
@@ -57,8 +57,7 @@ export function SpendBatchItems({
             </label>
           )
         },
-        { key: 'position', label: translate('batchPosition'), numeric: true, render: (item) => item.position },
-        { key: 'requestId', label: translate('batchRequestId'), numeric: true, render: (item) => item.requestId },
+        { key: 'position', label: translate('batchPosition'), numeric: true, render: (item) => `#${item.position}` },
         {
           key: 'outcome',
           label: translate('batchRoute'),

@@ -28,6 +28,5 @@ export function isValidApprovalTab(value: string | null): value is ApprovalTabKe
 }
 
 export function getParentApprovalMenuKey(tab: ApprovalTabKey): ApprovalTabKey {
-  if (tab === 'need') return 'overview'
-  return tab === 'request' || tab === 'batch' ? 'queue' : tab
+  return tab === 'request' || tab === 'batch' || tab === 'need' ? 'queue' : tab
 }

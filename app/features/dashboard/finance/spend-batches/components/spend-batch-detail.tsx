@@ -1,4 +1,4 @@
-import { ArrowLeft, CheckCircle2, Clock, Layers, Users } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, Clock } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -14,13 +14,16 @@ import {
 } from '../../shared/components/finance-ui'
 import { FinanceTable } from '../../shared/components/finance-table'
 import { useSpendBatchGet, useSpendBatchItemList } from '../hooks/use-spend-batches'
+import { isBatchRequestState } from '../enums/batch-request-state'
 import type { BatchItemListResponseDtoDataItemsItem } from '~/shared/api/generated/model/spend-submission'
 
 export function SpendBatchDetail({
   batchId,
+  departmentName,
   onClose
 }: {
   batchId: string
+  departmentName: string
   onClose: () => void
 }) {
   const { t: translate, i18n } = useTranslation('financeSettings')
@@ -74,9 +77,7 @@ export function SpendBatchDetail({
         <div className='flex flex-wrap items-center justify-between gap-4 border-b border-border/70 pb-4'>
           <div className='space-y-1'>
             <div className='flex items-center gap-2'>
-              <h1 className='text-xl font-bold tracking-tight text-foreground'>
-                {batch?.department ? ((batch.department as any).name ?? batch.department.code) : translateFinance('spendBatches')}
-              </h1>
+              <h1 className='text-xl font-bold tracking-tight text-foreground'>{departmentName}</h1>
               {batch?.department?.code && (
                 <span className='font-mono text-xs text-muted-foreground'>({batch.department.code})</span>
               )}
@@ -97,14 +98,8 @@ export function SpendBatchDetail({
         <FinanceQueryState query={batchQuery}>
           {batch && (
             <FinanceStatGrid columns={3}>
-              <FinanceStat
-                label={translateFinance('itemCount')}
-                value={batch.itemCount}
-              />
-              <FinanceStat
-                label={translate('department')}
-                value={(batch.department as any)?.name ?? batch.department?.code ?? '—'}
-              />
+              <FinanceStat label={translateFinance('itemCount')} value={batch.itemCount} />
+              <FinanceStat label={translate('department')} value={departmentName} />
               <FinanceStat
                 label={translateFinance('submittedAt')}
                 value={new Date(batch.submittedAt).toLocaleDateString(i18n.language)}
@@ -124,46 +119,28 @@ export function SpendBatchDetail({
                     {
                       key: 'position',
                       label: translateFinance('itemPosition'),
-                      numeric: true,
+                      width: 'w-20',
                       render: (item) => <span className='font-mono text-xs font-semibold'>#{item.position}</span>
-                    },
-                    {
-                      key: 'requestId',
-                      label: translateFinance('requestId', { value: '' }),
-                      render: (item) => (
-                        <div className='font-mono text-xs' title={item.requestId}>
-                          {item.requestId}
-                        </div>
-                      )
                     },
                     {
                       key: 'outcome',
                       label: translateFinance('batchOutcome'),
+                      width: 'w-1/2',
                       render: (item) => outcomeBadge(item.outcome, item.stopReason)
                     },
                     {
                       key: 'requestState',
                       label: translateFinance('requestState'),
-                      render: (item) => <FinanceStatus value={item.requestState} />
-                    },
-                    {
-                      key: 'leftReason',
-                      label: translate('status'),
-                      render: (item) =>
-                        item.leftReason ? (
-                          <div className='text-xs text-muted-foreground'>
-                            <span className='font-medium text-warning-ink'>
-                              {translateFinance(`leftReasons.${item.leftReason}`, { defaultValue: item.leftReason })}
-                            </span>
-                            {item.leftAt && (
-                              <div className='text-[10px]'>
-                                {new Date(item.leftAt).toLocaleDateString(i18n.language)}
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          <span className='text-xs text-muted-foreground'>—</span>
-                        )
+                      render: (item) => (
+                        <FinanceStatus
+                          value={item.requestState}
+                          label={
+                            isBatchRequestState(item.requestState)
+                              ? translateFinance(`requestStates.${item.requestState}`)
+                              : translateFinance('unknown')
+                          }
+                        />
+                      )
                     }
                   ]}
                 />

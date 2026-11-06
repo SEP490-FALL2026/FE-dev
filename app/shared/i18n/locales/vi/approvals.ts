@@ -137,6 +137,8 @@ export const approvals = {
     validation: 'Kiểm tra các giá trị đã nhập rồi thử lại.',
     rateLimit: 'Quá nhiều yêu cầu. Vui lòng chờ trước khi thử lại.',
     notFound: 'Bản ghi không khả dụng hoặc nằm ngoài phạm vi truy cập của bạn.',
+    batchNotFound: 'Đợt đề nghị chi này không tồn tại hoặc không có yêu cầu nào giao cho bạn.',
+    attachmentNotFound: 'Tệp đính kèm này không còn khả dụng.',
     conflict: 'Bản ghi đã thay đổi. Tải lại dữ liệu trước khi tiếp tục.',
     network: 'Không kết nối được hệ thống. Kiểm tra kết nối rồi thử lại.',
     unavailable: 'Hệ thống tạm thời không khả dụng. Vui lòng thử lại sau.',

@@ -9,7 +9,8 @@ import { SubscriptionRenewalListState } from '~/shared/api/generated/model/subsc
 import type { ApprovalTabKey } from '../../approvals-nav'
 import { ApprovalsPage } from '../../shared/components/approvals-ui'
 import { ApprovalsWorkCard, type WorkCount } from '../components/approvals-work-card'
-import { NeedDecisionQueue } from '../components/need-decision-queue'
+import { BudgetInsights } from '../components/budget-insights'
+import { SpendInsights } from '../components/spend-insights'
 
 interface OverviewProps {
   displayName?: string
@@ -49,7 +50,7 @@ export function ApprovalsOverviewView({ onSelectTab }: OverviewProps) {
           title={translate('overview.needs')}
           hint={translate('overview.openNeeds')}
           count={toCount(needs)}
-          onOpen={() => document.getElementById('approvals-need-queue')?.scrollIntoView?.({ behavior: 'smooth' })}
+          onOpen={() => onSelectTab('queue', { list: 'need' })}
         />
         <ApprovalsWorkCard
           icon={Landmark}
@@ -66,9 +67,12 @@ export function ApprovalsOverviewView({ onSelectTab }: OverviewProps) {
           onOpen={() => onSelectTab('renewal')}
         />
       </div>
-      <div id='approvals-need-queue' className='scroll-mt-6'>
-        <NeedDecisionQueue onOpen={(requestId) => onSelectTab('need', { id: requestId })} />
-      </div>
+      <SpendInsights
+        onOpen={(requestId, batchId) =>
+          onSelectTab('request', batchId ? { id: requestId, batch: batchId } : { id: requestId })
+        }
+      />
+      <BudgetInsights year={new Date().getFullYear()} onOpenBudgets={() => onSelectTab('annual-budget')} />
     </ApprovalsPage>
   )
 }

@@ -137,6 +137,8 @@ export const approvals = {
     validation: 'Check the input values and try again.',
     rateLimit: 'Too many requests. Wait before trying again.',
     notFound: 'This record is unavailable or outside your access scope.',
+    batchNotFound: 'This spend submission does not exist or holds nothing assigned to you.',
+    attachmentNotFound: 'This attachment is no longer available.',
     conflict: 'The record has changed. Reload it before continuing.',
     network: 'Cannot connect to the server. Check your connection and retry.',
     unavailable: 'The service is temporarily unavailable. Try again shortly.',

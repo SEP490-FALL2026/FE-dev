@@ -18,8 +18,7 @@ export function NeedRequestSummary({ request }: { request: AccessRequestResponse
   const facts = [
     { label: translate('requester'), value: request.requester.fullName },
     { label: translate('beneficiary'), value: request.beneficiary?.fullName ?? translate('unknown') },
-    { label: translate('department'), value: request.department.name },
-    { label: translate('requestId'), value: request.id, mono: true }
+    { label: translate('department'), value: request.department.name }
   ]
   return (
     <div className='space-y-6'>
@@ -55,10 +54,7 @@ export function NeedRequestSummary({ request }: { request: AccessRequestResponse
           {facts.map((fact) => (
             <div key={fact.label} className='min-w-0'>
               <dt className='text-xs text-muted-foreground'>{fact.label}</dt>
-              <dd
-                title={fact.value}
-                className={`mt-1 truncate text-sm ${fact.mono ? 'font-mono text-xs tabular-nums' : ''}`}
-              >
+              <dd title={fact.value} className='mt-1 truncate text-sm'>
                 {fact.value}
               </dd>
             </div>

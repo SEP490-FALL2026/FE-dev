@@ -1,8 +1,8 @@
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Layers } from 'lucide-react'
+import { useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { useSpendApprovalGet } from '~/shared/api/generated/operations/spend-approvals/spend-approval-get'
 import { useBudgetCheckGet } from '~/shared/api/generated/operations/finance-reviews/budget-check-get'
-import { useAccessRequestGet } from '~/shared/api/generated/operations/access-requests/access-request-get'
 import type { ApprovalTabKey } from '../../enums'
 import { ApprovalsQueryState } from '../../shared/components/approvals-query-state'
 import { ApprovalsButton, ApprovalsEmpty, ApprovalsPage } from '../../shared/components/approvals-ui'
@@ -13,7 +13,9 @@ import { SpendDecisionForm } from '../components/spend-decision-form'
 import { SpendFinancePanel } from '../components/spend-finance-panel'
 import { BUDGET_CHECK_CODE } from '../enums/budget-check-code'
 import { BUDGET_CHECK_ROUTE } from '../enums/budget-check-route'
-import { REQUEST_TYPE } from '../enums/request-type'
+import { useSpendRequestKind } from '../hooks/use-spend-request-kind'
+
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 export function ApprovalRequestView({
   itemId,
@@ -23,17 +25,28 @@ export function ApprovalRequestView({
   onSelectTab: (tab: ApprovalTabKey, params?: Record<string, string>) => void
 }) {
   const { t: translate } = useTranslation('approvalsSpend')
+  const [searchParams] = useSearchParams()
+  const batchId = searchParams.get('batch')?.trim() ?? ''
+  const hasBatch = UUID_PATTERN.test(batchId)
   return (
     <ApprovalsPage
       title={translate('detail')}
       actions={
-        <ApprovalsButton variant='ghost' onClick={() => onSelectTab('queue')}>
-          <ArrowLeft aria-hidden className='size-4' strokeWidth={1.5} />
-          {translate('back')}
-        </ApprovalsButton>
+        <>
+          <ApprovalsButton variant='ghost' onClick={() => onSelectTab('queue')}>
+            <ArrowLeft aria-hidden className='size-4' strokeWidth={1.5} />
+            {translate('back')}
+          </ApprovalsButton>
+          {hasBatch && (
+            <ApprovalsButton onClick={() => onSelectTab('batch', { id: batchId })}>
+              <Layers aria-hidden className='size-4' strokeWidth={1.5} />
+              {translate('batchLink')}
+            </ApprovalsButton>
+          )}
+        </>
       }
     >
-      {itemId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(itemId) ? (
+      {itemId && UUID_PATTERN.test(itemId) ? (
         <SpendRequestContent key={itemId} requestId={itemId} />
       ) : (
         <ApprovalsEmpty />
@@ -44,21 +57,17 @@ export function ApprovalRequestView({
 
 function SpendRequestContent({ requestId }: { requestId: string }) {
   const approvalQuery = useSpendApprovalGet(requestId)
-  const requestQuery = useAccessRequestGet(requestId)
-  const requestData = requestQuery.data?.data
-  const request = requestData && 'request' in requestData ? requestData.request : undefined
-  const isGroup = request?.type === REQUEST_TYPE.GROUP_GRANT
+  const approval = approvalQuery.data?.data?.spendApproval
+  const requestKind = useSpendRequestKind(requestId, approval ? approval.request.beneficiary !== null : undefined)
+  const isGroup = requestKind.kind === 'group'
   const checkQuery = useBudgetCheckGet(requestId)
   const yearsQuery = useSpendYears(requestId)
-  const approval = approvalQuery.data?.data?.spendApproval
   const check = checkQuery.data?.data?.budgetCheck
   const knownCodes: readonly (string | null)[] = [null, ...Object.values(BUDGET_CHECK_CODE)]
   const ready = Boolean(
     check &&
-    request &&
-    requestQuery.isSuccess &&
-    !requestQuery.isFetching &&
-    Object.values(REQUEST_TYPE).includes(request.type) &&
+    requestKind.kind &&
+    !requestKind.isFetching &&
     checkQuery.isSuccess &&
     !checkQuery.isFetching &&
     yearsQuery.isComplete &&
@@ -78,7 +87,7 @@ function SpendRequestContent({ requestId }: { requestId: string }) {
             {approval.request.plan?.applicationName ?? approval.request.softwareName ?? requestId}
           </h2>
           <SpendRequestFacts approval={approval} isGroup={isGroup} />
-          <ApprovalsQueryState query={requestQuery}>{!request && <ApprovalsEmpty />}</ApprovalsQueryState>
+          {requestKind.failure && <ApprovalsQueryState query={requestKind.failure}>{null}</ApprovalsQueryState>}
           <ApprovalsQueryState query={checkQuery}>
             <ApprovalsQueryState query={yearsQuery}>
               {check && <SpendBudgetPanel check={check} years={yearsQuery.years} />}
