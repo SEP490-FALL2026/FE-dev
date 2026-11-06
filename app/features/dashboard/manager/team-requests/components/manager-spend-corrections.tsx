@@ -1,9 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { toast } from 'sonner'
-import type { PlanLineBodyDto } from '~/shared/api/generated/model/spend-submission/planLineBodyDto'
 import type { SupplementBodyDto } from '~/shared/api/generated/model/spend-submission/supplementBodyDto'
-import { accessRequestPlanLineSet } from '~/shared/api/generated/operations/spend-submission/access-request-plan-line-set'
 import { accessRequestSupplementAdd } from '~/shared/api/generated/operations/spend-submission/access-request-supplement-add'
 import {
   useAccessRequestSupplementList,
@@ -25,18 +22,16 @@ import {
   ManagerSection,
   managerInputClass
 } from '../../shared/components/manager-api-ui'
-import { allocationFromForm, ManagerPlanAllocation } from './manager-plan-allocation'
 
 export function ManagerSpendCorrections({ id }: { id: string }) {
   const { t: translate } = useTranslation('manager')
-  const [mode, setMode] = useState<'plan' | 'supplement' | null>(null)
+  const [mode, setMode] = useState(false)
   const paging = useManagerPage('supplementPage')
   const query = useAccessRequestSupplementList(id, { page: paging.page, pageSize: paging.pageSize })
   return (
     <ManagerSection title={translate('supplements')}>
       <div className='flex flex-wrap gap-3'>
-        <ManagerButton onClick={() => setMode('plan')}>{translate('selectPlan')}</ManagerButton>
-        <ManagerButton onClick={() => setMode('supplement')}>{translate('supplement')}</ManagerButton>
+        <ManagerButton onClick={() => setMode(true)}>{translate('supplement')}</ManagerButton>
       </div>
       <ManagerQueryState query={query} empty={!query.data?.data?.items.length} />
       {!query.isError &&
@@ -49,32 +44,27 @@ export function ManagerSpendCorrections({ id }: { id: string }) {
           </p>
         ))}
       <ManagerPagination pagination={query.data?.data?.pagination} onPage={paging.onPage} busy={query.isFetching} />
-      {mode && <CorrectionDialog id={id} mode={mode} onClose={() => setMode(null)} />}
+      {mode && <CorrectionDialog id={id} onClose={() => setMode(false)} />}
     </ManagerSection>
   )
 }
-function CorrectionDialog({ id, mode, onClose }: { id: string; mode: 'plan' | 'supplement'; onClose: () => void }) {
+function CorrectionDialog({ id, onClose }: { id: string; onClose: () => void }) {
   const { t: translate } = useTranslation('manager')
   const keys = [
     getAccessRequestGetQueryKey(id),
     getSpendQueueListQueryKey(),
     getAccessRequestSupplementListQueryKey(id)
   ]
-  const plan = useManagerAction({
-    mutationFn: (body: PlanLineBodyDto) => accessRequestPlanLineSet(id, body),
-    invalidate: keys,
-    onSuccess: onClose
-  })
   const supplement = useManagerAction({
     mutationFn: (body: SupplementBodyDto) => accessRequestSupplementAdd(id, body),
     invalidate: keys,
     onSuccess: onClose
   })
-  const action = mode === 'plan' ? plan : supplement
+  const action = supplement
   return (
     <Dialog
-      presentation={mode === 'plan' ? 'drawer' : 'sheet'}
-      title={translate(mode === 'plan' ? 'selectPlan' : 'supplement')}
+      presentation='sheet'
+      title={translate('supplement')}
       hint={translate('confirmAction')}
       onClose={() => {
         if (!action.isPending) onClose()
@@ -87,52 +77,32 @@ function CorrectionDialog({ id, mode, onClose }: { id: string; mode: 'plan' | 's
             event.preventDefault()
             if (action.blocked) return
             const form = new FormData(event.currentTarget)
-            if (mode === 'plan') {
-              const allocation = allocationFromForm(form)
-              if (!allocation) {
-                toast.error(translate('validation'), { id: 'manager-spend-allocation' })
-                return
-              }
-              plan.mutate(allocation.offPlan ? { offPlan: true } : { planLine: allocation.planLine })
-              return
-            }
-            const expectedSpendOn = String(form.get('expectedSpendOn') ?? '')
             const dropEmployeeIds = parseEmployeeIds(String(form.get('dropEmployeeIds') ?? ''))
             supplement.mutate({
               reason: String(form.get('reason')).trim(),
-              ...(expectedSpendOn ? { expectedSpendOn } : {}),
-              ...(dropEmployeeIds.length ? { dropEmployeeIds } : {})
+              dropEmployeeIds
             })
           }}
         >
           <fieldset disabled={action.blocked} className='space-y-4'>
-            {mode === 'plan' ? (
-              <ManagerPlanAllocation id={id} includeExpectedSpend={false} />
-            ) : (
-              <>
-                <ManagerField label={translate('expectedSpend')}>
-                  <input name='expectedSpendOn' type='date' className={managerInputClass} />
-                </ManagerField>
-                <ManagerField label={translate('dropEmployees')}>
-                  <textarea
-                    name='dropEmployeeIds'
-                    className={managerInputClass}
-                    onChange={(event) =>
-                      event.target.setCustomValidity(
-                        parseEmployeeIds(event.target.value).every((value) =>
-                          new RegExp(`^${resourceIdPattern}$`).test(value)
-                        )
-                          ? ''
-                          : translate('validation')
-                      )
-                    }
-                  />
-                </ManagerField>
-                <ManagerField label={translate('reason')}>
-                  <textarea name='reason' required maxLength={1000} className={managerInputClass} />
-                </ManagerField>
-              </>
-            )}
+            <ManagerField label={translate('dropEmployees')}>
+              <textarea
+                name='dropEmployeeIds'
+                className={managerInputClass}
+                onChange={(event) =>
+                  event.target.setCustomValidity(
+                    parseEmployeeIds(event.target.value).every((value) =>
+                      new RegExp(`^${resourceIdPattern}$`).test(value)
+                    )
+                      ? ''
+                      : translate('validation')
+                  )
+                }
+              />
+            </ManagerField>
+            <ManagerField label={translate('reason')}>
+              <textarea name='reason' required maxLength={1000} className={managerInputClass} />
+            </ManagerField>
           </fieldset>
           <ManagerActionState action={action} />
           <div className='flex justify-end'>

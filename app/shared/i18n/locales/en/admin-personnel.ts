@@ -100,6 +100,8 @@ export const adminPersonnel = {
   allRows: 'All rows',
   invalidFile: 'Choose a CSV/XLSX file no larger than 2 MiB.',
   fields: {
+    accessBlockMode: 'Access block timing',
+    cancelPendingTransfer: 'Cancel pending transfer',
     employeeId: 'Employee',
     employeeCode: 'Employee code',
     fullName: 'Full name',

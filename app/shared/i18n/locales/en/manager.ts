@@ -1,7 +1,12 @@
+import { managerRenewals } from './manager-renewals'
 import { managerIntegration } from './manager-integration'
 import { managerRequestForm } from './manager-request-form'
 import { managerBudgetForm } from './manager-budget-form'
 export const manager = {
+  renewal: managerRenewals,
+  renewals: managerRenewals.title,
+  termLimit: 'Maximum term: {{months}} months',
+  groupMinimum: 'Select 2 to 10 different people',
   budgetForm: managerBudgetForm,
   requestForm: managerRequestForm,
   integration: managerIntegration,
@@ -336,6 +341,10 @@ export const manager = {
     confirmRejectText: 'Are you sure you want to REJECT this software need?'
   },
   errors: {
+    termLimit: 'The term exceeds the plan limit. Check the maximum months and preview again.',
+    groupMinimum: 'A group request requires 2 to 10 different people.',
+    renewalStale: 'This proposal has changed. IT must submit a new proposal before confirmation.',
+    renewalAcknowledge: 'Acknowledge cancellation while people are still using this subscription.',
     budgetAttachments:
       'Some files are no longer available. Refresh the file list and select files again before submitting.',
     unavailable: 'Unable to load data. Try again.',

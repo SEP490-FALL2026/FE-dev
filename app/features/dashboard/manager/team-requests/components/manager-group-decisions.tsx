@@ -3,7 +3,6 @@ import { getNeedDecisionListQueryKey } from '~/shared/api/generated/operations/n
 import { getManagerDashboardGetQueryKey } from '~/shared/api/generated/operations/dashboards/manager-dashboard-get'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { toast } from 'sonner'
 import type { LineNeedDecisionBodyDto } from '~/shared/api/generated/model/group-requests/lineNeedDecisionBodyDto'
 import {
   useAccessRequestLineList,
@@ -17,29 +16,22 @@ import { useManagerAction } from '../../shared/hooks/use-manager-action'
 import {
   ManagerActionState,
   ManagerButton,
-  ManagerField,
   ManagerFormErrors,
   ManagerQueryState,
   ManagerSection,
-  ManagerStatus,
-  managerInputClass
+  ManagerStatus
 } from '../../shared/components/manager-api-ui'
 import { NEED_STEP_STATE, NEED_DECISION, GROUP_LINE_STATE } from '../enums/need-decision'
-import { allocationFromForm, ManagerPlanAllocation } from './manager-plan-allocation'
 import { ManagerDecisionFields, type ManagerDecisionChoice } from './manager-decision-fields'
 
 export function ManagerGroupDecisions({
   id,
   employeeId,
-  hasSpend,
-  requestPending,
-  termRequired = false
+  requestPending
 }: {
   id: string
   employeeId: string
-  hasSpend: boolean
   requestPending: boolean
-  termRequired?: boolean
 }) {
   const { t: translate } = useTranslation('manager')
   // Group creation is capped at ten; still refuse a partial response if that contract changes.
@@ -57,7 +49,6 @@ export function ManagerGroupDecisions({
   const [common, setCommon] = useState<ManagerDecisionChoice>({ decision: '', reason: '' })
   const [choices, setChoices] = useState<Record<string, ManagerDecisionChoice>>({})
   const choiceFor = (personId: string) => (individual ? (choices[personId] ?? { decision: '', reason: '' }) : common)
-  const hasApproval = pending.some((line) => choiceFor(line.employee.employeeId).decision === NEED_DECISION.APPROVE)
   const confirmationCurrent =
     !!confirmation &&
     requestPending &&
@@ -86,7 +77,6 @@ export function ManagerGroupDecisions({
           onSubmit={(event) => {
             event.preventDefault()
             if (action.blocked || !complete || query.isFetching || !requestPending || !pending.length) return
-            const form = new FormData(event.currentTarget)
             const decisions: LineNeedDecisionBodyDto['lines'] = []
             for (const line of pending) {
               const choice = choiceFor(line.employee.employeeId)
@@ -97,18 +87,7 @@ export function ManagerGroupDecisions({
                 ...(choice.decision === NEED_DECISION.REJECT ? { reason: choice.reason.trim() } : {})
               })
             }
-            const spend = hasSpend && hasApproval ? allocationFromForm(form) : undefined
-            if (hasSpend && hasApproval && !spend) {
-              toast.error(translate('validation'), { id: 'manager-group-allocation' })
-              return
-            }
-            const term = String(form.get('termConfirmation') ?? '').trim()
-            if (termRequired && hasApproval && !term) return
-            setConfirmation({
-              lines: decisions,
-              ...(termRequired && hasApproval ? { termConfirmation: { reason: term } } : {}),
-              ...(spend ? { spend } : {})
-            })
+            setConfirmation({ lines: decisions })
           }}
         >
           <fieldset disabled={action.blocked || !requestPending} className='space-y-4'>
@@ -155,16 +134,6 @@ export function ManagerGroupDecisions({
                 )}
               </article>
             ))}
-            {!!pending.length && requestPending && (
-              <>
-                {termRequired && hasApproval && (
-                  <ManagerField label={translate('requestForm.termConfirmation')}>
-                    <textarea name='termConfirmation' required maxLength={1000} className={managerInputClass} />
-                  </ManagerField>
-                )}
-                {hasSpend && hasApproval && <ManagerPlanAllocation id={id} />}
-              </>
-            )}
           </fieldset>
           <ManagerActionState action={action} />
           {!complete && query.isSuccess && (

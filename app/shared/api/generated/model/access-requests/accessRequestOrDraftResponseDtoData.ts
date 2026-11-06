@@ -80,9 +80,6 @@ export type AccessRequestOrDraftResponseDtoData =
          * @exclusiveMinimum 0
          */
         termMonths: number
-        offPlan: boolean
-        /** @nullable */
-        delegatedBatchId: string | null
         /** @nullable */
         expectedEndDate: string | null
         /** @nullable */
@@ -125,7 +122,6 @@ export type AccessRequestOrDraftResponseDtoData =
             appliedAt: string
           } | null
         } | null
-        planLineAttached: boolean
         /** @nullable */
         spend: {
           stage:
@@ -143,8 +139,6 @@ export type AccessRequestOrDraftResponseDtoData =
           /** @nullable */
           refusalReason: string | null
         } | null
-        /** @nullable */
-        expectedSpendOn: string | null
         /**
          * @minimum -9007199254740991
          * @maximum 9007199254740991
@@ -237,8 +231,6 @@ export type AccessRequestOrDraftResponseDtoData =
           deciderRole: 'MANAGER' | 'SPENDING_APPROVER' | 'FALLBACK_APPROVER'
           /** @nullable */
           reason: string | null
-          /** @nullable */
-          termConfirmationReason: string | null
           decidedAt: string
         } | null
         /** @nullable */

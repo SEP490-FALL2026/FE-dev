@@ -142,6 +142,7 @@ export const approvalsRenewal = {
   },
   values: {
     state: {
+      STALE: 'Cần đề xuất lại',
       PROPOSED: 'Chờ quyết định',
       DECIDED: 'Đã quyết, chờ ghi kết quả',
       OUTCOME_RECORDED: 'Đã ghi kết quả'

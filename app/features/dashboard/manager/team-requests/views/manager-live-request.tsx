@@ -203,17 +203,11 @@ export function ManagerLiveRequest({
             <ManagerGroupDecisions
               id={id}
               employeeId={employeeId}
-              hasSpend={queueContext?.planLineRequired ?? false}
-              termRequired={queueContext?.termConfirmationRequired}
               requestPending={request.state === REQUEST_STATE.PENDING && !!queueContext}
             />
           ) : canDecide && queueContext ? (
             <ManagerSection title={translate('requestDetail.decisionTitle')}>
-              <ManagerNeedForm
-                id={id}
-                hasSpend={queueContext.planLineRequired}
-                termRequired={queueContext.termConfirmationRequired}
-              />
+              <ManagerNeedForm id={id} />
               <div className='border-t border-border/50 pt-4'>
                 <ManagerSimilarSeats id={id} />
               </div>

@@ -68,6 +68,7 @@ export const itRenewals = {
     RENEW: 'Gia hạn nguyên trạng',
     REDUCE: 'Giảm số ghế',
     CANCEL: 'Hủy thuê bao',
+    STALE: 'Cần đề xuất lại',
     PROPOSED: 'Chờ quyết định',
     DECIDED: 'Chờ kết quả nhà cung cấp',
     OUTCOME_RECORDED: 'Đã ghi kết quả',

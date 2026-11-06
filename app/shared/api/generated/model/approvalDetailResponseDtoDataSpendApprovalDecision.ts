@@ -15,9 +15,6 @@ export type ApprovalDetailResponseDtoDataSpendApprovalDecision = {
   decision: ApprovalDetailResponseDtoDataSpendApprovalDecisionDecision
   /** @nullable */
   reason: string | null
-  /** @nullable */
-  overrideReason: string | null
   decidedBy: ApprovalDetailResponseDtoDataSpendApprovalDecisionDecidedBy
   decidedAt: string
-  bySubstitute: boolean
 } | null

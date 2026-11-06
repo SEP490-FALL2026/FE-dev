@@ -41,25 +41,21 @@ function mount(children: React.ReactNode, url = '/dashboard/manager') {
   )
 }
 describe('Manager budget, group and personnel contracts', () => {
-  it('edits plan allocation without offering a spending date that its endpoint cannot save', async () => {
+  it('adds a supplement without using removed plan allocation routes', async () => {
     const written = vi.fn()
     server.use(
       http.get('*/api/v1/access-requests/:id/supplements', () => HttpResponse.json(pageResponse([]))),
-      http.put('*/api/v1/access-requests/:id/plan-line', async ({ request }) => {
+      http.post('*/api/v1/access-requests/:id/supplements', async ({ request }) => {
         written(await request.json())
-        return HttpResponse.json({
-          success: true,
-          data: { planLine: { requestId, offPlan: true, planLineAttached: false, stillNeeded: false } }
-        })
+        return HttpResponse.json({ success: true, data: null })
       })
     )
     mount(<ManagerSpendCorrections id={requestId} />)
-    fireEvent.click(screen.getByRole('button', { name: 'Budget plan allocation' }))
-    const dialog = screen.getByRole('dialog')
-    expect(within(dialog).queryByLabelText('Expected spending date')).not.toBeInTheDocument()
-    fireEvent.click(within(dialog).getByLabelText('Outside the annual plan'))
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Confirm' }))
-    await waitFor(() => expect(written).toHaveBeenCalledWith({ offPlan: true }))
+    expect(screen.queryByRole('button', { name: 'Budget plan allocation' })).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Supplement request' }))
+    fireEvent.change(screen.getByLabelText('Reason'), { target: { value: 'Update participants' } })
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm' }))
+    await waitFor(() => expect(written).toHaveBeenCalledWith({ reason: 'Update participants', dropEmployeeIds: [] }))
   })
   it('submits decimal money unchanged and omits empty optional budget fields', async () => {
     const written = vi.fn()
@@ -73,24 +69,14 @@ describe('Manager budget, group and personnel contracts', () => {
     fireEvent.change(screen.getByLabelText('Fiscal year'), { target: { value: '2027' } })
     fireEvent.change(screen.getByLabelText('Description'), { target: { value: 'Development licenses' } })
     fireEvent.change(screen.getByLabelText('Amount'), { target: { value: '9007199254740993.25' } })
-    fireEvent.change(screen.getByLabelText('Reporting currency'), { target: { value: 'USD' } })
-    fireEvent.change(screen.getByLabelText('Service period (months)'), { target: { value: '12' } })
-    fireEvent.change(screen.getByLabelText('Purchase window starts'), { target: { value: '2027-01-01' } })
-    fireEvent.change(screen.getByLabelText('Purchase window ends'), { target: { value: '2027-12-31' } })
-    fireEvent.change(screen.getByLabelText('Repeat cycle'), { target: { value: 'MONTHLY' } })
     fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
     await waitFor(() => expect(written).toHaveBeenCalledTimes(1))
     expect(written).toHaveBeenCalledWith({
-      costCenterId: employeeId,
       year: 2027,
       lines: [
         {
           description: 'Development licenses',
-          amount: { amount: '9007199254740993.25', currency: 'USD' },
-          servicePeriodMonths: 12,
-          windowFrom: '2027-01-01',
-          windowTo: '2027-12-31',
-          repeatCycle: 'MONTHLY'
+          amount: { amount: '9007199254740993.25' }
         }
       ]
     })
@@ -158,7 +144,12 @@ describe('Manager budget, group and personnel contracts', () => {
     const submitted = vi.fn()
     server.use(
       http.get('*/api/v1/group-request-candidates', () =>
-        HttpResponse.json(pageResponse([{ employeeId, fullName: 'Test Employee', workEmail: 'employee@example.test' }]))
+        HttpResponse.json(
+          pageResponse([
+            { employeeId, fullName: 'Test Employee', workEmail: 'employee@example.test' },
+            { employeeId: planId, fullName: 'Second Employee', workEmail: 'second@example.test' }
+          ])
+        )
       ),
       http.post('*/api/v1/group-requests/check', () =>
         HttpResponse.json({
@@ -177,6 +168,7 @@ describe('Manager budget, group and personnel contracts', () => {
     fireEvent.change(screen.getByLabelText('Term (months)'), { target: { value: '3' } })
     fireEvent.click(screen.getByRole('combobox', { name: 'Beneficiaries' }))
     fireEvent.click(await screen.findByRole('option', { name: /Test Employee/ }))
+    fireEvent.click(screen.getByRole('option', { name: /Second Employee/ }))
     fireEvent.keyDown(screen.getByRole('searchbox'), { key: 'Escape' })
     fireEvent.change(screen.getByLabelText('Reason'), { target: { value: 'Team development' } })
     fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
@@ -210,14 +202,11 @@ describe('Manager budget, group and personnel contracts', () => {
         return HttpResponse.json({ success: true, data: { request: managerRequest } })
       })
     )
-    mount(<ManagerGroupDecisions id={requestId} employeeId={managerId} hasSpend requestPending />)
+    mount(<ManagerGroupDecisions id={requestId} employeeId={managerId} requestPending />)
     fireEvent.click(await screen.findByRole('radio', { name: 'Approve need' }))
-    fireEvent.click(screen.getByLabelText('Outside the annual plan'))
     fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm' }))
-    await waitFor(() =>
-      expect(written).toHaveBeenCalledWith({ lines: [{ employeeId, decision: 'APPROVE' }], spend: { offPlan: true } })
-    )
+    await waitFor(() => expect(written).toHaveBeenCalledWith({ lines: [{ employeeId, decision: 'APPROVE' }] }))
   })
   it('requires the server canDecide permission for transfer decisions and sends assignment IDs', async () => {
     const written = vi.fn()
@@ -251,8 +240,11 @@ describe('Manager budget, group and personnel contracts', () => {
     )
     mount(<ManagerTransferReviews />, `/?reviewId=${requestId}`)
     fireEvent.click(await screen.findByRole('button', { name: 'Decision' }))
+    fireEvent.change(screen.getByLabelText('Reason'), { target: { value: 'No longer needed' } })
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm' }))
-    await waitFor(() => expect(written).toHaveBeenCalledWith({ assignmentId, decision: 'NOT_NEEDED' }))
+    await waitFor(() =>
+      expect(written).toHaveBeenCalledWith({ assignmentId, decision: 'NOT_NEEDED', reason: 'No longer needed' })
+    )
   })
   it('preserves fields and shows retry countdown for rate limits', async () => {
     server.use(

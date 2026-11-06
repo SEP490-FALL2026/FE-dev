@@ -18,7 +18,5 @@ export type AccessRequestResponseDtoDataRequestNeedDecision = {
   deciderRole: AccessRequestResponseDtoDataRequestNeedDecisionDeciderRole
   /** @nullable */
   reason: string | null
-  /** @nullable */
-  termConfirmationReason: string | null
   decidedAt: string
 } | null

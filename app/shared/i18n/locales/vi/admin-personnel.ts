@@ -98,6 +98,8 @@ export const adminPersonnel = {
   allRows: 'Tất cả dòng',
   invalidFile: 'Chọn tệp CSV/XLSX không quá 2 MiB.',
   fields: {
+    accessBlockMode: 'Thời điểm chặn truy cập',
+    cancelPendingTransfer: 'Hủy điều chuyển đang chờ',
     employeeId: 'Nhân viên',
     employeeCode: 'Mã nhân viên',
     fullName: 'Họ tên',

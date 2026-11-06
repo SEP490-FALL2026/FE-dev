@@ -15,11 +15,6 @@ export function BudgetPlanLineFacts({
     ['amount', formatMoney(line.amount, i18n.language)],
     ['planId', line.planId],
     ['seats', line.seats],
-    ['windowFrom', line.windowFrom],
-    ['windowTo', line.windowTo],
-    ['servicePeriodMonths', line.servicePeriodMonths],
-    ['repeatCycle', translate(`cycles.${line.repeatCycle}`, { defaultValue: translate('unknown') })],
-    ['quoteValidUntil', line.quoteValidUntil],
     ['note', line.note]
   ] as const
   return (

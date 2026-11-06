@@ -14,7 +14,6 @@ export type BatchItemListResponseDtoDataItemsItemStopReason =
   | null
 
 export const BatchItemListResponseDtoDataItemsItemStopReason = {
-  PLAN_LINE_REQUIRED: 'PLAN_LINE_REQUIRED',
   STALE_COST_EVIDENCE: 'STALE_COST_EVIDENCE',
   CLOSED_OR_EXPIRED_BUDGET_PERIOD: 'CLOSED_OR_EXPIRED_BUDGET_PERIOD',
   PRICE_MISSING: 'PRICE_MISSING',

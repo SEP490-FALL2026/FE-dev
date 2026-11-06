@@ -1,4 +1,5 @@
 export const approvalsSpend = {
+  budgetBlocked: 'Không thể duyệt yêu cầu vì chưa có hoặc không đủ ngân sách cần thiết.',
   batchSelection: 'Chọn',
   batchPosition: 'Thứ tự',
   batchRequestId: 'Mã yêu cầu',

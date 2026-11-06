@@ -18,7 +18,5 @@ export type GroupResponseDtoDataRequestNeedDecision = {
   deciderRole: GroupResponseDtoDataRequestNeedDecisionDeciderRole
   /** @nullable */
   reason: string | null
-  /** @nullable */
-  termConfirmationReason: string | null
   decidedAt: string
 } | null

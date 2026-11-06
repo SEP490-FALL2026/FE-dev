@@ -11,6 +11,7 @@ export const MANAGER_TAB_KEYS = [
   'create-employee-request',
   'weekly-batch',
   'annual-budget',
+  'subscription-renewals',
   'ghost-seat-review',
   'ghost-seat-detail',
   'access-review',

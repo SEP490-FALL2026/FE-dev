@@ -6,10 +6,9 @@
  * OpenAPI spec version: 1.0
  */
 import type { LineSpendDecisionBodyDtoLinesItem } from './lineSpendDecisionBodyDtoLinesItem'
-import type { LineSpendDecisionBodyDtoOverride } from './lineSpendDecisionBodyDtoOverride'
 
 /**
- * Each person is decided once. An exception (override) is accepted only when at least one person is approved.
+ * Each person is decided once.
  */
 export interface LineSpendDecisionBodyDto {
   /**
@@ -17,5 +16,4 @@ export interface LineSpendDecisionBodyDto {
    * @maxItems 100
    */
   lines: LineSpendDecisionBodyDtoLinesItem[]
-  override?: LineSpendDecisionBodyDtoOverride
 }

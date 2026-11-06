@@ -6,33 +6,23 @@
  * OpenAPI spec version: 1.0
  */
 import type { BudgetProposalBodyDtoLinesItemAmount } from './budgetProposalBodyDtoLinesItemAmount'
-import type { BudgetProposalBodyDtoLinesItemRepeatCycle } from './budgetProposalBodyDtoLinesItemRepeatCycle'
 
+/**
+ * A line is a plan or a description, the seats, the amount of the year and a note.
+ */
 export type BudgetProposalBodyDtoLinesItem = {
+  planId?: string
   /**
    * @minLength 1
    * @maxLength 200
    */
-  description: string
-  planId?: string
+  description?: string
   /**
    * @minimum 1
    * @maximum 100000
    */
   seats?: number
   amount: BudgetProposalBodyDtoLinesItemAmount
-  /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
-  windowFrom?: string
-  /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
-  windowTo?: string
-  /**
-   * @minimum 1
-   * @maximum 120
-   */
-  servicePeriodMonths?: number
-  repeatCycle?: BudgetProposalBodyDtoLinesItemRepeatCycle
-  /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
-  quoteValidUntil?: string
   /**
    * @minLength 1
    * @maxLength 1000

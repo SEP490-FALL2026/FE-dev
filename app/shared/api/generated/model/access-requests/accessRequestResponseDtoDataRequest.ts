@@ -50,20 +50,14 @@ export type AccessRequestResponseDtoDataRequest = {
    * @exclusiveMinimum 0
    */
   termMonths: number
-  offPlan: boolean
-  /** @nullable */
-  delegatedBatchId: string | null
   /** @nullable */
   expectedEndDate: string | null
   /** @nullable */
   serviceAccount: AccessRequestResponseDtoDataRequestServiceAccount
   /** @nullable */
   renewal: AccessRequestResponseDtoDataRequestRenewal
-  planLineAttached: boolean
   /** @nullable */
   spend: AccessRequestResponseDtoDataRequestSpend
-  /** @nullable */
-  expectedSpendOn: string | null
   /**
    * @minimum -9007199254740991
    * @maximum 9007199254740991

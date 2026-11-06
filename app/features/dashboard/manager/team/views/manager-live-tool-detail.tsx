@@ -17,12 +17,7 @@ interface Props {
   onSelectTab?: (tab: ManagerTabKey, params?: Record<string, string>) => void
 }
 
-export function ManagerLiveToolDetail({
-  departmentId,
-  id,
-  onBack,
-  onReturnCreated
-}: Props) {
+export function ManagerLiveToolDetail({ departmentId, id, onBack, onReturnCreated }: Props) {
   const { t: translate } = useTranslation('manager')
   const { formatDate } = useDashboardFormat()
   const [isReturning, setIsReturning] = useState(false)
@@ -38,9 +33,7 @@ export function ManagerLiveToolDetail({
     pagedQuery.data?.data?.items?.find((item) => item.assignmentId === id) ??
     searchQuery.data?.find((item) => item.assignmentId === id)
 
-  const isPending =
-    (pagedQuery.isPending || !pagedQuery.data) &&
-    (searchQuery.isPending || !searchQuery.data)
+  const isPending = (pagedQuery.isPending || !pagedQuery.data) && (searchQuery.isPending || !searchQuery.data)
 
   return (
     <div className='space-y-6'>
@@ -89,9 +82,7 @@ export function ManagerLiveToolDetail({
             description={translate('toolDetail.notFoundHint')}
           />
           <div className='mt-6 flex justify-center'>
-            <ManagerButton onClick={onBack}>
-              {translate('toolDetail.backToTools')}
-            </ManagerButton>
+            <ManagerButton onClick={onBack}>{translate('toolDetail.backToTools')}</ManagerButton>
           </div>
         </ManagerSection>
       )}
@@ -259,4 +250,3 @@ export function ManagerLiveToolDetail({
     </div>
   )
 }
-

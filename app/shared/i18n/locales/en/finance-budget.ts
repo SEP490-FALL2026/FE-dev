@@ -33,6 +33,7 @@ export const financeBudget = {
     showHistory: 'View history'
   },
   fields: {
+    reserveReason: 'Reserve reason',
     costCenter: 'Cost Center',
     year: 'Fiscal year',
     state: 'State',

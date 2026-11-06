@@ -12,13 +12,9 @@ type Decision = NonNullable<Renewal['decision']>
 
 function SnapshotFacts({ snapshot }: { snapshot: Decision['snapshot'] }) {
   const { t: translate, i18n } = useTranslation('approvalsRenewal')
-  const { formatDate, formatDateTime } = useWorkspaceFormat()
-  if (snapshot.source === SNAPSHOT_SOURCE.NOT_CONNECTED)
-    return (
-      <p className='text-sm text-muted-foreground'>
-        {translate('record.notConnected', { time: formatDateTime(snapshot.takenAt) })}
-      </p>
-    )
+  const { formatDate } = useWorkspaceFormat()
+  if (!snapshot || snapshot.source === SNAPSHOT_SOURCE.NOT_CONNECTED)
+    return <p className='text-sm text-muted-foreground'>{translate('notProvided')}</p>
   const { financial } = snapshot
   const money = (amount: string | null) =>
     amount !== null && financial.currency

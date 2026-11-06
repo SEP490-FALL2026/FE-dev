@@ -20,4 +20,5 @@ export type SubscriptionRenewalSeatRankingResponseDtoDataItemsItem = {
   validFrom: string
   /** @nullable */
   lastActivityOn: string | null
+  inProposal: boolean
 }

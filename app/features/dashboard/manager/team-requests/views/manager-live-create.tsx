@@ -3,7 +3,6 @@ import { FilePlus2 } from 'lucide-react'
 import { ManagerPageHeader } from '../../shared/components/manager-page-header'
 import { useTranslation } from 'react-i18next'
 import type { GroupBodyDto } from '~/shared/api/generated/model/group-requests/groupBodyDto'
-import type { GroupCheckResponseDtoDataLinesItemReason } from '~/shared/api/generated/model/group-requests/groupCheckResponseDtoDataLinesItemReason'
 import { groupRequestSubmit } from '~/shared/api/generated/operations/group-requests/group-request-submit'
 import { getSpendQueueListQueryKey } from '~/shared/api/generated/operations/spend-submission/spend-queue-list'
 import { Dialog } from '../../../dashboard-ui'
@@ -13,7 +12,6 @@ import { ManagerPeoplePicker } from '../../shared/components/manager-people-pick
 import type { ManagerChoice } from '../../shared/components/manager-choice-select'
 import { ManagerCatalogPicker, type ManagerCatalogPlan } from '../components/manager-catalog-picker'
 import { ManagerRequestSummary } from '../components/manager-request-summary'
-import { ManagerGroupEndDates } from '../components/manager-group-end-dates'
 import {
   ManagerActionState,
   ManagerButton,
@@ -30,9 +28,6 @@ export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) 
   const [created, setCreated] = useState<string[]>([])
   const [pending, setPending] = useState<GroupBodyDto | null>(null)
   const [termMonths, setTermMonths] = useState('')
-  const [dates, setDates] = useState<Record<string, string>>({})
-  const [dateIssues, setDateIssues] = useState<Record<string, GroupCheckResponseDtoDataLinesItemReason>>({})
-  const termRequired = Number(termMonths) > 12
   const action = useManagerAction({
     mutationFn: (body: GroupBodyDto) => groupRequestSubmit(body),
     invalidate: [getSpendQueueListQueryKey()],
@@ -50,28 +45,17 @@ export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) 
             className='space-y-5'
             onSubmit={(event) => {
               event.preventDefault()
-              if (action.blocked || pending || !plan?.canSubmit || !people.length || people.length > 10) return
+              if (action.blocked || pending || !plan?.canSubmit || people.length < 2 || people.length > 10) return
               const form = new FormData(event.currentTarget)
               const planId = plan.id
               const businessReason = String(form.get('businessReason')).trim()
               const months = Number(termMonths)
-              const expectedSpendOn = String(form.get('expectedSpendOn') ?? '')
-              const term = String(form.get('termConfirmation') ?? '').trim()
-              if (!businessReason || !Number.isInteger(months) || months < 1 || months > 120 || (termRequired && !term))
-                return
-              const common = {
+              if (!businessReason || !Number.isInteger(months) || months < 1 || months > 12) return
+              setPending({
                 businessReason,
                 termMonths: months,
-                ...(termRequired ? { termConfirmation: { reason: term } } : {})
-              }
-              setPending({
-                ...common,
                 planId,
-                lines: people.map((person) => ({
-                  employeeId: person.value,
-                  ...(dates[person.value] ? { expectedEndDate: dates[person.value] } : {})
-                })),
-                ...(expectedSpendOn ? { expectedSpendOn } : {})
+                lines: people.map((person) => ({ employeeId: person.value }))
               })
             }}
           >
@@ -89,7 +73,7 @@ export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) 
                     name='termMonths'
                     type='number'
                     min={1}
-                    max={120}
+                    max={12}
                     step={1}
                     required
                     value={termMonths}
@@ -99,53 +83,22 @@ export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) 
               </div>
               <ManagerPeoplePicker
                 value={people}
-                onChange={(selected) => {
-                  setPeople(selected)
-                  setDates((previous) =>
-                    Object.fromEntries(selected.map((person) => [person.value, previous[person.value] ?? '']))
-                  )
-                  setDateIssues({})
-                }}
+                onChange={setPeople}
                 disabled={action.blocked}
                 multiple
                 limit={10}
                 invalid={action.fields.some((field) => field.startsWith('lines.'))}
               />
-              {!!people.length && (
-                <ManagerGroupEndDates
-                  people={people}
-                  dates={dates}
-                  issues={dateIssues}
-                  onChange={(value) => {
-                    setDates(value)
-                    setDateIssues((previous) =>
-                      Object.fromEntries(
-                        Object.entries(previous).filter(([employeeId]) => dates[employeeId] === value[employeeId])
-                      )
-                    )
-                  }}
-                />
-              )}
               <ManagerField label={translate('reason')}>
                 <textarea className={managerInputClass} name='businessReason' required maxLength={1000} />
               </ManagerField>
-              <div className='grid gap-4 sm:grid-cols-2'>
-                <ManagerField label={translate('expectedSpend')}>
-                  <input className={managerInputClass} name='expectedSpendOn' type='date' />
-                </ManagerField>
-                {termRequired && (
-                  <ManagerField label={translate('requestForm.termConfirmation')}>
-                    <textarea className={managerInputClass} name='termConfirmation' required maxLength={1000} />
-                  </ManagerField>
-                )}
-              </div>
             </fieldset>
             <ManagerActionState action={action} />
             <div className='sticky bottom-0 flex justify-end border-t border-border/60 bg-surface py-4 pb-[calc(1rem+env(safe-area-inset-bottom))]'>
               <ManagerButton
                 primary
                 type='submit'
-                disabled={action.blocked || !!pending || !plan?.canSubmit || !people.length || people.length > 10}
+                disabled={action.blocked || !!pending || !plan?.canSubmit || people.length < 2 || people.length > 10}
                 busy={action.isPending}
               >
                 {action.retrySeconds ? translate('retryAfter', { seconds: action.retrySeconds }) : translate('submit')}
@@ -184,10 +137,6 @@ export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) 
               blocked={action.blocked}
               busy={action.isPending}
               onCancel={() => setPending(null)}
-              onEditDates={(issues) => {
-                setDateIssues(Object.fromEntries(issues.map((issue) => [issue.employeeId, issue.reason])))
-                setPending(null)
-              }}
               onConfirm={() => {
                 if (!action.blocked) action.mutate(pending)
               }}

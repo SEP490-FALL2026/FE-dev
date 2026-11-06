@@ -1,3 +1,4 @@
+import { BudgetVersionListState } from '~/shared/api/generated/model/budget-versions/budgetVersionListState'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useBudgetVersionList } from '~/shared/api/generated/operations/budget-versions/budget-version-list'
@@ -16,7 +17,7 @@ import { ApprovalAnnualBudgetDetail } from '../components/approval-annual-budget
 import { ApprovalAnnualBudgetFilters } from '../components/approval-annual-budget-filters'
 import { ApprovalBudgetProposalDetail } from '../components/approval-budget-proposal-detail'
 import type { ApprovalBudgetViewProps } from '../budget-view-props'
-import { versionState, type VersionState } from '../enums/version-state'
+import { versionState } from '../enums/version-state'
 import { proposalState, type ProposalState } from '../enums/proposal-state'
 
 export function ApprovalAnnualBudgetView(props: ApprovalBudgetViewProps) {
@@ -57,7 +58,9 @@ function VersionList({ onOpen }: { onOpen: (id: string) => void }) {
   const { t: translate, i18n } = useTranslation('approvalsBudget')
   const { formatDate } = useDashboardFormat()
   const [page, setPage] = useState(1)
-  const [filters, setFilters] = useState<{ state?: VersionState; year?: number }>({ state: versionState.SENT })
+  const [filters, setFilters] = useState<{ state?: BudgetVersionListState; year?: number }>({
+    state: versionState.SENT
+  })
   const query = useBudgetVersionList({ ...filters, page, pageSize: 20 })
   return (
     <>
@@ -66,7 +69,10 @@ function VersionList({ onOpen }: { onOpen: (id: string) => void }) {
         state={filters.state}
         year={filters.year}
         onApply={(next) => {
-          setFilters({ state: Object.values(versionState).find((state) => state === next.state), year: next.year })
+          setFilters({
+            state: Object.values(BudgetVersionListState).find((state) => state === next.state),
+            year: next.year
+          })
           setPage(1)
         }}
       />

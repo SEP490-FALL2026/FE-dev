@@ -10,6 +10,7 @@ export type SubscriptionRenewalResponseDtoDataRenewalDecisionDeciderRole =
   (typeof SubscriptionRenewalResponseDtoDataRenewalDecisionDeciderRole)[keyof typeof SubscriptionRenewalResponseDtoDataRenewalDecisionDeciderRole]
 
 export const SubscriptionRenewalResponseDtoDataRenewalDecisionDeciderRole = {
+  OWNER_DEPARTMENT_HEAD: 'OWNER_DEPARTMENT_HEAD',
   SPENDING_APPROVER: 'SPENDING_APPROVER',
   CONFLICT_SUBSTITUTE: 'CONFLICT_SUBSTITUTE'
 } as const

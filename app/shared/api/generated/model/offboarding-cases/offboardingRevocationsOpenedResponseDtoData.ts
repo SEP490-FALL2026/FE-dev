@@ -5,6 +5,7 @@
  * Internal software license and technology cost API. A text field whose description says it is trimmed has its leading and trailing whitespace removed before it is checked; for the other text fields the description makes no such promise.
  * OpenAPI spec version: 1.0
  */
+import type { OffboardingRevocationsOpenedResponseDtoDataAccessBlockMode } from './offboardingRevocationsOpenedResponseDtoDataAccessBlockMode'
 import type { OffboardingRevocationsOpenedResponseDtoDataAccountLock } from './offboardingRevocationsOpenedResponseDtoDataAccountLock'
 import type { OffboardingRevocationsOpenedResponseDtoDataBlockers } from './offboardingRevocationsOpenedResponseDtoDataBlockers'
 import type { OffboardingRevocationsOpenedResponseDtoDataCancellation } from './offboardingRevocationsOpenedResponseDtoDataCancellation'
@@ -28,11 +29,15 @@ export type OffboardingRevocationsOpenedResponseDtoData = {
   id: string
   employee: OffboardingRevocationsOpenedResponseDtoDataEmployee
   state: OffboardingRevocationsOpenedResponseDtoDataState
+  accessBlockMode: OffboardingRevocationsOpenedResponseDtoDataAccessBlockMode
   abrupt: boolean
   lastWorkingDay: string
   /** @nullable */
   handoverDueOn: string | null
   pastLastDay: boolean
+  accessBlocked: boolean
+  /** @nullable */
+  accessBlockedFrom: string | null
   /**
    * @minimum 0
    * @maximum 9007199254740991

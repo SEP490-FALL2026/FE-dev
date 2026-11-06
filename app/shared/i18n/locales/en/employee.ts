@@ -1,6 +1,9 @@
 import { employeeRequestExtras } from './employee-request-extras'
 import { employeeRequestAssignment } from './employee-request-assignment'
 export const employee = {
+  termLimit: 'Up to {{months}} months, ending by {{date}}',
+  estimatedBudgetYear: 'Estimated budget year',
+  extensionMonths: 'Extension in months',
   requestAssignment: employeeRequestAssignment,
   requestExtras: employeeRequestExtras,
   workspace: 'Employee workspace',
@@ -361,6 +364,10 @@ export const employee = {
   noValue: 'Not available',
   selfService: 'Your account is in the handover phase. Only notifications, handovers and your profile are available.',
   errors: {
+    termLimit: 'The term exceeds the plan limit. Check the maximum months and preview again.',
+    groupMinimum: 'A group request requires 2 to 10 different people.',
+    renewalHolder: 'Only the current holder can request an extension of this access.',
+    requestParty: 'The requester or beneficiary is not eligible. Check their role and department.',
     accessUnavailable:
       'This access is no longer suitable for the selected action. Refresh the list and choose another assignment.',
     returnPending: 'This access already has a return request being processed.',

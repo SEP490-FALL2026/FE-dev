@@ -17,5 +17,6 @@ export const ParameterResponseDtoDataGroup = {
   ACCOUNT: 'ACCOUNT',
   DOCUMENT: 'DOCUMENT',
   SUBSCRIPTION: 'SUBSCRIPTION',
-  USAGE: 'USAGE'
+  USAGE: 'USAGE',
+  AI: 'AI'
 } as const

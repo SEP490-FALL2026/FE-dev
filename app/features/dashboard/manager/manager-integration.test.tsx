@@ -167,7 +167,8 @@ it('uses requirement flags from the matching cached NEED step to build the decis
     '/dashboard/manager',
     client
   )
-  expect(await screen.findByLabelText('Reason for confirming a term beyond policy (if needed)')).toBeRequired()
+  await screen.findByRole('radio', { name: 'Approve need' })
+  expect(screen.queryByLabelText(/Reason for confirming a term/)).not.toBeInTheDocument()
 })
 it('shows proposal assessment and timings in Manager detail', async () => {
   server.use(

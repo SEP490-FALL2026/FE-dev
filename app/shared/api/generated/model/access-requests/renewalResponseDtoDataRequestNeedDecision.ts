@@ -18,7 +18,5 @@ export type RenewalResponseDtoDataRequestNeedDecision = {
   deciderRole: RenewalResponseDtoDataRequestNeedDecisionDeciderRole
   /** @nullable */
   reason: string | null
-  /** @nullable */
-  termConfirmationReason: string | null
   decidedAt: string
 } | null

@@ -11,7 +11,6 @@ import { ManagerScreen } from '../manager-screen'
 import { ManagerProfileView } from './views/manager-profile-view'
 import { ManagerLiveEmployeeDetail } from './views/manager-live-employee-detail'
 import { ManagerLiveToolDetail } from './views/manager-live-tool-detail'
-import { ManagerLiveBatch } from '../team-requests/views/manager-live-batch'
 import { ManagerNeedQueue } from '../team-requests/components/manager-need-queue'
 import { ManagerLiveRequest } from '../team-requests/views/manager-live-request'
 
@@ -76,6 +75,43 @@ const mockToolsInUse = {
 }
 
 const server = setupServer(
+  http.get(`*/api/v1/departments/${testDeptId}/employees/${testEmpId}`, () =>
+    HttpResponse.json({
+      success: true,
+      data: {
+        employeeId: testEmpId,
+        employeeCode: 'EMP-001',
+        fullName: 'Nguyen Van A',
+        status: 'ACTIVE',
+        hasWorkEmail: true,
+        memberSince: '2024-01-15',
+        heldSoftwareCount: 1,
+        openRequestCount: 0
+      }
+    })
+  ),
+  http.get(`*/api/v1/departments/${testDeptId}/employees/${testEmpId}/software-rights`, () =>
+    HttpResponse.json({
+      success: true,
+      data: {
+        ...mockToolsInUse,
+        items: mockToolsInUse.items.map((tool) => ({
+          assignmentId: tool.assignmentId,
+          applicationName: tool.application.name,
+          planName: tool.plan.name,
+          grantedOn: tool.effectiveFrom,
+          endsOn: null
+        }))
+      }
+    })
+  ),
+  http.get(`*/api/v1/departments/${testDeptId}/employees/${testEmpId}/open-requests`, () =>
+    HttpResponse.json({
+      success: true,
+      data: { items: [], pagination: { page: 1, pageSize: 20, totalItems: 0, totalPages: 0 } }
+    })
+  ),
+
   http.get('*/api/v1/me', () =>
     HttpResponse.json({
       success: true,
@@ -124,9 +160,7 @@ const server = setupServer(
   http.get(`*/api/v1/departments/${testDeptId}/tools-in-use`, () =>
     HttpResponse.json({ success: true, data: mockToolsInUse })
   ),
-  http.get(`*/api/v1/employees/${testEmpId}`, () =>
-    HttpResponse.json({ success: true, data: mockEmployeeDetail })
-  ),
+  http.get(`*/api/v1/employees/${testEmpId}`, () => HttpResponse.json({ success: true, data: mockEmployeeDetail })),
   http.get(`*/api/v1/employees/${managerProfile.employee.id}`, () =>
     HttpResponse.json({
       success: true,
@@ -269,9 +303,7 @@ describe('Manager Personal Profile & Employee Detail Integration', () => {
 
   it('renders employee detail view with placement history and assigned tools', async () => {
     const onBack = vi.fn()
-    renderWithClient(
-      <ManagerLiveEmployeeDetail id={testEmpId} departmentId={testDeptId} onBack={onBack} />
-    )
+    renderWithClient(<ManagerLiveEmployeeDetail id={testEmpId} departmentId={testDeptId} onBack={onBack} />)
 
     expect(await screen.findByRole('heading', { level: 1, name: 'Nguyen Van A' })).toBeInTheDocument()
     expect(screen.getByText(/Work email active|Đã kích hoạt/i)).toBeInTheDocument()
@@ -300,9 +332,7 @@ describe('Manager Personal Profile & Employee Detail Integration', () => {
       )
     )
 
-    renderWithClient(
-      <ManagerLiveEmployeeDetail id={testEmpId} departmentId={testDeptId} onBack={vi.fn()} />
-    )
+    renderWithClient(<ManagerLiveEmployeeDetail id={testEmpId} departmentId={testDeptId} onBack={vi.fn()} />)
 
     expect(await screen.findByRole('heading', { level: 1, name: 'Nguyen Van A' })).toBeInTheDocument()
     expect(screen.queryByText(/Your permissions have changed/i)).not.toBeInTheDocument()
@@ -360,12 +390,7 @@ describe('Manager Personal Profile & Employee Detail Integration', () => {
 
   it('removes status badge from inside the manager request detail view', async () => {
     renderWithClient(
-      <ManagerLiveRequest
-        id='req-1'
-        employeeId={managerProfile.employee.id}
-        departmentCode='ENG'
-        onBack={vi.fn()}
-      />
+      <ManagerLiveRequest id='req-1' employeeId={managerProfile.employee.id} departmentCode='ENG' onBack={vi.fn()} />
     )
 
     expect(await screen.findByText('req-1')).toBeInTheDocument()
@@ -400,9 +425,7 @@ describe('Manager Personal Profile & Employee Detail Integration', () => {
 
   it('renders dedicated tool detail view with comprehensive license and holder information', async () => {
     const onBack = vi.fn()
-    renderWithClient(
-      <ManagerLiveToolDetail id='assign-1' departmentId={testDeptId} onBack={onBack} />
-    )
+    renderWithClient(<ManagerLiveToolDetail id='assign-1' departmentId={testDeptId} onBack={onBack} />)
 
     expect(await screen.findByRole('heading', { level: 1, name: 'JetBrains IntelliJ' })).toBeInTheDocument()
     expect(screen.getAllByText('Ultimate Annual').length).toBeGreaterThan(0)

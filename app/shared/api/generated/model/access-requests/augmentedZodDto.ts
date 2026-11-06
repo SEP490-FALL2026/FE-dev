@@ -16,11 +16,9 @@ export type AugmentedZodDto =
       businessReason: string
       /**
        * @minimum 1
-       * @maximum 120
+       * @maximum 12
        */
       termMonths: number
-      /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
-      expectedSpendOn?: string
       kind: 'INDIVIDUAL'
     }
   | {
@@ -31,8 +29,6 @@ export type AugmentedZodDto =
        */
       lines: {
         employeeId: string
-        /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
-        expectedEndDate?: string
       }[]
       /**
        * @minLength 1
@@ -41,18 +37,9 @@ export type AugmentedZodDto =
       businessReason: string
       /**
        * @minimum 1
-       * @maximum 120
+       * @maximum 12
        */
       termMonths: number
-      /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
-      expectedSpendOn?: string
-      termConfirmation?: {
-        /**
-         * @minLength 1
-         * @maxLength 1000
-         */
-        reason: string
-      }
       kind: 'GROUP'
     }
   | {
@@ -74,10 +61,8 @@ export type AugmentedZodDto =
       businessReason: string
       /**
        * @minimum 1
-       * @maximum 120
+       * @maximum 12
        */
       termMonths: number
-      /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
-      expectedSpendOn?: string
       kind: 'SERVICE_ACCOUNT'
     }

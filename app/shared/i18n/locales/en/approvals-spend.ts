@@ -1,4 +1,5 @@
 export const approvalsSpend = {
+  budgetBlocked: 'This request cannot be approved because the required budget is missing or insufficient.',
   batchSelection: 'Select',
   batchPosition: 'Position',
   batchRequestId: 'Request ID',

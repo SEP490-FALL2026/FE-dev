@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
+import { RecordTransferBodyDtoGroundsType } from '~/shared/api/generated/model/department-transfers/recordTransferBodyDtoGroundsType'
 import type { RecordTransferBodyDtoGrounds } from '~/shared/api/generated/model/department-transfers'
 import { AdminField, AdminFormDialog, adminInputClass } from './admin-form'
 import { EmployeeLookup } from './employee-lookup'
@@ -20,15 +21,17 @@ export interface PersonnelField {
   employeeId?: string
 }
 export const basisFields: PersonnelField[] = [
-  { name: 'type', maxLength: 100 },
+  { name: 'type', options: Object.values(RecordTransferBodyDtoGroundsType) },
   { name: 'reference', maxLength: 200 },
   { name: 'issuer', maxLength: 200 },
   { name: 'issuedOn', type: 'date' }
 ]
 export const uuidPattern = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
 export function readBasis(values: FormData): RecordTransferBodyDtoGrounds {
+  const type = Object.values(RecordTransferBodyDtoGroundsType).find((option) => option === value(values, 'type'))
+  if (!type) throw new Error('Invalid authority type')
   return {
-    type: value(values, 'type'),
+    type,
     reference: value(values, 'reference'),
     issuer: value(values, 'issuer'),
     issuedOn: value(values, 'issuedOn')

@@ -21,4 +21,9 @@ export type SubscriptionRenewalResponseDtoDataRenewalProposal = {
   businessOwnerOpinion: string | null
   proposedByEmployeeId: string
   proposedAt: string
+  /**
+   * @minimum 0
+   * @maximum 9007199254740991
+   */
+  releasedSeatCount: number
 }

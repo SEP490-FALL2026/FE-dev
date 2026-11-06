@@ -2,12 +2,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useGroupRequestCandidateList } from '~/shared/api/generated/operations/group-requests/group-request-candidate-list'
 import { EmployeeChoiceSelect } from '../../shared/components/employee-choice-select'
-import {
-  EmployeeField,
-  EmployeeInput,
-  EmployeePagination,
-  EmployeeQueryState
-} from '../../shared/components/employee-api-ui'
+import { EmployeePagination, EmployeeQueryState } from '../../shared/components/employee-api-ui'
 import type { GroupSelection } from '../hooks/use-live-request-form'
 
 export function LiveGroupMembers({
@@ -61,8 +56,7 @@ export function LiveGroupMembers({
                 members.find((member) => member.employeeId === choice.value) ?? {
                   employeeId: choice.value,
                   fullName: choice.label,
-                  workEmail: choice.description,
-                  expectedEndDate: ''
+                  workEmail: choice.description
                 }
             )
           )
@@ -116,22 +110,6 @@ export function LiveGroupMembers({
               </p>
             )}
           </div>
-          <EmployeeField label={translate('memberEndDate')}>
-            <EmployeeInput
-              type='date'
-              value={member.expectedEndDate}
-              disabled={disabled}
-              onChange={(event) =>
-                onChange(
-                  members.map((current) =>
-                    current.employeeId === member.employeeId
-                      ? { ...current, expectedEndDate: event.target.value }
-                      : current
-                  )
-                )
-              }
-            />
-          </EmployeeField>
         </div>
       ))}
     </section>

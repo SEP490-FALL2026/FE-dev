@@ -12,5 +12,6 @@ export type SubscriptionRenewalListState =
 export const SubscriptionRenewalListState = {
   PROPOSED: 'PROPOSED',
   DECIDED: 'DECIDED',
-  OUTCOME_RECORDED: 'OUTCOME_RECORDED'
+  OUTCOME_RECORDED: 'OUTCOME_RECORDED',
+  STALE: 'STALE'
 } as const

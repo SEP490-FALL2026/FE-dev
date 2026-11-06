@@ -4,12 +4,11 @@ import { getBudgetVersionListQueryKey } from '~/shared/api/generated/operations/
 import { getBudgetVersionGetQueryKey } from '~/shared/api/generated/operations/budget-versions/budget-version-get'
 import { getBudgetVersionLineListQueryKey } from '~/shared/api/generated/operations/budget-versions/budget-version-line-list'
 import { getBudgetVersionHistoryListQueryKey } from '~/shared/api/generated/operations/budget-versions/budget-version-history-list'
-import { getBudgetVersionLineChangeListQueryKey } from '~/shared/api/generated/operations/budget-versions/budget-version-line-change-list'
 import { getBudgetTableQueryKey } from '~/shared/api/generated/operations/budgets/budget-table'
 import { getFinanceReviewListQueryKey } from '~/shared/api/generated/operations/finance-reviews/finance-review-list'
 import type { QueryClient } from '@tanstack/react-query'
 
-export function budgetQueryKeys(versionId?: string, proposalId?: string, position?: number) {
+export function budgetQueryKeys(versionId?: string, proposalId?: string) {
   return [
     getBudgetProposalListQueryKey(),
     getBudgetVersionListQueryKey(),
@@ -22,8 +21,7 @@ export function budgetQueryKeys(versionId?: string, proposalId?: string, positio
           getBudgetVersionLineListQueryKey(versionId),
           getBudgetVersionHistoryListQueryKey(versionId)
         ]
-      : []),
-    ...(versionId && position !== undefined ? [getBudgetVersionLineChangeListQueryKey(versionId, position)] : [])
+      : [])
   ]
 }
 

@@ -69,6 +69,7 @@ export const itRenewals = {
     RENEW: 'Renew as is',
     REDUCE: 'Reduce seats',
     CANCEL: 'Cancel subscription',
+    STALE: 'Stale proposal',
     PROPOSED: 'Awaiting decision',
     DECIDED: 'Awaiting vendor outcome',
     OUTCOME_RECORDED: 'Outcome recorded',

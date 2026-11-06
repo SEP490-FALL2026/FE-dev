@@ -30,6 +30,4 @@ export type ReviewListResponseDtoDataItemsItem = {
   amount: ReviewListResponseDtoDataItemsItemAmount
   /** @nullable */
   primaryCode: ReviewListResponseDtoDataItemsItemPrimaryCode
-  planLineOverdue: boolean
-  offPlan: boolean
 }

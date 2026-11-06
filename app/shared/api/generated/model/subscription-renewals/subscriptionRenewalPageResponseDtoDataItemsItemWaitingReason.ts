@@ -14,5 +14,5 @@ export type SubscriptionRenewalPageResponseDtoDataItemsItemWaitingReason =
   | null
 
 export const SubscriptionRenewalPageResponseDtoDataItemsItemWaitingReason = {
-  NO_SPENDING_APPROVER: 'NO_SPENDING_APPROVER'
+  NO_HEAD: 'NO_HEAD'
 } as const

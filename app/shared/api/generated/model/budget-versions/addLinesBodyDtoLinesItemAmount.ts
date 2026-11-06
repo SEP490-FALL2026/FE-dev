@@ -9,6 +9,4 @@
 export type AddLinesBodyDtoLinesItemAmount = {
   /** @maxLength 40 */
   amount: string
-  /** @pattern ^[A-Z]{3}$ */
-  currency: string
 }

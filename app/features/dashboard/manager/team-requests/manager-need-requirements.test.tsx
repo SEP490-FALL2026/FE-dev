@@ -5,8 +5,7 @@ import { setupServer } from 'msw/node'
 import { MemoryRouter } from 'react-router'
 import { afterAll, afterEach, beforeAll, beforeEach, expect, it, vi } from 'vitest'
 import { setAppLanguage } from '~/shared/i18n/i18n'
-import { getNeedDecisionListQueryKey } from '~/shared/api/generated/operations/need-decisions/need-decision-list'
-import { assignmentId, employeeId, pageResponse, requestId } from '../../../../../test/fixtures/employee-api'
+import { pageResponse, requestId } from '../../../../../test/fixtures/employee-api'
 import { managerId, managerRequest } from '../../../../../test/fixtures/manager-api'
 import { managerReadHandlers, needItem } from '../../../../../test/fixtures/manager-integration'
 import { ManagerLiveRequest } from './views/manager-live-request'
@@ -46,37 +45,13 @@ function mount(client = new QueryClient({ defaultOptions: { queries: { retry: fa
     </QueryClientProvider>
   )
 }
-it('resolves direct-link requirements across pages, ignores a different cached step and obeys both flags', async () => {
-  const pages: number[] = []
-  server.use(
-    http.get('*/api/v1/need-decisions', ({ request }) => {
-      const page = Number(new URL(request.url).searchParams.get('page'))
-      pages.push(page)
-      return HttpResponse.json(
-        pageResponse(
-          page === 1 ? [{ ...matching, requestId: employeeId }] : [{ ...matching, termConfirmationRequired: true }],
-          page,
-          2
-        )
-      )
-    })
-  )
+it('resolves direct links without removed requirement controls', async () => {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
-  client.setQueryData(
-    getNeedDecisionListQueryKey({ page: 1, pageSize: 20 }),
-    pageResponse([{ ...matching, stepId: assignmentId }])
-  )
+  server.use(http.get('*/api/v1/need-decisions', () => HttpResponse.json(pageResponse([matching]))))
   mount(client)
-  const term = await screen.findByLabelText('Reason for confirming a term beyond policy (if needed)')
-  expect(term).toBeRequired()
+  await screen.findByRole('radio', { name: 'Approve need' })
+  expect(screen.queryByLabelText(/Reason for confirming a term/)).not.toBeInTheDocument()
   expect(screen.queryByRole('combobox', { name: 'Budget plan line' })).not.toBeInTheDocument()
-  fireEvent.change(term, { target: { value: 'Long project' } })
-  fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
-  fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm' }))
-  await waitFor(() =>
-    expect(written).toHaveBeenCalledWith({ decision: 'APPROVE', termConfirmation: { reason: 'Long project' } })
-  )
-  expect(pages.slice(0, 2)).toEqual([1, 2])
 })
 it('keeps decisions unavailable after a failed requirements read, then allows retry', async () => {
   let failed = true

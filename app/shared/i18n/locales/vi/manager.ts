@@ -1,7 +1,12 @@
+import { managerRenewals } from './manager-renewals'
 import { managerIntegration } from './manager-integration'
 import { managerRequestForm } from './manager-request-form'
 import { managerBudgetForm } from './manager-budget-form'
 export const manager = {
+  renewal: managerRenewals,
+  renewals: managerRenewals.title,
+  termLimit: 'Thời hạn tối đa: {{months}} tháng',
+  groupMinimum: 'Chọn từ 2 đến 10 người khác nhau',
   budgetForm: managerBudgetForm,
   requestForm: managerRequestForm,
   integration: managerIntegration,
@@ -332,6 +337,10 @@ export const manager = {
     confirmRejectText: 'Bạn có chắc chắn muốn TỪ CHỐI nhu cầu phần mềm này?'
   },
   errors: {
+    termLimit: 'Thời hạn vượt giới hạn của gói. Kiểm tra số tháng tối đa rồi xem trước lại.',
+    groupMinimum: 'Yêu cầu nhóm cần từ 2 đến 10 người khác nhau.',
+    renewalStale: 'Đề xuất đã thay đổi. IT cần gửi lại đề xuất trước khi xác nhận.',
+    renewalAcknowledge: 'Cần xác nhận hủy thuê bao khi vẫn còn người đang sử dụng.',
     budgetAttachments: 'Một số tệp không còn sẵn sàng. Làm mới danh sách tệp và chọn lại trước khi gửi.',
     unavailable: 'Không tải được dữ liệu. Vui lòng thử lại.',
     forbidden: 'Quyền của bạn đã thay đổi. Vui lòng cập nhật phiên.',

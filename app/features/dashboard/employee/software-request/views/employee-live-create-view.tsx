@@ -96,7 +96,7 @@ function LiveCreateForm({
   const preview = workflow.previewResult
   const selectionIncomplete =
     (needsPreview &&
-      (!selection.ready || (mode === 'group' && (!workflow.members.length || workflow.members.length > 10)))) ||
+      (!selection.ready || (mode === 'group' && (workflow.members.length < 2 || workflow.members.length > 10)))) ||
     ((mode === 'renewal' || mode === 'return') &&
       (!selectedAssignment || assignments.query.isFetching || assignments.query.isError))
   const onReview = () => {
@@ -152,23 +152,30 @@ function LiveCreateForm({
                 />
               )}
               {mode === 'renewal' && (
-                <EmployeeField label={translate('newEndDate')}>
+                <EmployeeField label={translate('extensionMonths')}>
                   <EmployeeInput
                     required
-                    type='date'
-                    name='newExpectedEndDate'
+                    type='number'
+                    name='extensionMonths'
+                    min={1}
+                    max={12}
+                    step={1}
+                    defaultValue={1}
                     disabled={!selectedAssignment}
-                    min={
-                      selectedAssignment?.expectedEndDate && assignments.asOf
-                        ? laterEndDate(selectedAssignment.expectedEndDate, assignments.asOf)
-                        : undefined
-                    }
                   />
                 </EmployeeField>
               )}
               {mode !== 'return' && mode !== 'renewal' && (
                 <EmployeeField label={translate('term')}>
-                  <EmployeeInput required type='number' name='termMonths' min={1} max={120} defaultValue={1} />
+                  <EmployeeInput
+                    required
+                    type='number'
+                    name='termMonths'
+                    min={1}
+                    max={preview?.preview?.termLimit?.maxMonths ?? preview?.groupCheck?.termLimit?.maxMonths ?? 12}
+                    step={1}
+                    defaultValue={1}
+                  />
                 </EmployeeField>
               )}
               {mode === 'proposal' && (
@@ -198,13 +205,6 @@ function LiveCreateForm({
                 }}
               />
             )}
-            {mode !== 'return' && (
-              <div className='grid gap-5 sm:grid-cols-2'>
-                <EmployeeField label={translate('spendOn')}>
-                  <EmployeeInput type='date' name='expectedSpendOn' />
-                </EmployeeField>
-              </div>
-            )}
             {mode === 'proposal' ? (
               <>
                 <EmployeeField label={translate('purpose')}>
@@ -217,11 +217,6 @@ function LiveCreateForm({
             ) : (
               <EmployeeField label={translate('reason')}>
                 <textarea required name='businessReason' maxLength={1000} rows={3} className={employeeInputClass} />
-              </EmployeeField>
-            )}
-            {(mode === 'group' || mode === 'renewal') && (
-              <EmployeeField label={translate('termReason')}>
-                <EmployeeInput name='termReason' maxLength={1000} />
               </EmployeeField>
             )}
           </fieldset>
@@ -289,10 +284,4 @@ function LiveCreateForm({
       </form>
     </EmployeeSection>
   )
-}
-
-function laterEndDate(endDate: string, asOf: string) {
-  const date = new Date(`${endDate > asOf ? endDate : asOf}T00:00:00Z`)
-  date.setUTCDate(date.getUTCDate() + 1)
-  return date.toISOString().slice(0, 10)
 }

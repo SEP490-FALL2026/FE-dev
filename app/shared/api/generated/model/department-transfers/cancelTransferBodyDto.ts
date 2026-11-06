@@ -8,7 +8,10 @@
 import type { CancelTransferBodyDtoGrounds } from './cancelTransferBodyDtoGrounds'
 
 export interface CancelTransferBodyDto {
-  /** @maxLength 1000 */
-  reason?: string
-  grounds?: CancelTransferBodyDtoGrounds
+  /**
+   * @minLength 1
+   * @maxLength 1000
+   */
+  reason: string
+  grounds: CancelTransferBodyDtoGrounds
 }

@@ -1,3 +1,4 @@
+import { ManagerSubscriptionRenewals } from './subscription-renewals/views/manager-subscription-renewals'
 import { useTranslation } from 'react-i18next'
 import { Navigate, useLocation, useParams, useSearchParams } from 'react-router'
 import { Boxes, Plus, UsersRound } from 'lucide-react'
@@ -247,6 +248,7 @@ export function ManagerScreen({
         onCreateGroup={() => onSelectTab('create-employee-request', { scope: 'team' })}
       />
     )
+  else if (tab === 'subscription-renewals') content = <ManagerSubscriptionRenewals />
   else if (tab === 'annual-budget') content = <ManagerLiveBudget />
   else if (tab === 'transfer-reviews') content = <ManagerTransferReviews />
   else if (tab === 'handovers') content = <ManagerHandovers />

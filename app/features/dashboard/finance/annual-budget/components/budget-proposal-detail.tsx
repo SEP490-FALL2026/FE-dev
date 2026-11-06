@@ -55,9 +55,7 @@ export function BudgetProposalDetail({ itemId, onSelectTab }: BudgetViewProps & 
       <BudgetVersionForm
         allowReason={false}
         initial={{
-          base: proposal.total,
-          reserve: { amount: '0', currency: proposal.total.currency },
-          highValuePercent: 10
+          base: { amount: proposal.total.amount }
         }}
         pending={createMutation.isPending}
         disabled={query.isError || query.isFetching || proposal.state !== proposalState.SUBMITTED}
@@ -68,8 +66,7 @@ export function BudgetProposalDetail({ itemId, onSelectTab }: BudgetViewProps & 
               proposalId: itemId,
               base: figures.base,
               reserve: figures.reserve,
-              highValuePercent: figures.highValuePercent,
-              highValueAmount: figures.highValueAmount,
+              reserveReason: figures.reserveReason,
               quarters: figures.quarters
             }
           })

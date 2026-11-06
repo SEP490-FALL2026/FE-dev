@@ -33,6 +33,7 @@ export const financeBudget = {
     showHistory: 'Xem lịch sử'
   },
   fields: {
+    reserveReason: 'Lý do dự phòng',
     costCenter: 'Trung tâm chi phí',
     year: 'Năm tài chính',
     state: 'Trạng thái',

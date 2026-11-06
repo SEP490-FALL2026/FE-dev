@@ -38,9 +38,7 @@ it('uses server counts, distinguishes unavailable metrics and navigates to the m
   const navigate = vi.fn()
   mount(<EmployeeDashboardSummary onSelectTab={navigate} />)
   expect(await screen.findByText('12')).toBeInTheDocument()
-  expect(
-    within(screen.getByRole('button', { name: 'My requests' })).getByText('Count not available')
-  ).toBeInTheDocument()
+  expect(within(screen.getByRole('button', { name: 'My requests' })).getByText('0')).toBeInTheDocument()
   expect(
     within(screen.getByRole('button', { name: 'Open software issues' })).getByText('See the list')
   ).toBeInTheDocument()

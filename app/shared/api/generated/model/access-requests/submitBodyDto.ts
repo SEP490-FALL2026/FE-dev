@@ -15,9 +15,7 @@ export interface SubmitBodyDto {
   businessReason: string
   /**
    * @minimum 1
-   * @maximum 120
+   * @maximum 12
    */
   termMonths: number
-  /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
-  expectedSpendOn?: string
 }

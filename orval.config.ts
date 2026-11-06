@@ -42,12 +42,12 @@ export default defineConfig({
           'seat-baseline',
           'seat-baseline-imports',
           'provisioning-tasks',
+          'grant-queue',
           'license-keys',
           'handover-duties',
           'assignment-expiry',
           'saas-issues',
           'access-requests',
-          'delegated-requests',
           'group-requests',
           'transfer-reviews',
           'cost-centers',
@@ -62,7 +62,10 @@ export default defineConfig({
           'spend-submission',
           'notifications',
           'requestable-software',
-          'return-requests'
+          'return-requests',
+          'my-devices',
+          'monitoring-notices',
+          'ai-assist'
         ]
       }
     },

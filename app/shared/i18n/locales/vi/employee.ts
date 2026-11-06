@@ -1,6 +1,9 @@
 import { employeeRequestExtras } from './employee-request-extras'
 import { employeeRequestAssignment } from './employee-request-assignment'
 export const employee = {
+  termLimit: 'Tối đa {{months}} tháng, đến {{date}}',
+  estimatedBudgetYear: 'Năm ngân sách tạm tính',
+  extensionMonths: 'Số tháng gia hạn',
   requestAssignment: employeeRequestAssignment,
   requestExtras: employeeRequestExtras,
   workspace: 'Không gian nhân viên',
@@ -355,6 +358,10 @@ export const employee = {
   noValue: 'Chưa có thông tin',
   selfService: 'Tài khoản đang trong giai đoạn bàn giao. Chỉ mở thông báo, bàn giao và hồ sơ cá nhân.',
   errors: {
+    termLimit: 'Thời hạn vượt giới hạn của gói. Kiểm tra số tháng tối đa rồi xem trước lại.',
+    groupMinimum: 'Yêu cầu nhóm cần từ 2 đến 10 người khác nhau.',
+    renewalHolder: 'Chỉ người đang giữ quyền sử dụng được gửi yêu cầu gia hạn.',
+    requestParty: 'Người gửi hoặc người thụ hưởng chưa đủ điều kiện gửi yêu cầu. Kiểm tra vai trò và phòng ban.',
     accessUnavailable: 'Quyền này không còn phù hợp với thao tác đã chọn. Làm mới danh sách và chọn quyền khác.',
     returnPending: 'Quyền này đã có yêu cầu hoàn trả đang được xử lý.',
     renewalPending: 'Quyền này đang có yêu cầu gia hạn chờ xử lý.',

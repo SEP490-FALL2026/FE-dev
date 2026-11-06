@@ -44,7 +44,6 @@ export type ApprovalListResponseDtoDataItemsItem = {
   primaryCode: ApprovalListResponseDtoDataItemsItemPrimaryCode
   samePersonAsSpend: boolean
   noIndependentReview: boolean
-  offPlan: boolean
   /** @nullable */
   batchId: string | null
 }

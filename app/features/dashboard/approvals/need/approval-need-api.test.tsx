@@ -130,34 +130,15 @@ function mount() {
   )
 }
 
-it('requires an explicit spend route and sends exact plan-line fields', async () => {
+it('approves without removed plan allocation or term-confirmation fields', async () => {
   departmentHead = true
   mount()
-  const position = await screen.findByLabelText('planPosition')
-  expect(screen.getByRole('button', { name: 'submit' })).toBeDisabled()
-  expect(position).toHaveAttribute('placeholder', 'planPositionPlaceholder')
-  fireEvent.change(position, { target: { value: '3' } })
-  fireEvent.click(screen.getByLabelText('stillNeeded'))
-  await waitFor(() => expect(screen.getByRole('button', { name: 'submit' })).toBeEnabled())
-  fireEvent.click(screen.getByRole('button', { name: 'submit' }))
-  await waitFor(() =>
-    expect(posts).toEqual([{ decision: 'APPROVE', spend: { planLine: { position: 3, stillNeeded: true } } }])
-  )
-})
-
-it('requires long-term justification and posts off-plan approval without an unrelated rejection reason', async () => {
-  departmentHead = true
-  termMonths = 18
-  mount()
-  fireEvent.click(await screen.findByLabelText('offPlan'))
-  expect(screen.getByRole('button', { name: 'submit' })).toBeDisabled()
-  fireEvent.change(screen.getByLabelText('termReason'), { target: { value: '  Long project  ' } })
-  fireEvent.click(screen.getByRole('button', { name: 'submit' }))
-  await waitFor(() =>
-    expect(posts).toEqual([
-      { decision: 'APPROVE', termConfirmation: { reason: 'Long project' }, spend: { offPlan: true } }
-    ])
-  )
+  const submit = await screen.findByRole('button', { name: 'submit' })
+  expect(submit).toBeEnabled()
+  expect(screen.queryByLabelText('planPosition')).not.toBeInTheDocument()
+  expect(screen.queryByLabelText('termReason')).not.toBeInTheDocument()
+  fireEvent.click(submit)
+  await waitFor(() => expect(posts).toEqual([{ decision: 'APPROVE' }]))
 })
 
 it('keeps rejection text after a failed write and refreshes authoritative state', async () => {
@@ -196,7 +177,6 @@ it('loads every member page before submitting exactly the people pending on the 
   fireEvent.click(approvals[0])
   fireEvent.click(screen.getAllByLabelText('rejectMember')[1])
   fireEvent.change(screen.getByLabelText('memberReason'), { target: { value: '  Not needed  ' } })
-  fireEvent.click(screen.getByLabelText('offPlan'))
   fireEvent.click(screen.getByRole('button', { name: 'submit' }))
   await waitFor(() =>
     expect(posts).toEqual([
@@ -204,8 +184,7 @@ it('loads every member page before submitting exactly the people pending on the 
         lines: [
           { employeeId: 'member-1', decision: 'APPROVE' },
           { employeeId: 'member-101', decision: 'REJECT', reason: 'Not needed' }
-        ],
-        spend: { offPlan: true }
+        ]
       }
     ])
   )

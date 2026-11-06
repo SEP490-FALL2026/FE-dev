@@ -150,11 +150,7 @@ export function ManagerProfileView() {
               </h3>
               {!employee?.placements?.length && !user.employee.department ? (
                 <div className='py-6'>
-                  <WorkspaceEmptyState
-                    icon={Building2}
-                    title={translate('profile.noPlacements')}
-                    description=''
-                  />
+                  <WorkspaceEmptyState icon={Building2} title={translate('profile.noPlacements')} description='' />
                 </div>
               ) : employee?.placements?.length ? (
                 <ul className='mt-4 divide-y divide-border/50 text-sm'>
@@ -259,4 +255,3 @@ export function ManagerProfileView() {
     </div>
   )
 }
-

@@ -37,7 +37,7 @@ export function OffboardingActionDialog({ action, onClose }: { action: Offboardi
       if (action.kind === 'revoke')
         await revoke.mutateAsync({
           id: action.caseId,
-          data: { assignmentIds: action.assignmentIds, count: action.assignmentIds?.length ?? 0, reason: note.trim() }
+          data: { assignmentIds: action.assignmentIds, note: note.trim() }
         })
       if (action.kind === 'close') await close.mutateAsync({ id: action.caseId })
       if (action.kind === 'cancel') {

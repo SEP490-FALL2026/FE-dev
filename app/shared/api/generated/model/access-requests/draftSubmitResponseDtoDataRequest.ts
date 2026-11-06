@@ -50,20 +50,14 @@ export type DraftSubmitResponseDtoDataRequest = {
    * @exclusiveMinimum 0
    */
   termMonths: number
-  offPlan: boolean
-  /** @nullable */
-  delegatedBatchId: string | null
   /** @nullable */
   expectedEndDate: string | null
   /** @nullable */
   serviceAccount: DraftSubmitResponseDtoDataRequestServiceAccount
   /** @nullable */
   renewal: DraftSubmitResponseDtoDataRequestRenewal
-  planLineAttached: boolean
   /** @nullable */
   spend: DraftSubmitResponseDtoDataRequestSpend
-  /** @nullable */
-  expectedSpendOn: string | null
   /**
    * @minimum -9007199254740991
    * @maximum 9007199254740991

@@ -6,6 +6,7 @@ import {
   Grid2X2,
   Handshake,
   Landmark,
+  RefreshCw,
   Plus,
   UsersRound,
   type LucideIcon
@@ -14,6 +15,7 @@ import { MANAGER_TAB_KEYS, type ManagerTabKey } from './enums'
 export { MANAGER_TAB_KEYS, type ManagerTabKey }
 
 export type ManagerTranslationKey =
+  | 'renewals'
   | 'overview'
   | 'myTeam'
   | 'teamSoftware'
@@ -28,6 +30,7 @@ export type ManagerTranslationKey =
   | 'notices'
   | 'handovers'
 type LiveLabel =
+  | 'renewals'
   | 'overview'
   | 'team'
   | 'personnel'
@@ -53,6 +56,7 @@ export const managerNavItems: ManagerNavItem[] = [
   { icon: Plus, key: 'create-employee-request', translationKey: 'createEmployeeRequest', liveLabel: 'create' },
   { icon: Files, key: 'weekly-batch', translationKey: 'weeklyBatch', liveLabel: 'batch' },
   { icon: Landmark, key: 'annual-budget', translationKey: 'annualBudget', liveLabel: 'budget' },
+  { icon: RefreshCw, key: 'subscription-renewals', translationKey: 'renewals', liveLabel: 'renewals' },
   { icon: ArrowRightLeft, key: 'transfer-reviews', translationKey: 'transfers', liveLabel: 'transfers' },
   { icon: Handshake, key: 'handovers', translationKey: 'handovers', liveLabel: 'handovers' }
 ]

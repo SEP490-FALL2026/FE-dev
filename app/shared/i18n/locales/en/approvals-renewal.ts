@@ -142,6 +142,7 @@ export const approvalsRenewal = {
   },
   values: {
     state: {
+      STALE: 'Stale proposal',
       PROPOSED: 'Awaiting decision',
       DECIDED: 'Decided, awaiting outcome',
       OUTCOME_RECORDED: 'Outcome recorded'

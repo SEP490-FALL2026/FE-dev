@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import {
   grantQueueList,
   getGrantQueueListQueryKey
-} from '~/shared/api/generated/operations/delegated-requests/grant-queue-list'
+} from '~/shared/api/generated/operations/grant-queue/grant-queue-list'
 import {
   provisioningTaskGrant,
   getProvisioningTaskListQueryKey
@@ -108,14 +108,6 @@ function GrantDialog({
           onChange={(event) =>
             setDraft((previous) => ({ ...previous, accountIdentifier: event.target.value || undefined }))
           }
-        />
-      </ItField>
-      <ItField label={translate('expectedEndDate')}>
-        <input
-          type='date'
-          className={itInputClass}
-          value={draft.expectedEndDate ?? ''}
-          onChange={(event) => update('expectedEndDate', event.target.value)}
         />
       </ItField>
       {request.type === 'SERVICE_ACCOUNT' && (

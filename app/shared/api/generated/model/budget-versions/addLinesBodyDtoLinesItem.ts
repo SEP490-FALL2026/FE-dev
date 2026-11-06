@@ -6,33 +6,23 @@
  * OpenAPI spec version: 1.0
  */
 import type { AddLinesBodyDtoLinesItemAmount } from './addLinesBodyDtoLinesItemAmount'
-import type { AddLinesBodyDtoLinesItemRepeatCycle } from './addLinesBodyDtoLinesItemRepeatCycle'
 
+/**
+ * A line is a plan or a description, the seats, the amount of the year and a note.
+ */
 export type AddLinesBodyDtoLinesItem = {
+  planId?: string
   /**
    * @minLength 1
    * @maxLength 200
    */
-  description: string
-  planId?: string
+  description?: string
   /**
    * @minimum 1
    * @maximum 100000
    */
   seats?: number
   amount: AddLinesBodyDtoLinesItemAmount
-  /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
-  windowFrom?: string
-  /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
-  windowTo?: string
-  /**
-   * @minimum 1
-   * @maximum 120
-   */
-  servicePeriodMonths?: number
-  repeatCycle?: AddLinesBodyDtoLinesItemRepeatCycle
-  /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
-  quoteValidUntil?: string
   /**
    * @minLength 1
    * @maxLength 1000

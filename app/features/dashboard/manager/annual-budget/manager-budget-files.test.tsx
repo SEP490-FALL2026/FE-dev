@@ -26,12 +26,9 @@ const uploaded = {
 const line = {
   position: 1,
   description: 'Software',
-  amount: { amount: '1250.50', currency: 'USD' },
+  amount: { amount: '1250.50' },
   planId: null,
   seats: null,
-  windowFrom: '2027-01-01',
-  windowTo: '2027-12-31',
-  servicePeriodMonths: 12,
   repeatCycle: 'ANNUAL',
   quoteValidUntil: null,
   note: null
@@ -69,11 +66,7 @@ function fill() {
   for (const [label, value] of Object.entries({
     'Fiscal year': '2027',
     Description: 'Software',
-    Amount: '1250.50',
-    'Reporting currency': 'USD',
-    'Service period (months)': '12',
-    'Purchase window starts': '2027-01-01',
-    'Purchase window ends': '2027-12-31'
+    Amount: '1250.50'
   }))
     fireEvent.change(screen.getByLabelText(label), { target: { value } })
 }
@@ -148,15 +141,11 @@ it('uploads raw bytes, completes the upload, and submits only its ID with decima
   fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
   await waitFor(() =>
     expect(submitted).toHaveBeenCalledWith({
-      costCenterId: employeeId,
       year: 2027,
       lines: [
         {
           description: 'Software',
-          amount: { amount: '1250.50', currency: 'USD' },
-          servicePeriodMonths: 12,
-          windowFrom: '2027-01-01',
-          windowTo: '2027-12-31'
+          amount: { amount: '1250.50' }
         }
       ],
       attachmentIds: [fileId]
@@ -247,21 +236,7 @@ it('obtains a fresh download link for each click', async () => {
   fireEvent.click(screen.getByRole('button', { name: 'Download: quote.pdf' }))
   await waitFor(() => expect(linked).toHaveBeenCalledTimes(2))
 })
-it('blocks proposals without a cost center and rejects a missing service period and repeat cycle', async () => {
-  const submitted = vi.fn()
-  server.use(
-    http.post('*/api/v1/budget-proposals', () => {
-      submitted()
-      return HttpResponse.json({ success: true })
-    })
-  )
-  const view = mount(<ManagerBudgetForm />)
+it('blocks proposals without a department cost center', async () => {
+  mount(<ManagerBudgetForm />)
   expect(screen.getByRole('button', { name: 'Submit' })).toBeDisabled()
-  view.unmount()
-  mount()
-  fill()
-  fireEvent.change(screen.getByLabelText('Service period (months)'), { target: { value: '' } })
-  fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
-  expect(screen.getByLabelText(/^Service period \(months\)/)).toHaveAttribute('aria-invalid', 'true')
-  expect(submitted).not.toHaveBeenCalled()
 })

@@ -80,14 +80,14 @@ describe('Manager need approval and spend submission', () => {
     )
     const view = mount(<ManagerLiveRequest id={requestId} employeeId={managerId} onBack={vi.fn()} />)
     view.client.setQueryData(getSpendQueueListQueryKey(), { success: true })
-    fireEvent.click(await screen.findByLabelText('Outside the annual plan'))
+    await screen.findByRole('radio', { name: 'Approve need' })
     fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
     const dialog = screen.getByRole('dialog')
     const confirm = within(dialog).getByRole('button', { name: 'Confirm' })
     fireEvent.click(confirm)
     fireEvent.click(confirm)
     await waitFor(() => expect(written).toHaveBeenCalledTimes(1))
-    expect(written).toHaveBeenCalledWith({ decision: 'APPROVE', spend: { offPlan: true } })
+    expect(written).toHaveBeenCalledWith({ decision: 'APPROVE' })
     expect(confirm).toBeDisabled()
     finish()
     await waitFor(() => expect(view.client.getQueryState(getSpendQueueListQueryKey())?.isInvalidated).toBe(true))
@@ -183,9 +183,25 @@ describe('Manager need approval and spend submission', () => {
     const written = vi.fn()
     server.use(
       http.get('*/api/v1/group-request-candidates', () =>
-        HttpResponse.json(pageResponse([{ employeeId, fullName: 'Test Employee', workEmail: 'employee@example.test' }]))
+        HttpResponse.json(
+          pageResponse([
+            { employeeId, fullName: 'Test Employee', workEmail: 'employee@example.test' },
+            { employeeId: planId, fullName: 'Second Employee', workEmail: 'second@example.test' }
+          ])
+        )
       ),
-      http.post('*/api/v1/group-requests/check', () => HttpResponse.json({ success: true, data: groupCheck })),
+      http.post('*/api/v1/group-requests/check', () =>
+        HttpResponse.json({
+          success: true,
+          data: {
+            ...groupCheck,
+            lines: [
+              { employeeId, ok: true, reason: null },
+              { employeeId: planId, ok: true, reason: null }
+            ]
+          }
+        })
+      ),
       http.post('*/api/v1/group-requests', async ({ request }) => {
         written(await request.json())
         return HttpResponse.json({ success: true, data: { request: managerRequest } }, { status: 201 })
@@ -197,6 +213,7 @@ describe('Manager need approval and spend submission', () => {
     fireEvent.change(screen.getByLabelText('Term (months)'), { target: { value: '3' } })
     fireEvent.click(screen.getByRole('combobox', { name: 'Beneficiaries' }))
     fireEvent.click(await screen.findByRole('option', { name: /Test Employee/ }))
+    fireEvent.click(screen.getByRole('option', { name: /Second Employee/ }))
     fireEvent.keyDown(screen.getByRole('searchbox'), { key: 'Escape' })
     fireEvent.change(screen.getByLabelText('Reason'), { target: { value: 'Onboarding' } })
     fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
@@ -209,7 +226,7 @@ describe('Manager need approval and spend submission', () => {
       businessReason: 'Onboarding',
       termMonths: 3,
       planId,
-      lines: [{ employeeId }]
+      lines: [{ employeeId }, { employeeId: planId }]
     })
   })
   it('falls back safely for an unknown status', () => {

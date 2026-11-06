@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { ArrowLeft, Landmark, Plus } from 'lucide-react'
-import { toast } from 'sonner'
 import { ManagerPageHeader } from '../../shared/components/manager-page-header'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router'
@@ -94,11 +93,6 @@ function RevisionLoader({ id }: { id: string }) {
         amount: line.amount,
         ...(line.planId ? { planId: line.planId } : {}),
         ...(line.seats ? { seats: line.seats } : {}),
-        windowFrom: line.windowFrom,
-        windowTo: line.windowTo,
-        servicePeriodMonths: line.servicePeriodMonths,
-        repeatCycle: line.repeatCycle,
-        ...(line.quoteValidUntil ? { quoteValidUntil: line.quoteValidUntil } : {}),
         ...(line.note ? { note: line.note } : {})
       }))
     }
@@ -148,7 +142,6 @@ function ProposalForm({
   )
   const [nextKey, setNextKey] = useState(lines.length)
   const attachments = useBudgetAttachments()
-  const [invalidFields, setInvalidFields] = useState<string[]>([])
   const validCostCenter = isResourceId(costCenterId ?? '')
   const action = useManagerAction({
     mutationFn: (body: BudgetProposalBodyDto) =>
@@ -176,7 +169,7 @@ function ProposalForm({
     }
   })
   return (
-    <ManagerFormErrors fields={[...action.fields, ...invalidFields]}>
+    <ManagerFormErrors fields={action.fields}>
       <form
         className='space-y-6'
         onSubmit={(event) => {
@@ -184,19 +177,7 @@ function ProposalForm({
           if (action.blocked || attachments.blocked || !validCostCenter) return
           const form = new FormData(event.currentTarget)
           const bodyLines = lines.map((_, index) => budgetLineFromForm(form, index))
-          const fields = bodyLines.flatMap((line, index) => [
-            ...(!line.servicePeriodMonths && !line.repeatCycle
-              ? [`lines.${index}.servicePeriodMonths`, `lines.${index}.repeatCycle`]
-              : []),
-            ...(line.windowFrom && line.windowTo && line.windowTo < line.windowFrom ? [`lines.${index}.windowTo`] : [])
-          ])
-          setInvalidFields(fields)
-          if (fields.length) {
-            toast.error(translate('validation'), { id: 'budget-form' })
-            return
-          }
           action.mutate({
-            costCenterId: costCenterId!,
             year: Number(form.get('year')),
             lines: bodyLines,
             ...(attachments.selected.length ? { attachmentIds: attachments.selected } : {})
