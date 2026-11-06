@@ -22,6 +22,7 @@ export function NeedDecisionForm({
 }: {
   request: AccessRequestResponseDtoDataRequest
   lines?: LinesResponseDtoDataItemsItem[]
+  canSetSpend: boolean
   disabled?: boolean
 }) {
   const { t: translate } = useTranslation('approvalsNeed')

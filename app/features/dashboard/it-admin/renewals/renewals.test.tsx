@@ -27,6 +27,7 @@ it('submits only a REDUCE quantity and preserves the draft when the server rejec
   let body: unknown
   const close = vi.fn()
   server.use(
+    http.get('*/api/v1/subscriptions/sub-1/seat-usage', () => HttpResponse.json({ data: { occupied: 2 } })),
     http.post('*/api/v1/subscription-renewals', async ({ request }) => {
       body = await request.json()
       return HttpResponse.json({ error: { code: 'SUBSCRIPTION_RENEWAL.ALREADY_PROPOSED' } }, { status: 409 })
@@ -41,6 +42,7 @@ it('submits only a REDUCE quantity and preserves the draft when the server rejec
   fireEvent.click(screen.getByRole('radio', { name: 'Reduce seats' }))
   fireEvent.change(screen.getByLabelText('Seats after reduction'), { target: { value: '6' } })
   fireEvent.change(screen.getByLabelText('Proposal note'), { target: { value: 'Keep six confirmed seats' } })
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Submit proposal' })).toBeEnabled())
   fireEvent.click(screen.getByRole('button', { name: 'Submit proposal' }))
   await waitFor(() =>
     expect(body).toEqual({
@@ -88,4 +90,80 @@ it('blocks repeated outcome writes and records cancellation without a fabricated
   expect(submit).toBeDisabled()
   release()
   await waitFor(() => expect(close).toHaveBeenCalledTimes(1))
+})
+
+it.each(['Vendor refused', 'Different result'])('requires an outcome note for %s', async (outcome) => {
+  await setAppLanguage('en', false)
+  const renewal = {
+    id: 'renewal-1',
+    state: 'DECIDED',
+    decidedChoice: 'CANCEL',
+    period: { seatsInUse: 0 }
+  } as SubscriptionRenewalResponseDtoDataRenewal
+  mount(<RenewalOutcomeDialog renewal={renewal} onClose={vi.fn()} />)
+  fireEvent.click(screen.getByRole('combobox', { name: 'Vendor outcome' }))
+  fireEvent.click(screen.getByRole('option', { name: outcome }))
+  expect(screen.getByRole('button', { name: 'Record outcome' })).toBeDisabled()
+  fireEvent.change(screen.getByLabelText('Outcome evidence'), {
+    target: { value: 'Vendor confirmed a different result' }
+  })
+  expect(screen.getByRole('button', { name: 'Record outcome' })).toBeEnabled()
+})
+
+it('requires exactly the excess held assignments when reducing below occupied seats', async () => {
+  await setAppLanguage('en', false)
+  let body: unknown
+  server.use(
+    http.get('*/api/v1/subscriptions/sub-1/seat-usage', () => HttpResponse.json({ data: { occupied: 2 } })),
+    http.get('*/api/v1/license-assignments', ({ request }) => {
+      expect(new URL(request.url).searchParams.get('subscriptionId')).toBe('sub-1')
+      return HttpResponse.json({
+        data: {
+          items: [
+            {
+              id: 'seat-1',
+              accountIdentifier: 'one@example.org',
+              employee: { fullName: 'Employee One' },
+              validUntil: null,
+              failedAt: null,
+              cancelledAt: null
+            },
+            {
+              id: 'seat-2',
+              accountIdentifier: 'two@example.org',
+              employee: { fullName: 'Employee Two' },
+              validUntil: null,
+              failedAt: null,
+              cancelledAt: null
+            }
+          ],
+          pagination: { totalItems: 2 }
+        }
+      })
+    }),
+    http.post('*/api/v1/subscription-renewals', async ({ request }) => {
+      body = await request.json()
+      return HttpResponse.json({ data: null })
+    })
+  )
+  mount(
+    <RenewalProposalDialog
+      subscription={{ id: 'sub-1', applicationName: 'Workspace', planName: 'Team', purchasedQuantity: 10 }}
+      onClose={vi.fn()}
+    />
+  )
+  fireEvent.click(screen.getByRole('radio', { name: 'Reduce seats' }))
+  fireEvent.change(screen.getByLabelText('Seats after reduction'), { target: { value: '1' } })
+  expect(await screen.findByLabelText(/Employee One/)).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Submit proposal' })).toBeDisabled()
+  fireEvent.click(screen.getByLabelText(/Employee One/))
+  fireEvent.click(screen.getByRole('button', { name: 'Submit proposal' }))
+  await waitFor(() =>
+    expect(body).toEqual({
+      subscriptionId: 'sub-1',
+      choice: 'REDUCE',
+      proposedQuantity: 1,
+      releasedAssignmentIds: ['seat-1']
+    })
+  )
 })

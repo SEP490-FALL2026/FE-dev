@@ -115,17 +115,25 @@ export function AssessmentFields({
               className={itInputClass}
               maxLength={key === 'termsSummary' ? 2000 : key === 'vendorName' || key === 'plannedPlanName' ? 200 : 1000}
               value={
-                draft[key] ??
-                (key === 'vendorName'
-                  ? item.vendor.name
-                  : key === 'proposedBusinessOwnerEmployeeId'
-                    ? item.proposedBusinessOwner?.employeeId
-                    : key === 'equivalentPlanId'
-                      ? item.equivalentTool?.planId
-                      : item[key]) ??
-                ''
+                (draft[key] !== undefined
+                  ? draft[key]
+                  : key === 'vendorName'
+                    ? item.vendor.name
+                    : key === 'proposedBusinessOwnerEmployeeId'
+                      ? item.proposedBusinessOwner?.employeeId
+                      : key === 'equivalentPlanId'
+                        ? item.equivalentTool?.planId
+                        : item[key]) ?? ''
               }
-              onChange={(event) => set(key, event.target.value || undefined)}
+              onChange={(event) =>
+                set(
+                  key,
+                  event.target.value ||
+                    (['controlRiskNote', 'proposedBusinessOwnerEmployeeId', 'equivalentPlanId'].includes(key)
+                      ? null
+                      : undefined)
+                )
+              }
             />
           </ItField>
         ))}

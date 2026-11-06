@@ -82,22 +82,22 @@ export function OffboardingPanel() {
         <PersonnelForm
           title={translate(titles[action.kind])}
           pending={pending}
-          basis={action.kind === 'record'}
+          basis={action.kind !== 'left'}
           onClose={() => setAction(null)}
           fields={
             action.kind === 'record'
               ? [
                   { name: 'employeeId', type: 'uuid' },
                   { name: 'lastWorkingDay', type: 'date' },
-                  { name: 'abrupt', type: 'checkbox', optional: true },
+                  { name: 'blockAccessNow', type: 'checkbox', optional: true },
                   ...successorFields,
-                  { name: 'transferCancellationReason', optional: true, maxLength: 2000 }
+                  { name: 'cancelPendingTransfer', type: 'checkbox', optional: true }
                 ]
               : action.kind === 'change'
-                ? [{ name: 'lastWorkingDay', type: 'date' }, { name: 'reason', maxLength: 2000 }, ...successorFields]
+                ? [{ name: 'lastWorkingDay', type: 'date' }, { name: 'reason', maxLength: 1000 }, ...successorFields]
                 : action.kind === 'left'
-                  ? [{ name: 'departedOn', type: 'date' }]
-                  : [{ name: 'reason', maxLength: 2000 }]
+                  ? []
+                  : [{ name: 'reason', maxLength: 1000 }]
           }
           onSubmit={(values) => {
             if (pending) return
@@ -106,12 +106,10 @@ export function OffboardingPanel() {
                 data: {
                   employeeId: value(values, 'employeeId'),
                   lastWorkingDay: value(values, 'lastWorkingDay'),
-                  abrupt: Boolean(values.get('abrupt')),
+                  accessBlockMode: values.get('blockAccessNow') ? 'BLOCK_NOW' : 'WITH_LAST_DAY',
                   grounds: readBasis(values),
                   successor: readSuccessor(values),
-                  ...(value(values, 'transferCancellationReason')
-                    ? { pendingTransferCancellation: { reason: value(values, 'transferCancellationReason') } }
-                    : {})
+                  ...(values.get('cancelPendingTransfer') ? { cancelPendingTransfer: true } : {})
                 }
               })
             else if (action.kind === 'change' && action.id)
@@ -120,12 +118,13 @@ export function OffboardingPanel() {
                 data: {
                   lastWorkingDay: value(values, 'lastWorkingDay'),
                   reason: value(values, 'reason'),
+                  grounds: readBasis(values),
                   successor: readSuccessor(values)
                 }
               })
-            else if (action.kind === 'left' && action.id)
-              left.mutate({ id: action.id, data: { departedOn: value(values, 'departedOn') } })
-            else if (action.id) cancel.mutate({ id: action.id, data: { reason: value(values, 'reason') } })
+            else if (action.kind === 'left' && action.id) left.mutate({ id: action.id, data: {} })
+            else if (action.id)
+              cancel.mutate({ id: action.id, data: { reason: value(values, 'reason'), grounds: readBasis(values) } })
           }}
         />
       )}

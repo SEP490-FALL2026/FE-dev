@@ -53,9 +53,10 @@ export function BudgetProposalDetail({ itemId, onSelectTab }: BudgetViewProps & 
   if (proposal && dialog === 'create')
     return (
       <BudgetVersionForm
-        title={translate('actions.create')}
+        initial={{
+          base: { amount: proposal.total.amount }
+        }}
         currency={proposal.total.currency}
-        initial={{ base: { amount: proposal.total.amount } }}
         pending={createMutation.isPending}
         disabled={query.isError || query.isFetching || proposal.state !== proposalState.SUBMITTED}
         onClose={() => setDialog(undefined)}
@@ -64,9 +65,9 @@ export function BudgetProposalDetail({ itemId, onSelectTab }: BudgetViewProps & 
             data: {
               proposalId: itemId,
               base: figures.base,
-              ...(figures.reserve ? { reserve: figures.reserve } : {}),
-              ...(figures.reserveReason ? { reserveReason: figures.reserveReason } : {}),
-              ...(figures.quarters ? { quarters: figures.quarters } : {})
+              reserve: figures.reserve,
+              reserveReason: figures.reserveReason,
+              quarters: figures.quarters
             }
           })
         }

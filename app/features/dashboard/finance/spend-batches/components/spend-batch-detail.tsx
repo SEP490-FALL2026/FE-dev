@@ -1,121 +1,157 @@
+import { ArrowLeft, CheckCircle2, Clock } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import type { BatchItemListResponseDtoDataItemsItem } from '~/shared/api/generated/model/spend-submission'
-import { useSpendBatchGet } from '~/shared/api/generated/operations/spend-submission/spend-batch-get'
-import { useSpendBatchItemList } from '~/shared/api/generated/operations/spend-submission/spend-batch-item-list'
-import { useWorkspaceFormat } from '~/shared/hooks/use-workspace-format'
 import {
-  FinanceDrawer,
+  FinanceButton,
+  FinanceDetailPage,
   FinanceEmpty,
   FinancePagination,
   FinanceQueryState,
   FinanceSection,
   FinanceStat,
-  FinanceStatGrid
+  FinanceStatGrid,
+  FinanceStatus
 } from '../../shared/components/finance-ui'
 import { FinanceTable } from '../../shared/components/finance-table'
-import { BatchItemOutcome } from '../enums/batch-item-outcome'
-import { BatchItemLeftReason } from '../enums/batch-item-left-reason'
-import { BatchItemStopReason } from '../enums/batch-item-stop-reason'
-import { BatchRequestState } from '../enums/batch-request-state'
+import { useSpendBatchGet, useSpendBatchItemList } from '../hooks/use-spend-batches'
+import { isBatchRequestState } from '../enums/batch-request-state'
+import type { BatchItemListResponseDtoDataItemsItem } from '~/shared/api/generated/model/spend-submission'
 
-const itemsPageSize = 20
-
-const isKnown = <Value extends string>(values: Record<string, Value>, value: string | null): value is Value =>
-  value !== null && (Object.values(values) as string[]).includes(value)
-
-export function SpendBatchDetail({ id, onClose }: { id: string; onClose: () => void }) {
-  const { t: translate } = useTranslation('financeSpend')
-  const { formatDateTime } = useWorkspaceFormat()
+export function SpendBatchDetail({
+  batchId,
+  departmentName,
+  onClose
+}: {
+  batchId: string
+  departmentName: string
+  onClose: () => void
+}) {
+  const { t: translate, i18n } = useTranslation('financeSettings')
+  const { t: translateFinance } = useTranslation('finance')
   const [page, setPage] = useState(1)
-  const batchQuery = useSpendBatchGet(id)
-  const itemsQuery = useSpendBatchItemList(id, { page, pageSize: itemsPageSize })
-  const batch = batchQuery.data?.data?.batch
-  const noValue = translate('noValue')
-  const unknown = translate('unknown')
 
-  const outcomeLabel = (item: BatchItemListResponseDtoDataItemsItem) =>
-    isKnown(BatchItemOutcome, item.outcome) ? translate(`outcome.${item.outcome}`) : unknown
-  const stopLabel = (item: BatchItemListResponseDtoDataItemsItem) => {
-    if (item.stopReason === null) return noValue
-    return isKnown(BatchItemStopReason, item.stopReason) ? translate(`stopReason.${item.stopReason}`) : unknown
+  const batchQuery = useSpendBatchGet(batchId)
+  const itemsQuery = useSpendBatchItemList(batchId, { page, pageSize: 20 })
+
+  const batch = batchQuery.data
+  const items = itemsQuery.data?.items ?? []
+  const pagination = itemsQuery.data?.pagination
+
+  const outcomeBadge = (outcome: string, stopReason: string | null) => {
+    switch (outcome) {
+      case 'SENT_TO_APPROVER':
+        return (
+          <span className='inline-flex items-center gap-1 rounded-full bg-success/15 px-2 py-0.5 text-xs font-medium text-success-ink'>
+            <CheckCircle2 className='size-3' />
+            {translateFinance('outcomes.SENT_TO_APPROVER', { defaultValue: 'Chuyển Người duyệt chi' })}
+          </span>
+        )
+      case 'SENT_TO_FINANCE':
+        return (
+          <span className='inline-flex items-center gap-1 rounded-full bg-info/15 px-2 py-0.5 text-xs font-medium text-info-ink'>
+            <Clock className='size-3' />
+            {translateFinance('outcomes.SENT_TO_FINANCE', { defaultValue: 'Chuyển Finance rà soát' })}
+          </span>
+        )
+      case 'STOPPED':
+        return (
+          <div className='space-y-0.5'>
+            <span className='inline-flex items-center rounded-full bg-danger/15 px-2 py-0.5 text-xs font-medium text-danger'>
+              {translateFinance('outcomes.STOPPED', { defaultValue: 'Bị dừng' })}
+            </span>
+            {stopReason && (
+              <div className='text-[11px] text-muted-foreground'>
+                {translateFinance(`stopReasons.${stopReason}`, { defaultValue: stopReason })}
+              </div>
+            )}
+          </div>
+        )
+      default:
+        return <span className='text-xs text-muted-foreground'>{outcome}</span>
+    }
   }
-  const leftLabel = (item: BatchItemListResponseDtoDataItemsItem) => {
-    if (item.leftReason === null) return translate('batches.detail.notLeft')
-    const reason = isKnown(BatchItemLeftReason, item.leftReason) ? translate(`leftReason.${item.leftReason}`) : unknown
-    return item.leftAt ? translate('batches.detail.leftAt', { reason, at: formatDateTime(item.leftAt) }) : reason
-  }
-  const stateLabel = (item: BatchItemListResponseDtoDataItemsItem) =>
-    isKnown(BatchRequestState, item.requestState) ? translate(`requestState.${item.requestState}`) : unknown
 
   return (
-    <FinanceDrawer
-      title={
-        batch
-          ? translate('batches.detail.title', { department: batch.department.code })
-          : translate('batches.detail.fallbackTitle')
-      }
-      onClose={onClose}
-    >
-      <FinanceQueryState query={batchQuery}>
-        {batch && (
-          <FinanceStatGrid columns={4}>
-            <FinanceStat label={translate('batches.detail.department')} value={batch.department.code} />
-            <FinanceStat
-              label={translate('batches.detail.submittedBy')}
-              value={
-                <span className='font-sans' title={`${batch.submittedBy.fullName} · ${batch.submittedBy.employeeCode}`}>
-                  {batch.submittedBy.fullName}
-                </span>
-              }
-            />
-            <FinanceStat label={translate('batches.detail.submittedAt')} value={formatDateTime(batch.submittedAt)} />
-            <FinanceStat label={translate('batches.detail.itemCount')} value={batch.itemCount} />
-          </FinanceStatGrid>
-        )}
-      </FinanceQueryState>
-      <FinanceSection title={translate('batches.detail.items')}>
-        <FinanceQueryState query={itemsQuery}>
-          {itemsQuery.data?.data?.items.length ? (
-            <FinanceTable
-              items={itemsQuery.data.data.items}
-              rowKey={(item) => `${item.position}-${item.requestId}`}
-              columns={[
-                {
-                  key: 'position',
-                  label: translate('batches.detail.position'),
-                  numeric: true,
-                  render: (item) => item.position
-                },
-                {
-                  key: 'request',
-                  label: translate('batches.detail.request'),
-                  render: (item) => (
-                    <span className='font-mono text-xs' title={item.requestId}>
-                      {item.requestId}
-                    </span>
-                  )
-                },
-                {
-                  key: 'outcome',
-                  label: translate('batches.detail.outcome'),
-                  render: (item) => (
-                    <span className={item.outcome === BatchItemOutcome.STOPPED ? 'text-danger-ink' : ''}>
-                      {outcomeLabel(item)}
-                    </span>
-                  )
-                },
-                { key: 'stopReason', label: translate('batches.detail.stopReason'), render: stopLabel },
-                { key: 'left', label: translate('batches.detail.left'), render: leftLabel },
-                { key: 'state', label: translate('batches.detail.requestState'), render: stateLabel }
-              ]}
-            />
-          ) : (
-            <FinanceEmpty message={translate('batches.detail.itemsEmpty')} />
+    <FinanceDetailPage>
+      <div className='space-y-6'>
+        <div className='flex flex-wrap items-center justify-between gap-4 border-b border-border/70 pb-4'>
+          <div className='space-y-1'>
+            <div className='flex items-center gap-2'>
+              <h1 className='text-xl font-bold tracking-tight text-foreground'>{departmentName}</h1>
+              {batch?.department?.code && (
+                <span className='font-mono text-xs text-muted-foreground'>({batch.department.code})</span>
+              )}
+            </div>
+            <p className='text-sm text-muted-foreground'>
+              {translateFinance('submittedBy')}:{' '}
+              <span className='font-medium text-foreground'>{batch?.submittedBy?.fullName}</span> (
+              <span className='font-mono text-xs'>{batch?.submittedBy?.employeeCode}</span>) ·{' '}
+              {batch?.submittedAt ? new Date(batch.submittedAt).toLocaleString(i18n.language) : '—'}
+            </p>
+          </div>
+          <FinanceButton variant='ghost' onClick={onClose}>
+            <ArrowLeft aria-hidden className='size-4' strokeWidth={1.5} />
+            {translate('cancel')}
+          </FinanceButton>
+        </div>
+
+        <FinanceQueryState query={batchQuery}>
+          {batch && (
+            <FinanceStatGrid columns={3}>
+              <FinanceStat label={translateFinance('itemCount')} value={batch.itemCount} />
+              <FinanceStat label={translate('department')} value={departmentName} />
+              <FinanceStat
+                label={translateFinance('submittedAt')}
+                value={new Date(batch.submittedAt).toLocaleDateString(i18n.language)}
+              />
+            </FinanceStatGrid>
           )}
-          <FinancePagination pagination={itemsQuery.data?.data?.pagination} onPageChange={setPage} />
         </FinanceQueryState>
-      </FinanceSection>
-    </FinanceDrawer>
+
+        <FinanceSection title={translateFinance('batchItems')}>
+          <FinanceQueryState query={itemsQuery}>
+            {items.length > 0 ? (
+              <>
+                <FinanceTable<BatchItemListResponseDtoDataItemsItem>
+                  items={items}
+                  rowKey={(item) => `${item.requestId}-${item.position}`}
+                  columns={[
+                    {
+                      key: 'position',
+                      label: translateFinance('itemPosition'),
+                      width: 'w-20',
+                      render: (item) => <span className='font-mono text-xs font-semibold'>#{item.position}</span>
+                    },
+                    {
+                      key: 'outcome',
+                      label: translateFinance('batchOutcome'),
+                      width: 'w-1/2',
+                      render: (item) => outcomeBadge(item.outcome, item.stopReason)
+                    },
+                    {
+                      key: 'requestState',
+                      label: translateFinance('requestState'),
+                      render: (item) => (
+                        <FinanceStatus
+                          value={item.requestState}
+                          label={
+                            isBatchRequestState(item.requestState)
+                              ? translateFinance(`requestStates.${item.requestState}`)
+                              : translateFinance('unknown')
+                          }
+                        />
+                      )
+                    }
+                  ]}
+                />
+                <FinancePagination pagination={pagination} onPageChange={setPage} />
+              </>
+            ) : (
+              <FinanceEmpty message={translateFinance('empty')} />
+            )}
+          </FinanceQueryState>
+        </FinanceSection>
+      </div>
+    </FinanceDetailPage>
   )
 }

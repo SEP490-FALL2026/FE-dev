@@ -9,12 +9,28 @@ export function RenewalSeatRanking({ id }: { id: string }) {
   const { t: translate } = useTranslation('itRenewals')
   const { formatDate, formatNumber } = useDashboardFormat()
   const [page, setPage] = useState(1)
-  const query = useSubscriptionRenewalSeatRanking(id, { page, pageSize: 20 })
+  const [proposedOnly, setProposedOnly] = useState(false)
+  const query = useSubscriptionRenewalSeatRanking(id, {
+    page,
+    pageSize: 20,
+    ...(proposedOnly ? { proposedOnly: 'true' as const } : {})
+  })
   const data = query.data?.data
   return (
     <section className='space-y-3'>
       <h2 className='text-lg font-semibold'>{translate('ranking')}</h2>
       <p className='text-sm text-muted-foreground'>{translate('rankingHint')}</p>
+      <label className='flex min-h-11 items-center gap-2 text-sm'>
+        <input
+          type='checkbox'
+          checked={proposedOnly}
+          onChange={(event) => {
+            setProposedOnly(event.target.checked)
+            setPage(1)
+          }}
+        />
+        {translate('proposedOnly')}
+      </label>
       <ItQueryState query={query}>
         {data?.usage.status === 'NOT_AVAILABLE' && (
           <p className='text-sm text-muted-foreground'>{translate('usageUnavailable')}</p>
@@ -30,6 +46,7 @@ export function RenewalSeatRanking({ id }: { id: string }) {
                   <p className='text-xs text-muted-foreground'>
                     {translate(`values.${item.group}`, { defaultValue: translate('unknown') })}
                   </p>
+                  {item.inProposal && <p className='text-xs text-warning-ink'>{translate('inProposal')}</p>}
                 </div>
                 <dl className='grid grid-cols-2 gap-x-4 text-xs'>
                   <dt>{translate('rank')}</dt>

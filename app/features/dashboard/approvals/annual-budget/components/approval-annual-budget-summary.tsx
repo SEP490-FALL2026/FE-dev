@@ -50,11 +50,6 @@ export function ApprovalAnnualBudgetSummary({ version }: { version: VersionRespo
         <ApprovalsStat label={translate('total')} value={money(version.total)} emphasis />
         <ApprovalsStat label={translate('base')} value={money(version.base)} />
         <ApprovalsStat label={translate('reserve')} value={money(version.reserve)} />
-        <ApprovalsStat
-          label={translate('reservePercent')}
-          value={version.reservePercent === null ? translate('unavailable') : `${version.reservePercent}%`}
-        />
-        <ApprovalsStat label={translate('defaultReserve')} value={money(version.defaultReserve)} />
       </ApprovalsStatGrid>
       <ApprovalsSection title={translate('versionInfo')}>
         <dl className='grid gap-4 rounded-lg border border-border/70 bg-surface p-4 sm:grid-cols-2 lg:grid-cols-4'>
@@ -71,12 +66,6 @@ export function ApprovalAnnualBudgetSummary({ version }: { version: VersionRespo
             value={version.sentAt ? formatDate(version.sentAt) : translate('unavailable')}
             numeric
           />
-          {version.reserveReason && (
-            <div className='min-w-0 sm:col-span-2'>
-              <dt className='text-xs text-muted-foreground'>{translate('reserveReason')}</dt>
-              <dd className='mt-1 text-sm whitespace-pre-wrap [overflow-wrap:anywhere]'>{version.reserveReason}</dd>
-            </div>
-          )}
           {version.reason && (
             <div className='min-w-0 sm:col-span-2'>
               <dt className='text-xs text-muted-foreground'>{translate('reason')}</dt>

@@ -5,13 +5,7 @@ import type { VersionLinePageResponseDtoDataItemsItem } from '~/shared/api/gener
 import { useBudgetVersionLineList } from '~/shared/api/generated/operations/budget-versions/budget-version-line-list'
 import { useBudgetVersionLineAdd } from '~/shared/api/generated/operations/budget-versions/budget-version-line-add'
 import { useBudgetVersionLineUpdate } from '~/shared/api/generated/operations/budget-versions/budget-version-line-update'
-import {
-  FinanceButton,
-  FinanceDrawer,
-  FinancePagination,
-  FinanceQueryState,
-  FinanceSection
-} from '../../shared/components/finance-ui'
+import { FinanceButton, FinanceDrawer, FinancePagination, FinanceQueryState } from '../../shared/components/finance-ui'
 import { FinanceTable } from '../../shared/components/finance-table'
 import { useFinanceFeedback } from '../../shared/hooks/use-finance-feedback'
 import { formatMoney } from '../../shared/finance-money'
@@ -19,8 +13,6 @@ import { budgetQueryKeys } from '../budget-query-keys'
 import { canEditVersion } from '../enums/version-state'
 import { BudgetLineForm } from './budget-line-form'
 import { BudgetLineImport } from './budget-line-import'
-
-const lineFacts = ['amount', 'planId', 'seats', 'financeComment', 'adjustmentReason'] as const
 
 export function BudgetVersionLines({
   version,
@@ -46,37 +38,22 @@ export function BudgetVersionLines({
   if (dialog === 'add' || (dialog === 'edit' && selected))
     return (
       <div className='space-y-4'>
-        {/* A failed refresh keeps the draft and offers a retry instead of forcing a cancel. */}
-        {query.isError && (
-          <FinanceQueryState query={query}>
-            <span />
-          </FinanceQueryState>
-        )}
+        <FinanceQueryState query={query}>
+          <span />
+        </FinanceQueryState>
         <BudgetLineForm
           line={dialog === 'edit' ? selected : undefined}
           currency={version.total.currency}
           pending={addMutation.isPending || updateMutation.isPending}
-          disabled={disabled || !editable || (dialog === 'edit' && writeDisabled)}
+          disabled={disabled || !editable || (dialog === 'edit' && (query.isError || query.isFetching))}
           onClose={() => {
             setDialog(undefined)
             setSelected(undefined)
           }}
           onSubmit={(line) => {
+            if (disabled || !editable || (dialog === 'edit' && (query.isError || query.isFetching))) return
             if (dialog === 'add') {
-              addMutation.mutate({
-                id: version.id,
-                data: {
-                  lines: [
-                    {
-                      description: line.description,
-                      amount: line.amount,
-                      ...(line.planId ? { planId: line.planId } : {}),
-                      ...(line.seats ? { seats: line.seats } : {}),
-                      ...(line.note ? { note: line.note } : {})
-                    }
-                  ]
-                }
-              })
+              addMutation.mutate({ id: version.id, data: { lines: [line] } })
             } else if (selected) {
               updateMutation.mutate({
                 id: version.id,
@@ -96,21 +73,20 @@ export function BudgetVersionLines({
       </div>
     )
   return (
-    <FinanceSection
-      title={translate('lines')}
-      actions={
-        editable && (
-          <>
+    <section className='space-y-4'>
+      <div className='flex flex-wrap items-center justify-between gap-3'>
+        <h3 className='font-semibold'>{translate('lines')}</h3>
+        {editable && (
+          <div className='flex gap-2'>
             <FinanceButton disabled={disabled} onClick={() => setDialog('add')}>
               {translate('actions.addLine')}
             </FinanceButton>
             <FinanceButton disabled={disabled} onClick={() => setDialog('import')}>
               {translate('actions.import')}
             </FinanceButton>
-          </>
-        )
-      }
-    >
+          </div>
+        )}
+      </div>
       <FinanceQueryState query={query}>
         <FinanceTable
           items={result?.items ?? []}
@@ -118,22 +94,18 @@ export function BudgetVersionLines({
           onOpen={setSelected}
           columns={[
             { key: 'position', label: translate('fields.position'), numeric: true, render: (line) => line.position },
+            { key: 'description', label: translate('fields.description'), render: (line) => line.description },
             {
-              key: 'description',
-              label: translate('fields.description'),
-              render: (line) => <span title={line.description}>{line.description}</span>
+              key: 'amount',
+              label: translate('fields.amount'),
+              numeric: true,
+              render: (line) => formatMoney(line.amount, i18n.language)
             },
             {
               key: 'seats',
               label: translate('fields.seats'),
               numeric: true,
               render: (line) => line.seats ?? translate('none')
-            },
-            {
-              key: 'amount',
-              label: translate('fields.amount'),
-              numeric: true,
-              render: (line) => formatMoney(line.amount, i18n.language)
             }
           ]}
         />
@@ -142,10 +114,10 @@ export function BudgetVersionLines({
       {selected && !dialog && (
         <FinanceDrawer title={selected.description} onClose={() => setSelected(undefined)}>
           <dl className='grid gap-3'>
-            {lineFacts.map((field) => (
+            {(['amount', 'planId', 'seats', 'financeComment', 'adjustmentReason'] as const).map((field) => (
               <div key={field} className='grid gap-1 border-b border-border/40 pb-2 sm:grid-cols-2'>
                 <dt className='text-sm text-muted-foreground'>{translate(`fields.${field}`)}</dt>
-                <dd className='text-sm break-words'>
+                <dd className='break-words text-sm'>
                   {field === 'amount'
                     ? formatMoney(selected.amount, i18n.language)
                     : (selected[field] ?? translate('none'))}
@@ -153,13 +125,13 @@ export function BudgetVersionLines({
               </div>
             ))}
           </dl>
-          {editable && (
-            <div className='mt-4 flex justify-end'>
+          <div className='mt-4 flex flex-wrap gap-2'>
+            {editable && (
               <FinanceButton disabled={writeDisabled} variant='primary' onClick={() => setDialog('edit')}>
                 {translate('actions.editLine')}
               </FinanceButton>
-            </div>
-          )}
+            )}
+          </div>
         </FinanceDrawer>
       )}
       {dialog === 'import' && (
@@ -169,6 +141,6 @@ export function BudgetVersionLines({
           onClose={() => setDialog(undefined)}
         />
       )}
-    </FinanceSection>
+    </section>
   )
 }

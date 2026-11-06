@@ -1,52 +1,80 @@
-import { Building2, CheckCircle2, FileInput, FileUp, Grid2X2, Layers, Lock, ReceiptText, Store } from 'lucide-react'
+import {
+  Building2,
+  CalendarRange,
+  FileInput,
+  FileText,
+  Grid2X2,
+  Landmark,
+  Layers,
+  LineChart,
+  ReceiptText
+} from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { FINANCE_TAB_KEYS, type FinanceTabKey } from './enums'
 export { FINANCE_TAB_KEYS, type FinanceTabKey }
 
+export type FinanceAreaKey = 'budget' | 'close' | 'overview' | 'planning' | 'spend'
 export type FinanceTranslationKey =
   | 'overview'
   | 'costCenters'
+  | 'budgets'
   | 'proposals'
   | 'versions'
   | 'spendBatches'
-  | 'invoiceIntake'
   | 'commitments'
   | 'catalog'
   | 'vendorTax'
+  | 'periodClose'
+  | 'periodReport'
 
-export interface FinanceNavItem {
+export interface FinanceTab {
   key: FinanceTabKey
   icon: LucideIcon
   translationKey: FinanceTranslationKey
 }
-
-/**
- * One entry per screen, in the order Finance works through them (overview, then the five budget screens, then the
- * two read-only catalogues). Detail views stay under their list's tab with `?id=`.
- */
-export const financeNavItems: readonly FinanceNavItem[] = [
-  { key: 'overview', icon: Grid2X2, translationKey: 'overview' },
-  { key: 'cost-centers', icon: Building2, translationKey: 'costCenters' },
-  { key: 'annual-proposals', icon: FileInput, translationKey: 'proposals' },
-  { key: 'budget-negotiation', icon: CheckCircle2, translationKey: 'versions' },
-  { key: 'spend-batches', icon: Layers, translationKey: 'spendBatches' },
-  { key: 'invoice-intake', icon: FileUp, translationKey: 'invoiceIntake' },
-  { key: 'commitments', icon: Lock, translationKey: 'commitments' },
-  { key: 'saas-cost', icon: Store, translationKey: 'catalog' },
-  { key: 'vendor-tax', icon: ReceiptText, translationKey: 'vendorTax' }
-]
-
-/** Legacy tab keys still accepted in URLs; they open the screen that absorbed them. */
-const tabAliases: Partial<Record<FinanceTabKey, FinanceTabKey>> = {
-  budgets: 'cost-centers',
-  'department-budget': 'cost-centers',
-  'budget-allocation': 'cost-centers',
-  'department-summary': 'annual-proposals',
-  'decision-history': 'budget-negotiation'
+export interface FinanceArea {
+  icon: LucideIcon
+  key: FinanceAreaKey
+  tabs: readonly FinanceTab[]
 }
 
-export const financeNavTab = (tab: FinanceTabKey): FinanceTabKey => tabAliases[tab] ?? tab
+export const financeAreas: readonly FinanceArea[] = [
+  { key: 'overview', icon: Grid2X2, tabs: [{ key: 'overview', icon: Grid2X2, translationKey: 'overview' }] },
+  {
+    key: 'budget',
+    icon: Landmark,
+    tabs: [{ key: 'cost-centers', icon: Building2, translationKey: 'costCenters' }]
+  },
+  {
+    key: 'planning',
+    icon: LineChart,
+    tabs: [
+      { key: 'annual-proposals', icon: FileInput, translationKey: 'proposals' },
+      { key: 'budget-negotiation', icon: CalendarRange, translationKey: 'versions' }
+    ]
+  },
+  {
+    key: 'spend',
+    icon: ReceiptText,
+    tabs: [
+      { key: 'spend-batches', icon: Layers, translationKey: 'spendBatches' },
+      { key: 'commitments', icon: ReceiptText, translationKey: 'commitments' }
+    ]
+  },
+  {
+    key: 'close',
+    icon: FileText,
+    tabs: [
+      { key: 'period-close', icon: CalendarRange, translationKey: 'periodClose' },
+      { key: 'period-report', icon: FileText, translationKey: 'periodReport' }
+    ]
+  }
+]
 
+export const areaTabs = (area: FinanceArea) => area.tabs
+export function financeAreaOf(tab: FinanceTabKey): FinanceArea {
+  return financeAreas.find((area) => area.tabs.some((item) => item.key === tab)) ?? financeAreas[0]
+}
 export function isValidFinanceTab(value: string | null): value is FinanceTabKey {
   return value !== null && (FINANCE_TAB_KEYS as readonly string[]).includes(value)
 }

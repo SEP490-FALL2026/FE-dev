@@ -78,7 +78,7 @@ export function CatalogPurchaseForm({
     >
       {mode === 'plan' ? (
         <>
-          <ItField label={translate('planName')}>
+          <ItField label={translate('planName')} hint={translate('help.planName')}>
             <input
               placeholder={translate('placeholders.plan')}
               name='name'
@@ -89,6 +89,7 @@ export function CatalogPurchaseForm({
           </ItField>
           <fieldset>
             <legend>{translate('provisioning')}</legend>
+            <p className='text-xs font-normal text-muted-foreground'>{translate('help.provisioning')}</p>
             {Object.values(CatalogProvisioningType)
               .filter(
                 (value) =>
@@ -122,6 +123,7 @@ export function CatalogPurchaseForm({
               ).map(([key, options]) => (
                 <fieldset key={key}>
                   <legend>{translate(key)}</legend>
+                  <p className='text-xs font-normal text-muted-foreground'>{translate(`help.${key}`)}</p>
                   {Object.values(options).map((value) => (
                     <label key={value} className='flex min-h-11 items-center gap-2'>
                       <input type='radio' required name={key} value={value} />
@@ -135,7 +137,7 @@ export function CatalogPurchaseForm({
         </>
       ) : (
         <>
-          <ItField label={translate('department')}>
+          <ItField label={translate('department')} hint={translate('help.department')}>
             <input
               placeholder={translate('placeholders.departmentId')}
               name='department'
@@ -149,6 +151,7 @@ export function CatalogPurchaseForm({
           <ItDirectoryLookup mode='department' onSelect={setDepartmentId} />
           <fieldset>
             <legend>{translate('subscriptionKind')}</legend>
+            <p className='text-xs font-normal text-muted-foreground'>{translate('help.subscriptionKind')}</p>
             {Object.values(DeclareSubscriptionBodyDtoKind).map((value) => (
               <label key={value} className='mr-4 inline-flex min-h-11 items-center gap-2'>
                 <input type='radio' required name='kind' value={value} />
@@ -156,7 +159,7 @@ export function CatalogPurchaseForm({
               </label>
             ))}
           </fieldset>
-          <ItField label={translate('quantity')}>
+          <ItField label={translate('quantity')} hint={translate('help.quantity')}>
             <input
               placeholder={translate('placeholders.quantity')}
               name='quantity'

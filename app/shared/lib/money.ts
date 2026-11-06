@@ -7,22 +7,17 @@ export function isDecimal(value: string): boolean {
   return /^\d+(?:\.\d+)?$/.test(value)
 }
 
-/** Shown when a money field is absent, e.g. a backend that does not return it yet. */
-export const missingMoney = '—'
-
 /** Keep server decimal strings exact, including cents beyond the safe integer range. */
-export function formatMoney(money: Partial<Money> | null | undefined, locale: string): string {
-  if (!money || typeof money.amount !== 'string') return missingMoney
+export function formatMoney(money: Money, locale: string): string {
   if (!/^-?\d+(?:\.\d+)?$/.test(money.amount)) return money.amount
   const negative = money.amount.startsWith('-')
   const [integer, fraction = ''] = money.amount.replace(/^-/, '').split('.')
-  // Intl throws on a missing currency code; fall back to a plain number in the same exact way.
-  const style: Intl.NumberFormatOptions = money.currency ? { style: 'currency', currency: money.currency } : {}
-  const currencyFormat = new Intl.NumberFormat(locale, style)
+  const currencyFormat = new Intl.NumberFormat(locale, { style: 'currency', currency: money.currency })
   const precision = Math.max(currencyFormat.resolvedOptions().minimumFractionDigits ?? 0, fraction.length)
   const groupedInteger = new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(BigInt(integer))
   return new Intl.NumberFormat(locale, {
-    ...style,
+    style: 'currency',
+    currency: money.currency,
     minimumFractionDigits: precision,
     maximumFractionDigits: precision
   })

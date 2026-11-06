@@ -13,7 +13,6 @@ const pagination = { page: 1, pageSize: 20, totalItems: 21, totalPages: 2 }
 const item = {
   requestId: '83c00000-0000-4000-8000-000000000001',
   stepId: 'step-1',
-  stepKind: 'SPEND_APPROVAL',
   openedAt: '2026-10-28T00:00:00Z',
   dueOn: '2026-10-31',
   slaWorkingDays: 3,
@@ -27,6 +26,7 @@ const item = {
   primaryCode: 'BUDGET_OK',
   samePersonAsSpend: false,
   noIndependentReview: false,
+  offPlan: false,
   batchId: null
 }
 function setup(adapter: AxiosAdapter, onSelectTab = vi.fn(), initialUrl = '/?tab=queue') {

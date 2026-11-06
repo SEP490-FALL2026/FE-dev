@@ -62,7 +62,7 @@ describe('Employee group request dropdowns', () => {
     expect(privileged).not.toHaveBeenCalled()
   })
 
-  it('keeps selected names and per-person end dates across server pages and searches', async () => {
+  it('keeps selected names  across server pages and searches', async () => {
     const reads: string[] = []
     server.use(
       http.get('*/api/v1/group-request-candidates', ({ request }) => {
@@ -80,9 +80,6 @@ describe('Employee group request dropdowns', () => {
     fireEvent.click(screen.getByRole('combobox', { name: 'Beneficiaries' }))
     fireEvent.click(await screen.findByRole('option', { name: /colleague@example.test/ }))
     closePeople()
-    fireEvent.change(within(details()).getByLabelText('Access end date (if applicable)'), {
-      target: { value: '2027-01-31' }
-    })
     fireEvent.click(screen.getByRole('combobox', { name: 'Beneficiaries' }))
     await waitFor(() => expect(screen.getByRole('button', { name: 'Next' })).toBeEnabled())
     fireEvent.click(screen.getByRole('button', { name: 'Next' }))
@@ -94,21 +91,30 @@ describe('Employee group request dropdowns', () => {
     expect(await screen.findByRole('option', { name: /design@example.test/ })).toHaveAttribute('aria-selected', 'true')
     closePeople()
     expect(screen.getByRole('combobox', { name: 'Beneficiaries' })).toHaveTextContent('2 / 10 selected')
-    expect(within(details()).getByLabelText('Access end date (if applicable)')).toHaveValue('2027-01-31')
+    expect(details()).toBeInTheDocument()
     const selected = screen.getByRole('list', { name: 'Selected beneficiaries' })
     fireEvent.click(within(selected).getAllByRole('button', { name: 'Remove Test Colleague' })[1]!)
-    expect(within(details()).getByLabelText('Access end date (if applicable)')).toHaveValue('2027-01-31')
+    expect(details()).toBeInTheDocument()
     expect(screen.queryByRole('group', { name: /design@example.test/ })).not.toBeInTheDocument()
   })
 
-  it('keeps the preview when only searching and requires another check after changing a selected person date', async () => {
+  it('keeps the preview when only searching and requires another check after changing the reason', async () => {
     const checked = vi.fn()
     const draft = vi.fn()
     server.use(
-      http.get('*/api/v1/group-request-candidates', () => HttpResponse.json(pageResponse([colleague]))),
+      http.get('*/api/v1/group-request-candidates', () => HttpResponse.json(pageResponse([colleague, other]))),
       http.post('*/api/v1/group-requests/check', async ({ request }) => {
         checked(await request.json())
-        return HttpResponse.json({ success: true, data: groupCheck })
+        return HttpResponse.json({
+          success: true,
+          data: {
+            ...groupCheck,
+            lines: [
+              { employeeId, ok: true, reason: null },
+              { employeeId: requestId, ok: true, reason: null }
+            ]
+          }
+        })
       }),
       http.post('*/api/v1/access-requests/drafts', async ({ request }) => {
         draft(await request.json())
@@ -119,26 +125,22 @@ describe('Employee group request dropdowns', () => {
     await chooseCatalogPlan()
     fireEvent.click(screen.getByRole('combobox', { name: 'Beneficiaries' }))
     fireEvent.click(await screen.findByRole('option', { name: /colleague@example.test/ }))
+    fireEvent.click(screen.getByRole('option', { name: /design@example.test/ }))
     closePeople()
     fireEvent.change(screen.getByLabelText('Business reason'), { target: { value: 'Team development' } })
-    fireEvent.change(within(details()).getByLabelText('Access end date (if applicable)'), {
-      target: { value: '2027-01-31' }
-    })
     fireEvent.click(screen.getByRole('button', { name: 'Preview request' }))
     expect(await screen.findByRole('button', { name: 'Submit request' })).toBeEnabled()
     expect(checked).toHaveBeenCalledWith({
       planId,
       termMonths: 1,
       businessReason: 'Team development',
-      lines: [{ employeeId, expectedEndDate: '2027-01-31' }]
+      lines: [{ employeeId }, { employeeId: requestId }]
     })
     fireEvent.click(screen.getByRole('combobox', { name: 'Beneficiaries' }))
     fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'colleague' } })
     expect(screen.getByRole('button', { name: 'Submit request' })).toBeEnabled()
     closePeople()
-    fireEvent.change(within(details()).getByLabelText('Access end date (if applicable)'), {
-      target: { value: '2027-02-28' }
-    })
+    fireEvent.change(screen.getByLabelText('Business reason'), { target: { value: 'Updated team work' } })
     expect(screen.queryByRole('button', { name: 'Submit request' })).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Preview request' })).toBeEnabled()
     fireEvent.click(screen.getByRole('button', { name: 'Save draft' }))
@@ -147,8 +149,8 @@ describe('Employee group request dropdowns', () => {
         kind: 'GROUP',
         planId,
         termMonths: 1,
-        businessReason: 'Team development',
-        lines: [{ employeeId, expectedEndDate: '2027-02-28' }]
+        businessReason: 'Updated team work',
+        lines: [{ employeeId }, { employeeId: requestId }]
       })
     )
     await waitFor(() => expect(navigate).toHaveBeenCalledWith('my-requests'))

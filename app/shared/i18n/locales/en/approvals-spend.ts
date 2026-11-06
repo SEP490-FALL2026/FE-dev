@@ -1,4 +1,5 @@
 export const approvalsSpend = {
+  budgetInsufficient: 'Approval requires sufficient approved budget. Update the budget before approving this request.',
   batchSelection: 'Select',
   batchPosition: 'Position',
   batchRoute: 'Submission route',
@@ -26,10 +27,12 @@ export const approvalsSpend = {
   back: 'Back to queue',
   unavailable: 'Not available',
   term: 'Term (months)',
+  expectedSpend: 'Expected spend date',
   reason: 'Business reason',
   need: 'Need confirmation',
   assignee: 'Assigned to',
   step: 'Approval step',
+  offPlan: 'Outside the budget plan',
   samePerson: 'The same person confirmed the need and holds the spend step.',
   noReview: 'This request has no independent Finance review.',
   waiting: 'This step cannot be decided in its current state.',
@@ -51,10 +54,12 @@ export const approvalsSpend = {
   decide: 'Confirm decision',
   rejectReason: 'Reason for rejection',
   rejectPlaceholder: 'E.g. The team already has an equivalent tool under contract',
-  budgetShort:
-    'Budget year(s) {{years}} have too little budget or none, so this request cannot be approved. You can only reject it or wait until the budget is available.',
-  budgetShortGroup:
-    'Budget year(s) {{years}} have too little budget or none. The server rechecks the approved beneficiaries and refuses the approval if the budget is still short.',
+  override: 'Approve with a budget override',
+  overrideHint:
+    'Select every year requiring an override and explain the exceptional approval. Closed periods and expired evidence cannot be overridden.',
+  overrideReason: 'Override reason',
+  overridePlaceholder: 'E.g. Q4 overrun, covered from the department reserve',
+  overrideYears: 'Override years',
   decisionConfirmation: 'I have reviewed the request, budget check and supporting information.',
   savedDecision: 'Recorded decision',
   decidedBy: 'Decided by',
@@ -118,6 +123,7 @@ export const approvalsSpend = {
     CONFLICT_OF_INTEREST: 'Removed due to a conflict of interest',
     REQUEST_WITHDRAWN: 'Request withdrawn',
     REQUEST_CANCELLED: 'Request cancelled',
+    PLAN_LINE_REQUIRED: 'A budget plan line is required',
     STALE_COST_EVIDENCE: 'Cost evidence has expired',
     CLOSED_OR_EXPIRED_BUDGET_PERIOD: 'The budget period is closed or expired',
     PRICE_MISSING: 'Price information is missing',
@@ -129,7 +135,7 @@ export const approvalsSpend = {
     REVIEWER_IS_APPROVER: 'Finance reviewer cannot approve the same request',
     STEP_NOT_PENDING: 'The step is no longer pending',
     NO_SPEND_STEP: 'No open spend step',
-    OVERRIDE_REQUIRED: 'A budget year is short of budget or has none',
+    OVERRIDE_REQUIRED: 'Insufficient budget must be corrected before approval',
     NOT_CHECKABLE: 'Budget cannot be checked',
     RECHECKED_NEEDS_FINANCE_REVIEW: 'Returned to Finance after recheck',
     RECHECKED_RETURNED_TO_HEAD: 'Returned to department head after recheck'

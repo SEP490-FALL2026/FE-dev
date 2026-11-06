@@ -1,4 +1,5 @@
 export const approvalsSpend = {
+  budgetInsufficient: 'Cần có ngân sách được duyệt đủ chi phí. Cập nhật ngân sách trước khi phê duyệt yêu cầu này.',
   batchSelection: 'Chọn',
   batchPosition: 'Thứ tự',
   batchRoute: 'Tuyến trình chi',
@@ -26,10 +27,12 @@ export const approvalsSpend = {
   back: 'Về hàng đợi',
   unavailable: 'Chưa có thông tin',
   term: 'Thời hạn (tháng)',
+  expectedSpend: 'Ngày dự kiến chi',
   reason: 'Lý do sử dụng',
   need: 'Xác nhận nhu cầu',
   assignee: 'Người được giao',
   step: 'Bước phê duyệt',
+  offPlan: 'Ngoài kế hoạch ngân sách',
   samePerson: 'Người xác nhận nhu cầu cũng là người giữ bước chi.',
   noReview: 'Yêu cầu chưa có rà soát độc lập của Finance.',
   waiting: 'Chưa thể quyết định bước này ở trạng thái hiện tại.',
@@ -51,10 +54,12 @@ export const approvalsSpend = {
   decide: 'Xác nhận quyết định',
   rejectReason: 'Lý do từ chối',
   rejectPlaceholder: 'Ví dụ: Nhóm đã có công cụ tương đương trong hợp đồng hiện tại',
-  budgetShort:
-    'Năm ngân sách {{years}} không đủ hoặc chưa có ngân sách nên không thể duyệt yêu cầu này. Bạn chỉ có thể từ chối hoặc chờ có ngân sách.',
-  budgetShortGroup:
-    'Năm ngân sách {{years}} không đủ hoặc chưa có ngân sách. Hệ thống kiểm tra lại phần người được duyệt và từ chối duyệt nếu vẫn thiếu ngân sách.',
+  override: 'Phê duyệt ngoại lệ ngân sách',
+  overrideHint:
+    'Chọn đầy đủ các năm cần ngoại lệ và ghi rõ lý do. Không thể ghi đè kỳ đã đóng hoặc báo giá hết hiệu lực.',
+  overrideReason: 'Lý do ngoại lệ',
+  overridePlaceholder: 'Ví dụ: Vượt hạn mức quý 4, cần bổ sung từ dự phòng',
+  overrideYears: 'Năm áp dụng ngoại lệ',
   decisionConfirmation: 'Tôi đã xem yêu cầu, kiểm tra ngân sách và thông tin liên quan.',
   savedDecision: 'Quyết định đã ghi nhận',
   decidedBy: 'Người quyết định',
@@ -119,6 +124,7 @@ export const approvalsSpend = {
     CONFLICT_OF_INTEREST: 'Đã tách khỏi đợt do xung đột lợi ích',
     REQUEST_WITHDRAWN: 'Yêu cầu đã rút',
     REQUEST_CANCELLED: 'Yêu cầu đã hủy',
+    PLAN_LINE_REQUIRED: 'Cần gắn dòng kế hoạch ngân sách',
     STALE_COST_EVIDENCE: 'Căn cứ chi phí hết hiệu lực',
     CLOSED_OR_EXPIRED_BUDGET_PERIOD: 'Kỳ ngân sách đã đóng hoặc hết hạn',
     PRICE_MISSING: 'Chưa có thông tin giá',
@@ -130,7 +136,7 @@ export const approvalsSpend = {
     REVIEWER_IS_APPROVER: 'Người rà soát Finance không được duyệt cùng yêu cầu',
     STEP_NOT_PENDING: 'Bước không còn chờ quyết định',
     NO_SPEND_STEP: 'Không có bước chi đang mở',
-    OVERRIDE_REQUIRED: 'Có năm thiếu hoặc chưa có ngân sách',
+    OVERRIDE_REQUIRED: 'Cần bổ sung ngân sách trước khi phê duyệt',
     NOT_CHECKABLE: 'Chưa thể kiểm tra ngân sách',
     RECHECKED_NEEDS_FINANCE_REVIEW: 'Đã trả về Finance sau kiểm tra lại',
     RECHECKED_RETURNED_TO_HEAD: 'Đã trả về trưởng phòng sau kiểm tra lại'

@@ -14,7 +14,7 @@ import { ManagerLiveCreate } from './views/manager-live-create'
 
 const checked = vi.fn()
 const submitted = vi.fn()
-let requireRobinDate = false
+let rejectRobin = false
 const server = setupServer(
   ...managerCatalogHandlers,
   ...managerReadHandlers,
@@ -35,8 +35,8 @@ const server = setupServer(
         ...groupCheck,
         lines: body.lines.map((line) => ({
           employeeId: line.employeeId,
-          ok: !(requireRobinDate && line.employeeId === planId && !line.expectedEndDate),
-          reason: requireRobinDate && line.employeeId === planId && !line.expectedEndDate ? 'END_DATE_REQUIRED' : null
+          ok: !(rejectRobin && line.employeeId === planId),
+          reason: rejectRobin && line.employeeId === planId ? 'NOT_ACTIVE' : null
         }))
       }
     })
@@ -50,7 +50,7 @@ beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 afterAll(() => server.close())
 afterEach(() => server.resetHandlers())
 beforeEach(async () => {
-  requireRobinDate = false
+  rejectRobin = false
   checked.mockClear()
   submitted.mockClear()
   await setAppLanguage('en', false)
@@ -78,57 +78,32 @@ async function confirm() {
   fireEvent.click(button)
   await waitFor(() => expect(submitted).toHaveBeenCalledOnce())
 }
-it('applies a shared date then allows per-person overrides and sends the exact checked body', async () => {
+it('submits the exact checked two-person body without retired fields', async () => {
   await mount()
-  expect(screen.queryByLabelText('Reason for confirming a term over 12 months')).not.toBeInTheDocument()
-  fireEvent.change(screen.getByLabelText('Shared access end date'), { target: { value: '2027-01-31' } })
-  fireEvent.click(screen.getByRole('button', { name: 'Apply to everyone' }))
-  expect(screen.getByLabelText('Access end date for Alex')).toHaveValue('2027-01-31')
-  fireEvent.change(screen.getByLabelText('Access end date for Robin'), { target: { value: '2027-02-28' } })
+  expect(screen.queryByLabelText('Shared access end date')).not.toBeInTheDocument()
+  expect(screen.queryByLabelText('Expected spend date')).not.toBeInTheDocument()
   fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
   await confirm()
-  const body = {
-    planId,
-    businessReason: 'Design work',
-    termMonths: 3,
-    lines: [
-      { employeeId, expectedEndDate: '2027-01-31' },
-      { employeeId: planId, expectedEndDate: '2027-02-28' }
-    ]
-  }
+  const body = { planId, businessReason: 'Design work', termMonths: 3, lines: [{ employeeId }, { employeeId: planId }] }
   expect(checked).toHaveBeenCalledWith(body)
   expect(submitted).toHaveBeenCalledWith(body)
 })
-it('marks only the person identified by the backend, preserves the form and checks corrected dates again', async () => {
-  requireRobinDate = true
+it('keeps an ineligible person blocked after the backend check', async () => {
+  rejectRobin = true
   await mount()
   fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
   const dialog = screen.getByRole('dialog')
-  fireEvent.click(await within(dialog).findByRole('button', { name: 'Edit end dates' }))
-  expect(screen.getByLabelText('Access end date for Robin')).toHaveAttribute('aria-invalid', 'true')
-  expect(screen.getByLabelText('Access end date for Robin')).toBeRequired()
-  expect(screen.getByLabelText('Access end date for Alex')).not.toHaveAttribute('aria-invalid')
-  expect(screen.getByLabelText('Reason')).toHaveValue('Design work')
+  await within(dialog).findByText('Robin')
+  expect(within(dialog).getByRole('button', { name: 'Confirm' })).toBeDisabled()
   expect(submitted).not.toHaveBeenCalled()
-  fireEvent.change(screen.getByLabelText('Access end date for Robin'), { target: { value: '2027-02-28' } })
-  fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
-  await confirm()
-  expect(checked).toHaveBeenCalledTimes(2)
-  expect(submitted).toHaveBeenCalledWith(
-    expect.objectContaining({ lines: [{ employeeId }, { employeeId: planId, expectedEndDate: '2027-02-28' }] })
-  )
 })
-it('requires confirmation over twelve months and drops it when the user shortens the term', async () => {
+it('rejects a term over twelve months and permits a valid shorter term', async () => {
   await mount()
   fireEvent.change(screen.getByLabelText('Term (months)'), { target: { value: '13' } })
-  expect(screen.getByLabelText('Reason for confirming a term over 12 months')).toBeRequired()
   fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-  fireEvent.change(screen.getByLabelText('Reason for confirming a term over 12 months'), {
-    target: { value: 'Long project' }
-  })
-  fireEvent.change(screen.getByLabelText('Term (months)'), { target: { value: '12' } })
   expect(screen.queryByLabelText('Reason for confirming a term over 12 months')).not.toBeInTheDocument()
+  fireEvent.change(screen.getByLabelText('Term (months)'), { target: { value: '12' } })
   fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
   await confirm()
   expect(submitted).toHaveBeenCalledWith({
@@ -137,14 +112,4 @@ it('requires confirmation over twelve months and drops it when the user shortens
     termMonths: 12,
     lines: [{ employeeId }, { employeeId: planId }]
   })
-})
-it('sends the required long-term reason after an explicit backend check', async () => {
-  await mount()
-  fireEvent.change(screen.getByLabelText('Term (months)'), { target: { value: '13' } })
-  fireEvent.change(screen.getByLabelText('Reason for confirming a term over 12 months'), {
-    target: { value: '  Long project  ' }
-  })
-  fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
-  await confirm()
-  expect(submitted.mock.calls[0]?.[0]).toMatchObject({ termMonths: 13, termConfirmation: { reason: 'Long project' } })
 })

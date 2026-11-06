@@ -11,7 +11,6 @@ import { ManagerScreen } from '../manager-screen'
 import { ManagerProfileView } from './views/manager-profile-view'
 import { ManagerLiveEmployeeDetail } from './views/manager-live-employee-detail'
 import { ManagerLiveToolDetail } from './views/manager-live-tool-detail'
-import { ManagerLiveBatch } from '../team-requests/views/manager-live-batch'
 import { ManagerNeedQueue } from '../team-requests/components/manager-need-queue'
 import { ManagerLiveRequest } from '../team-requests/views/manager-live-request'
 

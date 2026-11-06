@@ -19,8 +19,9 @@ export const itRenewals = {
   quantityPlaceholder: 'Ví dụ: 6',
   notePlaceholder: 'Lý do gia hạn, giảm ghế hoặc hủy thuê bao',
   opinionPlaceholder: 'Ghi lại ý kiến Business Owner nếu đã có',
-  proposalHint:
-    'Người duyệt chi quyết định đề xuất. Quyền sử dụng và thuê bao chưa thay đổi cho đến khi xác nhận thực hiện.',
+  proposalHint: 'Trưởng phòng sở hữu thuê bao xác nhận đề xuất. Sau đó IT ghi kết quả thực tế với nhà cung cấp.',
+  releaseSeats: 'Ghế đề xuất thu hồi',
+  releaseSelection: 'Chọn đúng {{count}} ghế vượt. Đã chọn: {{selected}}.',
   outcome: 'Kết quả với nhà cung cấp',
   outcomeNote: 'Căn cứ kết quả',
   outcomeNotePlaceholder: 'Ghi xác nhận của nhà cung cấp hoặc việc còn cần theo dõi',
@@ -47,12 +48,14 @@ export const itRenewals = {
   seatsInUse: 'Ghế đang được giữ',
   milestone: 'Mốc quyết định',
   proposal: 'Đề xuất IT',
-  decision: 'Quyết định chi',
+  decision: 'Xác nhận của trưởng phòng',
   outcomeDetail: 'Kết quả đã ghi',
   usageUnavailable: 'Chưa có dữ liệu sử dụng. Ghế được giữ không chứng minh mức độ sử dụng.',
   waitingReason: 'Lý do đang chờ',
   ranking: 'Thứ tự rà soát ghế',
   rankingHint: 'Thứ tự ưu tiên từ hệ thống; không tự động thu hồi.',
+  proposedOnly: 'Chỉ ghế trong đề xuất',
+  inProposal: 'Đã đề xuất thu hồi',
   rank: 'Ưu tiên',
   holder: 'Người giữ quyền',
   group: 'Căn cứ',
@@ -71,6 +74,7 @@ export const itRenewals = {
     PROPOSED: 'Chờ quyết định',
     DECIDED: 'Chờ kết quả nhà cung cấp',
     OUTCOME_RECORDED: 'Đã ghi kết quả',
+    STALE: 'Đề xuất đã thay đổi; cần gửi đề xuất mới',
     AS_DECIDED: 'Đúng quyết định',
     VENDOR_REFUSED: 'Nhà cung cấp từ chối',
     DIFFERENT: 'Kết quả khác',
@@ -91,6 +95,6 @@ export const itRenewals = {
     AS_PLANNED: 'Theo kế hoạch',
     MID_TERM: 'Trong kỳ hiện tại',
     NEXT_RENEWAL: 'Lần gia hạn tiếp theo',
-    NO_SPENDING_APPROVER: 'Chờ người duyệt chi'
+    NO_HEAD: 'Chờ trưởng phòng sở hữu thuê bao'
   }
 } as const

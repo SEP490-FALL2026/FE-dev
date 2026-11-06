@@ -37,12 +37,15 @@ function mount(children: React.ReactNode, url: string) {
   )
 }
 describe('Employee support and group contracts', () => {
-  it('selects department candidates from server pages and sends IDs with per-person end dates', async () => {
+  it('selects department candidates from server pages and sends only IDs for the checked people', async () => {
     const check = vi.fn()
     server.use(
       http.get('*/api/v1/group-request-candidates', () =>
         HttpResponse.json(
-          pageResponse([{ employeeId, fullName: 'Test Colleague', workEmail: 'colleague@example.test' }])
+          pageResponse([
+            { employeeId, fullName: 'Test Colleague', workEmail: 'colleague@example.test' },
+            { employeeId: requestId, fullName: 'Other Colleague', workEmail: 'other@example.test' }
+          ])
         )
       ),
       http.post('*/api/v1/group-requests/check', async ({ request }) => {
@@ -51,7 +54,10 @@ describe('Employee support and group contracts', () => {
           success: true,
           data: {
             ...groupCheck,
-            lines: [{ employeeId, ok: false, reason: 'END_DATE_REQUIRED' }]
+            lines: [
+              { employeeId, ok: false, reason: 'NOT_ACTIVE' },
+              { employeeId: requestId, ok: true, reason: null }
+            ]
           }
         })
       })
@@ -64,24 +70,28 @@ describe('Employee support and group contracts', () => {
     fireEvent.change(screen.getByLabelText('Business reason'), { target: { value: 'Team development' } })
     fireEvent.click(screen.getByRole('combobox', { name: 'Beneficiaries' }))
     fireEvent.click(await screen.findByRole('option', { name: /Test Colleague/ }))
+    fireEvent.click(screen.getByRole('option', { name: /Other Colleague/ }))
     fireEvent.keyDown(screen.getByRole('searchbox'), { key: 'Escape' })
     fireEvent.change(screen.getByLabelText('Access end date (if applicable)'), { target: { value: '2027-01-31' } })
     fireEvent.click(screen.getByRole('button', { name: 'Preview request' }))
     expect(await screen.findByRole('button', { name: 'Submit request' })).toBeDisabled()
-    expect(screen.getByText('An access end date is required')).toBeInTheDocument()
+    expect(screen.getByText('Cannot submit yet. Review the preview.')).toBeInTheDocument()
     expect(screen.getByText('$9,007,199,254,740,993.25')).toBeInTheDocument()
     expect(check).toHaveBeenCalledWith({
       planId,
       businessReason: 'Team development',
       termMonths: 1,
-      lines: [{ employeeId, expectedEndDate: '2027-01-31' }]
+      lines: [{ employeeId }, { employeeId: requestId }]
     })
   })
   it('blocks a group request when the plan is ineligible even if every person is eligible', async () => {
     server.use(
       http.get('*/api/v1/group-request-candidates', () =>
         HttpResponse.json(
-          pageResponse([{ employeeId, fullName: 'Test Colleague', workEmail: 'colleague@example.test' }])
+          pageResponse([
+            { employeeId, fullName: 'Test Colleague', workEmail: 'colleague@example.test' },
+            { employeeId: requestId, fullName: 'Other Colleague', workEmail: 'other@example.test' }
+          ])
         )
       ),
       http.post('*/api/v1/group-requests/check', () =>
@@ -99,6 +109,7 @@ describe('Employee support and group contracts', () => {
     fireEvent.change(screen.getByLabelText('Business reason'), { target: { value: 'Team development' } })
     fireEvent.click(screen.getByRole('combobox', { name: 'Beneficiaries' }))
     fireEvent.click(await screen.findByRole('option', { name: /Test Colleague/ }))
+    fireEvent.click(screen.getByRole('option', { name: /Other Colleague/ }))
     fireEvent.keyDown(screen.getByRole('searchbox'), { key: 'Escape' })
     fireEvent.click(screen.getByRole('button', { name: 'Preview request' }))
     expect(await screen.findByText('This plan does not support multiple seats')).toBeInTheDocument()

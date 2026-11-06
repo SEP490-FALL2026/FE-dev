@@ -38,7 +38,9 @@ export const approvalsNeed = {
     openSpend: 'Mở hàng đợi duyệt chi',
     needs: 'Yêu cầu của trưởng phòng chờ xác nhận',
     openNeeds: 'Mở trong hàng chờ duyệt',
-    openBudgets: 'Mở ngân sách năm'
+    openBudgets: 'Mở ngân sách năm',
+    renewals: 'Gia hạn thuê bao chờ quyết định',
+    openRenewals: 'Mở danh sách gia hạn'
   },
   software: 'Phần mềm',
   dueOn: 'Hạn xử lý',
@@ -64,6 +66,17 @@ export const approvalsNeed = {
   reject: 'Từ chối nhu cầu',
   reason: 'Lý do từ chối',
   reasonPlaceholder: 'Ví dụ: Nhóm đã có công cụ tương đương được cấp phép trong năm nay',
+  termReason: 'Giải trình thời hạn trên 12 tháng',
+  termReasonPlaceholder: 'Ví dụ: Dự án kéo dài 18 tháng, nhà cung cấp giảm giá khi ký theo năm',
+  spendRoute: 'Kế hoạch ngân sách',
+  planned: 'Gắn dòng kế hoạch ngân sách',
+  offPlan: 'Ngoài kế hoạch ngân sách',
+  planPosition: 'Số thứ tự dòng kế hoạch',
+  planPositionPlaceholder: 'Ví dụ: 3',
+  planPositionHint:
+    'Dùng số thứ tự chính thức của dòng kế hoạch. Vai trò này không có quyền xem gợi ý dòng ngân sách của phòng.',
+  stillNeeded: 'Xác nhận dòng kế hoạch vẫn cần mua nếu đã quá cửa sổ mua',
+  expectedSpendOn: 'Ngày dự kiến chi',
   submit: 'Ghi nhận quyết định nhu cầu',
   locked: 'Bước nhu cầu đã hết chờ duyệt, được giao cho người khác hoặc liên quan đến yêu cầu của chính bạn.',
   groupLocked: 'Yêu cầu này cần quyết định riêng cho từng thành viên nhóm.',

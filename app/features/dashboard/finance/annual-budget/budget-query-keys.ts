@@ -5,15 +5,14 @@ import { getBudgetVersionGetQueryKey } from '~/shared/api/generated/operations/b
 import { getBudgetVersionLineListQueryKey } from '~/shared/api/generated/operations/budget-versions/budget-version-line-list'
 import { getBudgetVersionHistoryListQueryKey } from '~/shared/api/generated/operations/budget-versions/budget-version-history-list'
 import { getBudgetTableQueryKey } from '~/shared/api/generated/operations/budgets/budget-table'
-import { getBudgetSummaryQueryKey } from '~/shared/api/generated/operations/budgets/budget-summary'
+import { getFinanceReviewListQueryKey } from '~/shared/api/generated/operations/finance-reviews/finance-review-list'
 
-/** Lists, details and cost center figures that a budget write can change. */
 export function budgetQueryKeys(versionId?: string, proposalId?: string) {
   return [
     getBudgetProposalListQueryKey(),
     getBudgetVersionListQueryKey(),
     getBudgetTableQueryKey(),
-    getBudgetSummaryQueryKey(),
+    getFinanceReviewListQueryKey(),
     ...(proposalId ? [getBudgetProposalGetQueryKey(proposalId)] : []),
     ...(versionId
       ? [

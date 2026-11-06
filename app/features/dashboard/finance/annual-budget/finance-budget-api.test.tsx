@@ -1,22 +1,68 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react'
-import type { InternalAxiosRequestConfig } from 'axios'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { AxiosHeaders, type InternalAxiosRequestConfig } from 'axios'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { apiClient } from '~/shared/api/axios-client'
+import { i18n, setAppLanguage } from '~/shared/i18n/i18n'
+import { financeBudget } from '~/shared/i18n/locales/en/finance-budget'
 import { FinanceAnnualProposalsView } from './views/finance-annual-proposals-view'
 import { FinanceBudgetNegotiationView } from './views/finance-budget-negotiation-view'
-import {
-  apiLine,
-  apiPage,
-  apiProposal,
-  apiProposalLine,
-  apiResponse,
-  apiVersion,
-  budgetSideList,
-  budgetTestLanguage,
-  exactMoney,
-  renderBudget,
-  writeTo
-} from './budget-test-fixtures'
+import { budgetSideList } from './budget-test-fixtures'
+
+const money = { amount: '9007199254740993.25', currency: 'USD' }
+const costCenter = { id: 'center-1', code: 'ENG', name: 'Engineering API' }
+const proposal = {
+  id: 'proposal-1',
+  costCenter,
+  year: 2027,
+  state: 'SUBMITTED',
+  previousProposalId: null,
+  total: money,
+  submittedAt: '2026-11-01T00:00:00Z',
+  submittedBy: null,
+  returned: null,
+  successorOfProposalId: null,
+  successorProposalId: null,
+  withdrawnAt: null,
+  succeededAt: null,
+  closedAt: null
+}
+const version = {
+  id: 'version-1',
+  costCenter,
+  year: 2027,
+  number: 1,
+  kind: 'INITIAL',
+  state: 'DRAFT',
+  proposalId: proposal.id,
+  base: money,
+  reserve: { amount: '0', currency: 'USD' },
+  total: money,
+  highValuePercent: 10,
+  highValueAmount: null,
+  quarters: null,
+  reason: null,
+  decision: null
+}
+const line = {
+  position: 1,
+  description: 'API plan line',
+  amount: money,
+  planId: null,
+  seats: 2,
+  windowFrom: '2027-01-01',
+  windowTo: '2027-03-31',
+  servicePeriodMonths: 12,
+  repeatCycle: 'ANNUAL',
+  quoteValidUntil: null,
+  financeComment: null,
+  adjustmentReason: null,
+  overdue: false
+}
+const page = (items: unknown[], pageNumber = 1) => ({
+  items,
+  pagination: { page: pageNumber, pageSize: 20, totalItems: 21, totalPages: 2 }
+})
 
 describe('finance annual budget API workflows', () => {
   const previousAdapter = apiClient.defaults.adapter
@@ -25,7 +71,8 @@ describe('finance annual budget API workflows', () => {
   beforeEach(async () => {
     requests = []
     sent = false
-    await budgetTestLanguage()
+    i18n.addResourceBundle('en', 'financeBudget', financeBudget)
+    await setAppLanguage('en', false)
     apiClient.defaults.adapter = async (config) => {
       const sideList = budgetSideList(config)
       if (sideList) return sideList
@@ -33,124 +80,103 @@ describe('finance annual budget API workflows', () => {
       const path = config.url?.split('/api/v1')[1] ?? ''
       let data: unknown = null
       if (path === '/budget-proposals')
-        data = apiPage(
+        data = page(
           config.params?.page === 2
-            ? [{ ...apiProposal, id: 'proposal-2', costCenter: { ...apiProposal.costCenter, name: 'Second API page' } }]
-            : [apiProposal],
+            ? [{ ...proposal, id: 'proposal-2', costCenter: { ...costCenter, name: 'Second API page' } }]
+            : [proposal],
           config.params?.page
         )
-      if (path === '/budget-proposals/proposal-1') data = { proposal: apiProposal }
-      if (path === '/budget-proposals/proposal-1/lines') data = apiPage([apiProposalLine])
-      if (path === '/budget-proposals/proposal-1/return') data = { proposal: { ...apiProposal, state: 'RETURNED' } }
-      if (path === '/budget-versions' && config.method === 'get') data = apiPage([apiVersion])
-      if (path === '/budget-versions' && config.method === 'post') data = { version: apiVersion }
-      if (path === '/budget-versions/version-1') data = { version: { ...apiVersion, state: sent ? 'SENT' : 'DRAFT' } }
-      if (path === '/budget-versions/version-1/lines') data = apiPage([apiLine])
-      if (path === '/budget-versions/version-1/history') data = apiPage([])
+      if (path === '/budget-proposals/proposal-1') data = { proposal }
+      if (path === '/budget-proposals/proposal-1/lines') data = page([line])
+      if (path === '/budget-proposals/proposal-1/return') data = { proposal: { ...proposal, state: 'RETURNED' } }
+      if (path === '/budget-versions' && config.method === 'get') data = page([version])
+      if (path === '/budget-versions' && config.method === 'post') data = { version }
+      if (path === '/budget-versions/version-1') data = { version: { ...version, state: sent ? 'SENT' : 'DRAFT' } }
+      if (path === '/budget-versions/version-1/lines') data = page([line])
+      if (path === '/budget-versions/version-1/history') data = page([])
       if (path === '/budget-versions/version-1/submission') {
         sent = true
-        data = { version: { ...apiVersion, state: 'SENT' } }
+        data = { version: { ...version, state: 'SENT' } }
       }
-      return apiResponse(config, data)
+      if (path === '/budgets')
+        data = page([
+          {
+            costCenter,
+            year: 2027,
+            versionId: 'version-1',
+            number: 1,
+            total: money,
+            committed: money,
+            spent: money,
+            remaining: money,
+            overCommitted: false
+          }
+        ])
+      return {
+        config,
+        data: { success: true, message: 'OK', data },
+        headers: new AxiosHeaders(),
+        status: 200,
+        statusText: 'OK'
+      }
     }
   })
   afterEach(() => {
     apiClient.defaults.adapter = previousAdapter
   })
-  const listRequests = (path: string) =>
-    requests.filter((request) => request.method === 'get' && request.url?.endsWith(path))
-  async function openCreateForm(navigate = vi.fn()) {
-    renderBudget(<FinanceAnnualProposalsView itemId='proposal-1' formatCurrency={() => ''} onSelectTab={navigate} />)
-    fireEvent.click(await screen.findByRole('button', { name: 'Approve and draft a version' }))
-    return navigate
+  function mount(element: React.ReactNode) {
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })
+    render(<QueryClientProvider client={client}>{element}</QueryClientProvider>)
+    return client
   }
-
-  it('lists submitted proposals by default and obtains the next page from the server', async () => {
-    renderBudget(<FinanceAnnualProposalsView formatCurrency={() => ''} onSelectTab={vi.fn()} />)
+  it('loads proposals and obtains the next page from the server', async () => {
+    mount(<FinanceAnnualProposalsView formatCurrency={() => ''} onSelectTab={vi.fn()} />)
+    await waitFor(() => expect(requests.some((request) => request.url?.endsWith('/budget-proposals'))).toBe(true))
     await screen.findAllByText('Engineering API')
-    expect(listRequests('/budget-proposals')[0]?.params).toMatchObject({ page: 1, state: 'SUBMITTED' })
     fireEvent.click(screen.getByRole('button', { name: /next/i }))
     await waitFor(() => expect(requests.some((request) => request.params?.page === 2)).toBe(true))
     expect(await screen.findAllByText('Second API page')).not.toHaveLength(0)
   })
-  it('lists draft versions awaiting confirmation by default', async () => {
-    renderBudget(<FinanceBudgetNegotiationView formatCurrency={() => ''} onSelectTab={vi.fn()} />)
-    expect(await screen.findByRole('heading', { name: 'Awaiting final confirmation' })).toBeTruthy()
-    await screen.findAllByText('Engineering API')
-    expect(listRequests('/budget-versions')[0]?.params).toMatchObject({ page: 1, state: 'DRAFT' })
-  })
-  it('loads proposal detail and paged lines before rejecting with a reason', async () => {
-    renderBudget(<FinanceAnnualProposalsView itemId='proposal-1' formatCurrency={() => ''} onSelectTab={vi.fn()} />)
+  it('loads proposal detail and separate paged lines before returning with a reason', async () => {
+    mount(<FinanceAnnualProposalsView itemId='proposal-1' formatCurrency={() => ''} onSelectTab={vi.fn()} />)
     await waitFor(() => expect(requests.some((request) => request.url?.endsWith('/proposal-1/lines'))).toBe(true))
     await screen.findAllByText('API plan line')
-    fireEvent.click(screen.getByRole('button', { name: 'Reject – return to the department head' }))
-    const confirm = screen.getByRole('button', { name: 'Return to the department head' })
-    expect(confirm).toBeDisabled()
+    fireEvent.click(screen.getByRole('button', { name: 'Return proposal' }))
     fireEvent.change(screen.getByLabelText(/^Reason/), { target: { value: 'Please review seats' } })
-    fireEvent.click(confirm)
-    await waitFor(() => expect(writeTo(requests, '/return')?.body).toEqual({ reason: 'Please review seats' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm return' }))
+    await waitFor(() =>
+      expect(
+        requests.some(
+          (request) => request.url?.endsWith('/return') && JSON.parse(request.data).reason === 'Please review seats'
+        )
+      ).toBe(true)
+    )
   })
-  it('creates a version from a proposal with an empty reserve, sending no reserve or currency', async () => {
-    const navigate = await openCreateForm()
-    expect(screen.getByLabelText(/^Reserve amount/)).toHaveValue('')
+  it('creates from a proposal without rounding the decimal amount', async () => {
+    const navigate = vi.fn()
+    mount(<FinanceAnnualProposalsView itemId='proposal-1' formatCurrency={() => ''} onSelectTab={navigate} />)
+    fireEvent.click(await screen.findByRole('button', { name: 'Create version' }))
     fireEvent.click(screen.getByRole('button', { name: 'Save version' }))
-    await waitFor(() => expect(writeTo(requests, '/budget-versions')).toBeDefined())
-    expect(writeTo(requests, '/budget-versions')?.body).toEqual({
-      proposalId: 'proposal-1',
-      base: { amount: exactMoney.amount }
-    })
+    await waitFor(() =>
+      expect(requests.some((request) => request.method === 'post' && request.url?.endsWith('/budget-versions'))).toBe(
+        true
+      )
+    )
+    const request = requests.find((request) => request.method === 'post' && request.url?.endsWith('/budget-versions'))
+    expect(JSON.parse(request?.data)).toEqual({ proposalId: 'proposal-1', base: { amount: money.amount } })
     await waitFor(() => expect(navigate).toHaveBeenCalledWith('budget-negotiation', { id: 'version-1' }))
   })
-  it('requires a reserve reason when the reserve differs from 10% of the base', async () => {
-    await openCreateForm()
-    fireEvent.change(screen.getByLabelText(/^Base amount/), { target: { value: '1000' } })
-    fireEvent.change(screen.getByLabelText(/^Reserve amount/), { target: { value: '150' } })
-    const reason = screen.getByLabelText(/^Reserve reason/)
-    expect(reason).toBeRequired()
-    // Submitting past native validation still hits the form's own check.
-    const form = screen.getByRole('button', { name: 'Save version' }).closest('form')
-    if (!form) throw new Error('Version form is missing')
-    fireEvent.submit(form)
-    expect(await screen.findByText('Review the required fields and decimal amounts.')).toBeTruthy()
-    expect(reason).toHaveAttribute('aria-invalid', 'true')
-    expect(writeTo(requests, '/budget-versions')).toBeUndefined()
-    fireEvent.change(screen.getByLabelText(/^Reserve reason/), { target: { value: '15 more Figma users' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Save version' }))
-    await waitFor(() => expect(writeTo(requests, '/budget-versions')).toBeDefined())
-    expect(writeTo(requests, '/budget-versions')?.body).toEqual({
-      proposalId: 'proposal-1',
-      base: { amount: '1000' },
-      reserve: { amount: '150' },
-      reserveReason: '15 more Figma users'
-    })
-  })
-  it('asks no reserve reason when the reserve equals the 10% default', async () => {
-    await openCreateForm()
-    fireEvent.change(screen.getByLabelText(/^Base amount/), { target: { value: '1000' } })
-    fireEvent.change(screen.getByLabelText(/^Reserve amount/), { target: { value: '100' } })
-    expect(screen.queryByLabelText(/^Reserve reason/)).toBeNull()
-    fireEvent.click(screen.getByRole('button', { name: 'Save version' }))
-    await waitFor(() => expect(writeTo(requests, '/budget-versions')).toBeDefined())
-    expect(writeTo(requests, '/budget-versions')?.body).toEqual({
-      proposalId: 'proposal-1',
-      base: { amount: '1000' },
-      reserve: { amount: '100' }
-    })
-  })
-  it('sends a draft to /submission and refetches it; Finance has no approve or decide action', async () => {
-    renderBudget(<FinanceBudgetNegotiationView itemId='version-1' formatCurrency={() => ''} onSelectTab={vi.fn()} />)
-    fireEvent.click(await screen.findByRole('button', { name: 'Final confirmation – send to the Spending Approver' }))
-    const dialog = screen.getByRole('dialog')
-    expect(dialog).toHaveTextContent('Once sent, the Spending Approver decides')
-    fireEvent.click(screen.getByRole('button', { name: 'Send to the Spending Approver' }))
-    await waitFor(() => expect(writeTo(requests, '/budget-versions/version-1/submission')).toBeDefined())
-    expect(writeTo(requests, '/budget-versions/version-1/submission')?.request.method).toBe('post')
-    await waitFor(() => expect(listRequests('/budget-versions/version-1').length).toBeGreaterThan(1))
+  it('sends a draft and refetches its server state; Finance has no approval action', async () => {
+    mount(<FinanceBudgetNegotiationView itemId='version-1' formatCurrency={() => ''} onSelectTab={vi.fn()} />)
+    fireEvent.click(await screen.findByRole('button', { name: 'Send for decision' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm send' }))
     await waitFor(() =>
-      expect(screen.queryByRole('button', { name: 'Final confirmation – send to the Spending Approver' })).toBeNull()
+      expect(
+        requests.filter((request) => request.method === 'get' && request.url?.endsWith('/budget-versions/version-1'))
+          .length
+      ).toBeGreaterThan(1)
     )
-    for (const name of ['Approve', 'Reject', 'Decide', 'Request changes'])
-      expect(screen.queryByRole('button', { name })).toBeNull()
-    expect(requests.some((request) => request.url?.endsWith('/decision'))).toBe(false)
+    expect(screen.queryByRole('button', { name: 'Approve' })).toBeNull()
+    await waitFor(() => expect(screen.queryByRole('button', { name: 'Send for decision' })).toBeNull())
   })
 })

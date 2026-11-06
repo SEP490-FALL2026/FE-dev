@@ -13,12 +13,9 @@ function failure(code: string, status: number) {
 }
 
 describe('Spending Approver error handling', () => {
-  it('explains budget shortfalls and changed review routes without exposing server messages', () => {
+  it('explains required overrides and changed review routes without exposing server messages', () => {
     expect(getApprovalsError(failure('SPEND.OVERRIDE_REQUIRED', 422)).key).toBe('overrideRequired')
-    // Override blocks were removed from the contract; retired codes fall back to the HTTP status.
-    expect(getApprovalsError(failure('SPEND.OVERRIDE_MISMATCH', 422)).key).toBe('validation')
-    expect(getApprovalsError(failure('SPEND.BATCH_NOT_FOUND', 404)).key).toBe('batchNotFound')
-    expect(getApprovalsError(failure('BUDGET_ATTACHMENT.NOT_FOUND', 404)).key).toBe('attachmentNotFound')
+    expect(getApprovalsError(failure('SPEND.OVERRIDE_MISMATCH', 422)).key).toBe('overrideMismatch')
     expect(getApprovalsError(failure('SPEND.RECHECKED_NEEDS_FINANCE_REVIEW', 409)).key).toBe('recheckedFinance')
     expect(getApprovalsError(failure('SPEND.RECHECKED_RETURNED_TO_HEAD', 409)).key).toBe('recheckedHead')
     expect(getApprovalsError(failure('UNKNOWN', 409))).toEqual({

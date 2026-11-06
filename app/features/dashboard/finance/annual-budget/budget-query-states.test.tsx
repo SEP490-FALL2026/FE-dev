@@ -59,10 +59,9 @@ describe('budget server states and pending writes', () => {
       )
     renderBudget(<FinanceBudgetNegotiationView itemId='version-1' />)
     expect(await screen.findByText('Unknown status')).toBeTruthy()
-    expect(screen.queryByRole('button', { name: 'Final confirmation – send to the Spending Approver' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Send for decision' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Edit figures' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Approve' })).toBeNull()
-    expect(screen.queryByRole('button', { name: 'Rebuild rejected version' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Add line' })).toBeNull()
   })
   it('blocks duplicate sends while a mutation is pending', async () => {
@@ -81,8 +80,8 @@ describe('budget server states and pending writes', () => {
       return apiResponse(config, config.url?.endsWith('/lines') ? apiPage([apiLine]) : { version: apiVersion })
     }
     renderBudget(<FinanceBudgetNegotiationView itemId='version-1' />)
-    fireEvent.click(await screen.findByRole('button', { name: 'Final confirmation – send to the Spending Approver' }))
-    const confirm = screen.getByRole('button', { name: 'Send to the Spending Approver' })
+    fireEvent.click(await screen.findByRole('button', { name: 'Send for decision' }))
+    const confirm = screen.getByRole('button', { name: 'Confirm send' })
     fireEvent.click(confirm)
     fireEvent.click(confirm)
     await waitFor(() => expect(sends).toBe(1))

@@ -1,4 +1,3 @@
-import { AlertTriangle } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMeGet } from '~/shared/api/generated/operations/me/me-get'
@@ -78,21 +77,19 @@ export function SpendDecisionForm({
           (draft.decision === SPEND_DECISION.REJECT && Boolean(draft.reason.trim())))
       )
     })
-  // QĐ-97c: a year short of budget (or without one) blocks approval; only rejection or waiting remains.
-  // The approved subset of a group is rechecked by BE, which answers SPEND.OVERRIDE_REQUIRED when still short.
-  const approvalBlocked = !isGroup && deficientYears.length > 0
+  const hasApproval = isGroup
+    ? confirmedLines.some((line) => lineDrafts[line.employee.employeeId]?.decision === SPEND_DECISION.APPROVE)
+    : decision === SPEND_DECISION.APPROVE
+  const insufficientBudget = !isGroup && hasApproval && deficientYears.length > 0
   const decisionValid = isGroup
     ? allLinesDecided
-    : (decision === SPEND_DECISION.APPROVE && !approvalBlocked) ||
-      (decision === SPEND_DECISION.REJECT && Boolean(reason.trim()))
-  const valid = canDecide && confirmed && decisionValid
-  const rejectOption = { value: SPEND_DECISION.REJECT, label: translate('reject') }
+    : decision === SPEND_DECISION.APPROVE || (decision === SPEND_DECISION.REJECT && Boolean(reason.trim()))
+  const valid = canDecide && confirmed && decisionValid && !insufficientBudget
   const options = [
     { value: '', label: translate('choose') },
     { value: SPEND_DECISION.APPROVE, label: translate('approve') },
-    rejectOption
+    { value: SPEND_DECISION.REJECT, label: translate('reject') }
   ]
-  const singleOptions = approvalBlocked ? [options[0], rejectOption] : options
   const changeLine = (id: string, patch: Partial<{ decision: string; reason: string }>) =>
     setLineDrafts((previous) => ({
       ...previous,
@@ -178,7 +175,7 @@ export function SpendDecisionForm({
               <ApprovalsSelect
                 label={translate('decision')}
                 value={decision}
-                options={singleOptions}
+                options={options}
                 onChange={setDecision}
                 disabled={!canDecide}
               />
@@ -197,17 +194,7 @@ export function SpendDecisionForm({
               )}
             </>
           )}
-          {deficientYears.length > 0 && (
-            <p
-              role='status'
-              className='flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning-ink'
-            >
-              <AlertTriangle aria-hidden className='mt-0.5 size-4 shrink-0' strokeWidth={1.5} />
-              {translate(isGroup ? 'budgetShortGroup' : 'budgetShort', {
-                years: deficientYears.join(', ')
-              })}
-            </p>
-          )}
+          {insufficientBudget && <p className='text-sm text-danger'>{translate('budgetInsufficient')}</p>}
           <label className='flex min-h-11 items-start gap-3 text-sm'>
             <input
               className='mt-0.5 size-4 accent-primary'

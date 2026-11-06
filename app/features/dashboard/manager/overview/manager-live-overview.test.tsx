@@ -125,6 +125,6 @@ it('keeps an unavailable dashboard metric unavailable without a duplicate fallba
 it.each([undefined, employeeId])('shows the department name once with department context %s', async (departmentId) => {
   mount(departmentId)
   if (departmentId) await screen.findByRole('heading', { name: 'Engineering' })
-  expect(screen.getAllByText(/Engineering/)).toHaveLength(1)
+  expect(screen.getAllByRole('heading', { name: departmentId ? 'Engineering' : /Test Manager/ })).toHaveLength(1)
   expect(screen.getByLabelText('Department ID')).toHaveValue(departmentId ?? '')
 })

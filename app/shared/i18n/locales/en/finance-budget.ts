@@ -1,9 +1,4 @@
 export const financeBudget = {
-  pendingConfirmation: 'Awaiting final confirmation',
-  pendingConfirmationHint:
-    'Versions Finance drafted from proposals. Check them, then confirm to send to the Spending Approver; once approved, the figures move into the cost centers.',
-  proposalsHint:
-    'Annual budget proposals sent by department heads. Approve to draft a version, or reject to return it.',
   proposals: 'Budget proposals',
   versions: 'Budget versions',
   budgets: 'Current budgets',
@@ -17,14 +12,14 @@ export const financeBudget = {
   lineHistory: 'Purchase window history',
   actions: {
     rebuild: 'Rebuild rejected version',
-    return: 'Reject – return to the department head',
-    confirmReturn: 'Return to the department head',
-    create: 'Approve and draft a version',
+    return: 'Return proposal',
+    confirmReturn: 'Confirm return',
+    create: 'Create version',
     save: 'Save version',
     edit: 'Edit figures',
     revise: 'Create revision',
-    send: 'Final confirmation – send to the Spending Approver',
-    confirmSend: 'Send to the Spending Approver',
+    send: 'Send for decision',
+    confirmSend: 'Confirm send',
     addLine: 'Add line',
     editLine: 'Edit line',
     saveLine: 'Save line',
@@ -44,6 +39,7 @@ export const financeBudget = {
     total: 'Total',
     base: 'Base amount',
     reserve: 'Reserve amount',
+    reserveReason: 'Reason for the reserve amount',
     highValuePercent: 'High value threshold (%)',
     highValueAmount: 'High value amount',
     q1: 'Quarter 1',
@@ -78,9 +74,7 @@ export const financeBudget = {
     after: 'After',
     field: 'Field',
     proposal: 'Source proposal',
-    decision: 'Decision reason',
-    reservePercent: 'Reserve share',
-    reserveReason: 'Reserve reason'
+    decision: 'Decision reason'
   },
   states: {
     SUBMITTED: 'Submitted',
@@ -138,8 +132,7 @@ export const financeBudget = {
     adjustmentReason: 'Why the amount or timing of this line changes',
     versionReason: 'Summarise why this version is created or revised',
     windowReason: 'e.g. The vendor moved its quote to Q3',
-    returnReason: 'State what the department head must add or change',
-    reserveReason: 'e.g. 15 more Figma users expected in Q3'
+    returnReason: 'State what the department head must add or change'
   },
   sections: {
     item: 'Spend item',
@@ -165,8 +158,7 @@ export const financeBudget = {
     removeHint: 'Remove {{name}} from this version? The version history keeps a record of the removal.',
     confirmRemove: 'Remove file'
   },
-  sendHint:
-    'Check the figures and lines. Once sent, the Spending Approver decides; an approved version moves its figures into the cost centers.',
+  sendHint: 'Send this version to the spending approver for a decision.',
   optionalQuarters: 'Optional quarterly amounts: fill all four or leave all blank.',
   decimalHint: 'Enter a nonnegative decimal amount in the reporting currency.',
   invalid: 'Review the required fields and decimal amounts.',
@@ -178,6 +170,5 @@ export const financeBudget = {
   system: 'System',
   yes: 'Yes',
   no: 'No',
-  reserveHint: 'Leave empty to use the default {{percent}}% of the base ({{amount}}).',
-  reserveReasonHint: 'A reserve other than the default needs a reason before it is sent to the Spending Approver.'
+  windowHint: 'Only the purchase window changes. Budget amounts stay the same.'
 }

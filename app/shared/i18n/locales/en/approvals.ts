@@ -16,6 +16,7 @@ export const approvals = {
   nav: {
     overview: 'Overview',
     queue: 'Approval queue',
+    renewal: 'Subscription renewals',
     annualBudget: 'Annual budget approval'
   },
   status: {
@@ -67,6 +68,7 @@ export const approvals = {
     NO_ACTIVE_BUDGET: 'No active budget',
     CLOSED_OR_EXPIRED_BUDGET_PERIOD: 'Budget closed or expired',
     STALE_COST_EVIDENCE: 'Expired cost evidence',
+    PLAN_LINE_OVERDUE: 'Purchase window overdue',
     BLOCKED: 'Blocked',
     FINANCE_REVIEW: 'Finance review',
     SPEND_APPROVAL: 'Spending approval',
@@ -116,15 +118,21 @@ export const approvals = {
     lineHoldsAccess: 'Someone in the group already holds a seat of this plan. Reject that person and decide again.',
     groupUsesLines: 'Group requests are decided per person. The data has been reloaded.',
     stepNotPending: 'This step is already decided or waiting for someone to hold it. The data has been reloaded.',
+    spendNotApplicable: 'The request has no cost, so no plan line or off-plan choice is needed.',
     forbidden: 'You no longer have permission to perform this action.',
     ownRequest: 'You cannot approve your own request or access.',
     ownVersion: 'You cannot decide a budget version you created or sent.',
     independentReview: 'Finance review and spending approval must be performed by different people.',
-    overrideRequired:
-      'A budget year for this request has too little budget or none at all, so it cannot be approved. Reject it or wait until the budget is available.',
+    overrideRequired: 'This request cannot be approved with the current budget. Update the budget before approving it.',
+    overrideMismatch:
+      'The override years do not match the latest budget check. Refresh the check and select the required years.',
+    overrideNotNeeded: 'An override is not required by the latest budget check. Remove it before submitting.',
     recheckedFinance: 'The budget check changed. This request has returned to Finance for review.',
     recheckedHead: 'The budget check changed. This request has returned to its department head.',
     linesMismatch: 'The beneficiary list has changed. Reload it and decide all confirmed beneficiaries.',
+    termConfirmation: 'Confirm the term longer than twelve months before approving.',
+    planLineRequired: 'Select a plan line or explicitly confirm this request is outside the plan.',
+    stillNeeded: 'Confirm that the request is still needed after its purchase window.',
     yearEnded: 'This fiscal year has ended. The version can no longer be approved.',
     validation: 'Check the input values and try again.',
     rateLimit: 'Too many requests. Wait before trying again.',

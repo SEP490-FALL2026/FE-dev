@@ -20,7 +20,7 @@ import { formatMoney } from '../../shared/finance-money'
 import { budgetQueryKeys } from '../budget-query-keys'
 import type { BudgetViewProps } from '../budget-view-props'
 import { canEditVersion, versionState } from '../enums/version-state'
-import { BudgetVersionForm, defaultReservePercent } from './budget-version-form'
+import { BudgetVersionForm } from './budget-version-form'
 import { BudgetVersionLines } from './budget-version-lines'
 import { BudgetVersionHistory } from './budget-version-history'
 import { BudgetAttachments } from './budget-attachments'
@@ -47,17 +47,13 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
   if (version && (dialog === 'edit' || dialog === 'rebuild'))
     return (
       <BudgetVersionForm
-        title={translate(dialog === 'rebuild' ? 'actions.rebuild' : 'actions.edit')}
-        currency={version.total.currency}
         initial={{
           base: version.base,
           reserve: version.reserve,
-          reserveReason: version.reserveReason,
+          reserveReason: version.reserveReason ?? undefined,
           quarters: version.quarters
         }}
-        serverDefault={
-          version.defaultReserve ? { base: version.base.amount, reserve: version.defaultReserve.amount } : undefined
-        }
+        currency={version.total.currency}
         disabled={query.isError || query.isFetching}
         pending={updateMutation.isPending || rebuildMutation.isPending}
         onClose={() => setDialog(undefined)}
@@ -67,9 +63,9 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
               data: {
                 proposalId: version.proposalId,
                 base: figures.base,
-                ...(figures.reserve ? { reserve: figures.reserve } : {}),
-                ...(figures.reserveReason ? { reserveReason: figures.reserveReason } : {}),
-                ...(figures.quarters ? { quarters: figures.quarters } : {})
+                reserve: figures.reserve,
+                reserveReason: figures.reserveReason,
+                quarters: figures.quarters
               }
             })
           } else updateMutation.mutate({ id: itemId, data: figures })
@@ -101,31 +97,21 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
                 {version.number}
               </p>
             </div>
-            <FinanceStatGrid columns={4}>
+            <FinanceStatGrid>
               <FinanceStat label={translate('fields.base')} value={formatMoney(version.base, i18n.language)} />
               <FinanceStat label={translate('fields.reserve')} value={formatMoney(version.reserve, i18n.language)} />
-              <FinanceStat
-                label={translate('fields.reservePercent')}
-                value={`${version.reservePercent ?? defaultReservePercent}%`}
-              />
               <FinanceStat
                 emphasis
                 label={translate('fields.total')}
                 value={formatMoney(version.total, i18n.language)}
               />
             </FinanceStatGrid>
-            {(version.reason || version.reserveReason || version.decision?.reason) && (
+            {(version.reason || version.decision?.reason) && (
               <dl className='grid gap-3 rounded-lg border border-border/70 bg-surface-subtle/50 p-4 text-sm sm:grid-cols-2'>
                 {version.reason && (
                   <div className='min-w-0'>
                     <dt className='text-xs font-medium text-muted-foreground'>{translate('fields.reason')}</dt>
                     <dd className='mt-1 break-words [text-wrap:pretty]'>{version.reason}</dd>
-                  </div>
-                )}
-                {version.reserveReason && (
-                  <div className='min-w-0'>
-                    <dt className='text-xs font-medium text-muted-foreground'>{translate('fields.reserveReason')}</dt>
-                    <dd className='mt-1 break-words [text-wrap:pretty]'>{version.reserveReason}</dd>
                   </div>
                 )}
                 {version.decision?.reason && (

@@ -86,6 +86,12 @@ export const itAdmin = {
     renewals: 'Đề xuất gia hạn chưa có API.'
   },
   errors: {
+    accessNotBlocked: 'Quyền truy cập chưa bị chặn. Kiểm tra hồ sơ nghỉ việc trước khi mở thu hồi.',
+    nothingToRevoke: 'Không còn quyền đủ điều kiện thu hồi. Tải lại danh sách quyền.',
+    excessSelection: 'Chọn đủ và đúng các quyền cần giải phóng trước khi giảm số ghế.',
+    excessNotRevoked: 'Các quyền dư chưa được thu hồi xong. Kiểm tra tác vụ trước khi ghi kết quả.',
+    proposalStale: 'Đề xuất đã hết hiệu lực vì dữ liệu thay đổi. Tải lại và lập đề xuất mới.',
+    ownerHeadProposal: 'Trưởng phòng sở hữu thuê bao không thể đồng thời lập và xác nhận đề xuất.',
     boundaryRequired: 'Cần xác nhận phạm vi tài khoản dịch vụ trước khi cấp.',
     quantityUnknown: 'Thuê bao chưa có số lượng ghế xác nhận.',
     subscriptionDraft: 'Thuê bao còn ở bản nháp. Cần hoàn tất cấu hình trước.',

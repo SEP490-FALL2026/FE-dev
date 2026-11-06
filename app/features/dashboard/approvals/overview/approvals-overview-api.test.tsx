@@ -16,7 +16,8 @@ const requestId = '12345678-1234-4234-8234-123456789012'
 const totals: Record<string, number> = {
   '/spend-approvals': 37,
   '/need-decisions': 5,
-  '/budget-versions': 4
+  '/budget-versions': 4,
+  '/subscription-renewals': 2
 }
 const needItem = {
   requestId,
@@ -36,7 +37,9 @@ const needItem = {
   department: { id: 'dept', code: 'ENG', name: 'Engineering' },
   businessReasonExcerpt: 'Project',
   termMonths: 12,
+  termConfirmationRequired: false,
   pricing: { status: 'PRICED', amount: { amount: '120.00', currency: 'USD' } },
+  planLineRequired: false,
   samePersonAsSpend: false
 }
 let requests: Array<{ url: string; params: Record<string, unknown> }>
@@ -71,16 +74,19 @@ it('shows server totals for every work queue and opens the matching screen', asy
       <ApprovalsOverviewView onSelectTab={onSelectTab} />
     </QueryClientProvider>
   )
-  for (const total of ['37', '5', '4']) expect(await screen.findByText(total)).toBeInTheDocument()
+  for (const total of ['37', '5', '4', '2']) expect(await screen.findByText(total)).toBeInTheDocument()
   fireEvent.click(screen.getByRole('button', { name: /spendQueue/ }))
   expect(onSelectTab).toHaveBeenCalledWith('queue')
-  expect(screen.queryByRole('button', { name: /overview\.renewals/ })).not.toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button', { name: /overview\.renewals/ }))
+  expect(onSelectTab).toHaveBeenCalledWith('renewal')
   fireEvent.click(screen.getByRole('button', { name: /annualBudget/ }))
   expect(onSelectTab).toHaveBeenCalledWith('annual-budget')
   expect(requests.some((request) => request.url.endsWith('/budget-versions') && request.params.state === 'SENT')).toBe(
     true
   )
-  expect(requests.every((request) => !request.url.endsWith('/subscription-renewals'))).toBe(true)
+  expect(
+    requests.some((request) => request.url.endsWith('/subscription-renewals') && request.params.state === 'PROPOSED')
+  ).toBe(true)
   expect(requests.every((request) => !request.url.endsWith('/notifications'))).toBe(true)
 })
 

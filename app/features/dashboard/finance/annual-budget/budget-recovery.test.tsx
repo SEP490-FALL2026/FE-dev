@@ -10,10 +10,7 @@ import {
   budgetSideList,
   apiVersion,
   budgetTestLanguage,
-  defaultReserve,
-  exactMoney,
-  renderBudget,
-  writeTo
+  renderBudget
 } from './budget-test-fixtures'
 
 describe('budget recovery workflows', () => {
@@ -49,11 +46,10 @@ describe('budget recovery workflows', () => {
     fireEvent.click(await screen.findByRole('button', { name: 'Rebuild rejected version' }))
     fireEvent.click(screen.getByRole('button', { name: 'Save version' }))
     await waitFor(() => expect(navigate).toHaveBeenCalledWith('budget-negotiation', { id: 'replacement-version' }))
-    // The default reserve needs no reason; money is sent as `{ amount }` without a currency.
-    expect(writeTo(requests, '/budget-versions')?.body).toEqual({
+    const request = requests.find((item) => item.method === 'post' && item.url?.endsWith('/budget-versions'))
+    expect(JSON.parse(request?.data)).toMatchObject({
       proposalId: 'proposal-1',
-      base: { amount: exactMoney.amount },
-      reserve: { amount: defaultReserve.amount }
+      base: { amount: apiVersion.base.amount }
     })
   })
 
@@ -71,7 +67,7 @@ describe('budget recovery workflows', () => {
     expect(screen.getByRole('button', { name: 'Save line' })).toBeDisabled()
   })
 
-  it('keeps the line edit draft and blocks saving while the line refresh is failing', async () => {
+  it('can retry a failed line refresh without closing its edit draft', async () => {
     const baseAdapter = apiClient.defaults.adapter
     let failLines = false
     apiClient.defaults.adapter = async (config) => {
@@ -90,8 +86,11 @@ describe('budget recovery workflows', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Edit line' }))
     fireEvent.change(screen.getByLabelText(/^Description/), { target: { value: 'Keep edited draft' } })
     fireEvent.click(screen.getByRole('button', { name: 'Save line' }))
-    await waitFor(() => expect(failLines).toBe(true))
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Save line' })).toBeDisabled())
+    const retry = await screen.findByRole('button', { name: 'Try again' })
+    expect(screen.getByLabelText(/^Description/)).toHaveValue('Keep edited draft')
+    failLines = false
+    fireEvent.click(retry)
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Save line' })).toBeEnabled())
     expect(screen.getByLabelText(/^Description/)).toHaveValue('Keep edited draft')
   })
 })

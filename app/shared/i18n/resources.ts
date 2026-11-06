@@ -3,10 +3,10 @@ import { approvals as enApprovals } from './locales/en/approvals'
 import { approvalsBudget as enApprovalsBudget } from './locales/en/approvals-budget'
 import { approvalsSpend as enApprovalsSpend } from './locales/en/approvals-spend'
 import { approvalsNeed as enApprovalsNeed } from './locales/en/approvals-need'
+import { approvalsRenewal as enApprovalsRenewal } from './locales/en/approvals-renewal'
 import { finance as enFinance } from './locales/en/finance'
 import { financeBudget as enFinanceBudget } from './locales/en/finance-budget'
 import { financeSettings as enFinanceSettings } from './locales/en/finance-settings'
-import { financeSpend as enFinanceSpend } from './locales/en/finance-spend'
 import { admin as enAdmin } from './locales/en/admin'
 import { adminAccounts as enAdminAccounts } from './locales/en/admin-accounts'
 import { adminOrganization as enAdminOrganization } from './locales/en/admin-organization'
@@ -22,10 +22,10 @@ import { approvals as viApprovals } from './locales/vi/approvals'
 import { approvalsBudget as viApprovalsBudget } from './locales/vi/approvals-budget'
 import { approvalsSpend as viApprovalsSpend } from './locales/vi/approvals-spend'
 import { approvalsNeed as viApprovalsNeed } from './locales/vi/approvals-need'
+import { approvalsRenewal as viApprovalsRenewal } from './locales/vi/approvals-renewal'
 import { finance as viFinance } from './locales/vi/finance'
 import { financeBudget as viFinanceBudget } from './locales/vi/finance-budget'
 import { financeSettings as viFinanceSettings } from './locales/vi/finance-settings'
-import { financeSpend as viFinanceSpend } from './locales/vi/finance-spend'
 import { admin as viAdmin } from './locales/vi/admin'
 import { adminAccounts as viAdminAccounts } from './locales/vi/admin-accounts'
 import { adminOrganization as viAdminOrganization } from './locales/vi/admin-organization'
@@ -37,6 +37,8 @@ import { landing as viLanding } from './locales/vi/landing'
 import { notFound as viNotFound } from './locales/vi/not-found'
 import { theme as viTheme } from './locales/vi/theme'
 import { itAdmin as enItAdmin } from './locales/en/it-admin'
+import { itDepartmentWork as enItDepartmentWork } from './locales/en/it-department-work'
+import { itDepartmentWork as viItDepartmentWork } from './locales/vi/it-department-work'
 import { itRenewals as enItRenewals } from './locales/en/it-renewals'
 import { itRenewals as viItRenewals } from './locales/vi/it-renewals'
 import { itPurchases as enItPurchases } from './locales/en/it-purchases'
@@ -58,11 +60,15 @@ import { employee as enEmployee } from './locales/en/employee'
 import { employee as viEmployee } from './locales/vi/employee'
 import { manager as enManager } from './locales/en/manager'
 import { manager as viManager } from './locales/vi/manager'
+import { itDevices as enItDevices } from './locales/en/it-devices'
+import { itDevices as viItDevices } from './locales/vi/it-devices'
 
 export { defaultNS } from './resource-config'
 
 export const resources = {
   en: {
+    itDepartmentWork: enItDepartmentWork,
+    itDevices: enItDevices,
     itRenewals: enItRenewals,
     itPurchases: enItPurchases,
     itTransfers: enItTransfers,
@@ -70,10 +76,10 @@ export const resources = {
     approvalsBudget: enApprovalsBudget,
     approvalsSpend: enApprovalsSpend,
     approvalsNeed: enApprovalsNeed,
+    approvalsRenewal: enApprovalsRenewal,
     finance: enFinance,
     financeBudget: enFinanceBudget,
     financeSettings: enFinanceSettings,
-    financeSpend: enFinanceSpend,
     itNewSoftware: enItNewSoftware,
     itAdmin: enItAdmin,
     itProvisioning: enItProvisioning,
@@ -95,6 +101,8 @@ export const resources = {
     theme: enTheme
   },
   vi: {
+    itDepartmentWork: viItDepartmentWork,
+    itDevices: viItDevices,
     itRenewals: viItRenewals,
     itPurchases: viItPurchases,
     itTransfers: viItTransfers,
@@ -102,10 +110,10 @@ export const resources = {
     approvalsBudget: viApprovalsBudget,
     approvalsSpend: viApprovalsSpend,
     approvalsNeed: viApprovalsNeed,
+    approvalsRenewal: viApprovalsRenewal,
     finance: viFinance,
     financeBudget: viFinanceBudget,
     financeSettings: viFinanceSettings,
-    financeSpend: viFinanceSpend,
     itNewSoftware: viItNewSoftware,
     itAdmin: viItAdmin,
     itProvisioning: viItProvisioning,

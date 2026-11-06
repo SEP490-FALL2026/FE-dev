@@ -1,19 +1,16 @@
-import { Landmark, Lock, PiggyBank, ReceiptText, ShieldPlus, Wallet, type LucideIcon } from 'lucide-react'
+import { AlertTriangle, Clock, Layers, Lock, PiggyBank, ReceiptText, ShieldCheck, Wallet, type LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import type { BudgetSummaryResponseDtoDataTotals } from '~/shared/api/generated/model/budgets/budgetSummaryResponseDtoDataTotals'
-import { amountOf } from '../budget-usage'
+import type { BudgetSummaryTotalsItem } from '../../shared/finance-api-extensions'
 
-type CurrencyTotals = BudgetSummaryResponseDtoDataTotals[string]
-
-/** Icon tiles reuse the semantic tokens of the palette. */
 const tones = {
-  primary: 'bg-primary-soft text-primary-ink',
-  info: 'bg-info/10 text-info-ink',
-  warning: 'bg-warning/15 text-warning-ink',
-  success: 'bg-success/10 text-success-ink',
-  danger: 'bg-danger/10 text-danger-ink',
-  neutral: 'bg-surface-subtle text-muted-foreground'
+  budget: 'bg-primary-soft text-primary-ink',
+  base: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
+  reserve: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400',
+  spent: 'bg-info/10 text-info-ink',
+  held: 'bg-warning/15 text-warning-ink',
+  remaining: 'bg-success/10 text-success-ink',
+  danger: 'bg-danger/10 text-danger'
 } as const
 
 function KpiCard({
@@ -21,88 +18,140 @@ function KpiCard({
   value,
   caption,
   icon: Icon,
-  tone
+  tone,
+  badge
 }: {
   label: string
   value: ReactNode
-  caption: string
+  caption: ReactNode
   icon: LucideIcon
   tone: keyof typeof tones
+  badge?: ReactNode
 }) {
   return (
-    <div className='flex min-w-0 flex-col gap-4 rounded-lg border border-border/70 bg-surface p-5 shadow-[0_1px_2px_0_rgba(0,0,0,0.04)]'>
+    <div className='flex min-w-0 flex-col gap-3 rounded-lg border border-border/70 bg-surface p-4 shadow-[0_1px_2px_0_rgba(0,0,0,0.04)] transition-all'>
       <div className='flex items-start justify-between gap-3'>
-        <dt className='text-sm font-medium text-muted-foreground'>{label}</dt>
-        <span aria-hidden className={`grid size-10 shrink-0 place-items-center rounded-lg ${tones[tone]}`}>
-          <Icon className='size-5' strokeWidth={1.5} />
+        <dt className='truncate text-xs font-semibold uppercase tracking-wider text-muted-foreground'>{label}</dt>
+        <span aria-hidden className={`grid size-9 shrink-0 place-items-center rounded-lg ${tones[tone]}`}>
+          <Icon className='size-4' strokeWidth={1.5} />
         </span>
       </div>
       <div className='space-y-1'>
-        <dd className='truncate font-mono text-2xl leading-none font-semibold tracking-tight tabular-nums'>{value}</dd>
+        <div className='flex items-baseline justify-between gap-2'>
+          <dd className='truncate font-mono text-xl leading-none font-bold tracking-tight tabular-nums'>{value}</dd>
+          {badge}
+        </div>
         <dd className='text-xs text-muted-foreground [text-wrap:pretty]'>{caption}</dd>
       </div>
     </div>
   )
 }
 
-/** Year totals of every department budget, one block per reporting currency (usually one). */
-export function CostCenterKpis({ totals }: { totals: CurrencyTotals }) {
+export function CostCenterKpis({
+  totals,
+  lastInvoiceRecordedAt,
+  activeCenters
+}: {
+  totals: BudgetSummaryTotalsItem | null
+  lastInvoiceRecordedAt?: string | null
+  activeCenters?: number
+}) {
   const { t: translate, i18n } = useTranslation('financeSettings')
-  const compact = new Intl.NumberFormat(i18n.language, {
-    style: 'currency',
-    currency: totals.currency,
+  const { t: translateFinance } = useTranslation('finance')
+
+  if (!totals) {
+    return null
+  }
+
+  const lang = i18n.language
+  const currency = totals.currency || totals.total.currency
+  const compact = new Intl.NumberFormat(lang, {
+    ...(currency ? { style: 'currency' as const, currency } : {}),
     notation: 'compact',
     maximumFractionDigits: 1
   })
-  const money = (value: { amount: string }) => compact.format(amountOf(value))
+
+  const formatCompact = (val: { amount: string }) => {
+    const num = Number(val.amount)
+    return Number.isFinite(num) ? compact.format(num) : '0'
+  }
+
   const overBudget = totals.overBudgetCount > 0
+  const remainingTone = Number(totals.remaining.amount) < 0 ? 'danger' : 'remaining'
+
   return (
-    <dl className='grid gap-4 sm:grid-cols-2 xl:grid-cols-3'>
+    <dl className='grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6'>
       <KpiCard
         label={translate('kpis.total')}
-        value={money(totals.total)}
-        caption={translate('kpis.totalCaption', { count: totals.costCenterCount })}
+        value={formatCompact(totals.total)}
+        caption={translate('kpis.totalCaption', {
+          budgeted: totals.costCenterCount,
+          total: activeCenters ?? totals.costCenterCount
+        })}
         icon={Wallet}
-        tone='primary'
+        tone='budget'
       />
       <KpiCard
         label={translate('kpis.base')}
-        value={money(totals.base)}
+        value={formatCompact(totals.base)}
         caption={translate('kpis.baseCaption')}
-        icon={Landmark}
-        tone='neutral'
+        icon={Layers}
+        tone='base'
       />
       <KpiCard
         label={translate('kpis.reserve')}
-        value={money(totals.reserve)}
+        value={formatCompact(totals.reserve)}
         caption={translate('kpis.reserveCaption')}
-        icon={ShieldPlus}
-        tone='info'
+        icon={ShieldCheck}
+        tone='reserve'
       />
       <KpiCard
         label={translate('kpis.held')}
-        value={money(totals.committed)}
+        value={formatCompact(totals.committed)}
         caption={translate('kpis.heldCaption')}
         icon={Lock}
-        tone='warning'
+        tone='held'
       />
       <KpiCard
         label={translate('kpis.spent')}
-        value={money(totals.spent)}
-        caption={translate('kpis.spentCaption')}
+        value={formatCompact(totals.spent)}
+        caption={
+          lastInvoiceRecordedAt ? (
+            <span className='flex items-center gap-1'>
+              <Clock className='size-3 shrink-0' />
+              {translateFinance('lastInvoiceAt', {
+                time: new Date(lastInvoiceRecordedAt).toLocaleDateString(lang)
+              })}
+            </span>
+          ) : (
+            translate('kpis.spentCaption')
+          )
+        }
         icon={ReceiptText}
-        tone='info'
+        tone='spent'
       />
       <KpiCard
         label={translate('kpis.remaining')}
-        value={money(totals.remaining)}
+        value={formatCompact(totals.remaining)}
         caption={
-          overBudget
-            ? translate('kpis.overBudget', { count: totals.overBudgetCount })
-            : translate('kpis.remainingCaption')
+          overBudget ? (
+            <span className='font-medium text-danger flex items-center gap-1'>
+              <AlertTriangle className='size-3 shrink-0' />
+              {translateFinance('overBudgetWarning', { count: totals.overBudgetCount })}
+            </span>
+          ) : (
+            translate('kpis.remainingCaption')
+          )
         }
-        icon={PiggyBank}
-        tone={overBudget ? 'danger' : 'success'}
+        icon={overBudget ? AlertTriangle : PiggyBank}
+        tone={remainingTone}
+        badge={
+          overBudget ? (
+            <span className='inline-flex items-center rounded-full bg-danger/10 px-1.5 py-0.5 text-[10px] font-semibold text-danger'>
+              {totals.overBudgetCount}
+            </span>
+          ) : undefined
+        }
       />
     </dl>
   )

@@ -8,6 +8,21 @@ export interface FinanceColumn<Item> {
   label: string
   render: (item: Item) => ReactNode
   numeric?: boolean
+  /** Cột thao tác: không cắt nội dung, ghim sát mép phải khi bảng cuộn ngang. */
+  actions?: boolean
+  /** Lớp độ rộng Tailwind cho cột (ví dụ `w-20`, `w-1/2`). */
+  width?: string
+}
+
+function alignClass(column: { numeric?: boolean; actions?: boolean }) {
+  return column.numeric || column.actions ? 'text-right' : 'text-left'
+}
+
+function cellClass(column: { numeric?: boolean; actions?: boolean }) {
+  if (column.actions) {
+    return 'sticky right-0 bg-surface text-right whitespace-nowrap transition-colors duration-150 group-hover:bg-surface-subtle'
+  }
+  return column.numeric ? 'text-right font-mono tabular-nums' : 'text-left'
 }
 
 const openButtonFocus = 'focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-none'
@@ -64,7 +79,7 @@ export function FinanceTable<Item>({
                 <th
                   key={column.key}
                   scope='col'
-                  className={`px-4 py-2.5 text-[11px] font-semibold tracking-wider whitespace-nowrap text-muted-foreground uppercase ${column.numeric ? 'text-right' : 'text-left'}`}
+                  className={`px-4 py-2.5 text-[11px] font-semibold tracking-wider whitespace-nowrap text-muted-foreground uppercase ${alignClass(column)} ${column.width ?? ''}`}
                 >
                   {column.label}
                 </th>
@@ -84,11 +99,12 @@ export function FinanceTable<Item>({
                 onClick={onOpen ? () => onOpen(item) : undefined}
               >
                 {columns.map((column) => (
-                  <td
-                    key={column.key}
-                    className={`px-4 py-3 align-middle ${column.numeric ? 'text-right font-mono tabular-nums' : 'text-left'}`}
-                  >
-                    <div className={column.numeric ? '' : 'max-w-64 truncate'}>{column.render(item)}</div>
+                  <td key={column.key} className={`px-4 py-3 align-middle ${cellClass(column)}`}>
+                    {column.actions ? (
+                      column.render(item)
+                    ) : (
+                      <div className={column.numeric ? '' : 'max-w-64 truncate'}>{column.render(item)}</div>
+                    )}
                   </td>
                 ))}
                 {onOpen && (

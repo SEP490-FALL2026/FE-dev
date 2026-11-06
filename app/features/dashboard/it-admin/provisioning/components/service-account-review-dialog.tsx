@@ -8,7 +8,7 @@ import {
   getAccessRequestGetQueryKey
 } from '~/shared/api/generated/operations/access-requests/access-request-get'
 import { accessRequestServiceAccountReview } from '~/shared/api/generated/operations/access-requests/access-request-service-account-review'
-import { getGrantQueueListQueryKey } from '~/shared/api/generated/operations/delegated-requests/grant-queue-list'
+import { getGrantQueueListQueryKey } from '~/shared/api/generated/operations/grant-queue/grant-queue-list'
 import { ItField, ItFormDialog, itInputClass } from '../../shared/components/it-form'
 import { ItQueryState } from '../../shared/components/it-query-state'
 import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'

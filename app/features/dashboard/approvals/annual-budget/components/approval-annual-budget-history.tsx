@@ -18,7 +18,6 @@ export function ApprovalAnnualBudgetHistory({ itemId }: { itemId: string }) {
         'base',
         'reserve',
         'total',
-        'reserveReason',
         'highValuePercent',
         'highValueAmount',
         'description',

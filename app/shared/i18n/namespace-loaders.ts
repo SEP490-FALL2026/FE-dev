@@ -6,6 +6,8 @@ import type { SupportedLanguage, TranslationNamespace } from './resources'
 // Explicit imports keep each namespace independently cacheable in production.
 export const namespaceLoaders: Record<SupportedLanguage, Record<TranslationNamespace, () => Promise<ResourceKey>>> = {
   vi: {
+    itDepartmentWork: () => import('./locales/vi/it-department-work').then((module) => module.itDepartmentWork),
+    itDevices: () => import('./locales/vi/it-devices').then((module) => module.itDevices),
     itRenewals: () => import('./locales/vi/it-renewals').then((module) => module.itRenewals),
     itPurchases: () => import('./locales/vi/it-purchases').then((module) => module.itPurchases),
     itTransfers: () => import('./locales/vi/it-transfers').then((module) => module.itTransfers),
@@ -13,10 +15,10 @@ export const namespaceLoaders: Record<SupportedLanguage, Record<TranslationNames
     approvalsBudget: () => import('./locales/vi/approvals-budget').then((module) => module.approvalsBudget),
     approvalsSpend: () => import('./locales/vi/approvals-spend').then((module) => module.approvalsSpend),
     approvalsNeed: () => import('./locales/vi/approvals-need').then((module) => module.approvalsNeed),
+    approvalsRenewal: () => import('./locales/vi/approvals-renewal').then((module) => module.approvalsRenewal),
     finance: () => import('./locales/vi/finance').then((module) => module.finance),
     financeBudget: () => import('./locales/vi/finance-budget').then((module) => module.financeBudget),
     financeSettings: () => import('./locales/vi/finance-settings').then((module) => module.financeSettings),
-    financeSpend: () => import('./locales/vi/finance-spend').then((module) => module.financeSpend),
     itNewSoftware: () => import('./locales/vi/it-new-software').then((module) => module.itNewSoftware),
     itAdmin: () => import('./locales/vi/it-admin').then((module) => module.itAdmin),
     itProvisioning: () => import('./locales/vi/it-provisioning').then((module) => module.itProvisioning),
@@ -38,6 +40,8 @@ export const namespaceLoaders: Record<SupportedLanguage, Record<TranslationNames
     theme: () => Promise.resolve(initialResources.vi.theme)
   },
   en: {
+    itDepartmentWork: () => import('./locales/en/it-department-work').then((module) => module.itDepartmentWork),
+    itDevices: () => import('./locales/en/it-devices').then((module) => module.itDevices),
     itRenewals: () => import('./locales/en/it-renewals').then((module) => module.itRenewals),
     itPurchases: () => import('./locales/en/it-purchases').then((module) => module.itPurchases),
     itTransfers: () => import('./locales/en/it-transfers').then((module) => module.itTransfers),
@@ -45,10 +49,10 @@ export const namespaceLoaders: Record<SupportedLanguage, Record<TranslationNames
     approvalsBudget: () => import('./locales/en/approvals-budget').then((module) => module.approvalsBudget),
     approvalsSpend: () => import('./locales/en/approvals-spend').then((module) => module.approvalsSpend),
     approvalsNeed: () => import('./locales/en/approvals-need').then((module) => module.approvalsNeed),
+    approvalsRenewal: () => import('./locales/en/approvals-renewal').then((module) => module.approvalsRenewal),
     finance: () => import('./locales/en/finance').then((module) => module.finance),
     financeBudget: () => import('./locales/en/finance-budget').then((module) => module.financeBudget),
     financeSettings: () => import('./locales/en/finance-settings').then((module) => module.financeSettings),
-    financeSpend: () => import('./locales/en/finance-spend').then((module) => module.financeSpend),
     itNewSoftware: () => import('./locales/en/it-new-software').then((module) => module.itNewSoftware),
     itAdmin: () => import('./locales/en/it-admin').then((module) => module.itAdmin),
     itProvisioning: () => import('./locales/en/it-provisioning').then((module) => module.itProvisioning),
