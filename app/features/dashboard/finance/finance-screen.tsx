@@ -2,6 +2,8 @@ import type { FinanceTabKey } from './enums'
 import { FinanceAnnualProposalsView } from './annual-budget/views/finance-annual-proposals-view'
 import { FinanceBudgetNegotiationView } from './annual-budget/views/finance-budget-negotiation-view'
 import { FinanceCostCentersView } from './cost-centers/views/finance-cost-centers-view'
+import { FinanceSpendBatchesView } from './spend-batches/views/finance-spend-batches-view'
+import { FinanceCommitmentsView } from './commitments/views/finance-commitments-view'
 import { FinanceVendorTaxView } from './vendor-tax/views/finance-vendor-tax-view'
 import { FinanceCatalogView } from './catalog/views/finance-catalog-view'
 import { FinanceOverviewView } from './overview/views/finance-overview-view'
@@ -33,6 +35,10 @@ export function FinanceScreen({ itemId, onSelectTab, tab }: FinanceScreenProps) 
     case 'department-budget':
     case 'budget-allocation':
       return <FinanceCostCentersView onSelectTab={onSelectTab} />
+    case 'spend-batches':
+      return <FinanceSpendBatchesView />
+    case 'commitments':
+      return <FinanceCommitmentsView />
     case 'vendor-tax':
       return <FinanceVendorTaxView itemId={itemId} />
     case 'saas-cost':

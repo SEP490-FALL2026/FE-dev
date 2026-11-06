@@ -1,8 +1,7 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AxiosError, type InternalAxiosRequestConfig } from 'axios'
 import { MemoryRouter } from 'react-router'
-import { toast } from 'sonner'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { apiClient } from '~/shared/api/axios-client'
 import { setAppLanguage } from '~/shared/i18n/i18n'
@@ -156,82 +155,15 @@ describe('Spending Approver renewal list', () => {
   })
 })
 
-describe('Spending Approver renewal decision', () => {
-  it('shows usage as not assessable and returns to the list from the full-page detail', async () => {
+describe('Spending Approver renewal detail', () => {
+  it('shows the proposal read only without decision or seat ranking operations', async () => {
     const onSelectTab = vi.fn()
     mount(<RenewalDetailView renewalId={renewalId} onSelectTab={onSelectTab} />)
     expect(await screen.findByText('Usage cannot be assessed yet. This does not mean zero users.')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Record decision' })).not.toBeInTheDocument()
+    expect(requests.some((request) => request.url?.endsWith('/seat-ranking'))).toBe(false)
+    expect(posted).toHaveLength(0)
     fireEvent.click(screen.getByRole('button', { name: 'Back to list' }))
     expect(onSelectTab).toHaveBeenCalledWith('renewal', {})
-  })
-
-  it('requires exactly the excess seats for a reduction and sends the strict body', async () => {
-    const success = vi.spyOn(toast, 'success')
-    mount(<RenewalDetailView renewalId={renewalId} onSelectTab={vi.fn()} />)
-    fireEvent.click(await screen.findByRole('button', { name: 'Reduce seats' }))
-    fireEvent.change(screen.getByPlaceholderText('For example: 8'), { target: { value: '1' } })
-    fireEvent.change(screen.getByPlaceholderText('For example: Two teams moved to another tool, keep 8 seats'), {
-      target: { value: '  Lower demand  ' }
-    })
-    fireEvent.click(await screen.findByRole('checkbox', { name: 'Take back the seat of Holder 1' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Record decision' }))
-    expect(await screen.findByText('Select exactly 2 seats, 1 selected.')).toBeInTheDocument()
-    expect(posted).toHaveLength(0)
-
-    fireEvent.click(screen.getByRole('checkbox', { name: 'Take back the seat of Holder 2' }))
-    expect(screen.getByRole('checkbox', { name: 'Take back the seat of Holder 3' })).toBeDisabled()
-    fireEvent.click(screen.getByRole('button', { name: 'Record decision' }))
-    await waitFor(() => expect(posted).toHaveLength(1))
-    expect(posted[0]).toEqual({
-      choice: 'REDUCE',
-      quantity: 1,
-      reason: 'Lower demand',
-      releasedAssignmentIds: [seat(1).assignmentId, seat(2).assignmentId]
-    })
-    await waitFor(() => expect(success).toHaveBeenCalledWith('Renewal decision recorded.', expect.anything()))
-  })
-
-  it('requires acknowledging active users before cancelling', async () => {
-    mount(<RenewalDetailView renewalId={renewalId} onSelectTab={vi.fn()} />)
-    fireEvent.click(await screen.findByRole('button', { name: 'Cancel subscription' }))
-    expect(screen.getByRole('button', { name: 'Cancel subscription' })).toHaveAttribute('aria-pressed', 'true')
-    fireEvent.click(screen.getByRole('button', { name: 'Record decision' }))
-    expect(await screen.findByText('Confirm the cancellation while people still use it.')).toBeInTheDocument()
-    fireEvent.click(
-      screen.getByRole('checkbox', { name: 'I confirm the cancellation although 3 seats are still held' })
-    )
-    fireEvent.click(screen.getByRole('button', { name: 'Record decision' }))
-    await waitFor(() => expect(posted).toHaveLength(1))
-    expect(posted[0]).toEqual({ choice: 'CANCEL', acknowledgeActiveUsers: true })
-  })
-
-  it('maps documented error codes to translated messages, keeps the draft and never shows server text', async () => {
-    const error = vi.spyOn(toast, 'error')
-    mutationError = { status: 409, code: 'SUBSCRIPTION_RENEWAL.NOT_AWAITING_DECISION' }
-    mount(<RenewalDetailView renewalId={renewalId} onSelectTab={vi.fn()} />)
-    fireEvent.click(await screen.findByRole('button', { name: 'Renew as is' }))
-    const reason = screen.getByPlaceholderText('For example: Two teams moved to another tool, keep 8 seats')
-    fireEvent.change(reason, { target: { value: 'Keep as is' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Record decision' }))
-    await waitFor(() =>
-      expect(error).toHaveBeenCalledWith(
-        'This renewal is no longer awaiting a decision. The data has been reloaded.',
-        expect.objectContaining({ id: 'approvals-renewal-decision' })
-      )
-    )
-    expect(posted[0]).toEqual({ choice: 'RENEW', reason: 'Keep as is' })
-    expect(reason).toHaveValue('Keep as is')
-    expect(screen.queryByText('Internal detail')).not.toBeInTheDocument()
-  })
-
-  it('locks the form when the caller is not the decider', async () => {
-    vi.spyOn(toast, 'error')
-    mutationError = { status: 403, code: 'SUBSCRIPTION_RENEWAL.NOT_DECIDER' }
-    mount(<RenewalDetailView renewalId={renewalId} onSelectTab={vi.fn()} />)
-    fireEvent.click(await screen.findByRole('button', { name: 'Renew as is' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Record decision' }))
-    expect(await screen.findByText('You cannot decide this renewal.')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Record decision' })).toBeDisabled()
-    expect(toast.error).toHaveBeenCalledWith('You are not the person who decides this renewal.', expect.anything())
   })
 })

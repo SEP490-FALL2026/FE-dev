@@ -1,4 +1,11 @@
 export const itPurchases = {
+  back: 'Quay lại',
+  help: {
+    name: 'Dùng tên thỏa thuận trên hợp đồng đã ký để dễ nhận diện về sau.',
+    contractId: 'Dán mã tham chiếu được lưu khi tạo hợp đồng. Tệp đính kèm sẽ thuộc hợp đồng đó.',
+    documentId: 'Dán mã chứng từ đã lưu để kiểm tra trạng thái tải lên, hợp đồng đính kèm và liên kết tải xuống.',
+    purpose: 'Chọn nội dung mà tệp đính kèm ghi nhận. Thao tác không phê duyệt mua sắm hoặc ghi nhận thanh toán.'
+  },
   title: 'Hợp đồng và chứng từ',
   contractUncertain: 'Chưa xác định được kết quả tạo. Kiểm tra hợp đồng với người quản trị trước khi tạo lại.',
   create: 'Tạo hợp đồng',

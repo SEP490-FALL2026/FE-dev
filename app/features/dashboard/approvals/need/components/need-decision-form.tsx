@@ -77,7 +77,7 @@ export function NeedDecisionForm({
         else
           mutation.mutate({
             id: request.id,
-            data: { decision, ...(!approving ? { reason: reason.trim() } : {}), ...confirmation }
+            data: { decision, ...(!approving ? { reason: reason.trim() } : {}) }
           })
       }}
     >
@@ -127,8 +127,6 @@ export function NeedDecisionForm({
               onChange={(event) => setReason(event.target.value)}
             />
           </ApprovalsField>
-        )}
-      </fieldset>
         )}
       </fieldset>
       <div className='flex justify-end border-t border-border/60 pt-4'>

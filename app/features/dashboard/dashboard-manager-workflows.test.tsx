@@ -15,8 +15,10 @@ import './it-admin/it-admin-screen'
 import './finance/finance-screen'
 import { managerProfile, managerRequest, queueItem } from '../../../test/fixtures/manager-api'
 import { requestId, employeeId, pageResponse } from '../../../test/fixtures/employee-api'
+import { managerReadHandlers } from '../../../test/fixtures/manager-integration'
 
 const server = setupServer(
+  ...managerReadHandlers.filter((handler) => !String(handler.info.path).includes('/departments/')),
   ...[
     'provisioning-tasks',
     'saas-issues',

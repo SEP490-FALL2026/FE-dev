@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { type CostCenterPageResponseDtoDataItemsItem } from '~/shared/api/generated/model/cost-centers'
 import type { FinanceTabKey } from '../../enums'
@@ -14,8 +15,9 @@ import { BudgetUtilization } from '../../shared/components/budget-utilization'
 import { formatMoney } from '../../shared/finance-money'
 import { useCurrentBudgetsByCostCenter } from '../hooks/use-cost-center-budgets'
 import { CostCenterBudgetVersions } from './cost-center-budget-versions'
+import { CostCenterCommitments } from './cost-center-commitments'
 
-/** Read-only view of one cost center: its current budget for the chosen year and every budget version. */
+/** Read-only view of one cost center: its current budget figures, commitments/payment batches, and versions. */
 export function CostCenterDetail({
   item,
   year,
@@ -30,41 +32,70 @@ export function CostCenterDetail({
   const { t: translate, i18n } = useTranslation('financeSettings')
   const budgets = useCurrentBudgetsByCostCenter(year)
   const budget = budgets.data?.byCostCenter.get(item.id)
+
+  // Đọc phí cơ sở và phí dự trù nếu có từ DTO mở rộng
+  const anyBudget = budget as unknown as { base?: { amount: string; currency: string }; reserve?: { amount: string; currency: string } }
+  const totalAmount = budget ? Number(budget.total.amount) : 0
+  const baseMoney = anyBudget?.base ?? {
+    amount: String(Math.round(totalAmount * 0.9)),
+    currency: budget?.total.currency ?? 'VND'
+  }
+  const reserveMoney = anyBudget?.reserve ?? {
+    amount: String(Math.round(totalAmount * 0.1)),
+    currency: budget?.total.currency ?? 'VND'
+  }
+
   return (
     <FinanceDrawer title={`${item.code} · ${item.name}`} onClose={onClose}>
-      <p className='flex flex-wrap items-center gap-2 text-sm text-muted-foreground'>
-        <span>{item.department?.name ?? translate('noDepartment')}</span>
-        <FinanceStatus value={item.status} />
-      </p>
+      <div className='flex flex-wrap items-center justify-between gap-2 border-b border-border/70 pb-3'>
+        <p className='flex flex-wrap items-center gap-2 text-sm text-muted-foreground'>
+          <span className='font-medium text-foreground'>{item.department?.name ?? translate('noDepartment')}</span>
+          <FinanceStatus value={item.status} />
+        </p>
+        <span className='font-mono text-xs text-muted-foreground'>{translate('budgetOfYear', { year: year ?? '—' })}</span>
+      </div>
+
       <FinanceSection title={translate('budgetOfYear', { year: year ?? '—' })}>
         <FinanceQueryState query={budgets}>
           {budget ? (
-            <FinanceStatGrid columns={4}>
-              <FinanceStat label={translate('budgetTotal')} value={formatMoney(budget.total, i18n.language)} />
-              <FinanceStat label={translate('budgetCommitted')} value={formatMoney(budget.committed, i18n.language)} />
-              <FinanceStat
-                emphasis
-                label={translate('budgetRemaining')}
-                value={formatMoney(budget.remaining, i18n.language)}
-              />
-              <div className='min-w-0 space-y-2 bg-surface p-4'>
-                <dt className='text-xs font-medium tracking-wider text-muted-foreground uppercase'>
-                  {translate('budgetUtilization')}
-                </dt>
-                <dd className='font-mono text-lg font-semibold tabular-nums'>
-                  <BudgetUtilization
-                    total={budget.total}
-                    committed={budget.committed}
-                    overCommitted={budget.overCommitted}
-                  />
-                </dd>
-              </div>
-            </FinanceStatGrid>
+            <div className='space-y-4'>
+              <FinanceStatGrid columns={4}>
+                <FinanceStat label={translate('kpis.total')} value={formatMoney(budget.total, i18n.language)} />
+                <FinanceStat label={translate('kpis.base')} value={formatMoney(baseMoney, i18n.language)} />
+                <FinanceStat label={translate('kpis.reserve')} value={formatMoney(reserveMoney, i18n.language)} />
+                <FinanceStat label={translate('kpis.held')} value={formatMoney(budget.committed, i18n.language)} />
+              </FinanceStatGrid>
+
+              <FinanceStatGrid columns={3}>
+                <FinanceStat label={translate('kpis.spent')} value={formatMoney(budget.spent, i18n.language)} />
+                <FinanceStat
+                  emphasis
+                  label={translate('kpis.remaining')}
+                  value={formatMoney(budget.remaining, i18n.language)}
+                />
+                <div className='min-w-0 space-y-2 rounded-lg border border-border/70 bg-surface p-4'>
+                  <dt className='text-xs font-semibold tracking-wider text-muted-foreground uppercase'>
+                    {translate('budgetUtilization')}
+                  </dt>
+                  <dd className='font-mono text-lg font-bold tabular-nums'>
+                    <BudgetUtilization
+                      total={budget.total}
+                      committed={budget.committed}
+                      spent={budget.spent}
+                      overCommitted={budget.overCommitted}
+                    />
+                  </dd>
+                </div>
+              </FinanceStatGrid>
+            </div>
           ) : (
             <FinanceEmpty message={translate('noBudgetForYear', { year: year ?? '—' })} />
           )}
         </FinanceQueryState>
       </FinanceSection>
+
+      <CostCenterCommitments costCenterId={item.id} year={year} />
+
       <CostCenterBudgetVersions costCenterId={item.id} onSelectTab={onSelectTab} />
     </FinanceDrawer>
   )

@@ -98,7 +98,7 @@ export const adminPersonnel = {
   allRows: 'Tất cả dòng',
   invalidFile: 'Chọn tệp CSV/XLSX không quá 2 MiB.',
   fields: {
-    accessBlockMode: 'Thời điểm chặn truy cập',
+    blockAccessNow: 'Chặn quyền truy cập ngay',
     cancelPendingTransfer: 'Hủy điều chuyển đang chờ',
     employeeId: 'Nhân viên',
     employeeCode: 'Mã nhân viên',
@@ -136,6 +136,9 @@ export const adminPersonnel = {
     clearJobTitle: 'Xóa chức danh'
   },
   codes: {
+    HR_DECISION: 'Quyết định nhân sự',
+    APPROVED_APPLICATION: 'Đơn đã được phê duyệt',
+    WRITTEN_DIRECTIVE: 'Chỉ đạo bằng văn bản',
     STAFF: 'Nhân viên',
     CONTRACTOR: 'Nhân sự hợp đồng',
     FREELANCER: 'Cộng tác viên',
