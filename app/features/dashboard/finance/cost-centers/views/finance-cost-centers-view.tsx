@@ -56,31 +56,11 @@ export function FinanceCostCentersView({
 
   const budgetCell = (
     item: CostCenterPageResponseDtoDataItemsItem,
-    field: 'total' | 'committed' | 'spent' | 'remaining' | 'base' | 'reserve'
+    field: 'total' | 'remaining'
   ) => {
     if (budgets.isPending || budgets.isError) return <span className='text-muted-foreground'>—</span>
     const budget = budgetOf(item)
     if (!budget) return <span className='text-muted-foreground'>{translate('noBudget')}</span>
-
-    const anyBudget = budget as unknown as { base?: { amount: string; currency: string }; reserve?: { amount: string; currency: string } }
-    const totalAmount = Number(budget.total.amount)
-
-    if (field === 'base') {
-      const baseMoney = anyBudget.base ?? {
-        amount: String(Math.round(totalAmount * 0.9)),
-        currency: budget.total.currency
-      }
-      return formatMoney(baseMoney, i18n.language)
-    }
-
-    if (field === 'reserve') {
-      const reserveMoney = anyBudget.reserve ?? {
-        amount: String(Math.round(totalAmount * 0.1)),
-        currency: budget.total.currency
-      }
-      return formatMoney(reserveMoney, i18n.language)
-    }
-
     return formatMoney(budget[field], i18n.language)
   }
 
@@ -158,42 +138,23 @@ export function FinanceCostCentersView({
           onOpen={setSelected}
           columns={[
             {
-              key: 'code',
-              label: translate('code'),
-              render: (item) => <span className='font-mono text-xs'>{item.code}</span>
+              key: 'name',
+              label: translate('name'),
+              render: (item) => (
+                <div className='min-w-0'>
+                  <div className='truncate font-medium text-foreground' title={item.name}>
+                    {item.name}
+                  </div>
+                  <div className='font-mono text-[11px] text-muted-foreground'>{item.code}</div>
+                </div>
+              )
             },
-            { key: 'name', label: translate('name'), render: (item) => <span title={item.name}>{item.name}</span> },
-            { key: 'department', label: translate('department'), render: (item) => item.department?.name ?? '—' },
             { key: 'status', label: translate('status'), render: (item) => <FinanceStatus value={item.status} /> },
-            {
-              key: 'base',
-              label: translate('kpis.base'),
-              numeric: true,
-              render: (item) => budgetCell(item, 'base')
-            },
-            {
-              key: 'reserve',
-              label: translate('kpis.reserve'),
-              numeric: true,
-              render: (item) => budgetCell(item, 'reserve')
-            },
             {
               key: 'total',
               label: translate('budgetTotal'),
               numeric: true,
               render: (item) => budgetCell(item, 'total')
-            },
-            {
-              key: 'committed',
-              label: translate('budgetCommitted'),
-              numeric: true,
-              render: (item) => budgetCell(item, 'committed')
-            },
-            {
-              key: 'spent',
-              label: translate('kpis.spent'),
-              numeric: true,
-              render: (item) => budgetCell(item, 'spent')
             },
             {
               key: 'remaining',

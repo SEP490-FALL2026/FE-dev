@@ -1,9 +1,8 @@
-import { AlertTriangle, FileText, Layers, Plus, Unlock } from 'lucide-react'
+import { AlertTriangle } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useCostCenterList } from '~/shared/api/generated/operations/cost-centers'
 import {
-  FinanceButton,
   FinanceField,
   FinancePage,
   FinancePagination,
@@ -19,6 +18,7 @@ import { useFinanceCommitments } from '../hooks/use-finance-commitments'
 import { InvoiceRecordDialog } from '../components/invoice-record-dialog'
 import { CommitmentInvoicesDrawer } from '../components/commitment-invoices-drawer'
 import { CommitmentReleaseDialog } from '../components/commitment-release-dialog'
+import { CommitmentRowActions } from '../components/commitment-row-actions'
 import type { ExtendedCommitmentItem } from '../../shared/finance-api-extensions'
 
 const validYear = (value: string) => /^\d{4}$/.test(value) && Number(value) >= 2000 && Number(value) <= 2200
@@ -208,49 +208,14 @@ export function FinanceCommitmentsView() {
             {
               key: 'actions',
               label: translateFinance('actions'),
+              actions: true,
               render: (item) => (
-                <div className='flex items-center gap-1.5 justify-end'>
-                  {item.state !== 'RELEASED' && (
-                    <FinanceButton
-                      variant='primary'
-                      className='px-2.5 py-1 text-xs'
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setRecordingCommitment(item)
-                      }}
-                    >
-                      <Plus className='size-3.5' />
-                      {translateFinance('recordInvoice')}
-                    </FinanceButton>
-                  )}
-
-                  {(item.invoiceCount ?? 0) > 0 && (
-                    <FinanceButton
-                      className='px-2.5 py-1 text-xs'
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setViewingCommitment(item)
-                      }}
-                    >
-                      <FileText className='size-3.5' />
-                      {translateFinance('viewInvoices')}
-                    </FinanceButton>
-                  )}
-
-                  {Number(item.held.amount) > 0 && (
-                    <FinanceButton
-                      variant='ghost'
-                      className='px-2.5 py-1 text-xs'
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setReleasingCommitment(item)
-                      }}
-                    >
-                      <Unlock className='size-3.5' />
-                      {translateFinance('releaseRemainder')}
-                    </FinanceButton>
-                  )}
-                </div>
+                <CommitmentRowActions
+                  commitment={item}
+                  onRecordInvoice={() => setRecordingCommitment(item)}
+                  onViewInvoices={() => setViewingCommitment(item)}
+                  onRelease={() => setReleasingCommitment(item)}
+                />
               )
             }
           ]}

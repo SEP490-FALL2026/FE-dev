@@ -255,9 +255,11 @@ export function financeStatusTone(value?: string | null): StatusTone {
   return tone ?? 'neutral'
 }
 
-export function FinanceStatus({ value }: { value?: string | null }) {
+export function FinanceStatus({ value, label: customLabel }: { value?: string | null; label?: string }) {
   const { t: translate } = useTranslation('finance')
-  const label = value ? translate(`status.${value}`, { defaultValue: translate('unknown') }) : translate('unknown')
+  const label =
+    customLabel ??
+    (value ? translate(`status.${value}`, { defaultValue: translate('unknown') }) : translate('unknown'))
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-medium whitespace-nowrap ring-1 ring-inset ${toneClasses[financeStatusTone(value)]}`}

@@ -25,7 +25,7 @@ describe('Finance spend batches integration', () => {
         params: config.params
       })
 
-      if (config.url?.endsWith('/departments')) {
+      if (config.url?.endsWith('/cost-centers')) {
         return {
           config,
           status: 200,
@@ -34,7 +34,16 @@ describe('Finance spend batches integration', () => {
           data: {
             success: true,
             data: {
-              items: [{ id: 'dept-eng', name: 'Engineering', code: 'ENG' }],
+              items: [
+                {
+                  id: 'cc-eng',
+                  code: 'CC-ENG',
+                  name: 'Engineering cost center',
+                  kind: 'UNIT',
+                  status: 'ACTIVE',
+                  department: { id: 'dept-eng', name: 'Engineering', code: 'ENG' }
+                }
+              ],
               pagination: { page: 1, pageSize: 100, totalItems: 1, totalPages: 1 }
             }
           }
@@ -147,16 +156,23 @@ describe('Finance spend batches integration', () => {
       </QueryClientProvider>
     )
 
+    // Bước 1: danh sách phòng ban, chưa gọi danh sách đợt
     expect((await screen.findAllByText('Engineering')).length).toBeGreaterThan(0)
-    expect(screen.getAllByText('John Manager').length).toBeGreaterThan(0)
-    expect(screen.getAllByText(/45,000,000/).length).toBeGreaterThan(0)
+    expect(requests.some((request) => request.url?.endsWith('/spend-batches'))).toBe(false)
 
-    // Bấm xem chi tiết một lô đợt yêu cầu
-    const openButtons = screen.getAllByRole('button', { name: finance.open })
-    fireEvent.click(openButtons[0])
+    fireEvent.click(screen.getAllByRole('button', { name: finance.open })[0])
+
+    // Bước 2: các đợt của phòng ban đã chọn
+    expect((await screen.findAllByText('John Manager')).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/45,000,000/).length).toBeGreaterThan(0)
+    const batchRequest = requests.find((request) => request.url?.endsWith('/spend-batches'))
+    expect(batchRequest?.params?.departmentId).toBe('dept-eng')
+
+    // Bước 3: chi tiết đợt
+    fireEvent.click(screen.getAllByRole('button', { name: finance.open })[0])
 
     await waitFor(() => {
-      expect(screen.getAllByText('req-01').length).toBeGreaterThan(0)
+      expect(screen.getAllByText(finance.requestStates.AWAITING_SPEND_DECISION).length).toBeGreaterThan(0)
     })
   })
 })
