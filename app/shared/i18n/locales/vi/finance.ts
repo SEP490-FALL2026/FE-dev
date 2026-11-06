@@ -1,13 +1,8 @@
 export const finance = {
-  periodClose: 'Đóng kỳ',
-  periodReport: 'Báo cáo kỳ',
-  areas: {
-    overview: 'Tổng quan',
-    budget: 'Trung tâm chi phí & Ngân sách',
-    planning: 'Lập ngân sách năm',
-    spend: 'Danh mục & Tiền tệ',
-    close: 'Đóng kỳ & Báo cáo'
-  },
+  invoiceIntake: 'Nhập hóa đơn',
+  spendBatches: 'Đã duyệt chi theo đợt',
+  commitments: 'Cam kết đang giữ',
+  overBudget: 'Vượt ngân sách',
   loading: 'Đang tải dữ liệu…',
   refreshing: 'Đang cập nhật dữ liệu…',
   empty: 'Không có bản ghi phù hợp.',
@@ -26,15 +21,12 @@ export const finance = {
   requestId: 'Mã tra cứu: {{value}}',
   all: 'Tất cả',
   year: 'Năm tài chính',
-  unavailable: 'Chức năng chưa khả dụng',
-  unavailableHint: 'Quy trình này đang chờ hệ thống hỗ trợ. Hiện chưa có dữ liệu và thao tác tại đây.',
-  backToBudgets: 'Xem ngân sách hiện hành',
   overview: 'Tổng quan tài chính',
   overviewDescription: 'Việc đang chờ Tài chính xử lý và lối tắt tới các danh mục thường dùng.',
   shortcuts: 'Truy cập nhanh',
   overviewHint: 'Công việc đang chờ Tài chính',
-  proposals: 'Đề xuất đã gửi',
-  versions: 'Phiên bản ngân sách nháp',
+  proposals: 'Đề xuất ngân sách',
+  versions: 'Chờ xác nhận lần cuối',
   budgets: 'Ngân sách hiện hành',
   costCenters: 'Trung tâm chi phí',
   vendorTax: 'Hồ sơ thuế nhà cung cấp',
@@ -185,6 +177,7 @@ export const finance = {
     MANUAL: 'Ghi nhận thủ công'
   },
   errors: {
+    reserveReasonRequired: 'Dự phòng khác mức mặc định 10% cần lý do. Mở Sửa số liệu, nhập lý do dự phòng rồi gửi lại.',
     reviewNotOpen: 'Yêu cầu không còn chờ Tài chính rà soát. Dữ liệu đã được tải lại.',
     alreadyAwaitingBudget: 'Yêu cầu đã đang chờ ngân sách. Chọn kết cục khác hoặc chờ phiên bản ngân sách được duyệt.',
     planLineNotUpdated:
@@ -201,6 +194,12 @@ export const finance = {
     revisionRequired: 'Đổi số tiền cần lập bản sửa đổi; dời cửa sổ mua chỉ đổi thời gian.',
     commitmentNotHeld: 'Khoản cam kết không còn được giữ. Dữ liệu đã được tải lại.',
     commitmentRequestOpen: 'Yêu cầu gắn với khoản cam kết chưa kết thúc nên chưa thể giải phóng.',
+    commitmentNotFound: 'Không tìm thấy khoản cam kết. Danh sách đã được tải lại.',
+    invoiceDuplicate: 'Nhà cung cấp đã có hóa đơn mang số này. Hóa đơn không được ghi lại.',
+    invoiceCommitmentReleased: 'Khoản cam kết đã được giải phóng hết nên không ghi thêm hóa đơn.',
+    invoiceVendorUnknown:
+      'Không xác định được nhà cung cấp của yêu cầu. Nhờ IT hoặc Tài chính kiểm tra danh mục phần mềm.',
+    batchNotFound: 'Không tìm thấy lô trình chi này hoặc lô nằm ngoài phạm vi được xem.',
     setupIncomplete: 'Trung tâm chi phí của phòng chưa được thiết lập hoặc đã ngừng sử dụng.',
     attachmentType: 'Chỉ nhận tệp PDF, XLSX, DOCX, CSV, PNG hoặc JPG.',
     attachmentSize: 'Tệp đính kèm tối đa 10 MiB.',

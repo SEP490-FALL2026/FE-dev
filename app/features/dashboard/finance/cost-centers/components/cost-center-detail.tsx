@@ -1,9 +1,14 @@
+import { ArrowUpRight } from 'lucide-react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { type CostCenterPageResponseDtoDataItemsItem } from '~/shared/api/generated/model/cost-centers'
+import type { BudgetTablePageResponseDtoDataItemsItem } from '~/shared/api/generated/model/budgets/budgetTablePageResponseDtoDataItemsItem'
+import { useBudgetCommitmentList } from '~/shared/api/generated/operations/budget-commitments/budget-commitment-list'
+import { useBudgetVersionLineList } from '~/shared/api/generated/operations/budget-versions/budget-version-line-list'
 import type { FinanceTabKey } from '../../enums'
 import {
+  FinanceButton,
   FinanceDrawer,
-  FinanceEmpty,
+  FinancePagination,
   FinanceQueryState,
   FinanceSection,
   FinanceStat,
@@ -11,61 +16,130 @@ import {
   FinanceStatus
 } from '../../shared/components/finance-ui'
 import { BudgetUtilization } from '../../shared/components/budget-utilization'
+import { FinanceTable } from '../../shared/components/finance-table'
 import { formatMoney } from '../../shared/finance-money'
-import { useCurrentBudgetsByCostCenter } from '../hooks/use-cost-center-budgets'
-import { CostCenterBudgetVersions } from './cost-center-budget-versions'
+import { useDashboardFormat } from '../../../dashboard-ui'
+import { usedShare } from '../budget-usage'
 
-/** Read-only view of one cost center: its current budget for the chosen year and every budget version. */
+/** One department's budget for the year: figures, approved spend (commitments) and the plan lines. */
 export function CostCenterDetail({
-  item,
-  year,
+  row,
   onClose,
   onSelectTab
 }: {
-  item: CostCenterPageResponseDtoDataItemsItem
-  year: number | undefined
+  row: BudgetTablePageResponseDtoDataItemsItem
   onClose: () => void
   onSelectTab?: (tab: FinanceTabKey, extraParams?: Record<string, string>) => void
 }) {
   const { t: translate, i18n } = useTranslation('financeSettings')
-  const budgets = useCurrentBudgetsByCostCenter(year)
-  const budget = budgets.data?.byCostCenter.get(item.id)
+  const { formatDate } = useDashboardFormat()
+  const [commitmentPage, setCommitmentPage] = useState(1)
+  const [linePage, setLinePage] = useState(1)
+  const commitments = useBudgetCommitmentList({
+    costCenterId: row.costCenter.id,
+    year: row.year,
+    page: commitmentPage,
+    pageSize: 10
+  })
+  const lines = useBudgetVersionLineList(row.versionId, { page: linePage, pageSize: 10 })
+  const money = (value: { amount: string; currency: string }) => formatMoney(value, i18n.language)
   return (
-    <FinanceDrawer title={`${item.code} · ${item.name}`} onClose={onClose}>
-      <p className='flex flex-wrap items-center gap-2 text-sm text-muted-foreground'>
-        <span>{item.department?.name ?? translate('noDepartment')}</span>
-        <FinanceStatus value={item.status} />
-      </p>
-      <FinanceSection title={translate('budgetOfYear', { year: year ?? '—' })}>
-        <FinanceQueryState query={budgets}>
-          {budget ? (
-            <FinanceStatGrid columns={4}>
-              <FinanceStat label={translate('budgetTotal')} value={formatMoney(budget.total, i18n.language)} />
-              <FinanceStat label={translate('budgetCommitted')} value={formatMoney(budget.committed, i18n.language)} />
-              <FinanceStat
-                emphasis
-                label={translate('budgetRemaining')}
-                value={formatMoney(budget.remaining, i18n.language)}
-              />
-              <div className='min-w-0 space-y-2 bg-surface p-4'>
-                <dt className='text-xs font-medium tracking-wider text-muted-foreground uppercase'>
-                  {translate('budgetUtilization')}
-                </dt>
-                <dd className='font-mono text-lg font-semibold tabular-nums'>
-                  <BudgetUtilization
-                    total={budget.total}
-                    committed={budget.committed}
-                    overCommitted={budget.overCommitted}
-                  />
-                </dd>
-              </div>
-            </FinanceStatGrid>
-          ) : (
-            <FinanceEmpty message={translate('noBudgetForYear', { year: year ?? '—' })} />
-          )}
+    <FinanceDrawer title={`${row.costCenter.code} · ${row.costCenter.name}`} onClose={onClose}>
+      <FinanceSection
+        title={translate('budgetOfYear', { year: row.year })}
+        actions={
+          onSelectTab && (
+            <FinanceButton variant='ghost' onClick={() => onSelectTab('budget-negotiation', { id: row.versionId })}>
+              {translate('openVersion', { number: row.number })}
+              <ArrowUpRight aria-hidden className='size-4' strokeWidth={1.5} />
+            </FinanceButton>
+          )
+        }
+      >
+        <FinanceStatGrid columns={4}>
+          <FinanceStat emphasis label={translate('budgetTotal')} value={money(row.total)} />
+          <FinanceStat label={translate('kpis.base')} value={money(row.base)} />
+          <FinanceStat label={translate('kpis.reserve')} value={money(row.reserve)} />
+          <FinanceStat label={translate('kpis.held')} value={money(row.committed)} />
+          <FinanceStat label={translate('kpis.spent')} value={money(row.spent)} />
+          <FinanceStat label={translate('budgetRemaining')} value={money(row.remaining)} />
+          <div className='min-w-0 space-y-2 bg-surface p-4 sm:col-span-2'>
+            <dt className='text-xs font-medium tracking-wider text-muted-foreground uppercase'>
+              {translate('budgetUtilization')}
+            </dt>
+            <dd className='font-mono text-lg font-semibold tabular-nums'>
+              <BudgetUtilization share={usedShare(row)} overBudget={row.overCommitted} />
+            </dd>
+          </div>
+        </FinanceStatGrid>
+      </FinanceSection>
+      <FinanceSection title={translate('approvedSpend')}>
+        <FinanceQueryState query={commitments}>
+          <FinanceTable
+            items={commitments.data?.data?.items ?? []}
+            rowKey={(item) => item.id}
+            onOpen={
+              onSelectTab ? (item) => onSelectTab('commitments', { id: item.id, requestId: item.requestId }) : undefined
+            }
+            columns={[
+              {
+                key: 'software',
+                label: translate('software'),
+                render: (item) => {
+                  const name = item.request
+                    ? [item.request.software.name, item.request.plan?.name].filter(Boolean).join(' · ')
+                    : translate('unavailable')
+                  return <span title={name}>{name}</span>
+                }
+              },
+              {
+                key: 'requester',
+                label: translate('requester'),
+                render: (item) => item.request?.requester.fullName ?? '—'
+              },
+              {
+                key: 'approvedAt',
+                label: translate('approvedAt'),
+                numeric: true,
+                render: (item) => (item.request?.spendApprovedAt ? formatDate(item.request.spendApprovedAt) : '—')
+              },
+              {
+                key: 'amount',
+                label: translate('approvedAmount'),
+                numeric: true,
+                render: (item) => money(item.amount)
+              },
+              { key: 'held', label: translate('kpis.held'), numeric: true, render: (item) => money(item.held) },
+              {
+                key: 'invoiced',
+                label: translate('kpis.spent'),
+                numeric: true,
+                render: (item) => money(item.invoiced)
+              },
+              { key: 'state', label: translate('status'), render: (item) => <FinanceStatus value={item.state} /> }
+            ]}
+          />
+          <FinancePagination pagination={commitments.data?.data?.pagination} onPageChange={setCommitmentPage} />
         </FinanceQueryState>
       </FinanceSection>
-      <CostCenterBudgetVersions costCenterId={item.id} onSelectTab={onSelectTab} />
+      <FinanceSection title={translate('budgetLines')}>
+        <FinanceQueryState query={lines}>
+          <FinanceTable
+            items={lines.data?.data?.items ?? []}
+            rowKey={(line) => String(line.position)}
+            columns={[
+              {
+                key: 'description',
+                label: translate('lineDescription'),
+                render: (line) => <span title={line.description}>{line.description}</span>
+              },
+              { key: 'seats', label: translate('seats'), numeric: true, render: (line) => line.seats ?? '—' },
+              { key: 'amount', label: translate('budgetTotal'), numeric: true, render: (line) => money(line.amount) }
+            ]}
+          />
+          <FinancePagination pagination={lines.data?.data?.pagination} onPageChange={setLinePage} />
+        </FinanceQueryState>
+      </FinanceSection>
     </FinanceDrawer>
   )
 }

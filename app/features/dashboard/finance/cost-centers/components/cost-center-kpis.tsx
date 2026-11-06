@@ -1,19 +1,19 @@
-import { Lock, PiggyBank, ReceiptText, Wallet, type LucideIcon } from 'lucide-react'
+import { Landmark, Lock, PiggyBank, ReceiptText, ShieldPlus, Wallet, type LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import type { BudgetTablePageResponseDtoDataItemsItem } from '~/shared/api/generated/model/budgets/budgetTablePageResponseDtoDataItemsItem'
+import type { BudgetSummaryResponseDtoDataTotals } from '~/shared/api/generated/model/budgets/budgetSummaryResponseDtoDataTotals'
+import { amountOf } from '../budget-usage'
 
-const amountOf = (value: { amount: string }) => {
-  const parsed = Number(value.amount)
-  return Number.isFinite(parsed) ? parsed : 0
-}
+type CurrencyTotals = BudgetSummaryResponseDtoDataTotals[string]
 
-/** Icon tiles reuse the semantic tokens: primary for the budget, info for spend, warning for held, success for remaining. */
+/** Icon tiles reuse the semantic tokens of the palette. */
 const tones = {
-  budget: 'bg-primary-soft text-primary-ink',
-  spent: 'bg-info/10 text-info-ink',
-  held: 'bg-warning/15 text-warning-ink',
-  remaining: 'bg-success/10 text-success-ink'
+  primary: 'bg-primary-soft text-primary-ink',
+  info: 'bg-info/10 text-info-ink',
+  warning: 'bg-warning/15 text-warning-ink',
+  success: 'bg-success/10 text-success-ink',
+  danger: 'bg-danger/10 text-danger-ink',
+  neutral: 'bg-surface-subtle text-muted-foreground'
 } as const
 
 function KpiCard({
@@ -45,52 +45,64 @@ function KpiCard({
   )
 }
 
-/** Totals of the current budgets of a year across every cost center that has one. */
-export function CostCenterKpis({
-  budgets,
-  activeCenters
-}: {
-  budgets: readonly BudgetTablePageResponseDtoDataItemsItem[]
-  activeCenters: number | undefined
-}) {
+/** Year totals of every department budget, one block per reporting currency (usually one). */
+export function CostCenterKpis({ totals }: { totals: CurrencyTotals }) {
   const { t: translate, i18n } = useTranslation('financeSettings')
-  const currency = budgets[0]?.total.currency
   const compact = new Intl.NumberFormat(i18n.language, {
-    ...(currency ? { style: 'currency' as const, currency } : {}),
+    style: 'currency',
+    currency: totals.currency,
     notation: 'compact',
     maximumFractionDigits: 1
   })
-  const sum = (field: 'total' | 'spent' | 'committed' | 'remaining') =>
-    compact.format(budgets.reduce((total, row) => total + amountOf(row[field]), 0))
+  const money = (value: { amount: string }) => compact.format(amountOf(value))
+  const overBudget = totals.overBudgetCount > 0
   return (
-    <dl className='grid gap-4 sm:grid-cols-2 xl:grid-cols-4'>
+    <dl className='grid gap-4 sm:grid-cols-2 xl:grid-cols-3'>
       <KpiCard
         label={translate('kpis.total')}
-        value={sum('total')}
-        caption={translate('kpis.totalCaption', { budgeted: budgets.length, total: activeCenters ?? '—' })}
+        value={money(totals.total)}
+        caption={translate('kpis.totalCaption', { count: totals.costCenterCount })}
         icon={Wallet}
-        tone='budget'
+        tone='primary'
       />
       <KpiCard
-        label={translate('kpis.spent')}
-        value={sum('spent')}
-        caption={translate('kpis.spentCaption')}
-        icon={ReceiptText}
-        tone='spent'
+        label={translate('kpis.base')}
+        value={money(totals.base)}
+        caption={translate('kpis.baseCaption')}
+        icon={Landmark}
+        tone='neutral'
+      />
+      <KpiCard
+        label={translate('kpis.reserve')}
+        value={money(totals.reserve)}
+        caption={translate('kpis.reserveCaption')}
+        icon={ShieldPlus}
+        tone='info'
       />
       <KpiCard
         label={translate('kpis.held')}
-        value={sum('committed')}
+        value={money(totals.committed)}
         caption={translate('kpis.heldCaption')}
         icon={Lock}
-        tone='held'
+        tone='warning'
+      />
+      <KpiCard
+        label={translate('kpis.spent')}
+        value={money(totals.spent)}
+        caption={translate('kpis.spentCaption')}
+        icon={ReceiptText}
+        tone='info'
       />
       <KpiCard
         label={translate('kpis.remaining')}
-        value={sum('remaining')}
-        caption={translate('kpis.remainingCaption')}
+        value={money(totals.remaining)}
+        caption={
+          overBudget
+            ? translate('kpis.overBudget', { count: totals.overBudgetCount })
+            : translate('kpis.remainingCaption')
+        }
         icon={PiggyBank}
-        tone='remaining'
+        tone={overBudget ? 'danger' : 'success'}
       />
     </dl>
   )

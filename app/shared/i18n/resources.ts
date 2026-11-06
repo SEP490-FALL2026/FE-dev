@@ -3,10 +3,10 @@ import { approvals as enApprovals } from './locales/en/approvals'
 import { approvalsBudget as enApprovalsBudget } from './locales/en/approvals-budget'
 import { approvalsSpend as enApprovalsSpend } from './locales/en/approvals-spend'
 import { approvalsNeed as enApprovalsNeed } from './locales/en/approvals-need'
-import { approvalsRenewal as enApprovalsRenewal } from './locales/en/approvals-renewal'
 import { finance as enFinance } from './locales/en/finance'
 import { financeBudget as enFinanceBudget } from './locales/en/finance-budget'
 import { financeSettings as enFinanceSettings } from './locales/en/finance-settings'
+import { financeSpend as enFinanceSpend } from './locales/en/finance-spend'
 import { admin as enAdmin } from './locales/en/admin'
 import { adminAccounts as enAdminAccounts } from './locales/en/admin-accounts'
 import { adminOrganization as enAdminOrganization } from './locales/en/admin-organization'
@@ -22,10 +22,10 @@ import { approvals as viApprovals } from './locales/vi/approvals'
 import { approvalsBudget as viApprovalsBudget } from './locales/vi/approvals-budget'
 import { approvalsSpend as viApprovalsSpend } from './locales/vi/approvals-spend'
 import { approvalsNeed as viApprovalsNeed } from './locales/vi/approvals-need'
-import { approvalsRenewal as viApprovalsRenewal } from './locales/vi/approvals-renewal'
 import { finance as viFinance } from './locales/vi/finance'
 import { financeBudget as viFinanceBudget } from './locales/vi/finance-budget'
 import { financeSettings as viFinanceSettings } from './locales/vi/finance-settings'
+import { financeSpend as viFinanceSpend } from './locales/vi/finance-spend'
 import { admin as viAdmin } from './locales/vi/admin'
 import { adminAccounts as viAdminAccounts } from './locales/vi/admin-accounts'
 import { adminOrganization as viAdminOrganization } from './locales/vi/admin-organization'
@@ -70,10 +70,10 @@ export const resources = {
     approvalsBudget: enApprovalsBudget,
     approvalsSpend: enApprovalsSpend,
     approvalsNeed: enApprovalsNeed,
-    approvalsRenewal: enApprovalsRenewal,
     finance: enFinance,
     financeBudget: enFinanceBudget,
     financeSettings: enFinanceSettings,
+    financeSpend: enFinanceSpend,
     itNewSoftware: enItNewSoftware,
     itAdmin: enItAdmin,
     itProvisioning: enItProvisioning,
@@ -102,10 +102,10 @@ export const resources = {
     approvalsBudget: viApprovalsBudget,
     approvalsSpend: viApprovalsSpend,
     approvalsNeed: viApprovalsNeed,
-    approvalsRenewal: viApprovalsRenewal,
     finance: viFinance,
     financeBudget: viFinanceBudget,
     financeSettings: viFinanceSettings,
+    financeSpend: viFinanceSpend,
     itNewSoftware: viItNewSoftware,
     itAdmin: viItAdmin,
     itProvisioning: viItProvisioning,

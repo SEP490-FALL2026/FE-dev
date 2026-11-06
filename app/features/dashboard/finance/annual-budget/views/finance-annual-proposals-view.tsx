@@ -19,7 +19,8 @@ export function FinanceAnnualProposalsView(props: BudgetViewProps) {
 function ProposalList({ onSelectTab }: BudgetViewProps) {
   const { t: translate, i18n } = useTranslation('financeBudget')
   const { page, pageSize, setPage, year, setYear } = useFinanceList()
-  const [state, setState] = useState<BudgetProposalListState>()
+  // Opens on proposals waiting for Finance to approve or return.
+  const [state, setState] = useState<BudgetProposalListState | undefined>('SUBMITTED')
   const query = useBudgetProposalList({
     page,
     pageSize,
@@ -28,7 +29,7 @@ function ProposalList({ onSelectTab }: BudgetViewProps) {
   })
   const result = query.data?.data
   return (
-    <FinancePage title={translate('proposals')}>
+    <FinancePage title={translate('proposals')} description={translate('proposalsHint')}>
       <BudgetListFilters
         year={year}
         onYearChange={setYear}

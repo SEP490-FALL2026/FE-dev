@@ -147,7 +147,7 @@ describe('Spending Approver batch API', () => {
       decision: 'APPROVE',
       requestIds: [firstRequestId, skippedRequestId]
     })
-    expect(await screen.findAllByText('An individual budget override is required')).not.toHaveLength(0)
+    expect(await screen.findAllByText('A budget year is short of budget or has none')).not.toHaveLength(0)
     await waitFor(() => expect(warning).toHaveBeenCalledOnce())
     expect(success).not.toHaveBeenCalled()
     expect(screen.getByRole('button', { name: 'Confirm batch decision' })).toBeDisabled()

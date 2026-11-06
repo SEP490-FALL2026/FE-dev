@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
+import { toast } from 'sonner'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { apiClient } from '~/shared/api/axios-client'
 import { setAppLanguage } from '~/shared/i18n/i18n'
@@ -35,10 +36,7 @@ const initialApproval = () => ({
     costCenter: { id: 'cc-1', code: 'CC-01' },
     businessReason: 'Project use',
     termMonths: 12,
-    expectedSpendOn: null,
-    budgetYear: 2026,
-    offPlan: false,
-    planLineAttached: true
+    budgetYear: 2026
   },
   need: { decidedBy: requester, decidedAt: '2026-10-31T00:00:00Z', reason: null },
   cost: null,
@@ -55,14 +53,14 @@ const year = (code = 'BUDGET_OK') => ({
   spent: money,
   remaining: money,
   shareBasisPoints: null,
-  pending: null,
-  overridden: false
+  pending: null
 })
 const originalAdapter = apiClient.defaults.adapter
 let approval = initialApproval()
 let years = [year()]
 let posted: { url?: string; body: unknown }[] = []
 let failMutation = false
+let overrideRequired = false
 let pendingMutation: Promise<void> | undefined
 let readCount = 0
 let groupPages: Record<number, unknown[]> = {}
@@ -74,6 +72,7 @@ beforeEach(async () => {
   years = [year()]
   posted = []
   failMutation = false
+  overrideRequired = false
   pendingMutation = undefined
   readCount = 0
   groupPages = {}
@@ -91,6 +90,14 @@ beforeEach(async () => {
     if (config.method === 'post') {
       posted.push({ url: config.url, body: JSON.parse(config.data as string) })
       if (pendingMutation) await pendingMutation
+      if (overrideRequired)
+        throw new AxiosError('short budget', 'ERR_BAD_REQUEST', config, undefined, {
+          config,
+          status: 422,
+          statusText: 'Unprocessable Entity',
+          headers: {},
+          data: { success: false, error: { code: 'SPEND.OVERRIDE_REQUIRED', message: 'Internal message' } }
+        })
       if (failMutation)
         throw new AxiosError('conflict', 'ERR_BAD_REQUEST', config, undefined, {
           config,
@@ -116,9 +123,7 @@ beforeEach(async () => {
           route: checkRoute,
           primaryCode: years[0].code,
           staleCostEvidence: false,
-          planLineOverdue: false,
           periodClosed: false,
-          offPlan: false,
           noIndependentReview: false,
           bindingTotal: money,
           yearCount: years.length,
@@ -186,21 +191,46 @@ it('requires a rejection reason and sends only the strict rejection payload', as
   expect(posted[0].body).toEqual({ decision: 'REJECT', reason: 'No business need' })
 })
 
-it('requires explicit override reason and selected years for insufficient budget', async () => {
+it('cannot approve when a budget year is short and only offers rejection without an override block', async () => {
   years = [year('INSUFFICIENT_BUDGET')]
+  mount()
+  expect(
+    await screen.findByText(
+      'Budget year(s) 2026 have too little budget or none, so this request cannot be approved. You can only reject it or wait until the budget is available.'
+    )
+  ).toBeInTheDocument()
+  const field = await screen.findByRole('combobox', { name: 'Decision' })
+  await waitFor(() => expect(field).toBeEnabled())
+  fireEvent.click(field)
+  expect(screen.queryByRole('option', { name: 'Approve' })).not.toBeInTheDocument()
+  fireEvent.click(screen.getByRole('option', { name: 'Reject' }))
+  expect(screen.queryByRole('checkbox', { name: /override/i })).not.toBeInTheDocument()
+  confirm()
+  fireEvent.change(screen.getByPlaceholderText('E.g. The team already has an equivalent tool under contract'), {
+    target: { value: 'Wait for next budget' }
+  })
+  fireEvent.click(screen.getByRole('button', { name: 'Confirm decision' }))
+  await waitFor(() => expect(posted).toHaveLength(1))
+  expect(posted[0].body).toEqual({ decision: 'REJECT', reason: 'Wait for next budget' })
+})
+
+it('explains SPEND.OVERRIDE_REQUIRED when the server refuses an approval for a short budget year', async () => {
+  overrideRequired = true
+  const error = vi.spyOn(toast, 'error')
   mount()
   await choose('Approve')
   confirm()
-  expect(screen.getByRole('button', { name: 'Confirm decision' })).toBeDisabled()
-  fireEvent.click(screen.getByRole('checkbox', { name: 'Approve with a budget override' }))
-  fireEvent.change(screen.getByPlaceholderText('E.g. Q4 overrun, covered from the department reserve'), {
-    target: { value: 'Urgent delivery' }
-  })
-  expect(screen.getByRole('button', { name: 'Confirm decision' })).toBeDisabled()
-  fireEvent.click(screen.getByRole('checkbox', { name: '2026' }))
   fireEvent.click(screen.getByRole('button', { name: 'Confirm decision' }))
   await waitFor(() => expect(posted).toHaveLength(1))
-  expect(posted[0].body).toEqual({ decision: 'APPROVE', override: { reason: 'Urgent delivery', years: [2026] } })
+  expect(posted[0].body).toEqual({ decision: 'APPROVE' })
+  await waitFor(() =>
+    expect(error).toHaveBeenCalledWith(
+      'A budget year for this request has too little budget or none at all, so it cannot be approved. Reject it or wait until the budget is available.',
+      expect.objectContaining({ id: 'approvals-write' })
+    )
+  )
+  expect(screen.queryByText('Internal message')).not.toBeInTheDocument()
+  error.mockRestore()
 })
 
 it('blocks repeated decisions while the server has not confirmed the write', async () => {

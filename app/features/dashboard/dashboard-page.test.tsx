@@ -36,8 +36,6 @@ const server = setupServer(
     'budget-commitments',
     'cost-centers',
     'spend-approvals',
-    'subscription-renewals',
-    'subscription-deadline-events',
     'notifications'
   ].map((path) =>
     http.get(`*/api/v1/${path}`, () =>
@@ -46,6 +44,9 @@ const server = setupServer(
         data: { items: [], pagination: { page: 1, pageSize: 1, totalItems: 0, totalPages: 0 } }
       })
     )
+  ),
+  http.get('*/api/v1/budgets/summary', () =>
+    HttpResponse.json({ success: true, data: { year: 2026, totals: {}, lastInvoiceRecordedAt: null } })
   ),
   http.get('*/api/v1/me', () => HttpResponse.json({ error: { code: 'AUTHORIZATION.FORBIDDEN' } }, { status: 403 }))
 )
@@ -106,17 +107,23 @@ describe('DashboardPage', () => {
     expect(screen.queryByText('Minh Anh')).not.toBeInTheDocument()
   })
 
-  it('navigates Finance API workspaces and identifies unavailable reporting', async () => {
+  it('lists one Finance menu entry per screen and opens each by its label', async () => {
     await renderDashboard('finance')
     expect(screen.getByRole('heading', { level: 1, name: 'Tổng quan tài chính' })).toBeInTheDocument()
     const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
-    expect(within(nav).queryByRole('button', { name: 'Ngân sách hiện hành' })).not.toBeInTheDocument()
-    fireEvent.click(within(nav).getByRole('button', { name: 'Trung tâm chi phí' }))
-    expect(screen.getByRole('heading', { level: 1, name: 'Trung tâm chi phí' })).toBeInTheDocument()
+    expect(within(nav).queryByRole('button', { name: 'Trung tâm chi phí & Ngân sách' })).not.toBeInTheDocument()
+    expect(within(nav).queryByRole('button', { name: 'Báo cáo kỳ' })).not.toBeInTheDocument()
+    for (const [label, heading] of [
+      ['Trung tâm chi phí', 'Trung tâm chi phí'],
+      ['Đề xuất ngân sách', 'Đề xuất ngân sách'],
+      ['Chờ xác nhận lần cuối', 'Chờ xác nhận lần cuối'],
+      ['Nhập hóa đơn', 'Nhập hóa đơn']
+    ]) {
+      fireEvent.click(within(nav).getByRole('button', { name: label }))
+      expect(screen.getByRole('heading', { level: 1, name: heading })).toBeInTheDocument()
+      expect(within(nav).getByRole('button', { name: label })).toHaveAttribute('aria-current', 'page')
+    }
     expect(screen.queryByRole('button', { name: 'Tạo mới' })).not.toBeInTheDocument()
-    fireEvent.click(within(nav).getByRole('button', { name: 'Đóng kỳ & Báo cáo' }))
-    fireEvent.click(within(nav).getByRole('button', { name: 'Báo cáo kỳ' }))
-    expect(screen.getByRole('heading', { level: 1, name: 'Chức năng chưa khả dụng' })).toBeInTheDocument()
   })
 
   it('navigates the Spending Approver API workspaces without demo badges or profile', async () => {
@@ -142,13 +149,16 @@ describe('DashboardPage', () => {
     view.unmount()
   })
 
-  it('sends removed demo tabs back to the overview and opens subscription renewals', async () => {
+  it('sends removed demo tabs back to the overview', async () => {
     await renderDashboard('spending-approver', '/?tab=reports')
     expect(screen.getByRole('heading', { level: 1, name: 'Tổng quan phê duyệt' })).toBeInTheDocument()
+  })
+
+  it('no longer offers subscription renewal decisions to the Spending Approver', async () => {
+    await renderDashboard('spending-approver', '/?tab=renewal&id=renewal-1')
+    expect(screen.getByRole('heading', { level: 1, name: 'Tổng quan phê duyệt' })).toBeInTheDocument()
     const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
-    fireEvent.click(within(nav).getByRole('button', { name: 'Gia hạn thuê bao' }))
-    expect(screen.getByRole('heading', { level: 1, name: 'Gia hạn thuê bao' })).toBeInTheDocument()
-    expect(await screen.findByText('Không có ca gia hạn nào đang chờ bạn quyết định.')).toBeInTheDocument()
+    expect(within(nav).queryByRole('button', { name: /Gia hạn thuê bao/i })).not.toBeInTheDocument()
   })
 
   it('does not restore a demo Request for a legacy fixture ID', async () => {

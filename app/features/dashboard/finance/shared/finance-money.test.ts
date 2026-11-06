@@ -11,6 +11,17 @@ describe('Finance decimal amounts', () => {
     expect(formatMoney({ amount: '1200000', currency: 'VND' }, 'vi-VN')).toContain('1.200.000')
   })
 
+  it('shows a placeholder instead of crashing when a money field is missing', () => {
+    expect(formatMoney(undefined, 'vi-VN')).toBe('—')
+    expect(formatMoney(null, 'vi-VN')).toBe('—')
+    expect(formatMoney({ currency: 'VND' }, 'vi-VN')).toBe('—')
+  })
+
+  it('formats an amount without a currency code as a plain exact number', () => {
+    expect(formatMoney({ amount: '1200000.5' }, 'vi-VN')).toBe('1.200.000,5')
+    expect(formatMoney({ amount: '9007199254740993' }, 'en-US')).toBe('9,007,199,254,740,993')
+  })
+
   it('never silently rounds supplied monetary precision', () => {
     expect(formatMoney({ amount: '1.2345', currency: 'USD' }, 'en-US')).toBe('$1.2345')
     expect(isDecimal('12.50')).toBe(true)

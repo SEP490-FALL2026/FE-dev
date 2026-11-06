@@ -26,6 +26,9 @@ export const financeButtonVariants = {
 
 export type FinanceButtonVariant = keyof typeof financeButtonVariants
 
+/** Lets the shared form dialog fill the workspace width when it is shown as a page inside Finance. */
+export const financeFullWidthFormClass = '[&>div]:max-w-none'
+
 export function FinancePage({
   title,
   description,

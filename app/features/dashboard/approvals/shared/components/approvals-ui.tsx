@@ -224,7 +224,6 @@ const statusTones: Record<StatusTone, readonly string[]> = {
     'CHANGES_REQUESTED',
     'NEEDS_BUDGET',
     'BUDGET_REVISION_NEEDED',
-    'PLAN_LINE_OVERDUE',
     'STALE_COST_EVIDENCE',
     'MISSING',
     'PROPOSED',

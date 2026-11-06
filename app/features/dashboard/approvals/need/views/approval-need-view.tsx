@@ -46,12 +46,6 @@ function NeedDetail({ requestId }: { requestId: string }) {
   const requestData = requestQuery.data?.data
   const request = requestData && 'request' in requestData ? requestData.request : undefined
   const employeeId = currentUser.data?.data?.employee.id
-  const identity = currentUser.data?.data
-  const departmentCode = identity?.employee.department?.code
-  // Managers head one department and belong to it (QĐ-66a/INV-19); other assigned approvers cannot set spend.
-  const canSetSpend = Boolean(
-    identity?.roles.includes('MANAGER') && departmentCode && departmentCode === request?.department.code
-  )
   const knownBranch = request && Object.values(REQUEST_BRANCH).includes(request.branch)
   const permitted = Boolean(
     request &&
@@ -73,15 +67,10 @@ function NeedDetail({ requestId }: { requestId: string }) {
                 <GroupNeedDecisions
                   request={request}
                   employeeId={employeeId}
-                  canSetSpend={canSetSpend}
                   disabled={requestQuery.isFetching || currentUser.isFetching}
                 />
               ) : permitted && Object.values(NEED_REQUEST_TYPE).includes(request.type) ? (
-                <NeedDecisionForm
-                  request={request}
-                  canSetSpend={canSetSpend}
-                  disabled={requestQuery.isFetching || currentUser.isFetching}
-                />
+                <NeedDecisionForm request={request} disabled={requestQuery.isFetching || currentUser.isFetching} />
               ) : (
                 <p
                   role='status'

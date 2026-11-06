@@ -26,7 +26,9 @@ export const approvalsBudget = {
   submittedAt: 'Ngày đề xuất',
   base: 'Ngân sách cơ sở',
   reserve: 'Dự phòng',
-  previousTotal: 'Tổng ngân sách trước',
+  reservePercent: 'Dự phòng mặc định (%)',
+  defaultReserve: 'Dự phòng mặc định',
+  reserveReason: 'Lý do dự phòng',
   highValuePercent: 'Ngưỡng giá trị cao (%)',
   highValueAmount: 'Ngưỡng giá trị cao',
   quarters: 'Phân bổ theo quý',
@@ -55,7 +57,6 @@ export const approvalsBudget = {
   description: 'Nội dung',
   amount: 'Số tiền',
   seats: 'Số suất',
-  window: 'Cửa sổ mua',
   period: 'Thời hạn dịch vụ (tháng)',
   repeatCycle: 'Chu kỳ lặp',
   quoteValidUntil: 'Báo giá có hiệu lực đến',
@@ -97,7 +98,6 @@ export const approvalsBudget = {
     system: 'Hệ thống'
   },
   kind: { INITIAL: 'Ngân sách ban đầu', REVISION: 'Bản sửa đổi' },
-  repeat: { MONTHLY: 'Hàng tháng', QUARTERLY: 'Hàng quý', ANNUAL: 'Hàng năm', ONE_TIME: 'Một lần' },
   historyKind: {
     FIGURES_UPDATED: 'Đã cập nhật số liệu ngân sách',
     LINE_UPDATED: 'Đã cập nhật dòng',

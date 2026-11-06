@@ -1,23 +1,19 @@
 export const FINANCE_TAB_KEYS = [
   'overview',
-  'department-budget',
-  'budgets',
-  'budget-allocation',
-  'budget-periods',
-  'decision-history',
-  'department-summary',
+  'cost-centers',
   'annual-proposals',
   'budget-negotiation',
-  'cost-forecast',
-  'cost-optimization',
+  'spend-batches',
+  'invoice-intake',
+  'commitments',
   'saas-cost',
-  'spend-import',
-  'charge-exceptions',
-  'period-close',
-  'cost-analysis',
-  'period-report',
-  'cost-centers',
-  'vendor-tax'
+  'vendor-tax',
+  // Older links; see tabAliases in finance-nav.ts.
+  'budgets',
+  'department-budget',
+  'budget-allocation',
+  'department-summary',
+  'decision-history'
 ] as const
 
 export type FinanceTabKey = (typeof FINANCE_TAB_KEYS)[number]

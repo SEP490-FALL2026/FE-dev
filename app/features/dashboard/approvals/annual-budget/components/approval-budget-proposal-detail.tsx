@@ -84,7 +84,6 @@ export function ApprovalBudgetProposalDetail({ itemId, onSelectTab }: ApprovalBu
 
 function ProposalLines({ itemId }: { itemId: string }) {
   const { t: translate, i18n } = useTranslation('approvalsBudget')
-  const { formatDate } = useDashboardFormat()
   const [page, setPage] = useState(1)
   const query = useBudgetProposalLineList(itemId, { page, pageSize: 20 })
   return (
@@ -110,24 +109,6 @@ function ProposalLines({ itemId }: { itemId: string }) {
               label: translate('seats'),
               numeric: true,
               render: (line) => line.seats ?? translate('unavailable')
-            },
-            {
-              key: 'window',
-              label: translate('window'),
-              numeric: true,
-              render: (line) => `${formatDate(line.windowFrom)} – ${formatDate(line.windowTo)}`
-            },
-            { key: 'period', label: translate('period'), numeric: true, render: (line) => line.servicePeriodMonths },
-            {
-              key: 'repeat',
-              label: translate('repeatCycle'),
-              render: (line) => translate(`repeat.${line.repeatCycle}`, { defaultValue: translate('unavailable') })
-            },
-            {
-              key: 'quote',
-              label: translate('quoteValidUntil'),
-              numeric: true,
-              render: (line) => (line.quoteValidUntil ? formatDate(line.quoteValidUntil) : translate('unavailable'))
             },
             {
               key: 'note',

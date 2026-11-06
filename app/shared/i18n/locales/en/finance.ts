@@ -1,13 +1,8 @@
 export const finance = {
-  periodClose: 'Period close',
-  periodReport: 'Period report',
-  areas: {
-    overview: 'Overview',
-    budget: 'Cost centers & budgets',
-    planning: 'Annual budget planning',
-    spend: 'Catalog & money',
-    close: 'Period close & reports'
-  },
+  invoiceIntake: 'Record invoices',
+  spendBatches: 'Approved spend by batch',
+  commitments: 'Held commitments',
+  overBudget: 'Over budget',
   loading: 'Loading data…',
   refreshing: 'Updating data…',
   empty: 'No matching records.',
@@ -26,15 +21,12 @@ export const finance = {
   requestId: 'Reference: {{value}}',
   all: 'All',
   year: 'Fiscal year',
-  unavailable: 'This feature is not available yet',
-  unavailableHint: 'This workflow is awaiting backend support. There are no records or actions available here yet.',
-  backToBudgets: 'View current budgets',
   overview: 'Finance overview',
   overviewDescription: 'Work waiting for Finance and shortcuts to frequently used records.',
   shortcuts: 'Quick access',
   overviewHint: 'Work waiting for Finance',
-  proposals: 'Submitted proposals',
-  versions: 'Budget drafts',
+  proposals: 'Budget proposals',
+  versions: 'Awaiting final confirmation',
   budgets: 'Current budgets',
   costCenters: 'Cost centers',
   vendorTax: 'Vendor tax profiles',
@@ -185,6 +177,8 @@ export const finance = {
     MANUAL: 'Manually recorded'
   },
   errors: {
+    reserveReasonRequired:
+      'A reserve other than the default 10% needs a reason. Edit the figures, add the reserve reason and send again.',
     reviewNotOpen: 'The request is no longer waiting for a Finance review. The data has been reloaded.',
     alreadyAwaitingBudget:
       'The request is already waiting for a budget. Choose another outcome or wait for the budget version to be approved.',
@@ -203,6 +197,12 @@ export const finance = {
     revisionRequired: 'Changing amounts needs a revision; moving the purchase window only changes timing.',
     commitmentNotHeld: 'The commitment is no longer held. The data has been reloaded.',
     commitmentRequestOpen: 'The request linked to this commitment has not ended, so it cannot be released yet.',
+    commitmentNotFound: 'The commitment was not found. The list has been reloaded.',
+    invoiceDuplicate: 'The vendor already has an invoice with this number. It was not recorded again.',
+    invoiceCommitmentReleased: 'The commitment has been fully released, so no more invoices can be recorded.',
+    invoiceVendorUnknown:
+      'The vendor of the request could not be determined. Ask IT or Finance to check the software catalog.',
+    batchNotFound: 'This spend batch was not found or is outside your access scope.',
     setupIncomplete: 'The department cost center is not set up or is no longer in use.',
     attachmentType: 'Only PDF, XLSX, DOCX, CSV, PNG or JPG files are accepted.',
     attachmentSize: 'Attachments can be up to 10 MiB.',

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useBudgetProposalList } from '~/shared/api/generated/operations/budget-proposals/budget-proposal-list'
 import { useBudgetVersionList } from '~/shared/api/generated/operations/budget-versions/budget-version-list'
 import type { FinanceTabKey } from '../../enums'
-import { financeAreas } from '../../finance-nav'
+import { financeNavItems } from '../../finance-nav'
 import { FinanceQueryState, FinanceSection } from '../../shared/components/finance-ui'
 
 const shortcutTabs: readonly FinanceTabKey[] = ['cost-centers', 'vendor-tax', 'saas-cost']
@@ -69,7 +69,7 @@ export function OverviewWorkQueue({ onSelectTab }: { onSelectTab: (tab: FinanceT
 
 export function OverviewShortcuts({ onSelectTab }: { onSelectTab: (tab: FinanceTabKey) => void }) {
   const { t: translate } = useTranslation('finance')
-  const shortcuts = financeAreas.flatMap((area) => area.tabs).filter((tab) => shortcutTabs.includes(tab.key))
+  const shortcuts = financeNavItems.filter((tab) => shortcutTabs.includes(tab.key))
   return (
     <FinanceSection title={translate('shortcuts')}>
       <ul className='grid gap-2 sm:grid-cols-2 lg:grid-cols-3'>

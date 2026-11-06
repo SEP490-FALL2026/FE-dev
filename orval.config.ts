@@ -47,7 +47,7 @@ export default defineConfig({
           'assignment-expiry',
           'saas-issues',
           'access-requests',
-          'delegated-requests',
+          'grant-queue',
           'group-requests',
           'transfer-reviews',
           'cost-centers',

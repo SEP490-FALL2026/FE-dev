@@ -15,12 +15,10 @@ import { NEED_LINE_STATE } from '../enums/need-line-state'
 export function GroupNeedDecisions({
   request,
   employeeId,
-  canSetSpend,
   disabled
 }: {
   request: AccessRequestResponseDtoDataRequest
   employeeId: string
-  canSetSpend: boolean
   disabled: boolean
 }) {
   const { t: translate } = useTranslation('approvalsNeed')
@@ -77,7 +75,6 @@ export function GroupNeedDecisions({
           key={stepId}
           request={request}
           lines={selectedLines}
-          canSetSpend={canSetSpend}
           disabled={disabled || linesQuery.isFetching}
         />
       ) : (

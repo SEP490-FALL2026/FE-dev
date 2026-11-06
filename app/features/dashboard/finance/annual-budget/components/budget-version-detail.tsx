@@ -3,7 +3,6 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useBudgetVersionGet } from '~/shared/api/generated/operations/budget-versions/budget-version-get'
 import { useBudgetVersionUpdate } from '~/shared/api/generated/operations/budget-versions/budget-version-update'
-import { useBudgetVersionRevise } from '~/shared/api/generated/operations/budget-versions/budget-version-revise'
 import { useBudgetVersionSend } from '~/shared/api/generated/operations/budget-versions/budget-version-send'
 import { useBudgetVersionCreate } from '~/shared/api/generated/operations/budget-versions/budget-version-create'
 import { AdminFormDialog as FinanceFormDialog } from '~/shared/ui/form-dialog'
@@ -21,7 +20,7 @@ import { formatMoney } from '../../shared/finance-money'
 import { budgetQueryKeys } from '../budget-query-keys'
 import type { BudgetViewProps } from '../budget-view-props'
 import { canEditVersion, versionState } from '../enums/version-state'
-import { BudgetVersionForm } from './budget-version-form'
+import { BudgetVersionForm, defaultReservePercent } from './budget-version-form'
 import { BudgetVersionLines } from './budget-version-lines'
 import { BudgetVersionHistory } from './budget-version-history'
 import { BudgetAttachments } from './budget-attachments'
@@ -30,7 +29,7 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
   const { t: translate, i18n } = useTranslation('financeBudget')
   const query = useBudgetVersionGet(itemId)
   const version = query.data?.data?.version
-  const [dialog, setDialog] = useState<'edit' | 'revise' | 'send' | 'history' | 'rebuild'>()
+  const [dialog, setDialog] = useState<'edit' | 'send' | 'history' | 'rebuild'>()
   const feedback = useFinanceFeedback(budgetQueryKeys(itemId, version?.proposalId ?? undefined), () =>
     setDialog(undefined)
   )
@@ -45,24 +44,22 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
       }
     }
   })
-  const reviseMutation = useBudgetVersionRevise({
-    mutation: {
-      onError: feedback.onError,
-      onSuccess: async (result) => {
-        await feedback.onSuccess()
-        if (result.data?.version) onSelectTab?.('budget-negotiation', { id: result.data.version.id })
-      }
-    }
-  })
-  if (version && (dialog === 'edit' || dialog === 'revise' || dialog === 'rebuild'))
+  if (version && (dialog === 'edit' || dialog === 'rebuild'))
     return (
       <BudgetVersionForm
-        initial={{ ...version, reason: version.reason ?? undefined }}
-        revision={dialog === 'revise'}
-        allowReason={dialog !== 'rebuild'}
-        reasonRequired={dialog === 'revise' || (dialog === 'edit' && version.kind === 'REVISION')}
+        title={translate(dialog === 'rebuild' ? 'actions.rebuild' : 'actions.edit')}
+        currency={version.total.currency}
+        initial={{
+          base: version.base,
+          reserve: version.reserve,
+          reserveReason: version.reserveReason,
+          quarters: version.quarters
+        }}
+        serverDefault={
+          version.defaultReserve ? { base: version.base.amount, reserve: version.defaultReserve.amount } : undefined
+        }
         disabled={query.isError || query.isFetching}
-        pending={updateMutation.isPending || reviseMutation.isPending || rebuildMutation.isPending}
+        pending={updateMutation.isPending || rebuildMutation.isPending}
         onClose={() => setDialog(undefined)}
         onSubmit={(figures) => {
           if (dialog === 'rebuild' && version.proposalId) {
@@ -70,15 +67,12 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
               data: {
                 proposalId: version.proposalId,
                 base: figures.base,
-                reserve: figures.reserve,
-                highValuePercent: figures.highValuePercent,
-                highValueAmount: figures.highValueAmount,
-                quarters: figures.quarters
+                ...(figures.reserve ? { reserve: figures.reserve } : {}),
+                ...(figures.reserveReason ? { reserveReason: figures.reserveReason } : {}),
+                ...(figures.quarters ? { quarters: figures.quarters } : {})
               }
             })
-          } else if (dialog === 'revise')
-            reviseMutation.mutate({ data: { costCenterId: version.costCenter.id, year: version.year, ...figures } })
-          else updateMutation.mutate({ id: itemId, data: figures })
+          } else updateMutation.mutate({ id: itemId, data: figures })
         }}
       />
     )
@@ -107,21 +101,31 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
                 {version.number}
               </p>
             </div>
-            <FinanceStatGrid>
+            <FinanceStatGrid columns={4}>
               <FinanceStat label={translate('fields.base')} value={formatMoney(version.base, i18n.language)} />
               <FinanceStat label={translate('fields.reserve')} value={formatMoney(version.reserve, i18n.language)} />
+              <FinanceStat
+                label={translate('fields.reservePercent')}
+                value={`${version.reservePercent ?? defaultReservePercent}%`}
+              />
               <FinanceStat
                 emphasis
                 label={translate('fields.total')}
                 value={formatMoney(version.total, i18n.language)}
               />
             </FinanceStatGrid>
-            {(version.reason || version.decision?.reason) && (
+            {(version.reason || version.reserveReason || version.decision?.reason) && (
               <dl className='grid gap-3 rounded-lg border border-border/70 bg-surface-subtle/50 p-4 text-sm sm:grid-cols-2'>
                 {version.reason && (
                   <div className='min-w-0'>
                     <dt className='text-xs font-medium text-muted-foreground'>{translate('fields.reason')}</dt>
                     <dd className='mt-1 break-words [text-wrap:pretty]'>{version.reason}</dd>
+                  </div>
+                )}
+                {version.reserveReason && (
+                  <div className='min-w-0'>
+                    <dt className='text-xs font-medium text-muted-foreground'>{translate('fields.reserveReason')}</dt>
+                    <dd className='mt-1 break-words [text-wrap:pretty]'>{version.reserveReason}</dd>
                   </div>
                 )}
                 {version.decision?.reason && (
@@ -144,11 +148,6 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
                     {translate('actions.edit')}
                   </FinanceButton>
                 </>
-              )}
-              {version.state === versionState.APPROVED && (
-                <FinanceButton variant='primary' onClick={() => setDialog('revise')}>
-                  {translate('actions.revise')}
-                </FinanceButton>
               )}
               {version.state === versionState.REJECTED && version.proposalId && (
                 <FinanceButton variant='primary' onClick={() => setDialog('rebuild')}>

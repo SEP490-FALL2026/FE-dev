@@ -25,7 +25,8 @@ export function FinanceBudgetNegotiationView(props: BudgetViewProps) {
 function VersionList({ onSelectTab }: BudgetViewProps) {
   const { t: translate, i18n } = useTranslation('financeBudget')
   const { page, pageSize, setPage, year, setYear } = useFinanceList()
-  const [state, setState] = useState<BudgetVersionListState>()
+  // Opens on drafts: versions Finance approved from a proposal and still has to confirm and send.
+  const [state, setState] = useState<BudgetVersionListState | undefined>('DRAFT')
   const query = useBudgetVersionList({
     page,
     pageSize,
@@ -35,9 +36,10 @@ function VersionList({ onSelectTab }: BudgetViewProps) {
   const result = query.data?.data
   return (
     <FinancePage
-      title={translate('versions')}
+      title={translate('pendingConfirmation')}
+      description={translate('pendingConfirmationHint')}
       actions={
-        <FinanceButton variant='primary' onClick={() => onSelectTab?.('annual-proposals')}>
+        <FinanceButton onClick={() => onSelectTab?.('annual-proposals')}>
           {translate('actions.openProposals')}
         </FinanceButton>
       }

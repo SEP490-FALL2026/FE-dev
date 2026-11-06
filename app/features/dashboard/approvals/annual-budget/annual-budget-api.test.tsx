@@ -17,16 +17,16 @@ const version = {
   kind: 'INITIAL',
   state: 'SENT',
   proposalId: null,
-  basedOnVersionId: null,
   rejectedPredecessorId: null,
   base: money,
-  reserve: { amount: '0', currency: 'USD' },
+  reserve: { amount: '150.00', currency: 'USD' },
+  reservePercent: 10,
+  defaultReserve: { amount: '120.00', currency: 'USD' },
+  reserveReason: 'Q2 hiring plan',
   total: money,
-  highValuePercent: 10,
-  highValueAmount: null,
   quarters: null,
   reason: null,
-  previousTotal: null,
+  waitingReason: null,
   decision: null,
   createdBy: { employeeId: 'finance-1', employeeCode: 'FIN', fullName: 'Finance API' },
   createdAt: '2026-10-30T00:00:00Z',
@@ -46,14 +46,8 @@ const line = {
   planId: null,
   seats: 2,
   amount: money,
-  windowFrom: '2027-01-01',
-  windowTo: '2027-03-31',
-  servicePeriodMonths: 12,
-  repeatCycle: 'ANNUAL',
-  quoteValidUntil: null,
   financeComment: 'Finance basis',
-  adjustmentReason: null,
-  overdue: false
+  adjustmentReason: null
 }
 const proposal = {
   id: 'proposal-1',
@@ -184,7 +178,16 @@ describe('Spending Approver annual budget API', () => {
       if (path === '/budget-proposals') data = page([proposal])
       if (path === '/budget-proposals/proposal-1') data = { proposal }
       if (path === '/budget-proposals/proposal-1/lines')
-        data = page([{ ...line, description: 'API proposal line', note: null }])
+        data = page([
+          {
+            position: line.position,
+            description: 'API proposal line',
+            planId: null,
+            seats: line.seats,
+            amount: line.amount,
+            note: null
+          }
+        ])
       return {
         config,
         data: { success: true, message: 'BUDGET.FETCHED', data },
@@ -256,6 +259,17 @@ describe('Spending Approver annual budget API', () => {
       'Please revise the scope'
     )
     expect(screen.queryByText('technical message')).not.toBeInTheDocument()
+  })
+
+  it('shows the reserve percent, default reserve and reserve reason without retired thresholds', async () => {
+    mount('version-1')
+    expect(await screen.findByText('Default reserve (%)')).toBeInTheDocument()
+    expect(screen.getByText('10%')).toBeInTheDocument()
+    expect(screen.getByText('Default reserve')).toBeInTheDocument()
+    expect(screen.getByText('Reserve reason')).toBeInTheDocument()
+    expect(screen.getByText('Q2 hiring plan')).toBeInTheDocument()
+    expect(screen.queryByText('High-value threshold')).not.toBeInTheDocument()
+    expect(screen.queryByText('Previous total')).not.toBeInTheDocument()
   })
 
   it('blocks creators from deciding their own version', async () => {

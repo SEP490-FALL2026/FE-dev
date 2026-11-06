@@ -10,19 +10,19 @@ import {
   budgetSideList,
   apiVersion,
   budgetTestLanguage,
+  defaultReserve,
   exactMoney,
-  renderBudget
+  renderBudget,
+  writeTo
 } from './budget-test-fixtures'
 
 describe('budget version API operations', () => {
   const originalAdapter = apiClient.defaults.adapter
   let requests: InternalAxiosRequestConfig[]
-  let currentVersion = apiVersion
   let rejectWrite = false
   beforeEach(async () => {
     await budgetTestLanguage()
     requests = []
-    currentVersion = apiVersion
     rejectWrite = false
     apiClient.defaults.adapter = async (config) => {
       const sideList = budgetSideList(config)
@@ -55,34 +55,17 @@ describe('budget version API operations', () => {
             config.params?.page
           )
         )
-      if (path.endsWith('/changes'))
-        return apiResponse(
-          config,
-          apiPage(
-            [
-              {
-                before: { windowFrom: '2027-01-01', windowTo: '2027-03-31' },
-                after: { windowFrom: '2027-02-01', windowTo: '2027-04-30' },
-                reason: 'Move purchase',
-                changedBy: null,
-                changedAt: '2026-11-01T00:00:00Z'
-              }
-            ],
-            config.params?.page
-          )
-        )
       if (path.endsWith('/imports'))
         return apiResponse(config, { result: { added: 2, rejected: 1, errors: [{ row: 3, code: 'INVALID_AMOUNT' }] } })
       if (path.endsWith('/lines')) return apiResponse(config, apiPage([apiLine], config.params?.page))
-      return apiResponse(config, { version: currentVersion })
+      return apiResponse(config, { version: apiVersion })
     }
   })
   afterEach(() => {
     apiClient.defaults.adapter = originalAdapter
   })
   const mount = () => renderBudget(<FinanceBudgetNegotiationView itemId='version-1' onSelectTab={vi.fn()} />)
-  const write = (suffix: string) =>
-    requests.find((request) => request.method !== 'get' && request.url?.endsWith(suffix))
+  const write = (suffix: string) => writeTo(requests, suffix)
   async function openLine() {
     await screen.findAllByText('API plan line')
     fireEvent.click(screen.getAllByRole('button', { name: 'View details' })[0])
@@ -93,7 +76,12 @@ describe('budget version API operations', () => {
     fireEvent.change(screen.getByLabelText(/^Base amount/), { target: { value: '9007199254740993.99' } })
     fireEvent.click(screen.getByRole('button', { name: 'Save version' }))
     await waitFor(() => expect(write('/budget-versions/version-1')).toBeDefined())
-    expect(JSON.parse(write('/budget-versions/version-1')?.data).base.amount).toBe('9007199254740993.99')
+    expect(write('/budget-versions/version-1')?.body).toEqual({
+      base: { amount: '9007199254740993.99' },
+      reserve: { amount: defaultReserve.amount },
+      reserveReason: null,
+      quarters: null
+    })
     await waitFor(() =>
       expect(
         requests.filter((request) => request.method === 'get' && request.url?.endsWith('/budget-versions/version-1'))
@@ -101,30 +89,33 @@ describe('budget version API operations', () => {
       ).toBeGreaterThan(1)
     )
   })
-  it('creates a revision of the approved Cost Center and year', async () => {
-    currentVersion = { ...apiVersion, state: 'APPROVED' }
+  it('sends all four quarters as amounts without a currency', async () => {
     mount()
-    fireEvent.click(await screen.findByRole('button', { name: 'Create revision' }))
-    fireEvent.change(screen.getByLabelText(/^Reason/), { target: { value: 'New service needs' } })
+    fireEvent.click(await screen.findByRole('button', { name: 'Edit figures' }))
+    for (const [index, amount] of ['1', '2', '3', '4'].entries())
+      fireEvent.change(screen.getByLabelText(`Quarter ${index + 1}`), { target: { value: amount } })
     fireEvent.click(screen.getByRole('button', { name: 'Save version' }))
-    await waitFor(() => expect(write('/revisions')).toBeDefined())
-    expect(JSON.parse(write('/revisions')?.data)).toMatchObject({
-      costCenterId: 'center-1',
-      year: 2027,
-      reason: 'New service needs',
-      base: exactMoney
+    await waitFor(() => expect(write('/budget-versions/version-1')).toBeDefined())
+    expect(write('/budget-versions/version-1')?.body.quarters).toEqual({
+      q1: { amount: '1' },
+      q2: { amount: '2' },
+      q3: { amount: '3' },
+      q4: { amount: '4' }
     })
   })
-  it('adds a line using the generated lines body', async () => {
+  it('adds a line as { lines: [...] } with an amount and no currency', async () => {
     mount()
     fireEvent.click(await screen.findByRole('button', { name: 'Add line' }))
     fireEvent.change(screen.getByLabelText(/^Description/), { target: { value: 'New planned tool' } })
     fireEvent.change(screen.getByLabelText(/^Amount/), { target: { value: exactMoney.amount } })
+    fireEvent.change(screen.getByLabelText('Seats'), { target: { value: '5' } })
+    fireEvent.change(screen.getByLabelText('Note'), { target: { value: 'Needed for Q2' } })
     fireEvent.click(screen.getByRole('button', { name: 'Save line' }))
     await waitFor(() => expect(write('/version-1/lines')).toBeDefined())
-    expect(JSON.parse(write('/version-1/lines')?.data).lines[0]).toMatchObject({
-      description: 'New planned tool',
-      amount: exactMoney
+    expect(write('/version-1/lines')?.body).toEqual({
+      lines: [
+        { description: 'New planned tool', amount: { amount: exactMoney.amount }, seats: 5, note: 'Needed for Q2' }
+      ]
     })
   })
   it('updates the selected position and clears nullable plan fields', async () => {
@@ -132,28 +123,27 @@ describe('budget version API operations', () => {
     await openLine()
     fireEvent.click(screen.getByRole('button', { name: 'Edit line' }))
     fireEvent.change(screen.getByLabelText('Seats'), { target: { value: '' } })
+    fireEvent.change(screen.getByLabelText('Adjustment reason'), { target: { value: 'Fewer seats' } })
     fireEvent.click(screen.getByRole('button', { name: 'Save line' }))
     await waitFor(() => expect(write('/version-1/lines/1')).toBeDefined())
-    expect(JSON.parse(write('/version-1/lines/1')?.data)).toMatchObject({
+    expect(write('/version-1/lines/1')?.body).toEqual({
+      description: 'API plan line',
+      amount: { amount: exactMoney.amount },
       seats: null,
       planId: null,
-      amount: exactMoney
+      financeComment: null,
+      adjustmentReason: 'Fewer seats'
     })
   })
-  it('moves an approved purchase window without submitting any amount', async () => {
-    currentVersion = { ...apiVersion, state: 'APPROVED' }
+  it('offers no purchase-window, revision or line-history action', async () => {
     mount()
     await openLine()
-    fireEvent.click(screen.getByRole('button', { name: 'Move purchase window' }))
-    fireEvent.change(screen.getByLabelText(/^Purchase window from/), { target: { value: '2027-02-01' } })
-    fireEvent.change(screen.getByLabelText(/^Reason/), { target: { value: 'Quote delayed' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Save window' }))
-    await waitFor(() => expect(write('/lines/1/window')).toBeDefined())
-    expect(JSON.parse(write('/lines/1/window')?.data)).toEqual({
-      windowFrom: '2027-02-01',
-      windowTo: '2027-03-31',
-      reason: 'Quote delayed'
-    })
+    const drawer = screen.getByRole('dialog')
+    expect(within(drawer).getByRole('button', { name: 'Edit line' })).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Move purchase window' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Purchase window history' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Create revision' })).toBeNull()
+    expect(within(drawer).queryByText('Purchase window from')).toBeNull()
   })
   it('uploads multipart data and presents partial import results', async () => {
     mount()
@@ -165,11 +155,11 @@ describe('budget version API operations', () => {
     if (!uploadForm) throw new Error('Import form is missing')
     fireEvent.submit(uploadForm)
     await waitFor(() => expect(write('/version-1/imports')).toBeDefined())
-    expect(write('/version-1/imports')?.data).toBeInstanceOf(FormData)
-    expect((write('/version-1/imports')?.data as FormData).get('file')).toBeInstanceOf(File)
+    expect(write('/version-1/imports')?.body).toBeInstanceOf(FormData)
+    expect((write('/version-1/imports')?.body as FormData).get('file')).toBeInstanceOf(File)
     expect(await screen.findByText('Added 2 lines; rejected 1 rows.')).toBeTruthy()
   })
-  it('requests history pages from the server and reads line changes separately', async () => {
+  it('requests version history pages from the server', async () => {
     mount()
     fireEvent.click(await screen.findByRole('button', { name: 'View history' }))
     const drawer = screen.getByRole('dialog')
@@ -178,19 +168,15 @@ describe('budget version API operations', () => {
     await waitFor(() =>
       expect(requests.some((request) => request.url?.endsWith('/history') && request.params?.page === 2)).toBe(true)
     )
-    fireEvent.click(within(drawer).getByRole('button', { name: 'Close' }))
-    await openLine()
-    fireEvent.click(screen.getByRole('button', { name: 'Purchase window history' }))
-    await waitFor(() => expect(requests.some((request) => request.url?.endsWith('/lines/1/changes'))).toBe(true))
-    expect(await screen.findAllByText('Move purchase')).not.toHaveLength(0)
   })
   it('retains a rejected draft', async () => {
     rejectWrite = true
     mount()
     fireEvent.click(await screen.findByRole('button', { name: 'Edit figures' }))
     fireEvent.change(screen.getByLabelText(/^Base amount/), { target: { value: '123.45' } })
+    fireEvent.change(screen.getByLabelText(/^Reserve amount/), { target: { value: '12' } })
     fireEvent.click(screen.getByRole('button', { name: 'Save version' }))
     await waitFor(() => expect(write('/budget-versions/version-1')).toBeDefined())
-    expect((screen.getByLabelText(/^Base amount/) as HTMLInputElement).value).toBe('123.45')
+    expect(screen.getByLabelText(/^Base amount/)).toHaveValue('123.45')
   })
 })

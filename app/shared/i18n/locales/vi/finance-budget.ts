@@ -1,4 +1,8 @@
 export const financeBudget = {
+  pendingConfirmation: 'Chờ xác nhận lần cuối',
+  pendingConfirmationHint:
+    'Phiên bản Finance đã lập từ đề xuất. Kiểm tra kỹ rồi xác nhận lần cuối để gửi Người duyệt chi; khi được duyệt, số liệu vào Trung tâm chi phí.',
+  proposalsHint: 'Đề xuất ngân sách năm do trưởng phòng gửi. Duyệt để lập phiên bản, hoặc từ chối để trả về.',
   proposals: 'Đề xuất ngân sách',
   versions: 'Phiên bản ngân sách',
   budgets: 'Ngân sách hiện hành',
@@ -12,14 +16,14 @@ export const financeBudget = {
   lineHistory: 'Lịch sử cửa sổ mua',
   actions: {
     rebuild: 'Lập lại phiên bản bị từ chối',
-    return: 'Trả đề xuất',
-    confirmReturn: 'Xác nhận trả về',
-    create: 'Lập phiên bản',
+    return: 'Từ chối – trả về trưởng phòng',
+    confirmReturn: 'Trả về trưởng phòng',
+    create: 'Duyệt và lập phiên bản',
     save: 'Lưu phiên bản',
     edit: 'Sửa số liệu',
     revise: 'Lập bản sửa đổi',
-    send: 'Gửi quyết định',
-    confirmSend: 'Xác nhận gửi',
+    send: 'Xác nhận lần cuối – gửi Người duyệt chi',
+    confirmSend: 'Gửi Người duyệt chi',
     addLine: 'Thêm dòng',
     editLine: 'Sửa dòng',
     saveLine: 'Lưu dòng',
@@ -73,7 +77,9 @@ export const financeBudget = {
     after: 'Sau',
     field: 'Trường',
     proposal: 'Đề xuất nguồn',
-    decision: 'Lý do quyết định'
+    decision: 'Lý do quyết định',
+    reservePercent: 'Tỷ lệ dự phòng',
+    reserveReason: 'Lý do dự phòng'
   },
   states: {
     SUBMITTED: 'Đã gửi',
@@ -131,7 +137,8 @@ export const financeBudget = {
     adjustmentReason: 'Vì sao điều chỉnh số tiền hoặc thời gian của dòng',
     versionReason: 'Tóm tắt lý do lập hoặc sửa phiên bản',
     windowReason: 'Ví dụ: Nhà cung cấp lùi lịch báo giá sang quý 3',
-    returnReason: 'Nêu rõ phần cần trưởng phòng bổ sung hoặc điều chỉnh'
+    returnReason: 'Nêu rõ phần cần trưởng phòng bổ sung hoặc điều chỉnh',
+    reserveReason: 'Ví dụ: Dự kiến mở rộng 15 người dùng Figma trong quý 3'
   },
   sections: {
     item: 'Thông tin khoản chi',
@@ -157,7 +164,8 @@ export const financeBudget = {
     removeHint: 'Gỡ {{name}} khỏi phiên bản này? Lịch sử phiên bản vẫn ghi lại thao tác gỡ.',
     confirmRemove: 'Gỡ tệp'
   },
-  sendHint: 'Gửi phiên bản này cho Người duyệt chi để quyết định.',
+  sendHint:
+    'Kiểm tra kỹ số liệu và các dòng. Sau khi gửi, Người duyệt chi quyết định; phiên bản được duyệt sẽ đưa số liệu vào Trung tâm chi phí.',
   optionalQuarters: 'Số tiền theo quý không bắt buộc: nhập đủ bốn quý hoặc để trống cả bốn.',
   decimalHint: 'Nhập số tiền thập phân không âm bằng tiền tệ báo cáo.',
   invalid: 'Kiểm tra các trường bắt buộc và số tiền thập phân.',
@@ -169,5 +177,6 @@ export const financeBudget = {
   system: 'Hệ thống',
   yes: 'Có',
   no: 'Không',
-  windowHint: 'Chỉ dời cửa sổ mua. Số tiền ngân sách được giữ nguyên.'
+  reserveHint: 'Để trống để dùng mặc định {{percent}}% phí cơ sở ({{amount}}).',
+  reserveReasonHint: 'Dự phòng khác mức mặc định phải có lý do trước khi gửi Người duyệt chi.'
 }

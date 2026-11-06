@@ -19,8 +19,6 @@ let employeeId: string
 let termMonths: number
 let groupMode: boolean
 let unknownGroupState: boolean
-let departmentHead: boolean
-let actorDepartmentCode: string
 let linePages: number[]
 
 beforeEach(() => {
@@ -31,19 +29,19 @@ beforeEach(() => {
   termMonths = 6
   groupMode = false
   unknownGroupState = false
-  departmentHead = false
-  actorDepartmentCode = 'ENG'
   linePages = []
   apiClient.defaults.adapter = async (config) => {
     if (config.method === 'post') {
       posts.push(JSON.parse(config.data))
-      if (!departmentHead && JSON.parse(config.data).spend)
-        throw new AxiosError('Head-only fields', '422', config, undefined, {
+      // Đợt 1 bodies are strict: any field beyond {decision, reason?} / {lines} is a 422.
+      const body = JSON.parse(config.data) as Record<string, unknown>
+      if (Object.keys(body).some((key) => !['decision', 'reason', 'lines'].includes(key)))
+        throw new AxiosError('Unknown fields', '422', config, undefined, {
           config,
           status: 422,
           statusText: 'Invalid',
           headers: new AxiosHeaders(),
-          data: { error: { code: 'ACCESS_REQUEST.SPEND_NOT_APPLICABLE' } }
+          data: { error: { code: 'VALIDATION_ERROR' } }
         })
       if (failed)
         throw new AxiosError('Conflict', '409', config, undefined, {
@@ -89,8 +87,8 @@ beforeEach(() => {
     }
     const data = config.url?.endsWith('/me')
       ? {
-          employee: { id: employeeId, department: { code: actorDepartmentCode } },
-          roles: departmentHead ? ['SPENDING_APPROVER', 'MANAGER'] : ['SPENDING_APPROVER']
+          employee: { id: employeeId, department: null },
+          roles: ['SPENDING_APPROVER']
         }
       : {
           request: {
@@ -107,7 +105,6 @@ beforeEach(() => {
             businessReason: 'Project collaboration',
             termMonths,
             lineCount: 1,
-            expectedSpendOn: null,
             pricing: { status: 'READY', amount: null },
             needStep: { state: stepState, assignee: { employeeId: 'approver' } },
             needDecision: null,
@@ -130,34 +127,16 @@ function mount() {
   )
 }
 
-it('requires an explicit spend route and sends exact plan-line fields', async () => {
-  departmentHead = true
+it('approves a long paid need with only the decision, without term or plan-line fields', async () => {
+  termMonths = 12
   mount()
-  const position = await screen.findByLabelText('planPosition')
-  expect(screen.getByRole('button', { name: 'submit' })).toBeDisabled()
-  expect(position).toHaveAttribute('placeholder', 'planPositionPlaceholder')
-  fireEvent.change(position, { target: { value: '3' } })
-  fireEvent.click(screen.getByLabelText('stillNeeded'))
-  await waitFor(() => expect(screen.getByRole('button', { name: 'submit' })).toBeEnabled())
-  fireEvent.click(screen.getByRole('button', { name: 'submit' }))
-  await waitFor(() =>
-    expect(posts).toEqual([{ decision: 'APPROVE', spend: { planLine: { position: 3, stillNeeded: true } } }])
-  )
-})
-
-it('requires long-term justification and posts off-plan approval without an unrelated rejection reason', async () => {
-  departmentHead = true
-  termMonths = 18
-  mount()
-  fireEvent.click(await screen.findByLabelText('offPlan'))
-  expect(screen.getByRole('button', { name: 'submit' })).toBeDisabled()
-  fireEvent.change(screen.getByLabelText('termReason'), { target: { value: '  Long project  ' } })
-  fireEvent.click(screen.getByRole('button', { name: 'submit' }))
-  await waitFor(() =>
-    expect(posts).toEqual([
-      { decision: 'APPROVE', termConfirmation: { reason: 'Long project' }, spend: { offPlan: true } }
-    ])
-  )
+  const submit = await screen.findByRole('button', { name: 'submit' })
+  expect(submit).toBeEnabled()
+  expect(screen.queryByLabelText('termReason')).not.toBeInTheDocument()
+  expect(screen.queryByLabelText('planPosition')).not.toBeInTheDocument()
+  expect(screen.queryByLabelText('offPlan')).not.toBeInTheDocument()
+  fireEvent.click(submit)
+  await waitFor(() => expect(posts).toEqual([{ decision: 'APPROVE' }]))
 })
 
 it('keeps rejection text after a failed write and refreshes authoritative state', async () => {
@@ -186,7 +165,6 @@ it('blocks writes when another employee holds the need step', async () => {
 })
 
 it('loads every member page before submitting exactly the people pending on the assigned need step', async () => {
-  departmentHead = true
   groupMode = true
   mount()
   const approvals = await screen.findAllByLabelText('approveMember')
@@ -196,7 +174,6 @@ it('loads every member page before submitting exactly the people pending on the 
   fireEvent.click(approvals[0])
   fireEvent.click(screen.getAllByLabelText('rejectMember')[1])
   fireEvent.change(screen.getByLabelText('memberReason'), { target: { value: '  Not needed  ' } })
-  fireEvent.click(screen.getByLabelText('offPlan'))
   fireEvent.click(screen.getByRole('button', { name: 'submit' }))
   await waitFor(() =>
     expect(posts).toEqual([
@@ -204,8 +181,7 @@ it('loads every member page before submitting exactly the people pending on the 
         lines: [
           { employeeId: 'member-1', decision: 'APPROVE' },
           { employeeId: 'member-101', decision: 'REJECT', reason: 'Not needed' }
-        ],
-        spend: { offPlan: true }
+        ]
       }
     ])
   )
@@ -220,23 +196,10 @@ it('blocks a group decision when any beneficiary has an unrecognized server stat
   expect(posts).toHaveLength(0)
 })
 
-it('approves a paid need as Spending Approver without sending head-only spend fields', async () => {
+it('approves a paid need as Spending Approver with the strict decision body', async () => {
   mount()
   const submit = await screen.findByRole('button', { name: 'submit' })
   expect(submit).toBeEnabled()
-  expect(screen.queryByLabelText('planPosition')).not.toBeInTheDocument()
-  expect(screen.queryByLabelText('offPlan')).not.toBeInTheDocument()
-  fireEvent.click(submit)
-  await waitFor(() => expect(posts).toEqual([{ decision: 'APPROVE' }]))
-})
-
-it('does not send spend fields when the assigned approver heads a different department', async () => {
-  departmentHead = true
-  actorDepartmentCode = 'OTHER'
-  mount()
-  const submit = await screen.findByRole('button', { name: 'submit' })
-  expect(submit).toBeEnabled()
-  expect(screen.queryByLabelText('planPosition')).not.toBeInTheDocument()
   fireEvent.click(submit)
   await waitFor(() => expect(posts).toEqual([{ decision: 'APPROVE' }]))
 })

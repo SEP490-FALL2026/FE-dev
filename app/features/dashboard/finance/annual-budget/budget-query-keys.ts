@@ -4,17 +4,16 @@ import { getBudgetVersionListQueryKey } from '~/shared/api/generated/operations/
 import { getBudgetVersionGetQueryKey } from '~/shared/api/generated/operations/budget-versions/budget-version-get'
 import { getBudgetVersionLineListQueryKey } from '~/shared/api/generated/operations/budget-versions/budget-version-line-list'
 import { getBudgetVersionHistoryListQueryKey } from '~/shared/api/generated/operations/budget-versions/budget-version-history-list'
-import { getBudgetVersionLineChangeListQueryKey } from '~/shared/api/generated/operations/budget-versions/budget-version-line-change-list'
 import { getBudgetTableQueryKey } from '~/shared/api/generated/operations/budgets/budget-table'
-import { getFinanceReviewListQueryKey } from '~/shared/api/generated/operations/finance-reviews/finance-review-list'
-import type { QueryClient } from '@tanstack/react-query'
+import { getBudgetSummaryQueryKey } from '~/shared/api/generated/operations/budgets/budget-summary'
 
-export function budgetQueryKeys(versionId?: string, proposalId?: string, position?: number) {
+/** Lists, details and cost center figures that a budget write can change. */
+export function budgetQueryKeys(versionId?: string, proposalId?: string) {
   return [
     getBudgetProposalListQueryKey(),
     getBudgetVersionListQueryKey(),
     getBudgetTableQueryKey(),
-    getFinanceReviewListQueryKey(),
+    getBudgetSummaryQueryKey(),
     ...(proposalId ? [getBudgetProposalGetQueryKey(proposalId)] : []),
     ...(versionId
       ? [
@@ -22,16 +21,6 @@ export function budgetQueryKeys(versionId?: string, proposalId?: string, positio
           getBudgetVersionLineListQueryKey(versionId),
           getBudgetVersionHistoryListQueryKey(versionId)
         ]
-      : []),
-    ...(versionId && position !== undefined ? [getBudgetVersionLineChangeListQueryKey(versionId, position)] : [])
+      : [])
   ]
-}
-
-/** Moving a purchase window reruns the checks of linked requests on the server. */
-export function invalidateRequestBudgetChecks(queryClient: QueryClient) {
-  return queryClient.invalidateQueries({
-    predicate: ({ queryKey }) =>
-      typeof queryKey[0] === 'string' &&
-      /\/access-requests\/[^/]+(?:\/(?:budget-check(?:\/years)?|finance-review))?$/.test(queryKey[0])
-  })
 }

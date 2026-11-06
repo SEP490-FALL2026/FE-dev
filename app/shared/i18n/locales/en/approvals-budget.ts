@@ -26,7 +26,9 @@ export const approvalsBudget = {
   submittedAt: 'Submitted at',
   base: 'Base budget',
   reserve: 'Reserve',
-  previousTotal: 'Previous total',
+  reservePercent: 'Default reserve (%)',
+  defaultReserve: 'Default reserve',
+  reserveReason: 'Reserve reason',
   highValuePercent: 'High-value threshold (%)',
   highValueAmount: 'High-value threshold',
   quarters: 'Quarterly allocation',
@@ -55,7 +57,6 @@ export const approvalsBudget = {
   description: 'Description',
   amount: 'Amount',
   seats: 'Seats',
-  window: 'Purchase window',
   period: 'Service period (months)',
   repeatCycle: 'Repeat cycle',
   quoteValidUntil: 'Quote valid until',
@@ -97,7 +98,6 @@ export const approvalsBudget = {
     system: 'System'
   },
   kind: { INITIAL: 'Initial budget', REVISION: 'Revision' },
-  repeat: { MONTHLY: 'Monthly', QUARTERLY: 'Quarterly', ANNUAL: 'Annual', ONE_TIME: 'One-off' },
   historyKind: {
     FIGURES_UPDATED: 'Budget figures updated',
     LINE_UPDATED: 'Line updated',
