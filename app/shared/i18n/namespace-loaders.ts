@@ -6,6 +6,7 @@ import type { SupportedLanguage, TranslationNamespace } from './resources'
 // Explicit imports keep each namespace independently cacheable in production.
 export const namespaceLoaders: Record<SupportedLanguage, Record<TranslationNamespace, () => Promise<ResourceKey>>> = {
   vi: {
+    devicePrivacy: () => import('./locales/vi/device-privacy').then((module) => module.devicePrivacy),
     itDepartmentWork: () => import('./locales/vi/it-department-work').then((module) => module.itDepartmentWork),
     itDevices: () => import('./locales/vi/it-devices').then((module) => module.itDevices),
     itRenewals: () => import('./locales/vi/it-renewals').then((module) => module.itRenewals),
@@ -40,6 +41,7 @@ export const namespaceLoaders: Record<SupportedLanguage, Record<TranslationNames
     theme: () => Promise.resolve(initialResources.vi.theme)
   },
   en: {
+    devicePrivacy: () => import('./locales/en/device-privacy').then((module) => module.devicePrivacy),
     itDepartmentWork: () => import('./locales/en/it-department-work').then((module) => module.itDepartmentWork),
     itDevices: () => import('./locales/en/it-devices').then((module) => module.itDevices),
     itRenewals: () => import('./locales/en/it-renewals').then((module) => module.itRenewals),

@@ -104,15 +104,15 @@ export function EmployeeLiveRequestDetail({
                     <dd className='mt-1 break-words text-sm'>{value}</dd>
                   </div>
                 ))}
-                <div>
-                  <dt className='text-right text-xs text-muted-foreground'>{translate('submittedAt')}</dt>
-                  <dd className='mt-1 text-right font-mono text-sm tabular-nums'>
+                <div className='min-w-0'>
+                  <dt className='text-xs text-muted-foreground'>{translate('submittedAt')}</dt>
+                  <dd className='mt-1 font-mono text-sm tabular-nums'>
                     {formatDateTime(request.submittedAt)}
                   </dd>
                 </div>
-                <div>
-                  <dt className='text-right text-xs text-muted-foreground'>{translate('term')}</dt>
-                  <dd className='mt-1 text-right font-mono text-sm tabular-nums'>{formatNumber(request.termMonths)}</dd>
+                <div className='min-w-0'>
+                  <dt className='text-xs text-muted-foreground'>{translate('term')}</dt>
+                  <dd className='mt-1 font-mono text-sm tabular-nums'>{formatNumber(request.termMonths)}</dd>
                 </div>
               </dl>
               <div className='flex flex-wrap items-center justify-between gap-3 rounded-md bg-surface-subtle p-4'>

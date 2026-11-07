@@ -8,6 +8,7 @@ import { EmployeeLiveRequestDetail } from './my-requests/views/employee-live-req
 import { EmployeeLiveAccessView } from './my-software/views/employee-live-access-view'
 import { EmployeeLiveReturnDetail } from './my-software/views/employee-live-return-detail'
 import { EmployeeLiveProfile } from './profile-privacy/views/employee-live-profile'
+import { EmployeeLivePrivacy } from './profile-privacy/views/employee-live-privacy'
 import { EmployeeHandoversView } from './handovers/views/employee-handovers-view'
 import { EmployeeDepartureNotice } from './handovers/components/employee-departure-notice'
 import { EmployeeIssuesView } from './saas-issues/views/employee-issues-view'
@@ -58,7 +59,7 @@ export function EmployeeScreen({
     )
   else if (tab === 'handovers') content = <EmployeeHandoversView />
   else if (tab === 'profile') content = <EmployeeLiveProfile />
-  else if (tab === 'privacy' || tab === 'data-export' || tab === 'data-usage') content = <EmployeeLiveProfile privacy />
+  else if (tab === 'privacy' || tab === 'data-export' || tab === 'data-usage') content = <EmployeeLivePrivacy />
   else if (tab === 'my-requests') content = <EmployeeLiveRequestsView onSelectTab={onSelectTab} />
   else if (tab === 'request-detail')
     content = (

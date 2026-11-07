@@ -13,7 +13,7 @@ vi.mock('~/shared/api/mutator/custom-axios', () => ({ customAxios: vi.fn() }))
 beforeEach(async () => {
   vi.mocked(customAxios).mockReset()
   await i18n.changeLanguage('en')
-  await i18n.loadNamespaces(['itDevices', 'itAdmin', 'admin'])
+  await i18n.loadNamespaces(['itDevices', 'itAdmin', 'admin', 'devicePrivacy'])
 })
 afterEach(() => vi.unstubAllGlobals())
 const pagination = { page: 1, pageSize: 20, totalItems: 1, totalPages: 1 }
@@ -157,6 +157,10 @@ it('requires explicit holder confirmation and sends the notice version the holde
               deviceId: 'device-1',
               assetCode: 'IT-001',
               hostname: 'test-host',
+              validFrom: '2026-11-01',
+              os: 'Windows',
+              endedAt: null,
+              acknowledgedVersionNumber: null,
               acknowledgementState: 'UNACKNOWLEDGED',
               canAcknowledge: true
             }
@@ -165,9 +169,11 @@ it('requires explicit holder confirmation and sends the notice version the holde
         }
       }
     if (config.url?.endsWith('/monitoring-notices/current')) return { data: notice }
+    if (config.url?.endsWith('/usage')) return { data: { items: [], pagination } }
     return { data: {} }
   })
   mount(<MyDevices />)
+  fireEvent.click(await screen.findByRole('button', { name: 'View details' }))
   fireEvent.click(await screen.findByRole('button', { name: 'Acknowledge monitoring notice' }))
   const submit = within(await screen.findByRole('dialog')).getByRole('button', {
     name: 'Acknowledge monitoring notice'
