@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { MessageSquare, Plus } from 'lucide-react'
+import { Boxes, MessageSquare, Plus } from 'lucide-react'
 import { EmployeePageHeader } from '../../shared/components/employee-page-header'
 import { EmployeeDataTable } from '../../shared/components/employee-data-table'
 import { useSaasIssueList } from '~/shared/api/generated/operations/saas-issues/saas-issue-list'
@@ -52,13 +52,21 @@ export function EmployeeIssuesView({
                 key: 'software',
                 label: translate('redesign.application'),
                 render: (issue) => (
-                  <div>
-                    <p className='max-w-56 truncate font-medium' title={issue.plan.applicationName}>
-                      {issue.plan.applicationName}
-                    </p>
-                    <p className='mt-1 max-w-56 truncate text-xs text-muted-foreground' title={issue.plan.planName}>
-                      {issue.plan.planName}
-                    </p>
+                  <div className='flex min-w-0 items-center gap-3'>
+                    <span
+                      aria-hidden='true'
+                      className='grid size-9 shrink-0 place-items-center rounded-lg border border-primary/20 bg-primary-soft text-primary-ink'
+                    >
+                      <Boxes strokeWidth={1.5} className='size-4' />
+                    </span>
+                    <div className='min-w-0'>
+                      <p className='max-w-56 truncate font-medium text-foreground' title={issue.plan.applicationName}>
+                        {issue.plan.applicationName}
+                      </p>
+                      <p className='mt-0.5 max-w-56 truncate text-xs text-muted-foreground' title={issue.plan.planName}>
+                        {issue.plan.planName}
+                      </p>
+                    </div>
                   </div>
                 )
               },

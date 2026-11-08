@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { FilePlus2 } from 'lucide-react'
+import { Boxes, FilePlus2 } from 'lucide-react'
 import { ManagerPageHeader } from '../../shared/components/manager-page-header'
 import { useTranslation } from 'react-i18next'
 import type { GroupBodyDto } from '~/shared/api/generated/model/group-requests/groupBodyDto'
@@ -113,14 +113,29 @@ export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) 
       </ManagerSection>
       {!!created.length && (
         <ManagerSection title={translate('created')}>
-          {created.map((item) => (
-            <div key={item.id} className='flex flex-wrap items-center justify-between gap-3'>
-              <p className='min-w-0 truncate text-sm font-medium' title={item.label}>
-                {item.label}
-              </p>
-              <ManagerButton onClick={() => onOpen(item.id)}>{translate('open')}</ManagerButton>
-            </div>
-          ))}
+          <div className='space-y-3'>
+            {created.map((item) => (
+              <div
+                key={item.id}
+                className='flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-surface p-4 transition hover:border-primary/40'
+              >
+                <div className='flex items-center gap-3 min-w-0'>
+                  <span
+                    aria-hidden='true'
+                    className='grid size-10 shrink-0 place-items-center rounded-xl border border-primary/20 bg-primary-soft text-primary-ink'
+                  >
+                    <Boxes strokeWidth={1.5} className='size-5' />
+                  </span>
+                  <p className='min-w-0 truncate text-sm font-semibold text-foreground' title={item.label}>
+                    {item.label}
+                  </p>
+                </div>
+                <ManagerButton primary onClick={() => onOpen(item.id)}>
+                  {translate('open')}
+                </ManagerButton>
+              </div>
+            ))}
+          </div>
         </ManagerSection>
       )}
       {pending && plan && (

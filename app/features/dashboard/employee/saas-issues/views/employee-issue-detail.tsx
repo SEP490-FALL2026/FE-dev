@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { ArrowLeft, MessageSquare } from 'lucide-react'
+import { ArrowLeft, Boxes, CheckCircle2, MessageSquare } from 'lucide-react'
 import { EmployeePageHeader } from '../../shared/components/employee-page-header'
 import { useSaasIssueGet, getSaasIssueGetQueryKey } from '~/shared/api/generated/operations/saas-issues/saas-issue-get'
 import {
@@ -59,51 +59,93 @@ export function EmployeeIssueDetail({ id, onBack }: { id: string; onBack: () => 
           </EmployeeButton>
         }
       />
-      <div className='grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(300px,0.6fr)]'>
+      <div className='grid items-start gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(340px,0.9fr)]'>
         <div className='min-w-0 xl:order-2'>
           <EmployeeSection title={issue?.plan.applicationName ?? translate('redesign.softwareDetails')}>
             <EmployeeQueryState query={query} empty={!issue} />
             {issue && (
-              <>
-                <div className='flex flex-wrap items-center justify-between gap-3'>
-                  <p className='truncate font-mono text-xs' title={issue.code}>
-                    {issue.code}
-                  </p>
-                  <EmployeeStatus value={issue.state} />
+              <div className='space-y-5'>
+                {/* Spotlight Banner */}
+                <div className='flex items-center gap-3.5 rounded-xl border border-border/60 bg-surface-subtle/50 p-4'>
+                  <span
+                    aria-hidden='true'
+                    className='grid size-12 shrink-0 place-items-center rounded-xl border border-primary/20 bg-primary-soft text-primary-ink'
+                  >
+                    <Boxes strokeWidth={1.5} className='size-6' />
+                  </span>
+                  <div className='min-w-0 flex-1'>
+                    <div className='flex flex-wrap items-center gap-2'>
+                      <h2 className='truncate text-lg font-bold text-foreground' title={issue.plan.applicationName}>
+                        {issue.plan.applicationName}
+                      </h2>
+                      <EmployeeStatus value={issue.state} />
+                    </div>
+                    <p className='truncate font-mono text-xs text-muted-foreground' title={issue.code}>
+                      {issue.code}
+                    </p>
+                  </div>
                 </div>
-                <p className='text-sm leading-relaxed break-words whitespace-pre-wrap'>{issue.description}</p>
-                <dl className='space-y-4 border-t border-border/50 pt-4 text-sm'>
-                  <div className='flex flex-wrap justify-between gap-2'>
-                    <dt className='text-muted-foreground'>{translate('category')}</dt>
-                    <dd>{translate(`statuses.${issue.category}`, { defaultValue: translate('noValue') })}</dd>
+
+                {/* Issue Description */}
+                <div className='space-y-1.5'>
+                  <dt className='text-xs font-semibold uppercase tracking-wider text-muted-foreground'>
+                    {translate('reason')}
+                  </dt>
+                  <dd className='rounded-xl border border-border/60 bg-surface-subtle/50 p-4 text-sm leading-relaxed text-foreground'>
+                    <p className='whitespace-pre-wrap [overflow-wrap:anywhere]'>{issue.description}</p>
+                  </dd>
+                </div>
+
+                {/* Resolution Callout if resolved */}
+                {issue.resolution && (
+                  <div
+                    role='status'
+                    className='flex items-start gap-3 rounded-xl border border-success/30 bg-success/10 p-4 text-success-ink'
+                  >
+                    <CheckCircle2 strokeWidth={1.5} className='mt-0.5 size-5 shrink-0 text-success' />
+                    <div className='min-w-0 flex-1 space-y-1'>
+                      <h3 className='text-xs font-semibold uppercase tracking-wider text-success'>
+                        {translate('resolution')}
+                      </h3>
+                      <p className='whitespace-pre-wrap text-sm leading-relaxed [overflow-wrap:anywhere]'>
+                        {issue.resolution}
+                      </p>
+                    </div>
                   </div>
-                  <div className='flex flex-wrap justify-between gap-2'>
-                    <dt className='text-muted-foreground'>{translate('impact')}</dt>
-                    <dd>{translate(`statuses.${issue.impact}`, { defaultValue: translate('noValue') })}</dd>
+                )}
+
+                {/* Issue Details List */}
+                <dl className='space-y-3 rounded-xl border border-border/60 bg-surface p-4 text-sm'>
+                  <div className='flex flex-wrap items-center justify-between gap-2 border-b border-border/40 pb-2.5'>
+                    <dt className='text-xs text-muted-foreground'>{translate('category')}</dt>
+                    <dd className='text-sm font-medium'>
+                      {translate(`statuses.${issue.category}`, { defaultValue: translate('noValue') })}
+                    </dd>
                   </div>
-                  <div>
-                    <dt className='text-muted-foreground'>{translate('occurredAt')}</dt>
-                    <dd className='mt-2 text-right font-mono text-xs tabular-nums'>
+                  <div className='flex flex-wrap items-center justify-between gap-2 border-b border-border/40 pb-2.5'>
+                    <dt className='text-xs text-muted-foreground'>{translate('impact')}</dt>
+                    <dd className='text-sm font-medium'>
+                      {translate(`statuses.${issue.impact}`, { defaultValue: translate('noValue') })}
+                    </dd>
+                  </div>
+                  <div className='flex flex-wrap items-center justify-between gap-2 border-b border-border/40 pb-2.5'>
+                    <dt className='text-xs text-muted-foreground'>{translate('occurredAt')}</dt>
+                    <dd className='font-mono text-xs tabular-nums text-foreground'>
                       {formatDateTime(issue.occurredAt)}
                     </dd>
                   </div>
-                  <div>
-                    <dt className='text-muted-foreground'>{translate('dueOn')}</dt>
-                    <dd className='mt-2 text-right font-mono text-xs tabular-nums'>
+                  <div className='flex flex-wrap items-center justify-between gap-2 pb-1'>
+                    <dt className='text-xs text-muted-foreground'>{translate('dueOn')}</dt>
+                    <dd className='font-mono text-xs tabular-nums text-foreground'>
                       {formatDateTime(issue.responseDueOn)}
                     </dd>
                   </div>
                 </dl>
-                {issue.resolution && (
-                  <div className='rounded-md bg-surface-subtle p-3'>
-                    <p className='text-xs font-medium text-muted-foreground'>{translate('resolution')}</p>
-                    <p className='mt-2 text-sm leading-relaxed break-words whitespace-pre-wrap'>{issue.resolution}</p>
-                  </div>
-                )}
-              </>
+              </div>
             )}
           </EmployeeSection>
         </div>
+
         {issue && (
           <div className='min-w-0 xl:order-1'>
             <EmployeeSection title={translate('conversation')}>
@@ -113,27 +155,46 @@ export function EmployeeIssueDetail({ id, onBack }: { id: string; onBack: () => 
                 emptyTitle={translate('redesign.noConversation')}
                 emptyDescription={translate('redesign.noConversationHint')}
               />
-              {!entries.isError &&
-                entries.data?.data?.items.map((entry) => (
-                  <article key={entry.id} className='rounded-lg border border-border/50 bg-surface-subtle/30 p-4'>
-                    <div className='flex flex-wrap items-center justify-between gap-3'>
-                      <p className='max-w-56 truncate text-sm font-medium' title={entry.author?.fullName}>
-                        {entry.author?.fullName ?? translate('noValue')}
-                      </p>
-                      <p className='text-right font-mono text-xs text-muted-foreground tabular-nums'>
-                        {formatDateTime(entry.createdAt)}
-                      </p>
-                    </div>
-                    {entry.body && (
-                      <p className='mt-3 text-sm leading-relaxed break-words whitespace-pre-wrap'>{entry.body}</p>
-                    )}
-                    {entry.toState && (
-                      <div className='mt-3'>
-                        <EmployeeStatus value={entry.toState} />
+              {!entries.isError && (
+                <div className='space-y-3'>
+                  {entries.data?.data?.items.map((entry) => (
+                    <article
+                      key={entry.id}
+                      className='space-y-2.5 rounded-xl border border-border/60 bg-surface p-4 transition-colors'
+                    >
+                      <div className='flex flex-wrap items-center justify-between gap-2 border-b border-border/30 pb-2'>
+                        <div className='flex min-w-0 items-center gap-2'>
+                          <span
+                            aria-hidden='true'
+                            className='grid size-7 shrink-0 place-items-center rounded-full bg-primary-soft text-xs font-bold text-primary-ink'
+                          >
+                            {(entry.author?.fullName ?? 'U')[0].toUpperCase()}
+                          </span>
+                          <p
+                            className='truncate text-sm font-semibold text-foreground'
+                            title={entry.author?.fullName}
+                          >
+                            {entry.author?.fullName ?? translate('noValue')}
+                          </p>
+                        </div>
+                        <p className='font-mono text-xs text-muted-foreground tabular-nums'>
+                          {formatDateTime(entry.createdAt)}
+                        </p>
                       </div>
-                    )}
-                  </article>
-                ))}
+                      {entry.body && (
+                        <p className='whitespace-pre-wrap text-sm leading-relaxed text-foreground [overflow-wrap:anywhere]'>
+                          {entry.body}
+                        </p>
+                      )}
+                      {entry.toState && (
+                        <div className='pt-1'>
+                          <EmployeeStatus value={entry.toState} />
+                        </div>
+                      )}
+                    </article>
+                  ))}
+                </div>
+              )}
               <EmployeePagination
                 pagination={entries.data?.data?.pagination}
                 onPage={onPage}

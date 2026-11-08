@@ -122,7 +122,8 @@ describe('Manager dashboard API navigation', () => {
     server.use(
       http.get('*/api/v1/me', () => HttpResponse.json({ success: true, data: managerProfile })),
       http.get('*/api/v1/budget-proposals', () => HttpResponse.json(pageResponse([]))),
-      http.get('*/api/v1/budgets/mine', () => HttpResponse.json({ success: true, data: { budget: null } }))
+      http.get('*/api/v1/budgets/mine', () => HttpResponse.json({ success: true, data: { budget: null } })),
+      http.get('*/api/v1/budgets/mine/versions', () => HttpResponse.json(pageResponse([])))
     )
     const view = await renderDashboard('manager')
     fireEvent.click(screen.getByRole('button', { name: 'Annual budget' }))
@@ -133,25 +134,22 @@ describe('Manager dashboard API navigation', () => {
     await renderDashboard('employee')
     expect(screen.queryByRole('button', { name: 'Annual budget' })).not.toBeInTheDocument()
   })
-  it('opens the group form only from the spending submission page', async () => {
+  it('opens the group form from the Manager sidebar', async () => {
     await setAppLanguage('en', true)
     server.use(http.get('*/api/v1/me', () => HttpResponse.json({ success: true, data: managerProfile })))
     await renderDashboard('manager')
     const nav = screen.getByRole('navigation', { name: 'Dashboard navigation' })
     expect(within(nav).queryByRole('button', { name: 'Request on behalf' })).not.toBeInTheDocument()
-    expect(within(nav).queryByRole('button', { name: 'Group request' })).not.toBeInTheDocument()
-    expect(within(nav).queryByRole('button', { name: 'Team plan request' })).not.toBeInTheDocument()
-    fireEvent.click(within(nav).getByRole('button', { name: 'Submit spending requests' }))
-    fireEvent.click(await screen.findByRole('button', { name: 'Create group request' }))
+    expect(within(nav).queryByRole('button', { name: 'Delegated requests' })).not.toBeInTheDocument()
+    fireEvent.click(within(nav).getByRole('button', { name: 'Create group request' }))
     expect(await screen.findByRole('heading', { level: 1, name: 'Team plan request' })).toBeInTheDocument()
-    expect(within(nav).getByRole('button', { name: 'Submit spending requests' })).toHaveAttribute(
+    expect(within(nav).getByRole('button', { name: 'Create group request' })).toHaveAttribute(
       'aria-current',
       'page'
     )
     expect(screen.getByRole('combobox', { name: 'Software plan' })).toBeInTheDocument()
     expect(screen.queryByLabelText('Plan ID')).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Save preview' })).not.toBeInTheDocument()
-    expect(within(nav).queryByRole('button', { name: 'Delegated requests' })).not.toBeInTheDocument()
     expect(screen.getByRole('combobox', { name: 'Beneficiaries' })).toBeInTheDocument()
     expect(screen.queryByLabelText('Beneficiary employee IDs (one per line)')).not.toBeInTheDocument()
   })

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus } from 'lucide-react'
+import { Calendar, Plus, UserRound, XCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import {
@@ -72,11 +72,19 @@ export function ManagerNotices() {
                 key: 'employee',
                 label: translate('employee'),
                 render: (notice) => (
-                  <div>
-                    <p className='max-w-64 truncate font-medium' title={notice.employee.fullName}>
-                      {notice.employee.fullName}
-                    </p>
-                    <p className='mt-1 font-mono text-xs text-muted-foreground'>{notice.code}</p>
+                  <div className='flex items-center gap-2.5'>
+                    <span
+                      aria-hidden='true'
+                      className='grid size-7 shrink-0 place-items-center rounded-lg border border-border/60 bg-surface-subtle text-muted-foreground'
+                    >
+                      <UserRound strokeWidth={1.5} className='size-3.5' />
+                    </span>
+                    <div>
+                      <p className='max-w-64 truncate font-medium text-foreground' title={notice.employee.fullName}>
+                        {notice.employee.fullName}
+                      </p>
+                      <p className='mt-0.5 font-mono text-xs text-muted-foreground'>{notice.code}</p>
+                    </div>
                   </div>
                 )
               },
@@ -84,8 +92,11 @@ export function ManagerNotices() {
               {
                 key: 'date',
                 label: translate('proposedOn'),
-                align: 'right',
-                render: (notice) => formatDate(notice.proposedOn)
+                render: (notice) => (
+                  <span className='font-mono text-xs tabular-nums text-muted-foreground'>
+                    {formatDate(notice.proposedOn)}
+                  </span>
+                )
               },
               { key: 'status', label: translate('status'), render: (notice) => <ManagerStatus value={notice.status} /> }
             ]}
@@ -120,6 +131,7 @@ export function ManagerNotices() {
 }
 function NoticeDetail({ id }: { id: string }) {
   const { t: translate } = useTranslation('manager')
+  const { formatDate } = useDashboardFormat()
   const query = usePersonnelNoticeGet(id)
   const notice = !query.isError ? query.data?.data : null
   const [confirm, setConfirm] = useState(false)
@@ -132,19 +144,66 @@ function NoticeDetail({ id }: { id: string }) {
     <ManagerSection title={translate('notice')}>
       <ManagerQueryState query={query} empty={!notice} />
       {notice && (
-        <>
-          <div className='flex flex-wrap justify-between gap-3'>
-            <h3 className='truncate font-medium' title={notice.employee.fullName}>
-              {notice.employee.fullName}
-            </h3>
+        <div className='space-y-5'>
+          {/* Employee Spotlight */}
+          <div className='flex flex-wrap items-center justify-between gap-4 rounded-xl border border-border/60 bg-surface-subtle/50 p-4'>
+            <div className='flex items-center gap-3.5 min-w-0'>
+              <span
+                aria-hidden='true'
+                className='grid size-12 shrink-0 place-items-center rounded-xl border border-primary/20 bg-primary-soft text-primary-ink'
+              >
+                <UserRound strokeWidth={1.5} className='size-6' />
+              </span>
+              <div className='min-w-0'>
+                <h3 className='truncate text-lg font-bold text-foreground' title={notice.employee.fullName}>
+                  {notice.employee.fullName}
+                </h3>
+                <p className='truncate font-mono text-xs text-muted-foreground'>{notice.code}</p>
+              </div>
+            </div>
             <ManagerStatus value={notice.status} />
           </div>
-          <p className='text-sm'>{translate(`statuses.${notice.kind}`)}</p>
-          <p className='text-right font-mono text-sm tabular-nums'>{notice.proposedOn}</p>
-          {notice.note && <p className='text-sm whitespace-pre-wrap [overflow-wrap:anywhere]'>{notice.note}</p>}
+
+          {/* Rejection Alert */}
           {notice.rejectReason && (
-            <p className='text-sm whitespace-pre-wrap [overflow-wrap:anywhere]'>{notice.rejectReason}</p>
+            <div
+              role='alert'
+              className='flex items-start gap-3 rounded-xl border border-danger/30 bg-danger/10 p-4 text-xs font-medium text-danger'
+            >
+              <XCircle className='size-4 shrink-0 mt-0.5' />
+              <p className='whitespace-pre-wrap break-words [overflow-wrap:anywhere]'>{notice.rejectReason}</p>
+            </div>
           )}
+
+          {/* Details Grid */}
+          <dl className='grid gap-4 rounded-xl border border-border/60 bg-surface p-4 text-sm sm:grid-cols-2'>
+            <div className='border-b border-border/40 pb-3 sm:border-b-0 sm:pb-0'>
+              <dt className='text-xs text-muted-foreground'>{translate('kind')}</dt>
+              <dd className='mt-1 font-medium text-foreground'>{translate(`statuses.${notice.kind}`)}</dd>
+            </div>
+            <div>
+              <dt className='flex items-center gap-1.5 text-xs text-muted-foreground'>
+                <Calendar strokeWidth={1.5} className='size-3.5' />
+                {translate('proposedOn')}
+              </dt>
+              <dd className='mt-1 font-mono text-xs tabular-nums text-foreground'>
+                {formatDate(notice.proposedOn)}
+              </dd>
+            </div>
+          </dl>
+
+          {/* Note if present */}
+          {notice.note && (
+            <div className='space-y-1.5'>
+              <dt className='text-xs font-semibold uppercase tracking-wider text-muted-foreground'>
+                {translate('note')}
+              </dt>
+              <dd className='rounded-xl border border-border/60 bg-surface-subtle/50 p-4 text-sm text-foreground'>
+                <p className='whitespace-pre-wrap break-words [overflow-wrap:anywhere]'>{notice.note}</p>
+              </dd>
+            </div>
+          )}
+
           {notice.status === NOTICE_STATUS.PENDING_VERIFICATION && (
             <div className='flex justify-end'>
               <ManagerButton disabled={action.blocked} busy={action.isPending} onClick={() => setConfirm(true)}>
@@ -155,7 +214,7 @@ function NoticeDetail({ id }: { id: string }) {
             </div>
           )}
           <ManagerActionState action={action} />
-        </>
+        </div>
       )}
       {confirm && (
         <Dialog

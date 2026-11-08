@@ -14,7 +14,7 @@ export function EmployeeDepartureNotice() {
       {notice && (
         <div className='flex flex-wrap items-center justify-between gap-3'>
           <EmployeeStatus value={notice.state} />
-          <p className='text-right font-mono text-sm tabular-nums'>
+          <p className='font-mono text-sm tabular-nums text-foreground'>
             {translate('lastWorkingDay')}: {formatDate(notice.lastWorkingDay)}
           </p>
         </div>

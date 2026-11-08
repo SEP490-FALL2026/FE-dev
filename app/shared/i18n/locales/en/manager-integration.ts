@@ -41,5 +41,6 @@ export const managerIntegration = {
   handoverDone: 'Data handover confirmed',
   handoverNeeded: 'Data handover confirmation required',
   handoverFlagged: 'Revocation completed without handover confirmation',
-  confirmHandover: 'Confirm data handover'
+  confirmHandover: 'Confirm data handover',
+  revocationNote: 'Revocation note'
 } as const
