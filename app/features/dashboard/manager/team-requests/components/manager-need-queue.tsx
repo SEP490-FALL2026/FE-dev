@@ -1,3 +1,4 @@
+import { Boxes, Filter } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import { useNeedDecisionList } from '~/shared/api/generated/operations/need-decisions/need-decision-list'
@@ -25,9 +26,19 @@ export function ManagerNeedQueue({ onOpen }: { onOpen: (id: string) => void }) {
   const data = !query.isError ? query.data?.data : null
   return (
     <ManagerSection title={translate('needQueue')}>
-      <div className='max-w-xs'>
-        <ManagerField label={translate('integration.requestType')}>
+      <div className='flex flex-wrap items-center justify-between gap-4 rounded-xl border border-border/60 bg-surface-subtle/50 p-3.5'>
+        <div className='flex items-center gap-2'>
+          <span
+            aria-hidden='true'
+            className='grid size-8 shrink-0 place-items-center rounded-lg border border-border/60 bg-surface text-muted-foreground'
+          >
+            <Filter strokeWidth={1.5} className='size-4' />
+          </span>
+          <span className='text-xs font-semibold text-foreground'>{translate('integration.requestType')}</span>
+        </div>
+        <div className='w-full sm:w-64'>
           <select
+            aria-label={translate('integration.requestType')}
             className={managerInputClass}
             value={type ?? ''}
             onChange={(event) =>
@@ -49,7 +60,7 @@ export function ManagerNeedQueue({ onOpen }: { onOpen: (id: string) => void }) {
               </option>
             ))}
           </select>
-        </ManagerField>
+        </div>
       </div>
       <ManagerDataTable
         label={translate('needQueue')}
@@ -64,16 +75,24 @@ export function ManagerNeedQueue({ onOpen }: { onOpen: (id: string) => void }) {
             key: 'software',
             label: translate('application'),
             render: (row) => (
-              <div>
-                <p
-                  className='max-w-64 truncate font-medium'
-                  title={row.plan?.applicationName ?? row.softwareName ?? undefined}
+              <div className='flex items-center gap-3'>
+                <span
+                  aria-hidden='true'
+                  className='grid size-8 shrink-0 place-items-center rounded-lg border border-primary/20 bg-primary-soft text-primary-ink'
                 >
-                  {row.plan?.applicationName ?? row.softwareName ?? translate('notReported')}
-                </p>
-                <p className='max-w-64 truncate text-xs text-muted-foreground' title={row.businessReasonExcerpt}>
-                  {row.businessReasonExcerpt}
-                </p>
+                  <Boxes strokeWidth={1.5} className='size-4' />
+                </span>
+                <div className='min-w-0'>
+                  <p
+                    className='max-w-64 truncate font-medium text-foreground'
+                    title={row.plan?.applicationName ?? row.softwareName ?? undefined}
+                  >
+                    {row.plan?.applicationName ?? row.softwareName ?? translate('notReported')}
+                  </p>
+                  <p className='max-w-64 truncate text-xs text-muted-foreground' title={row.businessReasonExcerpt}>
+                    {row.businessReasonExcerpt}
+                  </p>
+                </div>
               </div>
             )
           },

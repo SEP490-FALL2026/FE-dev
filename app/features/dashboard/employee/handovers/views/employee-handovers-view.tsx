@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Handshake } from 'lucide-react'
+import { Boxes, Handshake } from 'lucide-react'
 import { EmployeePageHeader } from '../../shared/components/employee-page-header'
 import { EmployeeDataTable } from '../../shared/components/employee-data-table'
 import { useTranslation } from 'react-i18next'
@@ -53,13 +53,21 @@ export function EmployeeHandoversView() {
                 key: 'software',
                 label: translate('redesign.application'),
                 render: (duty) => (
-                  <div>
-                    <p className='max-w-56 truncate font-medium' title={duty.application.name}>
-                      {duty.application.name}
-                    </p>
-                    <p className='mt-1 max-w-56 truncate text-xs text-muted-foreground' title={duty.plan.name}>
-                      {duty.plan.name}
-                    </p>
+                  <div className='flex min-w-0 items-center gap-3'>
+                    <span
+                      aria-hidden='true'
+                      className='grid size-9 shrink-0 place-items-center rounded-lg border border-primary/20 bg-primary-soft text-primary-ink'
+                    >
+                      <Boxes strokeWidth={1.5} className='size-4' />
+                    </span>
+                    <div className='min-w-0'>
+                      <p className='max-w-56 truncate font-medium text-foreground' title={duty.application.name}>
+                        {duty.application.name}
+                      </p>
+                      <p className='mt-0.5 max-w-56 truncate text-xs text-muted-foreground' title={duty.plan.name}>
+                        {duty.plan.name}
+                      </p>
+                    </div>
                   </div>
                 )
               },

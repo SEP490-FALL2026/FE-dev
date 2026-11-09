@@ -220,7 +220,7 @@ export function ManagerLiveEmployeeDetail({ departmentId, id, onBack, onSelectTa
             <div className='flex items-center justify-between border-b border-border/50 pb-3'>
               <h3 className='text-sm font-bold text-foreground'>{translate('employeeDetail.toolsTitle')}</h3>
               <span className='font-mono text-xs text-muted-foreground tabular-nums'>
-                {deptMember?.heldSoftwareCount ?? '?'}
+                {deptMember?.heldSoftwareCount ?? 0}
               </span>
             </div>
 
@@ -238,9 +238,15 @@ export function ManagerLiveEmployeeDetail({ departmentId, id, onBack, onSelectTa
                   {tools.map((tool) => (
                     <div
                       key={tool.assignmentId}
-                      className='space-y-2 rounded-lg border border-border/70 bg-surface p-3 text-xs'
+                      className='space-y-2 rounded-xl border border-border/70 bg-surface p-3.5 text-xs'
                     >
-                      <div className='flex items-center justify-between'>
+                      <div className='flex items-center gap-2.5'>
+                        <span
+                          aria-hidden='true'
+                          className='grid size-7 shrink-0 place-items-center rounded-lg border border-primary/20 bg-primary-soft text-primary-ink'
+                        >
+                          <Boxes strokeWidth={1.5} className='size-3.5' />
+                        </span>
                         {onSelectTab ? (
                           <button
                             type='button'
@@ -250,15 +256,15 @@ export function ManagerLiveEmployeeDetail({ departmentId, id, onBack, onSelectTa
                                 ...(departmentId ? { departmentId } : {})
                               })
                             }
-                            className='font-semibold text-foreground hover:text-primary transition-colors text-left focus-visible:outline-2 focus-visible:outline-primary'
+                            className='font-semibold text-foreground hover:text-primary transition-colors text-left focus-visible:outline-2 focus-visible:outline-primary truncate'
                           >
                             {tool.application.name}
                           </button>
                         ) : (
-                          <span className='font-semibold text-foreground'>{tool.application.name}</span>
+                          <span className='font-semibold text-foreground truncate'>{tool.application.name}</span>
                         )}
                       </div>
-                      <p className='text-muted-foreground'>{tool.plan.name}</p>
+                      <p className='text-muted-foreground pl-9.5'>{tool.plan.name}</p>
                       <div className='flex justify-between border-t border-border/40 pt-2 text-[11px] text-muted-foreground'>
                         <span>{translate('employeeDetail.effectiveFrom')}</span>
                         <span className='font-mono tabular-nums'>{formatDate(tool.effectiveFrom)}</span>
@@ -268,7 +274,7 @@ export function ManagerLiveEmployeeDetail({ departmentId, id, onBack, onSelectTa
                 </div>
 
                 {/* Desktop View: Table */}
-                <div className='hidden overflow-hidden rounded-lg border border-border/70 md:block'>
+                <div className='hidden overflow-hidden rounded-xl border border-border/70 md:block'>
                   <table className='w-full text-left text-sm' aria-label={translate('employeeDetail.toolsTitle')}>
                     <thead>
                       <tr className='border-b border-border/60 bg-surface-subtle text-xs text-muted-foreground'>
@@ -284,24 +290,34 @@ export function ManagerLiveEmployeeDetail({ departmentId, id, onBack, onSelectTa
                       {tools.map((tool) => (
                         <tr key={tool.assignmentId} className='transition hover:bg-surface-subtle/50'>
                           <td className='py-3 px-4'>
-                            {onSelectTab ? (
-                              <button
-                                type='button'
-                                onClick={() =>
-                                  onSelectTab('tool-detail', {
-                                    id: tool.assignmentId,
-                                    ...(departmentId ? { departmentId } : {})
-                                  })
-                                }
-                                className='font-medium text-foreground hover:text-primary transition-colors text-left focus-visible:outline-2 focus-visible:outline-primary'
-                                title={tool.application.name}
+                            <div className='flex items-center gap-3'>
+                              <span
+                                aria-hidden='true'
+                                className='grid size-8 shrink-0 place-items-center rounded-lg border border-primary/20 bg-primary-soft text-primary-ink'
                               >
-                                {tool.application.name}
-                              </button>
-                            ) : (
-                              <p className='font-medium text-foreground'>{tool.application.name}</p>
-                            )}
-                            <p className='mt-0.5 text-xs text-muted-foreground'>{tool.plan.name}</p>
+                                <Boxes strokeWidth={1.5} className='size-4' />
+                              </span>
+                              <div className='min-w-0'>
+                                {onSelectTab ? (
+                                  <button
+                                    type='button'
+                                    onClick={() =>
+                                      onSelectTab('tool-detail', {
+                                        id: tool.assignmentId,
+                                        ...(departmentId ? { departmentId } : {})
+                                      })
+                                    }
+                                    className='font-medium text-foreground hover:text-primary transition-colors text-left focus-visible:outline-2 focus-visible:outline-primary'
+                                    title={tool.application.name}
+                                  >
+                                    {tool.application.name}
+                                  </button>
+                                ) : (
+                                  <p className='font-medium text-foreground'>{tool.application.name}</p>
+                                )}
+                                <p className='mt-0.5 text-xs text-muted-foreground'>{tool.plan.name}</p>
+                              </div>
+                            </div>
                           </td>
                           <td className='py-3 px-4 text-right font-mono text-xs tabular-nums text-muted-foreground'>
                             {formatDate(tool.effectiveFrom)}

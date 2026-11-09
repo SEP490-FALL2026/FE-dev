@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Handshake } from 'lucide-react'
+import { Boxes, Handshake } from 'lucide-react'
 import { ManagerPageHeader } from '../../shared/components/manager-page-header'
 import { ManagerDataTable } from '../../shared/components/manager-data-table'
 import { useTranslation } from 'react-i18next'
@@ -54,12 +54,28 @@ export function ManagerHandovers() {
                 key: 'application',
                 label: translate('application'),
                 render: (duty) => (
-                  <p className='max-w-64 truncate font-medium' title={duty.application.name}>
-                    {duty.application.name}
-                  </p>
+                  <div className='flex items-center gap-3'>
+                    <span
+                      aria-hidden='true'
+                      className='grid size-8 shrink-0 place-items-center rounded-lg border border-primary/20 bg-primary-soft text-primary-ink'
+                    >
+                      <Boxes strokeWidth={1.5} className='size-4' />
+                    </span>
+                    <p className='max-w-64 truncate font-medium text-foreground' title={duty.application.name}>
+                      {duty.application.name}
+                    </p>
+                  </div>
                 )
               },
-              { key: 'due', label: translate('due'), align: 'right', render: (duty) => formatDate(duty.dueOn) },
+              {
+                key: 'due',
+                label: translate('due'),
+                render: (duty) => (
+                  <span className='font-mono text-xs tabular-nums text-muted-foreground'>
+                    {formatDate(duty.dueOn)}
+                  </span>
+                )
+              },
               { key: 'status', label: translate('status'), render: (duty) => <ManagerStatus value={duty.status} /> }
             ]}
             onOpen={(duty) => setSelected(duty.id)}
@@ -97,11 +113,23 @@ function HandoverDetail({ id, onClose }: { id: string; onClose: () => void }) {
     >
       <ManagerQueryState query={query} empty={!duty} />
       {duty && (
-        <div className='space-y-4'>
-          <h3 className='truncate font-medium' title={duty.application.name}>
-            {duty.application.name}
-          </h3>
-          <ManagerStatus value={duty.status} />
+        <div className='space-y-5'>
+          {/* Software Spotlight Banner */}
+          <div className='flex flex-wrap items-center justify-between gap-4 rounded-xl border border-border/60 bg-surface-subtle/50 p-4'>
+            <div className='flex items-center gap-3 min-w-0'>
+              <span
+                aria-hidden='true'
+                className='grid size-10 shrink-0 place-items-center rounded-xl border border-primary/20 bg-primary-soft text-primary-ink'
+              >
+                <Boxes strokeWidth={1.5} className='size-5' />
+              </span>
+              <h3 className='truncate text-base font-bold text-foreground' title={duty.application.name}>
+                {duty.application.name}
+              </h3>
+            </div>
+            <ManagerStatus value={duty.status} />
+          </div>
+
           {duty.canConfirm && known && duty.status === HANDOVER_STATUS.OPEN && (
             <form
               className='space-y-4'

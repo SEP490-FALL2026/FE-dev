@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Landmark, Plus } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Landmark, Plus } from 'lucide-react'
 import { ManagerPageHeader } from '../../shared/components/manager-page-header'
 import { ManagerDataTable } from '../../shared/components/manager-data-table'
 import { useTranslation } from 'react-i18next'
@@ -15,7 +15,8 @@ import {
 import { useBudgetProposalLineList } from '~/shared/api/generated/operations/budget-proposals/budget-proposal-line-list'
 import { budgetProposalWithdraw } from '~/shared/api/generated/operations/budget-proposals/budget-proposal-withdraw'
 import { getBudgetMineQueryKey } from '~/shared/api/generated/operations/budgets/budget-mine'
-import { Dialog } from '../../../dashboard-ui'
+import { useBudgetMineVersionList } from '~/shared/api/generated/operations/budgets/budget-mine-version-list'
+import { Dialog, useDashboardFormat } from '../../../dashboard-ui'
 import { useManagerPage } from '../../shared/hooks/use-manager-page'
 import { useManagerAction } from '../../shared/hooks/use-manager-action'
 import { isResourceId } from '../../shared/manager-identifiers'
@@ -32,6 +33,8 @@ import {
 } from '../../shared/components/manager-api-ui'
 import { ManagerCurrentBudget } from '../components/manager-current-budget'
 import { ManagerBudgetFiles } from '../components/manager-budget-files'
+import { ManagerBudgetVersions } from '../components/manager-budget-versions'
+import { ManagerVersionFiles } from '../components/manager-version-files'
 import { PROPOSAL_STATE } from '../enums/budget-status'
 
 export function managerBudgetYear(params: URLSearchParams) {
@@ -46,6 +49,7 @@ export function ManagerLiveBudget() {
   const paging = useManagerPage()
   const query = useBudgetProposalList({ year, page: paging.page, pageSize: paging.pageSize })
   const proposalId = params.get('proposalId') ?? ''
+  const versionId = params.get('versionId') ?? ''
   return (
     <div className='space-y-6'>
       <ManagerPageHeader
@@ -63,28 +67,81 @@ export function ManagerLiveBudget() {
           </ManagerButton>
         }
       />
-      <ManagerField label={translate('year')}>
-        <input
-          className={`${managerInputClass} max-w-40`}
-          type='number'
-          min={2000}
-          max={2200}
-          value={year}
-          onChange={(event) => {
-            const value = event.target.value
-            if (value.length !== 4) return
-            setParams((previous) => {
-              const next = new URLSearchParams(previous)
-              next.set('year', value)
-              next.delete('page')
-              next.delete('proposalId')
-              return next
-            })
-          }}
-        />
-      </ManagerField>
+      <div className='flex items-center gap-3'>
+        <ManagerField label={translate('year')}>
+          <div className='flex items-center gap-1.5'>
+            <button
+              type='button'
+              aria-label={translate('previous')}
+              disabled={year <= 2000}
+              onClick={() => {
+                const nextYear = String(year - 1)
+                setParams((previous) => {
+                  const next = new URLSearchParams(previous)
+                  next.set('year', nextYear)
+                  next.delete('page')
+                  next.delete('proposalId')
+                  return next
+                })
+              }}
+              className='grid size-9 shrink-0 place-items-center rounded-lg border border-border bg-surface text-muted-foreground transition hover:border-primary hover:bg-surface-subtle hover:text-foreground disabled:opacity-40'
+            >
+              <ChevronLeft strokeWidth={1.5} className='size-4' />
+            </button>
+            <input
+              className={`${managerInputClass} w-28 text-center font-mono font-semibold tabular-nums`}
+              type='number'
+              min={2000}
+              max={2200}
+              value={year}
+              onChange={(event) => {
+                const value = event.target.value
+                if (value.length !== 4) return
+                setParams((previous) => {
+                  const next = new URLSearchParams(previous)
+                  next.set('year', value)
+                  next.delete('page')
+                  next.delete('proposalId')
+                  return next
+                })
+              }}
+            />
+            <button
+              type='button'
+              aria-label={translate('next')}
+              disabled={year >= 2200}
+              onClick={() => {
+                const nextYear = String(year + 1)
+                setParams((previous) => {
+                  const next = new URLSearchParams(previous)
+                  next.set('year', nextYear)
+                  next.delete('page')
+                  next.delete('proposalId')
+                  return next
+                })
+              }}
+              className='grid size-9 shrink-0 place-items-center rounded-lg border border-border bg-surface text-muted-foreground transition hover:border-primary hover:bg-surface-subtle hover:text-foreground disabled:opacity-40'
+            >
+              <ChevronRight strokeWidth={1.5} className='size-4' />
+            </button>
+          </div>
+        </ManagerField>
+      </div>
       <div className='grid items-start gap-5 2xl:grid-cols-[minmax(300px,0.8fr)_minmax(0,1.2fr)]'>
-        <ManagerCurrentBudget year={year} />
+        <div className='space-y-6'>
+          <ManagerCurrentBudget year={year} />
+          <ManagerBudgetVersions
+            year={year}
+            onOpenVersion={(version) =>
+              setParams((previous) => {
+                const next = new URLSearchParams(previous)
+                next.set('versionId', version.id)
+                next.delete('versionFilePage')
+                return next
+              })
+            }
+          />
+        </div>
         <ManagerSection title={translate('proposals')}>
           <ManagerQueryState
             query={query}
@@ -136,6 +193,7 @@ export function ManagerLiveBudget() {
         </ManagerSection>
       </div>
       {isResourceId(proposalId) && <ProposalDetail key={proposalId} id={proposalId} />}
+      {isResourceId(versionId) && <VersionDetail key={versionId} id={versionId} year={year} />}
     </div>
   )
 }
@@ -172,7 +230,10 @@ function ProposalDetail({ id }: { id: string }) {
             <ManagerStatus value={proposal.state} />
           </div>
           {proposal.returned && (
-            <p className='text-sm whitespace-pre-wrap [overflow-wrap:anywhere]'>{proposal.returned.reason}</p>
+            <div className='rounded-xl border border-danger/30 bg-danger/10 p-4 text-xs text-danger'>
+              <p className='font-semibold'>{translate('returned')}</p>
+              <p className='mt-1 whitespace-pre-wrap [overflow-wrap:anywhere]'>{proposal.returned.reason}</p>
+            </div>
           )}
           <ProposalLines id={id} />
           <ManagerBudgetFiles id={id} />
@@ -233,18 +294,69 @@ function ProposalLines({ id }: { id: string }) {
   const paging = useManagerPage('linePage')
   const query = useBudgetProposalLineList(id, { page: paging.page, pageSize: paging.pageSize })
   return (
-    <div>
+    <div className='space-y-3'>
       <ManagerQueryState query={query} empty={!query.data?.data?.items.length} />
-      {!query.isError &&
-        query.data?.data?.items.map((line) => (
-          <div key={line.position} className='flex flex-wrap justify-between gap-3 border-b border-border/40 py-3'>
-            <p className='min-w-0 flex-1 truncate text-sm' title={line.description}>
-              {line.description}
-            </p>
-            <ManagerMoney money={line.amount} />
-          </div>
-        ))}
+      {!query.isError && (
+        <div className='space-y-2'>
+          {query.data?.data?.items.map((line) => (
+            <div
+              key={line.position}
+              className='flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-surface p-3.5'
+            >
+              <div className='flex items-center gap-2.5 min-w-0 flex-1'>
+                <span className='grid size-7 shrink-0 place-items-center rounded-lg bg-surface-subtle font-mono text-xs font-semibold text-muted-foreground'>
+                  #{line.position}
+                </span>
+                <p className='min-w-0 truncate text-sm font-medium text-foreground' title={line.description}>
+                  {line.description}
+                </p>
+              </div>
+              <div className='font-mono font-semibold text-foreground'>
+                <ManagerMoney money={line.amount} />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
       <ManagerPagination pagination={query.data?.data?.pagination} onPage={paging.onPage} busy={query.isFetching} />
     </div>
   )
 }
+function VersionDetail({ id, year }: { id: string; year: number }) {
+  const { t: translate } = useTranslation('manager')
+  const { formatDateTime } = useDashboardFormat()
+  const [, setParams] = useSearchParams()
+  const versionsQuery = useBudgetMineVersionList({ year, page: 1, pageSize: 100 })
+  const version = versionsQuery.data?.data?.items?.find((item) => item.id === id)
+
+  return (
+    <Dialog
+      presentation='drawer'
+      title={version ? translate('versionNumber', { number: version.number }) : translate('version')}
+      onClose={() => {
+        setParams((previous) => {
+          const next = new URLSearchParams(previous)
+          next.delete('versionId')
+          next.delete('versionFilePage')
+          return next
+        })
+      }}
+    >
+      <div className='space-y-6'>
+        {version && (
+          <div className='flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/50 bg-surface-subtle p-3.5'>
+            <div>
+              <p className='text-xs text-muted-foreground'>{translate('sentAt')}</p>
+              <p className='mt-0.5 font-mono text-xs font-semibold tabular-nums text-foreground'>
+                {formatDateTime(version.sentAt)}
+              </p>
+            </div>
+            <ManagerStatus value={version.state} />
+          </div>
+        )}
+        <ManagerVersionFiles versionId={id} />
+      </div>
+    </Dialog>
+  )
+}
+

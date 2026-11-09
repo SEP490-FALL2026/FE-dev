@@ -1,4 +1,4 @@
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, Boxes } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSpendQueueList } from '~/shared/api/generated/operations/spend-submission/spend-queue-list'
 import type { ManagerTabKey } from '../../enums'
@@ -54,12 +54,20 @@ export function ManagerOverviewWork({
                 key: 'application',
                 label: translate('application'),
                 render: (item) => (
-                  <p
-                    className='max-w-56 truncate font-medium'
-                    title={item.plan?.applicationName ?? item.softwareName ?? ''}
-                  >
-                    {item.plan?.applicationName ?? item.softwareName}
-                  </p>
+                  <div className='flex items-center gap-3'>
+                    <span
+                      aria-hidden='true'
+                      className='grid size-8 shrink-0 place-items-center rounded-lg border border-primary/20 bg-primary-soft text-primary-ink'
+                    >
+                      <Boxes strokeWidth={1.5} className='size-4' />
+                    </span>
+                    <p
+                      className='max-w-56 truncate font-medium text-foreground'
+                      title={item.plan?.applicationName ?? item.softwareName ?? ''}
+                    >
+                      {item.plan?.applicationName ?? item.softwareName}
+                    </p>
+                  </div>
                 )
               },
               {

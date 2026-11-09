@@ -1,5 +1,25 @@
 # Employee — tích hợp API và giới hạn contract
 
+## Cập nhật 06/11/2026: Quyền riêng tư và dữ liệu máy công ty
+
+Tab `privacy` và các URL cũ `data-usage`/`data-export` mở `EmployeeLivePrivacy`. Màn này đọc dữ liệu thật thay cho thông báo rỗng cố định:
+
+| Operation                       | Giao diện và hành vi                                                                                                                  |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `monitoringNoticeCurrentGet`    | Đọc thông báo hiện hành: loại dữ liệu thu thập/không thu thập, mục đích, thời gian lưu, quyền dừng và việc thu trạng thái công cụ.    |
+| `myDeviceList`                  | Danh sách đăng ký máy của chính người dùng, phân trang BE; hiển thị thời gian giữ, trạng thái xác nhận và lý do chưa thể xác nhận.    |
+| `myDeviceAcknowledgementCreate` | Người giữ đọc và tích xác nhận đúng phiên bản trước khi gửi `{ noticeVersionId }` tới ID đăng ký. Không tự bật thu thập khi mở trang. |
+| `myDeviceUsageList`             | Dữ liệu AI theo máy/ngày, lọc từ–đến ngày và phân trang BE; `NOT_OBSERVABLE`/coverage lạ không được hiển thị thành 0.                 |
+| `myDeviceToolStatusList`        | Trạng thái đăng nhập, tình trạng đọc hạn mức, chu kỳ, phần trăm đã dùng và thời điểm đặt lại; chỉ tải khi chọn phần này.              |
+
+Luồng tự phục vụ nằm trong `entities/device`, dùng chung với mục **Máy của tôi** của IT Admin; không import chéo nội bộ hai role. DTO, enum, query/mutation và cache key lấy từ Orval hiện có. Không đổi contract, cấu hình Orval hoặc code generated. Đổi mật khẩu chỉ nằm ở Hồ sơ.
+
+Xác nhận khóa gửi lặp, chỉ báo thành công khi có bản ghi xác nhận từ BE, làm mới danh sách/chính sách và cache thiết bị liên quan. Khi chính sách đổi, checkbox của phiên bản cũ không còn hiệu lực. 409 đọc lại thông tin; 403 đọc lại `/me`; 429 có đếm ngược; mất phản hồi/5xx không tự gửi lại, phải kiểm tra trạng thái và xác nhận lại. Màn có loading, empty thực từ API, error/retry, VI/EN và bảng responsive dùng `WorkspaceDataTable`.
+
+**Giới hạn còn lại:** usage này chỉ là số câu trả lời/token của công cụ AI trên máy công ty, không phải usage SaaS tổng quát. Contract hiện chưa có tạo/theo dõi/tải yêu cầu xuất dữ liệu cá nhân (`FR-10.2`) hoặc yêu cầu dừng thu thập (`FR-10.5`); chỉ hiển thị tình trạng xuất dữ liệu chưa khả dụng và nội dung quyền dừng do BE cung cấp. Không dựng endpoint, tệp xuất hay đơn yêu cầu giả. Các ghi chú lịch sử bên dưới về privacy chưa có dữ liệu không còn mô tả phần máy/usage AI hiện hành.
+
+Kiểm chứng contract: đã đối chiếu 5 operation với Swagger live `https://wdp.novaproj.site/api/docs-json` (341 operation) và snapshot. Kiểm thử HTTP/component dùng MSW; chưa xác minh luồng xác nhận bằng tài khoản BE thật. Công cụ kiểm tra trình duyệt dừng vì không xác định được URL Chrome, nên chưa xác minh trực quan desktop/mobile.
+
 ## Cập nhật 02/11/2026: Ba API Employee còn lại
 
 | API (tiền tố `/api/v1`)                            | Giao diện và hành vi                                                                                                                                                  |

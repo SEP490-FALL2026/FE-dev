@@ -1,3 +1,4 @@
+import { Boxes, Filter } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import { useReturnRequestList } from '~/shared/api/generated/operations/return-requests/return-request-list'
@@ -24,9 +25,19 @@ export function ManagerReturns({ onOpen }: { onOpen: (id: string) => void }) {
   const data = !query.isError ? query.data?.data : null
   return (
     <ManagerSection>
-      <div className='max-w-xs'>
-        <ManagerField label={translate('status')}>
+      <div className='flex flex-wrap items-center justify-between gap-4 rounded-xl border border-border/60 bg-surface-subtle/50 p-3.5'>
+        <div className='flex items-center gap-2'>
+          <span
+            aria-hidden='true'
+            className='grid size-8 shrink-0 place-items-center rounded-lg border border-border/60 bg-surface text-muted-foreground'
+          >
+            <Filter strokeWidth={1.5} className='size-4' />
+          </span>
+          <span className='text-xs font-semibold text-foreground'>{translate('status')}</span>
+        </div>
+        <div className='w-full sm:w-64'>
           <select
+            aria-label={translate('status')}
             className={managerInputClass}
             value={state ?? ''}
             onChange={(event) =>
@@ -46,7 +57,7 @@ export function ManagerReturns({ onOpen }: { onOpen: (id: string) => void }) {
               </option>
             ))}
           </select>
-        </ManagerField>
+        </div>
       </div>
       <ManagerDataTable
         label={translate('integration.returns')}
@@ -65,13 +76,21 @@ export function ManagerReturns({ onOpen }: { onOpen: (id: string) => void }) {
             key: 'software',
             label: translate('application'),
             render: (row) => (
-              <div>
-                <p className='max-w-56 truncate font-medium' title={row.plan.applicationName}>
-                  {row.plan.applicationName}
-                </p>
-                <p className='max-w-56 truncate text-xs text-muted-foreground' title={row.plan.planName}>
-                  {row.plan.planName}
-                </p>
+              <div className='flex items-center gap-3'>
+                <span
+                  aria-hidden='true'
+                  className='grid size-8 shrink-0 place-items-center rounded-lg border border-primary/20 bg-primary-soft text-primary-ink'
+                >
+                  <Boxes strokeWidth={1.5} className='size-4' />
+                </span>
+                <div className='min-w-0'>
+                  <p className='max-w-56 truncate font-medium text-foreground' title={row.plan.applicationName}>
+                    {row.plan.applicationName}
+                  </p>
+                  <p className='max-w-56 truncate text-xs text-muted-foreground' title={row.plan.planName}>
+                    {row.plan.planName}
+                  </p>
+                </div>
               </div>
             )
           },
@@ -88,8 +107,7 @@ export function ManagerReturns({ onOpen }: { onOpen: (id: string) => void }) {
           {
             key: 'date',
             label: translate('integration.requestedOn'),
-            align: 'right',
-            render: (row) => formatDate(row.requestedOn)
+            render: (row) => <span className='font-mono text-xs tabular-nums text-muted-foreground'>{formatDate(row.requestedOn)}</span>
           }
         ]}
       />

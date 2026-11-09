@@ -17,6 +17,7 @@ describe('translation resources', () => {
       'auth',
       'common',
       'dashboard',
+      'devicePrivacy',
       'employee',
       'errors',
       'finance',
@@ -58,6 +59,7 @@ describe('translation resources', () => {
       )
     }
     for (const namespace of [
+      'devicePrivacy',
       'admin',
       'adminAccounts',
       'adminOrganization',

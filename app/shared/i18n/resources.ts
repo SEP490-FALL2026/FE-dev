@@ -62,11 +62,14 @@ import { manager as enManager } from './locales/en/manager'
 import { manager as viManager } from './locales/vi/manager'
 import { itDevices as enItDevices } from './locales/en/it-devices'
 import { itDevices as viItDevices } from './locales/vi/it-devices'
+import { devicePrivacy as enDevicePrivacy } from './locales/en/device-privacy'
+import { devicePrivacy as viDevicePrivacy } from './locales/vi/device-privacy'
 
 export { defaultNS } from './resource-config'
 
 export const resources = {
   en: {
+    devicePrivacy: enDevicePrivacy,
     itDepartmentWork: enItDepartmentWork,
     itDevices: enItDevices,
     itRenewals: enItRenewals,
@@ -101,6 +104,7 @@ export const resources = {
     theme: enTheme
   },
   vi: {
+    devicePrivacy: viDevicePrivacy,
     itDepartmentWork: viItDepartmentWork,
     itDevices: viItDevices,
     itRenewals: viItRenewals,

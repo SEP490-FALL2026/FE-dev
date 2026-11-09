@@ -175,8 +175,11 @@ function Members({
           {
             key: 'since',
             label: translate('since'),
-            align: 'right',
-            render: (member) => formatDate(member.memberSince)
+            render: (member) => (
+              <span className='font-mono text-xs tabular-nums text-muted-foreground'>
+                {formatDate(member.memberSince)}
+              </span>
+            )
           }
         ]}
       />
@@ -238,24 +241,32 @@ function Tools({
             key: 'application',
             label: translate('application'),
             render: (item) => (
-              <div>
-                {onOpenTool ? (
-                  <button
-                    type='button'
-                    onClick={() => onOpenTool(item)}
-                    className='max-w-56 truncate text-left font-medium text-foreground hover:text-primary transition-colors focus-visible:outline-2 focus-visible:outline-primary'
-                    title={item.application.name}
-                  >
-                    {item.application.name}
-                  </button>
-                ) : (
-                  <p className='max-w-56 truncate font-medium' title={item.application.name}>
-                    {item.application.name}
+              <div className='flex items-center gap-3'>
+                <span
+                  aria-hidden='true'
+                  className='grid size-8 shrink-0 place-items-center rounded-lg border border-primary/20 bg-primary-soft text-primary-ink'
+                >
+                  <Boxes strokeWidth={1.5} className='size-4' />
+                </span>
+                <div className='min-w-0'>
+                  {onOpenTool ? (
+                    <button
+                      type='button'
+                      onClick={() => onOpenTool(item)}
+                      className='max-w-56 truncate text-left font-medium text-foreground hover:text-primary transition-colors focus-visible:outline-2 focus-visible:outline-primary'
+                      title={item.application.name}
+                    >
+                      {item.application.name}
+                    </button>
+                  ) : (
+                    <p className='max-w-56 truncate font-medium text-foreground' title={item.application.name}>
+                      {item.application.name}
+                    </p>
+                  )}
+                  <p className='mt-0.5 max-w-56 truncate text-xs text-muted-foreground' title={item.plan.name}>
+                    {item.plan.name}
                   </p>
-                )}
-                <p className='mt-1 max-w-56 truncate text-xs text-muted-foreground' title={item.plan.name}>
-                  {item.plan.name}
-                </p>
+                </div>
               </div>
             )
           },
@@ -264,7 +275,7 @@ function Tools({
             label: translate('employee'),
             render: (item) => (
               <div>
-                <p className='max-w-56 truncate' title={item.fullName}>
+                <p className='max-w-48 truncate' title={item.fullName}>
                   {item.fullName}
                 </p>
                 <p className='mt-1 font-mono text-xs text-muted-foreground'>{item.employeeCode}</p>
@@ -272,7 +283,15 @@ function Tools({
             )
           },
           { key: 'kind', label: translate('kind'), render: (item) => <ManagerStatus value={item.kind} /> },
-          { key: 'since', label: translate('since'), align: 'right', render: (item) => formatDate(item.effectiveFrom) }
+          {
+            key: 'since',
+            label: translate('since'),
+            render: (item) => (
+              <span className='font-mono text-xs tabular-nums text-muted-foreground'>
+                {formatDate(item.effectiveFrom)}
+              </span>
+            )
+          }
         ]}
       />
       <ManagerPagination pagination={data?.pagination} onPage={paging.onPage} busy={query.isFetching} />

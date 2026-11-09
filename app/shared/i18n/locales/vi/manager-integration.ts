@@ -41,5 +41,6 @@ export const managerIntegration = {
   handoverDone: 'Đã xác nhận bàn giao dữ liệu',
   handoverNeeded: 'Cần xác nhận bàn giao dữ liệu',
   handoverFlagged: 'Đã thu hồi khi chưa có xác nhận bàn giao',
-  confirmHandover: 'Xác nhận bàn giao dữ liệu'
+  confirmHandover: 'Xác nhận bàn giao dữ liệu',
+  revocationNote: 'Ghi chú thu hồi'
 } as const

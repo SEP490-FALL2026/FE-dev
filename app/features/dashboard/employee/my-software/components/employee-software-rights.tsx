@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
+import { Boxes } from 'lucide-react'
 import { useMeSoftwareRightList } from '~/shared/api/generated/operations/me/me-software-right-list'
 import { useDashboardFormat } from '../../../dashboard-ui'
 import { EmployeeDataTable } from '../../shared/components/employee-data-table'
@@ -98,13 +99,21 @@ export function EmployeeSoftwareRights() {
             key: 'software',
             label: translate('redesign.application'),
             render: (item) => (
-              <div className='min-w-0'>
-                <p className='max-w-64 truncate font-medium' title={item.application.name}>
-                  {item.application.name}
-                </p>
-                <p className='mt-1 max-w-64 truncate text-xs text-muted-foreground' title={item.plan.name}>
-                  {item.plan.name}
-                </p>
+              <div className='flex min-w-0 items-center gap-3'>
+                <span
+                  aria-hidden='true'
+                  className='grid size-9 shrink-0 place-items-center rounded-lg border border-primary/20 bg-primary-soft text-primary-ink'
+                >
+                  <Boxes strokeWidth={1.5} className='size-4' />
+                </span>
+                <div className='min-w-0'>
+                  <p className='max-w-64 truncate font-medium text-foreground' title={item.application.name}>
+                    {item.application.name}
+                  </p>
+                  <p className='mt-0.5 max-w-64 truncate text-xs text-muted-foreground' title={item.plan.name}>
+                    {item.plan.name}
+                  </p>
+                </div>
               </div>
             )
           },

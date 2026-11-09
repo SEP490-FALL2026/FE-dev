@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Files, Send, Users } from 'lucide-react'
+import { Boxes, Files, Send, Users } from 'lucide-react'
 import { ManagerPageHeader } from '../../shared/components/manager-page-header'
 import { ManagerDataTable } from '../../shared/components/manager-data-table'
 import { useTranslation } from 'react-i18next'
@@ -117,12 +117,20 @@ export function ManagerLiveBatch({
                         )
                       }
                     />
-                    <p
-                      className='min-w-0 truncate font-medium'
-                      title={item.plan?.applicationName ?? item.softwareName ?? ''}
-                    >
-                      {item.plan?.applicationName ?? item.softwareName}
-                    </p>
+                    <div className='flex min-w-0 items-center gap-2'>
+                      <span
+                        aria-hidden='true'
+                        className='grid size-7 shrink-0 place-items-center rounded-lg border border-primary/20 bg-primary-soft text-primary-ink'
+                      >
+                        <Boxes strokeWidth={1.5} className='size-3.5' />
+                      </span>
+                      <p
+                        className='min-w-0 truncate font-medium'
+                        title={item.plan?.applicationName ?? item.softwareName ?? ''}
+                      >
+                        {item.plan?.applicationName ?? item.softwareName}
+                      </p>
+                    </div>
                   </div>
                 )
               },
@@ -178,7 +186,24 @@ export function ManagerLiveBatch({
             if (!action.isPending) setConfirm(false)
           }}
         >
-          <p className='mb-4 text-right font-mono tabular-nums'>{selected.length}</p>
+          <div className='mb-5 space-y-3'>
+            <div className='flex items-center gap-3.5 rounded-xl border border-primary/20 bg-primary-soft/30 p-4'>
+              <span
+                aria-hidden='true'
+                className='grid size-10 shrink-0 place-items-center rounded-lg bg-primary-soft text-primary-ink'
+              >
+                <Send strokeWidth={1.5} className='size-5' />
+              </span>
+              <div className='min-w-0'>
+                <p className='text-sm font-semibold text-foreground'>
+                  {translate('selected', { count: selected.length })}
+                </p>
+                <p className='text-xs text-muted-foreground'>
+                  {translate('batchHint')}
+                </p>
+              </div>
+            </div>
+          </div>
           <div className='flex justify-end gap-3'>
             <ManagerButton disabled={action.isPending} onClick={() => setConfirm(false)}>
               {translate('cancel')}
@@ -212,22 +237,34 @@ function BatchResult({ id, onOpen }: { id: string; onOpen: (id: string) => void 
     <div>
       <ManagerQueryState query={batch} />
       {!batch.isError && batch.data?.data && (
-        <>
+        <div className='space-y-4'>
           <ManagerQueryState query={items} empty={!items.data?.data?.items.length} />
-          {!items.isError &&
-            items.data?.data?.items.map((item) => (
-              <div
-                key={item.requestId}
-                className='flex flex-wrap items-center justify-between gap-3 border-b border-border/40 py-3'
-              >
-                <p className='text-sm font-medium'>{translate('batchItem', { position: item.position })}</p>
-                <ManagerButton onClick={() => onOpen(item.requestId)}>{translate('open')}</ManagerButton>
-                <ManagerStatus value={item.outcome} />
-                <ManagerStatus value={item.requestState} />
-              </div>
-            ))}
+          {!items.isError && (
+            <div className='space-y-2'>
+              {items.data?.data?.items.map((item) => (
+                <div
+                  key={item.requestId}
+                  className='flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-surface p-3.5 transition hover:border-primary/40'
+                >
+                  <div className='flex items-center gap-3'>
+                    <span className='grid size-7 shrink-0 place-items-center rounded-lg bg-surface-subtle font-mono text-xs font-semibold text-muted-foreground'>
+                      #{item.position}
+                    </span>
+                    <p className='text-sm font-medium text-foreground'>
+                      {translate('batchItem', { position: item.position })}
+                    </p>
+                  </div>
+                  <div className='flex items-center gap-2'>
+                    <ManagerStatus value={item.outcome} />
+                    <ManagerStatus value={item.requestState} />
+                    <ManagerButton onClick={() => onOpen(item.requestId)}>{translate('open')}</ManagerButton>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
           <ManagerPagination pagination={items.data?.data?.pagination} onPage={paging.onPage} busy={items.isFetching} />
-        </>
+        </div>
       )}
     </div>
   )
