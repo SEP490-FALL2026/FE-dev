@@ -39,8 +39,6 @@ export const approvalsNeed = {
     needs: 'Yêu cầu của trưởng phòng chờ xác nhận',
     openNeeds: 'Mở trong hàng chờ duyệt',
     openBudgets: 'Mở ngân sách năm',
-    renewals: 'Gia hạn thuê bao chờ quyết định',
-    openRenewals: 'Mở danh sách gia hạn'
   },
   software: 'Phần mềm',
   dueOn: 'Hạn xử lý',

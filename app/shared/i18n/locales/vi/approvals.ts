@@ -16,7 +16,6 @@ export const approvals = {
   nav: {
     overview: 'Tổng quan',
     queue: 'Hàng chờ duyệt',
-    renewal: 'Gia hạn thuê bao',
     annualBudget: 'Duyệt ngân sách năm'
   },
   status: {

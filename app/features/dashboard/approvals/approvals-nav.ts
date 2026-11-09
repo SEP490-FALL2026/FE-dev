@@ -1,4 +1,4 @@
-import { CalendarClock, Clock, Grid2X2, Landmark } from 'lucide-react'
+import { Clock, Grid2X2, Landmark } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 /** Detail tabs open by API identifier; an unknown tab falls back to the overview. */
@@ -6,7 +6,7 @@ import { APPROVAL_TAB_KEYS, type ApprovalTabKey } from './enums'
 export { APPROVAL_TAB_KEYS, type ApprovalTabKey }
 
 /** Label keys under `nav` in the `approvals` namespace. */
-export type ApprovalTranslationKey = 'annualBudget' | 'overview' | 'queue' | 'renewal'
+export type ApprovalTranslationKey = 'annualBudget' | 'overview' | 'queue'
 
 export interface ApprovalNavItem {
   badge?: number
@@ -19,7 +19,6 @@ export interface ApprovalNavItem {
 export const approvalNavItems: ApprovalNavItem[] = [
   { icon: Grid2X2, key: 'overview', translationKey: 'overview' },
   { icon: Clock, key: 'queue', screenCode: 'APV-01', translationKey: 'queue' },
-  { icon: CalendarClock, key: 'renewal', translationKey: 'renewal' },
   { icon: Landmark, key: 'annual-budget', screenCode: 'APV-05', translationKey: 'annualBudget' }
 ]
 

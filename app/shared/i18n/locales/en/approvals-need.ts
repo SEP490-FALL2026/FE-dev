@@ -39,8 +39,6 @@ export const approvalsNeed = {
     needs: "Department heads' requests to confirm",
     openNeeds: 'Open in the queue',
     openBudgets: 'Open annual budgets',
-    renewals: 'Subscription renewals awaiting decision',
-    openRenewals: 'Open renewals'
   },
   software: 'Software',
   dueOn: 'Due date',

@@ -16,7 +16,6 @@ export const approvals = {
   nav: {
     overview: 'Overview',
     queue: 'Approval queue',
-    renewal: 'Subscription renewals',
     annualBudget: 'Annual budget approval'
   },
   status: {
