@@ -142,13 +142,11 @@ describe('DashboardPage', () => {
     view.unmount()
   })
 
-  it('sends removed demo tabs back to the overview and opens subscription renewals', async () => {
+  it('sends removed tabs back to the overview without a renewals menu item', async () => {
     await renderDashboard('spending-approver', '/?tab=reports')
     expect(screen.getByRole('heading', { level: 1, name: 'Tổng quan phê duyệt' })).toBeInTheDocument()
     const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
-    fireEvent.click(within(nav).getByRole('button', { name: 'Gia hạn thuê bao' }))
-    expect(screen.getByRole('heading', { level: 1, name: 'Gia hạn thuê bao' })).toBeInTheDocument()
-    expect(await screen.findByText('Không có ca gia hạn nào đang chờ bạn quyết định.')).toBeInTheDocument()
+    expect(within(nav).queryByRole('button', { name: 'Gia hạn thuê bao' })).not.toBeInTheDocument()
   })
 
   it('does not restore a demo Request for a legacy fixture ID', async () => {

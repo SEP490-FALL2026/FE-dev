@@ -1,11 +1,9 @@
-import { ClipboardCheck, Landmark, RefreshCw, UserCheck } from 'lucide-react'
+import { ClipboardCheck, Landmark, UserCheck } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSpendApprovalList } from '~/shared/api/generated/operations/spend-approvals/spend-approval-list'
 import { useBudgetVersionList } from '~/shared/api/generated/operations/budget-versions/budget-version-list'
 import { useNeedDecisionList } from '~/shared/api/generated/operations/need-decisions/need-decision-list'
-import { useSubscriptionRenewalList } from '~/shared/api/generated/operations/subscription-renewals/subscription-renewal-list'
 import { BudgetVersionListState } from '~/shared/api/generated/model/budget-versions/budgetVersionListState'
-import { SubscriptionRenewalListState } from '~/shared/api/generated/model/subscription-renewals/subscriptionRenewalListState'
 import type { ApprovalTabKey } from '../../approvals-nav'
 import { ApprovalsPage } from '../../shared/components/approvals-ui'
 import { ApprovalsWorkCard, type WorkCount } from '../components/approvals-work-card'
@@ -34,10 +32,9 @@ export function ApprovalsOverviewView({ onSelectTab }: OverviewProps) {
   const spend = useSpendApprovalList(countParams)
   const needs = useNeedDecisionList(countParams)
   const budgets = useBudgetVersionList({ ...countParams, state: BudgetVersionListState.SENT })
-  const renewals = useSubscriptionRenewalList({ ...countParams, state: SubscriptionRenewalListState.PROPOSED })
   return (
     <ApprovalsPage title={translate('title')} description={translate('overview.description')}>
-      <div className='grid gap-4 sm:grid-cols-2 xl:grid-cols-4'>
+      <div className='grid gap-4 sm:grid-cols-2 xl:grid-cols-3'>
         <ApprovalsWorkCard
           icon={ClipboardCheck}
           title={translate('spendQueue')}
@@ -58,13 +55,6 @@ export function ApprovalsOverviewView({ onSelectTab }: OverviewProps) {
           hint={translate('overview.openBudgets')}
           count={toCount(budgets)}
           onOpen={() => onSelectTab('annual-budget')}
-        />
-        <ApprovalsWorkCard
-          icon={RefreshCw}
-          title={translate('overview.renewals')}
-          hint={translate('overview.openRenewals')}
-          count={toCount(renewals)}
-          onOpen={() => onSelectTab('renewal')}
         />
       </div>
       <SpendInsights

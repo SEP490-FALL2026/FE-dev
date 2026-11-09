@@ -3,7 +3,6 @@ import { approvals as enApprovals } from './locales/en/approvals'
 import { approvalsBudget as enApprovalsBudget } from './locales/en/approvals-budget'
 import { approvalsSpend as enApprovalsSpend } from './locales/en/approvals-spend'
 import { approvalsNeed as enApprovalsNeed } from './locales/en/approvals-need'
-import { approvalsRenewal as enApprovalsRenewal } from './locales/en/approvals-renewal'
 import { finance as enFinance } from './locales/en/finance'
 import { financeBudget as enFinanceBudget } from './locales/en/finance-budget'
 import { financeSettings as enFinanceSettings } from './locales/en/finance-settings'
@@ -22,7 +21,6 @@ import { approvals as viApprovals } from './locales/vi/approvals'
 import { approvalsBudget as viApprovalsBudget } from './locales/vi/approvals-budget'
 import { approvalsSpend as viApprovalsSpend } from './locales/vi/approvals-spend'
 import { approvalsNeed as viApprovalsNeed } from './locales/vi/approvals-need'
-import { approvalsRenewal as viApprovalsRenewal } from './locales/vi/approvals-renewal'
 import { finance as viFinance } from './locales/vi/finance'
 import { financeBudget as viFinanceBudget } from './locales/vi/finance-budget'
 import { financeSettings as viFinanceSettings } from './locales/vi/finance-settings'
@@ -79,7 +77,6 @@ export const resources = {
     approvalsBudget: enApprovalsBudget,
     approvalsSpend: enApprovalsSpend,
     approvalsNeed: enApprovalsNeed,
-    approvalsRenewal: enApprovalsRenewal,
     finance: enFinance,
     financeBudget: enFinanceBudget,
     financeSettings: enFinanceSettings,
@@ -114,7 +111,6 @@ export const resources = {
     approvalsBudget: viApprovalsBudget,
     approvalsSpend: viApprovalsSpend,
     approvalsNeed: viApprovalsNeed,
-    approvalsRenewal: viApprovalsRenewal,
     finance: viFinance,
     financeBudget: viFinanceBudget,
     financeSettings: viFinanceSettings,
