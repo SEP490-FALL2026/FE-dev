@@ -27,7 +27,9 @@ export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) 
   const [plan, setPlan] = useState<ManagerCatalogPlan | null>(null)
   const [created, setCreated] = useState<{ id: string; label: string }[]>([])
   const [pending, setPending] = useState<GroupBodyDto | null>(null)
-  const [termMonths, setTermMonths] = useState('')
+  const [expectedEndDate, setExpectedEndDate] = useState('')
+  const [reasons, setReasons] = useState<Record<string, string>>({})
+  const { t: flow } = useTranslation('requestFlow')
   const action = useManagerAction({
     mutationFn: (body: GroupBodyDto) => groupRequestSubmit(body),
     invalidate: [getSpendQueueListQueryKey()],
@@ -49,17 +51,19 @@ export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) 
             className='space-y-5'
             onSubmit={(event) => {
               event.preventDefault()
-              if (action.blocked || pending || !plan?.canSubmit || people.length < 2 || people.length > 10) return
+              if (action.blocked || pending || !plan?.canSubmit || people.length < 2 || people.length > 100) return
               const form = new FormData(event.currentTarget)
               const planId = plan.id
               const businessReason = String(form.get('businessReason')).trim()
-              const months = Number(termMonths)
-              if (!businessReason || !Number.isInteger(months) || months < 1 || months > 12) return
+              if (!businessReason) return
               setPending({
                 businessReason,
-                termMonths: months,
+                ...(expectedEndDate ? { expectedEndDate } : {}),
                 planId,
-                lines: people.map((person) => ({ employeeId: person.value }))
+                lines: people.map((person) => ({
+                  employeeId: person.value,
+                  ...(reasons[person.value]?.trim() ? { manyPaidSoftwareReason: reasons[person.value].trim() } : {})
+                }))
               })
             }}
           >
@@ -71,17 +75,13 @@ export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) 
                   disabled={action.blocked}
                   invalid={action.fields.includes('planId')}
                 />
-                <ManagerField label={translate('months')}>
+                <ManagerField label={flow('endDate')}>
                   <input
                     className={managerInputClass}
-                    name='termMonths'
-                    type='number'
-                    min={1}
-                    max={12}
-                    step={1}
-                    required
-                    value={termMonths}
-                    onChange={(event) => setTermMonths(event.target.value)}
+                    name='expectedEndDate'
+                    type='date'
+                    value={expectedEndDate}
+                    onChange={(event) => setExpectedEndDate(event.target.value)}
                   />
                 </ManagerField>
               </div>
@@ -90,9 +90,21 @@ export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) 
                 onChange={setPeople}
                 disabled={action.blocked}
                 multiple
-                limit={10}
+                limit={100}
                 invalid={action.fields.some((field) => field.startsWith('lines.'))}
               />
+              {people.map((person) => (
+                <ManagerField key={person.value} label={`${person.label}: ${flow('manyReason')}`}>
+                  <textarea
+                    className={managerInputClass}
+                    maxLength={1000}
+                    value={reasons[person.value] ?? ''}
+                    onChange={(event) =>
+                      setReasons((previous) => ({ ...previous, [person.value]: event.target.value }))
+                    }
+                  />
+                </ManagerField>
+              ))}
               <ManagerField label={translate('reason')}>
                 <textarea className={managerInputClass} name='businessReason' required maxLength={1000} />
               </ManagerField>
@@ -102,7 +114,7 @@ export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) 
               <ManagerButton
                 primary
                 type='submit'
-                disabled={action.blocked || !!pending || !plan?.canSubmit || people.length < 2 || people.length > 10}
+                disabled={action.blocked || !!pending || !plan?.canSubmit || people.length < 2 || people.length > 100}
                 busy={action.isPending}
               >
                 {action.retrySeconds ? translate('retryAfter', { seconds: action.retrySeconds }) : translate('submit')}
@@ -130,9 +142,7 @@ export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) 
                     {item.label}
                   </p>
                 </div>
-                <ManagerButton primary onClick={() => onOpen(item.id)}>
-                  {translate('open')}
-                </ManagerButton>
+                <ManagerButton onClick={() => onOpen(item.id)}>{translate('open')}</ManagerButton>
               </div>
             ))}
           </div>

@@ -240,6 +240,7 @@ export const employee = {
     emptyEnded: 'Chưa có quyền phần mềm đã kết thúc',
     emptyHint: 'Các quyền phần mềm được cấp cho tài khoản của bạn sẽ xuất hiện tại đây.',
     statuses: {
+      AWAITING_REQUESTER_REVISION: 'Ch? ng??i g?i ch?nh s?a',
       UPCOMING: 'Sắp có hiệu lực',
       PROVISIONING: 'Đang cấp phát',
       ACTIVE: 'Đang sử dụng',
@@ -382,6 +383,11 @@ export const employee = {
     reopenExpired: 'Đã hết thời hạn mở lại báo lỗi.'
   },
   eligibility: {
+    HEAD_IN_GROUP: 'Trưởng phòng không được là người thụ hưởng trong nhóm này',
+    SPENDING_APPROVER: 'Người duyệt chi không được là người thụ hưởng',
+    TERM_REQUIRED: 'Cần nhập ngày kết thúc quyền sử dụng',
+    OPEN_LIMIT_REACHED: 'Người này đã đạt giới hạn yêu cầu đang mở',
+    MANY_PAID_SOFTWARE_REASON_REQUIRED: 'Cần lý do dùng nhiều phần mềm trả phí cho người này',
     KIND_NOT_MULTI_SEAT: 'Gói này không hỗ trợ nhiều seat',
     NOT_PAID_SOFTWARE: 'Yêu cầu nhóm chỉ áp dụng cho phần mềm trả phí',
     OUTSIDE_DEPARTMENT: 'Không thuộc phòng ban của bạn',
@@ -394,6 +400,7 @@ export const employee = {
     DUPLICATE_LINE: 'Người thụ hưởng bị chọn trùng'
   },
   statuses: {
+    AWAITING_REQUESTER_REVISION: 'Chờ người gửi chỉnh sửa',
     HANDING_OVER: 'Đang bàn giao',
     LEFT: 'Đã nghỉ việc',
     SPEND_SUBMISSION: 'Gửi đề nghị chi',

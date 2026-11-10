@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 
-const amountOf = (value?: { amount: string }) => {
+const amountOf = (value?: { amount: string } | null) => {
   if (!value) return 0
   const parsed = Number(value.amount)
   return Number.isFinite(parsed) ? parsed : 0
@@ -13,12 +13,13 @@ export function BudgetUtilization({
   spent,
   overCommitted
 }: {
-  total: { amount: string }
+  total: { amount: string } | null
   committed: { amount: string }
   spent?: { amount: string }
   overCommitted: boolean
 }) {
   const { t: translate, i18n } = useTranslation('financeBudget')
+  if (!total) return <span>{translate('unknown')}</span>
   const budget = amountOf(total)
   const used = amountOf(committed) + amountOf(spent)
   const ratio = budget > 0 ? used / budget : 0
@@ -35,7 +36,9 @@ export function BudgetUtilization({
           style={{ width: `${Math.min(100, ratio * 100)}%` }}
         />
       </div>
-      <span className={`w-14 text-right font-mono text-xs tabular-nums ${isOver ? 'font-bold text-danger' : 'font-medium'}`}>
+      <span
+        className={`w-14 text-right font-mono text-xs tabular-nums ${isOver ? 'font-bold text-danger' : 'font-medium'}`}
+      >
         {percent}
       </span>
       {isOver && <span className='sr-only'>{translate('fields.overCommitted')}</span>}

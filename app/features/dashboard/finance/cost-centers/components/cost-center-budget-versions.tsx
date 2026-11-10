@@ -14,7 +14,6 @@ export function CostCenterBudgetVersions({
   onSelectTab?: (tab: FinanceTabKey, extraParams?: Record<string, string>) => void
 }) {
   const { t: translate, i18n } = useTranslation('financeSettings')
-  const { t: translateFinance } = useTranslation('finance')
   const versions = useCostCenterVersions(costCenterId)
   const items = versions.data?.items ?? []
   return (
@@ -32,12 +31,6 @@ export function CostCenterBudgetVersions({
                 label: translate('versionNumber'),
                 numeric: true,
                 render: (version) => version.number
-              },
-              {
-                key: 'kind',
-                label: translate('versionKind'),
-                render: (version) =>
-                  translateFinance(`status.${version.kind}`, { defaultValue: translateFinance('unknown') })
               },
               {
                 key: 'state',

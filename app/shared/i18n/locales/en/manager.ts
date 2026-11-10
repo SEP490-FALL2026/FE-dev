@@ -352,6 +352,9 @@ export const manager = {
     notAssigned: 'This step is no longer assigned to you.'
   },
   statuses: {
+    AWAITING_REQUESTER_REVISION: 'Awaiting requester revision',
+    RESERVE_CONFIRMATION: 'Awaiting reserve confirmation',
+    AWAITING_RESERVE_CONFIRMATION: 'Awaiting reserve confirmation',
     STAFF: 'Staff',
     CONTRACTOR: 'Contractor',
     FREELANCER: 'Freelancer',

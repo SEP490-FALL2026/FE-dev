@@ -21,7 +21,7 @@ export function CatalogApplicationForm({
 }) {
   const { t: translate } = useTranslation('itCatalog')
   const [selectedKind, setSelectedKind] = useState('SAAS')
-  const [ownerId, setOwnerId] = useState(application?.businessOwner.employeeId ?? '')
+  const [ownerId, setOwnerId] = useState(application?.businessOwner?.employeeId ?? '')
   const [functionalGroupId, setFunctionalGroupId] = useState(application?.functionalGroup?.id ?? '')
   const feedback = useItMutationFeedback(
     [getApplicationListQueryKey(), ...(application ? [getApplicationGetQueryKey(application.id)] : [])],

@@ -105,7 +105,6 @@ export function AssessmentFields({
             'memberUsageMethod',
             'grantRevokeMethod',
             'controlRiskNote',
-            'proposedBusinessOwnerEmployeeId',
             'equivalentPlanId'
           ] as const
         ).map((key) => (
@@ -119,19 +118,14 @@ export function AssessmentFields({
                   ? draft[key]
                   : key === 'vendorName'
                     ? item.vendor.name
-                    : key === 'proposedBusinessOwnerEmployeeId'
-                      ? item.proposedBusinessOwner?.employeeId
-                      : key === 'equivalentPlanId'
-                        ? item.equivalentTool?.planId
-                        : item[key]) ?? ''
+                    : key === 'equivalentPlanId'
+                      ? item.equivalentTool?.planId
+                      : item[key]) ?? ''
               }
               onChange={(event) =>
                 set(
                   key,
-                  event.target.value ||
-                    (['controlRiskNote', 'proposedBusinessOwnerEmployeeId', 'equivalentPlanId'].includes(key)
-                      ? null
-                      : undefined)
+                  event.target.value || (['controlRiskNote', 'equivalentPlanId'].includes(key) ? null : undefined)
                 )
               }
             />

@@ -94,7 +94,7 @@ export function CatalogRetirement({
           <p>{translate('retirementHint')}</p>
         </ItFormDialog>
       )}
-      {ownerConfirmation && application && (
+      {ownerConfirmation && application?.businessOwner && (
         <CatalogRetirementConfirmation
           applicationId={id}
           owner={application.businessOwner}

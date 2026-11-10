@@ -38,18 +38,42 @@ export function ManagerScreen({
   const { proposalId } = useParams()
   const me = useMeGet()
   const user = !me.isError ? me.data?.data : null
-  const departmentId = params.get('departmentId') ?? user?.managerScope?.departmentId ?? ''
+  const departmentId =
+    params.get('departmentId') ?? user?.managerScope?.departmentId ?? user?.upcomingUnits[0]?.departmentId ?? ''
+  const upcoming = user?.upcomingUnits.find((unit) => unit.departmentId === departmentId)
   const validDepartment = isResourceId(departmentId)
   const form = location.pathname.startsWith('/dashboard/manager/annual-budget/')
+  const budgetSection = form || tab === 'annual-budget'
   const needsDepartment =
     form || ['overview', 'my-team', 'team-software', 'employee-detail', 'tool-detail'].includes(tab)
   const department = useDepartmentGet(departmentId, {
     query: {
-      enabled: !!user && user.roles.includes('MANAGER') && !!user.managerScope && validDepartment && needsDepartment
+      enabled:
+        !!user &&
+        user.roles.includes('MANAGER') &&
+        !!user.managerScope &&
+        !upcoming &&
+        validDepartment &&
+        needsDepartment
     }
   })
   if (!user) return <ManagerQueryState query={me} empty={!user} syncPermissions={false} />
-  if (!user.roles.includes('MANAGER') || !user.managerScope) return <p role='alert'>{translate('errors.forbidden')}</p>
+  if (!user.roles.includes('MANAGER')) return <p role='alert'>{translate('errors.forbidden')}</p>
+  if (!user.managerScope && !budgetSection && user.upcomingUnits.length)
+    return (
+      <Navigate
+        replace
+        to={{
+          pathname: '/dashboard/manager',
+          search: new URLSearchParams({
+            tab: 'annual-budget',
+            departmentId,
+            ...(upcoming?.costCenterId ? { costCenterId: upcoming.costCenterId } : {})
+          }).toString()
+        }}
+      />
+    )
+  if (!user.managerScope && (!budgetSection || !upcoming)) return <p role='alert'>{translate('errors.forbidden')}</p>
   if (tab === 'notifications' || tab === 'personnel-notices') {
     const next = new URLSearchParams(params)
     next.set('tab', tab === 'notifications' ? 'overview' : 'my-team')
@@ -74,14 +98,18 @@ export function ManagerScreen({
     content =
       proposalId && !isResourceId(proposalId) ? (
         <p>{translate('errors.missing')}</p>
-      ) : department.isPending || department.isError ? (
+      ) : !upcoming && (department.isPending || department.isError) ? (
         <ManagerQueryState query={department} />
       ) : (
         <ManagerBudgetForm
           key={proposalId ?? 'new'}
           id={proposalId}
-          costCenterId={!department.isError ? department.data?.data?.costCenter?.id : undefined}
-          costCenterName={!department.isError ? department.data?.data?.costCenter?.name : undefined}
+          costCenterId={
+            upcoming?.costCenterId ?? (!department.isError ? department.data?.data?.costCenter?.id : undefined)
+          }
+          costCenterName={
+            upcoming?.departmentName ?? (!department.isError ? department.data?.data?.costCenter?.name : undefined)
+          }
         />
       )
   else if (tab === 'overview')

@@ -69,6 +69,7 @@ export const finance = {
     REQUEST_CANCELLED: 'Request cancelled'
   },
   requestStates: {
+    AWAITING_REQUESTER_REVISION: 'Awaiting requester revision',
     PENDING: 'Awaiting need review',
     WAITING_CONTROLLED: 'Awaiting configuration',
     AWAITING_EXECUTION: 'Awaiting provisioning',

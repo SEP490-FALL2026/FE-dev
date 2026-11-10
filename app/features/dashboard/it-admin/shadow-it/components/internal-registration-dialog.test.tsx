@@ -12,7 +12,7 @@ vi.mock('../../shared/hooks/use-it-mutation-feedback', () => ({
   useItMutationFeedback: () => ({ onError: mocks.error, onSuccess: mocks.success })
 }))
 describe('internal proposal registration', () => {
-  it('requires owner, submits no invented spending and keeps draft on error', async () => {
+  it('omits the removed owner field, submits no invented spending and keeps draft on error', async () => {
     mocks.register.mockRejectedValue(new Error('validation'))
     const close = vi.fn()
     const item = {
@@ -26,19 +26,18 @@ describe('internal proposal registration', () => {
         <InternalRegistrationDialog item={item} onClose={close} />
       </QueryClientProvider>
     )
-    expect(screen.getByRole('button', { name: 'confirm' })).toBeDisabled()
-    fireEvent.change(screen.getByLabelText('owner'), { target: { value: '12345678-1234-1234-1234-123456789012' } })
-    fireEvent.submit(screen.getByLabelText('owner').closest('form')!)
+    expect(screen.getByRole('button', { name: 'confirm' })).toBeEnabled()
+    expect(screen.queryByLabelText('owner')).not.toBeInTheDocument()
+    fireEvent.submit(screen.getByLabelText('softwareName').closest('form')!)
     await waitFor(() => expect(mocks.error).toHaveBeenCalled())
     expect(mocks.register).toHaveBeenCalledWith({
       id: 'request-1',
       data: {
-        businessOwnerEmployeeId: '12345678-1234-1234-1234-123456789012',
         softwareName: 'Internal tool',
         dataSensitivity: 'HIGH'
       }
     })
-    expect(screen.getByLabelText('owner')).toHaveValue('12345678-1234-1234-1234-123456789012')
+    expect(screen.getByLabelText('softwareName')).toHaveValue('Internal tool')
     expect(close).not.toHaveBeenCalled()
     expect(mocks.success).not.toHaveBeenCalled()
   })

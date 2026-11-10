@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { getMeGetQueryOptions } from '~/shared/api/generated/operations/me/me-get'
 import { getManagerError } from './manager-errors'
+import { requestContractErrorKey } from '~/entities/request/request-contract-errors'
 
 /** Shared UX for generated write operations; each caller owns its affected query keys. */
 export function useManagerAction<Result, Variables = void>(options: {
@@ -13,6 +14,7 @@ export function useManagerAction<Result, Variables = void>(options: {
 }) {
   const client = useQueryClient()
   const { t: translate } = useTranslation('manager')
+  const { t: flow } = useTranslation('requestFlow')
   const [retrySeconds, setRetrySeconds] = useState(0)
   const [uncertain, setUncertain] = useState(false)
   const [fields, setFields] = useState<string[]>([])
@@ -49,7 +51,8 @@ export function useManagerAction<Result, Variables = void>(options: {
         await client
           .fetchQuery({ ...getMeGetQueryOptions(), staleTime: 0, retry: false, networkMode: 'always' })
           .catch(() => undefined)
-      toast.error(translate(`errors.${failure.key}`), {
+      const contractKey = requestContractErrorKey(error)
+      toast.error(contractKey ? flow(contractKey) : translate(`errors.${failure.key}`), {
         id: 'manager-write',
         description: failure.requestId ? translate('requestId', { id: failure.requestId }) : undefined
       })

@@ -18,6 +18,10 @@ vi.mock('~/shared/api/generated/operations/provisioning-tasks', async (original)
 const task: TaskResponseDtoDataTask = {
   id: 'task-1',
   kind: 'GRANT',
+  dueOn: null,
+  notBefore: null,
+  claimableNow: true,
+  purchase: null,
   channel: 'MANUAL',
   status: 'IN_PROGRESS',
   accountIdentifier: 'employee@example.org',

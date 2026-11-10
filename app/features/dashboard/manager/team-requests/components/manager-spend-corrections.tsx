@@ -49,6 +49,7 @@ export function ManagerSpendCorrections({ id }: { id: string }) {
   )
 }
 function CorrectionDialog({ id, onClose }: { id: string; onClose: () => void }) {
+  const { t: flow } = useTranslation('requestFlow')
   const { t: translate } = useTranslation('manager')
   const keys = [
     getAccessRequestGetQueryKey(id),
@@ -80,11 +81,15 @@ function CorrectionDialog({ id, onClose }: { id: string; onClose: () => void }) 
             const dropEmployeeIds = parseEmployeeIds(String(form.get('dropEmployeeIds') ?? ''))
             supplement.mutate({
               reason: String(form.get('reason')).trim(),
-              dropEmployeeIds
+              ...(dropEmployeeIds.length ? { dropEmployeeIds } : {}),
+              ...(form.get('expectedEndDate') ? { expectedEndDate: String(form.get('expectedEndDate')) } : {})
             })
           }}
         >
           <fieldset disabled={action.blocked} className='space-y-4'>
+            <ManagerField label={flow('endDate')}>
+              <input type='date' name='expectedEndDate' className={managerInputClass} />
+            </ManagerField>
             <ManagerField label={translate('dropEmployees')}>
               <textarea
                 name='dropEmployeeIds'

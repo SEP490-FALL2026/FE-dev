@@ -36,6 +36,7 @@ import { useBudgetAttachments } from '../hooks/use-budget-attachments'
 import { getBudgetAttachmentMineListQueryKey } from '~/shared/api/generated/operations/budgets/budget-attachment-mine-list'
 import { PROPOSAL_STATE } from '../enums/budget-status'
 import { managerBudgetYear } from './manager-live-budget'
+import { ManagerBudgetContext } from '../components/manager-budget-context'
 
 export function ManagerBudgetForm({
   id,
@@ -89,6 +90,9 @@ function RevisionLoader({ id }: { id: string }) {
         items.push(...(next.data?.items ?? []))
       }
       return items.map((line) => ({
+        lineType: line.lineType,
+        priorityRank: line.priorityRank,
+        ...(line.zbb ? { zbb: line.zbb } : {}),
         description: line.description,
         amount: line.amount,
         ...(line.planId ? { planId: line.planId } : {}),
@@ -141,6 +145,7 @@ function ProposalForm({
     (initialLines?.length ? initialLines : [undefined]).map((initial, index) => ({ key: index, initial }))
   )
   const [nextKey, setNextKey] = useState(lines.length)
+  const [draftYear, setDraftYear] = useState(year)
   const attachments = useBudgetAttachments()
   const validCostCenter = isResourceId(costCenterId ?? '')
   const action = useManagerAction({
@@ -170,6 +175,7 @@ function ProposalForm({
   })
   return (
     <ManagerFormErrors fields={action.fields}>
+      <ManagerBudgetContext year={draftYear} costCenterId={costCenterId} />
       <form
         className='space-y-6'
         onSubmit={(event) => {
@@ -179,6 +185,7 @@ function ProposalForm({
           const bodyLines = lines.map((_, index) => budgetLineFromForm(form, index))
           action.mutate({
             year: Number(form.get('year')),
+            costCenterId,
             lines: bodyLines,
             ...(attachments.selected.length ? { attachmentIds: attachments.selected } : {})
           })
@@ -204,6 +211,10 @@ function ProposalForm({
                   step={1}
                   required
                   defaultValue={year}
+                  onChange={(event) => {
+                    const value = Number(event.target.value)
+                    if (Number.isInteger(value) && value >= 2000 && value <= 2200) setDraftYear(value)
+                  }}
                   readOnly={!!id}
                 />
               </ManagerField>
@@ -216,7 +227,11 @@ function ProposalForm({
           )}
           {lines.map((line, index) => (
             <ManagerSection key={line.key} title={translate('budgetForm.line', { number: index + 1 })}>
-              <ManagerBudgetLine index={index} initial={line.initial} />
+              <ManagerBudgetLine
+                index={index}
+                initial={line.initial}
+                explanationRequired={action.fields.some((field) => field.startsWith(`lines.${index}.zbb`))}
+              />
               <div className='flex justify-end'>
                 <ManagerButton
                   disabled={lines.length <= 1}

@@ -1,3 +1,5 @@
+import { ACCESS_REQUEST_ROUTING } from '~/entities/request/enums/access-request-routing'
+import { ACCESS_REQUEST_STATE } from '~/entities/request/enums/access-request-state'
 import { ArrowLeft, Boxes, Building2, Calendar, UserCheck, UserRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAccessRequestGet } from '~/shared/api/generated/operations/access-requests/access-request-get'
@@ -13,6 +15,9 @@ import { ManagerLineWithdrawals } from '../components/manager-line-withdrawals'
 import { isHeadWithdrawalStage } from '../enums/withdrawal'
 import { ManagerSimilarSeats } from '../components/manager-similar-seats'
 import { useManagerNeedRequirements } from '../hooks/use-manager-need-requirements'
+import { RequestFlowSummary } from '~/entities/request/components/request-flow-summary'
+import { RequestEventTimeline } from '~/entities/request/components/request-event-timeline'
+import { RequestRevision } from '~/entities/request/components/request-revision'
 
 export function ManagerLiveRequest({
   id,
@@ -26,7 +31,8 @@ export function ManagerLiveRequest({
   onBack: () => void
 }) {
   const { t: translate } = useTranslation('manager')
-  const { formatDateTime } = useDashboardFormat()
+  const { formatDateTime, formatDate } = useDashboardFormat()
+  const { t: flow } = useTranslation('requestFlow')
   const query = useAccessRequestGet(id)
   const data = !query.isError ? query.data?.data : null
   const request = data && 'request' in data ? data.request : null
@@ -112,11 +118,9 @@ export function ManagerLiveRequest({
               </div>
 
               <div className='rounded-xl border border-border/60 bg-surface p-3.5'>
-                <dt className='text-xs font-medium text-muted-foreground'>{translate('requestDetail.termMonths')}</dt>
+                <dt className='text-xs font-medium text-muted-foreground'>{flow('endDate')}</dt>
                 <dd className='mt-1 font-mono text-base font-semibold tabular-nums text-foreground'>
-                  {request.termMonths
-                    ? translate('requestDetail.termMonthsValue', { months: request.termMonths })
-                    : '—'}
+                  {request.expectedEndDate ? formatDate(request.expectedEndDate) : flow('indefinite')}
                 </dd>
               </div>
 
@@ -217,7 +221,21 @@ export function ManagerLiveRequest({
             </ManagerSection>
           )}
 
-          {request.state === REQUEST_STATE.AWAITING_SPEND_SUBMISSION && <ManagerSpendCorrections id={id} />}
+          <RequestFlowSummary request={request} />
+          <RequestEventTimeline id={id} />
+          {request.routing.mode === ACCESS_REQUEST_ROUTING.ONE_STEP &&
+            request.state === ACCESS_REQUEST_STATE.AWAITING_REQUESTER_REVISION &&
+            request.requester.employeeId === employeeId && (
+              <RequestRevision
+                departmentId={request.department.id}
+                id={id}
+                group={request.type === REQUEST_TYPE.GROUP_GRANT}
+                maxEndDate={request.expectedEndDate}
+              />
+            )}
+          {request.routing.mode === ACCESS_REQUEST_ROUTING.VIA_HEAD &&
+            request.state === REQUEST_STATE.AWAITING_SPEND_SUBMISSION &&
+            request.requester.employeeId !== employeeId && <ManagerSpendCorrections id={id} />}
         </div>
       )}
 

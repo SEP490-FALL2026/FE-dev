@@ -5,7 +5,15 @@ import { useRequestablePlanGet } from '~/shared/api/generated/operations/request
 import { ManagerChoiceSelect, type ManagerChoice } from '../../shared/components/manager-choice-select'
 import { ManagerPagination, ManagerQueryState } from '../../shared/components/manager-api-ui'
 
-export function ManagerBudgetPlanPicker({ name, initialId }: { name: string; initialId?: string }) {
+export function ManagerBudgetPlanPicker({
+  name,
+  initialId,
+  onChange
+}: {
+  name: string
+  initialId?: string
+  onChange?: (id?: string) => void
+}) {
   const { t: translate } = useTranslation('manager')
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
@@ -37,7 +45,10 @@ export function ManagerBudgetPlanPicker({ name, initialId }: { name: string; ini
         placeholder={translate('budgetForm.choosePlan')}
         selected={selected ? [selected] : []}
         options={options}
-        onChange={(choices) => setSelection(choices[0] ?? null)}
+        onChange={(choices) => {
+          setSelection(choices[0] ?? null)
+          onChange?.(choices[0]?.value)
+        }}
         onOpenChange={setOpen}
         hint={translate('budgetForm.planHint')}
         search={{

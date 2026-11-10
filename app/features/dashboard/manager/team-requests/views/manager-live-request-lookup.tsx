@@ -1,7 +1,6 @@
 import { ClipboardCheck } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { WorkspaceEmptyState } from '~/shared/ui/workspace-empty-state'
-import { ManagerSection } from '../../shared/components/manager-api-ui'
+import { ManagerDepartmentRequests } from '../components/manager-department-requests'
 import { ManagerPageHeader } from '../../shared/components/manager-page-header'
 import { ManagerNeedQueue } from '../components/manager-need-queue'
 
@@ -10,17 +9,8 @@ export function ManagerRequestLookup({ history, onOpen }: { history?: boolean; o
   return (
     <div className='space-y-5'>
       <ManagerPageHeader title={translate('requests')} icon={ClipboardCheck} />
-      {history ? (
-        <ManagerSection title={translate('needQueue')}>
-          <WorkspaceEmptyState
-            icon={ClipboardCheck}
-            title={translate('needQueueUnavailable')}
-            description={translate('noHistory')}
-          />
-        </ManagerSection>
-      ) : (
-        <ManagerNeedQueue onOpen={onOpen} />
-      )}
+      {!history && <ManagerNeedQueue onOpen={onOpen} />}
+      <ManagerDepartmentRequests ended={history} onOpen={onOpen} />
     </div>
   )
 }

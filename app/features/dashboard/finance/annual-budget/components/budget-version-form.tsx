@@ -8,7 +8,7 @@ import { isDecimal } from '../../shared/finance-money'
 const sectionTitleClass = 'text-xs font-semibold tracking-wider text-muted-foreground uppercase'
 const amountClass = `${financeInputClass} text-right font-mono tabular-nums`
 
-export type BudgetFigures = Omit<VersionBodyDto, 'proposalId'>
+export type BudgetFigures = Omit<Extract<VersionBodyDto, { proposalId: string }>, 'proposalId'>
 
 export function BudgetVersionForm({
   initial,

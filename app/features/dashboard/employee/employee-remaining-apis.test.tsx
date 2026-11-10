@@ -39,7 +39,7 @@ function mount(children: React.ReactNode) {
     </QueryClientProvider>
   )
 }
-it('reads and displays plan details including nullable vendor terms and data-loss information', async () => {
+it('reads plan terms and data-loss information while displaying vendor information only with the software', async () => {
   const reads = vi.fn()
   server.use(
     http.get('*/api/v1/requestable-plans/:id', ({ params }) => {
@@ -51,7 +51,8 @@ it('reads and displays plan details including nullable vendor terms and data-los
   await chooseCatalogPlan()
   const details = screen.getByRole('region', { name: 'Selected plan details' })
   expect(within(details).getByText('Sharing not allowed')).toBeInTheDocument()
-  expect(within(details).getByText('Test Vendor')).toBeInTheDocument()
+  expect(screen.getAllByText('Vendor', { exact: true })).toHaveLength(1)
+  expect(within(details).queryByText('Vendor', { exact: true })).not.toBeInTheDocument()
   expect(within(details).getByText('Yes')).toBeInTheDocument()
   expect(reads).toHaveBeenCalledExactlyOnceWith(catalogPlanDetails.id)
 })
@@ -100,7 +101,7 @@ it('handles unknown sharing values without granting sharing permissions', async 
   await chooseCatalogPlan()
   const details = screen.getByRole('region', { name: 'Selected plan details' })
   expect(within(details).getByText('Unsupported status')).toBeInTheDocument()
-  expect(within(details).getByText('Not available')).toBeInTheDocument()
+  expect(within(details).queryByText('Vendor', { exact: true })).not.toBeInTheDocument()
   expect(within(details).getByText('No')).toBeInTheDocument()
 })
 it('confirms return handover with no body, blocks duplicate clicks and refreshes the actual return', async () => {

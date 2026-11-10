@@ -57,7 +57,7 @@ export function ApprovalAnnualBudgetSummary({ version }: { version: VersionRespo
           <Fact label={translate('number')} value={String(version.number)} numeric />
           <Fact
             label={translate('kindLabel')}
-            value={translate(`kind.${version.kind}`, { defaultValue: translate('unavailable') })}
+            value={translate(`kind.${version.origin}`, { defaultValue: translate('unavailable') })}
           />
           <Fact label={translate('createdBy')} value={version.createdBy?.fullName ?? translate('unavailable')} />
           <Fact label={translate('createdAt')} value={formatDate(version.createdAt)} numeric />

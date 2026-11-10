@@ -195,7 +195,7 @@ it('shows proposal assessment and timings in Manager detail', async () => {
 })
 it('withdraws at a head stage with a required reason and invalidates the detail', async () => {
   const written = vi.fn()
-  let state = 'AWAITING_BUDGET'
+  let state = 'AWAITING_SPEND_SUBMISSION'
   server.use(
     http.get('*/api/v1/access-requests/:id', () =>
       HttpResponse.json({ success: true, data: { request: { ...managerRequest, state } } })

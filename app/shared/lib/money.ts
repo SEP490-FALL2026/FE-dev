@@ -8,7 +8,8 @@ export function isDecimal(value: string): boolean {
 }
 
 /** Keep server decimal strings exact, including cents beyond the safe integer range. */
-export function formatMoney(money: Money, locale: string): string {
+export function formatMoney(money: Money | null | undefined, locale: string): string {
+  if (!money) return '—'
   if (!/^-?\d+(?:\.\d+)?$/.test(money.amount)) return money.amount
   const negative = money.amount.startsWith('-')
   const [integer, fraction = ''] = money.amount.replace(/^-/, '').split('.')

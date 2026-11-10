@@ -21,6 +21,7 @@ export function ManagerGroupConfirmation({
   onCancel: () => void
 }) {
   const { t: translate } = useTranslation('manager')
+  const { t: flow } = useTranslation('requestFlow')
   const { t: employeeTranslate } = useTranslation('employee')
   const query = useQuery({
     queryKey: ['manager-group-check', body],
@@ -32,7 +33,7 @@ export function ManagerGroupConfirmation({
     check?.plan.eligible === true &&
     !check.tooManyLines &&
     !check.tooFewLines &&
-    !check.termBeyondLimit &&
+    !check.endDateOutOfRange &&
     check.lines.length === body.lines.length &&
     check.lines.every((line) => line.ok === true && body.lines.some((person) => person.employeeId === line.employeeId))
   const failures = new Map<string | null, ManagerChoice[]>()
@@ -50,17 +51,15 @@ export function ManagerGroupConfirmation({
       {check && (
         <>
           <ManagerMoney money={check.pricing.amount} />
-          <p className='text-sm text-muted-foreground'>
-            {translate('termLimit', { months: check.termLimit.maxMonths })}
-          </p>
+          <p className='text-sm text-muted-foreground'>{flow('maxEndDate', { date: check.maxEndDate })}</p>
           {check.tooFewLines && (
             <p role='status' className='text-sm text-warning'>
               {translate('groupMinimum')}
             </p>
           )}
-          {check.termBeyondLimit && (
+          {check.endDateOutOfRange && (
             <p role='status' className='text-sm text-warning'>
-              {translate('termLimit', { months: check.termLimit.maxMonths })}
+              {flow('maxEndDate', { date: check.maxEndDate })}
             </p>
           )}
           {!check.plan.eligible && (

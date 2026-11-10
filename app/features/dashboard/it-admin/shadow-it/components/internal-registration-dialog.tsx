@@ -16,7 +16,6 @@ export function InternalRegistrationDialog({
   onClose: () => void
 }) {
   const { t: translate } = useTranslation('itNewSoftware')
-  const [owner, setOwner] = useState(item.proposedBusinessOwner?.employeeId ?? '')
   const [name, setName] = useState(item.proposal.softwareName)
   const [sensitivity, setSensitivity] = useState<'LOW' | 'MEDIUM' | 'HIGH'>(item.dataSensitivity ?? 'LOW')
   const [quote, setQuote] = useState<AssessmentPatchDto['quote']>()
@@ -25,13 +24,12 @@ export function InternalRegistrationDialog({
   const feedback = useItMutationFeedback([getAccessRequestAssessmentGetQueryKey(item.requestId)], onClose)
   const mutation = useAccessRequestInternalRegister()
   async function submit() {
-    if (lock.current || mutation.isPending || !owner.trim() || !name.trim()) return
+    if (lock.current || mutation.isPending || !name.trim()) return
     lock.current = true
     try {
       await mutation.mutateAsync({
         id: item.requestId,
         data: {
-          businessOwnerEmployeeId: owner.trim(),
           softwareName: name.trim(),
           dataSensitivity: sensitivity,
           ...(quote ? { spend: { quote } } : {})
@@ -55,22 +53,13 @@ export function InternalRegistrationDialog({
       pending={mutation.isPending}
       onClose={onClose}
       submitLabel={translate('confirm')}
-      submitDisabled={!owner.trim() || !name.trim()}
+      submitDisabled={!name.trim()}
       onSubmit={(event) => {
         event.preventDefault()
         void submit()
       }}
     >
       <p className='text-sm text-muted-foreground'>{translate('internalRegistrationHint')}</p>
-      <ItField label={translate('owner')}>
-        <input
-          required
-          pattern='[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
-          className={itInputClass}
-          value={owner}
-          onChange={(event) => setOwner(event.target.value)}
-        />
-      </ItField>
       <ItField label={translate('softwareName')}>
         <input
           required

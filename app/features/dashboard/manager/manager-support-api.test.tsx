@@ -79,7 +79,7 @@ describe('Manager budget, group and personnel contracts', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Supplement request' }))
     fireEvent.change(screen.getByLabelText('Reason'), { target: { value: 'Update participants' } })
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm' }))
-    await waitFor(() => expect(written).toHaveBeenCalledWith({ reason: 'Update participants', dropEmployeeIds: [] }))
+    await waitFor(() => expect(written).toHaveBeenCalledWith({ reason: 'Update participants' }))
   })
   it('submits decimal money unchanged and omits empty optional budget fields', async () => {
     const written = vi.fn()
@@ -97,9 +97,12 @@ describe('Manager budget, group and personnel contracts', () => {
     await waitFor(() => expect(written).toHaveBeenCalledTimes(1))
     expect(written).toHaveBeenCalledWith({
       year: 2027,
+      costCenterId: employeeId,
       lines: [
         {
           description: 'Development licenses',
+          lineType: 'RENEW',
+          priorityRank: 1,
           amount: { amount: '9007199254740993.25' }
         }
       ]
@@ -190,7 +193,7 @@ describe('Manager budget, group and personnel contracts', () => {
     mount(<ManagerLiveCreate onOpen={vi.fn()} />, '/dashboard/manager')
     await chooseCatalogPlan()
     await screen.findByText('Sharing not allowed')
-    fireEvent.change(screen.getByLabelText('Term (months)'), { target: { value: '3' } })
+    fireEvent.change(screen.getByLabelText('Expected end date'), { target: { value: '2027-01-31' } })
     fireEvent.click(screen.getByRole('combobox', { name: 'Beneficiaries' }))
     fireEvent.click(await screen.findByRole('option', { name: /Test Employee/ }))
     fireEvent.click(screen.getByRole('option', { name: /Second Employee/ }))

@@ -10,6 +10,10 @@ import { getGrantQueueListQueryKey } from '~/shared/api/generated/operations/gra
 import { ItField, ItFormDialog, itInputClass } from '../../shared/components/it-form'
 import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
 import type { TaskAction } from '../task-actions'
+import { getLicenseKeyListQueryKey } from '~/shared/api/generated/operations/license-keys/license-key-list'
+import { RevocationCompletionBodyDtoKeyDisposition } from '~/shared/api/generated/model/provisioning-tasks/revocationCompletionBodyDtoKeyDisposition'
+import { ProvisioningKeyPicker } from './provisioning-key-picker'
+import { TaskKind } from '../enums/task-kind'
 
 export function ProvisioningActionDialog({
   task,
@@ -24,12 +28,21 @@ export function ProvisioningActionDialog({
   const [evidence, setEvidence] = useState('')
   const [reason, setReason] = useState('')
   const [note, setNote] = useState('')
+  const [licenseKeyId, setLicenseKeyId] = useState('')
+  const [keyValid, setKeyValid] = useState(false)
+  const [keyDisposition, setKeyDisposition] = useState<RevocationCompletionBodyDtoKeyDisposition>(
+    RevocationCompletionBodyDtoKeyDisposition.RETURN_TO_STORE
+  )
+  const [withdrawalReason, setWithdrawalReason] = useState('')
+  const completingKey = action === 'complete' && task.kind === TaskKind.GRANT && task.plan?.provisioningType === 'K4'
   const [completion, setCompletion] = useState<RevocationCompletionBodyDto['completion']>(
     task.plan?.provisioningType === 'K1'
       ? 'RENEWAL_CANCELLED'
       : task.plan?.provisioningType === 'K5'
         ? 'OFF_SYSTEM_REVOKED'
-        : 'ACCOUNT_REMOVED'
+        : task.plan?.provisioningType === 'K4'
+          ? 'KEY_DEACTIVATED'
+          : 'ACCOUNT_REMOVED'
   )
   const [accessState, setAccessState] = useState<'CUT' | 'UNTIL_PAID_END'>('UNTIL_PAID_END')
   const [paidThroughOn, setPaidThroughOn] = useState('')
@@ -42,19 +55,24 @@ export function ProvisioningActionDialog({
       api.getProvisioningTaskListQueryKey(),
       api.getProvisioningTaskGetQueryKey(task.id),
       getSubscriptionListQueryKey(),
+      getLicenseKeyListQueryKey(),
       getAssignmentExpiryQueueListQueryKey(),
       getGrantQueueListQueryKey()
     ],
     onClose
   )
   const mutation = useMutation({
+    retry: false,
     mutationFn: async () => {
       const id = task.id
       switch (action) {
         case 'claim':
           return api.provisioningTaskClaim(id)
         case 'complete':
-          return api.provisioningTaskComplete(id, { evidence: evidence.trim() })
+          return api.provisioningTaskComplete(id, {
+            evidence: evidence.trim(),
+            ...(completingKey ? { licenseKeyId } : {})
+          })
         case 'failure':
           return api.provisioningTaskReportFailure(id, { reason: reason.trim() })
         case 'retry':
@@ -70,6 +88,14 @@ export function ProvisioningActionDialog({
         case 'revocation':
           return api.provisioningTaskCompleteRevocation(id, {
             completion,
+            ...(completion === 'KEY_DEACTIVATED'
+              ? {
+                  keyDisposition,
+                  ...(keyDisposition === RevocationCompletionBodyDtoKeyDisposition.WITHDRAW
+                    ? { withdrawalReason: withdrawalReason.trim() }
+                    : {})
+                }
+              : {}),
             ...(completion === 'ALREADY_GONE' ? { note: note.trim() } : { evidence: evidence.trim() }),
             ...(completion === 'RENEWAL_CANCELLED'
               ? {
@@ -87,7 +113,7 @@ export function ProvisioningActionDialog({
     ['complete', 'accessCut'].includes(action) || (action === 'revocation' && completion !== 'ALREADY_GONE')
   return (
     <ItFormDialog
-      wide={action === 'revocation'}
+      wide={action === 'revocation' || completingKey}
       title={translate(`actions.${action}`)}
       onClose={onClose}
       onSubmit={(event) => {
@@ -98,11 +124,54 @@ export function ProvisioningActionDialog({
       submitLabel={translate('confirm')}
       submitDisabled={
         (needsEvidence && !evidence.trim()) ||
+        (completingKey && !keyValid) ||
+        (action === 'revocation' &&
+          completion === 'KEY_DEACTIVATED' &&
+          keyDisposition === RevocationCompletionBodyDtoKeyDisposition.WITHDRAW &&
+          !withdrawalReason.trim()) ||
         (['failure', 'closeFailed'].includes(action) && !reason.trim()) ||
         (action === 'revocation' && completion === 'ALREADY_GONE' && !note.trim())
       }
     >
       <p className='text-sm text-muted-foreground'>{translate(action === 'cancel' ? 'cancelHint' : 'confirmHint')}</p>
+      {completingKey && (
+        <ProvisioningKeyPicker
+          subscriptionId={task.subscriptionId}
+          value={licenseKeyId}
+          onChange={setLicenseKeyId}
+          onValidityChange={setKeyValid}
+        />
+      )}
+      {action === 'revocation' && completion === 'KEY_DEACTIVATED' && (
+        <>
+          <ItChoiceSelect
+            label={translate('keyDisposition')}
+            value={keyDisposition}
+            options={Object.values(RevocationCompletionBodyDtoKeyDisposition).map((value) => ({
+              value,
+              label: translate(`values.${value}`)
+            }))}
+            onChange={(value) => {
+              if (
+                value === RevocationCompletionBodyDtoKeyDisposition.RETURN_TO_STORE ||
+                value === RevocationCompletionBodyDtoKeyDisposition.WITHDRAW
+              )
+                setKeyDisposition(value)
+            }}
+          />
+          {keyDisposition === RevocationCompletionBodyDtoKeyDisposition.WITHDRAW && (
+            <ItField label={translate('withdrawalReason')} hint={translate('withdrawalHint')}>
+              <textarea
+                className={itInputClass}
+                required
+                maxLength={500}
+                value={withdrawalReason}
+                onChange={(event) => setWithdrawalReason(event.target.value)}
+              />
+            </ItField>
+          )}
+        </>
+      )}
       {action === 'revocation' && task.plan?.provisioningType === 'K2' && (
         <ItChoiceSelect
           label={translate('completion')}

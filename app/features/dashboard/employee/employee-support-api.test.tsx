@@ -76,7 +76,7 @@ describe('Employee support and group contracts', () => {
     expect(check).toHaveBeenCalledWith({
       planId,
       businessReason: 'Team development',
-      termMonths: 1,
+
       lines: [{ employeeId }, { employeeId: planId }]
     })
   })

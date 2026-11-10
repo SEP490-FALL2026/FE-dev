@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { type CostCenterPageResponseDtoDataItemsItem } from '~/shared/api/generated/model/cost-centers'
 import type { FinanceTabKey } from '../../enums'
@@ -33,17 +32,8 @@ export function CostCenterDetail({
   const budgets = useCurrentBudgetsByCostCenter(year)
   const budget = budgets.data?.byCostCenter.get(item.id)
 
-  // Đọc phí cơ sở và phí dự trù nếu có từ DTO mở rộng
-  const anyBudget = budget as unknown as { base?: { amount: string; currency: string }; reserve?: { amount: string; currency: string } }
-  const totalAmount = budget ? Number(budget.total.amount) : 0
-  const baseMoney = anyBudget?.base ?? {
-    amount: String(Math.round(totalAmount * 0.9)),
-    currency: budget?.total.currency ?? 'VND'
-  }
-  const reserveMoney = anyBudget?.reserve ?? {
-    amount: String(Math.round(totalAmount * 0.1)),
-    currency: budget?.total.currency ?? 'VND'
-  }
+  const baseMoney = budget?.base
+  const reserveMoney = budget?.reserve
 
   return (
     <FinanceDrawer title={`${item.code} · ${item.name}`} onClose={onClose}>
@@ -52,7 +42,9 @@ export function CostCenterDetail({
           <span className='font-medium text-foreground'>{item.department?.name ?? translate('noDepartment')}</span>
           <FinanceStatus value={item.status} />
         </p>
-        <span className='font-mono text-xs text-muted-foreground'>{translate('budgetOfYear', { year: year ?? '—' })}</span>
+        <span className='font-mono text-xs text-muted-foreground'>
+          {translate('budgetOfYear', { year: year ?? '—' })}
+        </span>
       </div>
 
       <FinanceSection title={translate('budgetOfYear', { year: year ?? '—' })}>

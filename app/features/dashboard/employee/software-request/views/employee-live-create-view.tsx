@@ -80,6 +80,7 @@ function LiveCreateForm({
   onSelectTab: (tab: EmployeeTabKey, params?: Record<string, string>) => void
 }) {
   const { t: translate } = useTranslation('employee')
+  const { t: flow } = useTranslation('requestFlow')
   const formRef = useRef<HTMLFormElement>(null)
   const [selectedAssignmentId, setAssignmentId] = useState(assignmentId)
   const assignments = useRequestAssignments(mode)
@@ -115,7 +116,9 @@ function LiveCreateForm({
             (field instanceof HTMLInputElement ||
               field instanceof HTMLTextAreaElement ||
               field instanceof HTMLSelectElement) &&
-            field.name
+            field.name &&
+            field.name !== 'businessReason' &&
+            field.name !== 'manyPaidSoftwareReason'
           )
             workflow.clearPreview()
         }}
@@ -133,6 +136,7 @@ function LiveCreateForm({
                   value={plan}
                   onChange={(choice) => {
                     setPlan(choice)
+                    workflow.setMembers((members) => members.map((member) => ({ ...member, reasonRequired: false })))
                     workflow.clearPreview()
                   }}
                   disabled={busy || workflow.feedback.blocked}
@@ -166,15 +170,12 @@ function LiveCreateForm({
                 </EmployeeField>
               )}
               {mode !== 'return' && mode !== 'renewal' && (
-                <EmployeeField label={translate('term')}>
+                <EmployeeField label={flow('endDate')}>
                   <EmployeeInput
-                    required
-                    type='number'
-                    name='termMonths'
-                    min={1}
-                    max={preview?.preview?.termLimit?.maxMonths ?? preview?.groupCheck?.termLimit?.maxMonths ?? 12}
-                    step={1}
-                    defaultValue={1}
+                    required={preview?.preview?.termRequired}
+                    type='date'
+                    name='expectedEndDate'
+                    max={preview?.preview?.maxEndDate ?? preview?.groupCheck?.maxEndDate}
                   />
                 </EmployeeField>
               )}
@@ -204,6 +205,17 @@ function LiveCreateForm({
                   workflow.clearPreview()
                 }}
               />
+            )}
+            {mode === 'individual' && workflow.requiresReason && (
+              <EmployeeField label={flow('manyReason')}>
+                <textarea
+                  required
+                  name='manyPaidSoftwareReason'
+                  maxLength={1000}
+                  rows={3}
+                  className={employeeInputClass}
+                />
+              </EmployeeField>
             )}
             {mode === 'proposal' ? (
               <>

@@ -27,7 +27,7 @@ const wait: ControlledWaitListResponseDtoDataItemsItem = {
 const step: CongestionStepsResponseDtoDataItemsItem = {
   requestId,
   stepId,
-  stepKind: 'FINANCE_REVIEW',
+  stepKind: 'NEED',
   state: 'PENDING',
   createdAt: '2026-10-25T03:00:00Z',
   dueAt: '2026-10-28T03:00:00Z',
@@ -82,8 +82,8 @@ function useOperationsHandlers(waitItem: unknown = wait, stepItem: unknown = ste
 }
 
 it.each([
-  ['en', 'Spending approval', 'Finance review', 'Created', 'Due'],
-  ['vi', 'Duyệt chi', 'Finance rà soát', 'Ngày tạo', 'Hạn xử lý']
+  ['en', 'Spending approval', 'Needs approval', 'Created', 'Due'],
+  ['vi', 'Duyệt chi', 'Duyệt nhu cầu', 'Ngày tạo', 'Hạn xử lý']
 ] as const)(
   'uses requester and step context without exposing internal IDs in %s',
   async (language, waitKind, stepKind, created, due) => {

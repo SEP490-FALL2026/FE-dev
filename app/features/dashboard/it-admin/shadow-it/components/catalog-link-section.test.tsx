@@ -81,14 +81,14 @@ const assessment: AssessmentResponseDtoDataAssessment = {
   rejection: null,
   pricing: {
     status: 'MISSING',
+    kind: null,
+    months: null,
+    monthlyPrice: null,
+    nextYearAmount: null,
     missingReason: 'AWAITING_QUOTE',
     amount: null,
     unitPrice: null,
-    billingCycle: null,
-    periodCount: null,
-    bindingPeriodCount: null,
-    firstDueOn: null,
-    lastDueOn: null
+    billingCycle: null
   }
 }
 const actualPlan = {

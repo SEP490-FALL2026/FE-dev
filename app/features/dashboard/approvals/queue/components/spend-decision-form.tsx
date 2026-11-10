@@ -16,7 +16,6 @@ import { useSpendDecision } from '../hooks/use-spend-decision'
 import type { useSpendYears } from '../hooks/use-spend-years'
 import { SPEND_DECISION } from '../enums/spend-decision'
 import { SPEND_STEP_STATE } from '../enums/spend-step-state'
-import { BUDGET_YEAR_CODE } from '../enums/budget-year-code'
 import { BENEFICIARY_STATE } from '../enums/beneficiary-state'
 import type { SpendApproval } from './spend-request-facts'
 
@@ -24,7 +23,6 @@ type Year = ReturnType<typeof useSpendYears>['years'][number]
 export function SpendDecisionForm({
   approval,
   isGroup,
-  years,
   ready,
   blocked
 }: {
@@ -61,11 +59,6 @@ export function SpendDecisionForm({
     !mutations.isPending &&
     (!isGroup || beneficiaries.isComplete)
   )
-  const deficientYears = years
-    .filter(
-      (year) => year.code === BUDGET_YEAR_CODE.INSUFFICIENT_BUDGET || year.code === BUDGET_YEAR_CODE.NO_ACTIVE_BUDGET
-    )
-    .map((year) => year.year)
   const allLinesDecided =
     confirmedLines.length > 0 &&
     confirmedLines.length <= 100 &&
@@ -77,14 +70,10 @@ export function SpendDecisionForm({
           (draft.decision === SPEND_DECISION.REJECT && Boolean(draft.reason.trim())))
       )
     })
-  const hasApproval = isGroup
-    ? confirmedLines.some((line) => lineDrafts[line.employee.employeeId]?.decision === SPEND_DECISION.APPROVE)
-    : decision === SPEND_DECISION.APPROVE
-  const insufficientBudget = !isGroup && hasApproval && deficientYears.length > 0
   const decisionValid = isGroup
     ? allLinesDecided
     : decision === SPEND_DECISION.APPROVE || (decision === SPEND_DECISION.REJECT && Boolean(reason.trim()))
-  const valid = canDecide && confirmed && decisionValid && !insufficientBudget
+  const valid = canDecide && confirmed && decisionValid
   const options = [
     { value: '', label: translate('choose') },
     { value: SPEND_DECISION.APPROVE, label: translate('approve') },
@@ -194,7 +183,6 @@ export function SpendDecisionForm({
               )}
             </>
           )}
-          {insufficientBudget && <p className='text-sm text-danger'>{translate('budgetInsufficient')}</p>}
           <label className='flex min-h-11 items-start gap-3 text-sm'>
             <input
               className='mt-0.5 size-4 accent-primary'

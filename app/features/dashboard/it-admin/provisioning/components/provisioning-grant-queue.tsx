@@ -21,22 +21,30 @@ import { ItField, ItFormDialog, itInputClass, itButtonClass } from '../../shared
 import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
 import { ServiceAccountReviewDialog } from './service-account-review-dialog'
 import { BoundaryState } from '../enums/boundary-state'
+import { useWorkspaceFormat } from '~/shared/hooks/use-workspace-format'
 
 function GrantDialog({
   request,
   onClose,
-  onCreated
+  onCreated,
+  ready
 }: {
   request: GrantQueueResponseDtoDataItemsItem
   onClose: () => void
   onCreated: (id: string) => void
+  ready: boolean
 }) {
   const { t: translate } = useTranslation('itProvisioning')
+  const { formatNumber } = useWorkspaceFormat()
   const [draft, setDraft] = useState<GrantBodyDto>({
     requestId: request.requestId,
     beneficiaryEmployeeId: request.beneficiary.employeeId
   })
   const [page, setPage] = useState(1)
+  const [purchase, setPurchase] = useState(false)
+  const [purchaseReason, setPurchaseReason] = useState('')
+  const canPurchase = ['SEATS', 'KEYS'].includes(request.stock?.kind) && request.stock.free === 0
+  const needsPurchaseReason = canPurchase && request.stock.inRevocation > 0
   const subscriptions = useQuery({
     queryKey: getSubscriptionListQueryKey({ planId: request.plan.planId, status: 'ACTIVE', page, pageSize: 20 }),
     queryFn: () => subscriptionList({ planId: request.plan.planId, status: 'ACTIVE', page, pageSize: 20 })
@@ -50,7 +58,12 @@ function GrantDialog({
     getSubscriptionListQueryKey()
   ])
   const mutation = useMutation({
-    mutationFn: () => provisioningTaskGrant(draft),
+    retry: false,
+    mutationFn: () =>
+      provisioningTaskGrant({
+        ...draft,
+        ...(canPurchase && purchase ? { purchase: purchaseReason.trim() ? { reason: purchaseReason.trim() } : {} } : {})
+      }),
     onError: feedback.onError,
     onSuccess: async (result) => {
       await feedback.onSuccess()
@@ -68,6 +81,7 @@ function GrantDialog({
       title={translate('startGrant')}
       onClose={onClose}
       pending={mutation.isPending}
+      submitDisabled={!ready || (canPurchase && (!purchase || (needsPurchaseReason && !purchaseReason.trim())))}
       onSubmit={(event) => {
         event.preventDefault()
         if (!mutation.isPending) mutation.mutate()
@@ -75,9 +89,44 @@ function GrantDialog({
       submitLabel={translate('confirm')}
     >
       <p className='text-sm text-muted-foreground'>{translate('grantHint')}</p>
+      {!ready && (
+        <p role='status' className='text-sm text-warning'>
+          {translate('grantQueueChanged')}
+        </p>
+      )}
       <p className='text-sm'>
         {request.plan.applicationName} · {request.plan.planName} · {request.beneficiary.fullName}
       </p>
+      {request.stock && request.stock.kind !== 'NONE' && (
+        <p className='text-sm text-muted-foreground'>
+          {translate('stockSummary', {
+            free: formatNumber(request.stock.free),
+            revoking: formatNumber(request.stock.inRevocation)
+          })}
+        </p>
+      )}
+      {canPurchase && (
+        <>
+          <label className='flex min-h-11 items-center gap-3 text-sm'>
+            <input type='checkbox' checked={purchase} onChange={(event) => setPurchase(event.target.checked)} />
+            {translate('purchaseWhenEmpty')}
+          </label>
+          {purchase && (
+            <ItField
+              label={translate('purchaseReason')}
+              hint={translate(needsPurchaseReason ? 'purchaseReasonRequired' : 'purchaseReasonOptional')}
+            >
+              <textarea
+                className={itInputClass}
+                required={needsPurchaseReason}
+                maxLength={500}
+                value={purchaseReason}
+                onChange={(event) => setPurchaseReason(event.target.value)}
+              />
+            </ItField>
+          )}
+        </>
+      )}
       <ItQueryState query={subscriptions}>
         <ItChoiceSelect
           label={translate('subscription')}
@@ -141,6 +190,12 @@ export function ProvisioningGrantQueue({ onCreated }: { onCreated: (id: string) 
     queryFn: () => grantQueueList({ page, pageSize: 20, ...(filter ? { beneficiaryEmployeeId: filter } : {}) })
   })
   const data = query.data?.data
+  const selectedRequest = data?.items.find(
+    (item) =>
+      selected &&
+      item.requestId === selected.requestId &&
+      item.beneficiary.employeeId === selected.beneficiary.employeeId
+  )
   return (
     <div className='space-y-4'>
       <form
@@ -205,7 +260,14 @@ export function ProvisioningGrantQueue({ onCreated }: { onCreated: (id: string) 
         )}
       </ItQueryState>
       {data && <ItPagination page={page} pageSize={20} total={data.pagination.totalItems} onChange={setPage} />}
-      {selected && <GrantDialog request={selected} onCreated={onCreated} onClose={() => setSelected(null)} />}
+      {selected && (
+        <GrantDialog
+          request={selectedRequest ?? selected}
+          ready={!!selectedRequest && !query.isError && !query.isFetching}
+          onCreated={onCreated}
+          onClose={() => setSelected(null)}
+        />
+      )}
       {reviewId && <ServiceAccountReviewDialog requestId={reviewId} onClose={() => setReviewId(null)} />}
     </div>
   )

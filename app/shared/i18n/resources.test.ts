@@ -36,6 +36,7 @@ describe('translation resources', () => {
       'landing',
       'manager',
       'notFound',
+      'requestFlow',
       'theme'
     ]
 
@@ -82,7 +83,8 @@ describe('translation resources', () => {
       'itRenewals',
       'itTransfers',
       'employee',
-      'manager'
+      'manager',
+      'requestFlow'
     ] as const) {
       expect(keys(resources.en[namespace]).sort(), namespace).toEqual(keys(resources.vi[namespace]).sort())
     }
