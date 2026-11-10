@@ -13,7 +13,8 @@ export const apiVersion: VersionResponseDtoDataVersion = {
   costCenter: { id: 'center-1', code: 'ENG', name: 'Engineering API' },
   year: 2027,
   number: 1,
-  kind: 'INITIAL',
+  baseReason: null,
+  origin: 'PROPOSAL',
   state: 'DRAFT',
   waitingReason: null,
   proposalId: 'proposal-1',
@@ -42,7 +43,11 @@ export const apiLine: VersionLinePageResponseDtoDataItemsItem = {
   seats: 2,
   amount: exactMoney,
   financeComment: null,
-  adjustmentReason: null
+  adjustmentReason: null,
+  lineType: 'RENEW',
+  zbb: null,
+  priorityRank: 1,
+  overCeiling: null
 }
 export const apiPage = <Item,>(items: Item[], page = 1) => ({
   items,

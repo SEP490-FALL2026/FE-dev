@@ -18,6 +18,7 @@ export type FinanceTranslationKey =
   | 'overview'
   | 'costCenters'
   | 'budgets'
+  | 'budgetCycles'
   | 'proposals'
   | 'versions'
   | 'spendBatches'
@@ -49,6 +50,7 @@ export const financeAreas: readonly FinanceArea[] = [
     key: 'planning',
     icon: LineChart,
     tabs: [
+      { key: 'budget-cycles', icon: Landmark, translationKey: 'budgetCycles' },
       { key: 'annual-proposals', icon: FileInput, translationKey: 'proposals' },
       { key: 'budget-negotiation', icon: CalendarRange, translationKey: 'versions' }
     ]

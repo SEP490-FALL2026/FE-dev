@@ -8,6 +8,7 @@ import {
   ApprovalsStatus
 } from '../../shared/components/approvals-ui'
 import { formatMoney } from '../../shared/approvals-money'
+import { SPEND_ROUTING_MODE } from '../enums/spend-routing-mode'
 import { useDashboardFormat } from '../../../dashboard-ui'
 
 export type SpendApproval = NonNullable<Awaited<ReturnType<typeof spendApprovalGet>>['data']>['spendApproval']
@@ -32,7 +33,7 @@ function FactList({ facts }: { facts: { label: string; value: string; numeric?: 
 export function SpendRequestFacts({ approval, isGroup }: { approval: SpendApproval; isGroup: boolean }) {
   const { t: translate, i18n } = useTranslation('approvalsSpend')
   const { formatDate, formatDateTime, formatNumber } = useDashboardFormat()
-  const { request, step, need, cost, assessment, decision } = approval
+  const { request, step, need, cost, assessment, decision, routing, budgetSnapshot, annualVendorAmount } = approval
   const headlineCost = cost?.totalPayable ?? cost?.estimatedCost ?? null
   return (
     <div className='space-y-6'>
@@ -45,12 +46,24 @@ export function SpendRequestFacts({ approval, isGroup }: { approval: SpendApprov
           {translate(`waitingReason.${step.waitingReason}`, { defaultValue: translate('waitingReason.unknown') })}
         </p>
       )}
-      {(step.samePersonAsSpend || step.noIndependentReview) && (
+      {routing.mode === SPEND_ROUTING_MODE.ONE_STEP && (
+        <div className={`${noticeClass} border-warning/30 bg-warning/10 text-warning-ink`}>
+          <AlertTriangle aria-hidden className='mt-0.5 size-4 shrink-0' strokeWidth={1.5} />
+          <p>
+            {translate(`oneStepReason.${routing.oneStepReason ?? 'UNKNOWN'}`, {
+              defaultValue: translate('oneStepReason.UNKNOWN')
+            })}
+          </p>
+        </div>
+      )}
+      {budgetSnapshot?.reserveConfirmation && (
         <div className={`${noticeClass} border-warning/30 bg-warning/10 text-warning-ink`}>
           <AlertTriangle aria-hidden className='mt-0.5 size-4 shrink-0' strokeWidth={1.5} />
           <div className='space-y-1'>
-            {step.samePersonAsSpend && <p>{translate('samePerson')}</p>}
-            {step.noIndependentReview && <p>{translate('noReview')}</p>}
+            <p className='font-medium'>
+              {translate('reserveConfirmedBy', { name: budgetSnapshot.reserveConfirmation.confirmedBy.fullName })}
+            </p>
+            <p className='whitespace-pre-wrap'>{budgetSnapshot.reserveConfirmation.reason}</p>
           </div>
         </div>
       )}
@@ -60,7 +73,13 @@ export function SpendRequestFacts({ approval, isGroup }: { approval: SpendApprov
           value={headlineCost ? formatMoney(headlineCost, i18n.language) : translate('unavailable')}
           emphasis
         />
-        <ApprovalsStat label={translate('term')} value={formatNumber(request.termMonths)} />
+        <ApprovalsStat
+          label={translate('term')}
+          value={request.termMonths === null ? translate('unavailable') : formatNumber(request.termMonths)}
+        />
+        {annualVendorAmount && (
+          <ApprovalsStat label={translate('annualVendorAmount')} value={formatMoney(annualVendorAmount, i18n.language)} />
+        )}
         <ApprovalsStat label={translate('openedAt')} value={formatDate(step.openedAt)} />
         <ApprovalsStat label={translate('sla')} value={formatNumber(step.slaWorkingDays)} />
         <ApprovalsStat label={translate('budgetYear')} value={request.budgetYear ?? translate('unavailable')} />

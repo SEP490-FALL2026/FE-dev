@@ -1,4 +1,5 @@
 export const finance = {
+  budgetCycles: 'Budget cycles',
   periodClose: 'Period close',
   periodReport: 'Period report',
   areas: {
@@ -28,6 +29,7 @@ export const finance = {
   invoiceNumber: 'Invoice number',
   issuedOn: 'Issued on',
   netAmount: 'Net amount',
+  invoiceNote: 'Note',
   deductibleTax: 'Deductible tax (VAT)',
   nonDeductibleTax: 'Non-deductible tax',
   actualCost: 'Actual cost',
@@ -74,9 +76,8 @@ export const finance = {
     AWAITING_EXECUTION: 'Awaiting provisioning',
     AWAITING_IT_ASSESSMENT: 'Awaiting IT assessment',
     AWAITING_SPEND_SUBMISSION: 'Awaiting spend submission',
-    AWAITING_FINANCE_REVIEW: 'Awaiting Finance review',
-    AWAITING_BUDGET: 'Awaiting budget',
     AWAITING_SPEND_DECISION: 'Awaiting spend decision',
+    AWAITING_REQUESTER_REVISION: 'Awaiting requester revision',
     REJECTED: 'Rejected',
     IT_REJECTED: 'Rejected by IT',
     EXECUTING: 'Provisioning',
@@ -90,6 +91,8 @@ export const finance = {
   expensedStatusOption: 'Expensed (EXPENSED)',
   releasedStatusOption: 'Released (RELEASED)',
   invoices: {
+    actualCostPreview: 'Actual cost to be counted as spend',
+    deductibleSeparate: 'Deductible tax is shown apart and not counted as spend',
     matchedToast: 'Invoice matched and recorded successfully.',
     taxOnlyToast: 'Invoice recorded (tax discrepancy only).',
     exceptionToast: 'Invoice recorded as expense (exceeded commitment - flagged for discrepancy).',

@@ -55,12 +55,14 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
         }}
         currency={version.total.currency}
         disabled={query.isError || query.isFetching}
+        askBaseReason={dialog === 'edit'}
         pending={updateMutation.isPending || rebuildMutation.isPending}
         onClose={() => setDialog(undefined)}
         onSubmit={(figures) => {
           if (dialog === 'rebuild' && version.proposalId) {
             rebuildMutation.mutate({
               data: {
+                source: 'PROPOSAL',
                 proposalId: version.proposalId,
                 base: figures.base,
                 reserve: figures.reserve,
@@ -94,7 +96,7 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
               </div>
               <p className='font-mono text-xs text-muted-foreground tabular-nums'>
                 {version.costCenter.code} · {translate('fields.year')} {version.year} · {translate('fields.number')}{' '}
-                {version.number}
+                {version.number} · {translate(`origins.${version.origin}`, { defaultValue: translate('unknown') })}
               </p>
             </div>
             <FinanceStatGrid>

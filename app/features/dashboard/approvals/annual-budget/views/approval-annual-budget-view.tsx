@@ -86,11 +86,6 @@ function VersionList({ onOpen }: { onOpen: (id: string) => void }) {
             { key: 'year', label: translate('year'), numeric: true, render: (version) => version.year },
             { key: 'number', label: translate('number'), numeric: true, render: (version) => version.number },
             {
-              key: 'kind',
-              label: translate('kindLabel'),
-              render: (version) => translate(`kind.${version.kind}`, { defaultValue: translate('unavailable') })
-            },
-            {
               key: 'total',
               label: translate('total'),
               numeric: true,

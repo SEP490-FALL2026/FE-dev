@@ -40,6 +40,10 @@ export const financeBudget = {
     base: 'Base amount',
     reserve: 'Reserve amount',
     reserveReason: 'Reason for the reserve amount',
+    baseReason: 'Reason for changing the base',
+    lineType: 'Line type',
+    priorityRank: 'Priority rank',
+    flags: 'Flags',
     highValuePercent: 'High value threshold (%)',
     highValueAmount: 'High value amount',
     q1: 'Quarter 1',
@@ -90,6 +94,80 @@ export const financeBudget = {
     SUPERSEDED: 'Superseded',
     EXPIRED: 'Expired'
   },
+  baseReasonHint: 'Give the reason when the base of a created version changes.',
+  zbbHint: 'Short ZBB justification: fill all four fields or leave all four empty.',
+  lineTypes: {
+    RENEW: 'Renew',
+    CHANGE: 'Change',
+    NEW: 'New purchase',
+    CANCEL: 'Cancel'
+  },
+  flags: {
+    zbb: 'ZBB justification',
+    overCeiling: 'Over department ceiling'
+  },
+  zbb: {
+    purpose: 'Purpose',
+    alternatives: 'Alternatives',
+    consequenceIfNot: 'Consequence if not bought',
+    usageIndicator: 'Usage indicator'
+  },
+  origins: {
+    PROPOSAL: 'From the head proposal',
+    BASELINE_NO_HEAD: 'From baseline (no head)'
+  },
+  budgetCycle: {    title: 'Budget cycles',
+    open: 'Open budget cycle',
+    openTitle: 'Open budget cycle',
+    openSubmit: 'Open cycle',
+    detailTitle: 'Budget cycle {{year}}',
+    annualCeiling: 'Annual software budget ceiling',
+    ceilingHint: 'The figure set by leadership, in the reporting currency.',
+    sharedPoolReserve: 'Shared-pool reserve',
+    sharedPoolHint: 'A control figure for the shared-pool line, not a fund.',
+    allocated: 'Allocated',
+    unallocated: 'Unallocated',
+    submissionDeadline: 'Submission deadline',
+    decisionDeadline: 'Decision deadline',
+    deadlineOrder: 'The decision deadline must be on or after the submission deadline.',
+    deadlines: 'Submit by {{submission}} · Decide by {{decision}}',
+    priorities: 'Priorities',
+    publish: 'Publish department ceilings',
+    changedAfterPublish:
+      'The division changed since it was last published. Publish again so heads see the new figures.',
+    ceilingsTitle: 'Divide department ceilings',
+    saveCeilings: 'Save division',
+    department: 'Department',
+    ceiling: 'Department ceiling',
+    explanation: 'Explanation',
+    ceilingField: {
+      signedCommitments: 'Signed commitments',
+      plannedSeats: 'Planned seats',
+      priority: 'Priority'
+    },
+    packageTitle: 'Department package',
+    available: 'Available to departments',
+    proposalsTotal: 'Proposals total',
+    versionsTotal: 'Versions total',
+    overBy: 'Over the available amount',
+    proposalsOverAvailable: 'Proposals add up to more than the ceiling leaves for departments.',
+    proposal: 'Proposal',
+    version: 'Version',
+    noProposal: 'Not submitted',
+    noVersion: 'Not created',
+    baselineAllowed: 'Can start from baseline',
+    status: {
+      NOT_PUBLISHED: 'Not published',
+      PUBLISHED: 'Published',
+      CHANGED_AFTER_PUBLISH: 'Changed after publish'
+    },
+    headStatus: {
+      title: 'Department head',
+      HAS_HEAD: 'Has a head',
+      HEAD_TO_COME: 'Head to come',
+      NO_HEAD: 'No head'
+    }
+  },
   cycles: {
     MONTHLY: 'Monthly',
     QUARTERLY: 'Quarterly',
@@ -135,7 +213,7 @@ export const financeBudget = {
     returnReason: 'State what the department head must add or change'
   },
   sections: {
-    item: 'Spend item',
+    zbb: 'ZBB justification',    item: 'Spend item',
     schedule: 'Purchase timing and cycle',
     notes: 'Notes',
     figures: 'Budget figures',

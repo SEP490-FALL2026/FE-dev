@@ -1,4 +1,5 @@
 export const finance = {
+  budgetCycles: 'Kỳ lập ngân sách',
   periodClose: 'Đóng kỳ',
   periodReport: 'Báo cáo kỳ',
   areas: {
@@ -28,6 +29,7 @@ export const finance = {
   invoiceNumber: 'Số hóa đơn',
   issuedOn: 'Ngày hóa đơn',
   netAmount: 'Tiền trước thuế',
+  invoiceNote: 'Ghi chú',
   deductibleTax: 'Thuế khấu trừ (VAT)',
   nonDeductibleTax: 'Thuế không khấu trừ',
   actualCost: 'Chi phí thực chịu',
@@ -74,9 +76,8 @@ export const finance = {
     AWAITING_EXECUTION: 'Chờ cấp phát',
     AWAITING_IT_ASSESSMENT: 'Chờ IT thẩm định',
     AWAITING_SPEND_SUBMISSION: 'Chờ gửi đề nghị chi',
-    AWAITING_FINANCE_REVIEW: 'Chờ Finance rà soát',
-    AWAITING_BUDGET: 'Chờ ngân sách',
     AWAITING_SPEND_DECISION: 'Chờ duyệt chi',
+    AWAITING_REQUESTER_REVISION: 'Chờ người yêu cầu sửa',
     REJECTED: 'Bị từ chối',
     IT_REJECTED: 'IT từ chối',
     EXECUTING: 'Đang cấp phát',
@@ -90,6 +91,8 @@ export const finance = {
   expensedStatusOption: 'Đã thành chi phí (EXPENSED)',
   releasedStatusOption: 'Đã giải phóng (RELEASED)',
   invoices: {
+    actualCostPreview: 'Chi phí thực chịu dự kiến tính vào thực chi',
+    deductibleSeparate: 'Thuế khấu trừ ghi riêng, không tính thực chi',
     matchedToast: 'Hóa đơn đã được ghi khớp thành công.',
     taxOnlyToast: 'Hóa đơn đã ghi thành công (chỉ lệch thuế/phí).',
     exceptionToast: 'Hóa đơn đã ghi vào thực chi (vượt số đã duyệt - mở hồ sơ sai lệch).',

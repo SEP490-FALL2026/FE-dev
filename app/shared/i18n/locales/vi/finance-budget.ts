@@ -40,6 +40,10 @@ export const financeBudget = {
     base: 'Ngân sách cơ sở',
     reserve: 'Ngân sách dự phòng',
     reserveReason: 'Lý do điều chỉnh dự phòng',
+    baseReason: 'Lý do đổi số cơ sở',
+    lineType: 'Loại dòng',
+    priorityRank: 'Thứ hạng ưu tiên',
+    flags: 'Cờ',
     highValuePercent: 'Ngưỡng giá trị cao (%)',
     highValueAmount: 'Ngưỡng số tiền cao',
     q1: 'Quý 1',
@@ -90,6 +94,79 @@ export const financeBudget = {
     SUPERSEDED: 'Đã thay thế',
     EXPIRED: 'Hết hạn'
   },
+  baseReasonHint: 'Nêu lý do khi đổi số cơ sở của phiên bản đã lập.',
+  zbbHint: 'Giải trình ZBB rút gọn: nhập đủ bốn ý hoặc để trống cả bốn.',
+  lineTypes: {
+    RENEW: 'Gia hạn',
+    CHANGE: 'Thay đổi',
+    NEW: 'Mua mới',
+    CANCEL: 'Ngừng dùng'
+  },
+  flags: {
+    zbb: 'Có giải trình ZBB',
+    overCeiling: 'Vượt Trần của phòng'
+  },
+  zbb: {
+    purpose: 'Mục đích',
+    alternatives: 'Phương án thay thế',
+    consequenceIfNot: 'Hậu quả nếu không mua',
+    usageIndicator: 'Chỉ số sử dụng'
+  },
+  origins: {
+    PROPOSAL: 'Từ đề xuất của trưởng phòng',
+    BASELINE_NO_HEAD: 'Từ số liệu nền (chưa có trưởng phòng)'
+  },
+  budgetCycle: {    title: 'Kỳ lập ngân sách',
+    open: 'Mở kỳ lập ngân sách',
+    openTitle: 'Mở kỳ lập ngân sách',
+    openSubmit: 'Mở kỳ',
+    detailTitle: 'Kỳ lập ngân sách {{year}}',
+    annualCeiling: 'Trần ngân sách phần mềm năm',
+    ceilingHint: 'Số do ban lãnh đạo giao, nhập theo tiền tệ báo cáo.',
+    sharedPoolReserve: 'Dự phòng kho dùng chung',
+    sharedPoolHint: 'Số kiểm soát cho dòng kho dùng chung, không phải quỹ.',
+    allocated: 'Đã chia',
+    unallocated: 'Chưa chia',
+    submissionDeadline: 'Hạn nộp đề xuất',
+    decisionDeadline: 'Hạn duyệt',
+    deadlineOrder: 'Hạn duyệt phải sau hoặc bằng hạn nộp.',
+    deadlines: 'Hạn nộp {{submission}} · Hạn duyệt {{decision}}',
+    priorities: 'Định hướng ưu tiên',
+    publish: 'Phát hành Trần của phòng',
+    changedAfterPublish: 'Số chia đã đổi sau lần phát hành gần nhất. Phát hành lại để trưởng phòng thấy số mới.',
+    ceilingsTitle: 'Chia Trần của phòng',
+    saveCeilings: 'Lưu số chia',
+    department: 'Phòng',
+    ceiling: 'Trần của phòng',
+    explanation: 'Diễn giải',
+    ceilingField: {
+      signedCommitments: 'Cam kết đã ký',
+      plannedSeats: 'Seat dự kiến',
+      priority: 'Ưu tiên'
+    },
+    packageTitle: 'Gói tổng hợp các phòng',
+    available: 'Phần dành cho các phòng',
+    proposalsTotal: 'Tổng đề xuất',
+    versionsTotal: 'Tổng phiên bản',
+    overBy: 'Vượt phần dành cho các phòng',
+    proposalsOverAvailable: 'Tổng đề xuất vượt phần Trần dành cho các phòng.',
+    proposal: 'Đề xuất',
+    version: 'Phiên bản',
+    noProposal: 'Chưa nộp',
+    noVersion: 'Chưa lập',
+    baselineAllowed: 'Lập được từ số liệu nền',
+    status: {
+      NOT_PUBLISHED: 'Chưa phát hành',
+      PUBLISHED: 'Đã phát hành',
+      CHANGED_AFTER_PUBLISH: 'Đã đổi sau phát hành'
+    },
+    headStatus: {
+      title: 'Trưởng phòng',
+      HAS_HEAD: 'Đang có trưởng phòng',
+      HEAD_TO_COME: 'Sắp có trưởng phòng',
+      NO_HEAD: 'Chưa có trưởng phòng'
+    }
+  },
   cycles: {
     MONTHLY: 'Hàng tháng',
     QUARTERLY: 'Hàng quý',
@@ -135,7 +212,7 @@ export const financeBudget = {
     returnReason: 'Nêu rõ phần cần trưởng phòng bổ sung hoặc điều chỉnh'
   },
   sections: {
-    item: 'Thông tin khoản chi',
+    zbb: 'Giải trình ZBB',    item: 'Thông tin khoản chi',
     schedule: 'Thời gian mua và chu kỳ',
     notes: 'Ghi chú',
     figures: 'Số liệu ngân sách',

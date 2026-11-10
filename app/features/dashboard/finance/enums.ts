@@ -4,6 +4,7 @@ export const FINANCE_TAB_KEYS = [
   'budgets',
   'budget-allocation',
   'budget-periods',
+  'budget-cycles',
   'decision-history',
   'department-summary',
   'annual-proposals',

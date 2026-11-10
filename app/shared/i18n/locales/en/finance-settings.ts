@@ -28,7 +28,6 @@ export const financeSettings = {
   listTruncated: 'There is more data than can be shown; some records may be missing.',
   budgetVersions: 'Budget versions',
   versionNumber: 'Version',
-  versionKind: 'Kind',
   noBudgetVersions: 'This cost center has no budget versions yet.',
   costCenters: 'Cost centers',
   vendorTax: 'Vendor tax profiles',

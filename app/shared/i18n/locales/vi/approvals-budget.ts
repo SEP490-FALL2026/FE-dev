@@ -96,7 +96,7 @@ export const approvalsBudget = {
     removed: 'Đã gỡ',
     system: 'Hệ thống'
   },
-  kind: { INITIAL: 'Ngân sách ban đầu', REVISION: 'Bản sửa đổi' },
+  origin: { PROPOSAL: 'Từ đề xuất của phòng', BASELINE_NO_HEAD: 'Từ số liệu nền (phòng chưa có trưởng phòng)' },
   repeat: { MONTHLY: 'Hàng tháng', QUARTERLY: 'Hàng quý', ANNUAL: 'Hàng năm', ONE_TIME: 'Một lần' },
   historyKind: {
     FIGURES_UPDATED: 'Đã cập nhật số liệu ngân sách',

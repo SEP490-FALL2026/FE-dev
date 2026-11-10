@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { AdminFormDialog as FinanceFormDialog } from '~/shared/ui/form-dialog'
 import { FinanceField, financeInputClass } from '../../shared/components/finance-ui'
+import { getFinanceError } from '../../shared/finance-errors'
 import { formatMoney } from '../../shared/finance-money'
 import { useRecordInvoice } from '../hooks/use-finance-commitments'
 import type { ExtendedCommitmentItem, InvoiceRecordedResponseDto } from '../../shared/finance-api-extensions'
@@ -55,24 +56,18 @@ export function InvoiceRecordDialog({
           setOutcome(res.data)
           const result = res.data.invoice.matchResult
           if (result === 'MATCHED') {
-            toast.success(translateFinance('invoices.matchedToast', { defaultValue: 'Hóa đơn đã được ghi khớp thành công.' }))
+            toast.success(translateFinance('invoices.matchedToast'))
           } else if (result === 'TAX_ONLY') {
-            toast.info(translateFinance('invoices.taxOnlyToast', { defaultValue: 'Hóa đơn đã ghi thành công (chỉ lệch thuế/phí).' }))
+            toast.info(translateFinance('invoices.taxOnlyToast'))
           } else {
-            toast.warning(translateFinance('invoices.exceptionToast', { defaultValue: 'Hóa đơn đã ghi vào thực chi (vượt số đã duyệt - mở hồ sơ sai lệch).' }))
+            toast.warning(translateFinance('invoices.exceptionToast'))
           }
         },
-        onError: (err: any) => {
-          const code = err?.response?.data?.error?.code
-          if (code === 'INVOICE.DUPLICATE') {
-            toast.error(translateFinance('errors.invoiceDuplicate'))
-          } else if (code === 'INVOICE.COMMITMENT_RELEASED') {
-            toast.error(translateFinance('errors.invoiceCommitmentReleased'))
-          } else if (code === 'INVOICE.VENDOR_UNKNOWN') {
-            toast.error(translateFinance('errors.invoiceVendorUnknown'))
-          } else {
-            toast.error(err?.response?.data?.error?.message || translateFinance('errors.validation'))
-          }
+        onError: (error: unknown) => {
+          const failure = getFinanceError(error)
+          toast.error(translateFinance(`errors.${failure.ambiguous ? 'ambiguous' : failure.key}`), {
+            id: 'finance-invoice'
+          })
         }
       }
     )
@@ -99,7 +94,7 @@ export function InvoiceRecordDialog({
               ) : (
                 <CheckCircle2 className='size-5 text-success-ink' />
               )}
-              <span>{translateFinance(`matchResults.${inv.matchResult}`, { defaultValue: inv.matchResult })}</span>
+              <span>{translateFinance(`matchResults.${inv.matchResult}`)}</span>
             </div>
             <p className='mt-2 text-xs text-muted-foreground'>
               {inv.matchResult === 'PRICE_QUANTITY_EXCEPTION'
@@ -228,12 +223,12 @@ export function InvoiceRecordDialog({
           </FinanceField>
         </div>
 
-        <FinanceField label={translateFinance('fields.note', { defaultValue: 'Ghi chú' })}>
+        <FinanceField label={translateFinance('invoiceNote')}>
           <input
             type='text'
             maxLength={1000}
             className={financeInputClass}
-            placeholder={translateFinance('fields.note', { defaultValue: 'Ghi chú' })}
+            placeholder={translateFinance('invoiceNote')}
             value={note}
             onChange={(e) => setNote(e.target.value)}
           />
@@ -245,7 +240,7 @@ export function InvoiceRecordDialog({
             <div className='flex items-center justify-between font-medium'>
               <span className='flex items-center gap-1 text-primary'>
                 <DollarSign className='size-3.5' />
-                {translateFinance('actualCost')} (Dự kiến tính vào thực chi):
+                {translateFinance('invoices.actualCostPreview')}
               </span>
               <span className='font-mono font-bold text-foreground'>
                 {formatMoney({ amount: String(actualCostNum), currency }, i18n.language)}
@@ -253,7 +248,7 @@ export function InvoiceRecordDialog({
             </div>
             {deductibleNum > 0 && (
               <div className='flex items-center justify-between text-muted-foreground'>
-                <span>{translateFinance('deductibleTax')} (Ghi riêng, không tính thực chi):</span>
+                <span>{translateFinance('invoices.deductibleSeparate')}</span>
                 <span className='font-mono'>{formatMoney({ amount: String(deductibleNum), currency }, i18n.language)}</span>
               </div>
             )}

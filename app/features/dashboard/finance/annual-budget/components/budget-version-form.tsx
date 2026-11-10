@@ -8,7 +8,10 @@ import { isDecimal } from '../../shared/finance-money'
 const sectionTitleClass = 'text-xs font-semibold tracking-wider text-muted-foreground uppercase'
 const amountClass = `${financeInputClass} text-right font-mono tabular-nums`
 
-export type BudgetFigures = Omit<VersionBodyDto, 'proposalId'>
+type ProposalVersionBody = Extract<VersionBodyDto, { proposalId: string }>
+export type BudgetFigures = Pick<ProposalVersionBody, 'base' | 'reserve' | 'reserveReason' | 'quarters'>
+/** A change of the base figure of an existing version carries the reason for it. */
+export type BudgetFiguresChange = BudgetFigures & { baseReason?: string }
 
 export function BudgetVersionForm({
   initial,
@@ -16,14 +19,16 @@ export function BudgetVersionForm({
   onClose,
   pending,
   currency,
-  disabled = false
+  disabled = false,
+  askBaseReason = false
 }: {
   initial: BudgetFigures
-  onSubmit: (figures: BudgetFigures) => void
+  onSubmit: (figures: BudgetFiguresChange) => void
   onClose: () => void
   pending: boolean
   currency: string
   disabled?: boolean
+  askBaseReason?: boolean
 }) {
   const { t: translate } = useTranslation('financeBudget')
   const [base, setBase] = useState(initial.base.amount)
@@ -35,6 +40,7 @@ export function BudgetVersionForm({
     q4: initial.quarters?.q4.amount ?? ''
   })
   const [reason, setReason] = useState(initial.reserveReason ?? '')
+  const [baseReason, setBaseReason] = useState('')
   const [invalid, setInvalid] = useState(false)
   const valid =
     isDecimal(base) &&
@@ -58,6 +64,7 @@ export function BudgetVersionForm({
         }
         onSubmit({
           base: money(base),
+          ...(askBaseReason && baseReason.trim() ? { baseReason: baseReason.trim() } : {}),
           ...(reserve ? { reserve: money(reserve) } : {}),
           ...(quarters.q1
             ? {
@@ -127,6 +134,17 @@ export function BudgetVersionForm({
           </FinanceField>
         ))}
       </div>
+      {askBaseReason && (
+        <FinanceField label={translate('fields.baseReason')} hint={translate('baseReasonHint')}>
+          <textarea
+            rows={2}
+            maxLength={1000}
+            className={financeInputClass}
+            value={baseReason}
+            onChange={(event) => setBaseReason(event.target.value)}
+          />
+        </FinanceField>
+      )}
       <FinanceField label={translate('fields.reserveReason')}>
         <textarea
           rows={3}

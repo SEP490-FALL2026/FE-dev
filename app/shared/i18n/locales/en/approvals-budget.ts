@@ -96,7 +96,7 @@ export const approvalsBudget = {
     removed: 'Removed',
     system: 'System'
   },
-  kind: { INITIAL: 'Initial budget', REVISION: 'Revision' },
+  origin: { PROPOSAL: 'From the department proposal', BASELINE_NO_HEAD: 'From baseline (department has no head)' },
   repeat: { MONTHLY: 'Monthly', QUARTERLY: 'Quarterly', ANNUAL: 'Annual', ONE_TIME: 'One-off' },
   historyKind: {
     FIGURES_UPDATED: 'Budget figures updated',

@@ -12,6 +12,7 @@ import {
   FinanceStatus
 } from '../../shared/components/finance-ui'
 import { BudgetUtilization } from '../../shared/components/budget-utilization'
+import { hasBudget } from '../../shared/finance-budget-row'
 import { formatMoney } from '../../shared/finance-money'
 import { useCurrentBudgetsByCostCenter } from '../hooks/use-cost-center-budgets'
 import { CostCenterBudgetVersions } from './cost-center-budget-versions'
@@ -33,17 +34,7 @@ export function CostCenterDetail({
   const budgets = useCurrentBudgetsByCostCenter(year)
   const budget = budgets.data?.byCostCenter.get(item.id)
 
-  // Đọc phí cơ sở và phí dự trù nếu có từ DTO mở rộng
-  const anyBudget = budget as unknown as { base?: { amount: string; currency: string }; reserve?: { amount: string; currency: string } }
-  const totalAmount = budget ? Number(budget.total.amount) : 0
-  const baseMoney = anyBudget?.base ?? {
-    amount: String(Math.round(totalAmount * 0.9)),
-    currency: budget?.total.currency ?? 'VND'
-  }
-  const reserveMoney = anyBudget?.reserve ?? {
-    amount: String(Math.round(totalAmount * 0.1)),
-    currency: budget?.total.currency ?? 'VND'
-  }
+  const currentBudget = budget && hasBudget(budget) ? budget : undefined
 
   return (
     <FinanceDrawer title={`${item.code} · ${item.name}`} onClose={onClose}>
@@ -57,21 +48,21 @@ export function CostCenterDetail({
 
       <FinanceSection title={translate('budgetOfYear', { year: year ?? '—' })}>
         <FinanceQueryState query={budgets}>
-          {budget ? (
+          {currentBudget ? (
             <div className='space-y-4'>
               <FinanceStatGrid columns={4}>
-                <FinanceStat label={translate('kpis.total')} value={formatMoney(budget.total, i18n.language)} />
-                <FinanceStat label={translate('kpis.base')} value={formatMoney(baseMoney, i18n.language)} />
-                <FinanceStat label={translate('kpis.reserve')} value={formatMoney(reserveMoney, i18n.language)} />
-                <FinanceStat label={translate('kpis.held')} value={formatMoney(budget.committed, i18n.language)} />
+                <FinanceStat label={translate('kpis.total')} value={formatMoney(currentBudget.total, i18n.language)} />
+                <FinanceStat label={translate('kpis.base')} value={formatMoney(currentBudget.base, i18n.language)} />
+                <FinanceStat label={translate('kpis.reserve')} value={formatMoney(currentBudget.reserve, i18n.language)} />
+                <FinanceStat label={translate('kpis.held')} value={formatMoney(currentBudget.committed, i18n.language)} />
               </FinanceStatGrid>
 
               <FinanceStatGrid columns={3}>
-                <FinanceStat label={translate('kpis.spent')} value={formatMoney(budget.spent, i18n.language)} />
+                <FinanceStat label={translate('kpis.spent')} value={formatMoney(currentBudget.spent, i18n.language)} />
                 <FinanceStat
                   emphasis
                   label={translate('kpis.remaining')}
-                  value={formatMoney(budget.remaining, i18n.language)}
+                  value={formatMoney(currentBudget.remaining, i18n.language)}
                 />
                 <div className='min-w-0 space-y-2 rounded-lg border border-border/70 bg-surface p-4'>
                   <dt className='text-xs font-semibold tracking-wider text-muted-foreground uppercase'>
@@ -79,10 +70,10 @@ export function CostCenterDetail({
                   </dt>
                   <dd className='font-mono text-lg font-bold tabular-nums'>
                     <BudgetUtilization
-                      total={budget.total}
-                      committed={budget.committed}
-                      spent={budget.spent}
-                      overCommitted={budget.overCommitted}
+                      total={currentBudget.total}
+                      committed={currentBudget.committed}
+                      spent={currentBudget.spent}
+                      overCommitted={currentBudget.overCommitted}
                     />
                   </dd>
                 </div>

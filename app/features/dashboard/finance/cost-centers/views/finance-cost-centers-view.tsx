@@ -20,6 +20,7 @@ import {
 } from '../../shared/components/finance-ui'
 import { BudgetUtilization } from '../../shared/components/budget-utilization'
 import { FinanceTable } from '../../shared/components/finance-table'
+import { hasBudget } from '../../shared/finance-budget-row'
 import { formatMoney } from '../../shared/finance-money'
 import { CostCenterDetail } from '../components/cost-center-detail'
 import { CostCenterKpis } from '../components/cost-center-kpis'
@@ -57,7 +58,7 @@ export function FinanceCostCentersView({
   const budgetCell = (item: CostCenterPageResponseDtoDataItemsItem, field: 'total' | 'remaining') => {
     if (budgets.isPending || budgets.isError) return <span className='text-muted-foreground'>—</span>
     const budget = budgetOf(item)
-    if (!budget) return <span className='text-muted-foreground'>{translate('noBudget')}</span>
+    if (!budget || !hasBudget(budget)) return <span className='text-muted-foreground'>{translate('noBudget')}</span>
     return formatMoney(budget[field], i18n.language)
   }
 
@@ -165,7 +166,7 @@ export function FinanceCostCentersView({
               numeric: true,
               render: (item) => {
                 const budget = budgetOf(item)
-                return budget ? (
+                return budget && hasBudget(budget) ? (
                   <BudgetUtilization
                     total={budget.total}
                     committed={budget.committed}

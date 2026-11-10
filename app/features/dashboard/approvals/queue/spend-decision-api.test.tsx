@@ -15,6 +15,9 @@ const money = { amount: '1200.25', currency: 'USD' }
 const page = { page: 1, pageSize: 100, totalItems: 1, totalPages: 1 }
 const initialApproval = () => ({
   requestId,
+  routing: { mode: 'VIA_HEAD', oneStepReason: null },
+  budgetSnapshot: null,
+  annualVendorAmount: null,
   step: {
     id: 'step-1',
     state: 'PENDING',
@@ -22,9 +25,7 @@ const initialApproval = () => ({
     assignee: actor,
     openedAt: '2026-11-01T00:00:00Z',
     decidedAt: null,
-    slaWorkingDays: 3,
-    samePersonAsSpend: false,
-    noIndependentReview: false
+    slaWorkingDays: 3
   },
   request: {
     state: 'AWAITING_SPEND_APPROVAL',
@@ -36,7 +37,7 @@ const initialApproval = () => ({
     costCenter: { id: 'cc-1', code: 'CC-01' },
     businessReason: 'Project use',
     termMonths: 12,
-    expectedSpendOn: null,
+    expectedEndDate: null,
     budgetYear: 2026,
     offPlan: false,
     planLineAttached: true
@@ -44,20 +45,22 @@ const initialApproval = () => ({
   need: { decidedBy: requester, decidedAt: '2026-10-31T00:00:00Z', reason: null },
   cost: null,
   assessment: null,
-  decision: null,
-  latestBudgetInformation: null
+  decision: null
 })
 const year = (code = 'BUDGET_OK') => ({
   year: 2026,
   cost: money,
   code,
   budget: money,
+  base: money,
+  reserve: money,
   held: money,
   spent: money,
   remaining: money,
+  remainingBase: money,
+  remainingWithReserve: money,
   shareBasisPoints: null,
-  pending: null,
-  overridden: false
+  pending: null
 })
 const originalAdapter = apiClient.defaults.adapter
 let approval = initialApproval()
@@ -70,6 +73,7 @@ let groupPages: Record<number, unknown[]> = {}
 let linesFail = false
 let requestGetCalls = 0
 let checkRoute = 'SPEND_APPROVAL'
+let checkOutcome = 'WITHIN_BASE'
 
 beforeEach(async () => {
   approval = initialApproval()
@@ -82,6 +86,7 @@ beforeEach(async () => {
   linesFail = false
   requestGetCalls = 0
   checkRoute = 'SPEND_APPROVAL'
+  checkOutcome = 'WITHIN_BASE'
   await setAppLanguage('en', false)
   apiClient.defaults.adapter = async (config) => {
     const response = (data: unknown) => ({
@@ -119,11 +124,10 @@ beforeEach(async () => {
           trigger: 'SUBMISSION',
           route: checkRoute,
           primaryCode: years[0].code,
-          staleCostEvidence: false,
-          planLineOverdue: false,
-          periodClosed: false,
-          offPlan: false,
-          noIndependentReview: false,
+          outcome: checkOutcome,
+          blockedReasons: [],
+          overBaseBy: null,
+          overBy: null,
           bindingTotal: money,
           yearCount: years.length,
           ranAt: '2026-11-01T01:00:00Z'
@@ -131,15 +135,6 @@ beforeEach(async () => {
       })
     if (config.url?.endsWith('/budget-check/years'))
       return response({ items: years, pagination: { ...page, totalItems: years.length } })
-    if (config.url?.endsWith('/finance-review'))
-      return response({
-        financeReview: {
-          step: { state: 'COMPLETED' },
-          review: { outcome: 'ASSESSED', direction: 'RECOMMEND_APPROVE', opinion: 'Reviewed', reason: null }
-        }
-      })
-    if (config.url?.endsWith('/budget-information-requests'))
-      return response({ items: [], pagination: { ...page, totalItems: 0, totalPages: 0 } })
     if (config.url?.endsWith('/lines')) {
       if (linesFail) throw new AxiosError('offline', 'ERR_NETWORK', config)
       if (!Object.keys(groupPages).length)
@@ -291,14 +286,22 @@ it('blocks unknown step states and never submits a guessed approval', async () =
   expect(posted).toHaveLength(0)
 })
 
-it('allows a pending step created by Finance despite its original FINANCE_REVIEW check route', async () => {
-  checkRoute = 'FINANCE_REVIEW'
+it('lets the approver decide a request that uses the department reserve', async () => {
+  checkOutcome = 'USES_RESERVE'
   mount()
   await choose('Approve')
   confirm()
   fireEvent.click(screen.getByRole('button', { name: 'Confirm decision' }))
   await waitFor(() => expect(posted).toHaveLength(1))
   expect(posted[0].body).toEqual({ decision: 'APPROVE' })
+})
+
+it('keeps the decision closed when the recheck blocks the request', async () => {
+  checkOutcome = 'BLOCKED'
+  checkRoute = 'BLOCKED'
+  mount()
+  expect(await screen.findByRole('button', { name: 'Confirm decision' })).toBeDisabled()
+  expect(posted).toHaveLength(0)
 })
 
 it('treats a request without beneficiary and without group lines as one decision', async () => {

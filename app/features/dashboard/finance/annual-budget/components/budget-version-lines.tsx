@@ -5,7 +5,13 @@ import type { VersionLinePageResponseDtoDataItemsItem } from '~/shared/api/gener
 import { useBudgetVersionLineList } from '~/shared/api/generated/operations/budget-versions/budget-version-line-list'
 import { useBudgetVersionLineAdd } from '~/shared/api/generated/operations/budget-versions/budget-version-line-add'
 import { useBudgetVersionLineUpdate } from '~/shared/api/generated/operations/budget-versions/budget-version-line-update'
-import { FinanceButton, FinanceDrawer, FinancePagination, FinanceQueryState } from '../../shared/components/finance-ui'
+import {
+  FinanceButton,
+  FinanceDrawer,
+  FinancePagination,
+  FinanceQueryState,
+  FinanceStatus
+} from '../../shared/components/finance-ui'
 import { FinanceTable } from '../../shared/components/finance-table'
 import { useFinanceFeedback } from '../../shared/hooks/use-finance-feedback'
 import { formatMoney } from '../../shared/finance-money'
@@ -59,6 +65,9 @@ export function BudgetVersionLines({
                 id: version.id,
                 position: selected.position,
                 data: {
+                  lineType: line.lineType,
+                  priorityRank: line.priorityRank ?? null,
+                  zbb: line.zbb ?? null,
                   description: line.description,
                   amount: line.amount,
                   planId: line.planId ?? null,
@@ -95,6 +104,27 @@ export function BudgetVersionLines({
           columns={[
             { key: 'position', label: translate('fields.position'), numeric: true, render: (line) => line.position },
             { key: 'description', label: translate('fields.description'), render: (line) => line.description },
+            {
+              key: 'lineType',
+              label: translate('fields.lineType'),
+              render: (line) => translate(`lineTypes.${line.lineType}`, { defaultValue: translate('unknown') })
+            },
+            {
+              key: 'priorityRank',
+              label: translate('fields.priorityRank'),
+              numeric: true,
+              render: (line) => line.priorityRank ?? translate('none')
+            },
+            {
+              key: 'flags',
+              label: translate('fields.flags'),
+              render: (line) => (
+                <span className='flex flex-wrap gap-1'>
+                  {line.zbb && <FinanceStatus value='ZBB' label={translate('flags.zbb')} />}
+                  {line.overCeiling && <FinanceStatus value='OVER_CEILING' label={translate('flags.overCeiling')} />}
+                </span>
+              )
+            },
             {
               key: 'amount',
               label: translate('fields.amount'),

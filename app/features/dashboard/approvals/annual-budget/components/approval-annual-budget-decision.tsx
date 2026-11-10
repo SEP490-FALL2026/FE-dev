@@ -44,7 +44,7 @@ export function ApprovalAnnualBudgetDecision({
         queryKey.some(
           (part) =>
             typeof part === 'string' &&
-            /\/(budget-check|finance-review|finance-reviews|spend-approvals|spend-batches|budget-commitments|budget-information-requests|notifications)(\/|$)/.test(
+            /\/(budget-check|spend-approvals|spend-batches|budget-commitments|notifications)(\/|$)/.test(
               part
             )
         )

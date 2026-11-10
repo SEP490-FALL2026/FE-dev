@@ -28,7 +28,6 @@ export const financeSettings = {
   listTruncated: 'Dữ liệu vượt giới hạn hiển thị; một số bản ghi có thể chưa được liệt kê.',
   budgetVersions: 'Phiên bản ngân sách',
   versionNumber: 'Phiên bản',
-  versionKind: 'Loại',
   noBudgetVersions: 'Trung tâm chi phí này chưa có phiên bản ngân sách nào.',
   costCenters: 'Trung tâm chi phí',
   vendorTax: 'Hồ sơ thuế nhà cung cấp',
