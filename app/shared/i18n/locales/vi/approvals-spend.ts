@@ -33,8 +33,6 @@ export const approvalsSpend = {
   assignee: 'Người được giao',
   step: 'Bước phê duyệt',
   offPlan: 'Ngoài kế hoạch ngân sách',
-  samePerson: 'Người xác nhận nhu cầu cũng là người giữ bước chi.',
-  noReview: 'Yêu cầu chưa có rà soát độc lập của Finance.',
   waiting: 'Chưa thể quyết định bước này ở trạng thái hiện tại.',
   costs: 'Dự tính chi phí và thuế',
   preTax: 'Trước thuế',
@@ -54,12 +52,6 @@ export const approvalsSpend = {
   decide: 'Xác nhận quyết định',
   rejectReason: 'Lý do từ chối',
   rejectPlaceholder: 'Ví dụ: Nhóm đã có công cụ tương đương trong hợp đồng hiện tại',
-  override: 'Phê duyệt ngoại lệ ngân sách',
-  overrideHint:
-    'Chọn đầy đủ các năm cần ngoại lệ và ghi rõ lý do. Không thể ghi đè kỳ đã đóng hoặc báo giá hết hiệu lực.',
-  overrideReason: 'Lý do ngoại lệ',
-  overridePlaceholder: 'Ví dụ: Vượt hạn mức quý 4, cần bổ sung từ dự phòng',
-  overrideYears: 'Năm áp dụng ngoại lệ',
   decisionConfirmation: 'Tôi đã xem yêu cầu, kiểm tra ngân sách và thông tin liên quan.',
   savedDecision: 'Quyết định đã ghi nhận',
   decidedBy: 'Người quyết định',
@@ -76,10 +68,26 @@ export const approvalsSpend = {
   remaining: 'Còn lại',
   yearLoading: 'Cần tải đầy đủ các năm ngân sách trước khi quyết định.',
   noBudget: 'Chưa có ngân sách hiện hành',
-  finance: 'Rà soát Finance',
-  noFinance: 'Yêu cầu này chưa có thông tin rà soát Finance.',
-  opinion: 'Nhận định',
-  direction: 'Khuyến nghị',
+  overBaseBy: 'Vượt số cơ sở',
+  overBy: 'Vượt cả dự phòng',
+  usesReserveNotice: 'Yêu cầu này dùng dự phòng của phòng. Xem lý do trưởng phòng đã xác nhận trước khi quyết định.',
+  baseAmount: 'Số cơ sở',
+  reserveAmount: 'Dự phòng',
+  remainingBase: 'Còn lại (cơ sở)',
+  remainingWithReserve: 'Còn lại (gồm dự phòng)',
+  annualVendorAmount: 'Tiền trả nhà cung cấp cả năm',
+  reserveConfirmedBy: 'Trưởng phòng {{name}} đã xác nhận dùng dự phòng',
+  blockedReason: {
+    PRICE_EXPIRED: 'Báo giá đã hết hiệu lực',
+    NO_APPROVED_BUDGET: 'Phòng chưa có ngân sách đã duyệt của năm này',
+    OVER_RESERVE: 'Chi phí vượt cả số cơ sở và dự phòng còn lại'
+  },
+  oneStepReason: {
+    REQUESTER_IS_HEAD: 'Người yêu cầu là trưởng phòng: Người duyệt chi quyết một bước gộp nhu cầu và chi.',
+    NO_DEPARTMENT_HEAD: 'Phòng chưa có trưởng phòng: Người duyệt chi quyết một bước gộp nhu cầu và chi.',
+    HEAD_LEFT: 'Trưởng phòng đã rời vai: Người duyệt chi quyết một bước gộp nhu cầu và chi.',
+    UNKNOWN: 'Yêu cầu một bước: Người duyệt chi quyết gộp nhu cầu và chi.'
+  },
   outcome: 'Kết cục',
   note: 'Ghi chú',
   group: 'Người thụ hưởng trong nhóm',
@@ -138,7 +146,7 @@ export const approvalsSpend = {
     NO_SPEND_STEP: 'Không có bước chi đang mở',
     OVERRIDE_REQUIRED: 'Cần bổ sung ngân sách trước khi phê duyệt',
     NOT_CHECKABLE: 'Chưa thể kiểm tra ngân sách',
-    RECHECKED_NEEDS_FINANCE_REVIEW: 'Đã trả về Finance sau kiểm tra lại',
-    RECHECKED_RETURNED_TO_HEAD: 'Đã trả về trưởng phòng sau kiểm tra lại'
+    RECHECKED_RETURNED_TO_HEAD: 'Đã trả về trưởng phòng sau kiểm tra lại',
+    RECHECKED_RETURNED_TO_REQUESTER: 'Đã trả về người yêu cầu sau kiểm tra lại'
   }
 }

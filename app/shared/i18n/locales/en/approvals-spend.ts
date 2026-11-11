@@ -33,8 +33,6 @@ export const approvalsSpend = {
   assignee: 'Assigned to',
   step: 'Approval step',
   offPlan: 'Outside the budget plan',
-  samePerson: 'The same person confirmed the need and holds the spend step.',
-  noReview: 'This request has no independent Finance review.',
   waiting: 'This step cannot be decided in its current state.',
   costs: 'Cost and tax estimate',
   preTax: 'Before tax',
@@ -54,12 +52,6 @@ export const approvalsSpend = {
   decide: 'Confirm decision',
   rejectReason: 'Reason for rejection',
   rejectPlaceholder: 'E.g. The team already has an equivalent tool under contract',
-  override: 'Approve with a budget override',
-  overrideHint:
-    'Select every year requiring an override and explain the exceptional approval. Closed periods and expired evidence cannot be overridden.',
-  overrideReason: 'Override reason',
-  overridePlaceholder: 'E.g. Q4 overrun, covered from the department reserve',
-  overrideYears: 'Override years',
   decisionConfirmation: 'I have reviewed the request, budget check and supporting information.',
   savedDecision: 'Recorded decision',
   decidedBy: 'Decided by',
@@ -76,10 +68,27 @@ export const approvalsSpend = {
   remaining: 'Remaining',
   yearLoading: 'Load all budget years before deciding.',
   noBudget: 'No active budget',
-  finance: 'Finance review',
-  noFinance: 'There is no Finance review available for this request.',
-  opinion: 'Opinion',
-  direction: 'Recommendation',
+  overBaseBy: 'Over the base amount',
+  overBy: 'Over base and reserve',
+  usesReserveNotice: 'This request uses the department reserve. Read the reason the head confirmed before deciding.',
+  baseAmount: 'Base',
+  reserveAmount: 'Reserve',
+  remainingBase: 'Remaining (base)',
+  remainingWithReserve: 'Remaining (with reserve)',
+  annualVendorAmount: 'Full-year vendor payment',
+  reserveConfirmedBy: 'Department head {{name}} confirmed using the reserve',
+  blockedReason: {
+    PRICE_EXPIRED: 'The quote has expired',
+    NO_APPROVED_BUDGET: 'The department has no approved budget for this year',
+    OVER_RESERVE: 'The cost exceeds the remaining base and reserve'
+  },
+  oneStepReason: {
+    REQUESTER_IS_HEAD:
+      'The requester is the department head: the Spending Approver decides need and spend in one step.',
+    NO_DEPARTMENT_HEAD: 'The department has no head: the Spending Approver decides need and spend in one step.',
+    HEAD_LEFT: 'The department head has left the role: the Spending Approver decides need and spend in one step.',
+    UNKNOWN: 'One-step request: the Spending Approver decides need and spend together.'
+  },
   outcome: 'Outcome',
   note: 'Note',
   group: 'Group beneficiaries',
@@ -137,7 +146,7 @@ export const approvalsSpend = {
     NO_SPEND_STEP: 'No open spend step',
     OVERRIDE_REQUIRED: 'Insufficient budget must be corrected before approval',
     NOT_CHECKABLE: 'Budget cannot be checked',
-    RECHECKED_NEEDS_FINANCE_REVIEW: 'Returned to Finance after recheck',
-    RECHECKED_RETURNED_TO_HEAD: 'Returned to department head after recheck'
+    RECHECKED_RETURNED_TO_HEAD: 'Returned to the department head after recheck',
+    RECHECKED_RETURNED_TO_REQUESTER: 'Returned to the requester after recheck'
   }
 }

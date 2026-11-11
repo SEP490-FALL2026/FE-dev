@@ -1,6 +1,17 @@
-import { AlertTriangle, Clock, Layers, Lock, PiggyBank, ReceiptText, ShieldCheck, Wallet, type LucideIcon } from 'lucide-react'
+import {
+  AlertTriangle,
+  Clock,
+  Layers,
+  Lock,
+  PiggyBank,
+  ReceiptText,
+  ShieldCheck,
+  Wallet,
+  type LucideIcon
+} from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
+import { formatMoney } from '../../shared/finance-money'
 import type { BudgetSummaryTotalsItem } from '../../shared/finance-api-extensions'
 
 const tones = {
@@ -38,7 +49,9 @@ function KpiCard({
       </div>
       <div className='space-y-1'>
         <div className='flex items-baseline justify-between gap-2'>
-          <dd className='truncate font-mono text-xl leading-none font-bold tracking-tight tabular-nums'>{value}</dd>
+          <dd className='min-w-0 font-mono text-xl leading-tight font-bold tracking-tight tabular-nums [overflow-wrap:anywhere]'>
+            {value}
+          </dd>
           {badge}
         </div>
         <dd className='text-xs text-muted-foreground [text-wrap:pretty]'>{caption}</dd>
@@ -64,26 +77,16 @@ export function CostCenterKpis({
   }
 
   const lang = i18n.language
-  const currency = totals.currency || totals.total.currency
-  const compact = new Intl.NumberFormat(lang, {
-    ...(currency ? { style: 'currency' as const, currency } : {}),
-    notation: 'compact',
-    maximumFractionDigits: 1
-  })
-
-  const formatCompact = (val: { amount: string }) => {
-    const num = Number(val.amount)
-    return Number.isFinite(num) ? compact.format(num) : '0'
-  }
+  const full = (value: { amount: string; currency: string }) => formatMoney(value, lang)
 
   const overBudget = totals.overBudgetCount > 0
   const remainingTone = Number(totals.remaining.amount) < 0 ? 'danger' : 'remaining'
 
   return (
-    <dl className='grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6'>
+    <dl className='grid gap-3 sm:grid-cols-2 lg:grid-cols-3'>
       <KpiCard
         label={translate('kpis.total')}
-        value={formatCompact(totals.total)}
+        value={full(totals.total)}
         caption={translate('kpis.totalCaption', {
           budgeted: totals.costCenterCount,
           total: activeCenters ?? totals.costCenterCount
@@ -93,28 +96,28 @@ export function CostCenterKpis({
       />
       <KpiCard
         label={translate('kpis.base')}
-        value={formatCompact(totals.base)}
+        value={full(totals.base)}
         caption={translate('kpis.baseCaption')}
         icon={Layers}
         tone='base'
       />
       <KpiCard
         label={translate('kpis.reserve')}
-        value={formatCompact(totals.reserve)}
+        value={full(totals.reserve)}
         caption={translate('kpis.reserveCaption')}
         icon={ShieldCheck}
         tone='reserve'
       />
       <KpiCard
         label={translate('kpis.held')}
-        value={formatCompact(totals.committed)}
+        value={full(totals.committed)}
         caption={translate('kpis.heldCaption')}
         icon={Lock}
         tone='held'
       />
       <KpiCard
         label={translate('kpis.spent')}
-        value={formatCompact(totals.spent)}
+        value={full(totals.spent)}
         caption={
           lastInvoiceRecordedAt ? (
             <span className='flex items-center gap-1'>
@@ -132,7 +135,7 @@ export function CostCenterKpis({
       />
       <KpiCard
         label={translate('kpis.remaining')}
-        value={formatCompact(totals.remaining)}
+        value={full(totals.remaining)}
         caption={
           overBudget ? (
             <span className='font-medium text-danger flex items-center gap-1'>

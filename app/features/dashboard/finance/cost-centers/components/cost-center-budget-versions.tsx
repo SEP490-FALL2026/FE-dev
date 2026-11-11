@@ -25,11 +25,18 @@ export function CostCenterBudgetVersions({
             rowKey={(version) => version.id}
             onOpen={onSelectTab ? (version) => onSelectTab('budget-negotiation', { id: version.id }) : undefined}
             columns={[
-              { key: 'year', label: translate('budgetYear'), numeric: true, render: (version) => version.year },
+              {
+                key: 'year',
+                label: translate('budgetYear'),
+                numeric: true,
+                align: 'center',
+                render: (version) => version.year
+              },
               {
                 key: 'number',
                 label: translate('versionNumber'),
                 numeric: true,
+                align: 'center',
                 render: (version) => version.number
               },
               {

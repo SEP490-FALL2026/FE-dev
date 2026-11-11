@@ -19,6 +19,8 @@ export interface BudgetSummaryResponseDto {
   message: string
   data: {
     year: number
+    annualCeiling?: { amount: string; currency: string } | null
+    sharedPoolReserve?: { amount: string; currency: string } | null
     totals: Record<string, BudgetSummaryTotalsItem>
     lastInvoiceRecordedAt: string | null
   }
@@ -194,7 +196,11 @@ export interface ExtendedCommitmentListParams {
   year?: number
 }
 
-export const getCommitmentInvoices = (commitmentId: string, params?: { page?: number; pageSize?: number }, signal?: AbortSignal) => {
+export const getCommitmentInvoices = (
+  commitmentId: string,
+  params?: { page?: number; pageSize?: number },
+  signal?: AbortSignal
+) => {
   return customAxios<InvoiceListResponseDto>({
     url: `${env.API_BASE_URL}/api/v1/budget-commitments/${commitmentId}/invoices`,
     method: 'GET',
@@ -230,4 +236,3 @@ export const getExtendedCommitmentList = (params?: ExtendedCommitmentListParams,
 export const getExtendedCommitmentListQueryKey = (params?: ExtendedCommitmentListParams) => {
   return [`${env.API_BASE_URL}/api/v1/budget-commitments`, ...(params ? [params] : [])] as const
 }
-

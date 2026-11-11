@@ -1,14 +1,19 @@
 import { useState } from 'react'
+import { MoneyInput } from '~/shared/ui/money-input'
 import { useTranslation } from 'react-i18next'
 import type { VersionBodyDto } from '~/shared/api/generated/model/budget-versions/versionBodyDto'
 import { AdminFormDialog as FinanceFormDialog } from '~/shared/ui/form-dialog'
 import { FinanceField, financeInputClass } from '../../shared/components/finance-ui'
 import { isDecimal } from '../../shared/finance-money'
+import { amountsEqual, isDefaultReserve, quartersAddUp } from '../../shared/finance-validation'
 
 const sectionTitleClass = 'text-xs font-semibold tracking-wider text-muted-foreground uppercase'
 const amountClass = `${financeInputClass} text-right font-mono tabular-nums`
 
-export type BudgetFigures = Omit<Extract<VersionBodyDto, { proposalId: string }>, 'proposalId'>
+type ProposalVersionBody = Extract<VersionBodyDto, { proposalId: string }>
+export type BudgetFigures = Pick<ProposalVersionBody, 'base' | 'reserve' | 'reserveReason' | 'quarters'>
+/** A change of the base figure of an existing version carries the reason for it. */
+export type BudgetFiguresChange = BudgetFigures & { baseReason?: string }
 
 export function BudgetVersionForm({
   initial,
@@ -16,14 +21,16 @@ export function BudgetVersionForm({
   onClose,
   pending,
   currency,
-  disabled = false
+  disabled = false,
+  askBaseReason = false
 }: {
   initial: BudgetFigures
-  onSubmit: (figures: BudgetFigures) => void
+  onSubmit: (figures: BudgetFiguresChange) => void
   onClose: () => void
   pending: boolean
   currency: string
   disabled?: boolean
+  askBaseReason?: boolean
 }) {
   const { t: translate } = useTranslation('financeBudget')
   const [base, setBase] = useState(initial.base.amount)
@@ -35,11 +42,27 @@ export function BudgetVersionForm({
     q4: initial.quarters?.q4.amount ?? ''
   })
   const [reason, setReason] = useState(initial.reserveReason ?? '')
+  const [baseReason, setBaseReason] = useState('')
   const [invalid, setInvalid] = useState(false)
+  const quartersFilled = Object.values(quarters).some((amount) => amount.trim())
+  const baseOk = isDecimal(base)
+  const reserveOk = !reserve || isDecimal(reserve)
+  // The API wants a reason when the base of an existing version changes.
+  const baseChanged = askBaseReason && baseOk && !amountsEqual(base, initial.base.amount)
+  // A reserve that is not the default share of the base needs a reason (checked by the API when the version is sent).
+  const reserveEdited = Boolean(reserve) && reserveOk && !amountsEqual(reserve, initial.reserve?.amount ?? '')
+  const reserveNeedsReason = reserveEdited && baseOk && !isDefaultReserve(base, reserve)
+  // A reserve that is still the default follows a changed base, so the total is only known when it cannot move.
+  const totalKnown = Boolean(reserve) && reserveOk && baseOk && (reserveEdited || !baseChanged)
+  const quartersComplete = Object.values(quarters).every(isDecimal)
+  const quartersMismatch = totalKnown && quartersComplete && !quartersAddUp(base, reserve, Object.values(quarters))
   const valid =
-    isDecimal(base) &&
-    (!reserve || isDecimal(reserve)) &&
-    (Object.values(quarters).every((amount) => !amount) || Object.values(quarters).every(isDecimal))
+    baseOk &&
+    reserveOk &&
+    (Object.values(quarters).every((amount) => !amount) || quartersComplete) &&
+    !quartersMismatch &&
+    (!baseChanged || Boolean(baseReason.trim())) &&
+    (!reserveNeedsReason || Boolean(reason.trim()))
   const money = (amount: string) => ({ amount })
   return (
     <FinanceFormDialog
@@ -58,6 +81,7 @@ export function BudgetVersionForm({
         }
         onSubmit({
           base: money(base),
+          ...(askBaseReason && baseReason.trim() ? { baseReason: baseReason.trim() } : {}),
           ...(reserve ? { reserve: money(reserve) } : {}),
           ...(quarters.q1
             ? {
@@ -85,29 +109,27 @@ export function BudgetVersionForm({
           hint={translate('decimalHint')}
           error={invalid && !isDecimal(base) ? translate('fieldInvalid') : null}
         >
-          <input
+          <MoneyInput
             required
-            inputMode='decimal'
             maxLength={40}
             aria-invalid={invalid && !isDecimal(base)}
             className={amountClass}
             placeholder={translate('placeholders.amount')}
             value={base}
-            onChange={(event) => setBase(event.target.value)}
+            onValueChange={setBase}
           />
         </FinanceField>
         <FinanceField
           label={translate('fields.reserve')}
           error={invalid && !isDecimal(reserve) ? translate('fieldInvalid') : null}
         >
-          <input
-            inputMode='decimal'
+          <MoneyInput
             maxLength={40}
             aria-invalid={invalid && !isDecimal(reserve)}
             className={amountClass}
             placeholder={translate('placeholders.reserve')}
             value={reserve}
-            onChange={(event) => setReserve(event.target.value)}
+            onValueChange={setReserve}
           />
         </FinanceField>
       </div>
@@ -115,19 +137,44 @@ export function BudgetVersionForm({
       <p className='text-sm text-muted-foreground'>{translate('optionalQuarters')}</p>
       <div className='grid gap-4 sm:grid-cols-2'>
         {(Object.keys(quarters) as Array<keyof typeof quarters>).map((quarter) => (
-          <FinanceField key={quarter} label={translate(`fields.${quarter}`)}>
-            <input
-              inputMode='decimal'
+          <FinanceField
+            key={quarter}
+            required={quartersFilled}
+            label={translate(`fields.${quarter}`)}
+            error={quartersMismatch ? translate('quartersMismatch') : null}
+          >
+            <MoneyInput
               maxLength={40}
               className={amountClass}
               placeholder={translate('placeholders.quarter')}
               value={quarters[quarter]}
-              onChange={(event) => setQuarters({ ...quarters, [quarter]: event.target.value })}
+              onValueChange={(next) => setQuarters({ ...quarters, [quarter]: next })}
             />
           </FinanceField>
         ))}
       </div>
-      <FinanceField label={translate('fields.reserveReason')}>
+      {askBaseReason && (
+        <FinanceField
+          required={baseChanged}
+          label={translate('fields.baseReason')}
+          hint={translate('baseReasonHint')}
+          error={invalid && baseChanged && !baseReason.trim() ? translate('fieldInvalid') : null}
+        >
+          <textarea
+            rows={2}
+            maxLength={1000}
+            className={financeInputClass}
+            value={baseReason}
+            onChange={(event) => setBaseReason(event.target.value)}
+          />
+        </FinanceField>
+      )}
+      <FinanceField
+        required={reserveNeedsReason}
+        label={translate('fields.reserveReason')}
+        hint={reserveNeedsReason ? translate('reserveReasonHint') : undefined}
+        error={invalid && reserveNeedsReason && !reason.trim() ? translate('fieldInvalid') : null}
+      >
         <textarea
           rows={3}
           maxLength={1000}

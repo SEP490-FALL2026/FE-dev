@@ -1,4 +1,4 @@
-import { FileText, Plus, Unlock, type LucideIcon } from 'lucide-react'
+import { Unlock, type LucideIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { ExtendedCommitmentItem } from '../../shared/finance-api-extensions'
 
@@ -39,24 +39,14 @@ function RowIconButton({
 
 export function CommitmentRowActions({
   commitment,
-  onRecordInvoice,
-  onViewInvoices,
   onRelease
 }: {
   commitment: ExtendedCommitmentItem
-  onRecordInvoice: () => void
-  onViewInvoices: () => void
   onRelease: () => void
 }) {
   const { t: translate } = useTranslation('finance')
   return (
     <div className='inline-flex items-center justify-end gap-1.5'>
-      {commitment.state !== 'RELEASED' && (
-        <RowIconButton icon={Plus} tone='primary' label={translate('recordInvoice')} onClick={onRecordInvoice} />
-      )}
-      {(commitment.invoiceCount ?? 0) > 0 && (
-        <RowIconButton icon={FileText} label={translate('viewInvoices')} onClick={onViewInvoices} />
-      )}
       {Number(commitment.held.amount) > 0 && (
         <RowIconButton icon={Unlock} label={translate('releaseRemainder')} onClick={onRelease} />
       )}

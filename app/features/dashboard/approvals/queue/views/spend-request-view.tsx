@@ -11,6 +11,8 @@ import { SpendRequestFacts } from '../components/spend-request-facts'
 import { SpendBudgetPanel } from '../components/spend-budget-panel'
 import { SpendDecisionForm } from '../components/spend-decision-form'
 import { BUDGET_CHECK_CODE } from '../enums/budget-check-code'
+import { BUDGET_CHECK_OUTCOME } from '../enums/budget-check-outcome'
+import { BUDGET_CHECK_ROUTE } from '../enums/budget-check-route'
 import { useSpendRequestKind } from '../hooks/use-spend-request-kind'
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -72,7 +74,9 @@ function SpendRequestContent({ requestId }: { requestId: string }) {
     yearsQuery.years.length === check.yearCount &&
     knownCodes.includes(check.primaryCode)
   )
-  const blocked = !check || !['WITHIN_BASE', 'USES_RESERVE'].includes(check.outcome)
+  // A blocked check never reaches this step; if the recheck says so, the decision stays locked.
+  const blocked =
+    !check || check.route !== BUDGET_CHECK_ROUTE.SPEND_APPROVAL || check.outcome === BUDGET_CHECK_OUTCOME.BLOCKED
   return (
     <ApprovalsQueryState query={approvalQuery}>
       {approval ? (

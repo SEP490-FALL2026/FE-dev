@@ -8,17 +8,21 @@ export interface FinanceColumn<Item> {
   label: string
   render: (item: Item) => ReactNode
   numeric?: boolean
+  /** Short figures such as a year or a count read straighter centered than against the far edge. */
+  align?: 'center'
   /** Cột thao tác: không cắt nội dung, ghim sát mép phải khi bảng cuộn ngang. */
   actions?: boolean
   /** Lớp độ rộng Tailwind cho cột (ví dụ `w-20`, `w-1/2`). */
   width?: string
 }
 
-function alignClass(column: { numeric?: boolean; actions?: boolean }) {
+function alignClass(column: { numeric?: boolean; actions?: boolean; align?: 'center' }) {
+  if (column.align === 'center') return 'text-center'
   return column.numeric || column.actions ? 'text-right' : 'text-left'
 }
 
-function cellClass(column: { numeric?: boolean; actions?: boolean }) {
+function cellClass(column: { numeric?: boolean; actions?: boolean; align?: 'center' }) {
+  if (column.align === 'center') return 'text-center font-mono tabular-nums'
   if (column.actions) {
     return 'sticky right-0 bg-surface text-right whitespace-nowrap transition-colors duration-150 group-hover:bg-surface-subtle'
   }

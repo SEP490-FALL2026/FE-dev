@@ -14,9 +14,11 @@ export const approvalsBudget = {
   versions: 'Phiên bản ngân sách',
   proposals: 'Đề xuất của phòng ban',
   back: 'Về danh sách ngân sách',
+  backToVersion: 'Về phiên bản ngân sách',
   all: 'Tất cả trạng thái',
   state: 'Trạng thái',
   year: 'Năm ngân sách',
+  yearRange: 'Năm gồm 4 chữ số, từ 2000 đến 2200.',
   yearPlaceholder: 'Ví dụ: 2027',
   apply: 'Áp dụng bộ lọc',
   center: 'Trung tâm chi phí',
@@ -96,7 +98,7 @@ export const approvalsBudget = {
     removed: 'Đã gỡ',
     system: 'Hệ thống'
   },
-  kind: { INITIAL: 'Ngân sách ban đầu', REVISION: 'Bản sửa đổi' },
+  origin: { PROPOSAL: 'Từ đề xuất của phòng', BASELINE_NO_HEAD: 'Từ số liệu nền (phòng chưa có trưởng phòng)' },
   repeat: { MONTHLY: 'Hàng tháng', QUARTERLY: 'Hàng quý', ANNUAL: 'Hàng năm', ONE_TIME: 'Một lần' },
   historyKind: {
     FIGURES_UPDATED: 'Đã cập nhật số liệu ngân sách',

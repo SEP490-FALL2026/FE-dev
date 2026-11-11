@@ -7,6 +7,8 @@ export interface ApprovalsColumn<Item> {
   label: string
   render: (item: Item) => ReactNode
   numeric?: boolean
+  /** Short figures such as a year or a count read straighter centered than against the far edge. */
+  align?: 'center'
 }
 
 export function ApprovalsTable<Item>({
@@ -57,7 +59,7 @@ export function ApprovalsTable<Item>({
                 <th
                   key={column.key}
                   scope='col'
-                  className={`px-4 py-3 font-medium text-muted-foreground ${column.numeric ? 'text-right font-mono tabular-nums' : 'text-left'}`}
+                  className={`px-4 py-3 font-medium text-muted-foreground ${column.align === 'center' ? 'text-center font-mono tabular-nums' : column.numeric ? 'text-right font-mono tabular-nums' : 'text-left'}`}
                 >
                   {column.label}
                 </th>
@@ -78,7 +80,7 @@ export function ApprovalsTable<Item>({
                   return (
                     <td
                       key={column.key}
-                      className={`px-4 py-3 ${column.numeric ? 'text-right font-mono tabular-nums' : 'text-left'}`}
+                      className={`px-4 py-3 ${column.align === 'center' ? 'text-center font-mono tabular-nums' : column.numeric ? 'text-right font-mono tabular-nums' : 'text-left'}`}
                     >
                       <div className={column.numeric ? '' : 'max-w-64 truncate'} title={title}>
                         {content}

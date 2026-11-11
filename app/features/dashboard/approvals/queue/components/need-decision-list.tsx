@@ -45,7 +45,13 @@ export function NeedDecisionList({ onOpen }: { onOpen: (requestId: string) => vo
               render: (item) =>
                 item.pricing.amount ? formatMoney(item.pricing.amount, i18n.language) : translate('unknown')
             },
-            { key: 'dueOn', label: translate('dueOn'), numeric: true, render: (item) => formatDate(item.dueOn) }
+            {
+              key: 'dueOn',
+              label: translate('dueOn'),
+              numeric: true,
+              align: 'center',
+              render: (item) => formatDate(item.dueOn)
+            }
           ]}
         />
         <ApprovalsPagination pagination={query.data?.data?.pagination} onPageChange={setPage} />

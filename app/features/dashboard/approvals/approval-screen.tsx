@@ -1,5 +1,6 @@
 import type { ApprovalTabKey } from './enums'
 import { ApprovalAnnualBudgetView } from './annual-budget/views/approval-annual-budget-view'
+import { ApprovalVersionHistoryView } from './annual-budget/views/approval-version-history-view'
 import { ApprovalQueueView } from './queue/views/spend-queue-view'
 import { ApprovalRequestView } from './queue/views/spend-request-view'
 import { ApprovalBatchView } from './queue/views/spend-batch-view'
@@ -28,5 +29,7 @@ export function ApprovalScreen({ itemId, onSelectTab, tab }: ApprovalScreenProps
       return <ApprovalNeedView itemId={itemId} onSelectTab={onSelectTab} />
     case 'annual-budget':
       return <ApprovalAnnualBudgetView itemId={itemId} onSelectTab={onSelectTab} />
+    case 'version-history':
+      return <ApprovalVersionHistoryView itemId={itemId} onSelectTab={onSelectTab} />
   }
 }

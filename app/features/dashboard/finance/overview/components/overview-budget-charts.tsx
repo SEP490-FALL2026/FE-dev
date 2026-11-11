@@ -104,61 +104,72 @@ export function BudgetShareChart({ rows, money }: { rows: readonly CostCenterRow
     )
   const [highlighted, setHighlighted] = useState<string>()
   const colorOf = (slot: number | null) => (slot === null ? 'var(--theme-muted-foreground)' : chartSlot(slot))
+  // The centre and the amount under the ring follow the slice under the pointer, and show the whole budget otherwise.
+  const active = slices.find((slice) => slice.key === highlighted)
+  const shownLabel = active ? active.label : translate('analytics.series.total')
+  const shownValue = active ? active.value : total
   return (
-    <div className='grid items-center gap-4 sm:grid-cols-[minmax(0,11rem)_minmax(0,1fr)]'>
-      <div role='img' aria-label={translate('analytics.charts.share')} className='relative mx-auto size-44'>
-        <div className='pointer-events-none absolute inset-0 grid place-items-center text-center'>
-          <div>
-            <p className='text-[11px] font-semibold tracking-wider text-muted-foreground uppercase'>
-              {translate('analytics.series.total')}
-            </p>
-            <p className='font-mono text-sm font-semibold tabular-nums'>{money.compact(total)}</p>
+    <div className='grid items-center gap-4 sm:grid-cols-[minmax(0,15rem)_minmax(0,1fr)]'>
+      <div className='min-w-0 space-y-3'>
+        <div role='img' aria-label={translate('analytics.charts.share')} className='relative mx-auto size-44'>
+          <div className='pointer-events-none absolute inset-0 grid place-items-center px-6 text-center'>
+            <p className='font-mono text-2xl font-semibold tabular-nums'>{percent(shownValue)}</p>
           </div>
-        </div>
-        <ResponsiveContainer width='100%' height='100%'>
-          <PieChart>
-            <Pie
-              data={slices}
-              dataKey='value'
-              nameKey='label'
-              innerRadius='64%'
-              outerRadius='100%'
-              paddingAngle={1}
-              stroke='var(--theme-surface)'
-              strokeWidth={2}
-              isAnimationActive={false}
-            >
-              {slices.map((slice) => (
-                <Cell
-                  key={slice.key}
-                  fill={colorOf(slice.slot)}
-                  fillOpacity={highlighted && highlighted !== slice.key ? 0.3 : 1}
-                />
-              ))}
-            </Pie>
-            <Tooltip
-              allowEscapeViewBox={{ x: true, y: true }}
-              wrapperStyle={{ zIndex: 20, pointerEvents: 'none' }}
-              content={({ active, payload }) => {
-                const slice = payload?.[0]?.payload as (typeof slices)[number] | undefined
-                if (!active || !slice) return null
-                return (
-                  <OverviewTooltip
-                    title={slice.label}
-                    rows={[
-                      {
-                        color: colorOf(slice.slot),
-                        label: translate('analytics.series.total'),
-                        value: money.full(slice.value)
-                      },
-                      { label: translate('analytics.columns.share'), value: percent(slice.value) }
-                    ]}
+          <ResponsiveContainer width='100%' height='100%'>
+            <PieChart>
+              <Pie
+                data={slices}
+                dataKey='value'
+                nameKey='label'
+                innerRadius='64%'
+                outerRadius='100%'
+                paddingAngle={1}
+                stroke='var(--theme-surface)'
+                strokeWidth={2}
+                isAnimationActive={false}
+                onMouseEnter={(_, index) => setHighlighted(slices[index]?.key)}
+                onMouseLeave={() => setHighlighted(undefined)}
+              >
+                {slices.map((slice) => (
+                  <Cell
+                    key={slice.key}
+                    fill={colorOf(slice.slot)}
+                    fillOpacity={highlighted && highlighted !== slice.key ? 0.3 : 1}
                   />
-                )
-              }}
-            />
-          </PieChart>
-        </ResponsiveContainer>
+                ))}
+              </Pie>
+              <Tooltip
+                allowEscapeViewBox={{ x: true, y: true }}
+                wrapperStyle={{ zIndex: 20, pointerEvents: 'none' }}
+                content={({ active, payload }) => {
+                  const slice = payload?.[0]?.payload as (typeof slices)[number] | undefined
+                  if (!active || !slice) return null
+                  return (
+                    <OverviewTooltip
+                      title={slice.label}
+                      rows={[
+                        {
+                          color: colorOf(slice.slot),
+                          label: translate('analytics.series.total'),
+                          value: money.full(slice.value)
+                        },
+                        { label: translate('analytics.columns.share'), value: percent(slice.value) }
+                      ]}
+                    />
+                  )
+                }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+        <div aria-live='polite' className='space-y-1 text-center'>
+          <p className='text-xs font-semibold tracking-wider text-muted-foreground uppercase [text-wrap:balance]'>
+            {shownLabel}
+          </p>
+          <p className='font-mono text-base font-semibold tabular-nums [overflow-wrap:anywhere]'>
+            {money.full(shownValue)}
+          </p>
+        </div>
       </div>
       <ul className='min-w-0 space-y-2'>
         {slices.map((slice) => (

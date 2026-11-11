@@ -38,7 +38,7 @@ export const approvalsNeed = {
     openSpend: 'Mở hàng đợi duyệt chi',
     needs: 'Yêu cầu của trưởng phòng chờ xác nhận',
     openNeeds: 'Mở trong hàng chờ duyệt',
-    openBudgets: 'Mở ngân sách năm',
+    openBudgets: 'Mở ngân sách năm'
   },
   software: 'Phần mềm',
   dueOn: 'Hạn xử lý',

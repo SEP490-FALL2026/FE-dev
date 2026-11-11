@@ -4,6 +4,9 @@ import type { finance } from '~/shared/i18n/locales/en/finance'
 type FinanceErrorKey = keyof typeof finance.errors
 const errorKeys: Partial<Record<string, FinanceErrorKey>> = {
   'AUTHORIZATION.FORBIDDEN': 'forbidden',
+  'INVOICE.DUPLICATE': 'invoiceDuplicate',
+  'INVOICE.COMMITMENT_RELEASED': 'invoiceCommitmentReleased',
+  'INVOICE.VENDOR_UNKNOWN': 'invoiceVendorUnknown',
   'SPEND.NOT_FINANCE': 'forbidden',
   'SPEND.REVIEWER_IS_APPROVER': 'independentReview',
   'SPEND.OWN_REQUEST': 'ownRequest',

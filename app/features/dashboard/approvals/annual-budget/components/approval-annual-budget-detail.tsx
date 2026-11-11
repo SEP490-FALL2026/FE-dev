@@ -9,7 +9,6 @@ import { versionState } from '../enums/version-state'
 import type { ApprovalBudgetViewProps } from '../budget-view-props'
 import { ApprovalAnnualBudgetDecision } from './approval-annual-budget-decision'
 import { ApprovalAnnualBudgetLines } from './approval-annual-budget-lines'
-import { ApprovalAnnualBudgetHistory } from './approval-annual-budget-history'
 import { ApprovalAnnualBudgetSummary, ApprovalBudgetWaitingNotice } from './approval-annual-budget-summary'
 import { ApprovalBudgetAttachments } from './approval-budget-attachments'
 
@@ -19,7 +18,6 @@ export function ApprovalAnnualBudgetDetail({ itemId, onSelectTab }: ApprovalBudg
   const identity = useMeGet()
   const version = query.data?.data?.version
   const [decisionOpen, setDecisionOpen] = useState(false)
-  const [historyOpen, setHistoryOpen] = useState(false)
   const employeeId = identity.data?.data?.employee.id
   const isSpendingApprover = identity.data?.data?.roles.includes('SPENDING_APPROVER') === true
   const ownVersion = !!employeeId && employeeId === version?.createdBy?.employeeId
@@ -62,7 +60,7 @@ export function ApprovalAnnualBudgetDetail({ itemId, onSelectTab }: ApprovalBudg
                     {translate('relatedProposal')}
                   </ApprovalsButton>
                 )}
-                <ApprovalsButton aria-expanded={historyOpen} onClick={() => setHistoryOpen(!historyOpen)}>
+                <ApprovalsButton onClick={() => onSelectTab('version-history', { id: itemId })}>
                   <History aria-hidden className='size-4' strokeWidth={1.5} />
                   {translate('history')}
                 </ApprovalsButton>
@@ -82,7 +80,6 @@ export function ApprovalAnnualBudgetDetail({ itemId, onSelectTab }: ApprovalBudg
               </p>
             )}
             <ApprovalAnnualBudgetSummary version={version} />
-            {historyOpen && <ApprovalAnnualBudgetHistory itemId={itemId} />}
             <ApprovalAnnualBudgetLines itemId={itemId} />
             <ApprovalBudgetAttachments target='version' ownerId={itemId} />
           </div>

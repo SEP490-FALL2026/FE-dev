@@ -6,6 +6,7 @@ import {
   FinancePagination,
   FinanceQueryState,
   FinanceSearch,
+  FinanceStatus,
   FinanceToolbar
 } from '../../shared/components/finance-ui'
 import { FinanceTable } from '../../shared/components/finance-table'
@@ -19,6 +20,7 @@ export interface SpendBatchDepartment {
 
 interface DepartmentRow extends SpendBatchDepartment {
   costCenterCode: string
+  status: string
 }
 
 // Finance không có quyền đọc /departments; phòng ban lấy từ trung tâm chi phí loại UNIT đã gắn phòng.
@@ -30,7 +32,9 @@ export function SpendBatchDepartmentList({ onOpen }: { onOpen: (department: Spen
 
   const query = useCostCenterList({ kind: 'UNIT', search: debouncedSearch || undefined, page, pageSize: 20 })
   const departments: DepartmentRow[] = (query.data?.data?.items ?? []).flatMap((costCenter) =>
-    costCenter.department ? [{ ...costCenter.department, costCenterCode: costCenter.code }] : []
+    costCenter.department
+      ? [{ ...costCenter.department, costCenterCode: costCenter.code, status: costCenter.status }]
+      : []
   )
 
   return (
@@ -66,16 +70,16 @@ export function SpendBatchDepartmentList({ onOpen }: { onOpen: (department: Spen
               )
             },
             {
-              key: 'code',
-              label: translate('code'),
-              render: (department) => <span className='font-mono text-xs text-muted-foreground'>{department.code}</span>
-            },
-            {
               key: 'costCenter',
               label: translateFinance('spendBatchCostCenter'),
               render: (department) => (
                 <span className='font-mono text-xs text-muted-foreground'>{department.costCenterCode}</span>
               )
+            },
+            {
+              key: 'status',
+              label: translate('status'),
+              render: (department) => <FinanceStatus value={department.status} />
             }
           ]}
         />

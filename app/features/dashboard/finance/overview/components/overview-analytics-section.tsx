@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { FinanceSection } from '../../shared/components/finance-ui'
+import { useCostCenterLabel } from '../../shared/hooks/use-cost-center-label'
 import { useOverviewAnalytics } from '../hooks/use-overview-analytics'
 import {
   budgetTotals,
@@ -39,7 +40,8 @@ export function OverviewAnalyticsSection({ period }: { period: OverviewPeriod })
   const { budgets, budgetRows, budgetsTruncated, commitments, versions } = useOverviewAnalytics(period.year)
   const totals = budgetTotals(budgetRows)
   const money = useOverviewMoney(totals.currency)
-  const rows = costCenterRows(budgetRows)
+  const costCenterLabel = useCostCenterLabel()
+  const rows = costCenterRows(budgetRows).map((row) => ({ ...row, name: costCenterLabel(row) }))
   const months = commitmentsByMonth(commitments.data?.items ?? [], period)
   const inPeriod = sumPeriod(months)
   const quarters = plannedQuarters(versions.splits, period)

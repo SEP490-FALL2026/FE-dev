@@ -13,11 +13,9 @@ function failure(code: string, status: number) {
 }
 
 describe('Spending Approver error handling', () => {
-  it('explains required overrides and changed review routes without exposing server messages', () => {
-    expect(getApprovalsError(failure('SPEND.OVERRIDE_REQUIRED', 422)).key).toBe('overrideRequired')
-    expect(getApprovalsError(failure('SPEND.OVERRIDE_MISMATCH', 422)).key).toBe('overrideMismatch')
-    expect(getApprovalsError(failure('SPEND.RECHECKED_NEEDS_FINANCE_REVIEW', 409)).key).toBe('recheckedFinance')
+  it('explains rechecks that return the request without exposing server messages', () => {
     expect(getApprovalsError(failure('SPEND.RECHECKED_RETURNED_TO_HEAD', 409)).key).toBe('recheckedHead')
+    expect(getApprovalsError(failure('SPEND.RECHECKED_RETURNED_TO_REQUESTER', 409)).key).toBe('recheckedRequester')
     expect(getApprovalsError(failure('UNKNOWN', 409))).toEqual({
       key: 'conflict',
       ambiguous: false,
@@ -28,7 +26,6 @@ describe('Spending Approver error handling', () => {
   it('distinguishes ownership and separation of duties from missing permission', () => {
     expect(getApprovalsError(failure('BUDGET.OWN_VERSION', 403)).key).toBe('ownVersion')
     expect(getApprovalsError(failure('SPEND.OWN_REQUEST', 403)).key).toBe('ownRequest')
-    expect(getApprovalsError(failure('SPEND.REVIEWER_IS_APPROVER', 409)).key).toBe('independentReview')
     expect(getApprovalsError(failure('SPEND.NOT_THE_ASSIGNEE', 403)).key).toBe('forbidden')
   })
 

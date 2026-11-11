@@ -57,7 +57,13 @@ export function SpendBatchItems({
             </label>
           )
         },
-        { key: 'position', label: translate('batchPosition'), numeric: true, render: (item) => `#${item.position}` },
+        {
+          key: 'position',
+          label: translate('batchPosition'),
+          numeric: true,
+          align: 'center',
+          render: (item) => `#${item.position}`
+        },
         {
           key: 'outcome',
           label: translate('batchRoute'),

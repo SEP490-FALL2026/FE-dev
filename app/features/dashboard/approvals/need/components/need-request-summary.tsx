@@ -45,7 +45,7 @@ export function NeedRequestSummary({ request }: { request: AccessRequestResponse
         />
         <ApprovalsStat
           label={translate('term')}
-          value={request.termMonths === null ? '?' : formatNumber(request.termMonths)}
+          value={request.termMonths === null ? translate('unknown') : formatNumber(request.termMonths)}
         />
         <ApprovalsStat
           label={translate('assignedAt')}

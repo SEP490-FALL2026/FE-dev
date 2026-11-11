@@ -57,7 +57,7 @@ function DetailPagePanel({ title, children, onClose, pending = false, backLabel 
         </h1>
       </header>
       <DetailPageContext.Provider value={false}>
-        <div className='max-w-5xl space-y-6 rounded-lg border border-border/70 bg-surface p-5 shadow-[0_1px_2px_0_rgba(0,0,0,0.04)] sm:p-6'>
+        <div className='space-y-6 rounded-lg border border-border/70 bg-surface p-5 shadow-[0_1px_2px_0_rgba(0,0,0,0.04)] sm:p-6'>
           {children}
         </div>
       </DetailPageContext.Provider>
