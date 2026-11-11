@@ -1,4 +1,5 @@
 export { ManagerScreen } from './manager-screen-entry'
+export { ManagerSidebarNav } from './shared/components/manager-sidebar-nav'
 export { ManagerNotificationBell } from './notifications/components/manager-notification-bell'
 export {
   isValidManagerTab,

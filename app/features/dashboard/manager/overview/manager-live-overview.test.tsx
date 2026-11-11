@@ -1,7 +1,7 @@
 import { managerDashboard, managerReadHandlers } from '../../../../../test/fixtures/manager-integration'
 import { employeeId } from '../../../../../test/fixtures/employee-api'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
 import { MemoryRouter } from 'react-router'
@@ -45,7 +45,7 @@ function mount(departmentId?: string) {
   return select
 }
 
-it('shows one set of work metrics, retains server totals and scopes open handovers', async () => {
+it('retains spending totals without showing or requesting the removed work queues', async () => {
   const requests: URL[] = []
   server.use(
     http.get('*/api/v1/spend-queue', ({ request }) => {
@@ -66,35 +66,16 @@ it('shows one set of work metrics, retains server totals and scopes open handove
   expect(await screen.findByRole('button', { name: 'Spending submission queue' })).toBeInTheDocument()
   expect(screen.queryByRole('article', { name: 'Awaiting spending request submission' })).not.toBeInTheDocument()
   expect(screen.queryByRole('article', { name: 'Open transfer reviews' })).not.toBeInTheDocument()
-  expect(screen.getAllByRole('button', { name: 'Open transfer reviews' })).toHaveLength(1)
-  expect(await within(screen.getByRole('article', { name: 'Open data handovers' })).findByText('5')).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Open transfer reviews' })).not.toBeInTheDocument()
+  expect(screen.queryByRole('article', { name: 'Open data handovers' })).not.toBeInTheDocument()
   expect(requests.some((url) => url.pathname.endsWith('/transfer-reviews'))).toBe(false)
-  const handovers = requests.find((url) => url.pathname.endsWith('/handover-duties'))?.searchParams
-  expect(handovers?.get('status')).toBe('OPEN')
-  expect(handovers?.get('scope')).toBe('mine')
-  fireEvent.click(screen.getByRole('button', { name: 'Open transfer reviews' }))
-  expect(select).toHaveBeenCalledWith('transfer-reviews', { departmentId: employeeId })
+  expect(requests.some((url) => url.pathname.endsWith('/handover-duties'))).toBe(false)
   expect(screen.queryByRole('button', { name: 'Request software for staff' })).not.toBeInTheDocument()
   expect(screen.queryByRole('button', { name: 'Request on behalf' })).not.toBeInTheDocument()
   expect(select).not.toHaveBeenCalledWith('create-employee-request', expect.anything())
 })
 
-it('keeps a failed count unavailable instead of presenting it as zero', async () => {
-  server.use(
-    http.get('*/api/v1/spend-queue', () => HttpResponse.json(list(0))),
-    http.get('*/api/v1/handover-duties', () =>
-      HttpResponse.json({ error: { code: 'SERVICE.UNAVAILABLE' } }, { status: 503 })
-    )
-  )
-  mount()
-  const reviews = screen.getByRole('article', { name: 'Open data handovers' })
-  expect(await within(reviews).findByText('Unable to load data. Try again.')).toBeInTheDocument()
-  expect(within(reviews).getByText('Not available')).toBeInTheDocument()
-  expect(within(reviews).queryByText('0')).not.toBeInTheDocument()
-  expect(within(reviews).getByRole('button', { name: 'Retry' })).toBeInTheDocument()
-})
-
-it('keeps an unavailable dashboard metric unavailable without a duplicate fallback card', async () => {
+it('keeps an unavailable spending metric unavailable', async () => {
   server.use(
     http.get('*/api/v1/dashboards/manager', () =>
       HttpResponse.json({
@@ -103,17 +84,16 @@ it('keeps an unavailable dashboard metric unavailable without a duplicate fallba
           ...managerDashboard,
           sections: {
             ...managerDashboard.sections,
-            transferReviews: { state: 'NOT_AVAILABLE', count: null, sourceOperationId: null, reason: 'NO_DATA_SOURCE' }
+            spendQueue: { state: 'NOT_AVAILABLE', count: null, sourceOperationId: null, reason: 'NO_DATA_SOURCE' }
           }
         }
       })
     )
   )
   mount()
-  const card = await screen.findByRole('button', { name: 'Open transfer reviews' })
+  const card = await screen.findByRole('button', { name: 'Spending submission queue' })
   expect(within(card).getByText('Not available')).toBeInTheDocument()
   expect(within(card).queryByText('0')).not.toBeInTheDocument()
-  expect(screen.queryByRole('article', { name: 'Open transfer reviews' })).not.toBeInTheDocument()
 })
 
 it.each([undefined, employeeId])(

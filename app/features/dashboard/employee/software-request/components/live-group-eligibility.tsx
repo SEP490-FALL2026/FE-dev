@@ -3,6 +3,7 @@ import type { GroupCheckResponseDtoData } from '~/shared/api/generated/model'
 import type { GroupSelection } from '../hooks/use-live-request-form'
 import { GROUP_ELIGIBILITY_REASON, GROUP_PLAN_ELIGIBILITY_REASON } from '../enums/group-eligibility'
 import { EmployeeMoney } from '../../shared/components/employee-money'
+import { useDashboardFormat } from '../../../dashboard-ui'
 
 export function LiveGroupEligibility({
   check,
@@ -12,10 +13,26 @@ export function LiveGroupEligibility({
   members: GroupSelection[]
 }) {
   const { t: translate } = useTranslation('employee')
+  const { formatDate } = useDashboardFormat()
   const knownPlanReason =
     check.plan.reason && Object.values(GROUP_PLAN_ELIGIBILITY_REASON).some((reason) => reason === check.plan.reason)
   return (
     <div className='space-y-3'>
+      {check.tooFewLines && (
+        <p role='status' className='text-sm text-warning-ink'>
+          {translate('requestUx.tooFew', { count: check.tooFewLines.min })}
+        </p>
+      )}
+      {check.tooManyLines && (
+        <p role='status' className='text-sm text-warning-ink'>
+          {translate('requestUx.tooMany', { count: check.tooManyLines.max })}
+        </p>
+      )}
+      {check.endDateOutOfRange && (
+        <p role='status' className='text-sm text-warning-ink'>
+          {translate('requestUx.groupDate', { date: formatDate(check.maxEndDate) })}
+        </p>
+      )}
       <div className='flex flex-wrap justify-between gap-3 text-sm'>
         <span>{translate('plan')}</span>
         <span>

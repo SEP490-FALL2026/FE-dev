@@ -12,6 +12,9 @@ describe('BE decimal money formatting', () => {
     expect(formatDecimalMoney({ amount: '1000', currency: 'VND' }, 'vi-VN')).toContain('1.000')
     expect(formatDecimalMoney({ amount: '1.25', currency: 'USD' }, 'vi-VN')).toContain('1,25')
   })
+  it('preserves the sign of a negative fraction smaller than one', () => {
+    expect(formatDecimalMoney({ amount: '-0.25', currency: 'USD' }, 'en-US')).toBe('-$0.25')
+  })
   it('does not render invalid money', () => {
     expect(formatDecimalMoney({ amount: 'not-money', currency: 'USD' }, 'en-US')).toBeNull()
   })

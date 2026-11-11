@@ -88,6 +88,22 @@ function fillRenewal() {
   fireEvent.change(screen.getByLabelText('Extension in months'), { target: { value: '3' } })
   fireEvent.change(screen.getByLabelText('Business reason'), { target: { value: 'Continue project work' } })
 }
+it('switches between request types without displaying the request guide', () => {
+  mount('renewal')
+  expect(screen.queryByText('How to send a request')).not.toBeInTheDocument()
+  expect(screen.queryByText('Before you submit')).not.toBeInTheDocument()
+  for (const [label, mode] of [
+    ['Individual access', 'individual'],
+    ['Group access', 'group'],
+    ['Propose new software', 'proposal'],
+    ['Renew access', 'renewal'],
+    ['Return access', 'return']
+  ]) {
+    fireEvent.click(screen.getByRole('button', { name: label }))
+    expect(screen.getByRole('button', { name: label })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByTestId('current-url')).toHaveTextContent(`mode=${mode}`)
+  }
+})
 it('removes the service-account tab and redirects old links without opening its drawer', async () => {
   mount('service')
   await screen.findByRole('combobox', { name: 'Software' })
@@ -299,4 +315,61 @@ it('reports a pending renewal from the server without automatically submitting a
     expect(errors).toHaveBeenCalledWith('This access already has a pending renewal request.', expect.anything())
   )
   expect(written).toHaveBeenCalledOnce()
+})
+
+it('lets an expired-access renewal supply a backend-required paid-software justification', async () => {
+  const written = vi.fn()
+  server.use(
+    http.post('*/api/v1/access-requests/renewals', async ({ request }) => {
+      const body = (await request.json()) as Record<string, unknown>
+      written(body)
+      if (!body.manyPaidSoftwareReason)
+        return HttpResponse.json(
+          {
+            error: {
+              code: 'ACCESS_REQUEST.MANY_PAID_SOFTWARE_REASON_REQUIRED'
+            }
+          },
+          { status: 422 }
+        )
+      return HttpResponse.json({ success: true, data: { request: { id: requestId } } })
+    })
+  )
+  const { navigate } = mount('renewal', assignmentId)
+  await screen.findByRole('region', { name: 'Selected access' })
+  fillRenewal()
+  fireEvent.click(screen.getByRole('button', { name: 'Submit request' }))
+  const reason = await screen.findByLabelText('Reason for using multiple paid applications')
+  fireEvent.change(reason, { target: { value: 'Customer environment differs from our internal tools' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Submit request' }))
+  await waitFor(() => expect(navigate).toHaveBeenCalledWith('request-detail', { id: requestId }))
+  expect(written).toHaveBeenLastCalledWith({
+    assignmentId,
+    extensionMonths: 3,
+    businessReason: 'Continue project work',
+    manyPaidSoftwareReason: 'Customer environment differs from our internal tools'
+  })
+})
+
+it('shows the backend renewal opening date next to the selected access and keeps the draft', async () => {
+  server.use(
+    http.post('*/api/v1/access-requests/renewals', () =>
+      HttpResponse.json(
+        {
+          error: {
+            code: 'RENEWAL_REQUEST.WINDOW_NOT_OPEN',
+            details: { opensOn: '2026-12-01', windowDays: 30 }
+          }
+        },
+        { status: 409 }
+      )
+    )
+  )
+  mount('renewal', assignmentId)
+  await screen.findByRole('region', { name: 'Selected access' })
+  fillRenewal()
+  fireEvent.click(screen.getByRole('button', { name: 'Submit request' }))
+  expect(await screen.findByText(/Renewal requests open on/)).toBeInTheDocument()
+  expect(screen.getByLabelText('Extension in months')).toHaveValue(3)
+  expect(screen.getByLabelText('Business reason')).toHaveValue('Continue project work')
 })

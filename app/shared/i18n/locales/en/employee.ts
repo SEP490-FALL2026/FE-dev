@@ -1,6 +1,10 @@
 import { employeeRequestExtras } from './employee-request-extras'
 import { employeeRequestAssignment } from './employee-request-assignment'
+import { employeeSoftwareRightDetails } from './employee-software-right-details'
+import { employeeRequestUx } from './employee-request-ux'
 export const employee = {
+  requestUx: employeeRequestUx,
+  softwareRightDetails: employeeSoftwareRightDetails,
   termLimit: 'Up to {{months}} months, ending by {{date}}',
   estimatedBudgetYear: 'Estimated budget year',
   extensionMonths: 'Extension in months',
@@ -153,7 +157,7 @@ export const employee = {
     requestGuide: 'Before you submit',
     guidePrepare: 'Prepare the details',
     guidePrepareHint:
-      'Select software and a plan, then explain what you need. Renewals and returns use an assignment ID.',
+      'Select software and a plan, then explain what you need. For renewals or returns, choose your access from the list.',
     guidePrepareGroupHint: 'Select the plan and beneficiaries, then explain what your team needs.',
     guidePreview: 'Check the preview',
     guidePreviewHint:
@@ -360,6 +364,9 @@ export const employee = {
   noValue: 'Not available',
   selfService: 'Your account is in the handover phase. Only notifications, handovers and your profile are available.',
   errors: {
+    renewalWindow: employeeRequestUx.renewalWindow,
+    renewalDate: employeeRequestUx.renewalDate,
+    groupRefused: employeeRequestUx.groupRefused,
     termLimit: 'The term exceeds the plan limit. Check the maximum months and preview again.',
     groupMinimum: 'A group request requires 2 to 10 different people.',
     renewalHolder: 'Only the current holder can request an extension of this access.',

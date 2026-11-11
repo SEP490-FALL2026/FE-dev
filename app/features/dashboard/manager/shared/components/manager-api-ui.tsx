@@ -1,12 +1,10 @@
 import { LoaderCircle } from 'lucide-react'
-import { useQueryClient } from '@tanstack/react-query'
 import {
   cloneElement,
   createContext,
   isValidElement,
   useContext,
   useId,
-  useEffect,
   type ButtonHTMLAttributes,
   type InputHTMLAttributes,
   type ReactNode
@@ -14,7 +12,7 @@ import {
 import { useTranslation } from 'react-i18next'
 import { formatDecimalMoney } from '~/shared/lib/format-decimal-money'
 import { getManagerError } from '../hooks/manager-errors'
-import { getMeGetQueryOptions } from '~/shared/api/generated/operations/me/me-get'
+import { useWorkspaceQueryRecovery } from '~/shared/lib/use-workspace-query-recovery'
 import { ManagerEmptyState } from './manager-empty-state'
 
 export const managerInputClass =
@@ -79,14 +77,7 @@ export function ManagerQueryState({
   emptyAction?: ReactNode
 }) {
   const { t: translate } = useTranslation('manager')
-  const client = useQueryClient()
-  useEffect(() => {
-    if (syncPermissions && query.isError && getManagerError(query.error).key === 'forbidden') {
-      void client
-        .fetchQuery({ ...getMeGetQueryOptions(), staleTime: 0, retry: false, networkMode: 'always' })
-        .catch(() => undefined)
-    }
-  }, [client, query.isError, query.error, syncPermissions])
+  const retrySeconds = useWorkspaceQueryRecovery(query, syncPermissions)
   if (query.isPending)
     return (
       <p role='status' className='flex items-center gap-2 py-6 text-sm text-muted-foreground'>
@@ -100,9 +91,11 @@ export function ManagerQueryState({
       <div role='alert' className='space-y-3 py-4'>
         <p>{translate(`errors.${failure.key}`)}</p>
         {failure.requestId && <p className='font-mono text-xs'>{translate('requestId', { id: failure.requestId })}</p>}
-        <ManagerButton busy={query.isFetching} onClick={() => void query.refetch()}>
-          {translate('retry')}
-        </ManagerButton>
+        {failure.key !== 'forbidden' && (
+          <ManagerButton busy={query.isFetching} disabled={retrySeconds > 0} onClick={() => void query.refetch()}>
+            {retrySeconds ? translate('retryAfter', { seconds: retrySeconds }) : translate('retry')}
+          </ManagerButton>
+        )}
       </div>
     )
   }

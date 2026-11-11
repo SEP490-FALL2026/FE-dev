@@ -9,10 +9,6 @@ export function RequestFlowSummary({ request }: { request: AccessRequestResponse
     <section className='space-y-3 border-t border-border/60 pt-4'>
       <dl className='grid gap-4 text-sm sm:grid-cols-2'>
         <div>
-          <dt className='text-xs text-muted-foreground'>{t('routing')}</dt>
-          <dd>{t(request.routing.mode, { defaultValue: t('unknown') })}</dd>
-        </div>
-        <div>
           <dt className='text-xs text-muted-foreground'>{t('endDate')}</dt>
           <dd className='font-mono tabular-nums'>
             {request.expectedEndDate ? formatDate(request.expectedEndDate) : t('indefinite')}

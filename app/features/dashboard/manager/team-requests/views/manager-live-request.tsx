@@ -221,8 +221,10 @@ export function ManagerLiveRequest({
             </ManagerSection>
           )}
 
-          <RequestFlowSummary request={request} />
-          <RequestEventTimeline id={id} />
+          <div className='min-w-0 space-y-6 lg:col-span-2'>
+            <RequestFlowSummary request={request} />
+            <RequestEventTimeline id={id} groupMemberDecisions />
+          </div>
           {request.routing.mode === ACCESS_REQUEST_ROUTING.ONE_STEP &&
             request.state === ACCESS_REQUEST_STATE.AWAITING_REQUESTER_REVISION &&
             request.requester.employeeId === employeeId && (
@@ -235,7 +237,9 @@ export function ManagerLiveRequest({
             )}
           {request.routing.mode === ACCESS_REQUEST_ROUTING.VIA_HEAD &&
             request.state === REQUEST_STATE.AWAITING_SPEND_SUBMISSION &&
-            request.requester.employeeId !== employeeId && <ManagerSpendCorrections id={id} />}
+            request.requester.employeeId !== employeeId && (
+              <ManagerSpendCorrections id={id} group={request.type === REQUEST_TYPE.GROUP_GRANT} />
+            )}
         </div>
       )}
 

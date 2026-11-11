@@ -16,9 +16,7 @@ import { ManagerLiveCreate } from './team-requests/views/manager-live-create'
 import { ManagerLiveBatch } from './team-requests/views/manager-live-batch'
 import { ManagerLiveBudget } from './annual-budget/views/manager-live-budget'
 import { ManagerBudgetForm } from './annual-budget/views/manager-budget-form'
-import { ManagerTransferReviews } from './access-review/views/manager-transfer-reviews'
 import { ManagerNotices } from './personnel-notices/views/manager-notices'
-import { ManagerHandovers } from './handovers/views/manager-handovers'
 import { ManagerReturns } from './team/views/manager-returns'
 import { ManagerReturnDetail } from './team/views/manager-return-detail'
 import { ManagerLiveEmployeeDetail } from './team/views/manager-live-employee-detail'
@@ -59,6 +57,12 @@ export function ManagerScreen({
   })
   if (!user) return <ManagerQueryState query={me} empty={!user} syncPermissions={false} />
   if (!user.roles.includes('MANAGER')) return <p role='alert'>{translate('errors.forbidden')}</p>
+  if (tab === 'transfer-reviews' || tab === 'handovers') {
+    const next = new URLSearchParams()
+    const selectedDepartmentId = params.get('departmentId')
+    if (selectedDepartmentId) next.set('departmentId', selectedDepartmentId)
+    return <Navigate replace to={{ pathname: '/dashboard/manager', search: next.toString() }} />
+  }
   if (!user.managerScope && !budgetSection && user.upcomingUnits.length)
     return (
       <Navigate
@@ -274,8 +278,6 @@ export function ManagerScreen({
     )
   else if (tab === 'subscription-renewals') content = <ManagerSubscriptionRenewals />
   else if (tab === 'annual-budget') content = <ManagerLiveBudget />
-  else if (tab === 'transfer-reviews') content = <ManagerTransferReviews />
-  else if (tab === 'handovers') content = <ManagerHandovers />
   else
     content = (
       <div className='space-y-3'>

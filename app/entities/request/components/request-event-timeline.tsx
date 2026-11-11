@@ -1,19 +1,34 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { ArrowLeft, ArrowRight, LoaderCircle } from 'lucide-react'
 import { useAccessRequestEventList } from '~/shared/api/generated/operations/access-requests/access-request-event-list'
-import { useWorkspaceFormat } from '~/shared/hooks/use-workspace-format'
+import { WorkspaceSection } from '~/shared/ui/workspace-section'
+import { groupRequestEvents } from '../request-event-groups'
+import { RequestEventEntry } from './request-event-entry'
 
-export function RequestEventTimeline({ id }: { id: string }) {
+export function RequestEventTimeline({
+  id,
+  groupMemberDecisions = false
+}: {
+  id: string
+  groupMemberDecisions?: boolean
+}) {
   const { t } = useTranslation('requestFlow')
-  const { formatDateTime } = useWorkspaceFormat()
   const [page, setPage] = useState(1)
   const query = useAccessRequestEventList(id, { page, pageSize: 20 })
   const data = !query.isError ? query.data?.data : undefined
-  const buttonClass = 'min-h-11 rounded-md border border-border px-3 text-sm disabled:opacity-50'
+  const events = data?.items ?? []
+  const groups = groupMemberDecisions ? groupRequestEvents(events) : events.map((event) => [event])
+  const buttonClass =
+    'inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-border/80 bg-surface px-3 text-sm transition-colors hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-50'
   return (
-    <section className='space-y-4 border-t border-border/60 pt-4'>
-      <h3 className='font-semibold'>{t('timeline')}</h3>
-      {query.isPending && <p role='status'>{t('loading')}</p>}
+    <WorkspaceSection title={t('timeline')}>
+      {query.isPending && (
+        <p role='status' className='flex items-center gap-2 py-6 text-sm text-muted-foreground'>
+          <LoaderCircle aria-hidden='true' strokeWidth={1.5} className='size-4 animate-spin' />
+          {t('loading')}
+        </p>
+      )}
       {query.isError && (
         <div role='alert'>
           <p>{t('loadError')}</p>
@@ -22,39 +37,26 @@ export function RequestEventTimeline({ id }: { id: string }) {
           </button>
         </div>
       )}
-      {data?.items.length === 0 && <p className='text-sm text-muted-foreground'>{t('noEvents')}</p>}
-      <ol className='divide-y divide-border/40'>
-        {data?.items.map((event) => (
-          <li key={event.id} className='space-y-1 py-3 text-sm'>
-            <div className='flex flex-wrap justify-between gap-2'>
-              <span>{t(`events.${event.kind}`, { defaultValue: t('unknown') })}</span>
-              <time className='text-right font-mono text-xs tabular-nums' dateTime={event.occurredAt}>
-                {formatDateTime(event.occurredAt)}
-              </time>
-            </div>
-            {event.actor && (
-              <p className='truncate text-xs text-muted-foreground' title={event.actor.fullName}>
-                {event.actor.fullName}
-              </p>
-            )}
-            {event.line && (
-              <p className='truncate' title={event.line.fullName}>
-                {event.line.fullName}
-              </p>
-            )}
-            {event.reason && <p className='whitespace-pre-wrap [overflow-wrap:anywhere]'>{event.reason}</p>}
-          </li>
+      {data?.items.length === 0 && <p className='py-6 text-center text-sm text-muted-foreground'>{t('noEvents')}</p>}
+      <ol>
+        {groups.map((members) => (
+          <RequestEventEntry key={members[0].id} members={members} />
         ))}
       </ol>
       {data && data.pagination.totalPages > 1 && (
-        <nav className='flex justify-end gap-3' aria-label={t('timeline')}>
+        <nav
+          className='flex flex-wrap items-center justify-end gap-3 border-t border-border/50 pt-4'
+          aria-label={t('timeline')}
+        >
           <button
             className={buttonClass}
             disabled={query.isFetching || page <= 1}
             onClick={() => setPage(page - 1)}
             aria-label={t('previous')}
+            type='button'
           >
-            ←
+            <ArrowLeft aria-hidden='true' strokeWidth={1.5} className='size-4' />
+            {t('previous')}
           </button>
           <span className='self-center font-mono text-sm'>
             {page} / {data.pagination.totalPages}
@@ -64,11 +66,13 @@ export function RequestEventTimeline({ id }: { id: string }) {
             disabled={query.isFetching || page >= data.pagination.totalPages}
             onClick={() => setPage(page + 1)}
             aria-label={t('next')}
+            type='button'
           >
-            →
+            {t('next')}
+            <ArrowRight aria-hidden='true' strokeWidth={1.5} className='size-4' />
           </button>
         </nav>
       )}
-    </section>
+    </WorkspaceSection>
   )
 }

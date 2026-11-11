@@ -53,6 +53,8 @@ export const requestFlow = {
   TWO_STEP: 'Duyệt nhu cầu và duyệt chi',
   unknown: 'Chưa có thông tin',
   timeline: 'Lịch sử yêu cầu',
+  timelineMembers: '{{total}} thành viên',
+  timelineMemberList: 'Thành viên đã được quyết định',
   noEvents: 'Chưa có sự kiện',
   retry: 'Thử lại',
   loading: 'Đang tải…',

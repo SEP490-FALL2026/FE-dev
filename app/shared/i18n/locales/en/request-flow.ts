@@ -53,6 +53,8 @@ export const requestFlow = {
   TWO_STEP: 'Department review and spending approval',
   unknown: 'Not available',
   timeline: 'Request history',
+  timelineMembers: '{{total}} members',
+  timelineMemberList: 'Members with recorded decisions',
   noEvents: 'No events recorded',
   retry: 'Retry',
   loading: 'Loading…',

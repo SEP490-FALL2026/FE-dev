@@ -2,11 +2,17 @@ import { managerRenewals } from './manager-renewals'
 import { managerIntegration } from './manager-integration'
 import { managerRequestForm } from './manager-request-form'
 import { managerBudgetForm } from './manager-budget-form'
+import { managerBudgetHistory } from './manager-budget-history'
+import { managerRequestUx } from './manager-request-ux'
+import { managerOverviewBudget } from './manager-overview-budget'
 export const manager = {
+  overviewBudget: managerOverviewBudget,
+  requestUx: managerRequestUx,
+  budgetHistory: managerBudgetHistory,
   renewal: managerRenewals,
   renewals: managerRenewals.title,
   termLimit: 'Thời hạn tối đa: {{months}} tháng',
-  groupMinimum: 'Chọn từ 2 đến 10 người khác nhau',
+  groupMinimum: 'Chọn từ 2 đến 100 người khác nhau',
   budgetForm: managerBudgetForm,
   requestForm: managerRequestForm,
   integration: managerIntegration,
@@ -172,10 +178,10 @@ export const manager = {
   similarSeats: 'Quyền tương tự đang có',
   supplement: 'Bổ sung hồ sơ',
   supplements: 'Lịch sử bổ sung',
-  dropEmployees: 'ID người cần loại khỏi đơn (mỗi dòng một ID)',
+  dropEmployees: 'Thành viên cần bỏ khỏi yêu cầu',
   participants: 'Người được cấp',
   groupIncomplete: 'Tải đủ các trang thành viên trước khi gửi quyết định cho những người đang chờ.',
-  groupHint: 'Cấp gói team hoặc Business cho 2–10 nhân viên trong phòng, có thể gồm cả bạn.',
+  groupHint: 'Gửi yêu cầu cho 2–100 người trong phòng. Kiểm tra điều kiện từng người trước khi xác nhận.',
   group: 'Yêu cầu cấp gói nhóm',
   groupDetails: 'Thông tin đơn nhóm',
   createGroupRequest: 'Tạo yêu cầu nhóm',
@@ -327,8 +333,9 @@ export const manager = {
     confirmRejectText: 'Bạn có chắc chắn muốn TỪ CHỐI nhu cầu phần mềm này?'
   },
   errors: {
+    groupRefused: 'Một số thành viên chưa đủ điều kiện. Kiểm tra thông tin tại từng người.',
     termLimit: 'Thời hạn vượt giới hạn của gói. Kiểm tra số tháng tối đa rồi xem trước lại.',
-    groupMinimum: 'Yêu cầu nhóm cần từ 2 đến 10 người khác nhau.',
+    groupMinimum: 'Yêu cầu nhóm cần từ 2 đến 100 người khác nhau.',
     renewalStale: 'Đề xuất đã thay đổi. IT cần gửi lại đề xuất trước khi xác nhận.',
     renewalAcknowledge: 'Cần xác nhận hủy thuê bao khi vẫn còn người đang sử dụng.',
     budgetAttachments: 'Một số tệp không còn sẵn sàng. Làm mới danh sách tệp và chọn lại trước khi gửi.',

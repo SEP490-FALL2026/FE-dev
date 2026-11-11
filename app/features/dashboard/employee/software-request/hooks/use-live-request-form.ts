@@ -22,6 +22,7 @@ import { useEmployeeFeedback } from '../../shared/hooks/use-employee-feedback'
 import { DRAFT_KIND } from '../../shared/enums/draft-kind'
 import { getMeSoftwareRightListQueryKey } from '~/shared/api/generated/operations/me/me-software-right-list'
 import axios from 'axios'
+import { getGroupLineFailures } from '~/entities/request/group-request-feedback'
 
 export type RequestMode = 'individual' | 'group' | 'proposal' | 'renewal' | 'return'
 export type GroupSelection = {
@@ -177,13 +178,14 @@ export function useLiveRequestForm(
         }
       }
       if (mode === 'renewal') {
-        const { assignmentId, extensionMonths, businessReason } = fields
+        const { assignmentId, extensionMonths, businessReason, manyPaidSoftwareReason } = fields
         return {
           id: (
             await accessRequestRenewalSubmit({
               assignmentId,
               extensionMonths,
-              businessReason
+              businessReason,
+              ...(manyPaidSoftwareReason ? { manyPaidSoftwareReason } : {})
             })
           ).data?.request.id
         }
@@ -205,6 +207,20 @@ export function useLiveRequestForm(
       else if (result.id) onCreated(result.id, result.returned)
     },
     onError: (error) => {
+      const refused = getGroupLineFailures(error)
+      if (refused.length)
+        setMembers((current) =>
+          current.map((member) => ({
+            ...member,
+            reasonRequired:
+              member.reasonRequired ||
+              refused.some(
+                (line) =>
+                  line.employeeId === member.employeeId &&
+                  line.reason === GroupCheckResponseDtoDataLinesItemReason.MANY_PAID_SOFTWARE_REASON_REQUIRED
+              )
+          }))
+        )
       if (
         axios.isAxiosError<{ error?: { code?: string } }>(error) &&
         (error.response?.status === 409 || error.response?.data.error?.code === 'GROUP_REQUEST.LINES_REFUSED')
@@ -226,9 +242,9 @@ export function useLiveRequestForm(
     requiresReason,
     setMembers,
     previewResult,
-    clearPreview: () => {
+    clearPreview: (resetReason = mode !== 'renewal') => {
       preview.reset()
-      setRequiresReason(false)
+      if (resetReason) setRequiresReason(false)
     },
     preview,
     submit: {

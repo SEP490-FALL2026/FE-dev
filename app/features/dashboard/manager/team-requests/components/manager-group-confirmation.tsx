@@ -1,9 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { GroupBodyDto } from '~/shared/api/generated/model/group-requests/groupBodyDto'
+import { GroupCheckResponseDtoDataLinesItemReason } from '~/shared/api/generated/model/group-requests/groupCheckResponseDtoDataLinesItemReason'
 import { groupRequestCheck } from '~/shared/api/generated/operations/group-requests/group-request-check'
 import { ManagerButton, ManagerMoney, ManagerQueryState } from '../../shared/components/manager-api-ui'
 import type { ManagerChoice } from '../../shared/components/manager-choice-select'
+import { useDashboardFormat } from '../../../dashboard-ui'
 
 export function ManagerGroupConfirmation({
   body,
@@ -11,7 +14,8 @@ export function ManagerGroupConfirmation({
   blocked,
   busy,
   onConfirm,
-  onCancel
+  onCancel,
+  onChecked
 }: {
   body: GroupBodyDto
   people: readonly ManagerChoice[]
@@ -19,16 +23,26 @@ export function ManagerGroupConfirmation({
   busy: boolean
   onConfirm: () => void
   onCancel: () => void
+  onChecked?: (employeeIds: string[]) => void
 }) {
   const { t: translate } = useTranslation('manager')
   const { t: flow } = useTranslation('requestFlow')
   const { t: employeeTranslate } = useTranslation('employee')
+  const { formatDate } = useDashboardFormat()
   const query = useQuery({
     queryKey: ['manager-group-check', body],
     queryFn: ({ signal }) => groupRequestCheck(body, undefined, signal),
     retry: false
   })
   const check = !query.isError ? query.data?.data : null
+  useEffect(() => {
+    if (check)
+      onChecked?.(
+        check.lines
+          .filter((line) => line.reason === GroupCheckResponseDtoDataLinesItemReason.MANY_PAID_SOFTWARE_REASON_REQUIRED)
+          .map((line) => line.employeeId)
+      )
+  }, [check, onChecked])
   const eligible =
     check?.plan.eligible === true &&
     !check.tooManyLines &&
@@ -51,7 +65,12 @@ export function ManagerGroupConfirmation({
       {check && (
         <>
           <ManagerMoney money={check.pricing.amount} />
-          <p className='text-sm text-muted-foreground'>{flow('maxEndDate', { date: check.maxEndDate })}</p>
+          <p className='text-sm text-muted-foreground'>{flow('maxEndDate', { date: formatDate(check.maxEndDate) })}</p>
+          {check.tooManyLines && (
+            <p role='status' className='text-sm text-warning-ink'>
+              {employeeTranslate('requestUx.tooMany', { count: check.tooManyLines.max })}
+            </p>
+          )}
           {check.tooFewLines && (
             <p role='status' className='text-sm text-warning'>
               {translate('groupMinimum')}
@@ -59,7 +78,7 @@ export function ManagerGroupConfirmation({
           )}
           {check.endDateOutOfRange && (
             <p role='status' className='text-sm text-warning'>
-              {flow('maxEndDate', { date: check.maxEndDate })}
+              {flow('maxEndDate', { date: formatDate(check.maxEndDate) })}
             </p>
           )}
           {!check.plan.eligible && (
@@ -90,7 +109,7 @@ export function ManagerGroupConfirmation({
       )}
       <div className='flex flex-wrap justify-end gap-3'>
         <ManagerButton disabled={busy} onClick={onCancel}>
-          {translate('cancel')}
+          {translate('requestUx.editRequest')}
         </ManagerButton>
         <ManagerButton primary busy={busy} disabled={blocked || !eligible || query.isFetching} onClick={onConfirm}>
           {translate('confirm')}

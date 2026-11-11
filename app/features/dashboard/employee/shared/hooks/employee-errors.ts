@@ -9,6 +9,9 @@ const errorKeys = {
   'RETURN_REQUEST.ALREADY_REQUESTED': 'returnPending',
   'RETURN_REQUEST.RENEWAL_PENDING': 'renewalPending',
   'RENEWAL_REQUEST.ALREADY_REQUESTED': 'renewalPending',
+  'RENEWAL_REQUEST.WINDOW_NOT_OPEN': 'renewalWindow',
+  'RENEWAL_REQUEST.END_DATE_OUT_OF_RANGE': 'renewalDate',
+  'GROUP_REQUEST.LINES_REFUSED': 'groupRefused',
   'RENEWAL_REQUEST.END_NOT_AFTER': 'renewalEnd',
   'RETURN_REQUEST.HANDOVER_NOT_REQUIRED': 'returnChanged',
   'RETURN_REQUEST.HANDOVER_ALREADY_CONFIRMED': 'returnChanged',
@@ -32,7 +35,13 @@ export function getEmployeeError(error: unknown) {
     error?: {
       code?: string
       requestId?: string
-      details?: { retryAfterSeconds?: number; issues?: { path?: unknown }[] }
+      details?: {
+        retryAfterSeconds?: number
+        issues?: { path?: unknown }[]
+        opensOn?: string
+        previousEndDate?: string
+        maxEndDate?: string
+      }
     }
   }>(error)
     ? error.response
@@ -61,6 +70,9 @@ export function getEmployeeError(error: unknown) {
     key = 'unknownOutcome'
   const retryAfter = Number(response?.headers['retry-after'] ?? response?.data?.error?.details?.retryAfterSeconds ?? 60)
   return {
+    opensOn: response?.data?.error?.details?.opensOn,
+    previousEndDate: response?.data?.error?.details?.previousEndDate,
+    maxEndDate: response?.data?.error?.details?.maxEndDate,
     key,
     status: response?.status,
     fields: (response?.data?.error?.details?.issues ?? [])

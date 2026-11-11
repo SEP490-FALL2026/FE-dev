@@ -1,27 +1,15 @@
-import { useState } from 'react'
+import { ManagerProposalDetail } from '../components/manager-proposal-detail'
 import { ChevronLeft, ChevronRight, Landmark, Plus } from 'lucide-react'
 import { ManagerPageHeader } from '../../shared/components/manager-page-header'
 import { ManagerDataTable } from '../../shared/components/manager-data-table'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router'
-import {
-  useBudgetProposalList,
-  getBudgetProposalListQueryKey
-} from '~/shared/api/generated/operations/budget-proposals/budget-proposal-list'
-import {
-  useBudgetProposalGet,
-  getBudgetProposalGetQueryKey
-} from '~/shared/api/generated/operations/budget-proposals/budget-proposal-get'
-import { useBudgetProposalLineList } from '~/shared/api/generated/operations/budget-proposals/budget-proposal-line-list'
-import { budgetProposalWithdraw } from '~/shared/api/generated/operations/budget-proposals/budget-proposal-withdraw'
-import { getBudgetMineQueryKey } from '~/shared/api/generated/operations/budgets/budget-mine'
+import { useBudgetProposalList } from '~/shared/api/generated/operations/budget-proposals/budget-proposal-list'
 import { useBudgetMineVersionList } from '~/shared/api/generated/operations/budgets/budget-mine-version-list'
 import { Dialog, useDashboardFormat } from '../../../dashboard-ui'
 import { useManagerPage } from '../../shared/hooks/use-manager-page'
-import { useManagerAction } from '../../shared/hooks/use-manager-action'
 import { isResourceId } from '../../shared/manager-identifiers'
 import {
-  ManagerActionState,
   ManagerButton,
   ManagerField,
   ManagerMoney,
@@ -33,10 +21,8 @@ import {
 } from '../../shared/components/manager-api-ui'
 import { ManagerBudgetContext } from '../components/manager-budget-context'
 import { ManagerCurrentBudget } from '../components/manager-current-budget'
-import { ManagerBudgetFiles } from '../components/manager-budget-files'
 import { ManagerBudgetVersions } from '../components/manager-budget-versions'
 import { ManagerVersionFiles } from '../components/manager-version-files'
-import { PROPOSAL_STATE } from '../enums/budget-status'
 import { ManagerBudgetScope } from '../components/manager-budget-scope'
 import { useBudgetScope } from '../hooks/use-budget-scope'
 
@@ -199,156 +185,8 @@ export function ManagerLiveBudget() {
           <ManagerPagination pagination={query.data?.data?.pagination} onPage={paging.onPage} busy={query.isFetching} />
         </ManagerSection>
       </div>
-      {isResourceId(proposalId) && <ProposalDetail key={proposalId} id={proposalId} />}
+      {isResourceId(proposalId) && <ManagerProposalDetail key={proposalId} id={proposalId} />}
       {isResourceId(versionId) && <VersionDetail key={versionId} id={versionId} year={year} />}
-    </div>
-  )
-}
-function ProposalDetail({ id }: { id: string }) {
-  const { t: translate } = useTranslation('manager')
-  const navigate = useNavigate()
-  const [params, setParams] = useSearchParams()
-  const query = useBudgetProposalGet(id)
-  const proposal = !query.isError ? query.data?.data?.proposal : null
-  const [confirm, setConfirm] = useState(false)
-  const action = useManagerAction({
-    mutationFn: () => budgetProposalWithdraw(id),
-    invalidate: [getBudgetProposalGetQueryKey(id), getBudgetProposalListQueryKey(), getBudgetMineQueryKey()],
-    onSuccess: () => setConfirm(false)
-  })
-  return (
-    <Dialog
-      presentation='drawer'
-      title={translate('proposal')}
-      onClose={() => {
-        if (action.isPending) return
-        setParams((previous) => {
-          const next = new URLSearchParams(previous)
-          next.delete('proposalId')
-          next.delete('linePage')
-          return next
-        })
-      }}
-    >
-      <ManagerQueryState query={query} empty={!proposal} />
-      {proposal && (
-        <>
-          <div className='flex flex-wrap gap-3'>
-            <ManagerStatus value={proposal.state} />
-          </div>
-          {proposal.returned && (
-            <div className='rounded-xl border border-danger/30 bg-danger/10 p-4 text-xs text-danger'>
-              <p className='font-semibold'>{translate('returned')}</p>
-              <p className='mt-1 whitespace-pre-wrap [overflow-wrap:anywhere]'>{proposal.returned.reason}</p>
-            </div>
-          )}
-          <ProposalLines id={id} />
-          <ManagerBudgetFiles id={id} />
-          <div className='flex flex-wrap justify-end gap-3'>
-            {(proposal.state === PROPOSAL_STATE.SUBMITTED || proposal.state === PROPOSAL_STATE.REVIEWED) && (
-              <ManagerButton disabled={action.blocked} busy={action.isPending} onClick={() => setConfirm(true)}>
-                {action.retrySeconds
-                  ? translate('retryAfter', { seconds: action.retrySeconds })
-                  : translate('withdraw')}
-              </ManagerButton>
-            )}
-            {proposal.state === PROPOSAL_STATE.RETURNED && !proposal.successorProposalId && (
-              <ManagerButton
-                onClick={() =>
-                  void navigate({
-                    pathname: `/dashboard/manager/annual-budget/${id}/revise`,
-                    search: params.toString()
-                  })
-                }
-              >
-                {translate('resubmit')}
-              </ManagerButton>
-            )}
-          </div>
-          <ManagerActionState action={action} />
-        </>
-      )}
-      {confirm && (
-        <Dialog
-          presentation='sheet'
-          title={translate('withdraw')}
-          hint={translate('confirmAction')}
-          onClose={() => {
-            if (!action.isPending) setConfirm(false)
-          }}
-        >
-          <div className='flex justify-end gap-3'>
-            <ManagerButton disabled={action.isPending} onClick={() => setConfirm(false)}>
-              {translate('cancel')}
-            </ManagerButton>
-            <ManagerButton
-              primary
-              disabled={action.blocked}
-              busy={action.isPending}
-              onClick={() => {
-                if (!action.blocked) action.mutate()
-              }}
-            >
-              {translate('confirm')}
-            </ManagerButton>
-          </div>
-        </Dialog>
-      )}
-    </Dialog>
-  )
-}
-function ProposalLines({ id }: { id: string }) {
-  const { t: flow } = useTranslation('requestFlow')
-  const { formatNumber } = useDashboardFormat()
-  const paging = useManagerPage('linePage')
-  const query = useBudgetProposalLineList(id, { page: paging.page, pageSize: paging.pageSize })
-  return (
-    <div className='space-y-3'>
-      <ManagerQueryState query={query} empty={!query.data?.data?.items.length} />
-      {!query.isError && (
-        <div className='space-y-2'>
-          {query.data?.data?.items.map((line) => (
-            <div
-              key={line.position}
-              className='flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-surface p-3.5'
-            >
-              <div className='flex items-center gap-2.5 min-w-0 flex-1'>
-                <span className='grid size-7 shrink-0 place-items-center rounded-lg bg-surface-subtle font-mono text-xs font-semibold text-muted-foreground'>
-                  #{line.position}
-                </span>
-                <p className='min-w-0 truncate text-sm font-medium text-foreground' title={line.description}>
-                  {line.description}
-                </p>
-              </div>
-              <div className='font-mono font-semibold text-foreground'>
-                <ManagerMoney money={line.amount} />
-              </div>
-              <div className='w-full space-y-2 text-sm'>
-                <p className='text-xs text-muted-foreground'>
-                  {flow(line.lineType, { defaultValue: flow('unknown') })} · {flow('priorityRank')}:{' '}
-                  {formatNumber(line.priorityRank)}
-                </p>
-                {line.overCeiling && <p className='text-warning'>{flow('overCeiling')}</p>}
-                {line.note && <p className='whitespace-pre-wrap [overflow-wrap:anywhere]'>{line.note}</p>}
-                {line.zbb && (
-                  <details>
-                    <summary className='cursor-pointer'>{flow('zbb')}</summary>
-                    <dl className='grid gap-3 pt-3 sm:grid-cols-2'>
-                      {(['purpose', 'alternatives', 'consequenceIfNot', 'usageIndicator'] as const).map((field) => (
-                        <div key={field}>
-                          <dt className='text-xs text-muted-foreground'>{flow(field)}</dt>
-                          <dd className='whitespace-pre-wrap [overflow-wrap:anywhere]'>{line.zbb?.[field]}</dd>
-                        </div>
-                      ))}
-                    </dl>
-                  </details>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-      <ManagerPagination pagination={query.data?.data?.pagination} onPage={paging.onPage} busy={query.isFetching} />
     </div>
   )
 }

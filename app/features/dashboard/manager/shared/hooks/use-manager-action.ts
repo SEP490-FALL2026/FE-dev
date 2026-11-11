@@ -1,10 +1,11 @@
 import { useMutation, useQueryClient, type QueryKey } from '@tanstack/react-query'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { getMeGetQueryOptions } from '~/shared/api/generated/operations/me/me-get'
 import { getManagerError } from './manager-errors'
 import { requestContractErrorKey } from '~/entities/request/request-contract-errors'
+import { recordAdminRetryDelay, useAdminRetryDelay } from '~/shared/lib/use-retry-delay'
 
 /** Shared UX for generated write operations; each caller owns its affected query keys. */
 export function useManagerAction<Result, Variables = void>(options: {
@@ -15,7 +16,7 @@ export function useManagerAction<Result, Variables = void>(options: {
   const client = useQueryClient()
   const { t: translate } = useTranslation('manager')
   const { t: flow } = useTranslation('requestFlow')
-  const [retrySeconds, setRetrySeconds] = useState(0)
+  const retrySeconds = useAdminRetryDelay()
   const [uncertain, setUncertain] = useState(false)
   const [fields, setFields] = useState<string[]>([])
   const active = useRef(true)
@@ -26,11 +27,6 @@ export function useManagerAction<Result, Variables = void>(options: {
       active.current = false
     }
   }, [])
-  useEffect(() => {
-    if (!retrySeconds) return
-    const timer = window.setTimeout(() => setRetrySeconds(retrySeconds - 1), 1000)
-    return () => window.clearTimeout(timer)
-  }, [retrySeconds])
   const refresh = () => Promise.all(options.invalidate.map((queryKey) => client.invalidateQueries({ queryKey })))
   const action = useMutation({
     mutationFn: options.mutationFn,
@@ -43,10 +39,10 @@ export function useManagerAction<Result, Variables = void>(options: {
     },
     onError: async (error) => {
       const failure = getManagerError(error, true)
+      recordAdminRetryDelay(client, error)
       setFields(failure.fields)
       if (failure.key === 'unknownOutcome') setUncertain(true)
-      if (failure.key === 'rateLimit') setRetrySeconds(failure.retrySeconds)
-      else await refresh()
+      if (failure.key !== 'rateLimit') await refresh()
       if (failure.key === 'forbidden')
         await client
           .fetchQuery({ ...getMeGetQueryOptions(), staleTime: 0, retry: false, networkMode: 'always' })
@@ -69,10 +65,16 @@ export function useManagerAction<Result, Variables = void>(options: {
       }
     })
   }
+  const reset = action.reset
+  const clearValidation = useCallback(() => {
+    setFields([])
+    reset()
+  }, [reset])
   return {
     ...action,
     mutate,
     fields,
+    clearValidation,
     retrySeconds,
     uncertain,
     blocked: action.isPending || uncertain || retrySeconds > 0

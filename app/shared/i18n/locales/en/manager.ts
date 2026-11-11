@@ -2,11 +2,17 @@ import { managerRenewals } from './manager-renewals'
 import { managerIntegration } from './manager-integration'
 import { managerRequestForm } from './manager-request-form'
 import { managerBudgetForm } from './manager-budget-form'
+import { managerBudgetHistory } from './manager-budget-history'
+import { managerRequestUx } from './manager-request-ux'
+import { managerOverviewBudget } from './manager-overview-budget'
 export const manager = {
+  overviewBudget: managerOverviewBudget,
+  requestUx: managerRequestUx,
+  budgetHistory: managerBudgetHistory,
   renewal: managerRenewals,
   renewals: managerRenewals.title,
   termLimit: 'Maximum term: {{months}} months',
-  groupMinimum: 'Select 2 to 10 different people',
+  groupMinimum: 'Select 2 to 100 different people',
   budgetForm: managerBudgetForm,
   requestForm: managerRequestForm,
   integration: managerIntegration,
@@ -174,10 +180,10 @@ export const manager = {
   similarSeats: 'Existing similar access',
   supplement: 'Supplement request',
   supplements: 'Supplement history',
-  dropEmployees: 'Employee IDs to remove (one per line)',
+  dropEmployees: 'People to remove from this request',
   participants: 'Participants',
   groupIncomplete: 'Load all participant pages before submitting decisions for the pending members.',
-  groupHint: 'Grant a team or Business plan to 2–10 people in your department, which can include you.',
+  groupHint: 'Request access for 2–100 people in your department. Check each person before confirming.',
   group: 'Team plan request',
   groupDetails: 'Group request details',
   createGroupRequest: 'Create group request',
@@ -330,8 +336,9 @@ export const manager = {
     confirmRejectText: 'Are you sure you want to REJECT this software need?'
   },
   errors: {
+    groupRefused: 'Some people are not eligible. Check the details for each person.',
     termLimit: 'The term exceeds the plan limit. Check the maximum months and preview again.',
-    groupMinimum: 'A group request requires 2 to 10 different people.',
+    groupMinimum: 'A group request requires 2 to 100 different people.',
     renewalStale: 'This proposal has changed. IT must submit a new proposal before confirmation.',
     renewalAcknowledge: 'Acknowledge cancellation while people are still using this subscription.',
     budgetAttachments:

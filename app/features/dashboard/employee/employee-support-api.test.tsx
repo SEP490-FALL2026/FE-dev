@@ -18,6 +18,7 @@ import {
 } from '../../../../test/fixtures/employee-api'
 import { EmployeeLiveCreateView } from './software-request/views/employee-live-create-view'
 import { EmployeeIssueDetail } from './saas-issues/views/employee-issue-detail'
+import { EmployeeIssuesView } from './saas-issues/views/employee-issues-view'
 import { EmployeeHandoversView } from './handovers/views/employee-handovers-view'
 import { EmployeeReportIssue } from './saas-issues/views/employee-report-issue'
 
@@ -181,26 +182,48 @@ describe('Employee support and group contracts', () => {
     expect(screen.getByRole('button', { name: 'Report issue' })).toBeDisabled()
     expect(created).not.toHaveBeenCalled()
   })
-  it('posts an issue reply once and refreshes the conversation only after confirmation', async () => {
-    const posted = vi.fn()
-    let entriesReads = 0
+  it('opens the selected issue from the list', async () => {
+    const select = vi.fn()
+    server.use(http.get('*/api/v1/saas-issues', () => HttpResponse.json(pageResponse([softwareIssue]))))
+    mount(<EmployeeIssuesView onSelectTab={select} />, '/?tab=issues')
+    fireEvent.click(await screen.findByRole('button', { name: 'View details' }))
+    expect(select).toHaveBeenCalledWith('issue-detail', { id: requestId })
+  })
+  it('shows the submitted issue details without loading or displaying the conversation', async () => {
+    const entriesRead = vi.fn()
     server.use(
       http.get('*/api/v1/saas-issues/:id', () => HttpResponse.json({ success: true, data: softwareIssue })),
       http.get('*/api/v1/saas-issues/:id/entries', () => {
-        entriesReads++
+        entriesRead()
         return HttpResponse.json(pageResponse())
-      }),
-      http.post('*/api/v1/saas-issues/:id/messages', async ({ request }) => {
+      })
+    )
+    mount(<EmployeeIssueDetail id={requestId} onBack={vi.fn()} />, '/?tab=issue-detail')
+    expect(await screen.findByText('Cannot sign in')).toBeInTheDocument()
+    expect(screen.getByText('Test Software')).toBeInTheDocument()
+    expect(screen.getByText('Standard')).toBeInTheDocument()
+    expect(screen.getByText('No access')).toBeInTheDocument()
+    expect(screen.getByText('Unusable')).toBeInTheDocument()
+    expect(screen.getByText('ISSUE-TEST')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Message')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Send reply' })).not.toBeInTheDocument()
+    expect(entriesRead).not.toHaveBeenCalled()
+  })
+  it('keeps the option to reopen a resolved issue with a reason', async () => {
+    const posted = vi.fn()
+    const resolved = { ...softwareIssue, state: 'RESOLVED', resolution: 'Access restored', reopenUntil: '2099-01-01' }
+    server.use(
+      http.get('*/api/v1/saas-issues/:id', () => HttpResponse.json({ success: true, data: resolved })),
+      http.post('*/api/v1/saas-issues/:id/reopening', async ({ request }) => {
         posted(await request.json())
         return HttpResponse.json({ success: true, data: softwareIssue })
       })
     )
     mount(<EmployeeIssueDetail id={requestId} onBack={vi.fn()} />, '/?tab=issue-detail')
-    fireEvent.change(await screen.findByLabelText('Message'), { target: { value: 'Still unable to access' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Send reply' }))
-    await waitFor(() => expect(posted).toHaveBeenCalledWith({ body: 'Still unable to access' }))
-    await waitFor(() => expect(entriesReads).toBeGreaterThan(1))
-    expect(screen.getByLabelText('Message')).toHaveValue('')
+    expect(await screen.findByText('Access restored')).toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText('Reason for reopening'), { target: { value: 'Problem persists' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Reopen issue' }))
+    await waitFor(() => expect(posted).toHaveBeenCalledWith({ reason: 'Problem persists' }))
   })
   it('confirms only an actionable handover with the value allowed for its source', async () => {
     const confirmed = vi.fn()

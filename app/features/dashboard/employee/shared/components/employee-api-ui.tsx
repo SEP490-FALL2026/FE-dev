@@ -12,6 +12,7 @@ import {
 import { useTranslation } from 'react-i18next'
 import { getEmployeeError } from '../hooks/employee-errors'
 import { WorkspaceEmptyState } from '~/shared/ui/workspace-empty-state'
+import { useWorkspaceQueryRecovery } from '~/shared/lib/use-workspace-query-recovery'
 
 export const employeeInputClass =
   'min-h-11 w-full rounded-md border border-border bg-background px-3 py-2 text-base outline-none focus-visible:ring-2 focus-visible:ring-primary md:min-h-10 md:text-sm'
@@ -33,7 +34,7 @@ export function EmployeeButton({
       {...props}
       aria-busy={busy || undefined}
       disabled={props.disabled || busy}
-      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-50 ${primary ? 'bg-primary text-foreground shadow-sm hover:bg-primary-hover' : 'border border-border/80 bg-surface hover:bg-surface-subtle'}`}
+      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-50 ${primary ? 'bg-primary text-primary-foreground shadow-sm hover:bg-primary-hover' : 'border border-border/80 bg-surface hover:bg-surface-subtle'}`}
     >
       {busy && <LoaderCircle aria-hidden='true' className='size-4 animate-spin' strokeWidth={1.5} />}
       {children}
@@ -80,6 +81,7 @@ export function EmployeeQueryState({
   emptyAction?: ReactNode
 }) {
   const { t: translate } = useTranslation('employee')
+  const retrySeconds = useWorkspaceQueryRecovery(query)
   if (query.isPending)
     return (
       <p role='status' className='flex items-center gap-2 py-8 text-sm text-muted-foreground'>
@@ -93,9 +95,11 @@ export function EmployeeQueryState({
       <div role='alert' className='space-y-3 py-4'>
         <p>{translate(`errors.${failure.key}`)}</p>
         {failure.requestId && <p className='text-xs font-mono'>{translate('requestId', { id: failure.requestId })}</p>}
-        <EmployeeButton busy={query.isFetching} onClick={() => void query.refetch()}>
-          {translate('retry')}
-        </EmployeeButton>
+        {failure.status !== 403 && (
+          <EmployeeButton busy={query.isFetching} disabled={retrySeconds > 0} onClick={() => void query.refetch()}>
+            {retrySeconds ? translate('retryAfter', { seconds: retrySeconds }) : translate('retry')}
+          </EmployeeButton>
+        )}
       </div>
     )
   }

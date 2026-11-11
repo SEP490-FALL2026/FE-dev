@@ -11,7 +11,8 @@ import { getSpendQueueListQueryKey } from '~/shared/api/generated/operations/spe
 import { Dialog } from '../../../dashboard-ui'
 import { useManagerAction } from '../../shared/hooks/use-manager-action'
 import { useManagerPage } from '../../shared/hooks/use-manager-page'
-import { parseEmployeeIds, resourceIdPattern } from '../../shared/manager-identifiers'
+import { useSupplementMembers } from '../hooks/use-supplement-members'
+import { ManagerSupplementMembers } from './manager-supplement-members'
 import {
   ManagerActionState,
   ManagerButton,
@@ -23,7 +24,7 @@ import {
   managerInputClass
 } from '../../shared/components/manager-api-ui'
 
-export function ManagerSpendCorrections({ id }: { id: string }) {
+export function ManagerSpendCorrections({ id, group = false }: { id: string; group?: boolean }) {
   const { t: translate } = useTranslation('manager')
   const [mode, setMode] = useState(false)
   const paging = useManagerPage('supplementPage')
@@ -44,13 +45,22 @@ export function ManagerSpendCorrections({ id }: { id: string }) {
           </p>
         ))}
       <ManagerPagination pagination={query.data?.data?.pagination} onPage={paging.onPage} busy={query.isFetching} />
-      {mode && <CorrectionDialog id={id} onClose={() => setMode(false)} />}
+      {mode && <CorrectionDialog id={id} group={group} onClose={() => setMode(false)} />}
     </ManagerSection>
   )
 }
-function CorrectionDialog({ id, onClose }: { id: string; onClose: () => void }) {
+function CorrectionDialog({ id, group, onClose }: { id: string; group: boolean; onClose: () => void }) {
   const { t: flow } = useTranslation('requestFlow')
   const { t: translate } = useTranslation('manager')
+  const [dropEmployeeIds, setDropEmployeeIds] = useState<string[]>([])
+  const [endDate, setEndDate] = useState('')
+  const members = useSupplementMembers(id, group)
+  const validSelection =
+    !dropEmployeeIds.length ||
+    (members.query.isSuccess &&
+      !members.query.isFetching &&
+      dropEmployeeIds.length < members.members.length &&
+      dropEmployeeIds.every((id) => members.members.some((line) => line.employee.employeeId === id)))
   const keys = [
     getAccessRequestGetQueryKey(id),
     getSpendQueueListQueryKey(),
@@ -76,9 +86,8 @@ function CorrectionDialog({ id, onClose }: { id: string; onClose: () => void }) 
           className='space-y-4'
           onSubmit={(event) => {
             event.preventDefault()
-            if (action.blocked) return
+            if (action.blocked || !validSelection || (!endDate && !dropEmployeeIds.length)) return
             const form = new FormData(event.currentTarget)
-            const dropEmployeeIds = parseEmployeeIds(String(form.get('dropEmployeeIds') ?? ''))
             supplement.mutate({
               reason: String(form.get('reason')).trim(),
               ...(dropEmployeeIds.length ? { dropEmployeeIds } : {}),
@@ -88,30 +97,32 @@ function CorrectionDialog({ id, onClose }: { id: string; onClose: () => void }) 
         >
           <fieldset disabled={action.blocked} className='space-y-4'>
             <ManagerField label={flow('endDate')}>
-              <input type='date' name='expectedEndDate' className={managerInputClass} />
-            </ManagerField>
-            <ManagerField label={translate('dropEmployees')}>
-              <textarea
-                name='dropEmployeeIds'
+              <input
+                type='date'
+                name='expectedEndDate'
                 className={managerInputClass}
-                onChange={(event) =>
-                  event.target.setCustomValidity(
-                    parseEmployeeIds(event.target.value).every((value) =>
-                      new RegExp(`^${resourceIdPattern}$`).test(value)
-                    )
-                      ? ''
-                      : translate('validation')
-                  )
-                }
+                value={endDate}
+                onChange={(event) => setEndDate(event.target.value)}
               />
             </ManagerField>
+            {group && (
+              <ManagerSupplementMembers source={members} selected={dropEmployeeIds} onChange={setDropEmployeeIds} />
+            )}
             <ManagerField label={translate('reason')}>
               <textarea name='reason' required maxLength={1000} className={managerInputClass} />
             </ManagerField>
           </fieldset>
           <ManagerActionState action={action} />
+          {!endDate && !dropEmployeeIds.length && (
+            <p className='text-sm text-muted-foreground'>{translate('requestUx.noChange')}</p>
+          )}
           <div className='flex justify-end'>
-            <ManagerButton primary type='submit' busy={action.isPending} disabled={action.blocked}>
+            <ManagerButton
+              primary
+              type='submit'
+              busy={action.isPending}
+              disabled={action.blocked || !validSelection || (!endDate && !dropEmployeeIds.length)}
+            >
               {action.retrySeconds ? translate('retryAfter', { seconds: action.retrySeconds }) : translate('confirm')}
             </ManagerButton>
           </div>

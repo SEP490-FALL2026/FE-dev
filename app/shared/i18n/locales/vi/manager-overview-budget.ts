@@ -1,0 +1,21 @@
+export const managerOverviewBudget = {
+  title: 'Ngân sách phòng ban',
+  description: 'Ngân sách hiện hành của phòng ban bạn quản lý trong năm {{year}}.',
+  costCenter: 'Cost Center: {{code}} · {{name}}',
+  noDepartment: 'Chưa xác định được phòng ban bạn đang quản lý.',
+  noCostCenter: 'Phòng ban chưa được gắn Cost Center. Liên hệ quản trị viên để kiểm tra.',
+  unavailable: 'Không có dữ liệu ngân sách phù hợp với Cost Center của phòng ban.',
+  noBudget: 'Cost Center của phòng ban chưa có ngân sách hiện hành trong năm này.',
+  allocated: 'Ngân sách được duyệt',
+  structure: 'Cơ cấu ngân sách',
+  usage: 'Tình hình sử dụng ngân sách',
+  base: 'Ngân sách cơ sở',
+  reserve: 'Dự phòng',
+  spent: 'Đã chi',
+  committed: 'Đã cam kết',
+  pending: 'Chờ quyết chi',
+  remaining: 'Còn lại, gồm dự phòng',
+  notAvailable: 'Chưa có dữ liệu',
+  scaleNote: 'Độ dài thanh so với giá trị lớn nhất trong biểu đồ. Giá trị âm được hiển thị bằng số.',
+  incomparable: 'Không thể so sánh độ dài thanh vì dữ liệu tiền tệ không đồng nhất hoặc không hợp lệ.'
+} as const

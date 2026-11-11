@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Boxes, FilePlus2 } from 'lucide-react'
 import { ManagerPageHeader } from '../../shared/components/manager-page-header'
 import { useTranslation } from 'react-i18next'
 import type { GroupBodyDto } from '~/shared/api/generated/model/group-requests/groupBodyDto'
+import { GroupCheckResponseDtoDataLinesItemReason } from '~/shared/api/generated/model/group-requests/groupCheckResponseDtoDataLinesItemReason'
 import { groupRequestSubmit } from '~/shared/api/generated/operations/group-requests/group-request-submit'
 import { getSpendQueueListQueryKey } from '~/shared/api/generated/operations/spend-submission/spend-queue-list'
 import { Dialog } from '../../../dashboard-ui'
@@ -12,6 +13,9 @@ import { ManagerPeoplePicker } from '../../shared/components/manager-people-pick
 import type { ManagerChoice } from '../../shared/components/manager-choice-select'
 import { ManagerCatalogPicker, type ManagerCatalogPlan } from '../components/manager-catalog-picker'
 import { ManagerRequestSummary } from '../components/manager-request-summary'
+import { ManagerMemberReasons } from '../components/manager-member-reasons'
+import { getGroupLineFailures } from '~/entities/request/group-request-feedback'
+import { GroupLineFeedback } from '~/entities/request/components/group-line-feedback'
 import {
   ManagerActionState,
   ManagerButton,
@@ -29,6 +33,8 @@ export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) 
   const [pending, setPending] = useState<GroupBodyDto | null>(null)
   const [expectedEndDate, setExpectedEndDate] = useState('')
   const [reasons, setReasons] = useState<Record<string, string>>({})
+  const [requiredReasons, setRequiredReasons] = useState<string[]>([])
+  const onChecked = useCallback((ids: string[]) => setRequiredReasons(ids), [])
   const { t: flow } = useTranslation('requestFlow')
   const action = useManagerAction({
     mutationFn: (body: GroupBodyDto) => groupRequestSubmit(body),
@@ -42,6 +48,16 @@ export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) 
       setPending(null)
     }
   })
+  const clearValidation = action.clearValidation
+  const onPlanChange = useCallback(
+    (plan: ManagerCatalogPlan | null) => {
+      setPlan(plan)
+      setRequiredReasons([])
+      setReasons({})
+      clearValidation()
+    },
+    [clearValidation]
+  )
   return (
     <div className='space-y-6'>
       <ManagerPageHeader title={translate('group')} icon={FilePlus2} description={translate('groupHint')} />
@@ -49,6 +65,7 @@ export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) 
         <ManagerFormErrors fields={action.fields}>
           <form
             className='space-y-5'
+            onChange={() => action.clearValidation()}
             onSubmit={(event) => {
               event.preventDefault()
               if (action.blocked || pending || !plan?.canSubmit || people.length < 2 || people.length > 100) return
@@ -71,7 +88,7 @@ export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) 
               <div className='space-y-4'>
                 <ManagerCatalogPicker
                   value={plan}
-                  onChange={setPlan}
+                  onChange={onPlanChange}
                   disabled={action.blocked}
                   invalid={action.fields.includes('planId')}
                 />
@@ -87,24 +104,32 @@ export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) 
               </div>
               <ManagerPeoplePicker
                 value={people}
-                onChange={setPeople}
+                onChange={(people) => {
+                  setPeople(people)
+                  action.clearValidation()
+                }}
                 disabled={action.blocked}
                 multiple
                 limit={100}
                 invalid={action.fields.some((field) => field.startsWith('lines.'))}
               />
-              {people.map((person) => (
-                <ManagerField key={person.value} label={`${person.label}: ${flow('manyReason')}`}>
-                  <textarea
-                    className={managerInputClass}
-                    maxLength={1000}
-                    value={reasons[person.value] ?? ''}
-                    onChange={(event) =>
-                      setReasons((previous) => ({ ...previous, [person.value]: event.target.value }))
-                    }
-                  />
-                </ManagerField>
-              ))}
+              <p role='status' className='text-xs text-muted-foreground'>
+                {translate('requestUx.selectedCount', { count: people.length })}
+              </p>
+              <GroupLineFeedback
+                failures={getGroupLineFailures(action.error)}
+                people={people.map((person) => ({
+                  employeeId: person.value,
+                  name: person.label,
+                  email: person.description
+                }))}
+              />
+              <ManagerMemberReasons
+                people={people}
+                required={requiredReasons}
+                reasons={reasons}
+                onChange={(id, reason) => setReasons((previous) => ({ ...previous, [id]: reason }))}
+              />
               <ManagerField label={translate('reason')}>
                 <textarea className={managerInputClass} name='businessReason' required maxLength={1000} />
               </ManagerField>
@@ -168,8 +193,25 @@ export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) 
               blocked={action.blocked}
               busy={action.isPending}
               onCancel={() => setPending(null)}
+              onChecked={onChecked}
               onConfirm={() => {
-                if (!action.blocked) action.mutate(pending)
+                if (!action.blocked)
+                  action.mutate(pending, {
+                    onError: (error) => {
+                      const failures = getGroupLineFailures(error)
+                      if (!failures.length) return
+                      setRequiredReasons(
+                        failures
+                          .filter(
+                            (line) =>
+                              line.reason ===
+                              GroupCheckResponseDtoDataLinesItemReason.MANY_PAID_SOFTWARE_REASON_REQUIRED
+                          )
+                          .map((line) => line.employeeId)
+                      )
+                      setPending(null)
+                    }
+                  })
               }}
             />
           </div>

@@ -18,7 +18,7 @@ import type { UserRole } from '~/entities/user-role/user-role'
 import { BrandMark } from '~/shared/ui/brand-mark'
 import { ItSidebarNav, type ItAdminTabKey } from '../it-admin'
 import { employeeMenuItems, type EmployeeTabKey } from '../employee'
-import { managerNavItems, type ManagerTabKey } from '../manager'
+import { ManagerSidebarNav, type ManagerTabKey } from '../manager'
 import { approvalNavItems, type ApprovalTabKey } from '../approvals'
 import { FinanceSidebarNav, type FinanceTabKey } from '../finance'
 import { superAdminNavItems, type SuperAdminTabKey } from '../super-admin'
@@ -86,7 +86,6 @@ export function DashboardSidebar({
   const { t: tCommon } = useTranslation('common')
   const { t: translateAdmin } = useTranslation(role === 'super-admin' ? 'admin' : 'common')
   const { t: translateEmployee } = useTranslation(role === 'employee' ? 'employee' : 'common')
-  const { t: translateManager } = useTranslation(role === 'manager' ? 'manager' : 'common')
   const { t: translateApprovals } = useTranslation(role === 'spending-approver' ? 'approvals' : 'common')
 
   const isItAdmin = role === 'it-admin'
@@ -122,7 +121,7 @@ export function DashboardSidebar({
             <div>
               <p className='font-bold tracking-[-0.02em]'>{tCommon('brand')}</p>
               <p className='mt-0.5 text-[0.65rem] font-semibold tracking-[0.12em] text-muted-foreground uppercase'>
-                {!isSuperAdmin && !isItAdmin && role !== 'finance' && t('demoNotice')}
+                {!isSuperAdmin && !isItAdmin && !isEmployee && !isManager && role !== 'finance' && t('demoNotice')}
               </p>
             </div>
           </div>
@@ -184,32 +183,7 @@ export function DashboardSidebar({
                 })}
             </ul>
           ) : isManager ? (
-            <ul className='space-y-1.5'>
-              {managerNavItems.map((item) => {
-                const isCurrent = activeManagerParent === item.key
-                const Icon = item.icon
-
-                return (
-                  <li key={item.key}>
-                    <button
-                      aria-current={isCurrent ? 'page' : undefined}
-                      className={`flex w-full items-center justify-between rounded-xl px-3.5 py-3 text-left text-sm font-semibold transition ${
-                        isCurrent
-                          ? 'bg-primary text-primary-foreground shadow-[0_10px_25px_var(--theme-primary-soft)]'
-                          : 'text-muted-foreground hover:bg-surface hover:text-foreground'
-                      }`}
-                      onClick={() => onSelectManagerTab(item.key)}
-                      type='button'
-                    >
-                      <div className='flex items-center gap-3'>
-                        <Icon aria-hidden='true' className='size-[1.125rem] shrink-0' strokeWidth={1.5} />
-                        <span>{translateManager(item.liveLabel)}</span>
-                      </div>
-                    </button>
-                  </li>
-                )
-              })}
-            </ul>
+            <ManagerSidebarNav activeParent={activeManagerParent} onSelectTab={onSelectManagerTab} />
           ) : isApprover ? (
             <ul className='space-y-1.5'>
               {approvalNavItems.map((item) => {

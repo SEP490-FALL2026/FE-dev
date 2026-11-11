@@ -3,6 +3,7 @@ import axios from 'axios'
 const errorKeys = {
   'FINANCE.SETUP_INCOMPLETE': 'financeSetup',
   'GROUP_REQUEST.LINES_MISMATCH': 'groupMismatch',
+  'GROUP_REQUEST.LINES_REFUSED': 'groupRefused',
   'ACCESS_REQUEST.TERM_BEYOND_LIMIT': 'termLimit',
   'GROUP_REQUEST.TERM_BEYOND_LIMIT': 'termLimit',
   'GROUP_REQUEST.TOO_FEW_LINES': 'groupMinimum',

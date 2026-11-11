@@ -1,0 +1,21 @@
+export const managerOverviewBudget = {
+  title: 'Department budget',
+  description: 'Current budget for the department you manage in {{year}}.',
+  costCenter: 'Cost center: {{code}} · {{name}}',
+  noDepartment: 'Your current managed department could not be identified.',
+  noCostCenter: 'Your department has no cost center. Contact an administrator to check.',
+  unavailable: 'No budget data matches your department’s cost center.',
+  noBudget: 'Your department’s cost center has no active budget for this year.',
+  allocated: 'Approved budget',
+  structure: 'Budget composition',
+  usage: 'Budget activity',
+  base: 'Base budget',
+  reserve: 'Reserve',
+  spent: 'Spent',
+  committed: 'Committed',
+  pending: 'Pending spending decision',
+  remaining: 'Remaining, including reserve',
+  notAvailable: 'Not available',
+  scaleNote: 'Bars are scaled to the largest value in each chart. Negative amounts are shown as numbers.',
+  incomparable: 'Bar lengths are unavailable because monetary data is inconsistent or invalid.'
+} as const

@@ -1,7 +1,6 @@
 import { useRef, useState } from 'react'
 import { FilePlus2 } from 'lucide-react'
 import { EmployeePageHeader } from '../../shared/components/employee-page-header'
-import { EmployeeRequestGuide } from '../components/employee-request-guide'
 import { useTranslation } from 'react-i18next'
 import { Navigate, useLocation, useSearchParams } from 'react-router'
 import {
@@ -22,6 +21,9 @@ import { EmployeeAssignmentPicker } from '../components/employee-assignment-pick
 import { useRequestAssignments } from '../hooks/use-request-assignments'
 import { useEmployeeCatalogSelection } from '../hooks/use-employee-catalog-selection'
 import type { EmployeeTabKey } from '../../enums'
+import { EmployeeRequestModeNav } from '../components/employee-request-mode-nav'
+import { EmployeeRenewalSummary } from '../components/employee-renewal-summary'
+import { GroupLineFeedback } from '~/entities/request/components/group-line-feedback'
 
 export function EmployeeLiveCreateView({
   onSelectTab
@@ -42,30 +44,14 @@ export function EmployeeLiveCreateView({
   return (
     <div className='space-y-6'>
       <EmployeePageHeader title={translate('create')} icon={FilePlus2} />
-      <nav aria-label={translate('mode')} className='flex gap-1 overflow-x-auto border-b border-border/60 pb-3'>
-        {(['individual', 'group', 'proposal', 'renewal', 'return'] as const).map((option) => (
-          <button
-            key={option}
-            type='button'
-            aria-pressed={mode === option}
-            className={`min-h-11 shrink-0 rounded-md px-4 text-sm font-medium whitespace-nowrap transition-colors ${mode === option ? 'bg-primary-soft text-primary-ink' : 'text-muted-foreground hover:bg-surface-subtle'}`}
-            onClick={() => setSearchParams({ tab: 'create-request', mode: option })}
-          >
-            {translate(option)}
-          </button>
-        ))}
-      </nav>
-      <div className='grid items-start gap-5 2xl:grid-cols-[minmax(0,1fr)_300px]'>
-        <LiveCreateForm
-          key={`${mode}:${searchParams.get('assignmentId') ?? ''}`}
-          mode={mode}
-          assignmentId={searchParams.get('assignmentId') ?? ''}
-          onSelectTab={onSelectTab}
-        />
-        <aside className='hidden min-w-0 2xl:block'>
-          <EmployeeRequestGuide needsPreview={mode === 'individual' || mode === 'group'} group={mode === 'group'} />
-        </aside>
-      </div>
+      <EmployeeRequestModeNav mode={mode} onChange={(mode) => setSearchParams({ tab: 'create-request', mode })} />
+      <p className='max-w-3xl text-sm leading-6 text-muted-foreground'>{translate(`requestUx.modes.${mode}`)}</p>
+      <LiveCreateForm
+        key={`${mode}:${searchParams.get('assignmentId') ?? ''}`}
+        mode={mode}
+        assignmentId={searchParams.get('assignmentId') ?? ''}
+        onSelectTab={onSelectTab}
+      />
     </div>
   )
 }
@@ -95,6 +81,7 @@ function LiveCreateForm({
   const busy = workflow.submit.isPending || workflow.preview.isPending
   const needsPreview = mode === 'individual' || mode === 'group'
   const preview = workflow.previewResult
+  const groupFailures = workflow.feedback.groupFailures
   const selectionIncomplete =
     (needsPreview &&
       (!selection.ready || (mode === 'group' && (workflow.members.length < 2 || workflow.members.length > 10)))) ||
@@ -111,6 +98,7 @@ function LiveCreateForm({
         ref={formRef}
         className='space-y-5'
         onChange={(event) => {
+          workflow.feedback.clearValidation()
           const field = event.nativeEvent.target
           if (
             (field instanceof HTMLInputElement ||
@@ -150,7 +138,11 @@ function LiveCreateForm({
                 <EmployeeAssignmentPicker
                   assignments={assignments}
                   value={selectedAssignmentId}
-                  onChange={setAssignmentId}
+                  onChange={(id) => {
+                    setAssignmentId(id)
+                    workflow.clearPreview(true)
+                    workflow.feedback.clearValidation()
+                  }}
                   disabled={busy || workflow.feedback.blocked}
                   invalid={workflow.feedback.invalidFields.includes('assignmentId')}
                 />
@@ -193,6 +185,14 @@ function LiveCreateForm({
                 </>
               )}
             </div>
+            {mode === 'renewal' && selectedAssignment && (
+              <EmployeeRenewalSummary assignment={selectedAssignment} failure={workflow.feedback.failure} />
+            )}
+            {(mode === 'renewal' || mode === 'return') && (
+              <EmployeeButton onClick={() => onSelectTab('my-software')}>
+                {translate('requestUx.chooseFromSoftware')}
+              </EmployeeButton>
+            )}
             {mode === 'group' && (
               <LiveGroupMembers
                 members={workflow.members}
@@ -206,7 +206,17 @@ function LiveCreateForm({
                 }}
               />
             )}
-            {mode === 'individual' && workflow.requiresReason && (
+            {mode === 'group' && (
+              <GroupLineFeedback
+                failures={groupFailures}
+                people={workflow.members.map((member) => ({
+                  employeeId: member.employeeId,
+                  name: member.fullName,
+                  email: member.workEmail
+                }))}
+              />
+            )}
+            {(mode === 'individual' || mode === 'renewal') && workflow.requiresReason && (
               <EmployeeField label={flow('manyReason')}>
                 <textarea
                   required
@@ -249,7 +259,7 @@ function LiveCreateForm({
               {translate('errors.unknownOutcome')}
             </p>
           )}
-          <div className='sticky bottom-0 flex flex-wrap justify-end gap-3 border-t border-border/60 bg-surface pt-5 pb-[calc(1rem+env(safe-area-inset-bottom))]'>
+          <div className='flex flex-wrap justify-end gap-3 border-t border-border/60 pt-5'>
             {needsPreview && (
               <EmployeeButton
                 type='button'

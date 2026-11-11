@@ -68,7 +68,7 @@ it('blocks further writes after an ambiguous resubmission instead of automatical
   expect(submitted).toHaveBeenCalledOnce()
 })
 
-it('shows one-step routing and blocking reasons without exposing budget amounts to the requester', () => {
+it('shows request progress and blocking reasons without displaying the approval route or budget amounts', () => {
   render(
     <RequestFlowSummary
       request={{
@@ -83,7 +83,9 @@ it('shows one-step routing and blocking reasons without exposing budget amounts 
       }}
     />
   )
-  expect(screen.getByText('One step')).toBeInTheDocument()
+  expect(screen.queryByText('Approval route')).not.toBeInTheDocument()
+  expect(screen.queryByText('One step')).not.toBeInTheDocument()
+  expect(screen.getByText('Returned to requester')).toBeInTheDocument()
   expect(screen.getByText('Exceeds the available reserve')).toBeInTheDocument()
   expect(screen.queryByText(/123456789/)).not.toBeInTheDocument()
 })
