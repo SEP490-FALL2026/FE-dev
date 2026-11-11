@@ -62,11 +62,6 @@ function VersionList({ onSelectTab }: BudgetViewProps) {
             { key: 'year', label: translate('fields.year'), numeric: true, render: (version) => version.year },
             { key: 'number', label: translate('fields.number'), numeric: true, render: (version) => version.number },
             {
-              key: 'kind',
-              label: translate('fields.kind'),
-              render: (version) => translate(`kinds.${version.kind}`, { defaultValue: translate('unknown') })
-            },
-            {
               key: 'state',
               label: translate('fields.state'),
               render: (version) => <FinanceStatus value={version.state} />

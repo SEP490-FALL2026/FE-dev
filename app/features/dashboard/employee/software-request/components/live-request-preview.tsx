@@ -3,9 +3,11 @@ import type { PreviewResponseDtoDataPreview } from '~/shared/api/generated/model
 import { EmployeeStatus } from '../../shared/components/employee-api-ui'
 import { useDashboardFormat } from '../../../dashboard-ui'
 import { EmployeeMoney } from '../../shared/components/employee-money'
+import { Link } from 'react-router'
 
 export function LiveRequestPreview({ preview }: { preview: PreviewResponseDtoDataPreview }) {
   const { t: translate } = useTranslation('employee')
+  const { t: flow } = useTranslation('requestFlow')
   const { formatDate } = useDashboardFormat()
   return (
     <div className='space-y-4'>
@@ -16,12 +18,32 @@ export function LiveRequestPreview({ preview }: { preview: PreviewResponseDtoDat
         <span className='text-sm text-muted-foreground'>{translate('estimatedCost')}</span>
         <EmployeeMoney value={preview.costEstimate?.estimatedCost ?? preview.pricing.amount} />
       </div>
+      <p className='text-sm text-muted-foreground'>{flow('maxEndDate', { date: formatDate(preview.maxEndDate) })}</p>
       <p className='text-sm text-muted-foreground'>
-        {translate('termLimit', {
-          months: preview.termLimit.maxMonths,
-          date: preview.termLimit.endsBy ? formatDate(preview.termLimit.endsBy) : '?'
+        {flow('limits', {
+          open: preview.limits.openNewCount,
+          max: preview.limits.openNewMax,
+          paid: preview.limits.paidSoftwareCount
         })}
       </p>
+      {preview.existingAccess && (
+        <p role='status' className='text-sm text-warning'>
+          {flow('existingAccess')}
+        </p>
+      )}
+      {preview.limits.refusal && (
+        <p role='status' className='text-sm text-warning'>
+          {flow(preview.limits.refusal)}
+        </p>
+      )}
+      {preview.limits.openRequestId && (
+        <Link
+          className='text-sm text-primary-ink underline'
+          to={{ search: new URLSearchParams({ tab: 'request-detail', id: preview.limits.openRequestId }).toString() }}
+        >
+          {flow('openRequest')}
+        </Link>
+      )}
       {preview.budgetYear !== null && (
         <p className='text-sm text-muted-foreground'>
           {translate('estimatedBudgetYear')}: {preview.budgetYear}

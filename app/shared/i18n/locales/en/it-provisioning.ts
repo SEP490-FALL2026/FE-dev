@@ -137,6 +137,15 @@
     'Starting a grant reserves a seat. Complete the task after actual provisioning. The server verifies capacity and eligibility.',
   subscription: 'Subscription',
   automaticSubscription: 'Use server default when supported',
+  purchaseWhenEmpty: 'Purchase one seat or key because the pool is empty',
+  grantQueueChanged:
+    'The approved queue is refreshing or this request is no longer available. Wait for the latest data before confirming.',
+  licenseKey: 'License key',
+  licenseKeyHint: 'Select an available key from this task’s subscription. Only masked keys are shown.',
+  noFreeKeys: 'No available keys. Import the purchased key into this subscription’s vault, then reload the keys.',
+  reloadKeys: 'Reload keys',
+  keySubscriptionMissing: 'This task has no subscription. Reload the task before selecting a key.',
+  withdrawalHint: 'Explain why this key must not be assigned again. Withdrawing it removes it from the usable pool.',
   expectedEndDate: 'Expected end date',
   responsibleEmployeeId: 'Responsible employee UUID (optional replacement)',
   beneficiaryFilter: 'Beneficiary employee UUID',
@@ -176,7 +185,10 @@
     OFF_SYSTEM_REVOKED: 'Revoked outside system',
     RENEWAL_CANCELLED: 'Renewal cancelled',
     UNTIL_PAID_END: 'Access until paid period ends',
-    CUT: 'Access cut'
+    CUT: 'Access cut',
+    KEY_DEACTIVATED: 'Key deactivated',
+    RETURN_TO_STORE: 'Return to store for reuse',
+    WITHDRAW: 'Withdraw from store'
   },
   stepsValues: {
     BUY_ON_COMPANY_ACCOUNT: 'Purchase using the company account',

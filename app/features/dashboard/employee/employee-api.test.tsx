@@ -40,7 +40,7 @@ function mount(children: React.ReactNode, url = '/?tab=create-request') {
 async function fillIndividual() {
   await chooseCatalogPlan()
   fireEvent.change(screen.getByLabelText('Business reason'), { target: { value: 'Development work' } })
-  fireEvent.change(screen.getByLabelText('Term (months)'), { target: { value: '3' } })
+  fireEvent.change(screen.getByLabelText('Expected end date'), { target: { value: '2027-01-31' } })
 }
 describe('Employee API workflows', () => {
   it('previews before submission, sends only contract fields and blocks double submission', async () => {
@@ -66,13 +66,17 @@ describe('Employee API workflows', () => {
     await fillIndividual()
     fireEvent.click(screen.getByRole('button', { name: 'Preview request' }))
     const submit = await screen.findByRole('button', { name: 'Submit request' })
-    expect(previewed).toHaveBeenCalledWith({ planId, termMonths: 3 })
+    expect(previewed).toHaveBeenCalledWith({ planId, expectedEndDate: '2027-01-31' })
     expect(screen.getByText('$9,007,199,254,740,993.25')).toBeInTheDocument()
     fireEvent.click(submit)
     await waitFor(() => expect(submit).toBeDisabled())
     fireEvent.click(submit)
     await waitFor(() => expect(submitted).toHaveBeenCalledTimes(1))
-    expect(submitted).toHaveBeenCalledWith({ planId, termMonths: 3, businessReason: 'Development work' })
+    expect(submitted).toHaveBeenCalledWith({
+      planId,
+      expectedEndDate: '2027-01-31',
+      businessReason: 'Development work'
+    })
     expect(navigate).not.toHaveBeenCalled()
     resolveSubmission()
     await waitFor(() => expect(navigate).toHaveBeenCalledWith('request-detail', { id: requestId }))
@@ -114,7 +118,7 @@ describe('Employee API workflows', () => {
     await fillIndividual()
     fireEvent.click(screen.getByRole('button', { name: 'Preview request' }))
     expect(await screen.findByRole('button', { name: 'Submit request' })).toBeDisabled()
-    fireEvent.change(screen.getByLabelText('Term (months)'), { target: { value: '6' } })
+    fireEvent.change(screen.getByLabelText('Expected end date'), { target: { value: '2027-04-30' } })
     await waitFor(() => expect(screen.queryByRole('button', { name: 'Submit request' })).not.toBeInTheDocument())
     expect(screen.getByRole('button', { name: 'Preview request' })).toBeEnabled()
   })

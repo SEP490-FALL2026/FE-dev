@@ -2,7 +2,7 @@ import { ArrowLeft, Layers } from 'lucide-react'
 import { useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { useSpendApprovalGet } from '~/shared/api/generated/operations/spend-approvals/spend-approval-get'
-import { useBudgetCheckGet } from '~/shared/api/generated/operations/finance-reviews/budget-check-get'
+import { useBudgetCheckGet } from '~/shared/api/generated/operations/budget-checks/budget-check-get'
 import type { ApprovalTabKey } from '../../enums'
 import { ApprovalsQueryState } from '../../shared/components/approvals-query-state'
 import { ApprovalsButton, ApprovalsEmpty, ApprovalsPage } from '../../shared/components/approvals-ui'
@@ -10,9 +10,7 @@ import { useSpendYears } from '../hooks/use-spend-years'
 import { SpendRequestFacts } from '../components/spend-request-facts'
 import { SpendBudgetPanel } from '../components/spend-budget-panel'
 import { SpendDecisionForm } from '../components/spend-decision-form'
-import { SpendFinancePanel } from '../components/spend-finance-panel'
 import { BUDGET_CHECK_CODE } from '../enums/budget-check-code'
-import { BUDGET_CHECK_ROUTE } from '../enums/budget-check-route'
 import { useSpendRequestKind } from '../hooks/use-spend-request-kind'
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -74,8 +72,7 @@ function SpendRequestContent({ requestId }: { requestId: string }) {
     yearsQuery.years.length === check.yearCount &&
     knownCodes.includes(check.primaryCode)
   )
-  const knownRoutes: readonly string[] = [BUDGET_CHECK_ROUTE.SPEND_APPROVAL, BUDGET_CHECK_ROUTE.FINANCE_REVIEW]
-  const blocked = !check || !knownRoutes.includes(check.route) || check.periodClosed || check.staleCostEvidence
+  const blocked = !check || !['WITHIN_BASE', 'USES_RESERVE'].includes(check.outcome)
   return (
     <ApprovalsQueryState query={approvalQuery}>
       {approval ? (
@@ -93,7 +90,6 @@ function SpendRequestContent({ requestId }: { requestId: string }) {
               {check && <SpendBudgetPanel check={check} years={yearsQuery.years} />}
             </ApprovalsQueryState>
           </ApprovalsQueryState>
-          <SpendFinancePanel requestId={requestId} />
           <SpendDecisionForm
             key={approval.step.id}
             approval={approval}

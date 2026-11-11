@@ -31,11 +31,14 @@ import {
   ManagerStatus,
   managerInputClass
 } from '../../shared/components/manager-api-ui'
+import { ManagerBudgetContext } from '../components/manager-budget-context'
 import { ManagerCurrentBudget } from '../components/manager-current-budget'
 import { ManagerBudgetFiles } from '../components/manager-budget-files'
 import { ManagerBudgetVersions } from '../components/manager-budget-versions'
 import { ManagerVersionFiles } from '../components/manager-version-files'
 import { PROPOSAL_STATE } from '../enums/budget-status'
+import { ManagerBudgetScope } from '../components/manager-budget-scope'
+import { useBudgetScope } from '../hooks/use-budget-scope'
 
 export function managerBudgetYear(params: URLSearchParams) {
   const year = Number(params.get('year'))
@@ -46,6 +49,7 @@ export function ManagerLiveBudget() {
   const navigate = useNavigate()
   const [params, setParams] = useSearchParams()
   const year = managerBudgetYear(params)
+  const scope = useBudgetScope()
   const paging = useManagerPage()
   const query = useBudgetProposalList({ year, page: paging.page, pageSize: paging.pageSize })
   const proposalId = params.get('proposalId') ?? ''
@@ -68,6 +72,7 @@ export function ManagerLiveBudget() {
         }
       />
       <div className='flex items-center gap-3'>
+        <ManagerBudgetScope />
         <ManagerField label={translate('year')}>
           <div className='flex items-center gap-1.5'>
             <button
@@ -129,9 +134,11 @@ export function ManagerLiveBudget() {
       </div>
       <div className='grid items-start gap-5 2xl:grid-cols-[minmax(300px,0.8fr)_minmax(0,1.2fr)]'>
         <div className='space-y-6'>
+          <ManagerBudgetContext year={year} costCenterId={params.get('costCenterId') ?? undefined} />
           <ManagerCurrentBudget year={year} />
           <ManagerBudgetVersions
             year={year}
+            costCenterId={scope.costCenterId}
             onOpenVersion={(version) =>
               setParams((previous) => {
                 const next = new URLSearchParams(previous)
@@ -291,6 +298,8 @@ function ProposalDetail({ id }: { id: string }) {
   )
 }
 function ProposalLines({ id }: { id: string }) {
+  const { t: flow } = useTranslation('requestFlow')
+  const { formatNumber } = useDashboardFormat()
   const paging = useManagerPage('linePage')
   const query = useBudgetProposalLineList(id, { page: paging.page, pageSize: paging.pageSize })
   return (
@@ -313,6 +322,27 @@ function ProposalLines({ id }: { id: string }) {
               </div>
               <div className='font-mono font-semibold text-foreground'>
                 <ManagerMoney money={line.amount} />
+              </div>
+              <div className='w-full space-y-2 text-sm'>
+                <p className='text-xs text-muted-foreground'>
+                  {flow(line.lineType, { defaultValue: flow('unknown') })} · {flow('priorityRank')}:{' '}
+                  {formatNumber(line.priorityRank)}
+                </p>
+                {line.overCeiling && <p className='text-warning'>{flow('overCeiling')}</p>}
+                {line.note && <p className='whitespace-pre-wrap [overflow-wrap:anywhere]'>{line.note}</p>}
+                {line.zbb && (
+                  <details>
+                    <summary className='cursor-pointer'>{flow('zbb')}</summary>
+                    <dl className='grid gap-3 pt-3 sm:grid-cols-2'>
+                      {(['purpose', 'alternatives', 'consequenceIfNot', 'usageIndicator'] as const).map((field) => (
+                        <div key={field}>
+                          <dt className='text-xs text-muted-foreground'>{flow(field)}</dt>
+                          <dd className='whitespace-pre-wrap [overflow-wrap:anywhere]'>{line.zbb?.[field]}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </details>
+                )}
               </div>
             </div>
           ))}
@@ -359,4 +389,3 @@ function VersionDetail({ id, year }: { id: string; year: number }) {
     </Dialog>
   )
 }
-

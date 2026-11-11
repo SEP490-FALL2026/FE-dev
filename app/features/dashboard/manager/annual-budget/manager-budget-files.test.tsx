@@ -10,6 +10,7 @@ import { employeeId, pageResponse, requestId } from '../../../../../test/fixture
 import { proposal } from '../../../../../test/fixtures/manager-api'
 import { ManagerBudgetForm } from './views/manager-budget-form'
 import { ManagerBudgetFiles } from './components/manager-budget-files'
+import { managerReadHandlers } from '../../../../../test/fixtures/manager-integration'
 
 const fileId = '99999999-9999-4999-8999-999999999999'
 const uploaded = {
@@ -24,6 +25,10 @@ const uploaded = {
   expiresAt: '2099-01-01T00:00:00Z'
 }
 const line = {
+  lineType: 'RENEW',
+  priorityRank: 1,
+  zbb: null,
+  overCeiling: null,
   position: 1,
   description: 'Software',
   amount: { amount: '1250.50' },
@@ -36,7 +41,8 @@ const line = {
 let files: (typeof uploaded)[] = []
 const server = setupServer(
   http.get('*/api/v1/budget-attachments/mine', () => HttpResponse.json(pageResponse(files))),
-  http.get('*/api/v1/budget-proposals/:id/attachments', () => HttpResponse.json(pageResponse([])))
+  http.get('*/api/v1/budget-proposals/:id/attachments', () => HttpResponse.json(pageResponse([]))),
+  ...managerReadHandlers
 )
 beforeAll(() => {
   configure({ asyncUtilTimeout: 5000 })
@@ -142,9 +148,12 @@ it('uploads raw bytes, completes the upload, and submits only its ID with decima
   await waitFor(() =>
     expect(submitted).toHaveBeenCalledWith({
       year: 2027,
+      costCenterId: employeeId,
       lines: [
         {
           description: 'Software',
+          lineType: 'RENEW',
+          priorityRank: 1,
           amount: { amount: '1250.50' }
         }
       ],
@@ -194,7 +203,7 @@ it('removes a selected unattached file only after discard succeeds', async () =>
   fireEvent.click(await screen.findByRole('checkbox', { name: /quote.pdf/ }))
   fireEvent.click(screen.getByRole('button', { name: 'Delete unattached file: quote.pdf' }))
   await waitFor(() => expect(discarded).toHaveBeenCalledWith(fileId))
-  await waitFor(() => expect(screen.queryByRole('checkbox')).not.toBeInTheDocument())
+  await waitFor(() => expect(screen.queryByRole('checkbox', { name: /quote.pdf/ })).not.toBeInTheDocument())
 })
 it('includes new uploads in resubmission without reusing attachments of the previous proposal', async () => {
   files = [uploaded]

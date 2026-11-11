@@ -1,5 +1,6 @@
+import { GroupCheckResponseDtoDataLinesItemReason } from '~/shared/api/generated/model/group-requests/groupCheckResponseDtoDataLinesItemReason'
 import { useMutation } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import type {
   GroupBodyDto,
   GroupCheckResponseDtoData,
@@ -20,9 +21,16 @@ import { getMeAccessRequestListQueryKey } from '~/shared/api/generated/operation
 import { useEmployeeFeedback } from '../../shared/hooks/use-employee-feedback'
 import { DRAFT_KIND } from '../../shared/enums/draft-kind'
 import { getMeSoftwareRightListQueryKey } from '~/shared/api/generated/operations/me/me-software-right-list'
+import axios from 'axios'
 
 export type RequestMode = 'individual' | 'group' | 'proposal' | 'renewal' | 'return'
-export type GroupSelection = { employeeId: string; fullName: string; workEmail?: string }
+export type GroupSelection = {
+  employeeId: string
+  fullName: string
+  workEmail?: string
+  manyPaidSoftwareReason?: string
+  reasonRequired?: boolean
+}
 
 export function readRequestFields(form: HTMLFormElement) {
   const fields = new FormData(form)
@@ -30,7 +38,8 @@ export function readRequestFields(form: HTMLFormElement) {
   return {
     planId: read('planId'),
     businessReason: read('businessReason'),
-    termMonths: Number(read('termMonths')),
+    expectedEndDate: read('expectedEndDate'),
+    manyPaidSoftwareReason: read('manyPaidSoftwareReason'),
     assignmentId: read('assignmentId'),
     extensionMonths: Number(read('extensionMonths')),
     softwareName: read('softwareName'),
@@ -49,11 +58,12 @@ type PreviewResult = {
   groupCheck?: NonNullable<GroupCheckResponseDtoData>
 }
 export function requestPayload(fields: Fields): SubmitBodyDto {
-  const { planId, businessReason, termMonths } = fields
+  const { planId, businessReason, expectedEndDate, manyPaidSoftwareReason } = fields
   return {
     planId,
     businessReason,
-    termMonths
+    ...(expectedEndDate ? { expectedEndDate } : {}),
+    ...(manyPaidSoftwareReason ? { manyPaidSoftwareReason } : {})
   }
 }
 
@@ -63,6 +73,8 @@ export function useLiveRequestForm(
   onDraftSaved: () => void
 ) {
   const [members, setMembers] = useState<GroupSelection[]>([])
+  const submitLock = useRef(false)
+  const [requiresReason, setRequiresReason] = useState(false)
   const feedback = useEmployeeFeedback([
     getAccessRequestDraftListQueryKey(),
     getReturnRequestListQueryKey(),
@@ -70,10 +82,21 @@ export function useLiveRequestForm(
     getMeAccessRequestListQueryKey()
   ])
   const groupPayload = (fields: Fields): GroupBodyDto => ({
-    ...requestPayload(fields),
-    lines: members.map(({ employeeId }) => ({ employeeId }))
+    planId: fields.planId,
+    businessReason: fields.businessReason,
+    ...(fields.expectedEndDate ? { expectedEndDate: fields.expectedEndDate } : {}),
+    lines: members.map(({ employeeId, manyPaidSoftwareReason }) => ({
+      employeeId,
+      ...(manyPaidSoftwareReason?.trim() ? { manyPaidSoftwareReason: manyPaidSoftwareReason.trim() } : {})
+    }))
   })
-  const fingerprint = (fields: Fields) => JSON.stringify({ mode, fields, members })
+  const fingerprint = (fields: Fields) =>
+    JSON.stringify({
+      mode,
+      planId: fields.planId,
+      expectedEndDate: fields.expectedEndDate,
+      members: members.map(({ employeeId, manyPaidSoftwareReason }) => ({ employeeId, manyPaidSoftwareReason }))
+    })
   const preview = useMutation({
     retry: false,
     mutationFn: async (fields: Fields): Promise<PreviewResult> => {
@@ -87,16 +110,16 @@ export function useLiveRequestForm(
             checked.plan.eligible === true &&
             !checked.tooFewLines &&
             !checked.tooManyLines &&
-            !checked.termBeyondLimit &&
+            !checked.endDateOutOfRange &&
             checked.lines.length === members.length &&
             checked.lines.every((line) => line.ok),
           groupCheck: checked ?? undefined
         }
       }
-      const { planId, termMonths } = requestPayload(fields)
+      const { planId, expectedEndDate } = requestPayload(fields)
       const response = await accessRequestPreview({
         planId,
-        termMonths
+        ...(expectedEndDate ? { expectedEndDate } : {})
       })
       return {
         fingerprint: fingerprint(fields),
@@ -104,7 +127,22 @@ export function useLiveRequestForm(
         preview: response.data?.preview
       }
     },
-    onError: feedback.onReadError
+    onError: feedback.onReadError,
+    onSuccess: (result) => {
+      setRequiresReason(result.preview?.limits.reasonRequired === true)
+      if (result.groupCheck)
+        setMembers((current) =>
+          current.map((member) => ({
+            ...member,
+            reasonRequired:
+              result.groupCheck?.lines.some(
+                (line) =>
+                  line.employeeId === member.employeeId &&
+                  line.reason === GroupCheckResponseDtoDataLinesItemReason.MANY_PAID_SOFTWARE_REASON_REQUIRED
+              ) || !!member.manyPaidSoftwareReason
+          }))
+        )
+    }
   })
   const previewResult = preview.data ?? null
   const submit = useMutation({
@@ -124,7 +162,7 @@ export function useLiveRequestForm(
       if (mode === 'individual') return { id: (await accessRequestSubmit(payload)).data?.request.id }
       if (mode === 'group') return { id: (await groupRequestSubmit(groupPayload(fields))).data?.request.id }
       if (mode === 'proposal') {
-        const { softwareName, homepageUrl, purpose, dataDescription, expectedUsers, termMonths } = fields
+        const { softwareName, homepageUrl, purpose, dataDescription, expectedUsers, expectedEndDate } = fields
         return {
           id: (
             await accessRequestPropose({
@@ -133,7 +171,7 @@ export function useLiveRequestForm(
               purpose,
               dataDescription,
               expectedUsers,
-              termMonths
+              ...(expectedEndDate ? { expectedEndDate } : {})
             })
           ).data?.request.id
         }
@@ -166,15 +204,42 @@ export function useLiveRequestForm(
       if (result.draft) onDraftSaved()
       else if (result.id) onCreated(result.id, result.returned)
     },
-    onError: feedback.onError
+    onError: (error) => {
+      if (
+        axios.isAxiosError<{ error?: { code?: string } }>(error) &&
+        (error.response?.status === 409 || error.response?.data.error?.code === 'GROUP_REQUEST.LINES_REFUSED')
+      )
+        preview.reset()
+      if (
+        axios.isAxiosError<{ error?: { code?: string } }>(error) &&
+        error.response?.data.error?.code === 'ACCESS_REQUEST.MANY_PAID_SOFTWARE_REASON_REQUIRED'
+      )
+        setRequiresReason(true)
+      return feedback.onError(error)
+    },
+    onSettled: () => {
+      submitLock.current = false
+    }
   })
   return {
     members,
+    requiresReason,
     setMembers,
     previewResult,
-    clearPreview: () => preview.reset(),
+    clearPreview: () => {
+      preview.reset()
+      setRequiresReason(false)
+    },
     preview,
-    submit,
+    submit: {
+      ...submit,
+      mutate: (variables: Parameters<typeof submit.mutate>[0]) => {
+        if (!submitLock.current && !feedback.blocked) {
+          submitLock.current = true
+          submit.mutate(variables)
+        }
+      }
+    },
     feedback,
     fingerprint
   }

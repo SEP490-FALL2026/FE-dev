@@ -8,6 +8,8 @@ describe('current request contract', () => {
       planId: 'plan',
       businessReason: 'Work',
       termMonths: '3',
+      expectedEndDate: '2027-01-31',
+      manyPaidSoftwareReason: 'Work across tools',
       expectedSpendOn: '2026-12-01',
       termReason: 'Legacy'
     })) {
@@ -16,6 +18,11 @@ describe('current request contract', () => {
       input.value = value
       form.append(input)
     }
-    expect(requestPayload(readRequestFields(form))).toEqual({ planId: 'plan', businessReason: 'Work', termMonths: 3 })
+    expect(requestPayload(readRequestFields(form))).toEqual({
+      planId: 'plan',
+      businessReason: 'Work',
+      expectedEndDate: '2027-01-31',
+      manyPaidSoftwareReason: 'Work across tools'
+    })
   })
 })

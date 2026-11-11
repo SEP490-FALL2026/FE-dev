@@ -133,6 +133,14 @@
     'Bắt đầu cấp quyền sẽ giữ một ghế. Hoàn tất tác vụ sau khi thực hiện cấp thật. Máy chủ kiểm tra sức chứa và điều kiện cấp.',
   subscription: 'Thuê bao',
   automaticSubscription: 'Dùng mặc định của máy chủ nếu được hỗ trợ',
+  purchaseWhenEmpty: 'Mua thêm một ghế hoặc khóa vì kho đã hết',
+  grantQueueChanged: 'Hàng đợi đang cập nhật hoặc yêu cầu không còn khả dụng. Chờ dữ liệu mới trước khi xác nhận.',
+  licenseKey: 'Khóa bản quyền',
+  licenseKeyHint: 'Chọn khóa còn trống thuộc thuê bao của tác vụ. Chỉ hiển thị khóa đã che nội dung.',
+  noFreeKeys: 'Không còn khóa trống. Nhập khóa đã mua vào kho của thuê bao này, rồi tải lại danh sách khóa.',
+  reloadKeys: 'Tải lại danh sách khóa',
+  keySubscriptionMissing: 'Tác vụ chưa có thuê bao. Tải lại tác vụ trước khi chọn khóa.',
+  withdrawalHint: 'Nêu lý do khóa không được cấp lại. Rút khóa sẽ loại khóa khỏi kho còn sử dụng được.',
   expectedEndDate: 'Ngày kết thúc dự kiến',
   responsibleEmployeeId: 'UUID người phụ trách (thay thế nếu cần)',
   beneficiaryFilter: 'UUID nhân viên thụ hưởng',
@@ -172,7 +180,10 @@
     OFF_SYSTEM_REVOKED: 'Đã thu hồi ngoài hệ thống',
     RENEWAL_CANCELLED: 'Đã hủy gia hạn',
     UNTIL_PAID_END: 'Truy cập đến hết kỳ đã trả',
-    CUT: 'Đã ngắt truy cập'
+    CUT: 'Đã ngắt truy cập',
+    KEY_DEACTIVATED: 'Đã vô hiệu hóa khóa',
+    RETURN_TO_STORE: 'Trả về kho để cấp lại',
+    WITHDRAW: 'Rút khỏi kho'
   },
   stepsValues: {
     BUY_ON_COMPANY_ACCOUNT: 'Mua bằng tài khoản công ty',

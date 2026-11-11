@@ -146,6 +146,11 @@ export const itAdmin = {
     anotherAdmin: 'Cần IT Admin khác thực hiện thao tác này.',
     baselineOpen: 'Cần hoàn tất hiện trạng ghế ban đầu trước khi cấp phát.',
     noSeats: 'Thuê bao không còn ghế để cấp.',
+    purchaseRefused: 'Kho đã có ghế hoặc khóa trống. Kiểm tra tồn kho vừa cập nhật và cấp từ kho.',
+    purchaseReasonRequired: 'Cần nêu lý do không thể chờ các quyền đang thu hồi trước khi mua thêm.',
+    keyRequired: 'Chọn khóa bản quyền còn trống trước khi hoàn tất cấp quyền.',
+    keyUnavailable: 'Khóa không còn khả dụng cho thuê bao này. Chọn khóa trong danh sách vừa cập nhật.',
+    keyWithdrawalReasonRequired: 'Nhập lý do rút khóa khỏi kho.',
     secret: 'Nội dung có thể chứa mật khẩu hoặc khóa bí mật. Hãy loại bỏ trước khi gửi.',
     blockers: 'Còn điều kiện chưa hoàn tất. Kiểm tra danh sách công việc trước khi đóng.'
   }

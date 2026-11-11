@@ -1,4 +1,4 @@
-import { AlertTriangle, Clock } from 'lucide-react'
+import { Clock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { spendApprovalGet } from '~/shared/api/generated/operations/spend-approvals/spend-approval-get'
 import {
@@ -45,22 +45,16 @@ export function SpendRequestFacts({ approval, isGroup }: { approval: SpendApprov
           {translate(`waitingReason.${step.waitingReason}`, { defaultValue: translate('waitingReason.unknown') })}
         </p>
       )}
-      {(step.samePersonAsSpend || step.noIndependentReview) && (
-        <div className={`${noticeClass} border-warning/30 bg-warning/10 text-warning-ink`}>
-          <AlertTriangle aria-hidden className='mt-0.5 size-4 shrink-0' strokeWidth={1.5} />
-          <div className='space-y-1'>
-            {step.samePersonAsSpend && <p>{translate('samePerson')}</p>}
-            {step.noIndependentReview && <p>{translate('noReview')}</p>}
-          </div>
-        </div>
-      )}
       <ApprovalsStatGrid>
         <ApprovalsStat
           label={translate('totalPayable')}
           value={headlineCost ? formatMoney(headlineCost, i18n.language) : translate('unavailable')}
           emphasis
         />
-        <ApprovalsStat label={translate('term')} value={formatNumber(request.termMonths)} />
+        <ApprovalsStat
+          label={translate('term')}
+          value={request.termMonths === null ? translate('unavailable') : formatNumber(request.termMonths)}
+        />
         <ApprovalsStat label={translate('openedAt')} value={formatDate(step.openedAt)} />
         <ApprovalsStat label={translate('sla')} value={formatNumber(step.slaWorkingDays)} />
         <ApprovalsStat label={translate('budgetYear')} value={request.budgetYear ?? translate('unavailable')} />

@@ -148,6 +148,11 @@ export const itAdmin = {
     anotherAdmin: 'Another IT administrator must perform this action.',
     baselineOpen: 'Complete the initial seat baseline before granting access.',
     noSeats: 'No seats are available in this subscription.',
+    purchaseRefused: 'The pool has an available seat or key. Review the refreshed stock and grant from the pool.',
+    purchaseReasonRequired: 'Explain why buying cannot wait for the rights being revoked.',
+    keyRequired: 'Select an available license key before completing the grant.',
+    keyUnavailable: 'This key is no longer available for this subscription. Select a key from the refreshed list.',
+    keyWithdrawalReasonRequired: 'Enter a reason for withdrawing the key from the store.',
     secret: 'The content may contain a password or secret key. Remove it before sending.',
     blockers: 'Some prerequisites are incomplete. Review the checklist before closing.'
   }

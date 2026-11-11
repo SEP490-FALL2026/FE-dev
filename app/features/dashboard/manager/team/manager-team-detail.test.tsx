@@ -221,6 +221,8 @@ const server = setupServer(
         request: {
           id: 'req-1',
           type: 'GRANT',
+          routing: { mode: 'VIA_HEAD', oneStepReason: null },
+          flags: { manyPaidSoftware: null },
           branch: 'PAID_IN_CATALOG',
           state: 'PENDING',
           plan: { planId: 'p-1', planName: 'Pro', applicationId: 'app-1', applicationName: 'ChatGPT' },

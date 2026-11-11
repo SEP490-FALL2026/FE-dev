@@ -153,7 +153,7 @@ describe('Manager need approval and spend submission', () => {
       ),
       http.get('*/api/v1/spend-batches/:id/items', () =>
         HttpResponse.json(
-          pageResponse([{ requestId, outcome: 'SENT_TO_FINANCE', requestState: 'AWAITING_FINANCE_REVIEW' }])
+          pageResponse([{ requestId, outcome: 'SENT_TO_APPROVER', requestState: 'AWAITING_SPEND_DECISION' }])
         )
       )
     )
@@ -162,8 +162,41 @@ describe('Manager need approval and spend submission', () => {
     expect(screen.getByRole('checkbox', { name: 'Blocked Software' })).toBeDisabled()
     fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm' }))
-    expect(await screen.findByText('Sent to Finance')).toBeInTheDocument()
-    expect(written).toHaveBeenCalledWith({ requestIds: [requestId] })
+    expect(await screen.findByText('Sent to spending approver')).toBeInTheDocument()
+    expect(written).toHaveBeenCalledWith({ requestIds: [requestId], reserveConfirmations: [] })
+  })
+  it('requires a reserve reason and sends it with the same selected request only once', async () => {
+    const written = vi.fn()
+    server.use(
+      http.get('*/api/v1/spend-queue', () =>
+        HttpResponse.json(pageResponse([{ ...queueItem, budgetOutcome: 'USES_RESERVE' }]))
+      ),
+      http.post('*/api/v1/spend-batches', async ({ request }) => {
+        written(await request.json())
+        return HttpResponse.json({ success: true, data: { batch: { id: planId } } })
+      }),
+      http.get('*/api/v1/spend-batches/:id', () =>
+        HttpResponse.json({ success: true, data: { batch: { id: planId } } })
+      ),
+      http.get('*/api/v1/spend-batches/:id/items', () => HttpResponse.json(pageResponse([])))
+    )
+    mount(<ManagerLiveBatch onOpen={vi.fn()} />)
+    fireEvent.click(await screen.findByRole('checkbox', { name: 'Test Software' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
+    const dialog = within(screen.getByRole('dialog'))
+    const confirm = dialog.getByRole('button', { name: 'Confirm' })
+    expect(confirm).toBeDisabled()
+    fireEvent.change(dialog.getByLabelText(/Reason for using the reserve/), {
+      target: { value: 'Additional project seats' }
+    })
+    fireEvent.click(confirm)
+    fireEvent.click(confirm)
+    await waitFor(() =>
+      expect(written).toHaveBeenCalledExactlyOnceWith({
+        requestIds: [requestId],
+        reserveConfirmations: [{ requestId, reason: 'Additional project seats' }]
+      })
+    )
   })
   it('never fetches the privileged department directory to fill a missing department ID', async () => {
     const calls: string[] = []
@@ -211,7 +244,7 @@ describe('Manager need approval and spend submission', () => {
     mount(<ManagerLiveCreate onOpen={vi.fn()} />, '/dashboard/manager')
     await chooseCatalogPlan()
     await screen.findByText('Sharing not allowed')
-    fireEvent.change(screen.getByLabelText('Term (months)'), { target: { value: '3' } })
+    fireEvent.change(screen.getByLabelText('Expected end date'), { target: { value: '2027-01-31' } })
     fireEvent.click(screen.getByRole('combobox', { name: 'Beneficiaries' }))
     fireEvent.click(await screen.findByRole('option', { name: /Test Employee/ }))
     fireEvent.click(screen.getByRole('option', { name: /Second Employee/ }))
@@ -225,7 +258,7 @@ describe('Manager need approval and spend submission', () => {
     expect(await screen.findByText('Created requests')).toBeInTheDocument()
     expect(written).toHaveBeenCalledWith({
       businessReason: 'Onboarding',
-      termMonths: 3,
+      expectedEndDate: '2027-01-31',
       planId,
       lines: [{ employeeId }, { employeeId: planId }]
     })

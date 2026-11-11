@@ -66,7 +66,7 @@ function mount(children: React.ReactNode, url = '/dashboard/manager') {
   )
 }
 
-it.each(['AWAITING_SPEND_SUBMISSION', 'AWAITING_BUDGET', 'WAITING_CONTROLLED'])(
+it.each(['AWAITING_SPEND_SUBMISSION', 'WAITING_CONTROLLED'])(
   'shows one participant list with withdrawal actions at %s',
   async (state) => {
     server.use(
@@ -155,7 +155,7 @@ it('groups identical validation reasons and identifies affected colleagues with 
         success: true,
         data: {
           ...groupCheck,
-          lines: [employeeId, managerId].map((id) => ({ employeeId: id, ok: false, reason: 'END_DATE_REQUIRED' }))
+          lines: [employeeId, managerId].map((id) => ({ employeeId: id, ok: false, reason: 'TERM_REQUIRED' }))
         }
       })
     )
@@ -165,7 +165,7 @@ it('groups identical validation reasons and identifies affected colleagues with 
       body={{
         planId: plan.planId,
         businessReason: 'Work',
-        termMonths: 1,
+
         lines: [{ employeeId }, { employeeId: managerId }]
       }}
       people={[

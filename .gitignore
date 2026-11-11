@@ -5,6 +5,7 @@
 .env.*
 # Commit only the shared template with non-sensitive example values.
 !.env.example
+mainflows.md
 
 .index.md
 /node_modules/

@@ -43,7 +43,7 @@ export interface BudgetTotals {
 export function budgetTotals(rows: readonly BudgetTablePageResponseDtoDataItemsItem[]): BudgetTotals {
   return rows.reduce<BudgetTotals>(
     (sum, row) => ({
-      currency: sum.currency ?? row.total.currency,
+      currency: sum.currency ?? row.total?.currency ?? null,
       total: sum.total + toAmount(row.total),
       committed: sum.committed + toAmount(row.committed),
       spent: sum.spent + toAmount(row.spent),

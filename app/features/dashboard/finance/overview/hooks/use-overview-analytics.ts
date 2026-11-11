@@ -30,7 +30,9 @@ export function useOverviewAnalytics(year: number) {
   })
   const budgetRows = budgets.data?.data?.items ?? []
   const versions = useQueries({
-    queries: budgetRows.map((row) => getBudgetVersionGetQueryOptions(row.versionId)),
+    queries: budgetRows
+      .filter((row) => row.versionId !== null)
+      .map((row) => getBudgetVersionGetQueryOptions(row.versionId!)),
     combine: (results) => ({
       splits: results.flatMap((result) => (result.data?.data ? [result.data.data.version.quarters] : [])),
       isPending: results.some((result) => result.isPending),

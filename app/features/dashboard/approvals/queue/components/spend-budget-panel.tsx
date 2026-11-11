@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
-import type { budgetCheckGet } from '~/shared/api/generated/operations/finance-reviews/budget-check-get'
-import type { budgetCheckYearList } from '~/shared/api/generated/operations/finance-reviews/budget-check-year-list'
+import type { budgetCheckGet } from '~/shared/api/generated/operations/budget-checks/budget-check-get'
+import type { budgetCheckYearList } from '~/shared/api/generated/operations/budget-checks/budget-check-year-list'
 import { ApprovalsTable } from '../../shared/components/approvals-table'
 import { ApprovalsSection, ApprovalsStat, ApprovalsStatus } from '../../shared/components/approvals-ui'
 import { useDashboardFormat } from '../../../dashboard-ui'
@@ -10,11 +10,20 @@ type BudgetCheck = NonNullable<Awaited<ReturnType<typeof budgetCheckGet>>['data'
 type Year = NonNullable<Awaited<ReturnType<typeof budgetCheckYearList>>['data']>['items'][number]
 export function SpendBudgetPanel({ check, years }: { check: BudgetCheck; years: Year[] }) {
   const { t: translate, i18n } = useTranslation('approvalsSpend')
+  const { t: flow } = useTranslation('requestFlow')
   const { formatDateTime } = useDashboardFormat()
   const money = (value: { amount: string; currency: string } | null) =>
     value ? formatMoney(value, i18n.language) : translate('noBudget')
   return (
-    <ApprovalsSection title={translate('budget')} actions={<ApprovalsStatus value={check.primaryCode} />}>
+    <ApprovalsSection
+      title={translate('budget')}
+      actions={<span className='text-sm font-medium'>{flow(check.outcome, { defaultValue: flow('unknown') })}</span>}
+    >
+      {check.blockedReasons.map((reason) => (
+        <p key={reason} className='text-sm text-warning'>
+          {flow(reason, { defaultValue: flow('unknown') })}
+        </p>
+      ))}
       <dl className='grid gap-px overflow-hidden rounded-lg border border-border/70 bg-border/70 sm:grid-cols-2'>
         <ApprovalsStat label={translate('bindingTotal')} value={money(check.bindingTotal)} emphasis />
         <ApprovalsStat label={translate('checkTime')} value={formatDateTime(check.ranAt)} />

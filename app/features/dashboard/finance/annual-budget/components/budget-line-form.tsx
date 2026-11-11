@@ -6,6 +6,7 @@ import { usePlanList } from '~/shared/api/generated/operations/plans/plan-list'
 import { AdminFormDialog as FinanceFormDialog } from '~/shared/ui/form-dialog'
 import { FinanceField, FinanceSelect, financeInputClass } from '../../shared/components/finance-ui'
 import { isDecimal } from '../../shared/finance-money'
+import { AddLinesBodyDtoLinesItemLineType } from '~/shared/api/generated/model/budget-versions/addLinesBodyDtoLinesItemLineType'
 
 export type BudgetLineInput = AddLinesBodyDtoLinesItem & { financeComment?: string; adjustmentReason?: string }
 
@@ -27,6 +28,8 @@ export function BudgetLineForm({
   disabled?: boolean
 }) {
   const { t: translate } = useTranslation('financeBudget')
+  const { t: flow } = useTranslation('requestFlow')
+  const [lineType, setLineType] = useState(line?.lineType ?? AddLinesBodyDtoLinesItemLineType.RENEW)
   const plans = usePlanList({ page: 1, pageSize: 100 })
   const [description, setDescription] = useState(line?.description ?? '')
   const [amount, setAmount] = useState(line?.amount.amount ?? '')
@@ -55,6 +58,9 @@ export function BudgetLineForm({
           return
         }
         onSubmit({
+          lineType,
+          ...(line?.priorityRank ? { priorityRank: line.priorityRank } : {}),
+          ...(line?.zbb ? { zbb: line.zbb } : {}),
           description: description.trim(),
           amount: { amount },
           ...(planId.trim() ? { planId: planId.trim() } : {}),
@@ -69,6 +75,21 @@ export function BudgetLineForm({
     >
       <h3 className={sectionTitleClass}>{translate('sections.item')}</h3>
       <div className='grid gap-4 sm:grid-cols-2'>
+        <FinanceField label={flow('lineType')}>
+          <FinanceSelect
+            value={lineType}
+            onChange={(event) => {
+              const type = Object.values(AddLinesBodyDtoLinesItemLineType).find((value) => value === event.target.value)
+              if (type) setLineType(type)
+            }}
+          >
+            {Object.values(AddLinesBodyDtoLinesItemLineType).map((type) => (
+              <option key={type} value={type}>
+                {flow(type)}
+              </option>
+            ))}
+          </FinanceSelect>
+        </FinanceField>
         <div className='sm:col-span-2'>
           <FinanceField required label={translate('fields.description')} error={fieldError(!description.trim())}>
             <input

@@ -69,6 +69,7 @@ export const finance = {
     REQUEST_CANCELLED: 'Yêu cầu đã hủy'
   },
   requestStates: {
+    AWAITING_REQUESTER_REVISION: 'Ch? ng??i g?i ch?nh s?a',
     PENDING: 'Chờ duyệt nhu cầu',
     WAITING_CONTROLLED: 'Chờ cấu hình',
     AWAITING_EXECUTION: 'Chờ cấp phát',

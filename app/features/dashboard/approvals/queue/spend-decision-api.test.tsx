@@ -69,7 +69,7 @@ let readCount = 0
 let groupPages: Record<number, unknown[]> = {}
 let linesFail = false
 let requestGetCalls = 0
-let checkRoute = 'SPEND_APPROVAL'
+let checkOutcome: string | undefined
 
 beforeEach(async () => {
   approval = initialApproval()
@@ -81,7 +81,7 @@ beforeEach(async () => {
   groupPages = {}
   linesFail = false
   requestGetCalls = 0
-  checkRoute = 'SPEND_APPROVAL'
+  checkOutcome = undefined
   await setAppLanguage('en', false)
   apiClient.defaults.adapter = async (config) => {
     const response = (data: unknown) => ({
@@ -117,7 +117,11 @@ beforeEach(async () => {
           id: 'check-1',
           number: 1,
           trigger: 'SUBMISSION',
-          route: checkRoute,
+          route: 'SPEND_APPROVAL',
+          outcome: checkOutcome ?? (years[0].code === 'INSUFFICIENT_BUDGET' ? 'BLOCKED' : 'WITHIN_BASE'),
+          blockedReasons: checkOutcome ? [] : years[0].code === 'INSUFFICIENT_BUDGET' ? ['OVER_RESERVE'] : [],
+          overBy: null,
+          overBaseBy: checkOutcome === 'USES_RESERVE' ? money : null,
           primaryCode: years[0].code,
           staleCostEvidence: false,
           planLineOverdue: false,
@@ -205,8 +209,7 @@ it('requires a rejection reason and sends only the strict rejection payload', as
 it('blocks insufficient-budget approval without offering removed override fields', async () => {
   years = [year('INSUFFICIENT_BUDGET')]
   mount()
-  await choose('Approve')
-  confirm()
+  await screen.findByText('Exceeds the available reserve')
   expect(screen.queryByRole('checkbox', { name: 'Approve with a budget override' })).not.toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Confirm decision' })).toBeDisabled()
   expect(posted).toHaveLength(0)
@@ -291,8 +294,9 @@ it('blocks unknown step states and never submits a guessed approval', async () =
   expect(posted).toHaveLength(0)
 })
 
-it('allows a pending step created by Finance despite its original FINANCE_REVIEW check route', async () => {
-  checkRoute = 'FINANCE_REVIEW'
+it('allows a reserve-backed approval even when the legacy base-budget code is insufficient', async () => {
+  years = [year('INSUFFICIENT_BUDGET')]
+  checkOutcome = 'USES_RESERVE'
   mount()
   await choose('Approve')
   confirm()

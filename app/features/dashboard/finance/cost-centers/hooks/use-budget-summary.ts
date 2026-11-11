@@ -14,7 +14,7 @@ export interface ComputedBudgetSummary {
   isError: boolean
 }
 
-const amountOf = (value?: { amount: string }) => {
+const amountOf = (value?: { amount: string } | null) => {
   if (!value) return 0
   const parsed = Number(value.amount)
   return Number.isFinite(parsed) ? parsed : 0
@@ -72,17 +72,8 @@ export function useBudgetSummary(year: number | undefined): ComputedBudgetSummar
       remainingSum += r
       if (row.overCommitted || r < 0) overBudgetCount++
 
-      // Kiểm tra xem row có base và reserve từ BE không (nếu BE đã thêm field)
-      const anyRow = row as unknown as { base?: { amount: string }; reserve?: { amount: string } }
-      if (anyRow.base && anyRow.reserve) {
-        baseSum += amountOf(anyRow.base)
-        reserveSum += amountOf(anyRow.reserve)
-      } else {
-        // Ước tính chuẩn theo policy: base ~ 90% total, reserve ~ 10% total
-        const res = Math.round(t * 0.1)
-        reserveSum += res
-        baseSum += t - res
-      }
+      baseSum += amountOf(row.base)
+      reserveSum += amountOf(row.reserve)
     }
 
     const fallbackTotals: BudgetSummaryTotalsItem = {
@@ -114,4 +105,3 @@ export function useBudgetSummary(year: number | undefined): ComputedBudgetSummar
     isError: summaryQuery.isError && fallbackBudgets.isError
   }
 }
-
