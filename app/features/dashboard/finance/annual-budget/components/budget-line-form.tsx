@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { MoneyInput } from '~/shared/ui/money-input'
 import { useTranslation } from 'react-i18next'
 import type { AddLinesBodyDtoLinesItem } from '~/shared/api/generated/model/budget-versions/addLinesBodyDtoLinesItem'
 import type { VersionLinePageResponseDtoDataItemsItem } from '~/shared/api/generated/model/budget-versions/versionLinePageResponseDtoDataItemsItem'
@@ -115,15 +116,14 @@ export function BudgetLineForm({
           hint={translate('amountHint', { currency })}
           error={fieldError(!isDecimal(amount))}
         >
-          <input
+          <MoneyInput
             required
-            inputMode='decimal'
             maxLength={40}
             aria-invalid={invalid && !isDecimal(amount)}
             className={`${financeInputClass} text-right font-mono tabular-nums`}
             placeholder={translate('placeholders.amount')}
             value={amount}
-            onChange={(event) => setAmount(event.target.value)}
+            onValueChange={setAmount}
           />
         </FinanceField>
         <FinanceField required label={translate('fields.lineType')}>
@@ -180,7 +180,12 @@ export function BudgetLineForm({
       <p className='text-sm text-muted-foreground'>{translate('zbbHint')}</p>
       <div className='grid gap-4 sm:grid-cols-2'>
         {(Object.keys(zbb) as Array<keyof typeof zbb>).map((key) => (
-          <FinanceField key={key} label={translate(`zbb.${key}`)} error={fieldError(!zbbValid && !zbb[key].trim())}>
+          <FinanceField
+            key={key}
+            required={!zbbEmpty}
+            label={translate(`zbb.${key}`)}
+            error={fieldError(!zbbValid && !zbb[key].trim())}
+          >
             <textarea
               rows={2}
               maxLength={1000}

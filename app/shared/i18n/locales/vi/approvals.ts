@@ -121,7 +121,8 @@ export const approvals = {
     ownRequest: 'Bạn không thể duyệt yêu cầu hoặc quyền truy cập của chính mình.',
     ownVersion: 'Bạn không thể quyết phiên bản ngân sách do mình lập hoặc gửi.',
     recheckedHead: 'Kết quả kiểm tra ngân sách đã thay đổi. Yêu cầu đã được trả về trưởng phòng.',
-    recheckedRequester: 'Kết quả kiểm tra ngân sách đã thay đổi. Yêu cầu đã được trả về người yêu cầu để sửa và gửi lại.',
+    recheckedRequester:
+      'Kết quả kiểm tra ngân sách đã thay đổi. Yêu cầu đã được trả về người yêu cầu để sửa và gửi lại.',
     linesMismatch: 'Danh sách người thụ hưởng đã thay đổi. Tải lại và quyết cho tất cả người đã được xác nhận nhu cầu.',
     termConfirmation: 'Xác nhận thời hạn trên mười hai tháng trước khi duyệt.',
     planLineRequired: 'Chọn dòng kế hoạch hoặc xác nhận yêu cầu nằm ngoài kế hoạch.',

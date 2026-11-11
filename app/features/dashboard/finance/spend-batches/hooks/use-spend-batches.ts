@@ -13,8 +13,9 @@ import {
   getSpendBatchItemListQueryKey
 } from '~/shared/api/generated/operations/spend-submission/spend-batch-item-list'
 
-export function useSpendBatchList(params?: SpendBatchListParams) {
+export function useSpendBatchList(params?: SpendBatchListParams, options?: { enabled?: boolean }) {
   return useQuery({
+    enabled: options?.enabled ?? true,
     queryKey: getSpendBatchListQueryKey(params),
     queryFn: async ({ signal }) => {
       const response = await getSpendBatchList(params, signal)
@@ -46,4 +47,3 @@ export function useSpendBatchItemList(batchId: string | undefined, params?: { pa
     }
   })
 }
-

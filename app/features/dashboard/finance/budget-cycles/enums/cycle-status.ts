@@ -12,3 +12,8 @@ export function isCycleStatus(value: string): value is CycleStatus {
 export function canPublishCycle(status: CycleStatus): boolean {
   return status !== CYCLE_STATUS.PUBLISHED
 }
+
+/** The deadlines, priorities and ceiling can be edited only while the cycle is not published. */
+export function canEditCycle(status: CycleStatus): boolean {
+  return status !== CYCLE_STATUS.PUBLISHED
+}

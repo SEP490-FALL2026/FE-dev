@@ -83,7 +83,8 @@ export const approvalsSpend = {
     OVER_RESERVE: 'The cost exceeds the remaining base and reserve'
   },
   oneStepReason: {
-    REQUESTER_IS_HEAD: 'The requester is the department head: the Spending Approver decides need and spend in one step.',
+    REQUESTER_IS_HEAD:
+      'The requester is the department head: the Spending Approver decides need and spend in one step.',
     NO_DEPARTMENT_HEAD: 'The department has no head: the Spending Approver decides need and spend in one step.',
     HEAD_LEFT: 'The department head has left the role: the Spending Approver decides need and spend in one step.',
     UNKNOWN: 'One-step request: the Spending Approver decides need and spend together.'

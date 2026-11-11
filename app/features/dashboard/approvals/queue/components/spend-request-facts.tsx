@@ -78,7 +78,10 @@ export function SpendRequestFacts({ approval, isGroup }: { approval: SpendApprov
           value={request.termMonths === null ? translate('unavailable') : formatNumber(request.termMonths)}
         />
         {annualVendorAmount && (
-          <ApprovalsStat label={translate('annualVendorAmount')} value={formatMoney(annualVendorAmount, i18n.language)} />
+          <ApprovalsStat
+            label={translate('annualVendorAmount')}
+            value={formatMoney(annualVendorAmount, i18n.language)}
+          />
         )}
         <ApprovalsStat label={translate('openedAt')} value={formatDate(step.openedAt)} />
         <ApprovalsStat label={translate('sla')} value={formatNumber(step.slaWorkingDays)} />

@@ -1,5 +1,5 @@
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useCostCenterLabel } from '../../shared/hooks/use-cost-center-label'
 import { type CostCenterPageResponseDtoDataItemsItem } from '~/shared/api/generated/model/cost-centers'
 import type { FinanceTabKey } from '../../enums'
 import {
@@ -31,19 +31,24 @@ export function CostCenterDetail({
   onSelectTab?: (tab: FinanceTabKey, extraParams?: Record<string, string>) => void
 }) {
   const { t: translate, i18n } = useTranslation('financeSettings')
+  const label = useCostCenterLabel()
   const budgets = useCurrentBudgetsByCostCenter(year)
   const budget = budgets.data?.byCostCenter.get(item.id)
 
   const currentBudget = budget && hasBudget(budget) ? budget : undefined
 
   return (
-    <FinanceDrawer title={`${item.code} · ${item.name}`} onClose={onClose}>
+    <FinanceDrawer title={`${item.code} · ${label(item)}`} onClose={onClose}>
       <div className='flex flex-wrap items-center justify-between gap-2 border-b border-border/70 pb-3'>
         <p className='flex flex-wrap items-center gap-2 text-sm text-muted-foreground'>
-          <span className='font-medium text-foreground'>{item.department?.name ?? translate('noDepartment')}</span>
+          <span className='font-medium text-foreground'>
+            {item.department ? label({ code: item.code, name: item.department.name }) : translate('noDepartment')}
+          </span>
           <FinanceStatus value={item.status} />
         </p>
-        <span className='font-mono text-xs text-muted-foreground'>{translate('budgetOfYear', { year: year ?? '—' })}</span>
+        <span className='font-mono text-xs text-muted-foreground'>
+          {translate('budgetOfYear', { year: year ?? '—' })}
+        </span>
       </div>
 
       <FinanceSection title={translate('budgetOfYear', { year: year ?? '—' })}>
@@ -53,8 +58,14 @@ export function CostCenterDetail({
               <FinanceStatGrid columns={4}>
                 <FinanceStat label={translate('kpis.total')} value={formatMoney(currentBudget.total, i18n.language)} />
                 <FinanceStat label={translate('kpis.base')} value={formatMoney(currentBudget.base, i18n.language)} />
-                <FinanceStat label={translate('kpis.reserve')} value={formatMoney(currentBudget.reserve, i18n.language)} />
-                <FinanceStat label={translate('kpis.held')} value={formatMoney(currentBudget.committed, i18n.language)} />
+                <FinanceStat
+                  label={translate('kpis.reserve')}
+                  value={formatMoney(currentBudget.reserve, i18n.language)}
+                />
+                <FinanceStat
+                  label={translate('kpis.held')}
+                  value={formatMoney(currentBudget.committed, i18n.language)}
+                />
               </FinanceStatGrid>
 
               <FinanceStatGrid columns={3}>

@@ -1,6 +1,11 @@
 import { ArrowLeft } from 'lucide-react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useBudgetCycleGet, useBudgetCyclePackage } from '~/shared/api/generated/operations/budget-cycles'
+import {
+  useBudgetCycleBaseline,
+  useBudgetCycleGet,
+  useBudgetCyclePackage
+} from '~/shared/api/generated/operations/budget-cycles'
 import {
   FinanceButton,
   FinanceDetailPage,
@@ -12,19 +17,25 @@ import {
   FinanceStatus
 } from '../../shared/components/finance-ui'
 import { formatMoney } from '../../shared/finance-money'
-import { CYCLE_STATUS, canPublishCycle, isCycleStatus } from '../enums/cycle-status'
+import { CYCLE_STATUS, canEditCycle, canPublishCycle, isCycleStatus } from '../enums/cycle-status'
 import { useBudgetCycleActions } from '../hooks/use-budget-cycle-actions'
+import { CycleBaseline } from './cycle-baseline'
 import { CycleCeilingsEditor } from './cycle-ceilings-editor'
+import { CycleEditDialog } from './cycle-edit-dialog'
 import { CyclePackageSummary } from './cycle-package-summary'
 
 export function CycleDetail({ year, onBack }: { year: number; onBack: () => void }) {
   const { t: translate, i18n } = useTranslation('financeBudget')
   const cycleQuery = useBudgetCycleGet(year)
   const packageQuery = useBudgetCyclePackage(year)
+  const baselineQuery = useBudgetCycleBaseline(year)
+  const baseline = baselineQuery.data?.data
   const { publish } = useBudgetCycleActions(year)
   const cycle = cycleQuery.data?.data
   const budgetPackage = packageQuery.data?.data
   const publishable = Boolean(cycle && isCycleStatus(cycle.status) && canPublishCycle(cycle.status))
+  const editable = Boolean(cycle && isCycleStatus(cycle.status) && canEditCycle(cycle.status))
+  const [editing, setEditing] = useState(false)
 
   return (
     <FinanceDetailPage>
@@ -36,14 +47,18 @@ export function CycleDetail({ year, onBack }: { year: number; onBack: () => void
               <ArrowLeft aria-hidden className='size-4' strokeWidth={1.5} />
               {translate('back')}
             </FinanceButton>
-            <FinanceButton
-              variant='primary'
-              pending={publish.isPending}
-              disabled={!publishable}
-              onClick={() => publish.mutate({ year })}
-            >
-              {translate('budgetCycle.publish')}
-            </FinanceButton>
+            {editable && (
+              <FinanceButton onClick={() => setEditing(true)}>{translate('budgetCycle.edit')}</FinanceButton>
+            )}
+            {publishable && (
+              <FinanceButton
+                variant='primary'
+                pending={publish.isPending}
+                onClick={() => publishable && publish.mutate({ year })}
+              >
+                {translate('budgetCycle.publish')}
+              </FinanceButton>
+            )}
           </>
         }
       >
@@ -83,6 +98,11 @@ export function CycleDetail({ year, onBack }: { year: number; onBack: () => void
                   })}
                 </span>
               </div>
+              {cycle.status === CYCLE_STATUS.PUBLISHED && (
+                <p role='status' className='text-sm text-muted-foreground'>
+                  {translate('budgetCycle.lockedAfterPublish')}
+                </p>
+              )}
               {cycle.status === CYCLE_STATUS.CHANGED_AFTER_PUBLISH && (
                 <p role='status' className='text-sm text-warning-ink'>
                   {translate('budgetCycle.changedAfterPublish')}
@@ -99,6 +119,7 @@ export function CycleDetail({ year, onBack }: { year: number; onBack: () => void
                 key={`${cycle.year}-${cycle.allocated.amount}-${cycle.status}`}
                 cycle={cycle}
                 departments={budgetPackage.departments}
+                readOnly={!editable}
               />
             )}
           </FinanceQueryState>
@@ -107,6 +128,14 @@ export function CycleDetail({ year, onBack }: { year: number; onBack: () => void
         <FinanceSection title={translate('budgetCycle.packageTitle')}>
           <FinanceQueryState query={packageQuery}>
             {budgetPackage && <CyclePackageSummary budgetPackage={budgetPackage} />}
+          </FinanceQueryState>
+        </FinanceSection>
+
+        {editing && cycle && editable && <CycleEditDialog cycle={cycle} onClose={() => setEditing(false)} />}
+
+        <FinanceSection title={translate('budgetCycle.baselineTitle')}>
+          <FinanceQueryState query={baselineQuery}>
+            {baseline && <CycleBaseline baseline={baseline} />}
           </FinanceQueryState>
         </FinanceSection>
       </FinancePage>

@@ -13,6 +13,15 @@ export const financeSettings = {
     remaining: 'Remaining',
     remainingCaption: 'Only cost centers with a budget'
   },
+  charts: {
+    usage: 'Budget usage',
+    usageHint: 'The total budget split into spent, held commitments and what is left.',
+    structure: 'Budget structure',
+    structureHint: 'The base figure and the reserve within the total budget.',
+    overBudget: 'Spending and commitments are over the total budget.',
+    empty: 'There is no budget figure to chart yet.'
+  },
+  dateRangeInvalid: 'The end date must be on or after the start date.',
   budgetOfYear: 'Budget for {{year}}',
   noBudgetForYear: 'No current budget for {{year}}.',
   noDepartment: 'No department linked',

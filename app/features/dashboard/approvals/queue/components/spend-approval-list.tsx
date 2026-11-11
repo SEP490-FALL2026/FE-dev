@@ -73,7 +73,13 @@ export function SpendApprovalList({ onOpen }: { onOpen: (requestId: string, batc
               render: (item) => (item.amount ? formatMoney(item.amount, i18n.language) : translate('unavailable'))
             },
             { key: 'check', label: translate('check'), render: (item) => <ApprovalsStatus value={item.primaryCode} /> },
-            { key: 'dueOn', label: translate('dueOn'), numeric: true, render: (item) => formatDate(item.dueOn) }
+            {
+              key: 'dueOn',
+              label: translate('dueOn'),
+              numeric: true,
+              align: 'center',
+              render: (item) => formatDate(item.dueOn)
+            }
           ]}
         />
         <ApprovalsPagination

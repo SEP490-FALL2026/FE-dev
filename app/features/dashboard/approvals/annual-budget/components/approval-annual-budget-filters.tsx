@@ -22,10 +22,13 @@ export function ApprovalAnnualBudgetFilters({
   const { t: translate } = useTranslation('approvalsBudget')
   const [draftState, setDraftState] = useState(state ?? '')
   const [draftYear, setDraftYear] = useState(year?.toString() ?? '')
+  const yearInvalid =
+    draftYear !== '' && (!/^\d{4}$/.test(draftYear) || Number(draftYear) < 2000 || Number(draftYear) > 2200)
   return (
     <form
       onSubmit={(event) => {
         event.preventDefault()
+        if (yearInvalid) return
         onApply({ state: draftState || undefined, year: draftYear ? Number(draftYear) : undefined })
       }}
     >
@@ -45,13 +48,14 @@ export function ApprovalAnnualBudgetFilters({
           />
         </div>
         <div className='w-full sm:w-48'>
-          <ApprovalsField label={translate('year')}>
+          <ApprovalsField label={translate('year')} error={yearInvalid ? translate('yearRange') : null}>
             <input
               type='number'
               inputMode='numeric'
               min={2000}
               max={2200}
               step={1}
+              aria-invalid={yearInvalid}
               className={`${approvalsInputClass} text-right font-mono tabular-nums`}
               placeholder={translate('yearPlaceholder')}
               value={draftYear}
@@ -59,7 +63,9 @@ export function ApprovalAnnualBudgetFilters({
             />
           </ApprovalsField>
         </div>
-        <ApprovalsButton type='submit'>{translate('apply')}</ApprovalsButton>
+        <ApprovalsButton type='submit' disabled={yearInvalid}>
+          {translate('apply')}
+        </ApprovalsButton>
       </ApprovalsToolbar>
     </form>
   )

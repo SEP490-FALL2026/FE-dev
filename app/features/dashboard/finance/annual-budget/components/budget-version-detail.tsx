@@ -22,14 +22,13 @@ import type { BudgetViewProps } from '../budget-view-props'
 import { canEditVersion, versionState } from '../enums/version-state'
 import { BudgetVersionForm } from './budget-version-form'
 import { BudgetVersionLines } from './budget-version-lines'
-import { BudgetVersionHistory } from './budget-version-history'
 import { BudgetAttachments } from './budget-attachments'
 
 export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & { itemId: string }) {
   const { t: translate, i18n } = useTranslation('financeBudget')
   const query = useBudgetVersionGet(itemId)
   const version = query.data?.data?.version
-  const [dialog, setDialog] = useState<'edit' | 'send' | 'history' | 'rebuild'>()
+  const [dialog, setDialog] = useState<'edit' | 'send' | 'rebuild'>()
   const feedback = useFinanceFeedback(budgetQueryKeys(itemId, version?.proposalId ?? undefined), () =>
     setDialog(undefined)
   )
@@ -142,7 +141,7 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
                   {translate('actions.rebuild')}
                 </FinanceButton>
               )}
-              <FinanceButton variant='ghost' onClick={() => setDialog('history')}>
+              <FinanceButton variant='ghost' onClick={() => onSelectTab?.('version-history', { id: itemId })}>
                 <History aria-hidden className='size-4' strokeWidth={1.5} />
                 {translate('actions.showHistory')}
               </FinanceButton>
@@ -183,7 +182,6 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
           <p className='text-sm'>{translate('sendHint')}</p>
         </FinanceFormDialog>
       )}
-      {dialog === 'history' && <BudgetVersionHistory versionId={itemId} onClose={() => setDialog(undefined)} />}
     </FinancePage>
   )
 }

@@ -13,6 +13,15 @@ export const financeSettings = {
     remaining: 'Còn lại',
     remainingCaption: 'Chỉ tính trung tâm chi phí đã có ngân sách'
   },
+  charts: {
+    usage: 'Tình hình sử dụng ngân sách',
+    usageHint: 'Tổng ngân sách chia theo thực chi, cam kết đang giữ và phần còn lại.',
+    structure: 'Cơ cấu ngân sách',
+    structureHint: 'Phí cơ sở và phí dự trù trong tổng ngân sách.',
+    overBudget: 'Thực chi và cam kết đã vượt tổng ngân sách.',
+    empty: 'Chưa có số liệu ngân sách để vẽ biểu đồ.'
+  },
+  dateRangeInvalid: 'Đến ngày phải sau hoặc bằng Từ ngày.',
   budgetOfYear: 'Ngân sách năm {{year}}',
   noBudgetForYear: 'Chưa có ngân sách hiện hành cho năm {{year}}.',
   noDepartment: 'Chưa gắn phòng ban',

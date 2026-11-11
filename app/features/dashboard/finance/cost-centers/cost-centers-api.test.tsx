@@ -37,20 +37,23 @@ describe('Finance cost center contract integration', () => {
           data: {
             success: true,
             data: {
-              year: 2026,
-              totals: {
-                VND: {
-                  currency: 'VND',
-                  base: money('108000000'),
-                  reserve: money('12000000'),
-                  total: money('120000000'),
-                  committed: money('30000000'),
-                  spent: money('0'),
-                  remaining: money('90000000'),
-                  costCenterCount: 1,
-                  overBudgetCount: 0
-                }
-              },
+              year: config.params?.year ?? 2026,
+              totals:
+                config.params?.year === 2027
+                  ? {}
+                  : {
+                      VND: {
+                        currency: 'VND',
+                        base: money('108000000'),
+                        reserve: money('12000000'),
+                        total: money('120000000'),
+                        committed: money('30000000'),
+                        spent: money('0'),
+                        remaining: money('90000000'),
+                        costCenterCount: 1,
+                        overBudgetCount: 0
+                      }
+                    },
               lastInvoiceRecordedAt: null
             }
           }
@@ -80,7 +83,7 @@ describe('Finance cost center contract integration', () => {
             data: {
               items: [
                 {
-                  costCenter: { id: 'center', code: 'CC-ENG', name: 'Engineering cost' },
+                  costCenter: { id: 'center', code: 'CC-ENG', name: 'Engineering Department' },
                   year: 2026,
                   versionId: 'version-own',
                   number: 1,
@@ -137,7 +140,7 @@ describe('Finance cost center contract integration', () => {
                 {
                   id: 'center',
                   code: 'CC-ENG',
-                  name: 'Engineering cost',
+                  name: 'Engineering Department',
                   department: { id: 'department', code: 'ENG', name: 'Engineering' },
                   status,
                   kind: 'UNIT'
@@ -162,7 +165,7 @@ describe('Finance cost center contract integration', () => {
   }
   it('shows the current budget of each cost center without a create action', async () => {
     mount()
-    expect(await screen.findAllByText('Engineering cost')).not.toHaveLength(0)
+    expect(await screen.findAllByText('Engineering Department')).not.toHaveLength(0)
     expect(screen.queryByRole('button', { name: financeSettings.create })).not.toBeInTheDocument()
     await waitFor(() =>
       expect(requests.some((request) => request.url?.endsWith('/budgets') && request.params?.pageSize === 100)).toBe(
@@ -183,11 +186,23 @@ describe('Finance cost center contract integration', () => {
   })
   it('summarises the year in budget widgets', async () => {
     mount()
-    expect(await screen.findByText(financeSettings.kpis.total)).toBeInTheDocument()
-    expect(screen.getByText(financeSettings.kpis.held)).toBeInTheDocument()
+    expect((await screen.findAllByText(financeSettings.kpis.total)).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(financeSettings.kpis.held).length).toBeGreaterThan(0)
     expect(await screen.findByText('1/21 cost centers have a budget')).toBeInTheDocument()
-    expect(screen.getByText(/120M/)).toBeInTheDocument()
-    expect(screen.getByText(/90M/)).toBeInTheDocument()
+    expect(screen.getAllByText(/120,000,000/).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/90,000,000/).length).toBeGreaterThan(0)
+  })
+  it('keeps the widgets for a year without a budget and shows zero for it', async () => {
+    mount()
+    expect((await screen.findAllByText(financeSettings.kpis.total)).length).toBeGreaterThan(0)
+    fireEvent.change(screen.getByPlaceholderText(financeSettings.budgetYearPlaceholder), { target: { value: '2027' } })
+    await waitFor(() =>
+      expect(
+        requests.some((request) => request.url?.endsWith('/budgets/summary') && request.params?.year === 2027)
+      ).toBe(true)
+    )
+    expect((await screen.findAllByText(financeSettings.kpis.total)).length).toBeGreaterThan(0)
+    expect(await screen.findAllByText(financeSettings.charts.empty)).toHaveLength(2)
   })
   it('shows budget figures in the detail without rename or deactivate', async () => {
     mount()

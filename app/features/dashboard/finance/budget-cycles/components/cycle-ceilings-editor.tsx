@@ -1,33 +1,36 @@
 import { useState } from 'react'
+import { MoneyInput } from '~/shared/ui/money-input'
 import { useTranslation } from 'react-i18next'
 import type { CycleResponseDtoData, PackageResponseDtoData } from '~/shared/api/generated/model/budget-cycles'
 import { FinanceButton, financeInputClass } from '../../shared/components/finance-ui'
 import { isDecimal } from '../../shared/finance-money'
+import { addAmounts } from '../../shared/finance-validation'
 import { useBudgetCycleActions } from '../hooks/use-budget-cycle-actions'
 
 type CycleData = NonNullable<CycleResponseDtoData>
 type PackageDepartment = NonNullable<PackageResponseDtoData>['departments'][number]
-type CeilingField = 'signedCommitments' | 'plannedSeats' | 'priority'
-type CeilingDraft = Record<CeilingField, string> & { explanation: string }
+type CeilingDraft = { ceiling: string; explanation: string }
 
-const CEILING_FIELDS: readonly CeilingField[] = ['signedCommitments', 'plannedSeats', 'priority']
-
+/** The API keeps the ceiling of a department in three parts; the screen works with their sum as one figure. */
 function draftOf(cycle: CycleData, departmentId: string): CeilingDraft {
   const saved = cycle.ceilings[departmentId]
   return {
-    signedCommitments: saved?.signedCommitments.amount ?? '0',
-    plannedSeats: saved?.plannedSeats.amount ?? '0',
-    priority: saved?.priority.amount ?? '0',
+    ceiling: saved
+      ? addAmounts([saved.signedCommitments.amount, saved.plannedSeats.amount, saved.priority.amount])
+      : '0',
     explanation: saved?.explanation ?? ''
   }
 }
 
 export function CycleCeilingsEditor({
   cycle,
-  departments
+  departments,
+  readOnly = false
 }: {
   cycle: CycleData
   departments: readonly PackageDepartment[]
+  /** A published cycle shows its division of the ceiling without letting it be changed. */
+  readOnly?: boolean
 }) {
   const { t: translate } = useTranslation('financeBudget')
   const { setCeilings } = useBudgetCycleActions(cycle.year)
@@ -40,10 +43,11 @@ export function CycleCeilingsEditor({
     setDrafts((current) => ({ ...current, [departmentId]: { ...draftFor(departmentId), ...patch } }))
 
   const amountsValid =
-    isDecimal(reserve) &&
-    departments.every((department) =>
-      CEILING_FIELDS.every((field) => isDecimal(draftFor(department.departmentId)[field]))
-    )
+    isDecimal(reserve) && departments.every((department) => isDecimal(draftFor(department.departmentId).ceiling))
+
+  const explanationMissing = departments.filter(
+    (department) => !draftFor(department.departmentId).explanation.trim()
+  ).length
 
   const save = () =>
     setCeilings.mutate(
@@ -55,9 +59,9 @@ export function CycleCeilingsEditor({
             const draft = draftFor(department.departmentId)
             return {
               departmentId: department.departmentId,
-              signedCommitments: { amount: draft.signedCommitments },
-              plannedSeats: { amount: draft.plannedSeats },
-              priority: { amount: draft.priority },
+              signedCommitments: { amount: '0' },
+              plannedSeats: { amount: '0' },
+              priority: { amount: draft.ceiling },
               ...(draft.explanation.trim() ? { explanation: draft.explanation.trim() } : {})
             }
           })
@@ -72,20 +76,27 @@ export function CycleCeilingsEditor({
     )
 
   const amountInput = (value: string, label: string, onChange: (next: string) => void) => (
-    <input
-      inputMode='decimal'
+    <MoneyInput
+      disabled={readOnly}
       aria-label={label}
       aria-invalid={!isDecimal(value)}
       className={`${financeInputClass} min-w-28 text-right font-mono tabular-nums`}
       value={value}
-      onChange={(event) => onChange(event.target.value)}
+      onValueChange={onChange}
     />
   )
 
   return (
     <div className='space-y-4'>
       <label className='block max-w-xs space-y-1.5 text-sm font-medium'>
-        {translate('budgetCycle.sharedPoolReserve')}
+        <span className='flex items-center gap-1'>
+          {translate('budgetCycle.sharedPoolReserve')}
+          {!readOnly && (
+            <span aria-hidden className='text-danger'>
+              *
+            </span>
+          )}
+        </span>
         {amountInput(reserve, translate('budgetCycle.sharedPoolReserve'), setReserveDraft)}
         <span className='block text-xs font-normal text-muted-foreground'>
           {translate('budgetCycle.sharedPoolHint')}
@@ -99,13 +110,21 @@ export function CycleCeilingsEditor({
               <th scope='col' className='px-3 py-2 text-left'>
                 {translate('budgetCycle.department')}
               </th>
-              {CEILING_FIELDS.map((field) => (
-                <th key={field} scope='col' className='px-3 py-2 text-right'>
-                  {translate(`budgetCycle.ceilingField.${field}`)}
-                </th>
-              ))}
+              <th scope='col' className='px-3 py-2 text-right'>
+                {translate('budgetCycle.ceiling')}
+                {!readOnly && (
+                  <span aria-hidden className='ml-1 text-danger'>
+                    *
+                  </span>
+                )}
+              </th>
               <th scope='col' className='px-3 py-2 text-left'>
                 {translate('budgetCycle.explanation')}
+                {!readOnly && (
+                  <span aria-hidden className='ml-1 text-danger'>
+                    *
+                  </span>
+                )}
               </th>
             </tr>
           </thead>
@@ -120,18 +139,19 @@ export function CycleCeilingsEditor({
                     </div>
                     <div className='font-mono text-[11px] text-muted-foreground'>{department.departmentCode}</div>
                   </td>
-                  {CEILING_FIELDS.map((field) => (
-                    <td key={field} className='px-3 py-2'>
-                      {amountInput(
-                        draft[field],
-                        `${department.departmentName} — ${translate(`budgetCycle.ceilingField.${field}`)}`,
-                        (next) => changeDraft(department.departmentId, { [field]: next })
-                      )}
-                    </td>
-                  ))}
+                  <td className='px-3 py-2'>
+                    {amountInput(
+                      draft.ceiling,
+                      `${department.departmentName} — ${translate('budgetCycle.ceiling')}`,
+                      (next) => changeDraft(department.departmentId, { ceiling: next })
+                    )}
+                  </td>
                   <td className='px-3 py-2'>
                     <input
                       maxLength={2000}
+                      disabled={readOnly}
+                      aria-required={!readOnly}
+                      aria-invalid={!readOnly && !draft.explanation.trim()}
                       aria-label={`${department.departmentName} — ${translate('budgetCycle.explanation')}`}
                       className={`${financeInputClass} min-w-48`}
                       value={draft.explanation}
@@ -145,16 +165,23 @@ export function CycleCeilingsEditor({
         </table>
       </div>
 
-      <div className='flex justify-end'>
-        <FinanceButton
-          variant='secondary'
-          pending={setCeilings.isPending}
-          disabled={!amountsValid || departments.length === 0}
-          onClick={save}
-        >
-          {translate('budgetCycle.saveCeilings')}
-        </FinanceButton>
-      </div>
+      {!readOnly && explanationMissing > 0 && (
+        <p role='status' className='text-sm text-warning-ink'>
+          {translate('budgetCycle.explanationMissing', { count: explanationMissing })}
+        </p>
+      )}
+      {!readOnly && (
+        <div className='flex justify-end'>
+          <FinanceButton
+            variant='secondary'
+            pending={setCeilings.isPending}
+            disabled={!amountsValid || departments.length === 0}
+            onClick={save}
+          >
+            {translate('budgetCycle.saveCeilings')}
+          </FinanceButton>
+        </div>
+      )}
     </div>
   )
 }

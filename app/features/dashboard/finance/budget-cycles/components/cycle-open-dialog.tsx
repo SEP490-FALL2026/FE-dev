@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { MoneyInput } from '~/shared/ui/money-input'
 import { useTranslation } from 'react-i18next'
 import { AdminFormDialog } from '~/shared/ui/form-dialog'
 import { FinanceField, financeInputClass } from '../../shared/components/finance-ui'
@@ -21,10 +22,13 @@ export function CycleOpenDialog({ onClose, onOpened }: { onClose: () => void; on
   })
 
   const yearNumber = Number(year)
-  const yearValid = Number.isInteger(yearNumber) && yearNumber >= MIN_YEAR && yearNumber <= MAX_YEAR
+  // The API opens the current year and the years to come, not a year that has passed.
+  const yearValid =
+    Number.isInteger(yearNumber) && yearNumber >= Math.max(MIN_YEAR, new Date().getFullYear()) && yearNumber <= MAX_YEAR
   const ceilingValid = isDecimal(ceiling)
   const deadlinesOrdered = !submissionDeadline || !decisionDeadline || submissionDeadline <= decisionDeadline
-  const valid = yearValid && ceilingValid && Boolean(submissionDeadline) && Boolean(decisionDeadline) && deadlinesOrdered
+  const valid =
+    yearValid && ceilingValid && Boolean(submissionDeadline) && Boolean(decisionDeadline) && deadlinesOrdered
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -50,11 +54,15 @@ export function CycleOpenDialog({ onClose, onOpened }: { onClose: () => void; on
       onSubmit={submit}
     >
       <div className='grid gap-3 sm:grid-cols-2'>
-        <FinanceField label={translate('fields.year')} required error={yearValid ? null : translate('fieldInvalid')}>
+        <FinanceField
+          label={translate('fields.year')}
+          required
+          error={yearValid ? null : translate('budgetCycle.yearPast')}
+        >
           <input
             type='number'
             inputMode='numeric'
-            min={MIN_YEAR}
+            min={Math.max(MIN_YEAR, new Date().getFullYear())}
             max={MAX_YEAR}
             aria-invalid={!yearValid}
             className={`${financeInputClass} font-mono tabular-nums`}
@@ -68,13 +76,13 @@ export function CycleOpenDialog({ onClose, onOpened }: { onClose: () => void; on
           hint={translate('budgetCycle.ceilingHint')}
           error={ceiling && !ceilingValid ? translate('fieldInvalid') : null}
         >
-          <input
-            inputMode='decimal'
+          <MoneyInput
+            maxLength={40}
             aria-invalid={Boolean(ceiling) && !ceilingValid}
             className={`${financeInputClass} font-mono tabular-nums`}
             placeholder={translate('placeholders.amount')}
             value={ceiling}
-            onChange={(event) => setCeiling(event.target.value)}
+            onValueChange={setCeiling}
           />
         </FinanceField>
         <FinanceField label={translate('budgetCycle.submissionDeadline')} required>
@@ -103,7 +111,7 @@ export function CycleOpenDialog({ onClose, onOpened }: { onClose: () => void; on
         <textarea
           rows={3}
           maxLength={2000}
-          className={financeInputClass}
+          className={`${financeInputClass} max-h-48 min-h-24 resize-y`}
           value={priorities}
           onChange={(event) => setPriorities(event.target.value)}
         />

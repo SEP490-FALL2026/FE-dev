@@ -1,7 +1,13 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useBudgetCycleList } from '~/shared/api/generated/operations/budget-cycles'
-import { FinanceButton, FinancePage, FinancePagination, FinanceQueryState, FinanceStatus } from '../../shared/components/finance-ui'
+import {
+  FinanceButton,
+  FinancePage,
+  FinancePagination,
+  FinanceQueryState,
+  FinanceStatus
+} from '../../shared/components/finance-ui'
 import { FinanceTable } from '../../shared/components/finance-table'
 import { useFinanceList } from '../../shared/hooks/use-finance-list'
 import { formatMoney } from '../../shared/finance-money'
@@ -35,7 +41,13 @@ export function FinanceBudgetCyclesView({ itemId, onSelectTab }: BudgetViewProps
           rowKey={(cycle) => String(cycle.year)}
           onOpen={(cycle) => onSelectTab?.('budget-cycles', { id: String(cycle.year) })}
           columns={[
-            { key: 'year', label: translate('fields.year'), numeric: true, render: (cycle) => cycle.year },
+            {
+              key: 'year',
+              label: translate('fields.year'),
+              numeric: true,
+              align: 'center',
+              render: (cycle) => cycle.year
+            },
             {
               key: 'status',
               label: translate('fields.state'),
@@ -62,12 +74,14 @@ export function FinanceBudgetCyclesView({ itemId, onSelectTab }: BudgetViewProps
               key: 'submission',
               label: translate('budgetCycle.submissionDeadline'),
               numeric: true,
+              align: 'center',
               render: (cycle) => cycle.submissionDeadline
             },
             {
               key: 'decision',
               label: translate('budgetCycle.decisionDeadline'),
               numeric: true,
+              align: 'center',
               render: (cycle) => cycle.decisionDeadline
             }
           ]}

@@ -35,7 +35,9 @@ export function BudgetUtilization({
           style={{ width: `${Math.min(100, ratio * 100)}%` }}
         />
       </div>
-      <span className={`w-14 text-right font-mono text-xs tabular-nums ${isOver ? 'font-bold text-danger' : 'font-medium'}`}>
+      <span
+        className={`w-14 text-right font-mono text-xs tabular-nums ${isOver ? 'font-bold text-danger' : 'font-medium'}`}
+      >
         {percent}
       </span>
       {isOver && <span className='sr-only'>{translate('fields.overCommitted')}</span>}

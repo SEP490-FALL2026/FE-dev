@@ -1,16 +1,16 @@
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AxiosHeaders } from 'axios'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { apiClient } from '~/shared/api/axios-client'
 import { i18n, setAppLanguage } from '~/shared/i18n/i18n'
 import { financeSettings } from '~/shared/i18n/locales/en/finance-settings'
 import { finance } from '~/shared/i18n/locales/en/finance'
 import { FinanceCommitmentsView } from './views/finance-commitments-view'
 
-describe('Finance commitments and invoice recording integration', () => {
+describe('Finance commitments integration', () => {
   const previousAdapter = apiClient.defaults.adapter
-  const requests: { url?: string; method?: string; body?: any }[] = []
+  const requests: { url?: string; method?: string; body?: unknown }[] = []
 
   beforeEach(async () => {
     requests.length = 0
@@ -122,7 +122,10 @@ describe('Finance commitments and invoice recording integration', () => {
         status: 200,
         statusText: 'OK',
         headers: new AxiosHeaders(),
-        data: { success: true, data: { items: [], pagination: { page: 1, pageSize: 20, totalItems: 0, totalPages: 0 } } }
+        data: {
+          success: true,
+          data: { items: [], pagination: { page: 1, pageSize: 20, totalItems: 0, totalPages: 0 } }
+        }
       }
     }
   })
@@ -131,38 +134,26 @@ describe('Finance commitments and invoice recording integration', () => {
     apiClient.defaults.adapter = previousAdapter
   })
 
-  it('renders commitments table and opens record invoice dialog', async () => {
+  it('lists commitments only, with no invoice recording and a release action', async () => {
+    const selectTab = vi.fn()
     render(
       <QueryClientProvider
         client={new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })}
       >
-        <FinanceCommitmentsView />
+        <FinanceCommitmentsView onSelectTab={selectTab} />
       </QueryClientProvider>
     )
 
     expect((await screen.findAllByText('IT Department')).length).toBeGreaterThan(0)
     expect(screen.getAllByText('Figma Enterprise').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Alice Designer').length).toBeGreaterThan(0)
+    expect(screen.getByRole('heading', { name: 'Commitments' })).toBeInTheDocument()
 
-    // Bấm nút Record Invoice
-    const recordButtons = screen.getAllByRole('button', { name: finance.recordInvoice })
-    fireEvent.click(recordButtons[0])
+    expect(screen.queryByRole('button', { name: /invoice/i })).not.toBeInTheDocument()
+    expect(screen.queryByText(/invoiced/i)).not.toBeInTheDocument()
 
-    const invoiceInput = await screen.findByPlaceholderText('INV-2026-001')
-    expect(invoiceInput).toBeInTheDocument()
-
-    // Nhập số hóa đơn và tiền trước thuế
-    fireEvent.change(invoiceInput, { target: { value: 'INV-TEST-001' } })
-    fireEvent.change(screen.getByPlaceholderText('10000000'), { target: { value: '10000000' } })
-
-    // Submit form (nút trong dialog)
-    const dialog = screen.getByRole('dialog')
-    const submitBtn = within(dialog).getByRole('button', { name: finance.recordInvoice })
-    fireEvent.click(submitBtn)
-
-    await waitFor(() => {
-      expect(requests.some((r) => r.url?.endsWith('/invoices') && r.method === 'post')).toBe(true)
-    })
+    fireEvent.click(screen.getAllByRole('button', { name: finance.releaseRemainder })[0])
+    expect(selectTab).toHaveBeenCalledWith('commitment-release', { id: 'commit-01', request: 'req-01' })
+    expect(requests.some((r) => r.url?.endsWith('/invoices'))).toBe(false)
   })
 })
-

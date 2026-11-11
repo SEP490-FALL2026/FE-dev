@@ -5,6 +5,8 @@ import { type CostCenterPageResponseDtoDataItemsItem } from '~/shared/api/genera
 import { CostCenterListStatus } from '../enums/cost-center-status'
 
 import { useCostCenterList } from '~/shared/api/generated/operations/cost-centers'
+import { useCostCenterLabel } from '../../shared/hooks/use-cost-center-label'
+import { useCostCenterRows } from '../hooks/use-cost-center-rows'
 import type { FinanceTabKey } from '../../enums'
 import {
   FinanceField,
@@ -23,6 +25,7 @@ import { FinanceTable } from '../../shared/components/finance-table'
 import { hasBudget } from '../../shared/finance-budget-row'
 import { formatMoney } from '../../shared/finance-money'
 import { CostCenterDetail } from '../components/cost-center-detail'
+import { CostCenterCharts } from '../components/cost-center-charts'
 import { CostCenterKpis } from '../components/cost-center-kpis'
 import { useCurrentBudgetsByCostCenter } from '../hooks/use-cost-center-budgets'
 import { useBudgetSummary } from '../hooks/use-budget-summary'
@@ -41,12 +44,8 @@ export function FinanceCostCentersView({
   const [year, setYear] = useState(String(new Date().getFullYear()))
   const [selected, setSelected] = useState<CostCenterPageResponseDtoDataItemsItem | null>(null)
 
-  const centers = useCostCenterList({
-    search: debouncedSearch || undefined,
-    status: status || undefined,
-    page,
-    pageSize: 20
-  })
+  const costCenterLabel = useCostCenterLabel()
+  const centers = useCostCenterRows({ status, search: debouncedSearch, page, label: costCenterLabel })
 
   const budgetYear = validYear(year) ? Number(year) : undefined
   const budgets = useCurrentBudgetsByCostCenter(budgetYear)
@@ -66,7 +65,7 @@ export function FinanceCostCentersView({
     return (
       <FinanceDetailPage>
         <CostCenterDetail
-          item={centers.data?.data?.items.find((item) => item.id === selected.id) ?? selected}
+          item={centers.items.find((item) => item.id === selected.id) ?? selected}
           year={budgetYear}
           onClose={() => setSelected(null)}
           onSelectTab={onSelectTab}
@@ -121,17 +120,24 @@ export function FinanceCostCentersView({
         </div>
       </FinanceToolbar>
 
-      {summary.totals && (
-        <CostCenterKpis
-          totals={summary.totals}
-          lastInvoiceRecordedAt={summary.lastInvoiceRecordedAt}
-          activeCenters={activeCenters.data?.data?.pagination.totalItems}
-        />
+      {budgetYear !== undefined && (
+        <FinanceQueryState query={summary.query}>
+          {summary.totals && (
+            <div className='space-y-4'>
+              <CostCenterKpis
+                totals={summary.totals}
+                lastInvoiceRecordedAt={summary.lastInvoiceRecordedAt}
+                activeCenters={activeCenters.data?.data?.pagination.totalItems}
+              />
+              <CostCenterCharts totals={summary.totals} />
+            </div>
+          )}
+        </FinanceQueryState>
       )}
 
-      <FinanceQueryState query={centers}>
+      <FinanceQueryState query={centers.query}>
         <FinanceTable
-          items={centers.data?.data?.items ?? []}
+          items={centers.items}
           rowKey={(item) => item.id}
           onOpen={setSelected}
           columns={[
@@ -140,8 +146,8 @@ export function FinanceCostCentersView({
               label: translate('name'),
               render: (item) => (
                 <div className='min-w-0'>
-                  <div className='truncate font-medium text-foreground' title={item.name}>
-                    {item.name}
+                  <div className='truncate font-medium text-foreground' title={costCenterLabel(item)}>
+                    {costCenterLabel(item)}
                   </div>
                   <div className='font-mono text-[11px] text-muted-foreground'>{item.code}</div>
                 </div>
@@ -178,7 +184,7 @@ export function FinanceCostCentersView({
             }
           ]}
         />
-        <FinancePagination pagination={centers.data?.data?.pagination} onPageChange={setPage} />
+        <FinancePagination pagination={centers.pagination} onPageChange={setPage} />
         {budgets.data?.truncated && <p className='text-xs text-muted-foreground'>{translate('listTruncated')}</p>}
       </FinanceQueryState>
     </FinancePage>

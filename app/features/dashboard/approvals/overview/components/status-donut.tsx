@@ -42,55 +42,65 @@ export function StatusDonut({
   const shaded = shadeSegments(segments.filter((segment) => segment.count > 0))
   const total = shaded.reduce((sum, segment) => sum + segment.count, 0)
   const percent = new Intl.NumberFormat(i18n.language, { style: 'percent', maximumFractionDigits: 0 })
+  // The centre shows only the share; the name and the count sit under the ring and follow the pointer.
+  const active = shaded.find((segment) => segment.key === highlighted)
+  const shownLabel = active ? active.label : totalLabel
+  const shownCount = active ? active.count : total
+  const shownShare = active && total > 0 ? active.count / total : 1
   return (
     <div className='grid items-center gap-4 sm:grid-cols-[minmax(0,10rem)_minmax(0,1fr)]'>
-      <div role='img' aria-label={label} className='relative mx-auto size-40'>
-        <div className='pointer-events-none absolute inset-0 grid place-items-center text-center'>
-          <div>
-            <p className='text-[11px] font-semibold tracking-wider text-muted-foreground uppercase'>{totalLabel}</p>
-            <p className='font-mono text-2xl leading-tight font-semibold tabular-nums'>{total}</p>
+      <div className='min-w-0 space-y-3'>
+        <div role='img' aria-label={label} className='relative mx-auto size-40'>
+          <div className='pointer-events-none absolute inset-0 grid place-items-center text-center'>
+            <p className='font-mono text-2xl leading-tight font-semibold tabular-nums'>{percent.format(shownShare)}</p>
           </div>
+          <ResponsiveContainer width='100%' height='100%'>
+            <PieChart>
+              <Pie
+                data={shaded}
+                dataKey='count'
+                nameKey='label'
+                innerRadius='66%'
+                outerRadius='100%'
+                paddingAngle={shaded.length > 1 ? 1 : 0}
+                stroke='var(--theme-surface)'
+                strokeWidth={2}
+                isAnimationActive={false}
+                onMouseEnter={(_, index) => setHighlighted(shaded[index]?.key)}
+                onMouseLeave={() => setHighlighted(undefined)}
+              >
+                {shaded.map((segment) => (
+                  <Cell
+                    key={segment.key}
+                    fill={segment.color}
+                    fillOpacity={highlighted && highlighted !== segment.key ? segment.opacity * 0.35 : segment.opacity}
+                  />
+                ))}
+              </Pie>
+              <Tooltip
+                allowEscapeViewBox={{ x: true, y: true }}
+                content={({ active, payload }) => {
+                  const segment = payload?.[0]?.payload as (typeof shaded)[number] | undefined
+                  if (!active || !segment) return null
+                  return (
+                    <div className='rounded-md border border-border/70 bg-surface px-3 py-2 text-xs shadow-[0_4px_12px_-2px_rgba(0,0,0,0.12)]'>
+                      <p className='font-medium text-foreground'>{segment.label}</p>
+                      <p className='font-mono text-muted-foreground tabular-nums'>
+                        {segment.count} · {percent.format(segment.count / total)}
+                      </p>
+                    </div>
+                  )
+                }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
         </div>
-        <ResponsiveContainer width='100%' height='100%'>
-          <PieChart>
-            <Pie
-              data={shaded}
-              dataKey='count'
-              nameKey='label'
-              innerRadius='66%'
-              outerRadius='100%'
-              paddingAngle={shaded.length > 1 ? 1 : 0}
-              stroke='var(--theme-surface)'
-              strokeWidth={2}
-              isAnimationActive={false}
-              onMouseEnter={(_, index) => setHighlighted(shaded[index]?.key)}
-              onMouseLeave={() => setHighlighted(undefined)}
-            >
-              {shaded.map((segment) => (
-                <Cell
-                  key={segment.key}
-                  fill={segment.color}
-                  fillOpacity={highlighted && highlighted !== segment.key ? segment.opacity * 0.35 : segment.opacity}
-                />
-              ))}
-            </Pie>
-            <Tooltip
-              allowEscapeViewBox={{ x: true, y: true }}
-              content={({ active, payload }) => {
-                const segment = payload?.[0]?.payload as (typeof shaded)[number] | undefined
-                if (!active || !segment) return null
-                return (
-                  <div className='rounded-md border border-border/70 bg-surface px-3 py-2 text-xs shadow-[0_4px_12px_-2px_rgba(0,0,0,0.12)]'>
-                    <p className='font-medium text-foreground'>{segment.label}</p>
-                    <p className='font-mono text-muted-foreground tabular-nums'>
-                      {segment.count} · {percent.format(segment.count / total)}
-                    </p>
-                  </div>
-                )
-              }}
-            />
-          </PieChart>
-        </ResponsiveContainer>
+        <div aria-live='polite' className='space-y-1 text-center'>
+          <p className='text-xs font-semibold tracking-wider text-muted-foreground uppercase [text-wrap:balance]'>
+            {shownLabel}
+          </p>
+          <p className='font-mono text-base font-semibold tabular-nums'>{shownCount}</p>
+        </div>
       </div>
       <ul className='space-y-1'>
         {shaded.map((segment) => (

@@ -102,7 +102,13 @@ export function BudgetVersionLines({
           rowKey={(line) => String(line.position)}
           onOpen={setSelected}
           columns={[
-            { key: 'position', label: translate('fields.position'), numeric: true, render: (line) => line.position },
+            {
+              key: 'position',
+              label: translate('fields.position'),
+              numeric: true,
+              align: 'center',
+              render: (line) => line.position
+            },
             { key: 'description', label: translate('fields.description'), render: (line) => line.description },
             {
               key: 'lineType',

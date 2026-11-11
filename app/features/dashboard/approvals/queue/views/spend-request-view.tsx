@@ -75,7 +75,8 @@ function SpendRequestContent({ requestId }: { requestId: string }) {
     knownCodes.includes(check.primaryCode)
   )
   // A blocked check never reaches this step; if the recheck says so, the decision stays locked.
-  const blocked = !check || check.route !== BUDGET_CHECK_ROUTE.SPEND_APPROVAL || check.outcome === BUDGET_CHECK_OUTCOME.BLOCKED
+  const blocked =
+    !check || check.route !== BUDGET_CHECK_ROUTE.SPEND_APPROVAL || check.outcome === BUDGET_CHECK_OUTCOME.BLOCKED
   return (
     <ApprovalsQueryState query={approvalQuery}>
       {approval ? (

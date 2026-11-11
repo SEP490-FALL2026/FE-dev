@@ -75,7 +75,9 @@ export const financeAreas: readonly FinanceArea[] = [
 
 export const areaTabs = (area: FinanceArea) => area.tabs
 export function financeAreaOf(tab: FinanceTabKey): FinanceArea {
-  return financeAreas.find((area) => area.tabs.some((item) => item.key === tab)) ?? financeAreas[0]
+  // Detail screens belong to the menu area of the list they open from.
+  const menuTab = tab === 'version-history' ? 'budget-negotiation' : tab === 'commitment-release' ? 'commitments' : tab
+  return financeAreas.find((area) => area.tabs.some((item) => item.key === menuTab)) ?? financeAreas[0]
 }
 export function isValidFinanceTab(value: string | null): value is FinanceTabKey {
   return value !== null && (FINANCE_TAB_KEYS as readonly string[]).includes(value)

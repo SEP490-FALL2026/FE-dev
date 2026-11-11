@@ -40,7 +40,7 @@ export function SpendBudgetPanel({ check, years }: { check: BudgetCheck; years: 
         items={years}
         rowKey={(year) => String(year.year)}
         columns={[
-          { key: 'year', label: translate('year'), numeric: true, render: (year) => year.year },
+          { key: 'year', label: translate('year'), numeric: true, align: 'center', render: (year) => year.year },
           { key: 'cost', label: translate('cost'), numeric: true, render: (year) => money(year.cost) },
           { key: 'base', label: translate('baseAmount'), numeric: true, render: (year) => money(year.base) },
           { key: 'reserve', label: translate('reserveAmount'), numeric: true, render: (year) => money(year.reserve) },
