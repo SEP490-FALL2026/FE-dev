@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import type { CreateEmployeeBodyDto, UpdateEmployeeBodyDto } from '~/shared/api/generated/model/employees'
@@ -13,8 +13,12 @@ import { PersonnelForm, value, type PersonnelField } from '../../shared/componen
 import { employmentTypes } from '../enums/employment-type'
 import { EmployeeDirectory } from './employee-directory'
 
-export function EmployeePanel() {
+export function EmployeePanel({
+  onInviteAccount,
+  renderAccountDetail
+}: { onInviteAccount?: () => void; renderAccountDetail?: (id: string, onClose: () => void) => ReactNode } = {}) {
   const { t: translate } = useTranslation('adminPersonnel')
+  const { t: translateAccounts } = useTranslation('adminAccounts')
   const [searchParams] = useSearchParams()
   const employeeId = searchParams.get('employeeId') ?? ''
   const location = useLocation()
@@ -51,9 +55,6 @@ export function EmployeePanel() {
           { name: 'employeeCode', minLength: 3, maxLength: 20, pattern: '[A-Za-z0-9]+(-[A-Za-z0-9]+)*' },
           {
             name: 'departmentCode',
-            minLength: 2,
-            maxLength: 20,
-            pattern: '[A-Za-z0-9]+(-[A-Za-z0-9]+)*',
             optional: true
           }
         ]
@@ -74,18 +75,29 @@ export function EmployeePanel() {
     <section className='space-y-5'>
       {!action && (
         <>
-          <div className='flex flex-wrap gap-3'>
-            <button className={adminPrimaryClass} onClick={() => void navigate('/dashboard/super-admin/personnel/new')}>
-              {translate('createEmployee')}
-            </button>
-            <button
-              className={adminButtonClass}
-              onClick={() => void navigate('/dashboard/super-admin/personnel/correct')}
-            >
-              {translate('updateEmployee')}
-            </button>
-          </div>
+          {!employeeId && (
+            <div className='flex flex-wrap gap-3'>
+              <button
+                className={adminPrimaryClass}
+                onClick={() => void navigate('/dashboard/super-admin/personnel/new')}
+              >
+                {translate('createEmployee')}
+              </button>
+              {onInviteAccount && (
+                <button type='button' className={adminButtonClass} onClick={onInviteAccount}>
+                  {translateAccounts('invite')}
+                </button>
+              )}
+              <button
+                className={adminButtonClass}
+                onClick={() => void navigate('/dashboard/super-admin/personnel/correct')}
+              >
+                {translate('updateEmployee')}
+              </button>
+            </div>
+          )}
           <EmployeeDirectory
+            renderAccountDetail={renderAccountDetail}
             onCorrect={(id) =>
               void navigate(`/dashboard/super-admin/personnel/correct?employeeId=${encodeURIComponent(id)}`)
             }

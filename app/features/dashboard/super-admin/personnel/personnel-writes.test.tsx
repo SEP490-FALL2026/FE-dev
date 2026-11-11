@@ -38,6 +38,19 @@ it('creates a personnel record with only contract fields and keeps the draft whe
         data: { items: [], pagination: { page: 1, pageSize: 20, totalItems: 0, totalPages: 0 } }
       })
     ),
+    http.get('*/api/v1/departments', ({ request }) => {
+      const page = Number(new URL(request.url).searchParams.get('page') ?? 1)
+      return HttpResponse.json({
+        success: true,
+        data: {
+          items:
+            page === 1
+              ? [{ id: 'dep-1', code: 'OPS', name: 'Operations' }]
+              : [{ id: 'dep-2', code: 'ENG', name: 'Engineering' }],
+          pagination: { page, pageSize: 100, totalItems: 2, totalPages: 2 }
+        }
+      })
+    }),
     http.post('*/api/v1/employees', async ({ request }) => {
       received = await request.json()
       return HttpResponse.json({ success: false, error: { code: 'EMPLOYEE.CODE_ALREADY_EXISTS' } }, { status: 409 })
@@ -46,7 +59,9 @@ it('creates a personnel record with only contract fields and keeps the draft whe
   mount(<EmployeePanel />)
   fireEvent.click(screen.getByRole('button', { name: 'Create employee' }))
   fill('Employee code', 'E-020')
-  fill('Department code', 'ENG')
+  const department = await screen.findByRole('combobox', { name: 'Department code' })
+  expect(await screen.findByRole('option', { name: 'ENG · Engineering' })).toBeInTheDocument()
+  fireEvent.change(department, { target: { value: 'ENG' } })
   fill('Full name', 'New Employee')
   fill('Employment type', 'STAFF')
   fill('Hire date', '2026-11-02')
@@ -62,6 +77,54 @@ it('creates a personnel record with only contract fields and keeps the draft whe
   )
   await waitFor(() => expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled())
   expect(screen.getByLabelText('Full name')).toHaveValue('New Employee')
+})
+
+it('keeps creation disabled until departments load and allows retry after an error', async () => {
+  let attempts = 0
+  server.use(
+    http.get('*/api/v1/departments', () => {
+      attempts += 1
+      if (attempts === 1)
+        return HttpResponse.json({ success: false, error: { code: 'SERVICE_UNAVAILABLE' } }, { status: 503 })
+      return HttpResponse.json({
+        success: true,
+        data: { items: [], pagination: { page: 1, pageSize: 100, totalItems: 0, totalPages: 0 } }
+      })
+    })
+  )
+  mount(<EmployeePanel />, '/dashboard/super-admin/personnel/new')
+  expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled()
+  fireEvent.click(await screen.findByRole('button', { name: 'Retry' }))
+  expect(await screen.findByRole('combobox', { name: 'Department code' })).toBeInTheDocument()
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled())
+})
+
+it('allows creating an employee without assigning a department', async () => {
+  let received: unknown
+  server.use(
+    http.get('*/api/v1/departments', () =>
+      HttpResponse.json({
+        success: true,
+        data: {
+          items: [],
+          pagination: { page: 1, pageSize: 100, totalItems: 0, totalPages: 0 }
+        }
+      })
+    ),
+    http.post('*/api/v1/employees', async ({ request }) => {
+      received = await request.json()
+      return HttpResponse.json({ success: false, error: { code: 'EMPLOYEE.CODE_ALREADY_EXISTS' } }, { status: 409 })
+    })
+  )
+  mount(<EmployeePanel />, '/dashboard/super-admin/personnel/new')
+  await screen.findByRole('combobox', { name: 'Department code' })
+  fill('Employee code', 'E-021')
+  fill('Full name', 'Unassigned Employee')
+  fill('Employment type', 'STAFF')
+  fill('Hire date', '2026-11-02')
+  fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+  await waitFor(() => expect(received).toMatchObject({ employeeCode: 'E-021' }))
+  expect(received).not.toHaveProperty('departmentCode')
 })
 
 it('replays an import confirmation with the same idempotency key after an uncertain result', async () => {

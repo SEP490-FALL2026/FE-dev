@@ -9,7 +9,6 @@ import {
   MessageSquare,
   PackageCheck,
   RefreshCw,
-  Scale,
   ShieldCheck,
   UserMinus
 } from 'lucide-react'
@@ -25,10 +24,9 @@ const metrics = [
   { key: 'revocationTasks', icon: ShieldCheck, tab: 'provisioning', params: { scope: 'MINE' } },
   { key: 'saasIssues', icon: MessageSquare, tab: 'saas-issues', params: { scope: 'assigned' } },
   { key: 'offboardingHandovers', icon: UserMinus, tab: 'offboarding', params: { state: 'HANDING_OVER' } },
-  { key: 'licenseKeys', icon: KeyRound, tab: 'dept-catalog', params: {} },
+  { key: 'licenseKeys', icon: KeyRound, tab: 'shared-stock', params: {} },
   { key: 'termsToReview', icon: FileCheck2, tab: 'dept-catalog', params: { view: 'terms' } },
   { key: 'cancellationDeadlines', icon: CalendarClock, tab: 'renewals', params: { view: 'subscriptions' } },
-  { key: 'discrepancies', icon: Scale, tab: 'reconciliation', params: {} },
   { key: 'unconfirmedDevices', icon: Laptop, tab: 'device-collectors', params: {} }
 ] as const
 

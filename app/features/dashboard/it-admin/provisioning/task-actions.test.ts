@@ -14,3 +14,11 @@ it('does not offer withdrawn-task cancellation without confirmed withdrawal cont
 it('offers only cancellation when the request withdrawal has been confirmed', () => {
   expect(taskActions(failed, true)).toEqual(['cancel'])
 })
+it('does not offer a claim before the server allows it', () => {
+  expect(taskActions({ ...failed, kind: 'REVOKE', status: 'QUEUED', claimableNow: false })).not.toContain('claim')
+})
+it('offers key revocation for an in-progress K4 task', () => {
+  expect(
+    taskActions({ ...failed, kind: 'REVOKE', status: 'IN_PROGRESS', plan: { ...failed.plan!, provisioningType: 'K4' } })
+  ).toContain('revocation')
+})

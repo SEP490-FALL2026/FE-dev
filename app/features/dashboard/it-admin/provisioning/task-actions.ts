@@ -11,12 +11,13 @@ export function taskActions(task: TaskResponseDtoDataTask, withdrawalRequested =
   const actions: TaskAction[] = []
   if (
     task.channel === TaskChannel.MANUAL &&
+    task.claimableNow !== false &&
     (task.status === TaskStatus.QUEUED || task.status === TaskStatus.IN_PROGRESS)
   )
     actions.push('claim')
   if (task.channel === TaskChannel.MANUAL && task.status === TaskStatus.IN_PROGRESS) {
     if (task.kind === TaskKind.GRANT) actions.push('complete')
-    else if (['K1', 'K2', 'K5'].includes(task.plan?.provisioningType ?? '')) actions.push('revocation')
+    else if (['K1', 'K2', 'K4', 'K5'].includes(task.plan?.provisioningType ?? '')) actions.push('revocation')
     actions.push('failure')
   }
   if (task.status === TaskStatus.FAILED) {

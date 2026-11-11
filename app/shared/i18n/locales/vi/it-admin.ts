@@ -22,7 +22,45 @@ export const itAdmin = {
     }
   },
   retryIn: 'Thử lại sau {{count}} giây',
+  stock: {
+    title: 'Kho dùng chung',
+    eyebrow: 'Quản lý bản quyền',
+    description:
+      'Xem ghế và khóa dùng chung theo gói. Số liệu ở đây thuộc từng thuê bao; hàng chờ cấp cho biết tồn của cả gói.',
+    seats: 'Kho ghế',
+    keys: 'Kho khóa',
+    seatsHint: 'Theo dõi ghế đã mua và nhập hiện trạng sử dụng ban đầu.',
+    keysHint: 'Nạp và quản lý khóa bản quyền theo thuê bao.',
+    choosePlan: 'Chọn gói phần mềm',
+    choosePlanHint: 'Mở gói để xem thuê bao và thao tác với kho.',
+    select: 'Xem thuê bao',
+    subscriptions: 'Thuê bao',
+    purchased: 'Đã mua',
+    occupied: 'Đang giữ',
+    free: 'Còn trống',
+    openKeys: 'Nạp và quản lý khóa',
+    baseline: 'Nhập hiện trạng ghế ban đầu',
+    baselineDescription:
+      'Nhập tệp CSV các quyền đã được cấp trước khi dùng hệ thống. Các dòng hợp lệ được ghi sau bước xem trước và xác nhận; thao tác này không mua thêm ghế.',
+    csvColumns: 'CSV UTF-8: bắt buộc mã nhân viên và email tài khoản công ty. Tài khoản dịch vụ cần thêm lý do.',
+    downloadTemplate: 'Tải mẫu CSV',
+    purchaseHint:
+      'Cần mua thêm ghế? Khi kho hết, mở yêu cầu đã duyệt trong hàng chờ cấp để ghi nhận mua thêm cùng lúc cấp quyền.',
+    openGrants: 'Mở hàng chờ cấp quyền',
+    keyActionTitle: 'Nạp khóa vào kho',
+    keyActionDescription: 'Chọn thuê bao bên dưới, sau đó nhập một hoặc nhiều khóa, mỗi dòng một khóa.',
+    vaultTitle: 'Khóa của thuê bao',
+    vaultHint: 'Danh sách chỉ hiển thị khóa đã che. Nhập khóa mới để đưa vào kho của thuê bao này.',
+    keyCapacityHint:
+      'Số ghế trống bên dưới là sức chứa thuê bao; số khóa dùng được xem trong kho khóa và có thể thấp hơn.',
+    usableKeys: '{{count}} khóa dùng được',
+    importKeys: 'Nạp khóa mới',
+    status: 'Trạng thái',
+    noSubscriptions: 'Gói này chưa có thuê bao.',
+    back: 'Trở về danh sách gói'
+  },
   navigation: {
+    sharedStock: 'Kho dùng chung',
     transfers: 'Xử lý điều chuyển',
     purchaseDocuments: 'Hợp đồng và chứng từ',
     overview: 'Tổng quan',

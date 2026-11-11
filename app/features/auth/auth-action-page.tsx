@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { useMutation } from '@tanstack/react-query'
-import { ArrowLeft, LoaderCircle } from 'lucide-react'
+import { ArrowLeft, Eye, EyeOff, LoaderCircle } from 'lucide-react'
 import { useEffect, useState, useSyncExternalStore, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, Navigate, useNavigate } from 'react-router'
@@ -63,6 +63,7 @@ export function AuthActionPage({ action }: { action: AuthAction }) {
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [showConfirmation, setShowConfirmation] = useState(false)
   const [validationError, setValidationError] = useState<'mismatch' | 'policy' | null>(null)
   const [retrySeconds, setRetrySeconds] = useState(0)
   const mutation = useMutation({
@@ -254,19 +255,37 @@ export function AuthActionPage({ action }: { action: AuthAction }) {
                   <p id='auth-password-policy' className='text-xs leading-5 text-muted-foreground'>
                     {translate('actions.passwordPolicy')}
                   </p>
-                  <label className='block text-sm font-medium'>
-                    {translate('actions.confirmPassword')}
-                    <input
-                      autoComplete='new-password'
-                      aria-invalid={validationError === 'mismatch' || undefined}
-                      aria-describedby={validationError === 'mismatch' ? 'auth-local-error' : undefined}
-                      className='mt-2 h-11 w-full rounded-lg border border-border bg-background px-3.5 text-base outline-none focus:border-primary'
-                      onChange={(event) => setConfirmPassword(event.target.value)}
-                      required
-                      type='password'
-                      value={confirmPassword}
-                    />
-                  </label>
+                  <div className='block text-sm font-medium'>
+                    <label htmlFor='confirm-password'>{translate('actions.confirmPassword')}</label>
+                    <div className='relative'>
+                      <input
+                        id='confirm-password'
+                        autoComplete='new-password'
+                        aria-invalid={validationError === 'mismatch' || undefined}
+                        aria-describedby={validationError === 'mismatch' ? 'auth-local-error' : undefined}
+                        className='mt-2 h-11 w-full rounded-lg border border-border bg-background pr-12 pl-3.5 text-base outline-none focus:border-primary'
+                        onChange={(event) => setConfirmPassword(event.target.value)}
+                        required
+                        type={showConfirmation ? 'text' : 'password'}
+                        value={confirmPassword}
+                      />
+                      <button
+                        type='button'
+                        aria-label={translate(
+                          showConfirmation ? 'actions.hideConfirmation' : 'actions.showConfirmation'
+                        )}
+                        aria-pressed={showConfirmation}
+                        className='absolute right-1 top-2 grid size-11 place-items-center rounded-md text-muted-foreground hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary'
+                        onClick={() => setShowConfirmation((value) => !value)}
+                      >
+                        {showConfirmation ? (
+                          <EyeOff aria-hidden='true' className='size-5' />
+                        ) : (
+                          <Eye aria-hidden='true' className='size-5' />
+                        )}
+                      </button>
+                    </div>
+                  </div>
                 </>
               )}
               {localError && (

@@ -1,7 +1,7 @@
 export const IT_ADMIN_TAB_KEYS = [
   'overview',
   'provisioning',
-  'reconciliation',
+  'shared-stock',
   'purchase-documents',
   'usage-import',
   'device-collectors',

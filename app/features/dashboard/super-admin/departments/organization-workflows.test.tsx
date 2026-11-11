@@ -21,6 +21,7 @@ const department: NonNullable<DepartmentResponseDtoData> = {
   name: 'Engineering',
   function: null,
   status: 'ACTIVE',
+  effectiveFrom: '2026-01-01',
   costCenter: null,
   itAdmin: null,
   head: { employeeId, employeeCode: 'E2', fullName: 'Dana', since: '2026-10-30' },
@@ -204,6 +205,7 @@ describe('Organization workflows through HTTP', () => {
     mount(<DepartmentForm onClose={onClose} />)
     fireEvent.change(screen.getByLabelText('Department code'), { target: { value: 'ENG' } })
     fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Engineering' } })
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled())
     submit()
     await waitFor(() => expect(screen.getByRole('button', { name: 'Saving…' })).toBeDisabled())
     submit()

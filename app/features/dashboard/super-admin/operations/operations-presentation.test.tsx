@@ -27,7 +27,7 @@ const wait: ControlledWaitListResponseDtoDataItemsItem = {
 const step: CongestionStepsResponseDtoDataItemsItem = {
   requestId,
   stepId,
-  stepKind: 'FINANCE_REVIEW',
+  stepKind: 'IT_ASSESSMENT',
   state: 'PENDING',
   createdAt: '2026-10-25T03:00:00Z',
   dueAt: '2026-10-28T03:00:00Z',
@@ -82,8 +82,8 @@ function useOperationsHandlers(waitItem: unknown = wait, stepItem: unknown = ste
 }
 
 it.each([
-  ['en', 'Spending approval', 'Finance review', 'Created', 'Due'],
-  ['vi', 'Duyệt chi', 'Finance rà soát', 'Ngày tạo', 'Hạn xử lý']
+  ['en', 'Spending approval', 'IT assessment', 'Created', 'Due'],
+  ['vi', 'Duyệt chi', 'Thẩm định công nghệ', 'Ngày tạo', 'Hạn xử lý']
 ] as const)(
   'uses requester and step context without exposing internal IDs in %s',
   async (language, waitKind, stepKind, created, due) => {
@@ -100,7 +100,7 @@ it.each([
     expect(screen.getByText(created)).toBeInTheDocument()
     expect(screen.getByText(due)).toBeInTheDocument()
     for (const id of [requestId, holderId, stepId, departmentId]) expect(container.innerHTML).not.toContain(id)
-    for (const code of ['SPEND_APPROVAL', 'FINANCE_REVIEW', 'NO_SPENDING_APPROVER', 'CONFIGURE_SPENDING_APPROVER'])
+    for (const code of ['SPEND_APPROVAL', 'IT_ASSESSMENT', 'NO_SPENDING_APPROVER', 'CONFIGURE_SPENDING_APPROVER'])
       expect(container.textContent).not.toContain(code)
   }
 )

@@ -2,6 +2,7 @@ import { ItChoiceSelect } from '../../shared/components/it-choice-select'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
+import { useDashboardFormat } from '../../../dashboard-ui'
 import {
   provisioningTaskGet,
   provisioningTaskList,
@@ -34,6 +35,7 @@ export function ItProvisioningView({
   onSelectTab?: (tab: ItAdminTabKey) => void
 }) {
   const { t: translate } = useTranslation('itProvisioning')
+  const { formatDate } = useDashboardFormat()
   const me = useMeGet({ query: { staleTime: 60000 } })
   const authorized = me.data?.data?.roles.includes('IT_ADMIN') === true
   const actorIds = [me.data?.data?.appUserId ?? '', me.data?.data?.employee.id ?? '']
@@ -129,6 +131,11 @@ export function ItProvisioningView({
                   </dd>
                 </div>
               </dl>
+              {task.claimableNow === false && task.notBefore && (
+                <p role='status' className='text-sm text-muted-foreground'>
+                  {translate('claimAvailableOn', { date: formatDate(task.notBefore) })}
+                </p>
+              )}
               {task.steps.length > 0 && (
                 <div>
                   <h3 className='mb-2 font-medium'>{translate('steps')}</h3>

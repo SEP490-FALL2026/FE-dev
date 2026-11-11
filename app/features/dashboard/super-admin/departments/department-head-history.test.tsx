@@ -12,6 +12,7 @@ const department: NonNullable<DepartmentResponseDtoData> = {
   name: 'Engineering',
   function: null,
   status: 'ACTIVE',
+  effectiveFrom: '2026-01-01',
   costCenter: null,
   itAdmin: null,
   head: null,

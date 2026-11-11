@@ -5,6 +5,7 @@ import { getMeGetQueryKey } from '~/shared/api/generated/operations/me/me-get'
 import { setAppLanguage } from '~/shared/i18n/i18n'
 import type { TaskResponseDtoDataTask } from '~/shared/api/generated/model'
 import * as api from '~/shared/api/generated/operations/provisioning-tasks'
+import { useLicenseKeyList } from '~/shared/api/generated/operations/license-keys/license-key-list'
 import { ItProvisioningView } from './views/it-provisioning-view'
 
 vi.mock('~/shared/api/generated/operations/provisioning-tasks', async (original) => ({
@@ -15,6 +16,7 @@ vi.mock('~/shared/api/generated/operations/provisioning-tasks', async (original)
   provisioningTaskComplete: vi.fn(),
   provisioningTaskCompleteRevocation: vi.fn()
 }))
+vi.mock('~/shared/api/generated/operations/license-keys/license-key-list', () => ({ useLicenseKeyList: vi.fn() }))
 const task: TaskResponseDtoDataTask = {
   id: 'task-1',
   kind: 'GRANT',
@@ -34,6 +36,10 @@ const task: TaskResponseDtoDataTask = {
   revocation: null,
   attempts: 1,
   maxAttempts: 3,
+  dueOn: null,
+  notBefore: null,
+  claimableNow: true,
+  purchase: null,
   evidence: null,
   requestId: 'request-1',
   assignmentId: 'assignment-1',
@@ -80,6 +86,11 @@ function setup(authorized = true) {
 beforeEach(async () => {
   vi.clearAllMocks()
   await setAppLanguage('en', false)
+  vi.mocked(useLicenseKeyList).mockReturnValue({
+    isPending: false,
+    isError: false,
+    data: { data: { items: [{ id: 'key-1', masked: '****-1234' }], pagination: { totalItems: 1 } } }
+  } as never)
   vi.mocked(api.provisioningTaskList).mockResolvedValue({
     success: true,
     message: 'TASK.LISTED',
@@ -92,6 +103,65 @@ beforeEach(async () => {
   } as Awaited<ReturnType<typeof api.provisioningTaskGet>>)
 })
 describe('Provisioning API integration', () => {
+  it('explains when a revocation waiting for its grace period can be claimed', async () => {
+    vi.mocked(api.provisioningTaskGet).mockResolvedValue({
+      success: true,
+      message: 'TASK.FOUND',
+      data: { task: { ...task, kind: 'REVOKE', status: 'QUEUED', claimableNow: false, notBefore: '2026-12-15' } }
+    })
+    setup()
+    expect(await screen.findByText(/12\/15\/2026/)).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Claim task' })).not.toBeInTheDocument()
+  })
+  it('requires selecting a masked available key when completing a K4 grant', async () => {
+    vi.mocked(api.provisioningTaskGet).mockResolvedValue({
+      success: true,
+      message: 'TASK.FOUND',
+      data: { task: { ...task, subscriptionId: 'sub-1', plan: { ...task.plan!, provisioningType: 'K4' } } }
+    })
+    vi.mocked(api.provisioningTaskComplete).mockResolvedValue({ success: true, message: 'TASK.COMPLETED', data: null })
+    setup()
+    fireEvent.click(await screen.findByRole('button', { name: 'Complete grant' }))
+    fireEvent.change(screen.getByLabelText('Evidence'), { target: { value: 'Access granted' } })
+    expect(screen.getByRole('button', { name: 'Confirm' })).toBeDisabled()
+    fireEvent.click(screen.getByRole('combobox', { name: 'Available license key' }))
+    fireEvent.click(screen.getByRole('option', { name: '****-1234' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
+    await waitFor(() =>
+      expect(api.provisioningTaskComplete).toHaveBeenCalledWith('task-1', {
+        evidence: 'Access granted',
+        licenseKeyId: 'key-1'
+      })
+    )
+  })
+  it('records key withdrawal with its reason for a K4 revocation', async () => {
+    vi.mocked(api.provisioningTaskGet).mockResolvedValue({
+      success: true,
+      message: 'TASK.FOUND',
+      data: { task: { ...task, kind: 'REVOKE', claimableNow: true, plan: { ...task.plan!, provisioningType: 'K4' } } }
+    })
+    vi.mocked(api.provisioningTaskCompleteRevocation).mockResolvedValue({
+      success: true,
+      message: 'TASK.COMPLETED',
+      data: null
+    })
+    setup()
+    fireEvent.click(await screen.findByRole('button', { name: 'Complete revocation' }))
+    fireEvent.click(screen.getByRole('combobox', { name: 'Key handling' }))
+    fireEvent.click(screen.getByRole('option', { name: 'Withdraw key from stock' }))
+    fireEvent.change(screen.getByLabelText('Evidence'), { target: { value: 'Key deactivated with provider' } })
+    expect(screen.getByRole('button', { name: 'Confirm' })).toBeDisabled()
+    fireEvent.change(screen.getByLabelText('Withdrawal reason'), { target: { value: 'Key compromised' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
+    await waitFor(() =>
+      expect(api.provisioningTaskCompleteRevocation).toHaveBeenCalledWith('task-1', {
+        completion: 'KEY_DEACTIVATED',
+        evidence: 'Key deactivated with provider',
+        keyDisposition: 'WITHDRAW',
+        withdrawalReason: 'Key compromised'
+      })
+    )
+  })
   it('does not fetch or execute provisioning without an effective IT Admin role', () => {
     setup(false)
     expect(screen.getByText('The IT Admin role is required to execute provisioning.')).toBeInTheDocument()

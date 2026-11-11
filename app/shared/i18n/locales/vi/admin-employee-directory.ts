@@ -1,6 +1,8 @@
 export const adminEmployeeDirectory = {
   directory: {
     title: 'Danh bạ toàn công ty',
+    filters: 'Bộ lọc',
+    filtersActive: 'Đang áp dụng bộ lọc',
     search: 'Tìm nhân viên',
     searchPlaceholder: 'Họ tên, mã nhân viên hoặc email công việc',
     placement: 'Tình trạng xếp phòng',
@@ -8,6 +10,7 @@ export const adminEmployeeDirectory = {
     unplaced: 'Chưa xếp phòng',
     placed: 'Đã xếp phòng',
     account: 'Tài khoản đăng nhập',
+    directRole: 'Vai trò trực tiếp',
     hasAccount: 'Đã có tài khoản',
     noAccount: 'Chưa có tài khoản',
     workState: 'Tình trạng làm việc',
@@ -18,6 +21,7 @@ export const adminEmployeeDirectory = {
     department: 'Phòng ban',
     status: 'Tình trạng làm việc',
     details: 'Hồ sơ nhân viên',
+    viewDetails: 'Xem chi tiết',
     correct: 'Sửa thông tin chính thức',
     place: 'Xếp phòng',
     effectiveFrom: 'Có hiệu lực từ',

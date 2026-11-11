@@ -58,7 +58,9 @@ export function CatalogRetirement({
                   type='button'
                   className={itButtonClass}
                   disabled={
-                    !application || retirement.isFetching || retirement.data.data.retirement.status !== 'APPROVED'
+                    !application?.businessOwner ||
+                    retirement.isFetching ||
+                    retirement.data.data.retirement.status !== 'APPROVED'
                   }
                   onClick={() => setOwnerConfirmation(true)}
                 >
@@ -94,7 +96,7 @@ export function CatalogRetirement({
           <p>{translate('retirementHint')}</p>
         </ItFormDialog>
       )}
-      {ownerConfirmation && application && (
+      {ownerConfirmation && application?.businessOwner && (
         <CatalogRetirementConfirmation
           applicationId={id}
           owner={application.businessOwner}

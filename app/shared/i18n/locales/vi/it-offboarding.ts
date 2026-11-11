@@ -1,4 +1,5 @@
 ﻿export const itOffboarding = {
+  unknown: 'Không có thông tin',
   duties: {
     serviceTitle: 'Trách nhiệm tài khoản dịch vụ',
     handoverTitle: 'Việc bàn giao dữ liệu',

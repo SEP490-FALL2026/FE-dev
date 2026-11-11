@@ -53,7 +53,7 @@ it('uses the scoped dashboard and preserves unavailable and at-source metrics', 
   )
   expect(await screen.findByText('101')).toBeInTheDocument()
   expect(screen.getByText('3 departments in your scope')).toBeInTheDocument()
-  expect(screen.getAllByText('Not available')).toHaveLength(2)
+  expect(screen.getAllByText('Not available')).toHaveLength(1)
   expect(screen.getByText('View at source')).toBeInTheDocument()
   expect(screen.getAllByText('0')).toHaveLength(1)
   fireEvent.click(screen.getByRole('button', { name: /Pending grants/ }))

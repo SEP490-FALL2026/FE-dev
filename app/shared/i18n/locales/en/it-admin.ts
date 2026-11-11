@@ -23,6 +23,7 @@ export const itAdmin = {
   },
   retryIn: 'Try again in {{count}} seconds',
   navigation: {
+    sharedStock: 'Shared stock',
     transfers: 'Technical transfers',
     purchaseDocuments: 'Contracts & documents',
     overview: 'Overview',
@@ -42,6 +43,44 @@ export const itAdmin = {
     renewals: 'Renewals'
   },
   title: 'IT operations',
+  stock: {
+    title: 'Shared stock',
+    eyebrow: 'License management',
+    description:
+      'Browse shared seats and license keys by plan. Availability shown here is per subscription; the grant queue shows availability across the plan.',
+    seats: 'Shared seats',
+    keys: 'License keys',
+    seatsHint: 'Track purchased seats and import the initial assignment baseline.',
+    keysHint: 'Import and manage license keys by subscription.',
+    choosePlan: 'Choose a software plan',
+    choosePlanHint: 'Open a plan to view subscriptions and manage its stock.',
+    select: 'View subscriptions',
+    subscriptions: 'Subscriptions',
+    purchased: 'Purchased',
+    occupied: 'Occupied',
+    free: 'Free',
+    openKeys: 'Import and manage keys',
+    baseline: 'Import initial seat baseline',
+    baselineDescription:
+      'Upload a CSV of rights granted before using the system. Valid rows are recorded after preview and confirmation; this does not purchase additional seats.',
+    csvColumns:
+      'UTF-8 CSV: employee code and company account email are required. Service accounts also require a reason.',
+    downloadTemplate: 'Download CSV template',
+    purchaseHint:
+      'Need another seat? When stock is empty, open an approved request in the grant queue to record a purchase with the grant.',
+    openGrants: 'Open grant queue',
+    keyActionTitle: 'Import keys into stock',
+    keyActionDescription: 'Choose a subscription below, then enter one or more keys, one per line.',
+    vaultTitle: 'Subscription keys',
+    vaultHint: 'Keys are masked in the list. Import new keys into this subscription’s stock.',
+    keyCapacityHint:
+      'Free seats below are subscription capacity; usable keys are shown in the key vault and may be fewer.',
+    usableKeys: '{{count}} usable keys',
+    importKeys: 'Import new keys',
+    status: 'Status',
+    noSubscriptions: 'No subscriptions found for this plan.',
+    back: 'Back to plans'
+  },
   selectPlaceholder: 'Choose an option',
   selectedCount: '{{count}} selected',
   selectedList: 'Selected options',

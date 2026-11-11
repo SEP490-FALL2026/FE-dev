@@ -1,6 +1,8 @@
 export const adminEmployeeDirectory = {
   directory: {
     title: 'Company directory',
+    filters: 'Filters',
+    filtersActive: 'Filters are applied',
     search: 'Search employees',
     searchPlaceholder: 'Name, employee code or work email',
     placement: 'Department placement',
@@ -8,6 +10,7 @@ export const adminEmployeeDirectory = {
     unplaced: 'Not yet assigned',
     placed: 'Assigned to a department',
     account: 'Login account',
+    directRole: 'Direct role',
     hasAccount: 'Has an account',
     noAccount: 'No account',
     workState: 'Work state',
@@ -18,6 +21,7 @@ export const adminEmployeeDirectory = {
     department: 'Department',
     status: 'Work state',
     details: 'Employee profile',
+    viewDetails: 'View details',
     correct: 'Correct official fields',
     place: 'Assign department',
     effectiveFrom: 'Effective from',

@@ -190,7 +190,7 @@ export function OffboardingDetails({
                       className='flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border p-4'
                     >
                       <div>
-                        <p>{request.plan?.planName ?? request.requestId}</p>
+                        <p>{request.plan?.planName ?? translate('unknown')}</p>
                         <p className='text-sm text-muted-foreground'>
                           {translate(`states.${request.state}`, { defaultValue: translate('states.UNKNOWN') })}
                         </p>

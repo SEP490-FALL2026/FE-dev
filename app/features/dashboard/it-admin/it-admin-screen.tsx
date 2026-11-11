@@ -13,6 +13,8 @@ import { ItShadowItView } from './shadow-it/views/it-shadow-it-view'
 import { ItUnavailableView } from './shared/components/it-unavailable-view'
 import { ItDevicesView } from './device-collectors/views/it-devices-view'
 import { TaskScope } from './provisioning/enums/task-scope'
+import { ItOptimizationView } from './optimization/it-optimization-view'
+import { ItSharedStockView } from './shared-stock/it-shared-stock-view'
 
 export function ItAdminScreen({
   tab,
@@ -55,6 +57,8 @@ function ItAdminContent({
           onSelectTab={onSelectTab}
         />
       )
+    case 'shared-stock':
+      return <ItSharedStockView onOpenGrants={() => onSelectTab('provisioning', { queue: 'grants' })} />
     case 'dept-catalog':
       return (
         <ItDeptCatalogView
@@ -95,6 +99,8 @@ function ItAdminContent({
       return <ItShadowItView key={itemId ?? tab} initialRequestId={itemId} onSelectTab={onSelectTab} />
     case 'device-collectors':
       return <ItDevicesView key={itemId ?? tab} initialId={itemId} />
+    case 'license-optimization':
+      return <ItOptimizationView />
     default:
       return <ItUnavailableView tab={tab} />
   }

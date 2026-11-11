@@ -1,28 +1,40 @@
-import { useState } from 'react'
-import { Search } from 'lucide-react'
+import { useId, useState, type ReactNode } from 'react'
+import { ListFilter, Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import type { EmployeeListParams } from '~/shared/api/generated/model/employees'
-import { useEmployeeList } from '~/shared/api/generated/operations/employees/employee-list'
+import { AppUserListRole } from '~/shared/api/generated/model/app-users/appUserListRole'
 import { WorkspaceDataTable } from '~/shared/ui/workspace-data-table'
 import { AdminField, adminInputClass, adminButtonClass } from '../../shared/components/admin-form'
 import { AdminEmpty, AdminQueryState } from '../../shared/components/admin-query-state'
 import { AdminPagination } from '../../shared/components/admin-pagination'
-import { DepartmentLookup } from '../../shared/components/department-lookup'
+import { EmployeeDepartmentSelect } from '../../shared/components/employee-department-select'
 import { value } from '../../shared/components/personnel-form'
 import { PersonnelCode } from '../../shared/components/personnel-list'
 import { employeeWorkStates } from '../enums/employee-work-state'
 import { employmentTypes } from '../enums/employment-type'
 import { EmployeeDetail } from './employee-detail'
+import { useEmployeeDirectory } from '../hooks/use-employee-directory'
 
-export function EmployeeDirectory({ onCorrect }: { onCorrect: (employeeId: string) => void }) {
+export function EmployeeDirectory({
+  onCorrect,
+  renderAccountDetail
+}: {
+  onCorrect: (employeeId: string) => void
+  renderAccountDetail?: (id: string, onClose: () => void) => ReactNode
+}) {
   const { t: translate } = useTranslation('adminPersonnel')
+  const { t: translateAccounts } = useTranslation('adminAccounts')
+  const { t: translateAdmin } = useTranslation('admin')
   const [searchParams, setSearchParams] = useSearchParams()
   const employeeId = searchParams.get('employeeId') ?? ''
   const [params, setParams] = useState<EmployeeListParams>({ page: 1, pageSize: 20 })
   const [resetKey, setResetKey] = useState(0)
-  const query = useEmployeeList(params)
-  const filtersActive = Object.keys(params).some((key) => key !== 'page' && key !== 'pageSize')
+  const [filtersOpen, setFiltersOpen] = useState(false)
+  const filterId = useId()
+  const [role, setRole] = useState<AppUserListRole | ''>('')
+  const query = useEmployeeDirectory(params, role)
+  const filtersActive = !!role || Object.keys(params).some((key) => key !== 'page' && key !== 'pageSize')
   const openProfile = (id: string) => {
     setSearchParams((previous) => {
       const next = new URLSearchParams(previous)
@@ -31,12 +43,46 @@ export function EmployeeDirectory({ onCorrect }: { onCorrect: (employeeId: strin
       return next
     })
   }
+  if (employeeId)
+    return (
+      <EmployeeDetail
+        employeeId={employeeId}
+        onClose={() => openProfile('')}
+        onCorrect={onCorrect}
+        renderAccountDetail={renderAccountDetail}
+      />
+    )
   return (
     <section className='space-y-4'>
-      <h2 className='text-base font-semibold'>{translate('directory.title')}</h2>
+      <header className='flex flex-wrap items-center justify-between gap-3'>
+        <h2 className='text-xl font-semibold tracking-tight text-foreground'>{translate('directory.title')}</h2>
+        <button
+          type='button'
+          className={adminButtonClass}
+          aria-expanded={filtersOpen}
+          aria-controls={filterId}
+          aria-describedby={filtersActive ? `${filterId}-active` : undefined}
+          onClick={() => setFiltersOpen((open) => !open)}
+        >
+          <ListFilter aria-hidden className='size-4' strokeWidth={1.5} />
+          {translate('directory.filters')}
+          {filtersActive && <span aria-hidden className='size-2 rounded-full bg-primary' />}
+        </button>
+        {filtersActive && (
+          <span id={`${filterId}-active`} className='sr-only'>
+            {translate('directory.filtersActive')}
+          </span>
+        )}
+      </header>
       <form
         key={resetKey}
-        className='grid items-end gap-3 rounded-lg border border-border bg-surface p-4 sm:grid-cols-2 xl:grid-cols-3'
+        id={filterId}
+        hidden={!filtersOpen}
+        className={
+          filtersOpen
+            ? 'grid items-end gap-3 rounded-lg border border-border bg-surface p-4 sm:grid-cols-2 xl:grid-cols-3'
+            : 'hidden'
+        }
         onSubmit={(event) => {
           event.preventDefault()
           const values = new FormData(event.currentTarget)
@@ -44,6 +90,8 @@ export function EmployeeDirectory({ onCorrect }: { onCorrect: (employeeId: strin
           const hasAccount = value(values, 'hasAccount')
           const workState = employeeWorkStates.find((state) => state === value(values, 'workState'))
           const employmentType = employmentTypes.find((type) => type === value(values, 'employmentType'))
+          const selectedRole = Object.values(AppUserListRole).find((item) => item === value(values, 'role'))
+          setRole(selectedRole ?? '')
           setParams({
             page: 1,
             pageSize: 20,
@@ -64,8 +112,16 @@ export function EmployeeDirectory({ onCorrect }: { onCorrect: (employeeId: strin
             className={adminInputClass}
           />
         </AdminField>
-        <AdminField label={translate('fields.departmentId')}>
-          <DepartmentLookup name='departmentId' required={false} />
+        <EmployeeDepartmentSelect mode='filter' />
+        <AdminField label={translate('directory.directRole')}>
+          <select name='role' className={adminInputClass} defaultValue=''>
+            <option value=''>{translate('directory.all')}</option>
+            {Object.values(AppUserListRole).map((item) => (
+              <option key={item} value={item}>
+                {translateAccounts(`roles.${item}`)}
+              </option>
+            ))}
+          </select>
         </AdminField>
         <AdminField label={translate('directory.placement')}>
           <select name='unplaced' className={adminInputClass} defaultValue=''>
@@ -112,6 +168,7 @@ export function EmployeeDirectory({ onCorrect }: { onCorrect: (employeeId: strin
             disabled={!filtersActive}
             onClick={() => {
               setParams({ page: 1, pageSize: 20 })
+              setRole('')
               setResetKey((key) => key + 1)
             }}
           >
@@ -122,10 +179,12 @@ export function EmployeeDirectory({ onCorrect }: { onCorrect: (employeeId: strin
       <AdminQueryState query={query}>
         <div className='overflow-hidden rounded-lg border border-border bg-surface'>
           <WorkspaceDataTable
-            items={query.data?.data?.items ?? []}
+            items={query.items}
             rowKey={(employee) => employee.id}
             label={translate('directory.title')}
-            actionLabel={translate('directory.details')}
+            actionLabel={translate('directory.viewDetails')}
+            actionHeader={translateAdmin('actions')}
+            onOpen={(employee) => openProfile(employee.id)}
             emptyState={<AdminEmpty />}
             columns={[
               {
@@ -141,19 +200,12 @@ export function EmployeeDirectory({ onCorrect }: { onCorrect: (employeeId: strin
                     >
                       {employee.fullName}
                     </button>
-                    <p
-                      title={employee.workEmail ?? employee.employeeCode}
-                      className='mt-1 max-w-64 truncate text-xs text-muted-foreground'
-                    >
-                      {employee.workEmail ?? employee.employeeCode}
-                    </p>
                   </div>
                 )
               },
               {
                 key: 'code',
                 label: translate('fields.employeeCode'),
-                align: 'right',
                 render: (employee) => <span className='font-mono tabular-nums'>{employee.employeeCode}</span>
               },
               {
@@ -174,20 +226,25 @@ export function EmployeeDirectory({ onCorrect }: { onCorrect: (employeeId: strin
                 render: (employee) => <PersonnelCode code={employee.workState} values={employeeWorkStates} />
               },
               {
-                key: 'account',
-                label: translate('directory.account'),
-                render: (employee) => translate(employee.account ? 'directory.hasAccount' : 'directory.noAccount')
+                key: 'role',
+                label: translate('directory.directRole'),
+                render: (employee) =>
+                  query.byEmployee
+                    .get(employee.id)
+                    ?.roles.map((item) =>
+                      translateAccounts(`roles.${item}`, { defaultValue: translate('directory.unknownRole') })
+                    )
+                    .join(', ') || translate(employee.account ? 'directory.unknownRole' : 'directory.noAccount')
               }
             ]}
           />
         </div>
         <AdminPagination
-          pagination={query.data?.data?.pagination}
+          pagination={query.pagination}
           disabled={query.isFetching}
           onPageChange={(page) => setParams((previous) => ({ ...previous, page }))}
         />
       </AdminQueryState>
-      {employeeId && <EmployeeDetail employeeId={employeeId} onClose={() => openProfile('')} onCorrect={onCorrect} />}
     </section>
   )
 }

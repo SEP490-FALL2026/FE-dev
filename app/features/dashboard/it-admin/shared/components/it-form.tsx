@@ -28,6 +28,8 @@ export function ItField({
       ? (children as ReactElement<{
           id?: string
           type?: string
+          required?: boolean
+          'aria-label'?: string
           placeholder?: string
           'aria-describedby'?: string
           'aria-invalid'?: boolean
@@ -41,10 +43,18 @@ export function ItField({
       (control.type === 'input' && !['date', 'file', 'checkbox', 'radio'].includes(control.props.type ?? 'text')))
   return (
     <div className='grid min-w-0 gap-1.5 text-sm font-medium'>
-      <label htmlFor={controlId}>{label}</label>
+      <label htmlFor={controlId}>
+        {label}
+        {control?.props.required && (
+          <span aria-hidden='true' className='ml-1 text-danger'>
+            *
+          </span>
+        )}
+      </label>
       {control
         ? cloneElement(control, {
             id: controlId,
+            'aria-label': control.props['aria-label'] ?? label,
             ...(supportsPlaceholder && !control.props.placeholder
               ? { placeholder: translate('fieldPlaceholder', { field: label }) }
               : {}),
