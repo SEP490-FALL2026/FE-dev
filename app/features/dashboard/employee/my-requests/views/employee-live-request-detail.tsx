@@ -1,3 +1,5 @@
+import { ACCESS_REQUEST_ROUTING } from '~/entities/request/enums/access-request-routing'
+import { ACCESS_REQUEST_STATE } from '~/entities/request/enums/access-request-state'
 import { useState } from 'react'
 import {
   ArrowLeft,
@@ -36,6 +38,9 @@ import { LiveRequestLines } from '../components/live-request-lines'
 import { LiveRequestTimings } from '../components/live-request-timings'
 import { EmployeeMoney } from '../../shared/components/employee-money'
 import { LiveRequestAssessment } from '../components/live-request-assessment'
+import { RequestFlowSummary } from '~/entities/request/components/request-flow-summary'
+import { RequestEventTimeline } from '~/entities/request/components/request-event-timeline'
+import { RequestRevision } from '~/entities/request/components/request-revision'
 
 export function EmployeeLiveRequestDetail({
   id,
@@ -47,7 +52,8 @@ export function EmployeeLiveRequestDetail({
   onBack: () => void
 }) {
   const { t: translate } = useTranslation('employee')
-  const { formatDateTime, formatNumber } = useDashboardFormat()
+  const { formatDateTime, formatNumber, formatDate } = useDashboardFormat()
+  const { t: flow } = useTranslation('requestFlow')
   const query = useAccessRequestGet(id, { query: { enabled: !!id } })
   const result = !query.isError ? query.data?.data : undefined
   const request = result && 'request' in result ? result.request : undefined
@@ -110,9 +116,7 @@ export function EmployeeLiveRequestDetail({
                     <XCircle strokeWidth={1.5} className='mt-0.5 size-5 shrink-0 text-danger' />
                     <div className='min-w-0 flex-1 space-y-1'>
                       <h3 className='text-sm font-semibold'>{translate('rejectionReason')}</h3>
-                      <p className='text-sm leading-relaxed [overflow-wrap:anywhere]'>
-                        {request.needDecision.reason}
-                      </p>
+                      <p className='text-sm leading-relaxed [overflow-wrap:anywhere]'>{request.needDecision.reason}</p>
                       {request.needStep.assignee && (
                         <p className='text-xs text-muted-foreground'>
                           {translate('currentAssignee')}: {request.needStep.assignee.fullName}
@@ -153,9 +157,9 @@ export function EmployeeLiveRequestDetail({
                   </div>
 
                   <div className='rounded-xl border border-border/60 bg-surface p-3.5'>
-                    <dt className='text-xs font-medium text-muted-foreground'>{translate('term')}</dt>
+                    <dt className='text-xs font-medium text-muted-foreground'>{flow('endDate')}</dt>
                     <dd className='mt-1 font-mono text-base font-semibold tabular-nums text-foreground'>
-                      {request.termMonths ? `${formatNumber(request.termMonths)} tháng` : '—'}
+                      {request.expectedEndDate ? formatDate(request.expectedEndDate) : flow('indefinite')}
                     </dd>
                   </div>
 
@@ -251,6 +255,17 @@ export function EmployeeLiveRequestDetail({
                   </dd>
                 </div>
 
+                <RequestFlowSummary request={request} />
+                {request.routing.mode === ACCESS_REQUEST_ROUTING.ONE_STEP &&
+                  request.state === ACCESS_REQUEST_STATE.AWAITING_REQUESTER_REVISION &&
+                  request.requester.employeeId === employeeId && (
+                    <RequestRevision
+                      departmentId={request.department.id}
+                      id={id}
+                      group={request.type === REQUEST_TYPE.GROUP_GRANT}
+                      maxEndDate={request.expectedEndDate}
+                    />
+                  )}
                 {request.type === REQUEST_TYPE.GROUP_GRANT && (
                   <LiveRequestLines id={id} isRequester={request.requester.employeeId === employeeId} />
                 )}
@@ -266,6 +281,7 @@ export function EmployeeLiveRequestDetail({
             )}
           </EmployeeSection>
           {request?.proposal && <LiveRequestAssessment id={id} />}
+          {request && <RequestEventTimeline id={id} />}
         </div>
 
         {request && (

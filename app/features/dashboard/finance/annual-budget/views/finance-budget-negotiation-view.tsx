@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { parseYearFilter } from '../../shared/finance-validation'
 import { useTranslation } from 'react-i18next'
 import { useBudgetVersionList } from '~/shared/api/generated/operations/budget-versions/budget-version-list'
 import type { BudgetVersionListState } from '~/shared/api/generated/model/budget-versions/budgetVersionListState'
@@ -29,7 +30,7 @@ function VersionList({ onSelectTab }: BudgetViewProps) {
   const query = useBudgetVersionList({
     page,
     pageSize,
-    ...(year ? { year: Number(year) } : {}),
+    ...(parseYearFilter(year) ? { year: parseYearFilter(year) } : {}),
     ...(state ? { state } : {})
   })
   const result = query.data?.data
@@ -59,12 +60,19 @@ function VersionList({ onSelectTab }: BudgetViewProps) {
           onOpen={(version) => onSelectTab?.('budget-negotiation', { id: version.id })}
           columns={[
             { key: 'costCenter', label: translate('fields.costCenter'), render: (version) => version.costCenter.name },
-            { key: 'year', label: translate('fields.year'), numeric: true, render: (version) => version.year },
-            { key: 'number', label: translate('fields.number'), numeric: true, render: (version) => version.number },
             {
-              key: 'kind',
-              label: translate('fields.kind'),
-              render: (version) => translate(`kinds.${version.kind}`, { defaultValue: translate('unknown') })
+              key: 'year',
+              label: translate('fields.year'),
+              numeric: true,
+              align: 'center',
+              render: (version) => version.year
+            },
+            {
+              key: 'number',
+              label: translate('fields.number'),
+              numeric: true,
+              align: 'center',
+              render: (version) => version.number
             },
             {
               key: 'state',

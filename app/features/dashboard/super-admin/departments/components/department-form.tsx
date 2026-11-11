@@ -8,7 +8,7 @@ import {
 } from '~/shared/api/generated/operations/departments'
 import { AdminField, AdminFormDialog, adminInputClass } from '../../shared/components/admin-form'
 import { useAdminMutationFeedback } from '../../shared/hooks/use-admin-mutation-feedback'
-import { EmployeePicker } from './employee-picker'
+import { DepartmentItAdminSelect } from './department-it-admin-select'
 import { organizationSummaryQueryKeys } from '../hooks/organization-query-keys'
 import { useDepartmentEditor, type HeadChange } from '../hooks/use-department-editor'
 import { DepartmentHeadPicker } from './department-head-picker'
@@ -31,6 +31,7 @@ export function DepartmentForm({
 }) {
   const { t: translate } = useTranslation('adminOrganization')
   const [headChange, setHeadChange] = useState<HeadChange>('keep')
+  const [itAdminReady, setItAdminReady] = useState(false)
   const [effectiveFrom, setEffectiveFrom] = useState(calendarToday)
   const minimumDate = calendarToday()
   const editor = useDepartmentEditor(department, onClose)
@@ -51,7 +52,7 @@ export function DepartmentForm({
       title={translate(department ? 'editDepartment' : 'createDepartment')}
       onClose={onClose}
       pending={create.isPending || editor.pending}
-      submitDisabled={editor.reviewRequired && (!editor.reviewed || !editor.latest)}
+      submitDisabled={(!department && !itAdminReady) || (editor.reviewRequired && (!editor.reviewed || !editor.latest))}
       onSubmit={(event) => {
         event.preventDefault()
         if (create.isPending || editor.pending) return
@@ -116,10 +117,8 @@ export function DepartmentForm({
             aria-describedby={editor.invalidFields.has('function') ? errorId : undefined}
           />
         </AdminField>
-        <EmployeePicker
-          name='itAdminEmployeeId'
-          itAdmin
-          optional
+        <DepartmentItAdminSelect
+          onReadyChange={setItAdminReady}
           invalid={error?.code === 'DEPARTMENT.IT_ADMIN_INVALID' || editor.invalidFields.has('itAdminEmployeeId')}
           descriptionId={
             error?.code === 'DEPARTMENT.IT_ADMIN_INVALID' || editor.invalidFields.has('itAdminEmployeeId')

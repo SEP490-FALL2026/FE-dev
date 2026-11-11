@@ -19,6 +19,7 @@ beforeEach(async () => {
             {
               requestId: 'request-1',
               type: 'PERSONAL',
+              stock: { kind: 'NONE', free: 0, inRevocation: 0 },
               expectedEndDate: '2026-12-01',
               beneficiary: { employeeId: 'employee-1', fullName: 'Employee' },
               plan: { planId: 'plan-1', applicationName: 'Workspace', planName: 'Business' }

@@ -6,6 +6,7 @@ import { apiClient } from '~/shared/api/axios-client'
 import { i18n, setAppLanguage } from '~/shared/i18n/i18n'
 import { approvalsBudget } from '~/shared/i18n/locales/en/approvals-budget'
 import { ApprovalAnnualBudgetView } from './views/approval-annual-budget-view'
+import { ApprovalVersionHistoryView } from './views/approval-version-history-view'
 
 const money = { amount: '9007199254740993.25', currency: 'USD' }
 const center = { id: 'center-1', code: 'ENG', name: 'Engineering API' }
@@ -199,11 +200,22 @@ describe('Spending Approver annual budget API', () => {
     apiClient.defaults.adapter = previousAdapter
   })
 
+  const selectTab = vi.fn()
+
+  function mountHistory(itemId: string) {
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })
+    render(
+      <QueryClientProvider client={client}>
+        <ApprovalVersionHistoryView itemId={itemId} onSelectTab={selectTab} />
+      </QueryClientProvider>
+    )
+  }
+
   function mount(itemId?: string) {
     const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })
     render(
       <QueryClientProvider client={client}>
-        <ApprovalAnnualBudgetView itemId={itemId} onSelectTab={vi.fn()} />
+        <ApprovalAnnualBudgetView itemId={itemId} onSelectTab={selectTab} />
       </QueryClientProvider>
     )
     return client
@@ -311,11 +323,23 @@ describe('Spending Approver annual budget API', () => {
     fireEvent.click(within(lines).getByRole('button', { name: /next/i }))
     expect((await within(lines).findAllByText('Second API line page')).length).toBeGreaterThan(0)
     expect(requests.some((request) => request.url?.endsWith('/lines') && request.params?.page === 2)).toBe(true)
-    fireEvent.click(screen.getByRole('button', { name: 'Version history' }))
+  })
+
+  it('opens the version history on its own screen', async () => {
+    mount('version-1')
+    fireEvent.click(await screen.findByRole('button', { name: 'Version history' }))
+    expect(selectTab).toHaveBeenCalledWith('version-history', { id: 'version-1' })
+    expect(screen.queryByRole('region', { name: 'Version history' })).not.toBeInTheDocument()
+  })
+
+  it('shows the audit change details on the history screen', async () => {
+    mountHistory('version-1')
     const history = await screen.findByRole('region', { name: 'Version history' })
     expect((await within(history).findAllByText('Finance actor API')).length).toBeGreaterThan(0)
     expect(within(history).getAllByText('Budget figures updated').length).toBeGreaterThan(0)
     expect(within(history).getAllByText('Before: $100.00').length).toBeGreaterThan(0)
+    fireEvent.click(screen.getByRole('button', { name: 'Back to budget version' }))
+    expect(selectTab).toHaveBeenCalledWith('annual-budget', { id: 'version-1' })
   })
 
   it('reads department proposals without offering a decision action', async () => {

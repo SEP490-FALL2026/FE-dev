@@ -1,4 +1,3 @@
-import { AlertTriangle } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useCostCenterList } from '~/shared/api/generated/operations/cost-centers'
@@ -15,15 +14,17 @@ import {
 import { FinanceTable } from '../../shared/components/finance-table'
 import { formatMoney } from '../../shared/finance-money'
 import { useFinanceCommitments } from '../hooks/use-finance-commitments'
-import { InvoiceRecordDialog } from '../components/invoice-record-dialog'
-import { CommitmentInvoicesDrawer } from '../components/commitment-invoices-drawer'
-import { CommitmentReleaseDialog } from '../components/commitment-release-dialog'
+import type { FinanceTabKey } from '../../enums'
 import { CommitmentRowActions } from '../components/commitment-row-actions'
 import type { ExtendedCommitmentItem } from '../../shared/finance-api-extensions'
 
 const validYear = (value: string) => /^\d{4}$/.test(value) && Number(value) >= 2000 && Number(value) <= 2200
 
-export function FinanceCommitmentsView() {
+export function FinanceCommitmentsView({
+  onSelectTab
+}: {
+  onSelectTab?: (tab: FinanceTabKey, extraParams?: Record<string, string>) => void
+}) {
   const { t: translate, i18n } = useTranslation('financeSettings')
   const { t: translateFinance } = useTranslation('finance')
 
@@ -31,11 +32,6 @@ export function FinanceCommitmentsView() {
   const [costCenterId, setCostCenterId] = useState<string>('')
   const [state, setState] = useState<'HELD' | 'RELEASED' | 'EXPENSED' | ''>('HELD')
   const [year, setYear] = useState<string>(String(new Date().getFullYear()))
-
-  // Modals state
-  const [recordingCommitment, setRecordingCommitment] = useState<ExtendedCommitmentItem | null>(null)
-  const [viewingCommitment, setViewingCommitment] = useState<ExtendedCommitmentItem | null>(null)
-  const [releasingCommitment, setReleasingCommitment] = useState<ExtendedCommitmentItem | null>(null)
 
   const costCenters = useCostCenterList({ pageSize: 100 })
 
@@ -53,12 +49,7 @@ export function FinanceCommitmentsView() {
   const pagination = query.data?.pagination
 
   return (
-    <FinancePage
-      title={translateFinance('commitments')}
-      description={translateFinance('commitmentsDescription', {
-        defaultValue: 'Quản lý các khoản cam kết chi tiêu của từng phòng ban và ghi nhận hóa đơn chứng từ thực tế.'
-      })}
-    >
+    <FinancePage title={translateFinance('commitments')} description={translateFinance('commitmentsDescription')}>
       <FinanceToolbar>
         <div className='sm:w-64'>
           <FinanceField label={translate('costCenters')}>
@@ -148,12 +139,6 @@ export function FinanceCommitmentsView() {
                   {item.request?.plan?.name && (
                     <div className='text-xs text-muted-foreground'>{item.request.plan.name}</div>
                   )}
-                  {item.hasDiscrepancy && (
-                    <span className='inline-flex items-center gap-1 rounded bg-danger/10 px-1.5 py-0.5 text-[10px] font-semibold text-danger'>
-                      <AlertTriangle className='size-3' />
-                      {translateFinance('discrepancyBadge')}
-                    </span>
-                  )}
                 </div>
               )
             },
@@ -188,23 +173,6 @@ export function FinanceCommitmentsView() {
               )
             },
             {
-              key: 'invoiced',
-              label: translateFinance('invoiced'),
-              numeric: true,
-              render: (item) => (
-                <div className='text-right'>
-                  <div className='font-mono font-semibold text-foreground'>
-                    {item.invoiced ? formatMoney(item.invoiced, i18n.language) : '—'}
-                  </div>
-                  {(item.invoiceCount ?? 0) > 0 && (
-                    <div className='text-[11px] text-muted-foreground'>
-                      {item.invoiceCount} {translateFinance('invoiceCount').toLowerCase()}
-                    </div>
-                  )}
-                </div>
-              )
-            },
-            {
               key: 'state',
               label: translate('status'),
               render: (item) => <FinanceStatus value={item.state} />
@@ -216,9 +184,7 @@ export function FinanceCommitmentsView() {
               render: (item) => (
                 <CommitmentRowActions
                   commitment={item}
-                  onRecordInvoice={() => setRecordingCommitment(item)}
-                  onViewInvoices={() => setViewingCommitment(item)}
-                  onRelease={() => setReleasingCommitment(item)}
+                  onRelease={() => onSelectTab?.('commitment-release', { id: item.id, request: item.requestId })}
                 />
               )
             }
@@ -226,21 +192,6 @@ export function FinanceCommitmentsView() {
         />
         <FinancePagination pagination={pagination} onPageChange={setPage} />
       </FinanceQueryState>
-
-      {/* Dialog Ghi hóa đơn */}
-      {recordingCommitment && (
-        <InvoiceRecordDialog commitment={recordingCommitment} onClose={() => setRecordingCommitment(null)} />
-      )}
-
-      {/* Drawer Xem danh sách hóa đơn */}
-      {viewingCommitment && (
-        <CommitmentInvoicesDrawer commitment={viewingCommitment} onClose={() => setViewingCommitment(null)} />
-      )}
-
-      {/* Dialog Giải phóng phần dư */}
-      {releasingCommitment && (
-        <CommitmentReleaseDialog commitment={releasingCommitment} onClose={() => setReleasingCommitment(null)} />
-      )}
     </FinancePage>
   )
 }

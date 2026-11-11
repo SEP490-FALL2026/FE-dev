@@ -14,7 +14,7 @@ import { ManagerLiveCreate } from './views/manager-live-create'
 
 const checked = vi.fn()
 const submitted = vi.fn()
-let maxMonths = 12
+let maxEndDate = '2027-10-31'
 const server = setupServer(
   ...managerCatalogHandlers,
   ...managerReadHandlers,
@@ -33,8 +33,8 @@ const server = setupServer(
       success: true,
       data: {
         ...groupCheck,
-        termLimit: { maxMonths, endsBy: null },
-        termBeyondLimit: body.termMonths > maxMonths,
+        maxEndDate,
+        endDateOutOfRange: !!body.expectedEndDate && body.expectedEndDate > maxEndDate,
         tooFewLines: body.lines.length < 2 ? { min: 2 } : null,
         lines: body.lines.map((line) => ({
           employeeId: line.employeeId,
@@ -53,7 +53,7 @@ beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 afterAll(() => server.close())
 afterEach(() => server.resetHandlers())
 beforeEach(async () => {
-  maxMonths = 12
+  maxEndDate = '2027-10-31'
   checked.mockClear()
   submitted.mockClear()
   await setAppLanguage('en', false)
@@ -68,7 +68,7 @@ async function mount() {
   )
   await chooseCatalogPlan()
   await screen.findByText('Sharing not allowed')
-  fireEvent.change(screen.getByLabelText('Term (months)'), { target: { value: '3' } })
+  fireEvent.change(screen.getByLabelText('Expected end date'), { target: { value: '2027-01-31' } })
   fireEvent.click(screen.getByRole('combobox', { name: 'Beneficiaries' }))
   fireEvent.click(await screen.findByRole('option', { name: /alex@example.test/ }))
   fireEvent.click(screen.getByRole('option', { name: /robin@example.test/ }))
@@ -87,26 +87,27 @@ it('checks and submits the same strict group body without removed fields', async
   expect(screen.queryByLabelText('Access end date (if applicable)')).not.toBeInTheDocument()
   fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
   await confirm()
-  const body = { planId, businessReason: 'Design work', termMonths: 3, lines: [{ employeeId }, { employeeId: planId }] }
+  const body = {
+    planId,
+    businessReason: 'Design work',
+    expectedEndDate: '2027-01-31',
+    lines: [{ employeeId }, { employeeId: planId }]
+  }
   expect(checked).toHaveBeenCalledWith(body)
   expect(submitted).toHaveBeenCalledWith(body)
 })
-it('requires at least two people and refuses terms over twelve months', async () => {
+it('requires at least two people', async () => {
   await mount()
-  fireEvent.change(screen.getByLabelText('Term (months)'), { target: { value: '13' } })
-  fireEvent.submit(screen.getByRole('button', { name: 'Submit' }).closest('form')!)
-  expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-  expect(submitted).not.toHaveBeenCalled()
-  fireEvent.change(screen.getByLabelText('Term (months)'), { target: { value: '3' } })
+  fireEvent.change(screen.getByLabelText('Expected end date'), { target: { value: '2027-01-31' } })
   fireEvent.click(screen.getByRole('button', { name: 'Remove Robin' }))
   expect(screen.getByRole('button', { name: 'Submit' })).toBeDisabled()
 })
-it('blocks confirmation when the backend term limit is lower than the entered term', async () => {
-  maxMonths = 2
+it('blocks confirmation when the date exceeds the backend limit', async () => {
+  maxEndDate = '2027-01-01'
   await mount()
   fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
   const dialog = await screen.findByRole('dialog')
-  await within(dialog).findAllByText('Maximum term: 2 months')
+  await within(dialog).findAllByText('Latest allowed date: 2027-01-01')
   expect(within(dialog).getByRole('button', { name: 'Confirm' })).toBeDisabled()
   expect(submitted).not.toHaveBeenCalled()
 })

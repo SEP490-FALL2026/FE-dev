@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { parseYearFilter } from '../../shared/finance-validation'
 import { useTranslation } from 'react-i18next'
 import { useBudgetProposalList } from '~/shared/api/generated/operations/budget-proposals/budget-proposal-list'
 import type { BudgetProposalListState } from '~/shared/api/generated/model/budget-proposals/budgetProposalListState'
@@ -23,7 +24,7 @@ function ProposalList({ onSelectTab }: BudgetViewProps) {
   const query = useBudgetProposalList({
     page,
     pageSize,
-    ...(year ? { year: Number(year) } : {}),
+    ...(parseYearFilter(year) ? { year: parseYearFilter(year) } : {}),
     ...(state ? { state } : {})
   })
   const result = query.data?.data
@@ -50,7 +51,13 @@ function ProposalList({ onSelectTab }: BudgetViewProps) {
               label: translate('fields.costCenter'),
               render: (proposal) => proposal.costCenter.name
             },
-            { key: 'year', label: translate('fields.year'), numeric: true, render: (proposal) => proposal.year },
+            {
+              key: 'year',
+              label: translate('fields.year'),
+              numeric: true,
+              align: 'center',
+              render: (proposal) => proposal.year
+            },
             {
               key: 'state',
               label: translate('fields.state'),

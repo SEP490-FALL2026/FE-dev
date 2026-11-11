@@ -17,9 +17,11 @@ import { useEmployeePage } from '../../shared/hooks/use-employee-page'
 import { REQUEST_LIST_STATE } from '../enums/request-list-state'
 import { REQUEST_LIST_TYPE } from '../enums/request-list-type'
 import { REQUEST_LIST_VIEW } from '../enums/request-list-view'
+import { MeAccessRequestListInvolvement } from '~/shared/api/generated/model/me/meAccessRequestListInvolvement'
 
 export function EmployeeSubmittedRequests({ onOpen }: { onOpen: (id: string) => void }) {
   const { t: translate } = useTranslation('employee')
+  const { t: flow } = useTranslation('requestFlow')
   const { formatDateTime } = useDashboardFormat()
   const [params, setParams] = useSearchParams()
   const paging = useEmployeePage()
@@ -27,6 +29,9 @@ export function EmployeeSubmittedRequests({ onOpen }: { onOpen: (id: string) => 
   const type = Object.values(REQUEST_LIST_TYPE).find((value) => value === params.get('requestType'))
   const view = Object.values(REQUEST_LIST_VIEW).find((value) => value === params.get('requestView'))
   const requestsQuery = useMeAccessRequestList({
+    involvement:
+      Object.values(MeAccessRequestListInvolvement).find((value) => value === params.get('involvement')) ??
+      MeAccessRequestListInvolvement.ALL,
     page: paging.page,
     pageSize: paging.pageSize,
     ...(state ? { state } : {}),
@@ -55,6 +60,19 @@ export function EmployeeSubmittedRequests({ onOpen }: { onOpen: (id: string) => 
         )
       }
     >
+      <nav className='flex flex-wrap gap-2' aria-label={flow('involvement')}>
+        {Object.values(MeAccessRequestListInvolvement).map((value) => (
+          <button
+            key={value}
+            type='button'
+            className='min-h-11 rounded-md border border-border px-3 text-sm aria-pressed:bg-primary-soft aria-pressed:text-primary-ink'
+            aria-pressed={(params.get('involvement') ?? 'ALL') === value}
+            onClick={() => updateFilter('involvement', value)}
+          >
+            {flow(value)}
+          </button>
+        ))}
+      </nav>
       <div
         role='group'
         aria-label={translate('requestList.filters')}
@@ -180,7 +198,17 @@ export function EmployeeSubmittedRequests({ onOpen }: { onOpen: (id: string) => 
           {
             key: 'state',
             label: translate('requestList.state'),
-            render: (item) => <EmployeeStatus value={item.state} />
+            render: (item) => (
+              <div className='space-y-1'>
+                <EmployeeStatus value={item.myLine?.state ?? item.state} />
+                <p className='text-xs text-muted-foreground'>{flow(item.involvement)}</p>
+                {item.myLine?.outcomeReason && (
+                  <p className='max-w-60 text-xs whitespace-pre-wrap [overflow-wrap:anywhere]'>
+                    {item.myLine.outcomeReason}
+                  </p>
+                )}
+              </div>
+            )
           },
           {
             key: 'submitted',

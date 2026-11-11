@@ -245,6 +245,7 @@ export const employee = {
     emptyEnded: 'No ended software access',
     emptyHint: 'Software rights granted to your account will appear here.',
     statuses: {
+      AWAITING_REQUESTER_REVISION: 'Awaiting requester revision',
       UPCOMING: 'Upcoming',
       PROVISIONING: 'Provisioning',
       ACTIVE: 'Active',
@@ -389,6 +390,11 @@ export const employee = {
     reopenExpired: 'The issue reopening window has expired.'
   },
   eligibility: {
+    HEAD_IN_GROUP: 'The department head cannot be a beneficiary of this group',
+    SPENDING_APPROVER: 'The spending approver cannot be a beneficiary',
+    TERM_REQUIRED: 'An access end date is required',
+    OPEN_LIMIT_REACHED: 'This person has reached the open request limit',
+    MANY_PAID_SOFTWARE_REASON_REQUIRED: 'Explain why this person needs multiple paid applications',
     KIND_NOT_MULTI_SEAT: 'This plan does not support multiple seats',
     NOT_PAID_SOFTWARE: 'Group requests require paid software',
     OUTSIDE_DEPARTMENT: 'Outside your department',
@@ -401,6 +407,7 @@ export const employee = {
     DUPLICATE_LINE: 'Beneficiary selected more than once'
   },
   statuses: {
+    AWAITING_REQUESTER_REVISION: 'Awaiting requester revision',
     HANDING_OVER: 'Handing over',
     LEFT: 'Left',
     SPEND_SUBMISSION: 'Spending request submission',

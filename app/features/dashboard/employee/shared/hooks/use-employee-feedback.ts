@@ -4,11 +4,13 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { getMeGetQueryOptions } from '~/shared/api/generated/operations/me/me-get'
 import { getEmployeeError } from './employee-errors'
+import { requestContractErrorKey } from '~/entities/request/request-contract-errors'
 
 /** Mutation feedback only; each slice owns its generated operations and invalidation scope. */
 export function useEmployeeFeedback(queryKeys: readonly QueryKey[]) {
   const queryClient = useQueryClient()
   const { t: translate } = useTranslation('employee')
+  const { t: flow } = useTranslation('requestFlow')
   const [retrySeconds, setRetrySeconds] = useState(0)
   const [unknownOutcome, setUnknownOutcome] = useState(false)
   const [invalidFields, setInvalidFields] = useState<string[]>([])
@@ -36,7 +38,8 @@ export function useEmployeeFeedback(queryKeys: readonly QueryKey[]) {
       await queryClient
         .fetchQuery({ ...getMeGetQueryOptions(), staleTime: 0, retry: false, networkMode: 'always' })
         .catch(() => undefined)
-    toast.error(translate(`errors.${key}`), {
+    const contractKey = requestContractErrorKey(error)
+    toast.error(contractKey ? flow(contractKey) : translate(`errors.${key}`), {
       id: 'employee-write',
       description: failure.requestId ? translate('requestId', { id: failure.requestId }) : undefined
     })

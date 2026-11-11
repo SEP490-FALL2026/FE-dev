@@ -27,6 +27,23 @@ describe('auth action pages', () => {
     window.history.replaceState(null, '', '/')
   })
 
+  it('lets an invited user reveal and hide the confirmation password', () => {
+    window.history.replaceState(null, '', '/activate-account#token=invitation')
+    render(
+      <MemoryRouter>
+        <AppProviders>
+          <AuthActionPage action='activate' />
+        </AppProviders>
+      </MemoryRouter>
+    )
+    const confirmation = screen.getByLabelText('Xác nhận mật khẩu mới')
+    expect(confirmation).toHaveAttribute('type', 'password')
+    fireEvent.click(screen.getByRole('button', { name: 'Hiện mật khẩu xác nhận' }))
+    expect(confirmation).toHaveAttribute('type', 'text')
+    fireEvent.click(screen.getByRole('button', { name: 'Ẩn mật khẩu xác nhận' }))
+    expect(confirmation).toHaveAttribute('type', 'password')
+  })
+
   it('requests a reset without revealing whether the email exists', async () => {
     const requests: string[] = []
     apiClient.defaults.adapter = async (config) => {

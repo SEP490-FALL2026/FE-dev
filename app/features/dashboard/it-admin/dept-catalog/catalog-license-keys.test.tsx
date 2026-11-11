@@ -10,6 +10,17 @@ beforeEach(async () => {
   vi.resetAllMocks()
   await setAppLanguage('en', false)
 })
+it('marks the keys input as required for importing into the vault', async () => {
+  request.mockResolvedValue({ data: { items: [], pagination: { totalItems: 0 }, summary: {} } })
+  render(
+    <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+      <CatalogKeyVault subscriptionId='sub-1' />
+    </QueryClientProvider>
+  )
+  const input = await screen.findByRole('textbox')
+  expect(input).toBeRequired()
+  expect(input.closest('div')?.querySelector('label')).toHaveTextContent('*')
+})
 it('loads masked keys and only reveals explicitly without putting the secret in query or mutation data', async () => {
   request.mockImplementation(async (config) =>
     config.url?.endsWith('/reveal')

@@ -17,8 +17,10 @@ import { ItField, ItFormDialog, itInputClass, itButtonClass } from '../../shared
 import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
 import { CatalogKeyStatus } from '../enums/license-key-status'
 import { ItPendingIcon } from '../../shared/components/it-pending-icon'
+import { useDashboardFormat } from '../../../dashboard-ui'
 export function CatalogLicenseKeys({ planId, onBack }: { planId: string; onBack?: () => void }) {
   const { t: translate } = useTranslation('itCatalog')
+  const { formatDate } = useDashboardFormat()
   const [page, setPage] = useState(1)
   const [selected, setSelected] = useState('')
   const query = useSubscriptionList({ planId, page, pageSize: 20 })
@@ -55,7 +57,12 @@ export function CatalogLicenseKeys({ planId, onBack }: { planId: string; onBack?
                 checked={selected === subscription.id}
                 onChange={() => setSelected(subscription.id)}
               />
-              {subscription.planName} · {subscription.id}
+              {subscription.planName}
+              {subscription.startDate && subscription.endDate && (
+                <span className='text-xs text-muted-foreground'>
+                  {formatDate(subscription.startDate)} – {formatDate(subscription.endDate)}
+                </span>
+              )}
             </label>
           ))}
           {query.data?.data?.items.length === 0 && <ItEmpty />}
@@ -145,8 +152,22 @@ export function CatalogKeyVault({ subscriptionId }: { subscriptionId: string }) 
   const invalid = keys.length === 0 || keys.length > 1000 || keys.some((value) => value.length > 512)
   return (
     <div className='space-y-4'>
+      <div className='flex flex-wrap items-start justify-between gap-4 border-b border-border pb-4'>
+        <div>
+          <h2 className='font-semibold'>{common('stock.vaultTitle')}</h2>
+          <p className='mt-1 text-sm text-muted-foreground'>{common('stock.vaultHint')}</p>
+        </div>
+        <a className={itButtonClass} href='#import-license-keys'>
+          {common('stock.importKeys')}
+        </a>
+      </div>
       <p className='text-sm text-muted-foreground'>{translate('keys.revealHint')}</p>
       <ItQueryState query={query}>
+        {query.data?.data?.summary && typeof query.data.data.summary.usableKeys === 'number' && (
+          <p className='text-sm text-muted-foreground'>
+            {common('stock.usableKeys', { count: query.data.data.summary.usableKeys })}
+          </p>
+        )}
         <div className='space-y-3'>
           {query.data?.data?.items.map((key) => (
             <article
@@ -195,14 +216,17 @@ export function CatalogKeyVault({ subscriptionId }: { subscriptionId: string }) 
         disabled={reveal.isPending}
       />
       <form
+        id='import-license-keys'
         className='space-y-3'
         onSubmit={(event) => {
           event.preventDefault()
           if (!invalid && !imported.isPending && !retrySeconds) imported.mutate()
         }}
       >
+        <h2 className='text-lg font-semibold'>{common('stock.importKeys')}</h2>
         <ItField label={translate('keys.lines')} hint={translate('keys.limit')}>
           <textarea
+            required
             autoComplete='off'
             spellCheck={false}
             placeholder={translate('placeholders.keys')}
@@ -212,7 +236,6 @@ export function CatalogKeyVault({ subscriptionId }: { subscriptionId: string }) 
             onChange={(event) => setText(event.target.value)}
           />
         </ItField>
-        <p className='text-xs text-muted-foreground'>{translate('keys.limit')}</p>
         <button
           className={itButtonClass}
           disabled={invalid || imported.isPending || retrySeconds > 0 || query.isError}

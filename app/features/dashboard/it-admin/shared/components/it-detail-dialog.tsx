@@ -74,7 +74,7 @@ export function ItDetailDialog({
             <X aria-hidden className='size-5' strokeWidth={1.5} />
           </button>
         </header>
-        <div className='min-h-0 flex-1 overflow-y-auto overscroll-contain p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]'>
+        <div className='min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain break-words p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]'>
           {children}
         </div>
       </div>

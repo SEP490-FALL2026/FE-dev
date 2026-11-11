@@ -117,7 +117,7 @@ describe('Employee group request dropdowns', () => {
     expect(await screen.findByRole('button', { name: 'Submit request' })).toBeEnabled()
     expect(checked).toHaveBeenCalledWith({
       planId,
-      termMonths: 1,
+
       businessReason: 'Team development',
       lines: [{ employeeId }, { employeeId: requestId }]
     })

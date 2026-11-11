@@ -17,6 +17,7 @@ export function WorkspaceDataTable<T>({
   onOpen,
   label,
   actionLabel,
+  actionHeader,
   renderAction,
   emptyState
 }: {
@@ -26,6 +27,7 @@ export function WorkspaceDataTable<T>({
   onOpen?: (item: T) => void
   label: string
   actionLabel: string
+  actionHeader?: string
   renderAction?: (item: T) => ReactNode
   emptyState?: ReactNode
 }) {
@@ -40,8 +42,8 @@ export function WorkspaceDataTable<T>({
             </th>
           ))}
           {(onOpen || renderAction) && (
-            <th scope='col' className='text-right'>
-              <span className='sr-only'>{actionLabel}</span>
+            <th scope='col' className='workspace-action-header text-right'>
+              {actionHeader ?? <span className='sr-only'>{actionLabel}</span>}
             </th>
           )}
         </tr>

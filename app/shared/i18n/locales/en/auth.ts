@@ -83,6 +83,8 @@ export const auth = {
     currentPassword: 'Current password',
     newPassword: 'New password',
     confirmPassword: 'Confirm new password',
+    showConfirmation: 'Show confirmation password',
+    hideConfirmation: 'Hide confirmation password',
     passwordMismatch: 'Passwords do not match.',
     passwordPolicy: 'Your new password must be 12 to 128 characters and differ from your sign-in email.',
     invalidLink: 'This link is invalid or has expired.',

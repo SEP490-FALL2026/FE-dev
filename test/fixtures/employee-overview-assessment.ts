@@ -50,10 +50,7 @@ export const requestAssessment: AssessmentResponseDtoDataAssessment = {
     unitPrice: pricing.amount,
     billingCycle: 'ANNUAL',
     validFrom: '2026-11-01',
-    validUntil: null,
-    commitmentMonths: 12,
-    paymentFrequency: 'UPFRONT_ONCE',
-    firstPaymentOn: null
+    validUntil: null
   },
   complete: true,
   pricing,

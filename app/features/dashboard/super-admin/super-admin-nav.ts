@@ -1,14 +1,4 @@
-import {
-  Activity,
-  ArrowRightLeft,
-  BellRing,
-  Building2,
-  FileClock,
-  Grid2X2,
-  Settings,
-  UserCheck,
-  Users
-} from 'lucide-react'
+import { Activity, ArrowRightLeft, BellRing, Building2, FileClock, Grid2X2, Settings, UserCheck } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 export const SUPER_ADMIN_TAB_KEYS = [
@@ -44,11 +34,6 @@ export const superAdminNavItems: SuperAdminNavItem[] = [
     icon: Building2,
     key: 'departments',
     translationKey: 'departments'
-  },
-  {
-    icon: Users,
-    key: 'accounts',
-    translationKey: 'accounts'
   },
   {
     icon: UserCheck,

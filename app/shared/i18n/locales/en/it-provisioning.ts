@@ -1,4 +1,29 @@
 ﻿export const itProvisioning = {
+  optimization: {
+    title: 'License optimization',
+    reclaim: 'Start reclaim',
+    return: 'Return to department head',
+    returnHint:
+      'Ask the department head to reconsider this decision. The server checks whether it can still be returned.',
+    reasonHint: 'Explain why the decision needs review (3–1000 characters).',
+    reclaimHint: 'Create a revocation task. The seat returns to stock only after the task is completed.',
+    description: 'Review recommendations based on usage evidence and seat status.',
+    back: 'Back to recommendations',
+    holder: 'Seat holder',
+    group: 'Recommendation',
+    inactiveDays: 'Days without activity',
+    days: '{{count}} days',
+    groups: { G1: 'Available seats', G2: 'Employee has left', G3: 'Never active', G4: 'No recent usage' },
+    states: {
+      OPEN: 'Open',
+      PAUSED: 'Paused',
+      RECLAIM_DECIDED: 'Reclaim decided',
+      CLOSED: 'Closed',
+      AWAITING_DECISION: 'Awaiting department decision',
+      WAITING_FOR_HEAD: 'Waiting for a department head',
+      RETURNED_TO_HEAD: 'Returned to department head'
+    }
+  },
   expiry: 'Expired rights',
   handover: {
     title: 'Data handover',
@@ -46,6 +71,16 @@
     'Confirm the purpose belongs to a non-human account. Rejecting ends the request and releases its budget commitment. The server checks whether another administrator must review.',
   servicePurpose: 'Service-account purpose',
   accountOwner: 'Responsible employee',
+  department: 'Department',
+  softwarePlan: 'Software and plan',
+  internalGrant: 'This internal plan does not use a subscription.',
+  unsupportedGrant: 'This plan cannot be granted from this form.',
+  subscriptionOption: '{{name}} — subscription {{number}}',
+  subscriptionCapacity: '{{free}} available of {{purchased}} · {{start}} to {{end}}',
+  noAvailableSubscription: 'No subscription is available for this selection.',
+  serviceAccountRequired: 'Enter the service account identifier.',
+  accountHint: 'Enter the account identifier if known.',
+  approvedResponsible: 'Use the approved responsible employee',
   boundaryDecision: 'Boundary decision',
   boundaryDecisions: { ACCEPT: 'Accept non-human account', REJECT: 'Reject boundary' },
   boundaryNotReviewable:
@@ -84,10 +119,33 @@
   accessEvidence: 'Access cut evidence',
   keyVault: 'Open application catalog',
   startGrant: 'Start grant',
+  stockSummary: 'Available in shared stock: {{free}} · Being reclaimed: {{reclaiming}}',
+  stockUnavailable: 'Stock information is unavailable. Refresh the queue before granting access.',
+  claimAvailableOn: 'This revocation can be claimed from {{date}}.',
+  purchaseReason: 'Purchase reason',
+  keyDisposition: 'Key handling',
+  availableKey: 'Available license key',
+  keySubscriptionUnavailable: 'The task has no subscription. Refresh the task or contact support before completing it.',
+  keyDispositions: { RETURN_TO_STORE: 'Return key to stock', WITHDRAW: 'Withdraw key from stock' },
+  withdrawalReason: 'Withdrawal reason',
+  withdrawalReasonHint: 'Explain why the key must not be reused (1–500 characters).',
+  purchaseReasonRequired:
+    'Stock is empty and rights are being reclaimed. Explain why a purchase is needed (1–500 characters).',
+  purchaseReasonOptional:
+    'Stock is empty. A purchase will be recorded; you may provide a reason (up to 500 characters).',
   grantHint:
     'Starting a grant reserves a seat. Complete the task after actual provisioning. The server verifies capacity and eligibility.',
   subscription: 'Subscription',
   automaticSubscription: 'Use server default when supported',
+  purchaseWhenEmpty: 'Purchase one seat or key because the pool is empty',
+  grantQueueChanged:
+    'The approved queue is refreshing or this request is no longer available. Wait for the latest data before confirming.',
+  licenseKey: 'License key',
+  licenseKeyHint: 'Select an available key from this task’s subscription. Only masked keys are shown.',
+  noFreeKeys: 'No available keys. Import the purchased key into this subscription’s vault, then reload the keys.',
+  reloadKeys: 'Reload keys',
+  keySubscriptionMissing: 'This task has no subscription. Reload the task before selecting a key.',
+  withdrawalHint: 'Explain why this key must not be assigned again. Withdrawing it removes it from the usable pool.',
   expectedEndDate: 'Expected end date',
   responsibleEmployeeId: 'Responsible employee UUID (optional replacement)',
   beneficiaryFilter: 'Beneficiary employee UUID',
@@ -127,7 +185,10 @@
     OFF_SYSTEM_REVOKED: 'Revoked outside system',
     RENEWAL_CANCELLED: 'Renewal cancelled',
     UNTIL_PAID_END: 'Access until paid period ends',
-    CUT: 'Access cut'
+    CUT: 'Access cut',
+    KEY_DEACTIVATED: 'Key deactivated',
+    RETURN_TO_STORE: 'Return to store for reuse',
+    WITHDRAW: 'Withdraw from store'
   },
   stepsValues: {
     BUY_ON_COMPANY_ACCOUNT: 'Purchase using the company account',
@@ -139,6 +200,7 @@
     RECORD_ACCESS_STATE: 'Record the access state',
     REMOVE_FROM_WORKSPACE: 'Remove the account from the workspace',
     REVOKE_IN_INTERNAL_SOFTWARE: 'Revoke access in the internal software',
+    DEACTIVATE_KEY_ON_DEVICE: 'Deactivate the key on the device',
     CONFIRM_WITH_EVIDENCE: 'Confirm with evidence'
   },
   doneValues: {

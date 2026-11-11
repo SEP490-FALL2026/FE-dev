@@ -12,6 +12,7 @@ export const requestId = '33333333-3333-4333-8333-333333333333'
 export const assignmentId = '44444444-4444-4444-8444-444444444444'
 export const employeeProfile: NonNullable<MeResponseDtoData> = {
   managerScope: null,
+  upcomingUnits: [],
   appUserId: employeeId,
   loginEmail: 'employee@example.test',
   employee: {
@@ -32,18 +33,18 @@ export const pricing = {
   amount: { amount: '9007199254740993.25', currency: 'USD' },
   unitPrice: { amount: '20', currency: 'USD' },
   billingCycle: 'MONTHLY',
-  periodCount: 1,
-  bindingPeriodCount: 0,
-  firstDueOn: '2026-10-31',
-  lastDueOn: '2026-10-31'
+  kind: 'RECURRING',
+  months: 3,
+  monthlyPrice: { amount: '20', currency: 'USD' },
+  nextYearAmount: null
 } as const
 export const groupCheck: NonNullable<GroupCheckResponseDtoData> = {
   plan: { eligible: true, reason: null },
   tooManyLines: null,
   tooFewLines: null,
-  termLimit: { maxMonths: 12, endsBy: null },
-  termBeyondLimit: false,
-  lines: [{ employeeId, ok: true, reason: null }],
+  maxEndDate: '2027-10-31',
+  endDateOutOfRange: false,
+  lines: [{ employeeId, ok: true, reason: null, manyPaidSoftware: null }],
   lineCount: 1,
   hasSpendStep: true,
   pricing,
@@ -54,6 +55,8 @@ export const accessRequest: AccessRequestResponseDtoDataRequest = {
   type: 'GRANT',
   branch: 'PAID_IN_CATALOG',
   state: 'PENDING',
+  routing: { mode: 'VIA_HEAD', oneStepReason: null },
+  flags: { manyPaidSoftware: null },
   plan,
   proposal: null,
   department: { id: employeeId, code: 'ENG', name: 'Engineering' },
@@ -77,7 +80,6 @@ export const accessRequest: AccessRequestResponseDtoDataRequest = {
     assignee: null,
     routingRow: 1,
     waitingReason: null,
-    samePersonAsSpend: false,
     slaWorkingDays: 3,
     createdAt: '2026-10-31T03:00:00Z',
     assignedAt: null,
@@ -88,11 +90,22 @@ export const accessRequest: AccessRequestResponseDtoDataRequest = {
   cancellation: null
 }
 export const requestPreview: PreviewResponseDtoDataPreview = {
-  termLimit: { maxMonths: 12, endsBy: null },
+  maxEndDate: '2027-10-31',
+  termRequired: false,
+  annualVendorAmount: null,
+  limits: {
+    openNewCount: 0,
+    openNewMax: 3,
+    paidSoftwareCount: 0,
+    paidSoftwareThreshold: 10,
+    reasonRequired: false,
+    refusal: null,
+    openRequestId: null
+  },
   blockedBy: null,
   plan,
   branch: 'PAID_IN_CATALOG',
-  termMonths: 3,
+  expectedEndDate: null,
   department: { id: employeeId, code: 'ENG', name: 'Engineering' },
   costCenter: null,
   existingAccess: null,
@@ -102,7 +115,6 @@ export const requestPreview: PreviewResponseDtoDataPreview = {
   costEstimate: null,
   spendSubmission: 'ALLOWED',
   chain: [],
-  possibleExtraSteps: [],
   totalExpectedWorkingDays: 3
 }
 export const softwareIssue: NonNullable<SaasIssueResponseDtoData> = {

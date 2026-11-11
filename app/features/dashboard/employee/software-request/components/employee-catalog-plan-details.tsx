@@ -17,13 +17,7 @@ export function EmployeeCatalogPlanDetails({
       <EmployeeQueryState query={query} empty={!details} emptyTitle={translate('catalog.noDetails')} />
       {details && (
         <>
-          <dl className='grid gap-4 text-sm sm:grid-cols-3'>
-            <div>
-              <dt className='text-xs text-muted-foreground'>{translate('catalog.vendor')}</dt>
-              <dd className='mt-1 truncate' title={details.vendorName ?? undefined}>
-                {details.vendorName ?? translate('noValue')}
-              </dd>
-            </div>
+          <dl className='grid gap-4 text-sm sm:grid-cols-2'>
             <div>
               <dt className='text-xs text-muted-foreground'>{translate('requestExtras.plan.sharing')}</dt>
               <dd className='mt-1'>

@@ -21,6 +21,7 @@ import { ItField, ItFormDialog, itInputClass, itButtonClass } from '../../shared
 import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
 import { ServiceAccountReviewDialog } from './service-account-review-dialog'
 import { BoundaryState } from '../enums/boundary-state'
+import { grantStockDecision } from '../grant-stock'
 
 function GrantDialog({
   request,
@@ -37,6 +38,8 @@ function GrantDialog({
     beneficiaryEmployeeId: request.beneficiary.employeeId
   })
   const [page, setPage] = useState(1)
+  const [purchaseReason, setPurchaseReason] = useState('')
+  const decision = request.stock ? grantStockDecision(request.stock, purchaseReason) : { allowed: false as const }
   const subscriptions = useQuery({
     queryKey: getSubscriptionListQueryKey({ planId: request.plan.planId, status: 'ACTIVE', page, pageSize: 20 }),
     queryFn: () => subscriptionList({ planId: request.plan.planId, status: 'ACTIVE', page, pageSize: 20 })
@@ -50,7 +53,11 @@ function GrantDialog({
     getSubscriptionListQueryKey()
   ])
   const mutation = useMutation({
-    mutationFn: () => provisioningTaskGrant(draft),
+    mutationFn: () =>
+      provisioningTaskGrant({
+        ...draft,
+        ...(decision.allowed && 'purchase' in decision ? { purchase: decision.purchase } : {})
+      }),
     onError: feedback.onError,
     onSuccess: async (result) => {
       await feedback.onSuccess()
@@ -68,9 +75,10 @@ function GrantDialog({
       title={translate('startGrant')}
       onClose={onClose}
       pending={mutation.isPending}
+      submitDisabled={!decision.allowed}
       onSubmit={(event) => {
         event.preventDefault()
-        if (!mutation.isPending) mutation.mutate()
+        if (!mutation.isPending && decision.allowed) mutation.mutate()
       }}
       submitLabel={translate('confirm')}
     >
@@ -78,13 +86,39 @@ function GrantDialog({
       <p className='text-sm'>
         {request.plan.applicationName} · {request.plan.planName} · {request.beneficiary.fullName}
       </p>
+      {!request.stock && (
+        <p role='status' className='text-sm'>
+          {translate('stockUnavailable')}
+        </p>
+      )}
+      {request.stock && request.stock.kind !== 'NONE' && (
+        <div className='space-y-3'>
+          <p className='text-sm'>
+            {translate('stockSummary', { free: request.stock.free, reclaiming: request.stock.inRevocation })}
+          </p>
+          {request.stock.free === 0 && (
+            <ItField
+              label={translate('purchaseReason')}
+              hint={translate(request.stock.inRevocation > 0 ? 'purchaseReasonRequired' : 'purchaseReasonOptional')}
+            >
+              <input
+                className={itInputClass}
+                maxLength={500}
+                required={request.stock.inRevocation > 0}
+                value={purchaseReason}
+                onChange={(event) => setPurchaseReason(event.target.value)}
+              />
+            </ItField>
+          )}
+        </div>
+      )}
       <ItQueryState query={subscriptions}>
         <ItChoiceSelect
           label={translate('subscription')}
           value={draft.subscriptionId ?? ''}
           options={[
             { value: '', label: translate('automaticSubscription') },
-            ...(data?.items.map((item) => ({ value: item.id, label: item.planName, description: item.id })) ?? [])
+            ...(data?.items.map((item) => ({ value: item.id, label: item.planName })) ?? [])
           ]}
           onChange={(value) => update('subscriptionId', value)}
         />

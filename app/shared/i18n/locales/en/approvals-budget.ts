@@ -14,9 +14,11 @@ export const approvalsBudget = {
   versions: 'Budget versions',
   proposals: 'Department proposals',
   back: 'Back to budgets',
+  backToVersion: 'Back to budget version',
   all: 'All statuses',
   state: 'Status',
   year: 'Fiscal year',
+  yearRange: 'Enter a four-digit year from 2000 to 2200.',
   yearPlaceholder: 'Enter a year, e.g. 2027',
   apply: 'Apply filters',
   center: 'Cost Center',
@@ -96,7 +98,7 @@ export const approvalsBudget = {
     removed: 'Removed',
     system: 'System'
   },
-  kind: { INITIAL: 'Initial budget', REVISION: 'Revision' },
+  origin: { PROPOSAL: 'From the department proposal', BASELINE_NO_HEAD: 'From baseline (department has no head)' },
   repeat: { MONTHLY: 'Monthly', QUARTERLY: 'Quarterly', ANNUAL: 'Annual', ONE_TIME: 'One-off' },
   historyKind: {
     FIGURES_UPDATED: 'Budget figures updated',

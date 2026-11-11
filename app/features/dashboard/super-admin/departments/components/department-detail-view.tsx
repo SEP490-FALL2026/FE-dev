@@ -11,11 +11,13 @@ import { DepartmentOverviewPanels } from './department-overview-panels'
 import { DepartmentMembersPanel } from './department-members-panel'
 import { DepartmentHeadHistory } from './department-head-history'
 import { DepartmentActionForm, type DepartmentAction } from './department-action-form'
+import { DepartmentAddEmployee } from './department-add-employee'
 
 export function DepartmentDetailView({ id, onBack }: { id: string; onBack: () => void }) {
   const { t: translate } = useTranslation('adminOrganization')
   const { formatNumber } = useDashboardFormat()
   const [action, setAction] = useState<DepartmentAction | 'edit' | null>(null)
+  const [addingEmployee, setAddingEmployee] = useState(false)
   const [historyOpen, setHistoryOpen] = useState(false)
   const [historyOpening, setHistoryOpening] = useState(false)
   const historyOpenLock = useRef(false)
@@ -41,6 +43,14 @@ export function DepartmentDetailView({ id, onBack }: { id: string; onBack: () =>
   const query = useDepartmentGet(id)
   const department = query.data?.data
   const active = department?.status === DepartmentStatus.ACTIVE
+  if (addingEmployee && active && department)
+    return (
+      <DepartmentAddEmployee
+        departmentId={id}
+        departmentEffectiveFrom={department.effectiveFrom}
+        onClose={() => setAddingEmployee(false)}
+      />
+    )
   return (
     <div className='grid gap-5'>
       <button type='button' className={`${adminButtonClass} justify-self-start`} onClick={onBack}>
@@ -125,6 +135,15 @@ export function DepartmentDetailView({ id, onBack }: { id: string; onBack: () =>
               historyOpening={historyOpening}
               historyOpen={historyOpen}
             />
+            {active && (
+              <button
+                type='button'
+                className={`${adminButtonClass} justify-self-start`}
+                onClick={() => setAddingEmployee(true)}
+              >
+                {translate('addEmployee')}
+              </button>
+            )}
             <DepartmentMembersPanel key={id} id={id} />
             {historyOpen && (
               <DepartmentHeadHistory department={department} onClose={closeHistory} onReady={historyReady} />

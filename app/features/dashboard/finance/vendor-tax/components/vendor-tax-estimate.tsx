@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { MoneyInput } from '~/shared/ui/money-input'
 import { useTranslation } from 'react-i18next'
 import { Calculator } from 'lucide-react'
 import { useVendorTaxEstimate } from '~/shared/api/generated/operations/vendors'
@@ -62,15 +63,13 @@ export function VendorTaxEstimate({ vendorId }: { vendorId: string }) {
       >
         <div className='grid gap-4 sm:grid-cols-2'>
           <FinanceField label={translate('netAmount')} required error={amountError}>
-            <input
+            <MoneyInput
               className={`${financeInputClass} text-right font-mono tabular-nums`}
               required
-              inputMode='decimal'
-              autoComplete='off'
               placeholder={translate('netAmountPlaceholder')}
               aria-invalid={!!amountError}
               value={netAmount}
-              onChange={(event) => setNetAmount(event.target.value)}
+              onValueChange={setNetAmount}
             />
           </FinanceField>
           <FinanceQueryState query={currencies}>

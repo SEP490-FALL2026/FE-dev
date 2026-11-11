@@ -14,7 +14,6 @@ export function CostCenterBudgetVersions({
   onSelectTab?: (tab: FinanceTabKey, extraParams?: Record<string, string>) => void
 }) {
   const { t: translate, i18n } = useTranslation('financeSettings')
-  const { t: translateFinance } = useTranslation('finance')
   const versions = useCostCenterVersions(costCenterId)
   const items = versions.data?.items ?? []
   return (
@@ -26,18 +25,19 @@ export function CostCenterBudgetVersions({
             rowKey={(version) => version.id}
             onOpen={onSelectTab ? (version) => onSelectTab('budget-negotiation', { id: version.id }) : undefined}
             columns={[
-              { key: 'year', label: translate('budgetYear'), numeric: true, render: (version) => version.year },
+              {
+                key: 'year',
+                label: translate('budgetYear'),
+                numeric: true,
+                align: 'center',
+                render: (version) => version.year
+              },
               {
                 key: 'number',
                 label: translate('versionNumber'),
                 numeric: true,
+                align: 'center',
                 render: (version) => version.number
-              },
-              {
-                key: 'kind',
-                label: translate('versionKind'),
-                render: (version) =>
-                  translateFinance(`status.${version.kind}`, { defaultValue: translateFinance('unknown') })
               },
               {
                 key: 'state',

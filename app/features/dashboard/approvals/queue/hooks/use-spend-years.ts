@@ -2,7 +2,7 @@ import { useQueries } from '@tanstack/react-query'
 import {
   getBudgetCheckYearListQueryOptions,
   useBudgetCheckYearList
-} from '~/shared/api/generated/operations/finance-reviews/budget-check-year-list'
+} from '~/shared/api/generated/operations/budget-checks/budget-check-year-list'
 import { BUDGET_YEAR_CODE } from '../enums/budget-year-code'
 
 export function useSpendYears(requestId: string) {

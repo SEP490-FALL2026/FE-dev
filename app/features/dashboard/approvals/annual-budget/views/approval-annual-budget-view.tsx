@@ -83,12 +83,19 @@ function VersionList({ onOpen }: { onOpen: (id: string) => void }) {
                 <span title={`${version.costCenter.code} · ${version.costCenter.name}`}>{version.costCenter.name}</span>
               )
             },
-            { key: 'year', label: translate('year'), numeric: true, render: (version) => version.year },
-            { key: 'number', label: translate('number'), numeric: true, render: (version) => version.number },
             {
-              key: 'kind',
-              label: translate('kindLabel'),
-              render: (version) => translate(`kind.${version.kind}`, { defaultValue: translate('unavailable') })
+              key: 'year',
+              label: translate('year'),
+              numeric: true,
+              align: 'center',
+              render: (version) => version.year
+            },
+            {
+              key: 'number',
+              label: translate('number'),
+              numeric: true,
+              align: 'center',
+              render: (version) => version.number
             },
             {
               key: 'total',
@@ -101,6 +108,7 @@ function VersionList({ onOpen }: { onOpen: (id: string) => void }) {
               key: 'sentAt',
               label: translate('sentAt'),
               numeric: true,
+              align: 'center',
               render: (version) => (version.sentAt ? formatDate(version.sentAt) : translate('unavailable'))
             }
           ]}
@@ -158,6 +166,7 @@ function ProposalList({ onOpen }: { onOpen: (id: string) => void }) {
               key: 'submittedAt',
               label: translate('submittedAt'),
               numeric: true,
+              align: 'center',
               render: (proposal) => formatDate(proposal.submittedAt)
             }
           ]}

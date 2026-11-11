@@ -5,6 +5,7 @@ export const financeBudget = {
   allYears: 'All years',
   allStates: 'All states',
   back: 'Back to list',
+  backToVersion: 'Back to budget version',
   unknown: 'Unknown',
   none: 'Not provided',
   lines: 'Planned lines',
@@ -40,6 +41,10 @@ export const financeBudget = {
     base: 'Base amount',
     reserve: 'Reserve amount',
     reserveReason: 'Reason for the reserve amount',
+    baseReason: 'Reason for changing the base',
+    lineType: 'Line type',
+    priorityRank: 'Priority rank',
+    flags: 'Flags',
     highValuePercent: 'High value threshold (%)',
     highValueAmount: 'High value amount',
     q1: 'Quarter 1',
@@ -90,6 +95,104 @@ export const financeBudget = {
     SUPERSEDED: 'Superseded',
     EXPIRED: 'Expired'
   },
+  baseReasonHint: 'Give the reason when the base of a created version changes.',
+  zbbHint: 'Short ZBB justification: fill all four fields or leave all four empty.',
+  lineTypes: {
+    RENEW: 'Renew',
+    CHANGE: 'Change',
+    NEW: 'New purchase',
+    CANCEL: 'Cancel'
+  },
+  flags: {
+    zbb: 'ZBB justification',
+    overCeiling: 'Over department ceiling'
+  },
+  zbb: {
+    purpose: 'Purpose',
+    alternatives: 'Alternatives',
+    consequenceIfNot: 'Consequence if not bought',
+    usageIndicator: 'Usage indicator'
+  },
+  origins: {
+    PROPOSAL: 'From the head proposal',
+    BASELINE_NO_HEAD: 'From baseline (no head)'
+  },
+  budgetCycle: {
+    title: 'Budget cycles',
+    open: 'Open budget cycle',
+    openTitle: 'Open budget cycle',
+    openSubmit: 'Open cycle',
+    detailTitle: 'Budget cycle {{year}}',
+    annualCeiling: 'Annual software budget ceiling',
+    ceilingHint: 'The figure set by leadership, in the reporting currency.',
+    sharedPoolReserve: 'Reserve for shared software',
+    sharedPoolHint:
+      'A control figure for the cost of software shared across the company (it belongs to no department), not a fund.',
+    allocated: 'Allocated',
+    unallocated: 'Unallocated',
+    submissionDeadline: 'Submission deadline',
+    decisionDeadline: 'Decision deadline',
+    edit: 'Edit cycle',
+    editTitle: 'Edit budget cycle {{year}}',
+    editSubmit: 'Save changes',
+    ceilingReason: 'Reason for the new ceiling',
+    ceilingReasonHint: 'Required when the annual ceiling changes. The cycle must be published again.',
+    lockedAfterPublish:
+      'The cycle is published: its details and the ceilings of the departments can no longer be changed, and it cannot be published again.',
+    yearPast: 'Only the current year or a later year can be opened.',
+    deadlineOrder: 'The decision deadline must be on or after the submission deadline.',
+    deadlines: 'Submit by {{submission}} · Decide by {{decision}}',
+    priorities: 'Priorities',
+    publish: 'Publish department ceilings',
+    changedAfterPublish:
+      'The division changed since it was last published. Publish again so heads see the new figures.',
+    ceilingsTitle: 'Divide department ceilings',
+    saveCeilings: 'Save division',
+    department: 'Department',
+    ceiling: 'Department ceiling',
+    explanation: 'Explanation',
+    explanationMissing:
+      '{{count}} department(s) have no explanation. Every department needs one before you can publish.',
+    baseline: {
+      computedAt: 'Computed at {{time}}',
+      poolCost: 'Shared pool — unallocated (idle seats)',
+      poolIdle: 'Idle seats',
+      poolSoftware: 'Subscriptions with idle seats',
+      unknownCost: 'Some subscriptions have no usable price; their cost is left out of the total.',
+      seats: 'Seats',
+      estimated: 'Estimated annual cost',
+      spent: 'Spent this year',
+      software: 'Software / plan',
+      unitPrice: 'Monthly price',
+      months: 'Months',
+      kpi3: 'KPI-3',
+      renew: 'Suggest Renew',
+      truncated: 'Showing {{shown}} of {{total}} subscriptions.'
+    },
+    baselineTitle: 'Baseline figures',
+    packageTitle: 'Department package',
+    available: 'Available to departments',
+    proposalsTotal: 'Proposals total',
+    versionsTotal: 'Versions total',
+    overBy: 'Over the available amount',
+    proposalsOverAvailable: 'Proposals add up to more than the ceiling leaves for departments.',
+    proposal: 'Proposal',
+    version: 'Version',
+    noProposal: 'Not submitted',
+    noVersion: 'Not created',
+    baselineAllowed: 'Can start from baseline',
+    status: {
+      NOT_PUBLISHED: 'Not published',
+      PUBLISHED: 'Published',
+      CHANGED_AFTER_PUBLISH: 'Changed after publish'
+    },
+    headStatus: {
+      title: 'Department head',
+      HAS_HEAD: 'Has a head',
+      HEAD_TO_COME: 'Head to come',
+      NO_HEAD: 'No head'
+    }
+  },
   cycles: {
     MONTHLY: 'Monthly',
     QUARTERLY: 'Quarterly',
@@ -107,6 +210,9 @@ export const financeBudget = {
     ATTACHMENT_ADDED: 'Attachment added',
     ATTACHMENT_REMOVED: 'Attachment removed'
   },
+  quartersMismatch: 'The four quarters must add up to the total budget (base plus reserve).',
+  reserveReasonHint: 'A reserve other than the default needs a reason when the version is sent.',
+  yearRange: 'Enter a four-digit year from 2000 to 2200.',
   fieldInvalid: 'Enter a valid value.',
   revisionReasonHint: 'A revision needs a reason for the Spending Approver.',
   windowOrder: 'The end date must be on or after the start date.',
@@ -135,6 +241,7 @@ export const financeBudget = {
     returnReason: 'State what the department head must add or change'
   },
   sections: {
+    zbb: 'ZBB justification',
     item: 'Spend item',
     schedule: 'Purchase timing and cycle',
     notes: 'Notes',

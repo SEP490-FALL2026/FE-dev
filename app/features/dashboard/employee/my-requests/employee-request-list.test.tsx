@@ -21,13 +21,17 @@ import { EmployeeLiveRequestsView } from './views/employee-live-requests-view'
 const item: MyRequestsPageResponseDtoDataItemsItem = {
   id: requestId,
   type: 'GRANT',
+  routing: { mode: 'VIA_HEAD', oneStepReason: null },
+  expectedEndDate: null,
+  involvement: 'SENT',
+  myLine: null,
   branch: 'PAID_IN_CATALOG',
   state: 'PENDING',
   plan,
   softwareName: null,
   beneficiary: person,
   lineCount: 1,
-  termMonths: 3,
+  termMonths: null,
   submittedAt: '2026-11-01T03:00:00Z',
   updatedAt: '2026-11-01T03:00:00Z',
   needStep: { state: 'PENDING', assignee: null, waitingReason: null },
@@ -172,7 +176,7 @@ describe('Employee submitted request list', () => {
     mount('/?tab=my-requests&requestState=made-up&requestType=ADMIN&requestView=all&page=-1')
     const list = section('Submitted requests')
     expect(await list.findByText('No requests match these filters')).toBeInTheDocument()
-    expect(read).toHaveBeenCalledWith('page=1&pageSize=20')
+    expect(read).toHaveBeenCalledWith('involvement=ALL&page=1&pageSize=20')
     expect(list.getByRole('table', { name: 'Submitted requests' })).toBeInTheDocument()
     expect(list.getByLabelText('Status')).toHaveValue('')
     fireEvent.click(list.getByRole('button', { name: 'Clear filters' }))

@@ -12,7 +12,7 @@ import { activationStates } from '../enums/activation-state'
 import { directRoles } from '../enums/direct-role'
 import { AccountActionDialog, type AccountAction } from './account-action-dialog'
 
-export function AccountDetailModal({ id, onClose }: { id: string; onClose: () => void }) {
+export function AccountDetailModal({ id, onClose, page = false }: { id: string; onClose: () => void; page?: boolean }) {
   const { t: translate } = useTranslation('adminAccounts')
   const { formatDate } = useDashboardFormat()
   const query = useAppUserGet(id, { query: { retry: false } })
@@ -31,6 +31,7 @@ export function AccountDetailModal({ id, onClose }: { id: string; onClose: () =>
     return <AccountActionDialog account={account} action={action} blocked={!canWrite} onClose={() => setAction(null)} />
   return (
     <AdminFormDialog
+      page={page}
       title={translate('details')}
       wide
       onClose={onClose}

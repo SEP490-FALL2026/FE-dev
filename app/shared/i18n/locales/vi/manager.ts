@@ -348,6 +348,9 @@ export const manager = {
     notAssigned: 'Bước này không còn được giao cho bạn.'
   },
   statuses: {
+    AWAITING_REQUESTER_REVISION: 'Chờ người gửi chỉnh sửa',
+    RESERVE_CONFIRMATION: 'Chờ xác nhận dùng dự phòng',
+    AWAITING_RESERVE_CONFIRMATION: 'Chờ xác nhận dùng dự phòng',
     STAFF: 'Chính thức',
     CONTRACTOR: 'Hợp đồng',
     FREELANCER: 'Cộng tác viên',

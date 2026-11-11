@@ -4,10 +4,12 @@ import { toast } from 'sonner'
 import { getMeGetQueryOptions } from '~/shared/api/generated/operations/me/me-get'
 import { getApprovalsError } from '../approvals-errors'
 import { recordApprovalsRetry } from './use-approvals-retry'
+import { requestContractErrorKey } from '~/entities/request/request-contract-errors'
 
 export function useApprovalsFeedback(queryKeys: readonly QueryKey[], onSuccess?: () => void) {
   const queryClient = useQueryClient()
   const { t: translate } = useTranslation('approvals')
+  const { t: flow } = useTranslation('requestFlow')
   const invalidate = () => Promise.all(queryKeys.map((queryKey) => queryClient.invalidateQueries({ queryKey })))
   return {
     onSuccess: async () => {
@@ -23,10 +25,14 @@ export function useApprovalsFeedback(queryKeys: readonly QueryKey[], onSuccess?:
       if (failure.key === 'forbidden') {
         await queryClient.fetchQuery({ ...getMeGetQueryOptions(), staleTime: 0, retry: false }).catch(() => undefined)
       }
-      toast.error(translate(`errors.${failure.ambiguous ? 'ambiguous' : failure.key}`), {
-        id: 'approvals-write',
-        description: failure.requestId ? translate('requestId', { value: failure.requestId }) : undefined
-      })
+      const contractKey = requestContractErrorKey(error)
+      toast.error(
+        contractKey ? flow(contractKey) : translate(`errors.${failure.ambiguous ? 'ambiguous' : failure.key}`),
+        {
+          id: 'approvals-write',
+          description: failure.requestId ? translate('requestId', { value: failure.requestId }) : undefined
+        }
+      )
     }
   }
 }

@@ -1,11 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import {
-  FinanceEmpty,
-  FinanceQueryState,
-  FinanceSection,
-  FinanceStatus
-} from '../../shared/components/finance-ui'
+import { FinanceEmpty, FinanceQueryState, FinanceSection, FinanceStatus } from '../../shared/components/finance-ui'
 import { FinanceTable } from '../../shared/components/finance-table'
 import { formatMoney } from '../../shared/finance-money'
 import {
@@ -14,13 +9,7 @@ import {
   type ExtendedCommitmentItem
 } from '../../shared/finance-api-extensions'
 
-export function CostCenterCommitments({
-  costCenterId,
-  year
-}: {
-  costCenterId: string
-  year?: number
-}) {
+export function CostCenterCommitments({ costCenterId, year }: { costCenterId: string; year?: number }) {
   const { t: translate, i18n } = useTranslation('financeSettings')
   const { t: translateFinance } = useTranslation('finance')
 
@@ -47,7 +36,9 @@ export function CostCenterCommitments({
                 label: translate('application'),
                 render: (item) => (
                   <div className='min-w-0'>
-                    <div className='font-medium text-foreground'>{item.request?.software.name ?? translate('application')}</div>
+                    <div className='font-medium text-foreground'>
+                      {item.request?.software.name ?? translate('application')}
+                    </div>
                     {item.request?.plan?.name && (
                       <div className='text-xs text-muted-foreground'>{item.request.plan.name}</div>
                     )}
@@ -57,7 +48,7 @@ export function CostCenterCommitments({
               {
                 key: 'requester',
                 label: translateFinance('submittedBy'),
-                render: (item) => (
+                render: (item) =>
                   item.request?.requester ? (
                     <div className='text-xs'>
                       <div className='font-medium text-foreground'>{item.request.requester.fullName}</div>
@@ -66,7 +57,6 @@ export function CostCenterCommitments({
                   ) : (
                     '—'
                   )
-                )
               },
               {
                 key: 'amount',
@@ -108,4 +98,3 @@ export function CostCenterCommitments({
     </FinanceSection>
   )
 }
-

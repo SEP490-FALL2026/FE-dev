@@ -7,7 +7,7 @@ import {
   LayoutDashboard,
   MessageSquare,
   PackageCheck,
-  Scale,
+  Warehouse,
   ShieldAlert,
   Sparkles,
   UploadCloud,
@@ -25,8 +25,8 @@ export type ItAdminSubMenuItem = {
   key: ItAdminTabKey
   translationKey:
     | 'provisioning'
+    | 'sharedStock'
     | 'purchaseDocuments'
-    | 'reconciliation'
     | 'usageImport'
     | 'deviceCollectors'
     | 'licenseOptimization'
@@ -52,11 +52,11 @@ export const itAdminMenuItems: readonly ItAdminMenuItem[] = [
     translationKey: 'licenses',
     children: [
       { key: 'provisioning', icon: PackageCheck, translationKey: 'provisioning' },
+      { key: 'shared-stock', icon: Warehouse, translationKey: 'sharedStock' },
       { key: 'offboarding', icon: UserMinus, translationKey: 'offboarding' },
       { key: 'transfers', icon: ArrowRightLeft, translationKey: 'transfers' },
       { key: 'saas-issues', icon: MessageSquare, translationKey: 'saasIssues' },
       { key: 'purchase-documents', icon: FileText, translationKey: 'purchaseDocuments' },
-      { key: 'reconciliation', icon: Scale, translationKey: 'reconciliation' },
       { key: 'renewals', icon: CalendarClock, translationKey: 'renewals' }
     ]
   },

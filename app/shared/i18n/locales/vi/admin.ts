@@ -233,7 +233,7 @@ export const admin = {
       NEED: 'Duyệt nhu cầu',
       FINANCE_REVIEW: 'Finance rà soát',
       SPEND_APPROVAL: 'Duyệt chi',
-      IT_ASSESSMENT: 'IT đánh giá'
+      IT_ASSESSMENT: 'Thẩm định công nghệ'
     }
   }
 } as const

@@ -26,6 +26,7 @@ export function getManagerError(error: unknown, writing = false) {
         issues?: { path?: unknown }[]
         lines?: { line?: number; fields?: string[] }[]
         attachmentIds?: string[]
+        positions?: number[]
       }
     }
   }>(error)
@@ -62,6 +63,20 @@ export function getManagerError(error: unknown, writing = false) {
     requestId: response?.data?.error?.requestId,
     retrySeconds: Number.isFinite(seconds) ? Math.max(1, Math.ceil(seconds)) : 60,
     fields: [
+      ...(response?.data?.error?.details?.positions ?? []).flatMap((position) => {
+        if (!Number.isInteger(position) || position < 1) return []
+        const field =
+          code === 'BUDGET.PRIORITY_RANK_INVALID'
+            ? 'priorityRank'
+            : code === 'BUDGET.OVER_CEILING_NOTE_REQUIRED'
+              ? 'note'
+              : 'zbb'
+        return field === 'zbb'
+          ? ['purpose', 'alternatives', 'consequenceIfNot', 'usageIndicator'].map(
+              (key) => `lines.${position - 1}.zbb.${key}`
+            )
+          : [`lines.${position - 1}.${field}`]
+      }),
       ...(response?.data?.error?.details?.attachmentIds?.length ? ['attachmentIds'] : []),
       ...(response?.data?.error?.details?.issues ?? [])
         .map((issue) =>

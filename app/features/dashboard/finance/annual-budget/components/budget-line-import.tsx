@@ -32,7 +32,7 @@ export function BudgetLineImport({
             mutation.mutate({ id: versionId, data: { file } })
         }}
       >
-        <FinanceField label={translate('actions.import')} hint={translate('importHint')}>
+        <FinanceField required label={translate('actions.import')} hint={translate('importHint')}>
           <input
             required
             type='file'

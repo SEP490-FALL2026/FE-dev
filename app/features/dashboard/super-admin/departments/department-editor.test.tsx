@@ -17,6 +17,7 @@ const department: NonNullable<DepartmentResponseDtoData> = {
   name: 'Engineering',
   function: null,
   status: 'ACTIVE',
+  effectiveFrom: '2026-01-01',
   costCenter: null,
   itAdmin: null,
   head: null,
@@ -86,6 +87,20 @@ beforeEach(async () => {
 })
 
 describe('Unified department editor', () => {
+  it('retains the current IT administrator even when the account is no longer in the selectable list', async () => {
+    const assigned = { ...department, itAdmin: { employeeId, employeeCode: 'IT-02', fullName: 'Alex', usable: false } }
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })
+    render(
+      <QueryClientProvider client={client}>
+        <DepartmentForm department={assigned} onClose={vi.fn()} />
+      </QueryClientProvider>
+    )
+    expect(await screen.findByRole('option', { name: 'IT-02 — Alex' })).toBeInTheDocument()
+    expect(screen.getByLabelText('IT administrator')).toHaveValue(employeeId)
+    fireEvent.change(screen.getByLabelText('IT administrator'), { target: { value: '' } })
+    submit()
+    await waitFor(() => expect(writes).toEqual([{ method: 'patch', body: { itAdminEmployeeId: null } }]))
+  })
   it('associates backend validation paths with the actual field and preserves its draft', async () => {
     server.use(
       http.patch(`${base}/departments/${departmentId}`, () =>

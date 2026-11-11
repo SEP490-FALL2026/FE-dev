@@ -32,13 +32,17 @@ export function SpendBatchList({
   const [submittedFrom, setSubmittedFrom] = useState('')
   const [submittedTo, setSubmittedTo] = useState('')
 
-  const query = useSpendBatchList({
-    page,
-    pageSize: 20,
-    departmentId: department.id,
-    submittedFrom: submittedFrom ? `${submittedFrom}T00:00:00+07:00` : undefined,
-    submittedTo: submittedTo ? `${submittedTo}T23:59:59+07:00` : undefined
-  })
+  const rangeInvalid = Boolean(submittedFrom && submittedTo && submittedFrom > submittedTo)
+  const query = useSpendBatchList(
+    {
+      page,
+      pageSize: 20,
+      departmentId: department.id,
+      submittedFrom: submittedFrom ? `${submittedFrom}T00:00:00+07:00` : undefined,
+      submittedTo: submittedTo ? `${submittedTo}T23:59:59+07:00` : undefined
+    },
+    { enabled: !rangeInvalid }
+  )
 
   const renderApprovedAmounts = (amounts: Record<string, string>) => {
     const entries = Object.entries(amounts)
@@ -80,9 +84,11 @@ export function SpendBatchList({
           </FinanceField>
         </div>
         <div className='sm:w-44'>
-          <FinanceField label={translate('to')}>
+          <FinanceField label={translate('to')} error={rangeInvalid ? translate('dateRangeInvalid') : null}>
             <input
               type='date'
+              aria-invalid={rangeInvalid}
+              min={submittedFrom || undefined}
               className={financeInputClass}
               value={submittedTo}
               onChange={(event) => {
@@ -94,60 +100,68 @@ export function SpendBatchList({
         </div>
       </FinanceToolbar>
 
-      <FinanceQueryState query={query}>
-        <FinanceTable<SpendBatchListItem>
-          items={query.data?.items ?? []}
-          rowKey={(batch) => batch.id}
-          onOpen={(batch) => onOpen(batch.id)}
-          columns={[
-            {
-              key: 'submittedBy',
-              label: translateFinance('submittedBy'),
-              render: (batch) => (
-                <div className='text-xs'>
-                  <div className='font-medium text-foreground'>{batch.submittedBy.fullName}</div>
-                  <div className='font-mono text-muted-foreground'>{batch.submittedBy.employeeCode}</div>
-                </div>
-              )
-            },
-            {
-              key: 'submittedAt',
-              label: translateFinance('submittedAt'),
-              numeric: true,
-              render: (batch) => (
-                <span className='text-xs text-muted-foreground'>
-                  {new Date(batch.submittedAt).toLocaleString(i18n.language)}
-                </span>
-              )
-            },
-            {
-              key: 'itemCount',
-              label: translateFinance('itemCount'),
-              numeric: true,
-              render: (batch) => <span className='font-mono font-medium'>{batch.itemCount}</span>
-            },
-            {
-              key: 'approvedCount',
-              label: translateFinance('approvedCount'),
-              numeric: true,
-              render: (batch) => <span className='font-mono font-semibold text-success-ink'>{batch.approvedCount}</span>
-            },
-            {
-              key: 'pendingCount',
-              label: translateFinance('pendingCount'),
-              numeric: true,
-              render: (batch) => <span className='font-mono text-warning-ink'>{batch.pendingCount}</span>
-            },
-            {
-              key: 'approvedAmounts',
-              label: translateFinance('approvedAmounts'),
-              numeric: true,
-              render: (batch) => renderApprovedAmounts(batch.approvedAmounts)
-            }
-          ]}
-        />
-        <FinancePagination pagination={query.data?.pagination} onPageChange={setPage} />
-      </FinanceQueryState>
+      {!rangeInvalid && (
+        <FinanceQueryState query={query}>
+          <FinanceTable<SpendBatchListItem>
+            items={query.data?.items ?? []}
+            rowKey={(batch) => batch.id}
+            onOpen={(batch) => onOpen(batch.id)}
+            columns={[
+              {
+                key: 'submittedBy',
+                label: translateFinance('submittedBy'),
+                render: (batch) => (
+                  <div className='text-xs'>
+                    <div className='font-medium text-foreground'>{batch.submittedBy.fullName}</div>
+                    <div className='font-mono text-muted-foreground'>{batch.submittedBy.employeeCode}</div>
+                  </div>
+                )
+              },
+              {
+                key: 'submittedAt',
+                label: translateFinance('submittedAt'),
+                numeric: true,
+                align: 'center',
+                render: (batch) => (
+                  <span className='text-xs text-muted-foreground'>
+                    {new Date(batch.submittedAt).toLocaleString(i18n.language)}
+                  </span>
+                )
+              },
+              {
+                key: 'itemCount',
+                label: translateFinance('itemCount'),
+                numeric: true,
+                align: 'center',
+                render: (batch) => <span className='font-mono font-medium'>{batch.itemCount}</span>
+              },
+              {
+                key: 'approvedCount',
+                label: translateFinance('approvedCount'),
+                numeric: true,
+                align: 'center',
+                render: (batch) => (
+                  <span className='font-mono font-semibold text-success-ink'>{batch.approvedCount}</span>
+                )
+              },
+              {
+                key: 'pendingCount',
+                label: translateFinance('pendingCount'),
+                numeric: true,
+                align: 'center',
+                render: (batch) => <span className='font-mono text-warning-ink'>{batch.pendingCount}</span>
+              },
+              {
+                key: 'approvedAmounts',
+                label: translateFinance('approvedAmounts'),
+                numeric: true,
+                render: (batch) => renderApprovedAmounts(batch.approvedAmounts)
+              }
+            ]}
+          />
+          <FinancePagination pagination={query.data?.pagination} onPageChange={setPage} />
+        </FinanceQueryState>
+      )}
     </FinancePage>
   )
 }

@@ -16,7 +16,7 @@
   vertical-align: middle;
   overflow-wrap: anywhere;
 }
-.workspace-data-table th:last-child:has(.sr-only),
+.workspace-data-table th.workspace-action-header,
 .workspace-data-table td:last-child:has(> button) {
   width: 8.5rem;
 }

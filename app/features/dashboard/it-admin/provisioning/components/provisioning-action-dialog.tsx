@@ -7,7 +7,10 @@ import * as api from '~/shared/api/generated/operations/provisioning-tasks'
 import { getSubscriptionListQueryKey } from '~/shared/api/generated/operations/subscriptions/subscription-list'
 import { getAssignmentExpiryQueueListQueryKey } from '~/shared/api/generated/operations/assignment-expiry'
 import { getGrantQueueListQueryKey } from '~/shared/api/generated/operations/grant-queue/grant-queue-list'
+import { useLicenseKeyList } from '~/shared/api/generated/operations/license-keys/license-key-list'
 import { ItField, ItFormDialog, itInputClass } from '../../shared/components/it-form'
+import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
+import { ItPagination } from '../../shared/components/it-pagination'
 import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
 import type { TaskAction } from '../task-actions'
 
@@ -29,7 +32,18 @@ export function ProvisioningActionDialog({
       ? 'RENEWAL_CANCELLED'
       : task.plan?.provisioningType === 'K5'
         ? 'OFF_SYSTEM_REVOKED'
-        : 'ACCOUNT_REMOVED'
+        : task.plan?.provisioningType === 'K4'
+          ? 'KEY_DEACTIVATED'
+          : 'ACCOUNT_REMOVED'
+  )
+  const [keyDisposition, setKeyDisposition] = useState<'RETURN_TO_STORE' | 'WITHDRAW'>('RETURN_TO_STORE')
+  const [withdrawalReason, setWithdrawalReason] = useState('')
+  const [keyId, setKeyId] = useState('')
+  const [keyPage, setKeyPage] = useState(1)
+  const needsKey = action === 'complete' && task.plan?.provisioningType === 'K4'
+  const keys = useLicenseKeyList(
+    { subscriptionId: task.subscriptionId ?? '', status: 'IN_STORE', withdrawn: 'false', page: keyPage, pageSize: 20 },
+    { query: { enabled: needsKey && !!task.subscriptionId } }
   )
   const [accessState, setAccessState] = useState<'CUT' | 'UNTIL_PAID_END'>('UNTIL_PAID_END')
   const [paidThroughOn, setPaidThroughOn] = useState('')
@@ -54,7 +68,10 @@ export function ProvisioningActionDialog({
         case 'claim':
           return api.provisioningTaskClaim(id)
         case 'complete':
-          return api.provisioningTaskComplete(id, { evidence: evidence.trim() })
+          return api.provisioningTaskComplete(id, {
+            evidence: evidence.trim(),
+            ...(needsKey ? { licenseKeyId: keyId } : {})
+          })
         case 'failure':
           return api.provisioningTaskReportFailure(id, { reason: reason.trim() })
         case 'retry':
@@ -71,6 +88,12 @@ export function ProvisioningActionDialog({
           return api.provisioningTaskCompleteRevocation(id, {
             completion,
             ...(completion === 'ALREADY_GONE' ? { note: note.trim() } : { evidence: evidence.trim() }),
+            ...(completion === 'KEY_DEACTIVATED'
+              ? {
+                  keyDisposition,
+                  ...(keyDisposition === 'WITHDRAW' ? { withdrawalReason: withdrawalReason.trim() } : {})
+                }
+              : {}),
             ...(completion === 'RENEWAL_CANCELLED'
               ? {
                   paidThroughOn,
@@ -98,11 +121,46 @@ export function ProvisioningActionDialog({
       submitLabel={translate('confirm')}
       submitDisabled={
         (needsEvidence && !evidence.trim()) ||
+        (needsKey && (!task.subscriptionId || !keyId || keys.isError || keys.isFetching)) ||
         (['failure', 'closeFailed'].includes(action) && !reason.trim()) ||
+        (action === 'revocation' &&
+          completion === 'KEY_DEACTIVATED' &&
+          keyDisposition === 'WITHDRAW' &&
+          !withdrawalReason.trim()) ||
         (action === 'revocation' && completion === 'ALREADY_GONE' && !note.trim())
       }
     >
       <p className='text-sm text-muted-foreground'>{translate(action === 'cancel' ? 'cancelHint' : 'confirmHint')}</p>
+      {needsKey &&
+        (task.subscriptionId ? (
+          <ItQueryState query={keys}>
+            {keys.data?.data?.items.length ? (
+              <>
+                <ItChoiceSelect
+                  label={translate('availableKey')}
+                  value={keyId}
+                  options={keys.data.data.items.map((item) => ({ value: item.id, label: item.masked }))}
+                  onChange={setKeyId}
+                />
+                <ItPagination
+                  page={keyPage}
+                  pageSize={20}
+                  total={keys.data.data.pagination.totalItems}
+                  onChange={(page) => {
+                    setKeyPage(page)
+                    setKeyId('')
+                  }}
+                />
+              </>
+            ) : (
+              <ItEmpty />
+            )}
+          </ItQueryState>
+        ) : (
+          <p role='status' className='text-sm'>
+            {translate('keySubscriptionUnavailable')}
+          </p>
+        ))}
       {action === 'revocation' && task.plan?.provisioningType === 'K2' && (
         <ItChoiceSelect
           label={translate('completion')}
@@ -115,6 +173,32 @@ export function ProvisioningActionDialog({
             if (value === 'ACCOUNT_REMOVED' || value === 'ALREADY_GONE') setCompletion(value)
           }}
         />
+      )}
+      {action === 'revocation' && completion === 'KEY_DEACTIVATED' && (
+        <>
+          <ItChoiceSelect
+            label={translate('keyDisposition')}
+            value={keyDisposition}
+            options={(['RETURN_TO_STORE', 'WITHDRAW'] as const).map((value) => ({
+              value,
+              label: translate(`keyDispositions.${value}`)
+            }))}
+            onChange={(value) => {
+              if (value === 'RETURN_TO_STORE' || value === 'WITHDRAW') setKeyDisposition(value)
+            }}
+          />
+          {keyDisposition === 'WITHDRAW' && (
+            <ItField label={translate('withdrawalReason')} hint={translate('withdrawalReasonHint')}>
+              <textarea
+                className={itInputClass}
+                required
+                maxLength={500}
+                value={withdrawalReason}
+                onChange={(event) => setWithdrawalReason(event.target.value)}
+              />
+            </ItField>
+          )}
+        </>
       )}
       {needsEvidence && (
         <ItField label={translate('evidence')}>

@@ -4,6 +4,7 @@ import type { RecordTransferBodyDtoGrounds } from '~/shared/api/generated/model/
 import { AdminField, AdminFormDialog, adminInputClass } from './admin-form'
 import { EmployeeLookup } from './employee-lookup'
 import { DepartmentLookup } from './department-lookup'
+import { EmployeeDepartmentSelect } from './employee-department-select'
 import { NoticeEventLookup, type NoticeEventSource } from './notice-event-lookup'
 
 export interface PersonnelField {
@@ -75,12 +76,14 @@ export function PersonnelForm({
 }) {
   const { t: translate } = useTranslation('adminPersonnel')
   const [validation, setValidation] = useState(false)
+  const [departmentReady, setDepartmentReady] = useState(false)
   return (
     <AdminFormDialog
       page={fields.length + (basis ? basisFields.length : 0) > 10}
       title={title}
       wide
       pending={pending}
+      submitDisabled={fields.some((field) => field.name === 'departmentCode') && !departmentReady}
       onClose={onClose}
       submitLabel={submitLabel}
       onSubmit={(event) => {
@@ -95,64 +98,68 @@ export function PersonnelForm({
       }}
     >
       <div className='grid gap-4 sm:grid-cols-2'>
-        {[...fields, ...(basis ? basisFields : [])].map((field) => (
-          <AdminField
-            key={field.name}
-            label={translate(`fields.${field.name}`, { defaultValue: translate('unknown') })}
-          >
-            {field.name === 'employeeId' || field.name === 'successorEmployeeId' ? (
-              <EmployeeLookup
-                name={field.name}
-                required={!field.optional}
-                initial={field.initial}
-                initialLabel={field.initialLabel}
-              />
-            ) : field.name === 'toDepartmentId' || field.name === 'departmentId' ? (
-              <DepartmentLookup
-                name={field.name}
-                required={!field.optional}
-                initial={field.initial}
-                initialLabel={field.initialLabel}
-              />
-            ) : field.name === 'eventId' && field.eventSource && field.employeeId ? (
-              <NoticeEventLookup source={field.eventSource} employeeId={field.employeeId} />
-            ) : field.options ? (
-              <select
-                name={field.name}
-                required={!field.optional}
-                defaultValue={field.initial ?? ''}
-                className={adminInputClass}
-              >
-                <option value=''>{translate('choose')}</option>
-                {field.options.map((option) => (
-                  <option key={option} value={option}>
-                    {translate(`codes.${option}`, { defaultValue: translate('unknown') })}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <input
-                name={field.name}
-                type={field.type === 'uuid' ? 'text' : (field.type ?? 'text')}
-                pattern={field.type === 'uuid' ? uuidPattern : field.pattern}
-                minLength={field.minLength}
-                maxLength={field.maxLength}
-                defaultValue={field.initial}
-                placeholder={
-                  field.type === 'checkbox' || field.type === 'date'
-                    ? undefined
-                    : translate(`placeholders.${field.name}`, {
-                        defaultValue: translate('fieldPlaceholder', {
-                          field: translate(`fields.${field.name}`, { defaultValue: translate('unknown') })
+        {[...fields, ...(basis ? basisFields : [])].map((field) =>
+          field.name === 'departmentCode' ? (
+            <EmployeeDepartmentSelect key={field.name} onReadyChange={setDepartmentReady} />
+          ) : (
+            <AdminField
+              key={field.name}
+              label={translate(`fields.${field.name}`, { defaultValue: translate('unknown') })}
+            >
+              {field.name === 'employeeId' || field.name === 'successorEmployeeId' ? (
+                <EmployeeLookup
+                  name={field.name}
+                  required={!field.optional}
+                  initial={field.initial}
+                  initialLabel={field.initialLabel}
+                />
+              ) : field.name === 'toDepartmentId' || field.name === 'departmentId' ? (
+                <DepartmentLookup
+                  name={field.name}
+                  required={!field.optional}
+                  initial={field.initial}
+                  initialLabel={field.initialLabel}
+                />
+              ) : field.name === 'eventId' && field.eventSource && field.employeeId ? (
+                <NoticeEventLookup source={field.eventSource} employeeId={field.employeeId} />
+              ) : field.options ? (
+                <select
+                  name={field.name}
+                  required={!field.optional}
+                  defaultValue={field.initial ?? ''}
+                  className={adminInputClass}
+                >
+                  <option value=''>{translate('choose')}</option>
+                  {field.options.map((option) => (
+                    <option key={option} value={option}>
+                      {translate(`codes.${option}`, { defaultValue: translate('unknown') })}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  name={field.name}
+                  type={field.type === 'uuid' ? 'text' : (field.type ?? 'text')}
+                  pattern={field.type === 'uuid' ? uuidPattern : field.pattern}
+                  minLength={field.minLength}
+                  maxLength={field.maxLength}
+                  defaultValue={field.initial}
+                  placeholder={
+                    field.type === 'checkbox' || field.type === 'date'
+                      ? undefined
+                      : translate(`placeholders.${field.name}`, {
+                          defaultValue: translate('fieldPlaceholder', {
+                            field: translate(`fields.${field.name}`, { defaultValue: translate('unknown') })
+                          })
                         })
-                      })
-                }
-                required={!field.optional}
-                className={field.type === 'checkbox' ? 'size-5 accent-primary' : adminInputClass}
-              />
-            )}
-          </AdminField>
-        ))}
+                  }
+                  required={!field.optional}
+                  className={field.type === 'checkbox' ? 'size-5 accent-primary' : adminInputClass}
+                />
+              )}
+            </AdminField>
+          )
+        )}
       </div>
       {basis && <p className='text-xs text-muted-foreground'>{translate('basisHelp')}</p>}
       {validation && (

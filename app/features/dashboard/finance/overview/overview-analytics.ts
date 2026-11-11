@@ -1,5 +1,6 @@
 import type { BudgetTablePageResponseDtoDataItemsItem } from '~/shared/api/generated/model/budgets/budgetTablePageResponseDtoDataItemsItem'
 import type { CommitmentListResponseDtoDataItemsItem } from '~/shared/api/generated/model/budget-commitments/commitmentListResponseDtoDataItemsItem'
+import { hasBudget } from '../shared/finance-budget-row'
 import type { VersionResponseDtoDataVersionQuarters } from '~/shared/api/generated/model/budget-versions/versionResponseDtoDataVersionQuarters'
 
 export type OverviewPeriodMode = 'year' | 'quarter' | 'month'
@@ -41,9 +42,9 @@ export interface BudgetTotals {
 }
 
 export function budgetTotals(rows: readonly BudgetTablePageResponseDtoDataItemsItem[]): BudgetTotals {
-  return rows.reduce<BudgetTotals>(
+  return rows.filter(hasBudget).reduce<BudgetTotals>(
     (sum, row) => ({
-      currency: sum.currency ?? row.total.currency,
+      currency: sum.currency ?? row.total?.currency ?? null,
       total: sum.total + toAmount(row.total),
       committed: sum.committed + toAmount(row.committed),
       spent: sum.spent + toAmount(row.spent),

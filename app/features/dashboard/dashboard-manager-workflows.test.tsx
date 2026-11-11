@@ -39,6 +39,7 @@ const server = setupServer(
     })
   ),
   http.get('*/api/v1/departments/:id/employees', () => HttpResponse.json(pageResponse([]))),
+  http.get('*/api/v1/departments/:id/access-requests', () => HttpResponse.json(pageResponse([]))),
   http.get('*/api/v1/notifications/unread-count', () => HttpResponse.json({ success: true, data: { unread: 0 } })),
   http.get('*/api/v1/handover-duties', () =>
     HttpResponse.json({
@@ -96,10 +97,10 @@ describe('DashboardPage Manager workflows', () => {
     await setAppLanguage('vi', false)
   })
 
-  it('replaces the preview request history with an API request lookup', async () => {
+  it('replaces the preview request history with the department request API', async () => {
     await setAppLanguage('en', true)
     await renderDashboard('manager', '/?tab=my-requests')
-    expect(await screen.findByText('A complete request history is not yet available.')).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Department requests' })).toBeInTheDocument()
     expect(screen.queryByLabelText('Request ID')).not.toBeInTheDocument()
     expect(screen.queryByText('No previews yet')).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Save preview' })).not.toBeInTheDocument()

@@ -1,4 +1,5 @@
 ﻿export const itOffboarding = {
+  unknown: 'Not available',
   duties: {
     serviceTitle: 'Service account responsibilities',
     handoverTitle: 'Data handover duties',

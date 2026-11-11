@@ -63,6 +63,7 @@ export function BudgetProposalDetail({ itemId, onSelectTab }: BudgetViewProps & 
         onSubmit={(figures) =>
           createMutation.mutate({
             data: {
+              source: 'PROPOSAL',
               proposalId: itemId,
               base: figures.base,
               reserve: figures.reserve,

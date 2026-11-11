@@ -43,7 +43,10 @@ export function NeedRequestSummary({ request }: { request: AccessRequestResponse
           value={request.pricing.amount ? formatMoney(request.pricing.amount, i18n.language) : translate('unknown')}
           emphasis
         />
-        <ApprovalsStat label={translate('term')} value={formatNumber(request.termMonths)} />
+        <ApprovalsStat
+          label={translate('term')}
+          value={request.termMonths === null ? translate('unknown') : formatNumber(request.termMonths)}
+        />
         <ApprovalsStat
           label={translate('assignedAt')}
           value={request.needStep.assignedAt ? formatDate(request.needStep.assignedAt) : translate('unknown')}

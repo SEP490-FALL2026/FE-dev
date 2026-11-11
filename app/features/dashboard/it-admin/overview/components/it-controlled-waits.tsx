@@ -76,10 +76,6 @@ export function ItControlledWaits() {
                   : translate('unknown')}
               </dd>
             </div>
-            <div className='sm:col-span-2'>
-              <dt className='text-muted-foreground'>{translate('requestReference')}</dt>
-              <dd className='break-all font-mono text-xs'>{selected.requestId}</dd>
-            </div>
           </dl>
         </ItDetailDialog>
       )}

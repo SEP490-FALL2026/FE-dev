@@ -83,6 +83,8 @@ export const auth = {
     currentPassword: 'Mật khẩu hiện tại',
     newPassword: 'Mật khẩu mới',
     confirmPassword: 'Xác nhận mật khẩu mới',
+    showConfirmation: 'Hiện mật khẩu xác nhận',
+    hideConfirmation: 'Ẩn mật khẩu xác nhận',
     passwordMismatch: 'Hai mật khẩu chưa khớp.',
     passwordPolicy: 'Mật khẩu mới cần từ 12 đến 128 ký tự và khác email đăng nhập.',
     invalidLink: 'Liên kết không hợp lệ hoặc đã hết hạn.',

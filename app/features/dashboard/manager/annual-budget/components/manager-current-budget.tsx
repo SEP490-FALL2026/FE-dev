@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { useBudgetScope } from '../hooks/use-budget-scope'
 import { useBudgetMine } from '~/shared/api/generated/operations/budgets/budget-mine'
 import { useBudgetMineLineList } from '~/shared/api/generated/operations/budgets/budget-mine-line-list'
 import { useManagerPage } from '../../shared/hooks/use-manager-page'
@@ -13,7 +14,11 @@ import { BUDGET_STATUS } from '../enums/budget-status'
 
 export function ManagerCurrentBudget({ year }: { year: number }) {
   const { t: translate } = useTranslation('manager')
-  const query = useBudgetMine({ year })
+  const scope = useBudgetScope()
+  const query = useBudgetMine(
+    { year, ...(scope.costCenterId ? { costCenterId: scope.costCenterId } : {}) },
+    { query: { enabled: !scope.isPending && !scope.isError && !!scope.departmentId } }
+  )
   const budget = !query.isError ? query.data?.data?.budget : null
   return (
     <ManagerSection title={translate('currentBudget')}>
@@ -29,15 +34,20 @@ export function ManagerCurrentBudget({ year }: { year: number }) {
               </p>
             </div>
           </div>
-          {budget.status === BUDGET_STATUS.ACTIVE && <CurrentLines year={year} />}
+          {budget.status === BUDGET_STATUS.ACTIVE && <CurrentLines year={year} costCenterId={scope.costCenterId} />}
         </>
       )}
     </ManagerSection>
   )
 }
-function CurrentLines({ year }: { year: number }) {
+function CurrentLines({ year, costCenterId }: { year: number; costCenterId?: string }) {
   const paging = useManagerPage('budgetPage')
-  const query = useBudgetMineLineList({ year, page: paging.page, pageSize: paging.pageSize })
+  const query = useBudgetMineLineList({
+    year,
+    ...(costCenterId ? { costCenterId } : {}),
+    page: paging.page,
+    pageSize: paging.pageSize
+  })
   return (
     <div>
       <ManagerQueryState query={query} empty={!query.data?.data?.items.length} />

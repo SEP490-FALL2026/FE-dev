@@ -18,6 +18,25 @@ beforeEach(async () => {
   vi.resetAllMocks()
   await setAppLanguage('en', false)
 })
+it('limits the baseline subscription choices to the selected plan', async () => {
+  request.mockImplementation(async (config) =>
+    config.url?.endsWith('/seat-baseline')
+      ? { data: { closed: false } }
+      : { data: { items: [], pagination: { totalItems: 0 } } }
+  )
+  render(
+    <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+      <CatalogSeatBaseline applicationId='app-1' planId='plan-1' />
+    </QueryClientProvider>
+  )
+  await waitFor(() =>
+    expect(
+      request.mock.calls.some(
+        ([config]) => config.url?.endsWith('/subscriptions') && config.params?.planId === 'plan-1'
+      )
+    ).toBe(true)
+  )
+})
 it('uploads a selected subscription and retains the same confirmation intent after failure', async () => {
   let attempts = 0
   request.mockImplementation(async (config) => {
@@ -58,6 +77,7 @@ it('uploads a selected subscription and retains the same confirmation intent aft
     </QueryClientProvider>
   )
   fireEvent.click(await screen.findByLabelText(/Paid plan/))
+  expect(screen.queryByText('sub-1')).not.toBeInTheDocument()
   fireEvent.change(screen.getByLabelText('CSV file'), {
     target: { files: [new File(['employeeCode\nA'], 'seats.csv', { type: 'text/csv' })] }
   })

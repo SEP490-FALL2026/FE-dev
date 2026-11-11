@@ -1,18 +1,18 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useBudgetVersionHistoryList } from '~/shared/api/generated/operations/budget-versions/budget-version-history-list'
-import { FinanceDrawer, FinancePagination, FinanceQueryState } from '../../shared/components/finance-ui'
+import { FinancePagination, FinanceQueryState } from '../../shared/components/finance-ui'
 import { FinanceTable } from '../../shared/components/finance-table'
 import { useDashboardFormat } from '../../../dashboard-ui'
 
-export function BudgetVersionHistory({ versionId, onClose }: { versionId: string; onClose: () => void }) {
+export function BudgetVersionHistory({ versionId }: { versionId: string }) {
   const { t: translate } = useTranslation('financeBudget')
   const { formatDateTime } = useDashboardFormat()
   const [page, setPage] = useState(1)
   const query = useBudgetVersionHistoryList(versionId, { page, pageSize: 20 })
   const result = query.data?.data
   return (
-    <FinanceDrawer title={translate('history')} onClose={onClose}>
+    <div role='region' aria-label={translate('history')}>
       <FinanceQueryState query={query}>
         <FinanceTable
           items={result?.items ?? []}
@@ -63,6 +63,6 @@ export function BudgetVersionHistory({ versionId, onClose }: { versionId: string
         />
         <FinancePagination pagination={result?.pagination} onPageChange={setPage} />
       </FinanceQueryState>
-    </FinanceDrawer>
+    </div>
   )
 }

@@ -1,7 +1,10 @@
 import type { SuperAdminSelectTab, SuperAdminTabKey } from './super-admin-nav'
 import { useSearchParams } from 'react-router'
+import { useState } from 'react'
 import { SuperAdminOverviewView } from './overview/views/super-admin-overview-view'
 import { SuperAdminAccountsView } from './accounts/views/super-admin-accounts-view'
+import { AccountInviteDialog } from './accounts/components/account-invite-dialog'
+import { AccountDetailModal } from './accounts/components/account-detail-modal'
 import { SuperAdminDepartmentsView } from './departments/views/super-admin-departments-view'
 import { SuperAdminPersonnelView } from './personnel/views/super-admin-personnel-view'
 import { SuperAdminTransferView } from './transfer/views/super-admin-transfer-view'
@@ -21,6 +24,7 @@ export function SuperAdminScreen({ tab, onSelectTab }: { tab: SuperAdminTabKey; 
 
 function SuperAdminContent({ tab, onSelectTab }: { tab: SuperAdminTabKey; onSelectTab: SuperAdminSelectTab }) {
   const [searchParams, setSearchParams] = useSearchParams()
+  const [inviteFromPersonnel, setInviteFromPersonnel] = useState(false)
   const accountId = searchParams.get('id') ?? undefined
   const accountSection = searchParams.get('section') === 'responsibilities' ? 'responsibilities' : 'accounts'
   const invite = searchParams.get('action') === 'invite'
@@ -57,7 +61,15 @@ function SuperAdminContent({ tab, onSelectTab }: { tab: SuperAdminTabKey; onSele
     case 'departments':
       return <SuperAdminDepartmentsView />
     case 'personnel':
-      return <SuperAdminPersonnelView />
+      return (
+        <>
+          <SuperAdminPersonnelView
+            onInviteAccount={() => setInviteFromPersonnel(true)}
+            renderAccountDetail={(id, onClose) => <AccountDetailModal page id={id} onClose={onClose} />}
+          />
+          {inviteFromPersonnel && <AccountInviteDialog onClose={() => setInviteFromPersonnel(false)} />}
+        </>
+      )
     case 'transfer':
       return <SuperAdminTransferView />
     case 'settings':

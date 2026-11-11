@@ -13,14 +13,20 @@ import {
 
 interface Props {
   year: number
+  costCenterId?: string
   onOpenVersion?: (version: MineVersionPageResponseDtoDataItemsItem) => void
 }
 
-export function ManagerBudgetVersions({ year, onOpenVersion }: Props) {
+export function ManagerBudgetVersions({ year, costCenterId, onOpenVersion }: Props) {
   const { t: translate } = useTranslation('manager')
   const { formatDateTime } = useDashboardFormat()
   const paging = useManagerPage('versionPage')
-  const query = useBudgetMineVersionList({ year, page: paging.page, pageSize: paging.pageSize })
+  const query = useBudgetMineVersionList({
+    year,
+    ...(costCenterId ? { costCenterId } : {}),
+    page: paging.page,
+    pageSize: paging.pageSize
+  })
 
   const items: MineVersionPageResponseDtoDataItemsItem[] = !query.isError ? (query.data?.data?.items ?? []) : []
 

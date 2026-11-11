@@ -14,7 +14,7 @@ import {
   requestId,
   requestPreview
 } from './employee-api'
-import { managerId } from './manager-api'
+import { managerId, managerProfile } from './manager-api'
 
 const unavailable = { state: 'NOT_AVAILABLE', count: null, sourceOperationId: null, reason: 'NO_DATA_SOURCE' } as const
 export const managerDashboard: NonNullable<ManagerDashboardResponseDtoData> = {
@@ -50,7 +50,7 @@ export const needItem: NeedQueueResponseDtoDataItemsItem = {
   businessReasonExcerpt: 'Design work',
   termMonths: 13,
   pricing: { status: 'PRICED', amount: pricing.amount },
-  samePersonAsSpend: false
+  expectedEndDate: null
 }
 export const assignedTool: DepartmentToolsResponseDtoDataItemsItem = {
   assignmentId,
@@ -100,6 +100,13 @@ export const managerCatalogHandlers = [
   )
 ]
 export const managerReadHandlers = [
+  http.get('*/api/v1/me', () => HttpResponse.json({ success: true, data: managerProfile })),
+  http.get('*/api/v1/budgets/mine', () => HttpResponse.json({ success: true, data: null })),
+  http.get('*/api/v1/budget-cycles/:year/baseline', () =>
+    HttpResponse.json({ success: true, data: { departments: [] } })
+  ),
+  http.get('*/api/v1/departments/:id/access-requests', () => HttpResponse.json(pageResponse([]))),
+  http.get('*/api/v1/access-requests/:id/events', () => HttpResponse.json(pageResponse([]))),
   http.get('*/api/v1/departments/:id', ({ params }) =>
     HttpResponse.json({
       success: true,

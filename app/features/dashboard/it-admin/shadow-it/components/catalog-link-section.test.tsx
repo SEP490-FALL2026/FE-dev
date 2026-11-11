@@ -85,10 +85,10 @@ const assessment: AssessmentResponseDtoDataAssessment = {
     amount: null,
     unitPrice: null,
     billingCycle: null,
-    periodCount: null,
-    bindingPeriodCount: null,
-    firstDueOn: null,
-    lastDueOn: null
+    kind: null,
+    months: null,
+    monthlyPrice: null,
+    nextYearAmount: null
   }
 }
 const actualPlan = {

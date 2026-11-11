@@ -1,4 +1,4 @@
-import { useId, useRef, type ReactNode, type FormEvent } from 'react'
+import { cloneElement, isValidElement, useId, useRef, type ReactNode, type FormEvent } from 'react'
 import { createPortal } from 'react-dom'
 import { LoaderCircle, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -14,10 +14,21 @@ export const adminPrimaryClass = `${adminControlClass} border-transparent bg-pri
 const adminDangerClass = `${adminControlClass} border-danger bg-danger text-white hover:bg-danger/90`
 
 export function AdminField({ label, children, error }: { label: string; children: ReactNode; error?: string }) {
+  const control = isValidElement<{ required?: boolean; 'aria-label'?: string }>(children) ? children : null
+  const required = control?.props.required
   return (
     <label className='grid min-w-0 gap-1.5 text-sm font-medium'>
-      {label}
-      {children}
+      <span>
+        {label}
+        {required && (
+          <span aria-hidden='true' className='ml-1 text-danger'>
+            *
+          </span>
+        )}
+      </span>
+      {control && typeof control.type === 'string'
+        ? cloneElement(control, { 'aria-label': control.props['aria-label'] ?? label })
+        : children}
       {error && <span className='min-h-5 text-xs text-danger'>{error}</span>}
     </label>
   )
@@ -128,7 +139,11 @@ export function AdminFormDialog({
           >
             <fieldset
               disabled={pending}
-              className={page ? 'grid gap-4 p-5' : 'grid min-h-0 flex-1 gap-4 overflow-y-auto p-5'}
+              className={
+                page
+                  ? 'grid min-w-0 gap-4 p-5'
+                  : 'grid min-h-0 min-w-0 flex-1 grid-cols-[minmax(0,1fr)] gap-4 overflow-x-hidden overflow-y-auto p-5'
+              }
             >
               {children}
             </fieldset>

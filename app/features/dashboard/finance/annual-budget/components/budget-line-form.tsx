@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { MoneyInput } from '~/shared/ui/money-input'
 import { useTranslation } from 'react-i18next'
 import type { AddLinesBodyDtoLinesItem } from '~/shared/api/generated/model/budget-versions/addLinesBodyDtoLinesItem'
 import type { VersionLinePageResponseDtoDataItemsItem } from '~/shared/api/generated/model/budget-versions/versionLinePageResponseDtoDataItemsItem'
@@ -6,6 +7,7 @@ import { usePlanList } from '~/shared/api/generated/operations/plans/plan-list'
 import { AdminFormDialog as FinanceFormDialog } from '~/shared/ui/form-dialog'
 import { FinanceField, FinanceSelect, financeInputClass } from '../../shared/components/finance-ui'
 import { isDecimal } from '../../shared/finance-money'
+import { LINE_TYPE, isLineType, lineTypes, type LineType } from '../enums/line-type'
 
 export type BudgetLineInput = AddLinesBodyDtoLinesItem & { financeComment?: string; adjustmentReason?: string }
 
@@ -34,10 +36,24 @@ export function BudgetLineForm({
   const [seats, setSeats] = useState(line?.seats === null || line?.seats === undefined ? '' : String(line.seats))
   const [comment, setComment] = useState(line?.financeComment ?? '')
   const [reason, setReason] = useState(line?.adjustmentReason ?? '')
+  const [lineType, setLineType] = useState<LineType>(line?.lineType ?? LINE_TYPE.RENEW)
+  const [priorityRank, setPriorityRank] = useState(
+    line?.priorityRank === null || line?.priorityRank === undefined ? '' : String(line.priorityRank)
+  )
+  const [zbb, setZbb] = useState({
+    purpose: line?.zbb?.purpose ?? '',
+    alternatives: line?.zbb?.alternatives ?? '',
+    consequenceIfNot: line?.zbb?.consequenceIfNot ?? '',
+    usageIndicator: line?.zbb?.usageIndicator ?? ''
+  })
   const [invalid, setInvalid] = useState(false)
   const planOptions = plans.data?.data?.items ?? []
   const seatsValid = !seats || (Number.isInteger(Number(seats)) && Number(seats) >= 1 && Number(seats) <= 100000)
-  const valid = description.trim() && isDecimal(amount) && seatsValid
+  const rankValid = !priorityRank || (Number.isInteger(Number(priorityRank)) && Number(priorityRank) >= 1)
+  const zbbFilled = Object.values(zbb).every((value) => value.trim())
+  const zbbEmpty = Object.values(zbb).every((value) => !value.trim())
+  const zbbValid = zbbFilled || zbbEmpty
+  const valid = description.trim() && isDecimal(amount) && seatsValid && rankValid && zbbValid
   const fieldError = (failed: boolean) => (invalid && failed ? translate('fieldInvalid') : null)
   return (
     <FinanceFormDialog
@@ -55,8 +71,20 @@ export function BudgetLineForm({
           return
         }
         onSubmit({
+          lineType,
           description: description.trim(),
           amount: { amount },
+          ...(priorityRank ? { priorityRank: Number(priorityRank) } : {}),
+          ...(zbbFilled
+            ? {
+                zbb: {
+                  purpose: zbb.purpose.trim(),
+                  alternatives: zbb.alternatives.trim(),
+                  consequenceIfNot: zbb.consequenceIfNot.trim(),
+                  usageIndicator: zbb.usageIndicator.trim()
+                }
+              }
+            : {}),
           ...(planId.trim() ? { planId: planId.trim() } : {}),
           ...(seats ? { seats: Number(seats) } : {}),
           ...(line
@@ -88,15 +116,38 @@ export function BudgetLineForm({
           hint={translate('amountHint', { currency })}
           error={fieldError(!isDecimal(amount))}
         >
-          <input
+          <MoneyInput
             required
-            inputMode='decimal'
             maxLength={40}
             aria-invalid={invalid && !isDecimal(amount)}
             className={`${financeInputClass} text-right font-mono tabular-nums`}
             placeholder={translate('placeholders.amount')}
             value={amount}
-            onChange={(event) => setAmount(event.target.value)}
+            onValueChange={setAmount}
+          />
+        </FinanceField>
+        <FinanceField required label={translate('fields.lineType')}>
+          <FinanceSelect
+            value={lineType}
+            onChange={(event) => {
+              if (isLineType(event.target.value)) setLineType(event.target.value)
+            }}
+          >
+            {lineTypes.map((value) => (
+              <option key={value} value={value}>
+                {translate(`lineTypes.${value}`)}
+              </option>
+            ))}
+          </FinanceSelect>
+        </FinanceField>
+        <FinanceField label={translate('fields.priorityRank')} error={fieldError(!rankValid)}>
+          <input
+            type='number'
+            min={1}
+            aria-invalid={invalid && !rankValid}
+            className={`${financeInputClass} font-mono tabular-nums`}
+            value={priorityRank}
+            onChange={(event) => setPriorityRank(event.target.value)}
           />
         </FinanceField>
         <FinanceField label={translate('fields.seats')} error={fieldError(!seatsValid)}>
@@ -124,6 +175,26 @@ export function BudgetLineForm({
             </FinanceSelect>
           </FinanceField>
         </div>
+      </div>
+      <h3 className={sectionTitleClass}>{translate('sections.zbb')}</h3>
+      <p className='text-sm text-muted-foreground'>{translate('zbbHint')}</p>
+      <div className='grid gap-4 sm:grid-cols-2'>
+        {(Object.keys(zbb) as Array<keyof typeof zbb>).map((key) => (
+          <FinanceField
+            key={key}
+            required={!zbbEmpty}
+            label={translate(`zbb.${key}`)}
+            error={fieldError(!zbbValid && !zbb[key].trim())}
+          >
+            <textarea
+              rows={2}
+              maxLength={1000}
+              className={financeInputClass}
+              value={zbb[key]}
+              onChange={(event) => setZbb({ ...zbb, [key]: event.target.value })}
+            />
+          </FinanceField>
+        ))}
       </div>
       <h3 className={sectionTitleClass}>{translate('sections.notes')}</h3>
       <FinanceField label={translate(line ? 'fields.financeComment' : 'fields.note')}>

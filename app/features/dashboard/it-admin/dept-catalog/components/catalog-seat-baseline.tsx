@@ -11,14 +11,18 @@ import { ItPagination } from '../../shared/components/it-pagination'
 import { ItField, ItFormDialog, itButtonClass, itInputClass } from '../../shared/components/it-form'
 import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
 import { CatalogSeatPreview } from './catalog-seat-preview'
+import { useDashboardFormat } from '../../../dashboard-ui'
 export function CatalogSeatBaseline({
   applicationId,
-  applicationKind
+  applicationKind,
+  planId
 }: {
   applicationId: string
   applicationKind?: string
+  planId?: string
 }) {
   const { t: translate } = useTranslation('itCatalog')
+  const { formatDate } = useDashboardFormat()
   const [page, setPage] = useState(1)
   const [subscriptionId, setSubscriptionId] = useState('')
   const [file, setFile] = useState<File>()
@@ -28,7 +32,7 @@ export function CatalogSeatBaseline({
   const baseline = useSeatBaselineGet()
   const internal = applicationKind === 'INTERNAL'
   const subscriptions = useSubscriptionList(
-    { applicationId, status: CatalogSubscriptionStatus.ACTIVE, page, pageSize: 20 },
+    { applicationId, planId, status: CatalogSubscriptionStatus.ACTIVE, page, pageSize: 20 },
     { query: { enabled: !internal } }
   )
   const plans = usePlanList(
@@ -37,10 +41,14 @@ export function CatalogSeatBaseline({
   )
   const targets = internal ? plans : subscriptions
   const options = internal
-    ? plans.data?.data?.items.map((plan) => ({ id: plan.id, label: plan.name, disabled: false }))
+    ? plans.data?.data?.items.map((plan) => ({ id: plan.id, label: plan.name, period: '', disabled: false }))
     : subscriptions.data?.data?.items.map((subscription) => ({
         id: subscription.id,
         label: subscription.planName,
+        period: [subscription.startDate, subscription.endDate]
+          .filter((date): date is string => Boolean(date))
+          .map(formatDate)
+          .join(' – '),
         disabled: subscription.purchasedQuantity === null
       }))
   const feedback = useItMutationFeedback([baseline.queryKey])
@@ -77,6 +85,9 @@ export function CatalogSeatBaseline({
               <fieldset disabled={upload.isPending} className='space-y-3'>
                 <legend className='mb-2 text-sm font-medium'>
                   {translate(internal ? 'import.internalPlan' : 'import.subscription')}
+                  <span aria-hidden='true' className='ml-1 text-danger'>
+                    *
+                  </span>
                 </legend>
                 <ItQueryState query={targets}>
                   {options?.map((subscription) => (
@@ -91,7 +102,9 @@ export function CatalogSeatBaseline({
                         onChange={() => setSubscriptionId(subscription.id)}
                       />
                       <span>{subscription.label}</span>
-                      <span className='text-xs text-muted-foreground'>{subscription.id}</span>
+                      {subscription.period && (
+                        <span className='text-xs text-muted-foreground'>{subscription.period}</span>
+                      )}
                     </label>
                   ))}
                   {options?.length === 0 && <ItEmpty />}
