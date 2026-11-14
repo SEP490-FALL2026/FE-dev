@@ -63,13 +63,13 @@ export const adminAccounts = {
   transferHint:
     'Hand over the Super Admin role to an eligible colleague. Your permissions will change immediately after confirmation.',
   transferEligibility:
-    'The successor must be working, activated and verified, without IT Admin, Finance, department head or approval duties. The server checks all conditions before transfer.',
+    'The successor must be working, activated and verified, without information technology administrator, finance, department head or approval duties. The server checks all conditions before transfer.',
   transferConfirm: 'I confirm that the selected colleague will become Super Admin and that I will lose this role.',
   statuses: { ACTIVE: 'Active', LOCKED: 'Locked' },
   activationStates: { INVITED: 'Invited', ACTIVATED: 'Activated' },
   roles: {
     SUPER_ADMIN: 'Super Admin',
-    IT_ADMIN: 'IT Admin',
+    IT_ADMIN: 'Information technology administrator',
     FINANCE: 'Finance',
     EMPLOYEE: 'Employee',
     MANAGER: 'Manager',

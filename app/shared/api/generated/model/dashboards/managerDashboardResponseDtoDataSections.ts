@@ -12,15 +12,12 @@ import type { ManagerDashboardResponseDtoDataSectionsGhostSeats } from './manage
 import type { ManagerDashboardResponseDtoDataSectionsNeedApprovals } from './managerDashboardResponseDtoDataSectionsNeedApprovals'
 import type { ManagerDashboardResponseDtoDataSectionsSpending } from './managerDashboardResponseDtoDataSectionsSpending'
 import type { ManagerDashboardResponseDtoDataSectionsSpendQueue } from './managerDashboardResponseDtoDataSectionsSpendQueue'
-import type { ManagerDashboardResponseDtoDataSectionsTransferReviews } from './managerDashboardResponseDtoDataSectionsTransferReviews'
 
 export type ManagerDashboardResponseDtoDataSections = {
   /** The need steps given to the caller now, as needDecisionList counts them: requests of the caller, steps already decided and steps handed to somebody else are not counted. */
   needApprovals: ManagerDashboardResponseDtoDataSectionsNeedApprovals
   /** The seats the department is granted or manages on the business day: a read of the records, not a proof of use. */
   departmentSoftware: ManagerDashboardResponseDtoDataSectionsDepartmentSoftware
-  /** The reviews of tools after a transfer into the department that are still open. */
-  transferReviews: ManagerDashboardResponseDtoDataSectionsTransferReviews
   /** The recommendations about the seats of the department that wait for the head to decide, or were returned to them. */
   ghostSeats: ManagerDashboardResponseDtoDataSectionsGhostSeats
   /** The actual cost and the commitments held of the department; the figures are not delivered yet and are never shown as zero. */

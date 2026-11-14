@@ -1,11 +1,10 @@
 import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { useAppUserList } from '~/shared/api/generated/operations/app-users/app-user-list'
-import { useAccountCandidatesList } from '~/shared/api/generated/operations/app-users/account-candidates-list'
-import { AdminEmpty, AdminQueryState } from './admin-query-state'
-import { AdminPagination } from './admin-pagination'
-import { adminInputClass, adminButtonClass } from './admin-form'
-import { useAdminSearch } from '../hooks/use-admin-search'
+import { employeeList, getEmployeeListQueryKey } from '~/shared/api/generated/operations/employees/employee-list'
+import { appUserList, getAppUserListQueryKey } from '~/shared/api/generated/operations/app-users/app-user-list'
+import { AdminQueryState } from './admin-query-state'
+import { adminInputClass } from './admin-form'
 
 export function EmployeeLookup({
   name,
@@ -13,7 +12,6 @@ export function EmployeeLookup({
   initial = '',
   initialLabel = '',
   purpose = 'personnel',
-  initiallyOpen = false,
   invalid = false,
   descriptionId
 }: {
@@ -22,42 +20,59 @@ export function EmployeeLookup({
   initial?: string
   initialLabel?: string
   purpose?: 'personnel' | 'leadership' | 'itAdmin'
-  initiallyOpen?: boolean
   invalid?: boolean
   descriptionId?: string
 }) {
   const { t: translate } = useTranslation('adminPersonnel')
   const [selected, setSelected] = useState(initial)
-  const [selectedLabel, setSelectedLabel] = useState(initialLabel)
-  const [open, setOpen] = useState(initiallyOpen)
-  const [source, setSource] = useState<'accounts' | 'candidates'>('accounts')
-  const [page, setPage] = useState(1)
-  const [search, setSearch] = useState('')
-  const debouncedSearch = useAdminSearch(search)
-  const accounts = useAppUserList(
-    {
-      page,
-      pageSize: 20,
-      ...(purpose !== 'personnel' ? { status: 'ACTIVE' as const, activationState: 'ACTIVATED' as const } : {}),
-      ...(purpose === 'itAdmin' ? { role: 'IT_ADMIN' as const } : {}),
-      ...(purpose === 'leadership' ? { role: 'MANAGER' as const } : {})
-    },
-    { query: { enabled: open && source === 'accounts' } }
-  )
-  const candidates = useAccountCandidatesList(debouncedSearch ? { search: debouncedSearch } : undefined, {
-    query: { enabled: open && source === 'candidates' }
+  const query = useQuery({
+    queryKey: [
+      ...(purpose === 'personnel' ? getEmployeeListQueryKey() : getAppUserListQueryKey()),
+      'employee-select',
+      purpose
+    ],
+    queryFn: async ({ signal }) => {
+      const items: { id: string; employeeCode: string; fullName: string }[] = []
+      let page = 1
+      let totalPages: number
+      do {
+        if (purpose === 'personnel') {
+          const response = await employeeList({ page, pageSize: 100 }, undefined, signal)
+          if (!response.data) throw new Error('Employee list unavailable')
+          items.push(...response.data.items)
+          totalPages = response.data.pagination.totalPages
+        } else {
+          const response = await appUserList(
+            {
+              page,
+              pageSize: 100,
+              status: 'ACTIVE',
+              activationState: 'ACTIVATED',
+              role: purpose === 'itAdmin' ? 'IT_ADMIN' : 'MANAGER'
+            },
+            undefined,
+            signal
+          )
+          if (!response.data) throw new Error('Account list unavailable')
+          items.push(
+            ...response.data.items.flatMap((account) =>
+              account.employee &&
+              !account.roles.includes('SUPER_ADMIN') &&
+              (purpose !== 'leadership' ||
+                (account.roles.includes('MANAGER') && !account.roles.includes('SPENDING_APPROVER'))) &&
+              (purpose !== 'itAdmin' || account.roles.includes('IT_ADMIN'))
+                ? [account.employee]
+                : []
+            )
+          )
+          totalPages = response.data.pagination.totalPages
+        }
+        page += 1
+      } while (page <= totalPages)
+      return items
+    }
   })
-  const items =
-    source === 'accounts'
-      ? accounts.data?.data?.items.flatMap((account) =>
-          account.employee &&
-          (purpose === 'personnel' || !account.roles.includes('SUPER_ADMIN')) &&
-          (purpose !== 'leadership' ||
-            (account.roles.includes('MANAGER') && !account.roles.includes('SPENDING_APPROVER')))
-            ? [account.employee]
-            : []
-        )
-      : candidates.data?.data?.items
+  const items = query.data ?? []
   return (
     <div className='grid gap-2'>
       <select
@@ -65,82 +80,23 @@ export function EmployeeLookup({
         name={name}
         aria-invalid={invalid || undefined}
         aria-describedby={descriptionId}
+        aria-busy={query.isFetching}
         required={required}
         value={selected}
-        onChange={() => {
-          setSelected('')
-          setSelectedLabel('')
-        }}
+        onChange={(event) => setSelected(event.target.value)}
         className={adminInputClass}
       >
         <option value=''>{translate(required ? 'choose' : 'noSelection')}</option>
-        {selected && <option value={selected}>{selectedLabel || translate('currentSelection')}</option>}
+        {initial && selected === initial && !items.some((item) => item.id === initial) && (
+          <option value={initial}>{initialLabel || translate('currentSelection')}</option>
+        )}
+        {items.map((item) => (
+          <option key={item.id} value={item.id}>
+            {translate('employeeOption', { code: item.employeeCode, name: item.fullName })}
+          </option>
+        ))}
       </select>
-      <button type='button' aria-expanded={open} className={adminButtonClass} onClick={() => setOpen(!open)}>
-        {translate('lookupEmployee')}
-      </button>
-      {open && (
-        <div className='space-y-2 rounded-md border border-border p-2'>
-          {purpose === 'personnel' && (
-            <div className='flex flex-wrap gap-2'>
-              <button
-                type='button'
-                className={adminButtonClass}
-                aria-pressed={source === 'accounts'}
-                onClick={() => setSource('accounts')}
-              >
-                {translate('withAccounts')}
-              </button>
-              <button
-                type='button'
-                className={adminButtonClass}
-                aria-pressed={source === 'candidates'}
-                onClick={() => setSource('candidates')}
-              >
-                {translate('withoutAccounts')}
-              </button>
-            </div>
-          )}
-          {source === 'candidates' && (
-            <input
-              type='search'
-              placeholder={translate('searchEmployeePlaceholder')}
-              aria-label={translate('searchEmployee')}
-              className={adminInputClass}
-              maxLength={100}
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-            />
-          )}
-          <AdminQueryState query={source === 'accounts' ? accounts : candidates}>
-            {!items?.length && <AdminEmpty />}
-            <ul className='grid gap-1'>
-              {items?.map((item) => (
-                <li key={item.id}>
-                  <button
-                    type='button'
-                    className={`${adminButtonClass} w-full justify-start text-left`}
-                    onClick={() => {
-                      setSelected(item.id)
-                      setSelectedLabel(translate('employeeOption', { code: item.employeeCode, name: item.fullName }))
-                      setOpen(false)
-                    }}
-                  >
-                    {translate('employeeOption', { code: item.employeeCode, name: item.fullName })}
-                  </button>
-                </li>
-              ))}
-            </ul>
-            {source === 'accounts' && (
-              <AdminPagination
-                pagination={accounts.data?.data?.pagination}
-                onPageChange={setPage}
-                disabled={accounts.isFetching}
-              />
-            )}
-          </AdminQueryState>
-        </div>
-      )}
+      {(query.isPending || query.isError) && <AdminQueryState query={query}>{null}</AdminQueryState>}
     </div>
   )
 }

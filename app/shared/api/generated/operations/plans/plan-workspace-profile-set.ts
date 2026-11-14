@@ -17,7 +17,7 @@ import { customAxios } from '../../../mutator/custom-axios'
 import type { ErrorType, BodyType } from '../../../mutator/custom-axios'
 
 /**
- * @summary Record the workspace profile of a K2 plan
+ * @summary Record who administers a plan at the vendor
  */
 export const planWorkspaceProfileSet = (
   id: string,
@@ -78,7 +78,7 @@ export type PlanWorkspaceProfileSetMutationBody = BodyType<WorkspaceProfileBodyD
 export type PlanWorkspaceProfileSetMutationError = ErrorType<ErrorEnvelopeDto>
 
 /**
- * @summary Record the workspace profile of a K2 plan
+ * @summary Record who administers a plan at the vendor
  */
 export const usePlanWorkspaceProfileSet = <TError = ErrorType<ErrorEnvelopeDto>, TContext = unknown>(
   options?: {

@@ -6,17 +6,26 @@
  * OpenAPI spec version: 1.0
  */
 import type { ItAdminDashboardResponseDtoDataSectionsCancellationDeadlines } from './itAdminDashboardResponseDtoDataSectionsCancellationDeadlines'
+import type { ItAdminDashboardResponseDtoDataSectionsDepartures } from './itAdminDashboardResponseDtoDataSectionsDepartures'
 import type { ItAdminDashboardResponseDtoDataSectionsDiscrepancies } from './itAdminDashboardResponseDtoDataSectionsDiscrepancies'
 import type { ItAdminDashboardResponseDtoDataSectionsGhostSeats } from './itAdminDashboardResponseDtoDataSectionsGhostSeats'
 import type { ItAdminDashboardResponseDtoDataSectionsGrantTasks } from './itAdminDashboardResponseDtoDataSectionsGrantTasks'
 import type { ItAdminDashboardResponseDtoDataSectionsLicenseKeys } from './itAdminDashboardResponseDtoDataSectionsLicenseKeys'
 import type { ItAdminDashboardResponseDtoDataSectionsOffboardingHandovers } from './itAdminDashboardResponseDtoDataSectionsOffboardingHandovers'
+import type { ItAdminDashboardResponseDtoDataSectionsPlansBelowVendorAdminMinimum } from './itAdminDashboardResponseDtoDataSectionsPlansBelowVendorAdminMinimum'
 import type { ItAdminDashboardResponseDtoDataSectionsRevocationTasks } from './itAdminDashboardResponseDtoDataSectionsRevocationTasks'
 import type { ItAdminDashboardResponseDtoDataSectionsSaasIssues } from './itAdminDashboardResponseDtoDataSectionsSaasIssues'
+import type { ItAdminDashboardResponseDtoDataSectionsSeatsReturned } from './itAdminDashboardResponseDtoDataSectionsSeatsReturned'
 import type { ItAdminDashboardResponseDtoDataSectionsTermsToReview } from './itAdminDashboardResponseDtoDataSectionsTermsToReview'
+import type { ItAdminDashboardResponseDtoDataSectionsTransfers } from './itAdminDashboardResponseDtoDataSectionsTransfers'
 import type { ItAdminDashboardResponseDtoDataSectionsUnconfirmedDevices } from './itAdminDashboardResponseDtoDataSectionsUnconfirmedDevices'
 
 export type ItAdminDashboardResponseDtoDataSections = {
+  departures: ItAdminDashboardResponseDtoDataSectionsDepartures
+  transfers: ItAdminDashboardResponseDtoDataSectionsTransfers
+  seatsReturned: ItAdminDashboardResponseDtoDataSectionsSeatsReturned
+  /** The plans in use that need admins at the vendor (`K2`, or `K4` with an admin console) with fewer than two of the recorded ones still working as IT Admins, or none recorded: the plans whose subscriptions raise `vendorAdminsBelowMinimum` in `subscriptionList`. Across the company. */
+  plansBelowVendorAdminMinimum: ItAdminDashboardResponseDtoDataSectionsPlansBelowVendorAdminMinimum
   /** The grant tasks not finished whose IT Admin in charge by default is the caller. */
   grantTasks: ItAdminDashboardResponseDtoDataSectionsGrantTasks
   /** The revocation tasks not finished whose IT Admin in charge by default is the caller. */
@@ -29,9 +38,9 @@ export type ItAdminDashboardResponseDtoDataSections = {
   licenseKeys: ItAdminDashboardResponseDtoDataSectionsLicenseKeys
   /** The plan terms that need a review. */
   termsToReview: ItAdminDashboardResponseDtoDataSectionsTermsToReview
-  /** The departures still handing over in the departments of the caller. */
+  /** The departures still handing over in the departments of the caller. Kept one release beside `departures`, which says where every departure stands; dropped after. */
   offboardingHandovers: ItAdminDashboardResponseDtoDataSectionsOffboardingHandovers
-  /** The company machines without a confirmation of the monitoring policy; the device registry is not delivered yet. */
+  /** The company machines whose holder has not yet acknowledged the monitoring notice: the same number the machine list (`deviceList`) answers for the awaiting-acknowledgement state. */
   unconfirmedDevices: ItAdminDashboardResponseDtoDataSectionsUnconfirmedDevices
   /** The SaaS error reports given to the caller that are not resolved, closed or marked duplicate. */
   saasIssues: ItAdminDashboardResponseDtoDataSectionsSaasIssues

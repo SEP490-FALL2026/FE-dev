@@ -18,8 +18,8 @@ export const adminOrganization = {
   allStatuses: 'Tất cả trạng thái',
   head: 'Trưởng phòng',
   successor: 'Người kế nhiệm',
-  itAdmin: 'IT Admin phụ trách',
-  itAdminId: 'IT Admin phụ trách',
+  itAdmin: 'Quản trị viên công nghệ thông tin phụ trách',
+  itAdminId: 'Quản trị viên công nghệ thông tin phụ trách',
   employeeId: 'Nhân viên',
   candidateIdPlaceholder: 'Chọn nhân viên bên dưới',
   costCenter: 'Trung tâm chi phí',
@@ -50,7 +50,7 @@ export const adminOrganization = {
   },
   warnings: {
     MISSING_HEAD: 'Chưa có trưởng phòng',
-    MISSING_IT_ADMIN: 'Chưa có IT Admin dùng được',
+    MISSING_IT_ADMIN: 'Chưa có quản trị viên công nghệ thông tin có thể đảm nhiệm',
     MISSING_COST_CENTER: 'Chưa có trung tâm chi phí'
   },
   actions: {
@@ -73,14 +73,14 @@ export const adminOrganization = {
       'Rút người kế nhiệm trong tương lai. Trưởng phòng hiện tại tiếp tục mà không có ngày kết thúc dự kiến.'
   },
   candidateHelp:
-    'Duyệt tài khoản hoạt động hoặc tìm nhân viên chưa có tài khoản theo tên hay mã. Không chọn Super Admin. Hệ thống kiểm tra thành viên vào ngày hiệu lực khi lưu.',
+    'Duyệt tài khoản hoạt động hoặc tìm nhân viên chưa có tài khoản theo tên hay mã. Không chọn quản trị viên hệ thống. Hệ thống kiểm tra thành viên vào ngày hiệu lực khi lưu.',
   itAdminHelp:
-    'Duyệt tất cả trang tài khoản IT Admin đang hoạt động và đã kích hoạt. Hệ thống kiểm tra điều kiện khi lưu. Chọn Chưa chỉ định để bỏ chỉ định.',
+    'Danh sách gồm các tài khoản quản trị viên công nghệ thông tin đang hoạt động và đã kích hoạt. Hệ thống kiểm tra điều kiện khi lưu. Chọn Chưa chỉ định để bỏ chỉ định.',
   headHistory: 'Lịch sử trưởng phòng',
   viewHeadHistory: 'Xem lịch sử trưởng phòng',
   openingHeadHistory: 'Đang mở lịch sử…',
   noHistory: 'Chưa có lịch sử trưởng phòng',
-  historyLimited: 'API chỉ trả lịch sử trưởng phòng gần đây; không thể xem các mục cũ hơn tại đây.',
+  historyLimited: 'Chỉ có thể xem lịch sử trưởng phòng gần đây tại đây.',
   ongoing: 'Đang hiệu lực',
   membersHelp: 'Thành viên được đọc từ hồ sơ nhân sự. Ghi nhận sự kiện nhân sự để thay đổi phòng ban.',
   hasEmail: 'Đã có email công việc',

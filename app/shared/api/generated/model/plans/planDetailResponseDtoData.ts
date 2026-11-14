@@ -28,6 +28,7 @@ export type PlanDetailResponseDtoData = {
   dataLossOnRemoval: boolean
   /** @nullable */
   sharingPolicy: PlanDetailResponseDtoDataSharingPolicy
+  hasAdminConsole: boolean
   seatTracking: PlanDetailResponseDtoDataSeatTracking
   createdAt: string
   updatedAt: string

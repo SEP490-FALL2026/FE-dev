@@ -40,7 +40,7 @@ export const admin = {
   create: 'Tạo',
   errors: {
     duplicate: 'Mã, email hoặc ngày này đã tồn tại. Chọn giá trị khác.',
-    financeAssigned: 'Đã có tài khoản giữ vai Finance. Kiểm tra phân công hiện tại trước.',
+    financeAssigned: 'Đã có tài khoản giữ vai trò tài chính. Kiểm tra phân công hiện tại trước.',
     derivedRole: 'Vai này được suy ra từ trưởng phòng hoặc trách nhiệm phê duyệt.',
     transferOnly: 'Vai Quản trị cấp cao chỉ được thay đổi qua bộ phận vận hành ngoài ứng dụng.',
     spendingApproverAssigned: 'Đã có Người duyệt chi. Kiểm tra người đang giữ vai trước khi thay đổi.',
@@ -57,7 +57,8 @@ export const admin = {
     successorResponsibilities: 'Bàn giao phòng ban hoặc trách nhiệm đặc biệt hiện tại của người này trước.',
     departmentInUse: 'Phòng ban còn nhân sự hoặc dữ liệu phụ thuộc. Cần xử lý trước khi ngừng dùng.',
     headMembership: 'Chọn thành viên đủ điều kiện của phòng tại ngày có hiệu lực.',
-    hrBasis: 'Điền đầy đủ văn bản nhân sự có thẩm quyền. Thông báo BM-09 không phải quyết định nhân sự.',
+    hrBasis:
+      'Điền đầy đủ thông tin văn bản nhân sự có thẩm quyền. Thông báo biến động nhân sự của trưởng phòng không phải là quyết định nhân sự.',
     successorRequired: 'Chỉ định người kế nhiệm trưởng phòng hoặc xác nhận rõ không có người kế nhiệm.',
     pendingEvent: 'Nhân sự đã có sự kiện khác xung đột. Kiểm tra sự kiện đó trước.',
     dateInvalid: 'Ngày này không hợp lệ với trạng thái nhân sự hoặc lịch hiện tại.',
@@ -101,14 +102,14 @@ export const admin = {
     setupReasons: {
       NO_DEPARTMENT: 'Tạo phòng ban đang hoạt động.',
       NO_EMPLOYEE: 'Tạo hoặc nhập danh sách nhân viên.',
-      NO_APPLICATION: 'IT Admin cần cấu hình danh mục ứng dụng.',
-      NO_SUBSCRIPTION: 'IT Admin cần cấu hình thuê bao.',
+      NO_APPLICATION: 'Quản trị viên công nghệ thông tin cần cấu hình danh mục ứng dụng.',
+      NO_SUBSCRIPTION: 'Quản trị viên công nghệ thông tin cần cấu hình thuê bao.',
       NOT_BUILT_YET: 'Chức năng này chưa được hỗ trợ.'
     },
     setupWarnings: {
       MISSING_HEAD: 'Chưa có trưởng phòng',
-      MISSING_IT_ADMIN: 'Chưa có IT Admin phụ trách',
-      MISSING_COST_CENTER: 'Finance chưa cấu hình trung tâm chi phí'
+      MISSING_IT_ADMIN: 'Chưa có quản trị viên công nghệ thông tin phụ trách',
+      MISSING_COST_CENTER: 'Bộ phận tài chính chưa cấu hình trung tâm chi phí'
     },
     facts: {
       activeDepartments: 'Phòng ban đang hoạt động',
@@ -117,7 +118,7 @@ export const admin = {
     },
     title: 'Thiết lập tổ chức',
     checklist: 'Danh sách thiết lập',
-    watch: 'Khả năng vận hành của Super Admin',
+    watch: 'Khả năng vận hành của quản trị viên hệ thống',
     departments: 'Phòng ban',
     accounts: 'Tài khoản và trách nhiệm',
     personnel: 'Nhân sự',
@@ -168,8 +169,8 @@ export const admin = {
     changed: 'Thời điểm thay đổi'
   },
   settings: {
-    reasonPlaceholder: 'VD: Nghỉ lễ Quốc khánh',
-    currencyPlaceholder: 'VD: VND',
+    reasonPlaceholder: 'Ví dụ: Nghỉ lễ Quốc khánh',
+    currencyPlaceholder: 'Ví dụ: VND',
     title: 'Cấu hình hệ thống',
     holidays: 'Ngày nghỉ',
     date: 'Ngày',
@@ -226,12 +227,12 @@ export const admin = {
       NO_FALLBACK_APPROVER: 'Cấu hình người duyệt dự phòng.',
       FALLBACK_IS_REQUESTER: 'Người duyệt dự phòng là người yêu cầu. Cần cấu hình người thay thế.',
       NO_CONFLICT_SUBSTITUTE: 'Cấu hình người thay khi xung đột.',
-      NO_FINANCE_REVIEWER: 'Chỉ định nhân sự Finance đủ điều kiện.',
-      NO_IT_ADMIN_IN_CHARGE: 'Chỉ định IT Admin phụ trách phòng.'
+      NO_FINANCE_REVIEWER: 'Chỉ định nhân sự tài chính đủ điều kiện.',
+      NO_IT_ADMIN_IN_CHARGE: 'Chỉ định quản trị viên công nghệ thông tin phụ trách phòng.'
     },
     stepKinds: {
       NEED: 'Duyệt nhu cầu',
-      FINANCE_REVIEW: 'Finance rà soát',
+      FINANCE_REVIEW: 'Bộ phận tài chính rà soát',
       SPEND_APPROVAL: 'Duyệt chi',
       IT_ASSESSMENT: 'Thẩm định công nghệ'
     }

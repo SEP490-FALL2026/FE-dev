@@ -14,7 +14,7 @@ export const adminAccounts = {
   employeeSearch: 'Tìm nhân viên',
   employeeSearchPlaceholder: 'Nhập tên, mã nhân viên hoặc email công việc',
   loginEmail: 'Email đăng nhập',
-  loginEmailPlaceholder: 'VD: nhanvien@congty.vn',
+  loginEmailPlaceholder: 'Ví dụ: nhanvien@congty.vn',
   reasonPlaceholder: 'Nêu lý do khóa hoặc mở khóa tài khoản',
   employment: 'Tình trạng làm việc',
   working: 'Chưa nghỉ việc',
@@ -63,13 +63,13 @@ export const adminAccounts = {
   transferHint:
     'Bàn giao vai trò Quản trị cấp cao cho đồng nghiệp đủ điều kiện. Quyền của bạn thay đổi ngay sau khi xác nhận.',
   transferEligibility:
-    'Người kế nhiệm phải đang làm việc, đã kích hoạt và xác minh email, không giữ vai trò Quản trị CNTT, Tài chính, trưởng phòng hoặc trách nhiệm phê duyệt. Hệ thống kiểm tra mọi điều kiện trước khi chuyển giao.',
+    'Người kế nhiệm phải đang làm việc, đã kích hoạt và xác minh địa chỉ thư điện tử, không giữ vai trò quản trị viên công nghệ thông tin, tài chính, trưởng phòng hoặc trách nhiệm phê duyệt. Hệ thống kiểm tra mọi điều kiện trước khi chuyển giao.',
   transferConfirm: 'Tôi xác nhận đồng nghiệp đã chọn sẽ trở thành Quản trị cấp cao và tôi sẽ mất vai trò này.',
   statuses: { ACTIVE: 'Hoạt động', LOCKED: 'Đã khóa' },
   activationStates: { INVITED: 'Đã mời', ACTIVATED: 'Đã kích hoạt' },
   roles: {
     SUPER_ADMIN: 'Quản trị cấp cao',
-    IT_ADMIN: 'Quản trị CNTT',
+    IT_ADMIN: 'Quản trị viên công nghệ thông tin',
     FINANCE: 'Tài chính',
     EMPLOYEE: 'Nhân viên',
     MANAGER: 'Quản lý',

@@ -4,35 +4,33 @@ import {
   useDepartmentTransferList,
   getDepartmentTransferListQueryKey
 } from '~/shared/api/generated/operations/department-transfers/department-transfer-list'
-import { useDepartmentTransferRecord } from '~/shared/api/generated/operations/department-transfers/department-transfer-record'
 import { useDepartmentTransferReschedule } from '~/shared/api/generated/operations/department-transfers/department-transfer-reschedule'
 import { useDepartmentTransferCancel } from '~/shared/api/generated/operations/department-transfers/department-transfer-cancel'
 import { AdminQueryState } from '../../shared/components/admin-query-state'
 import { AdminPagination } from '../../shared/components/admin-pagination'
-import { adminButtonClass, adminPrimaryClass } from '../../shared/components/admin-form'
+import { adminButtonClass } from '../../shared/components/admin-form'
 import { usePersonnelMutationFeedback } from '../../shared/hooks/use-personnel-mutation-feedback'
-import { PersonnelForm, readBasis, readSuccessor, successorFields, value } from '../../shared/components/personnel-form'
+import { PersonnelForm, readSuccessor, successorFields, value } from '../../shared/components/personnel-form'
 import { PersonnelCard, PersonnelCode, PersonnelList } from '../../shared/components/personnel-list'
 import { transferStatuses, pendingTransfer } from '../enums/transfer-status'
 
-type Action = { kind: 'record' | 'reschedule' | 'cancel'; id?: string }
-export function SuperAdminTransferView() {
+type Action = { kind: 'reschedule' | 'cancel'; id: string }
+export function SuperAdminTransferView({ employeeId, onClose }: { employeeId: string; onClose: () => void }) {
   const { t: translate } = useTranslation('adminPersonnel')
   const [page, setPage] = useState(1)
   const [action, setAction] = useState<Action | null>(null)
-  const query = useDepartmentTransferList({ page, pageSize: 20 })
+  const query = useDepartmentTransferList({ employeeId, page, pageSize: 20 })
   const feedback = usePersonnelMutationFeedback([getDepartmentTransferListQueryKey()], () => setAction(null))
-  const record = useDepartmentTransferRecord({ mutation: { ...feedback, retry: false } })
   const reschedule = useDepartmentTransferReschedule({ mutation: { ...feedback, retry: false } })
   const cancel = useDepartmentTransferCancel({ mutation: { ...feedback, retry: false } })
-  const pending = record.isPending || reschedule.isPending || cancel.isPending
+  const pending = reschedule.isPending || cancel.isPending
   const data = query.data?.data
   return (
     <section className='space-y-5'>
       <header className='flex flex-wrap items-center justify-between gap-3'>
-        <h1 className='text-2xl font-semibold'>{translate('transfers')}</h1>
-        <button className={adminPrimaryClass} onClick={() => setAction({ kind: 'record' })}>
-          {translate('recordTransfer')}
+        <h1 className='text-2xl font-semibold'>{translate('transferHistory')}</h1>
+        <button type='button' className={adminButtonClass} onClick={onClose}>
+          {translate('backToProfile')}
         </button>
       </header>
       <p className='text-sm text-muted-foreground'>{translate('eventHelp')}</p>
@@ -65,48 +63,29 @@ export function SuperAdminTransferView() {
       </AdminQueryState>
       {action && (
         <PersonnelForm
-          title={translate(
-            action.kind === 'record' ? 'recordTransfer' : action.kind === 'reschedule' ? 'reschedule' : 'cancelEvent'
-          )}
+          title={translate(action.kind === 'reschedule' ? 'reschedule' : 'cancelEvent')}
           pending={pending}
-          basis
+          basis='note'
           onClose={() => setAction(null)}
           fields={
-            action.kind === 'record'
-              ? [
-                  { name: 'employeeId', type: 'uuid' },
-                  { name: 'toDepartmentId', type: 'uuid' },
-                  { name: 'effectiveOn', type: 'date' },
-                  ...successorFields
-                ]
-              : action.kind === 'reschedule'
-                ? [{ name: 'newEffectiveOn', type: 'date' }, { name: 'reason', maxLength: 2000 }, ...successorFields]
-                : [{ name: 'reason', maxLength: 2000 }]
+            action.kind === 'reschedule'
+              ? [{ name: 'newEffectiveOn', type: 'date' }, { name: 'reason', maxLength: 1000 }, ...successorFields]
+              : [{ name: 'reason', maxLength: 1000 }]
           }
           onSubmit={(values) => {
             if (pending) return
-            const grounds = readBasis(values)
-            if (action.kind === 'record')
-              record.mutate({
-                data: {
-                  employeeId: value(values, 'employeeId'),
-                  toDepartmentId: value(values, 'toDepartmentId'),
-                  effectiveOn: value(values, 'effectiveOn'),
-                  grounds,
-                  successor: readSuccessor(values)
-                }
-              })
-            else if (action.kind === 'reschedule' && action.id)
+            const groundsNote = value(values, 'groundsNote')
+            if (action.kind === 'reschedule')
               reschedule.mutate({
                 id: action.id,
                 data: {
                   newEffectiveOn: value(values, 'newEffectiveOn'),
                   reason: value(values, 'reason'),
-                  grounds,
+                  groundsNote,
                   successor: readSuccessor(values)
                 }
               })
-            else if (action.id) cancel.mutate({ id: action.id, data: { reason: value(values, 'reason'), grounds } })
+            else if (action.id) cancel.mutate({ id: action.id, data: { reason: value(values, 'reason'), groundsNote } })
           }}
         />
       )}

@@ -22,7 +22,7 @@ export const adminDepartmentEditor = {
     readFailed: 'Could not reload department data. Try reloading before saving again.',
     errors: {
       name: 'Enter a name of 1–200 characters and a function of at most 1,000 characters.',
-      itAdmin: 'Choose an active employee with a usable IT administrator account.',
+      itAdmin: 'Choose an active employee with a usable information technology administrator account.',
       headMembership: 'Choose a member of this department on the effective date.',
       managerRequired: 'Assign the Manager role to this employee in Accounts first.',
       headRole: 'A Super Admin or Spending Approver cannot be a department head.',

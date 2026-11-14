@@ -1,5 +1,3 @@
 export * from './plan-terms-get'
 export * from './plan-terms-set'
-export * from './plan-term-opinion-list'
-export * from './plan-term-opinion-record'
 export * from './plan-warning-list'

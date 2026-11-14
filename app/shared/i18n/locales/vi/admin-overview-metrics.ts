@@ -10,9 +10,9 @@ export const overviewMetrics = {
     congestion: 'bước phê duyệt chậm hoặc tồn đọng',
     backgroundJobs: 'tác vụ nền',
     approverConfiguration: 'người duyệt chi',
-    superAdminRole: 'tình trạng Super Admin',
+    superAdminRole: 'tình trạng quản trị viên hệ thống',
     departmentsWithoutHead: 'phòng chưa có trưởng phòng',
-    departmentsWithoutItAdmin: 'phòng chưa có IT Admin',
+    departmentsWithoutItAdmin: 'phòng chưa có quản trị viên công nghệ thông tin',
     accountCandidates: 'nhân viên có thể cấp tài khoản',
     personnelNotices: 'thông báo nhân sự'
   }

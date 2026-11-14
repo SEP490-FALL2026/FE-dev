@@ -96,8 +96,8 @@ describe('Unified department editor', () => {
       </QueryClientProvider>
     )
     expect(await screen.findByRole('option', { name: 'IT-02 — Alex' })).toBeInTheDocument()
-    expect(screen.getByLabelText('IT administrator')).toHaveValue(employeeId)
-    fireEvent.change(screen.getByLabelText('IT administrator'), { target: { value: '' } })
+    expect(screen.getByLabelText('Information technology administrator')).toHaveValue(employeeId)
+    fireEvent.change(screen.getByLabelText('Information technology administrator'), { target: { value: '' } })
     submit()
     await waitFor(() => expect(writes).toEqual([{ method: 'patch', body: { itAdminEmployeeId: null } }]))
   })

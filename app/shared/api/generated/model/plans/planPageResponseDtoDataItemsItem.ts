@@ -24,6 +24,7 @@ export type PlanPageResponseDtoDataItemsItem = {
   dataLossOnRemoval: boolean
   /** @nullable */
   sharingPolicy: PlanPageResponseDtoDataItemsItemSharingPolicy
+  hasAdminConsole: boolean
   seatTracking: PlanPageResponseDtoDataItemsItemSeatTracking
   createdAt: string
   updatedAt: string

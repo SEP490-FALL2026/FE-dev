@@ -5,12 +5,12 @@
  * Internal software license and technology cost API. A text field whose description says it is trimmed has its leading and trailing whitespace removed before it is checked; for the other text fields the description makes no such promise.
  * OpenAPI spec version: 1.0
  */
-import type { ApplicationDetailResponseDtoDataBusinessOwner } from './applicationDetailResponseDtoDataBusinessOwner'
 import type { ApplicationDetailResponseDtoDataCommunication } from './applicationDetailResponseDtoDataCommunication'
 import type { ApplicationDetailResponseDtoDataDataSensitivity } from './applicationDetailResponseDtoDataDataSensitivity'
 import type { ApplicationDetailResponseDtoDataFunctionalGroup } from './applicationDetailResponseDtoDataFunctionalGroup'
 import type { ApplicationDetailResponseDtoDataKind } from './applicationDetailResponseDtoDataKind'
 import type { ApplicationDetailResponseDtoDataRecommendationsItem } from './applicationDetailResponseDtoDataRecommendationsItem'
+import type { ApplicationDetailResponseDtoDataResponsibleItAdmin } from './applicationDetailResponseDtoDataResponsibleItAdmin'
 import type { ApplicationDetailResponseDtoDataSimilarApplicationsItem } from './applicationDetailResponseDtoDataSimilarApplicationsItem'
 import type { ApplicationDetailResponseDtoDataStatus } from './applicationDetailResponseDtoDataStatus'
 import type { ApplicationDetailResponseDtoDataUsageCollectionDefault } from './applicationDetailResponseDtoDataUsageCollectionDefault'
@@ -28,11 +28,12 @@ export type ApplicationDetailResponseDtoData = {
   dataSensitivity: ApplicationDetailResponseDtoDataDataSensitivity
   isCommunicationService: boolean
   /**
-   * Null for an application declared without one: the Business Owner is no longer required.
+   * The IT Admin who answers for the application (the one who declared it, or who took it over); null when nobody does.
    * @nullable
    */
-  businessOwner: ApplicationDetailResponseDtoDataBusinessOwner
-  businessOwnerReplacementRequired: boolean
+  responsibleItAdmin: ApplicationDetailResponseDtoDataResponsibleItAdmin
+  /** True when nobody is responsible, or the one named is no longer a working IT Admin: any IT Admin may take it over with the responsibility transfer. */
+  needsResponsible: boolean
   /** @nullable */
   usageCollectionDefault: ApplicationDetailResponseDtoDataUsageCollectionDefault
   /** @nullable */

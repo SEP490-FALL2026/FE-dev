@@ -12,6 +12,8 @@ import { AdminQueryState } from '../../shared/components/admin-query-state'
 import { PersonnelCode } from '../../shared/components/personnel-list'
 import { employeeWorkStates } from '../enums/employee-work-state'
 import { EmployeePlacementForm } from './employee-placement-form'
+import { EmployeeEventForm, type EmployeeEventKind } from './employee-event-form'
+import { SuperAdminTransferView } from '../../transfer/views/super-admin-transfer-view'
 
 export function EmployeeDetail({
   employeeId,
@@ -33,6 +35,8 @@ export function EmployeeDetail({
   const accountId = employee?.account?.id
   const accountQuery = useAppUserGet(accountId ?? '', { query: { enabled: !!accountId, retry: false } })
   const [placing, setPlacing] = useState(false)
+  const [eventKind, setEventKind] = useState<EmployeeEventKind | null>(null)
+  const [transferHistory, setTransferHistory] = useState(false)
   const [managingAccount, setManagingAccount] = useState(false)
   const sectionId = useId()
   const canPlace =
@@ -43,6 +47,10 @@ export function EmployeeDetail({
     !query.isError
   if (placing && employee)
     return <EmployeePlacementForm employee={employee} blocked={!canPlace} onClose={() => setPlacing(false)} />
+  if (eventKind && employee)
+    return <EmployeeEventForm employee={employee} kind={eventKind} onClose={() => setEventKind(null)} />
+  if (transferHistory && employee)
+    return <SuperAdminTransferView employeeId={employee.id} onClose={() => setTransferHistory(false)} />
   if (managingAccount && accountId && renderAccountDetail)
     return renderAccountDetail(accountId, () => setManagingAccount(false))
   return (
@@ -289,6 +297,38 @@ export function EmployeeDetail({
                   )}
                 </section>
               </div>
+              <section className='space-y-3 rounded-lg border border-border bg-surface p-5'>
+                <h3 className='text-base font-semibold'>{translate('employeeEvents')}</h3>
+                <div className='flex flex-wrap gap-2'>
+                  <button
+                    type='button'
+                    className={adminButtonClass}
+                    disabled={employee.status !== 'ACTIVE'}
+                    onClick={() => setEventKind('leave')}
+                  >
+                    {translate('startLeave')}
+                  </button>
+                  <button
+                    type='button'
+                    className={adminButtonClass}
+                    disabled={employee.status !== 'ACTIVE'}
+                    onClick={() => setEventKind('offboarding')}
+                  >
+                    {translate('recordOffboarding')}
+                  </button>
+                  <button
+                    type='button'
+                    className={adminButtonClass}
+                    disabled={employee.status !== 'ACTIVE' || employee.unplaced}
+                    onClick={() => setEventKind('transfer')}
+                  >
+                    {translate('recordTransfer')}
+                  </button>
+                  <button type='button' className={adminButtonClass} onClick={() => setTransferHistory(true)}>
+                    {translate('transferHistory')}
+                  </button>
+                </div>
+              </section>
               <section
                 aria-labelledby={`${sectionId}-history`}
                 className='min-w-0 space-y-4 rounded-lg border border-border bg-surface p-5'

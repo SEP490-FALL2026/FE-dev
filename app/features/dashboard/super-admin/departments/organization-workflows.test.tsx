@@ -73,7 +73,11 @@ describe('Organization workflows through HTTP', () => {
               loginEmail: 'dana@example.com',
               status: 'ACTIVE',
               activationState: 'ACTIVATED',
-              employee: { id: employeeId, employeeCode: 'E2', fullName: second ? 'Dana Page Two' : 'Dana Page One' },
+              employee: {
+                id: second ? employeeId : '00000000-0000-4000-8000-000000000001',
+                employeeCode: 'E2',
+                fullName: second ? 'Dana Page Two' : 'Dana Page One'
+              },
               roles: ['EMPLOYEE', 'MANAGER']
             }
           ],
@@ -86,9 +90,8 @@ describe('Organization workflows through HTTP', () => {
       })
     )
     mount(<DepartmentActionForm department={department} action='assignHead' onClose={vi.fn()} />)
-    await screen.findByRole('button', { name: /Dana Page One/ })
-    fireEvent.click(screen.getByRole('button', { name: 'Next' }))
-    fireEvent.click(await screen.findByRole('button', { name: /Dana Page Two/ }))
+    await screen.findByRole('option', { name: /Dana Page Two/ })
+    fireEvent.change(screen.getByRole('combobox', { name: 'Employee' }), { target: { value: employeeId } })
     expect(screen.getByRole('combobox', { name: 'Employee' })).toHaveValue(employeeId)
     fireEvent.change(screen.getByLabelText('Effective from'), { target: { value: '2027-01-01' } })
     submit()
@@ -113,7 +116,7 @@ describe('Organization workflows through HTTP', () => {
               roles: ['MANAGER']
             }
           ],
-          pagination: pagination(1)
+          pagination: { ...pagination(1), totalPages: 1 }
         })
       ),
       http.post(`${base}/departments/${department.id}/${path}`, async ({ request }) => {
@@ -122,7 +125,10 @@ describe('Organization workflows through HTTP', () => {
       })
     )
     mount(<DepartmentActionForm department={department} action={action} onClose={vi.fn()} />)
-    if (action === 'designateSuccessor') fireEvent.click(await screen.findByRole('button', { name: /Dana/ }))
+    if (action === 'designateSuccessor') {
+      await screen.findByRole('option', { name: /Dana/ })
+      fireEvent.change(screen.getByRole('combobox', { name: 'Employee' }), { target: { value: employeeId } })
+    }
     if (dated) fireEvent.change(screen.getByLabelText('Effective from'), { target: { value: '2027-01-01' } })
     submit()
     await waitFor(() =>

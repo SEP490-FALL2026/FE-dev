@@ -22,7 +22,7 @@ export const adminEmployeeDirectory = {
     status: 'Tình trạng làm việc',
     details: 'Hồ sơ nhân viên',
     viewDetails: 'Xem chi tiết',
-    correct: 'Sửa thông tin chính thức',
+    correct: 'Chỉnh sửa thông tin nhân sự',
     place: 'Xếp phòng',
     effectiveFrom: 'Có hiệu lực từ',
     placementHelp: 'Chọn phòng đang hoạt động và ngày không trước hôm nay hoặc ngày vào làm.',

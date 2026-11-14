@@ -82,7 +82,7 @@ function useOperationsHandlers(waitItem: unknown = wait, stepItem: unknown = ste
 }
 
 it.each([
-  ['en', 'Spending approval', 'IT assessment', 'Created', 'Due'],
+  ['en', 'Spending approval', 'Information technology assessment', 'Created', 'Due'],
   ['vi', 'Duyệt chi', 'Thẩm định công nghệ', 'Ngày tạo', 'Hạn xử lý']
 ] as const)(
   'uses requester and step context without exposing internal IDs in %s',

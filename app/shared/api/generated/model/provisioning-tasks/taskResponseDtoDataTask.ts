@@ -10,6 +10,7 @@ import type { TaskResponseDtoDataTaskBeneficiary } from './taskResponseDtoDataTa
 import type { TaskResponseDtoDataTaskChannel } from './taskResponseDtoDataTaskChannel'
 import type { TaskResponseDtoDataTaskDoneWhen } from './taskResponseDtoDataTaskDoneWhen'
 import type { TaskResponseDtoDataTaskFailureKind } from './taskResponseDtoDataTaskFailureKind'
+import type { TaskResponseDtoDataTaskK1Checklist } from './taskResponseDtoDataTaskK1Checklist'
 import type { TaskResponseDtoDataTaskKind } from './taskResponseDtoDataTaskKind'
 import type { TaskResponseDtoDataTaskPlan } from './taskResponseDtoDataTaskPlan'
 import type { TaskResponseDtoDataTaskPurchase } from './taskResponseDtoDataTaskPurchase'
@@ -104,4 +105,9 @@ export type TaskResponseDtoDataTask = {
   closedBy: string | null
   /** @nullable */
   closeReason: string | null
+  /**
+   * Present on a K1 revocation that can still be completed (the steps to tick) and on one completed with a checklist (what was ticked and when). The variant is decided by the server from why the seat is revoked: DEPARTURE (a person who leaves: reset the mailbox password, Forgot password on the software, sign out every session, turn off the renewal, record the evidence and, only on the last K1 revocation of the person, lock the mailbox: while another K1 revocation of the same person is not over this task has the five steps before the lock) or STILL_EMPLOYED (turn off the renewal, record the evidence). The system does not control Google or Microsoft 365: the IT Admin does the steps there and ticks them here, in order. Null on any other task, on a K1 revocation completed before the checklist, and on one cancelled or closed as failed.
+   * @nullable
+   */
+  k1Checklist: TaskResponseDtoDataTaskK1Checklist
 }

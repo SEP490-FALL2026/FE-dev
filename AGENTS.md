@@ -46,8 +46,8 @@ Ba file sau là **tài liệu được bảo vệ**:
 
 ```bash
 pnpm install --frozen-lockfile   # Cài đặt dependency chính xác theo lockfile
-pnpm api:validate               # Kiểm tra tính hợp lệ của file openapi/openapi.yaml
-pnpm api:generate               # Tự động sinh client/types từ OpenAPI (Chạy sau khi sửa openapi.yaml)
+pnpm api:validate               # Kiểm tra quy ước Swagger trực tiếp từ server BE
+pnpm api:generate               # Sinh client/types trực tiếp từ Swagger server BE
 pnpm dev                        # Chạy dev server cục bộ
 pnpm vitest run <path>          # Chạy kiểm thử cho file hoặc thư mục cụ thể
 pnpm typecheck                  # Kiểm tra toàn bộ lỗi TypeScript (react-router typegen && tsc)
@@ -91,7 +91,7 @@ providers --------------------------+
 ## 4. Quy tắc Dữ liệu & Tích hợp API (Data & API Rules)
 
 1. **Server State phải dùng TanStack Query**: Tuyệt đối không gọi fetch API trực tiếp từ `useEffect` tùy tiện.
-2. **Không sửa tay code trong `app/shared/api/generated/`**: Toàn bộ thư mục này là code tự sinh bởi Orval từ `openapi/openapi.yaml`. Mọi thay đổi API contract phải sửa trong `openapi.yaml` rồi chạy `pnpm api:generate`.
+2. **Không sửa tay code trong `app/shared/api/generated/`**: Toàn bộ thư mục này là code tự sinh bởi Orval từ Swagger server BE (`/api/docs-json` tại origin `API_PROXY_TARGET`). Khi BE thay đổi contract, chạy `pnpm api:validate` và `pnpm api:generate`, sau đó cập nhật các chức năng bị ảnh hưởng và kiểm tra lại. Hai lệnh cần kết nối tới Swagger server; không tự tạo snapshot cục bộ làm nguồn thay thế.
 3. **Phân biệt môi trường Test & Production**: Chỉ import Faker factories và MSW handlers trong các file test (`*.test.tsx`, `*.test.ts`). Không import vào code logic của ứng dụng.
 4. **Bảo mật**: Các biến môi trường `VITE_*` là public trên client bundle, tuyệt đối không lưu secret, private key vào đây. Phân quyền và kiểm tra hợp lệ cuối cùng bắt buộc phải được NestJS backend kiểm soát.
 5. **HTTP client dùng chung**: Orval sinh React Query hooks với Axios qua `app/shared/api/mutator/custom-axios.ts` và `app/shared/api/axios-client.ts`. Không tự tạo Axios instance riêng trong từng feature. Interceptor gắn token từ auth adapter trong `auth-session.ts`; login/refresh dùng endpoint và kiểu dữ liệu BE đã sinh. Theo yêu cầu lưu phiên của Owner, token pair và hạn dùng lưu dạng JSON tại `localStorage['saas-sentry.auth-tokens']`, khôi phục khi mở lại web, thay thế sau refresh và xóa khi logout/phiên không hợp lệ. Phiên cũ từ `sessionStorage` được chuyển sau refresh thành công; khi storage bị chặn, dùng fallback sessionStorage/bộ nhớ. Dùng `skipAuth` và `skipAuthRefresh` cho request xác thực, tránh refresh đệ quy và retry quá một lần. Không tự đoán URL refresh, log hoặc hiển thị token.
@@ -387,7 +387,7 @@ Phần nội dung thẩm định chỉ đọc và định dạng tiền đã tá
 
 Khi nối một chức năng với BE, agent phải đi theo luồng sau:
 
-1. **Chốt contract trước**: Xác nhận endpoint, request/response, status, mã lỗi, quyền, phân trang/lọc/sắp xếp với OpenAPI do BE cung cấp. Nếu chưa có contract, ghi rõ phần còn thiếu và chỉ xây UI preview hoặc test fixture; không tự đoán response/status hay tạo API giả trong production. Sửa `openapi/openapi.yaml` theo contract đã xác nhận, chạy `pnpm api:validate` và `pnpm api:generate`; không sửa tay generated code.
+1. **Chốt contract trước**: Xác nhận endpoint, request/response, status, mã lỗi, quyền, phân trang/lọc/sắp xếp với Swagger trực tiếp từ BE. Nếu chưa có contract, ghi rõ phần còn thiếu và chỉ xây UI preview hoặc test fixture; không tự đoán response/status hay tạo API giả trong production. Chạy `pnpm api:validate` và `pnpm api:generate` theo contract server đã xác nhận; không sửa tay generated code. Nếu Swagger server không khớp chức năng FE, báo rõ và phối hợp xác nhận với BE trước khi thay đổi nghiệp vụ.
 2. **Tách dữ liệu theo ranh giới**: Generated type/hook là nguồn sự thật cho DTO. Feature hook điều phối query/mutation, tham số URL, chuyển DTO thành view model khi cần; component chỉ nhận dữ liệu và callback có kiểu rõ ràng. Mapper chỉ tồn tại khi có khác biệt thực tế giữa DTO và UI; không tạo repository/wrapper một dòng cho mọi endpoint.
 3. **Một nguồn dữ liệu cho mỗi loại state**: Server state ở TanStack Query; bộ lọc/phân trang có thể chia sẻ bằng URL; form draft và dialog state ở local state. Không copy nguyên kết quả query vào `useState` rồi duy trì hai bản dữ liệu. Query key phải chứa mọi tham số ảnh hưởng kết quả; mutation chỉ invalidate hoặc cập nhật đúng các key liên quan sau khi BE xác nhận thành công.
 4. **Mỗi màn hình có các trạng thái hoàn chỉnh**: initial loading, refetching khi cần, empty, error có retry phù hợp, success và thiếu quyền. Không dùng danh sách giả thay cho response lỗi/rỗng. Giữ dữ liệu cũ trong lúc đổi trang/lọc chỉ khi UX cho phép và phải báo rõ đang tải dữ liệu mới.

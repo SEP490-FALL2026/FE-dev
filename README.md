@@ -3,9 +3,10 @@
 ## Backend and auth setup
 
 The backend Swagger UI is at `https://wdp.novaproj.site/api/docs`; its machine-readable contract is at
-`https://wdp.novaproj.site/api/docs-json`. Orval reads that URL by default and generates the `auth`, `me` and Super Admin business
-tags for this integration phase. `openapi/openapi.yaml` is the captured BE export; set
-`ORVAL_OPENAPI_SOURCE=./openapi/openapi.yaml` to generate offline. Run `pnpm api:generate` after contract changes.
+`https://wdp.novaproj.site/api/docs-json`. Run `pnpm api:generate` to read and validate the current contract
+directly from the server configured by `API_PROXY_TARGET`, and generate the client from it. `pnpm api:validate`
+checks the server contract without generating code. Review generated client changes and update affected features
+when the backend contract changes. Both commands require the backend Swagger endpoint to be available.
 
 Copy `.env.example` to `.env` and save it as UTF-8 without a byte-order mark (BOM). Local development uses:
 

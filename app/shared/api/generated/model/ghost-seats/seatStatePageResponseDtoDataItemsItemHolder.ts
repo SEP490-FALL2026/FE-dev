@@ -12,5 +12,4 @@
 export type SeatStatePageResponseDtoDataItemsItemHolder = {
   employeeId: string
   employeeCode: string
-  fullName: string
 } | null

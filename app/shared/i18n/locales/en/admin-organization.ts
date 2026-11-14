@@ -18,8 +18,8 @@ export const adminOrganization = {
   allStatuses: 'All statuses',
   head: 'Department head',
   successor: 'Successor',
-  itAdmin: 'IT administrator',
-  itAdminId: 'IT administrator',
+  itAdmin: 'Information technology administrator',
+  itAdminId: 'Information technology administrator',
   employeeId: 'Employee',
   candidateIdPlaceholder: 'Choose an employee below',
   costCenter: 'Cost center',
@@ -38,14 +38,14 @@ export const adminOrganization = {
   memberSince: 'Member since',
   actionsLabel: 'Actions',
   effectiveFrom: 'Effective from',
-  hrBasis: 'HR authorization',
+  hrBasis: 'Personnel authorization',
   basis: { type: 'Document type', reference: 'Reference', issuer: 'Issuer', issuedOn: 'Issued on' },
   departmentStatus: { ACTIVE: 'Active', INACTIVE: 'Retired' },
   memberStatus: { ACTIVE: 'Active', TERMINATED: 'Terminated' },
   workState: { WORKING: 'Working', ON_LONG_LEAVE: 'On long leave', HANDING_OVER: 'Handing over', LEFT: 'Left' },
   warnings: {
     MISSING_HEAD: 'No department head',
-    MISSING_IT_ADMIN: 'No usable IT administrator',
+    MISSING_IT_ADMIN: 'No eligible information technology administrator',
     MISSING_COST_CENTER: 'No cost center'
   },
   actions: {
@@ -69,12 +69,12 @@ export const adminOrganization = {
   candidateHelp:
     'Browse active accounts or find employees without accounts by name or code. Super Admins are excluded. Department membership on the effective date is checked when saving.',
   itAdminHelp:
-    'Browse active, activated IT administrator accounts on every page. The server checks eligibility. Choose Unassigned to remove the assignment.',
+    'Browse active, activated information technology administrator accounts on every page. The server checks eligibility. Choose Unassigned to remove the assignment.',
   headHistory: 'Head history',
   viewHeadHistory: 'View head history',
   openingHeadHistory: 'Opening history…',
   noHistory: 'No head history',
-  historyLimited: 'The API returns recent head history only; older entries are not available here.',
+  historyLimited: 'Only recent department head history is available here.',
   ongoing: 'Ongoing',
   membersHelp: 'Membership is read from the personnel record. Record a personnel event to change departments.',
   hasEmail: 'Work email recorded',

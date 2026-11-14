@@ -37,6 +37,7 @@ export interface DeclareSubscriptionBodyDto {
   noticePeriodDays?: number
   autoRenew?: boolean
   allowsMidTermReduction?: boolean
+  /** The IT Admin who answers for the subscription. When it is not sent, the IT Admin responsible for the application of the plan is taken if they still work as an IT Admin; otherwise it stays empty and an active subscription refuses to be saved without one. */
   responsibleItAdminEmployeeId?: string
   /**
    * @minimum 1

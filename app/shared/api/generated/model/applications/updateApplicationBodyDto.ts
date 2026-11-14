@@ -17,7 +17,6 @@ export interface UpdateApplicationBodyDto {
    */
   domains?: string[]
   dataSensitivity?: UpdateApplicationBodyDtoDataSensitivity
-  businessOwnerEmployeeId?: string
   communication?: UpdateApplicationBodyDtoCommunication
   /** @nullable */
   functionalGroupId?: string | null

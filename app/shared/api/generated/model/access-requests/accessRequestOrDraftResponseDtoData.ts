@@ -111,6 +111,8 @@ export type AccessRequestOrDraftResponseDtoData =
             selfExecuted: boolean
           }
         } | null
+        /** @nullable */
+        limitExemption: 'TRANSFER_GRACE' | 'ROLE_ENDED' | null
         flags: {
           /** @nullable */
           manyPaidSoftware: {
@@ -275,7 +277,13 @@ export type AccessRequestOrDraftResponseDtoData =
             fullName: string
           } | null
           cancelledAt: string
-          cause: 'BENEFICIARY_LEFT' | 'BENEFICIARY_TRANSFERRED' | 'SPENDING_APPROVER_PARTY'
+          cause:
+            | 'BENEFICIARY_LEFT'
+            | 'BENEFICIARY_TRANSFERRED'
+            | 'SYSTEM_BENEFICIARY_LEFT'
+            | 'SYSTEM_BENEFICIARY_TRANSFERRED'
+            | 'SYSTEM_SCOPE_REMOVED'
+            | 'SPENDING_APPROVER_PARTY'
           /** @nullable */
           note: string | null
         } | null
@@ -284,7 +292,7 @@ export type AccessRequestOrDraftResponseDtoData =
   | {
       draft: {
         id: string
-        kind: 'INDIVIDUAL' | 'GROUP' | 'SERVICE_ACCOUNT'
+        kind: 'INDIVIDUAL' | 'GROUP'
         departmentId: string
         planId: string
         /**

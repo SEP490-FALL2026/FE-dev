@@ -11,6 +11,7 @@ import type { RenewalResponseDtoDataRequestCancellation } from './renewalRespons
 import type { RenewalResponseDtoDataRequestCostCenter } from './renewalResponseDtoDataRequestCostCenter'
 import type { RenewalResponseDtoDataRequestDepartment } from './renewalResponseDtoDataRequestDepartment'
 import type { RenewalResponseDtoDataRequestFlags } from './renewalResponseDtoDataRequestFlags'
+import type { RenewalResponseDtoDataRequestLimitExemption } from './renewalResponseDtoDataRequestLimitExemption'
 import type { RenewalResponseDtoDataRequestNeedDecision } from './renewalResponseDtoDataRequestNeedDecision'
 import type { RenewalResponseDtoDataRequestNeedStep } from './renewalResponseDtoDataRequestNeedStep'
 import type { RenewalResponseDtoDataRequestPlan } from './renewalResponseDtoDataRequestPlan'
@@ -58,6 +59,8 @@ export type RenewalResponseDtoDataRequest = {
   expectedEndDate: string | null
   /** @nullable */
   serviceAccount: RenewalResponseDtoDataRequestServiceAccount
+  /** @nullable */
+  limitExemption: RenewalResponseDtoDataRequestLimitExemption
   flags: RenewalResponseDtoDataRequestFlags
   /** @nullable */
   renewal: RenewalResponseDtoDataRequestRenewal

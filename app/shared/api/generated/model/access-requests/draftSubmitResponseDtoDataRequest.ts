@@ -11,6 +11,7 @@ import type { DraftSubmitResponseDtoDataRequestCancellation } from './draftSubmi
 import type { DraftSubmitResponseDtoDataRequestCostCenter } from './draftSubmitResponseDtoDataRequestCostCenter'
 import type { DraftSubmitResponseDtoDataRequestDepartment } from './draftSubmitResponseDtoDataRequestDepartment'
 import type { DraftSubmitResponseDtoDataRequestFlags } from './draftSubmitResponseDtoDataRequestFlags'
+import type { DraftSubmitResponseDtoDataRequestLimitExemption } from './draftSubmitResponseDtoDataRequestLimitExemption'
 import type { DraftSubmitResponseDtoDataRequestNeedDecision } from './draftSubmitResponseDtoDataRequestNeedDecision'
 import type { DraftSubmitResponseDtoDataRequestNeedStep } from './draftSubmitResponseDtoDataRequestNeedStep'
 import type { DraftSubmitResponseDtoDataRequestPlan } from './draftSubmitResponseDtoDataRequestPlan'
@@ -58,6 +59,8 @@ export type DraftSubmitResponseDtoDataRequest = {
   expectedEndDate: string | null
   /** @nullable */
   serviceAccount: DraftSubmitResponseDtoDataRequestServiceAccount
+  /** @nullable */
+  limitExemption: DraftSubmitResponseDtoDataRequestLimitExemption
   flags: DraftSubmitResponseDtoDataRequestFlags
   /** @nullable */
   renewal: DraftSubmitResponseDtoDataRequestRenewal

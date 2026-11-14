@@ -12,5 +12,4 @@
 export type ReclaimResponseDtoDataRecommendationHolder = {
   employeeId: string
   employeeCode: string
-  fullName: string
 } | null

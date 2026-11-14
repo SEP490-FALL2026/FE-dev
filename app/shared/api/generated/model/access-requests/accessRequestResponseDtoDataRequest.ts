@@ -11,6 +11,7 @@ import type { AccessRequestResponseDtoDataRequestCancellation } from './accessRe
 import type { AccessRequestResponseDtoDataRequestCostCenter } from './accessRequestResponseDtoDataRequestCostCenter'
 import type { AccessRequestResponseDtoDataRequestDepartment } from './accessRequestResponseDtoDataRequestDepartment'
 import type { AccessRequestResponseDtoDataRequestFlags } from './accessRequestResponseDtoDataRequestFlags'
+import type { AccessRequestResponseDtoDataRequestLimitExemption } from './accessRequestResponseDtoDataRequestLimitExemption'
 import type { AccessRequestResponseDtoDataRequestNeedDecision } from './accessRequestResponseDtoDataRequestNeedDecision'
 import type { AccessRequestResponseDtoDataRequestNeedStep } from './accessRequestResponseDtoDataRequestNeedStep'
 import type { AccessRequestResponseDtoDataRequestPlan } from './accessRequestResponseDtoDataRequestPlan'
@@ -58,6 +59,8 @@ export type AccessRequestResponseDtoDataRequest = {
   expectedEndDate: string | null
   /** @nullable */
   serviceAccount: AccessRequestResponseDtoDataRequestServiceAccount
+  /** @nullable */
+  limitExemption: AccessRequestResponseDtoDataRequestLimitExemption
   flags: AccessRequestResponseDtoDataRequestFlags
   /** @nullable */
   renewal: AccessRequestResponseDtoDataRequestRenewal

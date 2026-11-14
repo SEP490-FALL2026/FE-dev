@@ -17,7 +17,7 @@ function renderView() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })
   return render(
     <QueryClientProvider client={client}>
-      <SuperAdminTransferView />
+      <SuperAdminTransferView employeeId={employeeId} onClose={() => {}} />
     </QueryClientProvider>
   )
 }
@@ -33,6 +33,7 @@ describe('personnel API integration', () => {
     const pages: string[] = []
     server.use(
       http.get('*/api/v1/department-transfers', ({ request }) => {
+        expect(new URL(request.url).searchParams.get('employeeId')).toBe(employeeId)
         const current = new URL(request.url).searchParams.get('page') ?? '1'
         pages.push(current)
         return HttpResponse.json(

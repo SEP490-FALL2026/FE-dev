@@ -22,10 +22,10 @@ export const adminDepartmentEditor = {
     readFailed: 'Chưa đọc được dữ liệu phòng. Hãy tải lại trước khi lưu tiếp.',
     errors: {
       name: 'Tên gồm 1–200 ký tự; chức năng tối đa 1.000 ký tự.',
-      itAdmin: 'Chọn nhân viên đang hoạt động có tài khoản IT Admin dùng được.',
+      itAdmin: 'Chọn nhân viên đang làm việc có tài khoản quản trị viên công nghệ thông tin có thể sử dụng.',
       headMembership: 'Chọn thành viên của phòng vào ngày hiệu lực.',
       managerRequired: 'Gán vai Quản lý cho nhân viên tại Tài khoản trước.',
-      headRole: 'Super Admin và Người duyệt chi không được làm trưởng phòng.',
+      headRole: 'Quản trị viên hệ thống và người duyệt chi không được làm trưởng phòng.',
       anotherDepartment: 'Nhân viên đang làm trưởng phòng khác trong cùng khoảng thời gian.',
       employeeInactive: 'Nhân viên không còn tồn tại hoặc đã ngừng hoạt động.',
       date: 'Chọn hôm nay hoặc ngày nghiệp vụ trong tương lai.',

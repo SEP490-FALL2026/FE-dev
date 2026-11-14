@@ -137,7 +137,7 @@ describe('Organization API integration', () => {
     fireEvent.change(screen.getByLabelText('Department code'), { target: { value: 'ENG' } })
     fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Engineering' } })
     expect(await screen.findByRole('option', { name: 'IT-02 — Alex' })).toBeInTheDocument()
-    fireEvent.change(screen.getByLabelText('IT administrator'), { target: { value: 'employee-2' } })
+    fireEvent.change(screen.getByLabelText('Information technology administrator'), { target: { value: 'employee-2' } })
     expect(screen.queryByRole('button', { name: 'Find employee' })).not.toBeInTheDocument()
     fireEvent.submit(screen.getByRole('dialog').querySelector('form')!)
     await waitFor(() =>
