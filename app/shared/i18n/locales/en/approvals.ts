@@ -77,7 +77,6 @@ export const approvals = {
     BUDGET_REVISION_NEEDED: 'Awaiting budget revision',
     LINE_UPDATED: 'Plan line updated',
     RECOMMEND_APPROVE: 'Recommend approval',
-    RECOMMEND_OVERRIDE: 'Recommend budget override',
     RECOMMEND_REJECT: 'Recommend rejection',
     WITHIN_LIMIT: 'Within limit',
     OVER_LIMIT: 'Over limit',

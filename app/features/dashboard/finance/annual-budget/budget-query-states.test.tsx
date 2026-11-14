@@ -80,7 +80,9 @@ describe('budget server states and pending writes', () => {
       return apiResponse(config, config.url?.endsWith('/lines') ? apiPage([apiLine]) : { version: apiVersion })
     }
     renderBudget(<FinanceBudgetNegotiationView itemId='version-1' />)
-    fireEvent.click(await screen.findByRole('button', { name: 'Send for decision' }))
+    const send = await screen.findByRole('button', { name: 'Send for decision' })
+    await waitFor(() => expect(send).toHaveProperty('disabled', false))
+    fireEvent.click(send)
     const confirm = screen.getByRole('button', { name: 'Confirm send' })
     fireEvent.click(confirm)
     fireEvent.click(confirm)

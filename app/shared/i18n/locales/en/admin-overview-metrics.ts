@@ -12,7 +12,7 @@ export const overviewMetrics = {
     approverConfiguration: 'spending approvers',
     superAdminRole: 'Super Admin availability',
     departmentsWithoutHead: 'departments without a head',
-    departmentsWithoutItAdmin: 'departments without IT Admin',
+    departmentsWithoutItAdmin: 'departments without an information technology administrator',
     accountCandidates: 'account candidates',
     personnelNotices: 'personnel notices'
   }

@@ -87,7 +87,7 @@ When designing, updating, or refactoring components and layouts, Codex **MUST NO
 - **Route modules MUST remain thin**: Max ~50 lines, delegate to `app/features/<feature>`.
 - **Zero Hardcoded Text**: 100% of user-visible strings must use `useTranslation()` with typed keys in both `vi` and `en` locale files.
 - **File Length Limit**: Any `.tsx` or `.ts` file exceeding **500 lines** is a strict violation. Decompose into components, hooks, or enums.
-- **API Generated Code**: Never hand-edit `app/shared/api/generated/`. Update `openapi/openapi.yaml` and run `pnpm api:generate`.
+- **API Generated Code**: Never hand-edit `app/shared/api/generated/`. Run `pnpm api:generate` to generate from the configured BE Swagger server.
 
 ---
 

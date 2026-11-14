@@ -29,6 +29,47 @@ function fill(label: string, value: string) {
   fireEvent.change(screen.getByLabelText(label), { target: { value } })
 }
 
+it('edits only the employee in the profile and submits changed values', async () => {
+  const id = '11111111-1111-4111-8111-111111111111'
+  let received: unknown
+  server.use(
+    http.get('*/api/v1/employees/:id', () =>
+      HttpResponse.json({
+        success: true,
+        data: {
+          id,
+          employeeCode: 'EMP-001',
+          fullName: 'Nguyen An',
+          workEmail: 'an@example.com',
+          employmentType: 'STAFF',
+          hireDate: '2026-01-01',
+          jobTitle: 'Engineer',
+          status: 'ACTIVE',
+          workState: 'WORKING',
+          department: null,
+          unplaced: true,
+          account: null,
+          placements: [],
+          placementsHasMore: false
+        }
+      })
+    ),
+    http.patch('*/api/v1/employees/:id', async ({ request, params }) => {
+      received = { id: params.id, body: await request.json() }
+      return HttpResponse.json({ success: false, error: { code: 'EMPLOYEE.ROW_INVALID' } }, { status: 422 })
+    })
+  )
+  mount(<EmployeePanel />, `/dashboard/super-admin/personnel/correct?employeeId=${id}`)
+  const employee = await screen.findByLabelText('Employee')
+  expect(employee).toBeDisabled()
+  expect(employee).toHaveValue('EMP-001 — Nguyen An')
+  expect(screen.queryByLabelText('Clear work email')).not.toBeInTheDocument()
+  expect(screen.getByLabelText('Full name')).toHaveValue('Nguyen An')
+  fill('Job title', 'Senior Engineer')
+  fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+  await waitFor(() => expect(received).toEqual({ id, body: { jobTitle: 'Senior Engineer' } }))
+})
+
 it('creates a personnel record with only contract fields and keeps the draft when the server rejects it', async () => {
   let received: unknown
   server.use(

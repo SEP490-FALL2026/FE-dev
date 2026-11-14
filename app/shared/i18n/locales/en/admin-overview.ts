@@ -34,7 +34,7 @@ export const overviewRedesign = {
   baselineClosed: 'The seat baseline is closed.',
   baselineOpen: 'The seat baseline has not been closed.',
   ownerSuperAdmin: 'Owner: Super Admin',
-  ownerItAdmin: 'Owner: IT Admin',
+  ownerItAdmin: 'Owner: Information technology administrator',
   unreleasedStage: 'This capability has not been released yet.',
   createDepartment: 'Create the first department',
   importEmployees: 'Import employees',

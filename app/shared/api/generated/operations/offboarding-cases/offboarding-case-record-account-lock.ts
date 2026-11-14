@@ -17,7 +17,7 @@ import { customAxios } from '../../../mutator/custom-axios'
 import type { ErrorType, BodyType } from '../../../mutator/custom-axios'
 
 /**
- * @summary Record the lock of the company account
+ * @summary Record the block of the company account (item 1a)
  */
 export const offboardingCaseRecordAccountLock = (
   id: string,
@@ -80,7 +80,7 @@ export type OffboardingCaseRecordAccountLockMutationBody = BodyType<RecordAccoun
 export type OffboardingCaseRecordAccountLockMutationError = ErrorType<ErrorEnvelopeDto>
 
 /**
- * @summary Record the lock of the company account
+ * @summary Record the block of the company account (item 1a)
  */
 export const useOffboardingCaseRecordAccountLock = <TError = ErrorType<ErrorEnvelopeDto>, TContext = unknown>(
   options?: {

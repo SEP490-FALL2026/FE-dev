@@ -57,7 +57,8 @@ export const admin = {
     successorResponsibilities: 'Transfer the person’s current department or special responsibilities first.',
     departmentInUse: 'This department still has people or other dependencies. Resolve them before deactivating it.',
     headMembership: 'Choose an eligible member of the department on the effective date.',
-    hrBasis: 'Provide the complete authorized HR document. A BM-09 notice is not an HR decision.',
+    hrBasis:
+      'Provide the complete authorized personnel document. A department head’s personnel change notice is not a personnel decision.',
     successorRequired: 'Name the head’s successor or explicitly confirm that there is none.',
     pendingEvent: 'This employee already has a conflicting personnel event. Review it first.',
     dateInvalid: 'This date is not allowed for the current personnel or calendar state.',
@@ -96,13 +97,13 @@ export const admin = {
     setupReasons: {
       NO_DEPARTMENT: 'Create an active department.',
       NO_EMPLOYEE: 'Create or import employees.',
-      NO_APPLICATION: 'IT Admin must configure the application catalog.',
-      NO_SUBSCRIPTION: 'IT Admin must configure subscriptions.',
+      NO_APPLICATION: 'An information technology administrator must configure the application catalog.',
+      NO_SUBSCRIPTION: 'An information technology administrator must configure subscriptions.',
       NOT_BUILT_YET: 'This capability is not available yet.'
     },
     setupWarnings: {
       MISSING_HEAD: 'No department head',
-      MISSING_IT_ADMIN: 'No IT Admin in charge',
+      MISSING_IT_ADMIN: 'No information technology administrator in charge',
       MISSING_COST_CENTER: 'Finance has not configured a cost center'
     },
     facts: {
@@ -222,13 +223,13 @@ export const admin = {
       FALLBACK_IS_REQUESTER: 'The fallback approver is the requester. Configure a substitute.',
       NO_CONFLICT_SUBSTITUTE: 'Configure the conflict substitute.',
       NO_FINANCE_REVIEWER: 'Assign an eligible Finance reviewer.',
-      NO_IT_ADMIN_IN_CHARGE: 'Assign the department’s IT Admin.'
+      NO_IT_ADMIN_IN_CHARGE: 'Assign the department’s information technology administrator.'
     },
     stepKinds: {
       NEED: 'Needs approval',
       FINANCE_REVIEW: 'Finance review',
       SPEND_APPROVAL: 'Spending approval',
-      IT_ASSESSMENT: 'IT assessment'
+      IT_ASSESSMENT: 'Information technology assessment'
     }
   }
 } as const

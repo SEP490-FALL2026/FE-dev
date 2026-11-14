@@ -39,6 +39,9 @@ export type AssignmentPageResponseDtoDataItemsItem = {
   expectedEndDate: string | null
   /** @nullable */
   predecessorId: string | null
+  isMachineAccount: boolean
+  /** @nullable */
+  machineAccountNote: string | null
   /** @nullable */
   failedAt: string | null
   /** @nullable */

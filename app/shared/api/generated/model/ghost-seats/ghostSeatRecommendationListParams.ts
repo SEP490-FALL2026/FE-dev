@@ -15,7 +15,18 @@ export type GhostSeatRecommendationListParams = {
   tier?: GhostSeatRecommendationListTier
   state?: GhostSeatRecommendationListState
   applicationId?: string
+  /**
+   * Kept for compatibility: both values read only the departments the IT Admin is in charge of, and those with no IT Admin; ALL no longer reads the whole organization.
+   */
   departmentScope?: GhostSeatRecommendationListDepartmentScope
+  /**
+   * Only the recommendations of this department: the department that owned the seat when it was recommended, not where the holder is placed now. A department outside the scope reads an empty page.
+   */
+  departmentId?: string
+  /**
+   * Only this holder; one outside the scope reads an empty page.
+   */
+  employeeId?: string
   /**
    * @maximum 9007199254740991
    * @exclusiveMinimum 0

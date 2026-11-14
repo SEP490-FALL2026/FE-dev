@@ -22,7 +22,6 @@ export interface DeclareApplicationBodyDto {
    */
   domains?: string[]
   dataSensitivity: DeclareApplicationBodyDtoDataSensitivity
-  businessOwnerEmployeeId?: string
   communication: DeclareApplicationBodyDtoCommunication
   functionalGroupId?: string
 }

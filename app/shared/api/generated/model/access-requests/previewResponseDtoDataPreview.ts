@@ -13,6 +13,7 @@ import type { PreviewResponseDtoDataPreviewCostCenter } from './previewResponseD
 import type { PreviewResponseDtoDataPreviewCostEstimate } from './previewResponseDtoDataPreviewCostEstimate'
 import type { PreviewResponseDtoDataPreviewDepartment } from './previewResponseDtoDataPreviewDepartment'
 import type { PreviewResponseDtoDataPreviewExistingAccess } from './previewResponseDtoDataPreviewExistingAccess'
+import type { PreviewResponseDtoDataPreviewLimitExemption } from './previewResponseDtoDataPreviewLimitExemption'
 import type { PreviewResponseDtoDataPreviewLimits } from './previewResponseDtoDataPreviewLimits'
 import type { PreviewResponseDtoDataPreviewPlan } from './previewResponseDtoDataPreviewPlan'
 import type { PreviewResponseDtoDataPreviewPricing } from './previewResponseDtoDataPreviewPricing'
@@ -35,6 +36,8 @@ export type PreviewResponseDtoDataPreview = {
   /** @nullable */
   blockedBy: PreviewResponseDtoDataPreviewBlockedBy
   limits: PreviewResponseDtoDataPreviewLimits
+  /** @nullable */
+  limitExemption: PreviewResponseDtoDataPreviewLimitExemption
   canSubmit: boolean
   /**
    * @minimum -9007199254740991

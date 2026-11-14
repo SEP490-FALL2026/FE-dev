@@ -1,11 +1,14 @@
 import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { useDepartmentGet, useDepartmentList } from '~/shared/api/generated/operations/departments'
-import { adminInputClass, adminButtonClass } from './admin-form'
-import { AdminEmpty, AdminQueryState } from './admin-query-state'
-import { AdminPagination } from './admin-pagination'
+import {
+  departmentList,
+  getDepartmentListQueryKey
+} from '~/shared/api/generated/operations/departments/department-list'
+import { useDepartmentGet } from '~/shared/api/generated/operations/departments/department-get'
+import { adminInputClass } from './admin-form'
+import { AdminQueryState } from './admin-query-state'
 
-/** Resolve one initial reference and browse server-paged departments by name. */
 export function DepartmentLookup({
   name,
   required = true,
@@ -19,17 +22,27 @@ export function DepartmentLookup({
 }) {
   const { t: translate } = useTranslation('adminPersonnel')
   const [selected, setSelected] = useState(initial)
-  const [selectedName, setSelectedName] = useState(initialLabel)
-  const [open, setOpen] = useState(false)
-  const [page, setPage] = useState(1)
-  const query = useDepartmentList({ page, pageSize: 20, status: 'ACTIVE' }, { query: { enabled: open } })
+  const query = useQuery({
+    queryKey: [...getDepartmentListQueryKey(), 'active-department-select'],
+    queryFn: async ({ signal }) => {
+      const items = []
+      let page = 1
+      let totalPages: number
+      do {
+        const response = await departmentList({ page, pageSize: 100, status: 'ACTIVE' }, undefined, signal)
+        if (!response.data) throw new Error('Department list unavailable')
+        items.push(...response.data.items)
+        totalPages = response.data.pagination.totalPages
+        page += 1
+      } while (page <= totalPages)
+      return items
+    }
+  })
   const initialDepartment = useDepartmentGet(initial, {
     query: { enabled: Boolean(initial && !initialLabel && selected === initial) }
   })
   const initialData = initialDepartment.data?.data
-  const displayName =
-    selectedName ||
-    (initialData && selected === initial ? `${initialData.code} · ${initialData.name}` : translate('currentSelection'))
+  const items = query.data ?? []
   return (
     <div className='grid gap-2'>
       <select
@@ -38,48 +51,25 @@ export function DepartmentLookup({
         name={name}
         required={required}
         value={selected}
-        onChange={() => {
-          setSelected('')
-          setSelectedName('')
-        }}
+        onChange={(event) => setSelected(event.target.value)}
+        aria-busy={query.isFetching}
       >
         <option value=''>{translate(required ? 'choose' : 'noSelection')}</option>
-        {selected && <option value={selected}>{displayName}</option>}
+        {initial && selected === initial && !items.some((item) => item.id === initial) && (
+          <option value={initial}>
+            {initialLabel ||
+              (initialData ? `${initialData.code} · ${initialData.name}` : translate('currentSelection'))}
+          </option>
+        )}
+        {items.map((department) => (
+          <option key={department.id} value={department.id}>
+            {department.code} · {department.name}
+          </option>
+        ))}
       </select>
-      {initialDepartment.isError && selected === initial && (
+      {(query.isPending || query.isError) && <AdminQueryState query={query}>{null}</AdminQueryState>}
+      {initialDepartment.isError && selected === initial && !initialLabel && (
         <AdminQueryState query={initialDepartment}>{null}</AdminQueryState>
-      )}
-      <button type='button' aria-expanded={open} className={adminButtonClass} onClick={() => setOpen(!open)}>
-        {translate('chooseDepartment')}
-      </button>
-      {open && (
-        <AdminQueryState query={query}>
-          {!query.data?.data?.items.length && <AdminEmpty />}
-          <ul className='grid gap-2'>
-            {query.data?.data?.items.map((department) => (
-              <li key={department.id}>
-                <button
-                  type='button'
-                  className={`${adminButtonClass} w-full justify-start text-left`}
-                  onClick={() => {
-                    setSelected(department.id)
-                    setSelectedName(`${department.code} · ${department.name}`)
-                    setOpen(false)
-                  }}
-                >
-                  {department.code}
-                  {' · '}
-                  {department.name}
-                </button>
-              </li>
-            ))}
-          </ul>
-          <AdminPagination
-            pagination={query.data?.data?.pagination}
-            onPageChange={setPage}
-            disabled={query.isFetching}
-          />
-        </AdminQueryState>
       )}
     </div>
   )

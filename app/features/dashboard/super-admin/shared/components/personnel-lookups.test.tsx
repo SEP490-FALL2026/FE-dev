@@ -34,18 +34,19 @@ function expectNoVisibleIds(container: HTMLElement) {
   }
 }
 
-it('selects employee names on later account pages, submits UUIDs and allows clearing', async () => {
+it('loads employee options from every page, submits the selected identifier and allows clearing', async () => {
   const pages: string[] = []
   server.use(
-    http.get('*/api/v1/app-users', ({ request }) => {
+    http.get('*/api/v1/employees', ({ request }) => {
       const params = new URL(request.url).searchParams
       pages.push(params.get('page') ?? '')
       expect(params.has('search')).toBe(false)
       return envelope({
         items: [
           {
-            id: 'account',
-            employee: { id: employeeId, employeeCode: 'EMP-1', fullName: `Employee page ${params.get('page')}` }
+            id: params.get('page') === '1' ? '44444444-4444-4444-8444-444444444444' : employeeId,
+            employeeCode: 'EMP-1',
+            fullName: `Employee page ${params.get('page')}`
           }
         ],
         pagination: pagination(Number(params.get('page')))
@@ -58,10 +59,8 @@ it('selects employee names on later account pages, submits UUIDs and allows clea
     </form>
   )
   const field = screen.getByRole('combobox', { name: 'Employee' })
-  fireEvent.click(screen.getByRole('button', { name: 'Find employee' }))
-  await screen.findByRole('button', { name: /Employee page 1/ })
-  fireEvent.click(screen.getByRole('button', { name: 'Next' }))
-  fireEvent.click(await screen.findByRole('button', { name: /Employee page 2/ }))
+  await screen.findByRole('option', { name: /Employee page 2/ })
+  fireEvent.change(field, { target: { value: employeeId } })
   expect(field).toHaveDisplayValue('EMP-1 — Employee page 2')
   expect(new FormData(container.querySelector('form')!).get('employeeId')).toBe(employeeId)
   expectNoVisibleIds(container)
@@ -72,9 +71,11 @@ it('selects employee names on later account pages, submits UUIDs and allows clea
 
 it('selects employees without accounts and requires an actual selection', async () => {
   server.use(
-    http.get('*/api/v1/app-users', () => envelope({ items: [], pagination: pagination() })),
-    http.get('*/api/v1/account-candidates', () =>
-      envelope({ items: [{ id: employeeId, employeeCode: 'EMP-2', fullName: 'No Account' }] })
+    http.get('*/api/v1/employees', () =>
+      envelope({
+        items: [{ id: employeeId, employeeCode: 'EMP-2', fullName: 'No Account' }],
+        pagination: { ...pagination(), totalPages: 1 }
+      })
     )
   )
   const onSubmit = vi.fn()
@@ -87,10 +88,9 @@ it('selects employees without accounts and requires an actual selection', async 
       fields={[{ name: 'employeeId', type: 'uuid' }]}
     />
   )
+  await screen.findByRole('option', { name: /No Account/ })
   expect(screen.getByRole('dialog').querySelector('form')!.checkValidity()).toBe(false)
-  fireEvent.click(screen.getByRole('button', { name: 'Find employee' }))
-  fireEvent.click(screen.getByRole('button', { name: 'Without accounts' }))
-  fireEvent.click(await screen.findByRole('button', { name: /No Account/ }))
+  fireEvent.change(screen.getByRole('combobox', { name: 'Employee' }), { target: { value: employeeId } })
   expect(screen.getByRole('dialog').querySelector('form')!.checkValidity()).toBe(true)
   fireEvent.click(screen.getByRole('button', { name: 'Save' }))
   expect(onSubmit.mock.calls[0][0].get('employeeId')).toBe(employeeId)
@@ -99,7 +99,8 @@ it('selects employees without accounts and requires an actual selection', async 
 
 it('resolves the initial department name without replacing its UUID and can clear it', async () => {
   server.use(
-    http.get('*/api/v1/departments/:id', () => envelope({ id: departmentId, code: 'ENG', name: 'Engineering' }))
+    http.get('*/api/v1/departments/:id', () => envelope({ id: departmentId, code: 'ENG', name: 'Engineering' })),
+    http.get('*/api/v1/departments', () => envelope({ items: [], pagination: { ...pagination(), totalPages: 1 } }))
   )
   const { container } = mount(
     <form>
@@ -139,7 +140,8 @@ it('chooses a recorded event by its route and date with employee-scoped paginati
       <NoticeEventLookup employeeId={employeeId} source='transfers' />
     </form>
   )
-  fireEvent.click(await screen.findByRole('button', { name: /Engineering → Finance/ }))
+  await screen.findByRole('option', { name: /Engineering → Finance/ })
+  fireEvent.change(screen.getByRole('combobox', { name: 'Recorded event' }), { target: { value: eventId } })
   expect(new FormData(container.querySelector('form')!).get('eventId')).toBe(eventId)
   expectNoVisibleIds(container)
 })

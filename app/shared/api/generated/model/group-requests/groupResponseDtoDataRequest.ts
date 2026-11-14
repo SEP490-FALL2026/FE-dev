@@ -11,6 +11,7 @@ import type { GroupResponseDtoDataRequestCancellation } from './groupResponseDto
 import type { GroupResponseDtoDataRequestCostCenter } from './groupResponseDtoDataRequestCostCenter'
 import type { GroupResponseDtoDataRequestDepartment } from './groupResponseDtoDataRequestDepartment'
 import type { GroupResponseDtoDataRequestFlags } from './groupResponseDtoDataRequestFlags'
+import type { GroupResponseDtoDataRequestLimitExemption } from './groupResponseDtoDataRequestLimitExemption'
 import type { GroupResponseDtoDataRequestNeedDecision } from './groupResponseDtoDataRequestNeedDecision'
 import type { GroupResponseDtoDataRequestNeedStep } from './groupResponseDtoDataRequestNeedStep'
 import type { GroupResponseDtoDataRequestPlan } from './groupResponseDtoDataRequestPlan'
@@ -58,6 +59,8 @@ export type GroupResponseDtoDataRequest = {
   expectedEndDate: string | null
   /** @nullable */
   serviceAccount: GroupResponseDtoDataRequestServiceAccount
+  /** @nullable */
+  limitExemption: GroupResponseDtoDataRequestLimitExemption
   flags: GroupResponseDtoDataRequestFlags
   /** @nullable */
   renewal: GroupResponseDtoDataRequestRenewal

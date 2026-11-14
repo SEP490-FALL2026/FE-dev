@@ -47,10 +47,6 @@ export const financeBudget = {
     flags: 'Flags',
     highValuePercent: 'High value threshold (%)',
     highValueAmount: 'High value amount',
-    q1: 'Quarter 1',
-    q2: 'Quarter 2',
-    q3: 'Quarter 3',
-    q4: 'Quarter 4',
     currency: 'Currency',
     reason: 'Reason',
     number: 'Version',
@@ -210,7 +206,6 @@ export const financeBudget = {
     ATTACHMENT_ADDED: 'Attachment added',
     ATTACHMENT_REMOVED: 'Attachment removed'
   },
-  quartersMismatch: 'The four quarters must add up to the total budget (base plus reserve).',
   reserveReasonHint: 'A reserve other than the default needs a reason when the version is sent.',
   yearRange: 'Enter a four-digit year from 2000 to 2200.',
   fieldInvalid: 'Enter a valid value.',
@@ -232,7 +227,6 @@ export const financeBudget = {
     months: 'e.g. 12',
     percent: 'e.g. 50',
     highValueAmount: 'Leave empty to use the percentage only',
-    quarter: 'e.g. 30000000',
     note: 'Note for the Spending Approver (optional)',
     financeComment: 'Finance comment on this line',
     adjustmentReason: 'Why the amount or timing of this line changes',
@@ -246,11 +240,12 @@ export const financeBudget = {
     schedule: 'Purchase timing and cycle',
     notes: 'Notes',
     figures: 'Budget figures',
-    quarters: 'Quarterly split',
     overview: 'Summary'
   },
   attachments: {
     title: 'Attachments',
+    explanationTitle: 'Explanation files',
+    explanationRequired: 'Attach at least one explanation file before sending this version for approval.',
     upload: 'Upload document',
     uploading: 'Uploading…',
     choose: 'Choose attachment',
@@ -266,7 +261,6 @@ export const financeBudget = {
     confirmRemove: 'Remove file'
   },
   sendHint: 'Send this version to the spending approver for a decision.',
-  optionalQuarters: 'Optional quarterly amounts: fill all four or leave all blank.',
   decimalHint: 'Enter a nonnegative decimal amount in the reporting currency.',
   invalid: 'Review the required fields and decimal amounts.',
   importHint: 'Upload a budget line table. Maximum size: 2 MiB.',

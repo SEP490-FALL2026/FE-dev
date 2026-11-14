@@ -17,6 +17,7 @@ import type { SubscriptionResponseDtoDataTaxEstimate } from './subscriptionRespo
 import type { SubscriptionResponseDtoDataTaxProfile } from './subscriptionResponseDtoDataTaxProfile'
 import type { SubscriptionResponseDtoDataUnitPrice } from './subscriptionResponseDtoDataUnitPrice'
 import type { SubscriptionResponseDtoDataVendor } from './subscriptionResponseDtoDataVendor'
+import type { SubscriptionResponseDtoDataVendorAdminsItem } from './subscriptionResponseDtoDataVendorAdminsItem'
 import type { SubscriptionResponseDtoDataWarningsItem } from './subscriptionResponseDtoDataWarningsItem'
 
 /**
@@ -77,6 +78,14 @@ export type SubscriptionResponseDtoData = {
   alerts: SubscriptionResponseDtoDataAlerts
   warnings: SubscriptionResponseDtoDataWarningsItem[]
   mergeCandidateIds: string[]
+  /** @maxItems 20 */
+  vendorAdmins: SubscriptionResponseDtoDataVendorAdminsItem[]
+  /** @nullable */
+  ownerAccountEmail: string | null
+  /** @nullable */
+  adminNote: string | null
+  vendorAdminsBelowMinimum: boolean
+  ownerAccountEmailMissing: boolean
   taxProfile: SubscriptionResponseDtoDataTaxProfile
   /** @nullable */
   taxEstimate: SubscriptionResponseDtoDataTaxEstimate

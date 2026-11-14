@@ -8,14 +8,14 @@ Phần mô tả hiện trạng phản ánh code đang có; phần quy tắc hư�
 
 SaaS-Sentry là ứng dụng quản trị phần mềm SaaS, bản quyền, cấp phát, phê duyệt và chi phí công nghệ. Frontend là một ứng dụng React dùng chung cho sáu vai trò. Backend NestJS cung cấp REST API và quyết định xác thực, quyền truy cập, trạng thái nghiệp vụ, số liệu tài chính và lưu trữ.
 
-| Tài liệu hoặc cấu hình                                                           | Trách nhiệm                                                             |
-| -------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| [ARCHITECTURE.md](ARCHITECTURE.md)                                               | Cấu trúc mã nguồn, luồng thực thi, trách nhiệm các tầng và cách mở rộng |
-| [AGENTS.md](AGENTS.md)                                                           | Quy tắc làm việc và điều kiện bàn giao bắt buộc cho agent               |
-| [UI_UX_DESIGN_GUIDELINES.md](UI_UX_DESIGN_GUIDELINES.md)                         | Quy chuẩn bố cục, tương tác, khả năng tiếp cận và thiết kế giao diện    |
-| [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md)                                       | Bối cảnh và phạm vi nghiệp vụ                                           |
-| [package.json](package.json), [pnpm-lock.yaml](pnpm-lock.yaml)                   | Thư viện, lệnh thực thi và phiên bản được khóa                          |
-| [openapi/openapi.yaml](openapi/openapi.yaml), [orval.config.ts](orval.config.ts) | Bản chụp hợp đồng API và cấu hình sinh client                           |
+| Tài liệu hoặc cấu hình                                         | Trách nhiệm                                                             |
+| -------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| [ARCHITECTURE.md](ARCHITECTURE.md)                             | Cấu trúc mã nguồn, luồng thực thi, trách nhiệm các tầng và cách mở rộng |
+| [AGENTS.md](AGENTS.md)                                         | Quy tắc làm việc và điều kiện bàn giao bắt buộc cho agent               |
+| [UI_UX_DESIGN_GUIDELINES.md](UI_UX_DESIGN_GUIDELINES.md)       | Quy chuẩn bố cục, tương tác, khả năng tiếp cận và thiết kế giao diện    |
+| [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md)                     | Bối cảnh và phạm vi nghiệp vụ                                           |
+| [package.json](package.json), [pnpm-lock.yaml](pnpm-lock.yaml) | Thư viện, lệnh thực thi và phiên bản được khóa                          |
+| [orval.config.ts](orval.config.ts)                             | Cấu hình sinh client trực tiếp từ Swagger của BE                        |
 
 Khi làm việc, đọc tài liệu kiến trúc cùng `AGENTS.md`, sau đó kiểm tra trực tiếp các file liên quan. Khi tài liệu và code khác nhau, xác minh từ cấu hình, contract và kiểm thử; không tự dựng thư mục, endpoint hoặc hành vi theo mô tả cũ. `AGENTS.md`, `ARCHITECTURE.md` và `UI_UX_DESIGN_GUIDELINES.md` là tài liệu được bảo vệ theo mục 0 của `AGENTS.md`: khi code chức năng, không tự cập nhật các file này. Nếu cần thay đổi, báo rõ lý do và nội dung đề xuất, chờ người dùng cho phép trước khi sửa.
 
@@ -73,7 +73,6 @@ app/
 │   └── lib/                      # Tiện ích như CSV và tiêu đề trang
 └── app.css                       # Tailwind, biến màu, giao diện sáng/tối và CSS chung
 
-openapi/openapi.yaml              # Bản chụp hợp đồng API để kiểm tra và sinh client
 test/setup.ts                     # Thiết lập kiểm thử component
 eslint-rules/                     # Quy tắc ESLint riêng và kiểm thử của quy tắc
 scripts/                         # Kiểm tra OpenAPI và công cụ hỗ trợ
@@ -260,24 +259,16 @@ Super Admin có ví dụ dùng lại tại `accounts/hooks/use-super-admin-accou
 
 ```text
 Nguồn OpenAPI
-  -> Orval lọc tag được khai báo trong cấu hình
+  -> Orval đọc và kiểm tra contract
   -> app/shared/api/generated/operations/<tag>/<operation>.ts
   -> app/shared/api/generated/model/<tag>/<schema>.ts
 ```
 
-Model dùng chung có thể nằm ở gốc `model/`. Danh sách tag hiện bao gồm `auth`, `me` và các nhóm API phục vụ Super Admin. Không giả định endpoint mới sẽ được sinh nếu tag chưa nằm trong bộ lọc.
+Model dùng chung có thể nằm ở gốc `model/`. Cấu hình hiện không lọc tag; Orval sinh các operation theo tag trong contract.
 
-`pnpm api:validate` kiểm tra file `openapi/openapi.yaml` bằng script riêng của repository. Script có nhánh kiểm tra bản export BE và nhánh kiểm tra quy ước tag/tên; đây không phải bộ kiểm tra đầy đủ mọi ràng buộc của chuẩn OpenAPI.
+`pnpm api:validate` lấy và kiểm tra Swagger server bằng script riêng của repository. Script có nhánh kiểm tra bản export BE và nhánh kiểm tra quy ước tag/tên; đây không phải bộ kiểm tra đầy đủ mọi ràng buộc của chuẩn OpenAPI.
 
-**Orval mặc định đọc bản export trực tiếp** tại `/api/docs-json`, lấy origin từ cấu hình môi trường phát triển. Để sinh đúng từ bản chụp đã review, đặt `ORVAL_OPENAPI_SOURCE` rõ ràng. Trong PowerShell:
-
-```powershell
-$env:ORVAL_OPENAPI_SOURCE = './openapi/openapi.yaml'
-pnpm api:generate
-Remove-Item Env:ORVAL_OPENAPI_SOURCE
-```
-
-`api:generate` chạy validate trước rồi gọi Orval. Thư mục đầu ra có `clean: true`; tuyệt đối không đặt code viết tay trong `generated/`. Quy trình thay contract: nhận bản BE đã xác nhận, cập nhật snapshot, validate, sinh lại từ snapshot, sửa feature theo kiểu mới, chạy kiểm tra và review cả contract lẫn đầu ra.
+**Orval đọc trực tiếp** `/api/docs-json` từ origin `API_PROXY_TARGET` trong môi trường phát triển. `pnpm api:generate` kiểm tra contract mà Orval nhận qua input transformer rồi sinh client. Cả validate và generate đều cần kết nối tới Swagger BE. Transformer và script kiểm tra quy ước của repository, không thay thế việc xác nhận contract với BE. Thư mục đầu ra có `clean: true`; không đặt code viết tay trong `generated/`. Khi BE đổi contract, review client được sinh, sửa feature theo kiểu mới và chạy các kiểm tra liên quan.
 
 Cấu hình hiện không có sinh MSW handler hoặc Faker factory. Không hướng dẫn import `generated/mocks/` như một thư mục đang tồn tại. Mock và fixture cho kiểm thử phải tách khỏi đường import của code chạy thật.
 
@@ -316,14 +307,13 @@ Biểu tượng dùng Lucide; chuyển động dùng Motion và tôn trọng red
 
 ## 10. Cấu hình môi trường và triển khai
 
-| Biến hoặc file         | Cách sử dụng                                                                       |
-| ---------------------- | ---------------------------------------------------------------------------------- |
-| `VITE_API_BASE_URL`    | Bắt buộc; `shared/config/env.ts` kiểm tra không rỗng và bỏ dấu `/` cuối            |
-| `API_PROXY_TARGET`     | Dùng trong công cụ Node/Vite để proxy và tìm nguồn OpenAPI; không phải biến client |
-| `ORVAL_OPENAPI_SOURCE` | Ghi đè nguồn OpenAPI khi sinh client, ví dụ đường dẫn snapshot cục bộ              |
-| `.env.example`         | Mẫu cấu hình có trong repository                                                   |
-| `.env`                 | Cấu hình phát triển cục bộ; mẫu dùng `VITE_API_BASE_URL=/backend`                  |
-| `.env.product`         | Cấu hình cho `pnpm build`, vì script dùng `--mode product`                         |
+| Biến hoặc file      | Cách sử dụng                                                                       |
+| ------------------- | ---------------------------------------------------------------------------------- |
+| `VITE_API_BASE_URL` | Bắt buộc; `shared/config/env.ts` kiểm tra không rỗng và bỏ dấu `/` cuối            |
+| `API_PROXY_TARGET`  | Dùng trong công cụ Node/Vite để proxy và tìm nguồn OpenAPI; không phải biến client |
+| `.env.example`      | Mẫu cấu hình có trong repository                                                   |
+| `.env`              | Cấu hình phát triển cục bộ; mẫu dùng `VITE_API_BASE_URL=/backend`                  |
+| `.env.product`      | Cấu hình cho `pnpm build`, vì script dùng `--mode product`                         |
 
 Máy chủ phát triển chạy HTTP tại `localhost:5173`, dùng `strictPort: true`. Vite proxy `/backend` tới `API_PROXY_TARGET` và bỏ prefix này; operation đã có `/api/v1`, không tự thêm lần nữa vào base URL.
 
@@ -352,7 +342,7 @@ Các lệnh chuẩn, chạy tại thư mục chứa `package.json`:
 | -------------------------------- | ----------------------------------------------------------------- |
 | `pnpm install --frozen-lockfile` | Cài dependency đúng lockfile                                      |
 | `pnpm dev`                       | Chạy máy chủ phát triển                                           |
-| `pnpm api:validate`              | Kiểm tra quy ước hợp đồng cục bộ                                  |
+| `pnpm api:validate`              | Kiểm tra quy ước Swagger từ server BE                             |
 | `pnpm api:generate`              | Validate và sinh client; chú ý nguồn mặc định/biến ghi đè ở mục 7 |
 | `pnpm exec vitest run <path>`    | Chạy kiểm thử liên quan                                           |
 | `pnpm typecheck`                 | Sinh kiểu route và chạy TypeScript                                |

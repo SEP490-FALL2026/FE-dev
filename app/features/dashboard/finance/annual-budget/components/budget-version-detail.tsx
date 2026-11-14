@@ -1,6 +1,7 @@
 import { ArrowLeft, History, Pencil, Send } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useBudgetVersionAttachmentList } from '~/shared/api/generated/operations/budgets/budget-version-attachment-list'
 import { useBudgetVersionGet } from '~/shared/api/generated/operations/budget-versions/budget-version-get'
 import { useBudgetVersionUpdate } from '~/shared/api/generated/operations/budget-versions/budget-version-update'
 import { useBudgetVersionSend } from '~/shared/api/generated/operations/budget-versions/budget-version-send'
@@ -19,15 +20,20 @@ import { useFinanceFeedback } from '../../shared/hooks/use-finance-feedback'
 import { formatMoney } from '../../shared/finance-money'
 import { budgetQueryKeys } from '../budget-query-keys'
 import type { BudgetViewProps } from '../budget-view-props'
+import { attachmentStatus } from '../enums/attachment-rules'
 import { canEditVersion, versionState } from '../enums/version-state'
 import { BudgetVersionForm } from './budget-version-form'
 import { BudgetVersionLines } from './budget-version-lines'
-import { BudgetAttachments } from './budget-attachments'
+import { BudgetAttachments, attachmentPageSize } from './budget-attachments'
 
 export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & { itemId: string }) {
   const { t: translate, i18n } = useTranslation('financeBudget')
   const query = useBudgetVersionGet(itemId)
   const version = query.data?.data?.version
+  // Same params as the attachment list below, so both share one cached request.
+  const attachmentsQuery = useBudgetVersionAttachmentList(itemId, { page: 1, pageSize: attachmentPageSize })
+  const hasExplanationFile =
+    attachmentsQuery.data?.data?.items.some((attachment) => attachment.status !== attachmentStatus.REMOVED) ?? false
   const [dialog, setDialog] = useState<'edit' | 'send' | 'rebuild'>()
   const feedback = useFinanceFeedback(budgetQueryKeys(itemId, version?.proposalId ?? undefined), () =>
     setDialog(undefined)
@@ -49,8 +55,7 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
         initial={{
           base: version.base,
           reserve: version.reserve,
-          reserveReason: version.reserveReason ?? undefined,
-          quarters: version.quarters
+          reserveReason: version.reserveReason ?? undefined
         }}
         currency={version.total.currency}
         disabled={query.isError || query.isFetching}
@@ -65,8 +70,7 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
                 proposalId: version.proposalId,
                 base: figures.base,
                 reserve: figures.reserve,
-                reserveReason: figures.reserveReason,
-                quarters: figures.quarters
+                reserveReason: figures.reserveReason
               }
             })
           } else updateMutation.mutate({ id: itemId, data: figures })
@@ -126,7 +130,12 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
             <div className='flex flex-wrap gap-2 border-t border-border/60 pt-4'>
               {canEditVersion(version.state) && (
                 <>
-                  <FinanceButton variant='primary' onClick={() => setDialog('send')}>
+                  <FinanceButton
+                    variant='primary'
+                    disabled={!hasExplanationFile}
+                    title={hasExplanationFile ? undefined : translate('attachments.explanationRequired')}
+                    onClick={() => setDialog('send')}
+                  >
                     <Send aria-hidden className='size-4' strokeWidth={1.5} />
                     {translate('actions.send')}
                   </FinanceButton>
@@ -171,7 +180,9 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
         <FinanceFormDialog
           title={translate('actions.send')}
           pending={sendMutation.isPending}
-          submitDisabled={query.isError || query.isFetching || !version || !canEditVersion(version.state)}
+          submitDisabled={
+            query.isError || query.isFetching || !version || !canEditVersion(version.state) || !hasExplanationFile
+          }
           onClose={() => setDialog(undefined)}
           submitLabel={translate('actions.confirmSend')}
           onSubmit={(event) => {

@@ -7,6 +7,7 @@
  */
 import type { RevocationCompletionBodyDtoAccessState } from './revocationCompletionBodyDtoAccessState'
 import type { RevocationCompletionBodyDtoCompletion } from './revocationCompletionBodyDtoCompletion'
+import type { RevocationCompletionBodyDtoK1Checklist } from './revocationCompletionBodyDtoK1Checklist'
 import type { RevocationCompletionBodyDtoKeyDisposition } from './revocationCompletionBodyDtoKeyDisposition'
 
 export interface RevocationCompletionBodyDto {
@@ -25,4 +26,5 @@ export interface RevocationCompletionBodyDto {
   keyDisposition?: RevocationCompletionBodyDtoKeyDisposition
   /** @maxLength 500 */
   withdrawalReason?: string
+  k1Checklist?: RevocationCompletionBodyDtoK1Checklist
 }

@@ -17,6 +17,7 @@ import type { SubscriptionPageResponseDtoDataItemsItemTaxEstimate } from './subs
 import type { SubscriptionPageResponseDtoDataItemsItemTaxProfile } from './subscriptionPageResponseDtoDataItemsItemTaxProfile'
 import type { SubscriptionPageResponseDtoDataItemsItemUnitPrice } from './subscriptionPageResponseDtoDataItemsItemUnitPrice'
 import type { SubscriptionPageResponseDtoDataItemsItemVendor } from './subscriptionPageResponseDtoDataItemsItemVendor'
+import type { SubscriptionPageResponseDtoDataItemsItemVendorAdminsItem } from './subscriptionPageResponseDtoDataItemsItemVendorAdminsItem'
 import type { SubscriptionPageResponseDtoDataItemsItemWarningsItem } from './subscriptionPageResponseDtoDataItemsItemWarningsItem'
 
 export type SubscriptionPageResponseDtoDataItemsItem = {
@@ -74,6 +75,14 @@ export type SubscriptionPageResponseDtoDataItemsItem = {
   alerts: SubscriptionPageResponseDtoDataItemsItemAlerts
   warnings: SubscriptionPageResponseDtoDataItemsItemWarningsItem[]
   mergeCandidateIds: string[]
+  /** @maxItems 20 */
+  vendorAdmins: SubscriptionPageResponseDtoDataItemsItemVendorAdminsItem[]
+  /** @nullable */
+  ownerAccountEmail: string | null
+  /** @nullable */
+  adminNote: string | null
+  vendorAdminsBelowMinimum: boolean
+  ownerAccountEmailMissing: boolean
   taxProfile: SubscriptionPageResponseDtoDataItemsItemTaxProfile
   /** @nullable */
   taxEstimate: SubscriptionPageResponseDtoDataItemsItemTaxEstimate

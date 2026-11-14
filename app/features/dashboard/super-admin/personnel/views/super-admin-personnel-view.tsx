@@ -1,7 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
 import { useLocation, useSearchParams } from 'react-router'
-import type { SuperAdminTabKey } from '../../super-admin-nav'
 import { EmployeePanel } from '../components/employee-panel'
 import { ImportPanel } from '../components/import-panel'
 import { LeavePanel } from '../components/leave-panel'
@@ -16,11 +15,9 @@ const panels = {
   notices: NoticePanel
 }
 export function SuperAdminPersonnelView({
-  onSelectTab,
   onInviteAccount,
   renderAccountDetail
 }: {
-  onSelectTab?: (tab: SuperAdminTabKey) => void
   onInviteAccount?: () => void
   renderAccountDetail?: (id: string, onClose: () => void) => ReactNode
 }) {
@@ -63,14 +60,6 @@ export function SuperAdminPersonnelView({
               {translate(key)}
             </button>
           ))}
-          {onSelectTab && (
-            <button
-              className='min-h-11 rounded-md px-4 py-2 text-sm hover:bg-surface-subtle'
-              onClick={() => onSelectTab('transfer')}
-            >
-              {translate('transfers')}
-            </button>
-          )}
         </nav>
       )}
       {formPage || tab === 'employees' ? (

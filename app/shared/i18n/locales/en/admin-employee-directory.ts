@@ -22,7 +22,7 @@ export const adminEmployeeDirectory = {
     status: 'Work state',
     details: 'Employee profile',
     viewDetails: 'View details',
-    correct: 'Correct official fields',
+    correct: 'Edit employee information',
     place: 'Assign department',
     effectiveFrom: 'Effective from',
     placementHelp: 'Choose an active department and a date on or after today and the hire date.',

@@ -30,7 +30,6 @@ export function EmployeePicker({
           initial={initialId}
           initialLabel={initialLabel}
           purpose={itAdmin ? 'itAdmin' : 'leadership'}
-          initiallyOpen
           invalid={invalid}
           descriptionId={descriptionId}
         />

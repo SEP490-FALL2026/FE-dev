@@ -17,7 +17,7 @@ export function AdminField({ label, children, error }: { label: string; children
   const control = isValidElement<{ required?: boolean; 'aria-label'?: string }>(children) ? children : null
   const required = control?.props.required
   return (
-    <label className='grid min-w-0 gap-1.5 text-sm font-medium'>
+    <label className='grid min-w-0 content-start gap-1.5 text-sm font-medium'>
       <span>
         {label}
         {required && (
@@ -141,8 +141,8 @@ export function AdminFormDialog({
               disabled={pending}
               className={
                 page
-                  ? 'grid min-w-0 gap-4 p-5'
-                  : 'grid min-h-0 min-w-0 flex-1 grid-cols-[minmax(0,1fr)] gap-4 overflow-x-hidden overflow-y-auto p-5'
+                  ? 'grid min-w-0 content-start gap-4 p-5'
+                  : 'grid min-h-0 min-w-0 flex-1 grid-cols-[minmax(0,1fr)] content-start gap-4 overflow-x-hidden overflow-y-auto p-5'
               }
             >
               {children}

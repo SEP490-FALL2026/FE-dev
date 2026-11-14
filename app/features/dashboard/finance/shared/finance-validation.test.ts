@@ -4,8 +4,7 @@ import {
   isDefaultReserve,
   isValidYear,
   isYearFilterInvalid,
-  parseYearFilter,
-  quartersAddUp
+  parseYearFilter
 } from './finance-validation'
 
 describe('finance validation helpers', () => {
@@ -21,12 +20,6 @@ describe('finance validation helpers', () => {
   it('compares decimal amounts exactly', () => {
     expect(amountsEqual('1000.50', '1000.5')).toBe(true)
     expect(amountsEqual('9007199254740993.25', '9007199254740993.26')).toBe(false)
-  })
-
-  it('checks that the quarters add up to base plus reserve, exactly', () => {
-    expect(quartersAddUp('1000', '100', ['275', '275', '275', '275'])).toBe(true)
-    expect(quartersAddUp('1000', '100', ['300', '300', '300', '300'])).toBe(false)
-    expect(quartersAddUp('9007199254740993', '0', ['9007199254740993', '0', '0', '0'])).toBe(true)
   })
 
   it('knows the default reserve of ten percent of the base', () => {

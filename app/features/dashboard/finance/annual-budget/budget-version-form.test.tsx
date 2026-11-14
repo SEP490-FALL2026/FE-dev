@@ -5,7 +5,7 @@ import { renderBudget } from './budget-test-fixtures'
 import { BudgetVersionForm } from './components/budget-version-form'
 
 const vnd = (amount: string) => ({ amount, currency: 'VND' })
-const initial = { base: vnd('1000'), reserve: vnd('100'), reserveReason: undefined, quarters: undefined }
+const initial = { base: vnd('1000'), reserve: vnd('100'), reserveReason: undefined }
 
 describe('BudgetVersionForm validation', () => {
   beforeEach(async () => {
@@ -28,18 +28,11 @@ describe('BudgetVersionForm validation', () => {
   }
   const save = () => fireEvent.click(screen.getAllByRole('button', { name: 'Save version' }).at(-1) as HTMLElement)
 
-  it('asks for the quarters to add up to the total before saving', () => {
+  it('has no quarterly split and saves one figure for the whole year', () => {
     const onSubmit = mount()
-    for (const [label, value] of [
-      ['Quarter 1', '300'],
-      ['Quarter 2', '300'],
-      ['Quarter 3', '300'],
-      ['Quarter 4', '300']
-    ])
-      fireEvent.change(screen.getAllByLabelText(new RegExp(label))[0], { target: { value } })
-    expect(screen.getAllByText(/must add up to the total budget/).length).toBeGreaterThan(0)
+    expect(screen.queryByLabelText(/Quarter/)).toBeNull()
     save()
-    expect(onSubmit).not.toHaveBeenCalled()
+    expect(onSubmit).toHaveBeenCalledWith({ base: { amount: '1000' }, reserve: { amount: '100' } })
   })
 
   it('requires a reason when the base of an existing version changes', async () => {

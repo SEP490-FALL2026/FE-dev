@@ -35,15 +35,6 @@ export function amountsEqual(left: string, right: string): boolean {
   return scaled(left, scale) === scaled(right, scale)
 }
 
-/** Whether the four quarters add up to the base plus the reserve, which the API requires before it saves them. */
-export function quartersAddUp(base: string, reserve: string, quarters: readonly string[]): boolean {
-  const all = [base, reserve, ...quarters]
-  if (!all.every((value) => decimal.test(value))) return false
-  const scale = scaleOf(all)
-  const quarterSum = quarters.reduce((sum, value) => sum + scaled(value, scale), 0n)
-  return quarterSum === scaled(base, scale) + scaled(reserve, scale)
-}
-
 /** Whether the reserve is the default share of the base. */
 export function isDefaultReserve(base: string, reserve: string): boolean {
   if (!decimal.test(base) || !decimal.test(reserve)) return false

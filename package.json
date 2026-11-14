@@ -4,9 +4,9 @@
   "packageManager": "pnpm@10.34.5",
   "type": "module",
   "scripts": {
-    "api:generate": "pnpm api:validate && orval --config ./orval.config.ts",
-    "api:validate": "node ./scripts/validate-openapi.mjs ./openapi/openapi.yaml",
-    "api:watch": "pnpm api:validate && orval --config ./orval.config.ts --watch",
+    "api:generate": "orval --config ./orval.config.ts",
+    "api:validate": "node ./scripts/validate-openapi.mjs",
+    "api:watch": "orval --config ./orval.config.ts --watch",
     "build": "react-router build --mode product && node ./scripts/check-client-bundles.mjs",
     "check": "pnpm prettier && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
     "dev": "react-router dev",

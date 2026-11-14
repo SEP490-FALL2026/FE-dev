@@ -4,7 +4,7 @@ import { useDepartmentTransferList } from '~/shared/api/generated/operations/dep
 import { useLongLeaveList } from '~/shared/api/generated/operations/long-leaves/long-leave-list'
 import { useOffboardingCaseList } from '~/shared/api/generated/operations/offboarding-cases/offboarding-case-list'
 import { useDashboardFormat } from '../../../dashboard-ui'
-import { adminButtonClass, adminInputClass } from './admin-form'
+import { adminInputClass } from './admin-form'
 import { AdminEmpty, AdminQueryState } from './admin-query-state'
 import { AdminPagination } from './admin-pagination'
 
@@ -56,24 +56,20 @@ export function NoticeEventLookup({ employeeId, source }: { employeeId: string; 
         aria-label={translate('fields.eventId')}
         required
         value={selection?.id ?? ''}
-        onChange={() => setSelection(null)}
+        onChange={(event) => setSelection(items?.find((item) => item.id === event.target.value) ?? null)}
       >
         <option value=''>{translate('choose')}</option>
-        {selection && <option value={selection.id}>{selection.label}</option>}
+        {selection && !items?.some((item) => item.id === selection.id) && (
+          <option value={selection.id}>{selection.label}</option>
+        )}
+        {items?.map((event) => (
+          <option key={event.id} value={event.id}>
+            {event.label}
+          </option>
+        ))}
       </select>
       <AdminQueryState query={query}>
         {!items?.length && <AdminEmpty />}
-        {items?.map((event) => (
-          <button
-            key={event.id}
-            type='button'
-            aria-pressed={event.id === selection?.id}
-            className={`${adminButtonClass} justify-start text-left`}
-            onClick={() => setSelection(event)}
-          >
-            {event.label}
-          </button>
-        ))}
         <AdminPagination pagination={query.data?.data?.pagination} onPageChange={setPage} disabled={query.isFetching} />
       </AdminQueryState>
     </div>

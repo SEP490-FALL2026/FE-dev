@@ -12,5 +12,4 @@
 export type RecommendationResponseDtoDataRecommendationHolder = {
   employeeId: string
   employeeCode: string
-  fullName: string
 } | null

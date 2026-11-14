@@ -7,6 +7,7 @@
  */
 import type { ProvisioningTaskListChannel } from './provisioningTaskListChannel'
 import type { ProvisioningTaskListClaimableNow } from './provisioningTaskListClaimableNow'
+import type { ProvisioningTaskListOverdue } from './provisioningTaskListOverdue'
 import type { ProvisioningTaskListScope } from './provisioningTaskListScope'
 import type { ProvisioningTaskListStatus } from './provisioningTaskListStatus'
 
@@ -15,6 +16,7 @@ export type ProvisioningTaskListParams = {
   status?: ProvisioningTaskListStatus
   scope?: ProvisioningTaskListScope
   claimableNow?: ProvisioningTaskListClaimableNow
+  overdue?: ProvisioningTaskListOverdue
   /**
    * @maximum 9007199254740991
    * @exclusiveMinimum 0

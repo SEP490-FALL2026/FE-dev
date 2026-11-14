@@ -7,7 +7,6 @@ import { AccountInviteDialog } from './accounts/components/account-invite-dialog
 import { AccountDetailModal } from './accounts/components/account-detail-modal'
 import { SuperAdminDepartmentsView } from './departments/views/super-admin-departments-view'
 import { SuperAdminPersonnelView } from './personnel/views/super-admin-personnel-view'
-import { SuperAdminTransferView } from './transfer/views/super-admin-transfer-view'
 import { SuperAdminSettingsView } from './settings/views/super-admin-settings-view'
 import { SuperAdminRemindersView } from './reminders/views/super-admin-reminders-view'
 import { SuperAdminOperationsView } from './operations/views/super-admin-operations-view'
@@ -70,8 +69,6 @@ function SuperAdminContent({ tab, onSelectTab }: { tab: SuperAdminTabKey; onSele
           {inviteFromPersonnel && <AccountInviteDialog onClose={() => setInviteFromPersonnel(false)} />}
         </>
       )
-    case 'transfer':
-      return <SuperAdminTransferView />
     case 'settings':
       return <SuperAdminSettingsView />
     case 'reminders':

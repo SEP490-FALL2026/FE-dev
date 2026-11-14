@@ -46,22 +46,3 @@ export type AugmentedZodDto =
       expectedEndDate?: string
       kind: 'GROUP'
     }
-  | {
-      planId: string
-      /**
-       * @minLength 1
-       * @maxLength 1000
-       */
-      purpose: string
-      /**
-       * @minLength 1
-       * @maxLength 254
-       */
-      expectedIdentifier: string
-      /**
-       * @minLength 1
-       * @maxLength 1000
-       */
-      businessReason: string
-      kind: 'SERVICE_ACCOUNT'
-    }

@@ -12,5 +12,4 @@
 export type RecommendationPageResponseDtoDataItemsItemHolder = {
   employeeId: string
   employeeCode: string
-  fullName: string
 } | null

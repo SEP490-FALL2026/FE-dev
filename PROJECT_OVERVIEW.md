@@ -225,7 +225,7 @@ Codebase Frontend được xây dựng nhằm hiện thực hóa trọn vẹn ng
 
 - **Core Framework:** React 19 & React Router 7 (Framework Mode, SPA Client Rendering).
 - **Build Tool & Styling:** Vite 8, Tailwind CSS 4, Lucide React Icons.
-- **Server State & API Contract:** TanStack Query 5, Orval 8 (tự động sinh TypeScript API client từ file chuẩn `openapi/openapi.yaml`).
+- **Server State & API Contract:** TanStack Query 5, Orval 8 (tự động sinh TypeScript API client trực tiếp từ Swagger của BE).
 - **Testing:** Vitest, Testing Library, MSW (Mock Service Worker), Faker.
 - **Package Manager:** pnpm (tuân thủ `pnpm-lock.yaml`).
 

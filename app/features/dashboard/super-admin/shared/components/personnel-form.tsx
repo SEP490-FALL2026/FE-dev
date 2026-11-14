@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import type { RecordTransferBodyDtoGrounds } from '~/shared/api/generated/model/department-transfers'
+import type { RecordNoticeBodyDto } from '~/shared/api/generated/model/personnel-notices'
 import { AdminField, AdminFormDialog, adminInputClass } from './admin-form'
 import { EmployeeLookup } from './employee-lookup'
 import { DepartmentLookup } from './department-lookup'
@@ -11,6 +11,8 @@ export interface PersonnelField {
   name: string
   type?: 'text' | 'date' | 'email' | 'uuid' | 'checkbox'
   optional?: boolean
+  optionalWhenChecked?: string
+  fixed?: boolean
   options?: readonly string[]
   initial?: string
   initialLabel?: string
@@ -27,7 +29,7 @@ export const basisFields: PersonnelField[] = [
   { name: 'issuedOn', type: 'date' }
 ]
 export const uuidPattern = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
-export function readBasis(values: FormData): RecordTransferBodyDtoGrounds {
+export function readBasis(values: FormData): RecordNoticeBodyDto['grounds'] {
   const type = value(values, 'type')
   if (type !== 'HR_DECISION' && type !== 'APPROVED_APPLICATION' && type !== 'WRITTEN_DIRECTIVE') {
     throw new Error('Invalid personnel grounds type')
@@ -60,6 +62,7 @@ export function PersonnelForm({
   fields,
   basis = false,
   pending,
+  page,
   onClose,
   onSubmit,
   children,
@@ -67,8 +70,9 @@ export function PersonnelForm({
 }: {
   title: string
   fields: PersonnelField[]
-  basis?: boolean
+  basis?: boolean | 'note'
   pending: boolean
+  page?: boolean
   onClose: () => void
   onSubmit: (values: FormData) => void
   children?: ReactNode
@@ -77,9 +81,10 @@ export function PersonnelForm({
   const { t: translate } = useTranslation('adminPersonnel')
   const [validation, setValidation] = useState(false)
   const [departmentReady, setDepartmentReady] = useState(false)
+  const [checkedFields, setCheckedFields] = useState<Record<string, boolean>>({})
   return (
     <AdminFormDialog
-      page={fields.length + (basis ? basisFields.length : 0) > 10}
+      page={page ?? fields.length + (basis === 'note' ? 1 : basis ? basisFields.length : 0) > 10}
       title={title}
       wide
       pending={pending}
@@ -97,8 +102,11 @@ export function PersonnelForm({
         onSubmit(values)
       }}
     >
-      <div className='grid gap-4 sm:grid-cols-2'>
-        {[...fields, ...(basis ? basisFields : [])].map((field) =>
+      <div className='grid content-start items-start gap-4 sm:grid-cols-2'>
+        {[
+          ...fields,
+          ...(basis === 'note' ? [{ name: 'groundsNote', minLength: 1, maxLength: 500 }] : basis ? basisFields : [])
+        ].map((field) =>
           field.name === 'departmentCode' ? (
             <EmployeeDepartmentSelect key={field.name} onReadyChange={setDepartmentReady} />
           ) : (
@@ -106,7 +114,15 @@ export function PersonnelForm({
               key={field.name}
               label={translate(`fields.${field.name}`, { defaultValue: translate('unknown') })}
             >
-              {field.name === 'employeeId' || field.name === 'successorEmployeeId' ? (
+              {field.fixed ? (
+                <input
+                  className={adminInputClass}
+                  value={field.initialLabel ?? ''}
+                  disabled
+                  readOnly
+                  required={!field.optional}
+                />
+              ) : field.name === 'employeeId' || field.name === 'successorEmployeeId' ? (
                 <EmployeeLookup
                   name={field.name}
                   required={!field.optional}
@@ -153,7 +169,12 @@ export function PersonnelForm({
                           })
                         })
                   }
-                  required={!field.optional}
+                  required={!field.optional && !(field.optionalWhenChecked && checkedFields[field.optionalWhenChecked])}
+                  onChange={
+                    field.type === 'checkbox'
+                      ? (event) => setCheckedFields((current) => ({ ...current, [field.name]: event.target.checked }))
+                      : undefined
+                  }
                   className={field.type === 'checkbox' ? 'size-5 accent-primary' : adminInputClass}
                 />
               )}
@@ -161,7 +182,7 @@ export function PersonnelForm({
           )
         )}
       </div>
-      {basis && <p className='text-xs text-muted-foreground'>{translate('basisHelp')}</p>}
+      {basis === true && <p className='text-xs text-muted-foreground'>{translate('basisHelp')}</p>}
       {validation && (
         <p role='alert' className='text-sm text-danger'>
           {translate('successorConflict')}
