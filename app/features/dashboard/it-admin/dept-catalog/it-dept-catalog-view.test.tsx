@@ -47,9 +47,7 @@ describe('IT catalog API integration', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Add application' }))
     fireEvent.change(screen.getByLabelText('Application name'), { target: { value: 'Draft application' } })
     fireEvent.change(screen.getByLabelText('Vendor name'), { target: { value: 'Vendor' } })
-    fireEvent.change(screen.getByLabelText('Business owner employee ID'), {
-      target: { value: '11111111-1111-4111-8111-111111111111' }
-    })
+    expect(screen.queryByLabelText('Business owner employee ID')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
     await waitFor(() =>
       expect(request).toHaveBeenCalledWith(

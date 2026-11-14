@@ -54,9 +54,7 @@ it('sends an optional functional group with the application declaration', async 
   fireEvent.click(screen.getByRole('button', { name: 'Add application' }))
   fireEvent.change(screen.getByLabelText('Application name'), { target: { value: 'Design suite' } })
   fireEvent.change(screen.getByLabelText('Vendor name'), { target: { value: 'Supplier' } })
-  fireEvent.change(screen.getByLabelText('Business owner employee ID'), {
-    target: { value: '11111111-1111-4111-8111-111111111111' }
-  })
+  expect(screen.queryByLabelText('Business owner employee ID')).not.toBeInTheDocument()
   fireEvent.click(await screen.findByRole('combobox', { name: 'Functional group' }))
   fireEvent.click(await screen.findByRole('option', { name: 'Design tools' }))
   fireEvent.click(screen.getByRole('button', { name: 'Save' }))
@@ -69,5 +67,8 @@ it('sends an optional functional group with the application declaration', async 
       }),
       undefined
     )
+  )
+  expect(request.mock.calls.find(([config]) => config.method === 'POST')?.[0].data).not.toHaveProperty(
+    'businessOwnerEmployeeId'
   )
 })

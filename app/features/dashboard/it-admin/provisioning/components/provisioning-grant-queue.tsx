@@ -38,7 +38,10 @@ function GrantDialog({
   })
   const [page, setPage] = useState(1)
   const [purchaseReason, setPurchaseReason] = useState('')
+  const [purchaseConfirmed, setPurchaseConfirmed] = useState(false)
+  const needsPurchase = !!request.stock && request.stock.kind !== 'NONE' && request.stock.free === 0
   const decision = request.stock ? grantStockDecision(request.stock, purchaseReason) : { allowed: false as const }
+  const canSubmit = decision.allowed && (!needsPurchase || purchaseConfirmed)
   const subscriptions = useQuery({
     queryKey: getSubscriptionListQueryKey({ planId: request.plan.planId, status: 'ACTIVE', page, pageSize: 20 }),
     queryFn: () => subscriptionList({ planId: request.plan.planId, status: 'ACTIVE', page, pageSize: 20 })
@@ -74,10 +77,10 @@ function GrantDialog({
       title={translate('startGrant')}
       onClose={onClose}
       pending={mutation.isPending}
-      submitDisabled={!decision.allowed}
+      submitDisabled={!canSubmit}
       onSubmit={(event) => {
         event.preventDefault()
-        if (!mutation.isPending && decision.allowed) mutation.mutate()
+        if (!mutation.isPending && canSubmit) mutation.mutate()
       }}
       submitLabel={translate('confirm')}
     >
@@ -95,6 +98,16 @@ function GrantDialog({
           <p className='text-sm'>
             {translate('stockSummary', { free: request.stock.free, reclaiming: request.stock.inRevocation })}
           </p>
+          {needsPurchase && (
+            <label className='flex min-h-11 items-center gap-2 text-sm'>
+              <input
+                type='checkbox'
+                checked={purchaseConfirmed}
+                onChange={(event) => setPurchaseConfirmed(event.target.checked)}
+              />
+              {translate('purchaseWhenEmpty')}
+            </label>
+          )}
           {request.stock.free === 0 && (
             <ItField
               label={translate('purchaseReason')}
@@ -232,7 +245,18 @@ export function ProvisioningGrantQueue({ onCreated }: { onCreated: (id: string) 
         )}
       </ItQueryState>
       {data && <ItPagination page={page} pageSize={20} total={data.pagination.totalItems} onChange={setPage} />}
-      {selected && <GrantDialog request={selected} onCreated={onCreated} onClose={() => setSelected(null)} />}
+      {selected && (
+        <GrantDialog
+          request={
+            data?.items.find(
+              (item) =>
+                item.requestId === selected.requestId && item.beneficiary.employeeId === selected.beneficiary.employeeId
+            ) ?? selected
+          }
+          onCreated={onCreated}
+          onClose={() => setSelected(null)}
+        />
+      )}
     </div>
   )
 }

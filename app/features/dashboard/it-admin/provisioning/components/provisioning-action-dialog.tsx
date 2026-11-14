@@ -7,9 +7,12 @@ import * as api from '~/shared/api/generated/operations/provisioning-tasks'
 import { getSubscriptionListQueryKey } from '~/shared/api/generated/operations/subscriptions/subscription-list'
 import { getAssignmentExpiryQueueListQueryKey } from '~/shared/api/generated/operations/assignment-expiry'
 import { getGrantQueueListQueryKey } from '~/shared/api/generated/operations/grant-queue/grant-queue-list'
-import { useLicenseKeyList } from '~/shared/api/generated/operations/license-keys/license-key-list'
+import {
+  getLicenseKeyListQueryKey,
+  useLicenseKeyList
+} from '~/shared/api/generated/operations/license-keys/license-key-list'
 import { ItField, ItFormDialog, itInputClass } from '../../shared/components/it-form'
-import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
+import { ItQueryState } from '../../shared/components/it-query-state'
 import { ItPagination } from '../../shared/components/it-pagination'
 import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
 import type { TaskAction } from '../task-actions'
@@ -41,10 +44,13 @@ export function ProvisioningActionDialog({
   const [withdrawalReason, setWithdrawalReason] = useState('')
   const [keyId, setKeyId] = useState('')
   const [keyPage, setKeyPage] = useState(1)
-  const needsKey = action === 'complete' && task.plan?.provisioningType === 'K4'
+  const needsKey = action === 'complete' && task.kind === 'GRANT' && task.plan?.provisioningType === 'K4'
   const keys = useLicenseKeyList(
     { subscriptionId: task.subscriptionId ?? '', status: 'IN_STORE', withdrawn: 'false', page: keyPage, pageSize: 20 },
     { query: { enabled: needsKey && !!task.subscriptionId } }
+  )
+  const availableKeys = (keys.data?.data?.items ?? []).filter(
+    (key) => key.subscriptionId === task.subscriptionId && key.status === 'IN_STORE' && !key.withdrawnAt
   )
   const [accessState, setAccessState] = useState<'CUT' | 'UNTIL_PAID_END'>('UNTIL_PAID_END')
   const [paidThroughOn, setPaidThroughOn] = useState('')
@@ -64,6 +70,7 @@ export function ProvisioningActionDialog({
       api.getProvisioningTaskListQueryKey(),
       api.getProvisioningTaskGetQueryKey(task.id),
       getSubscriptionListQueryKey(),
+      getLicenseKeyListQueryKey(),
       getAssignmentExpiryQueueListQueryKey(),
       getGrantQueueListQueryKey()
     ],
@@ -113,7 +120,11 @@ export function ProvisioningActionDialog({
           })
       }
     },
-    ...feedback
+    ...feedback,
+    onError: async (error) => {
+      setKeyId('')
+      await feedback.onError(error)
+    }
   })
   const needsEvidence =
     ['complete', 'accessCut'].includes(action) || (action === 'revocation' && completion !== 'ALREADY_GONE')
@@ -130,7 +141,11 @@ export function ProvisioningActionDialog({
       submitLabel={translate('confirm')}
       submitDisabled={
         (needsEvidence && !evidence.trim()) ||
-        (needsKey && (!task.subscriptionId || !keyId || keys.isError || keys.isFetching)) ||
+        (needsKey &&
+          (!task.subscriptionId ||
+            !availableKeys.some((key) => key.id === keyId) ||
+            keys.isError ||
+            keys.isFetching)) ||
         (['failure', 'closeFailed'].includes(action) && !reason.trim()) ||
         (action === 'revocation' &&
           completion === 'KEY_DEACTIVATED' &&
@@ -144,18 +159,18 @@ export function ProvisioningActionDialog({
       {needsKey &&
         (task.subscriptionId ? (
           <ItQueryState query={keys}>
-            {keys.data?.data?.items.length ? (
+            {availableKeys.length ? (
               <>
                 <ItChoiceSelect
                   label={translate('availableKey')}
                   value={keyId}
-                  options={keys.data.data.items.map((item) => ({ value: item.id, label: item.masked }))}
+                  options={availableKeys.map((item) => ({ value: item.id, label: item.masked }))}
                   onChange={setKeyId}
                 />
                 <ItPagination
                   page={keyPage}
                   pageSize={20}
-                  total={keys.data.data.pagination.totalItems}
+                  total={keys.data?.data?.pagination.totalItems ?? 0}
                   onChange={(page) => {
                     setKeyPage(page)
                     setKeyId('')
@@ -163,7 +178,9 @@ export function ProvisioningActionDialog({
                 />
               </>
             ) : (
-              <ItEmpty />
+              <p role='status' className='text-sm'>
+                {translate('noFreeKeys')}
+              </p>
             )}
           </ItQueryState>
         ) : (

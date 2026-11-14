@@ -19,7 +19,7 @@ it('requires a reason before buying when shared stock is being reclaimed', async
           items: [
             {
               requestId: 'request-1',
-              type: 'PERSONAL',
+              type: 'GRANT',
               beneficiary: { employeeId: 'employee-1', fullName: 'Employee' },
               plan: { planId: 'plan-1', applicationName: 'Workspace', planName: 'Business' },
               stock: { kind: 'SEATS', free: 0, inRevocation: 2 }
@@ -38,6 +38,8 @@ it('requires a reason before buying when shared stock is being reclaimed', async
   fireEvent.click(await screen.findByRole('button', { name: 'Start grant' }))
   expect(screen.getByRole('button', { name: 'Confirm' })).toBeDisabled()
   fireEvent.change(screen.getByLabelText('Purchase reason'), { target: { value: 'Urgent access' } })
+  expect(screen.getByRole('button', { name: 'Confirm' })).toBeDisabled()
+  fireEvent.click(screen.getByRole('checkbox', { name: 'Purchase one seat or key because the pool is empty' }))
   fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
   await waitFor(() => expect(request.mock.calls.some(([config]) => config.method === 'POST')).toBe(true))
   expect(request.mock.calls.find(([config]) => config.method === 'POST')?.[0].data).toMatchObject({
