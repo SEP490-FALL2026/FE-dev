@@ -54,10 +54,25 @@ export const apiPage = <Item,>(items: Item[], page = 1) => ({
   pagination: { page, pageSize: 20, totalItems: 21, totalPages: 2 }
 })
 /** Side lists that budget screens load next to the record under test: attachments and the plan picker. */
-export function budgetSideList(config: InternalAxiosRequestConfig) {
+const explanationFile = {
+  id: 'attachment-1',
+  fileName: 'explanation.pdf',
+  contentType: 'application/pdf',
+  sizeBytes: 2048,
+  status: 'ATTACHED',
+  uploadedBy: null,
+  attachedAt: '2026-11-01T00:00:00Z',
+  removedAt: null
+}
+/** Side lists a budget view loads; a version has one explanation file unless `versionFiles` is false. */
+export function budgetSideList(config: InternalAxiosRequestConfig, versionFiles = true) {
   const path = config.url?.split('?')[0] ?? ''
   if (!/\/attachments$|\/plans$/.test(path)) return undefined
-  return apiResponse(config, { items: [], pagination: { page: 1, pageSize: 10, totalItems: 0, totalPages: 0 } })
+  const items = versionFiles && /\/budget-versions\/[^/]+\/attachments$/.test(path) ? [explanationFile] : []
+  return apiResponse(config, {
+    items,
+    pagination: { page: 1, pageSize: 10, totalItems: items.length, totalPages: items.length ? 1 : 0 }
+  })
 }
 export function apiResponse(config: InternalAxiosRequestConfig, data: unknown) {
   return {

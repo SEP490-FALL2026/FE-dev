@@ -133,7 +133,8 @@ export const finance = {
       REMAINDER: 'Remainder released',
       REVOKED: 'Access revoked',
       LATE_GRANT: 'Granted late',
-      GRANTED_FROM_POOL: 'Granted from the shared pool'
+      GRANTED_FROM_POOL: 'Granted from the shared pool',
+      TRANSFER_EFFECTIVE: 'Department transfer took effect'
     },
     system: 'System'
   },
@@ -273,7 +274,6 @@ export const finance = {
     BUDGET_REVISION_NEEDED: 'Awaiting budget revision',
     LINE_UPDATED: 'Plan line updated',
     RECOMMEND_APPROVE: 'Recommend approval',
-    RECOMMEND_OVERRIDE: 'Recommend budget override',
     RECOMMEND_REJECT: 'Recommend rejection',
     WITHIN_LIMIT: 'Within limit',
     OVER_LIMIT: 'Over limit',
@@ -318,15 +318,11 @@ export const finance = {
     invoiceDuplicate: 'An invoice with this number already exists for this vendor.',
     invoiceCommitmentReleased: 'The commitment has been fully released and cannot receive invoices.',
     invoiceVendorUnknown: 'Unable to identify the vendor for this request.',
-    reviewNotOpen: 'The request is no longer waiting for a Finance review. The data has been reloaded.',
-    alreadyAwaitingBudget:
-      'The request is already waiting for a budget. Choose another outcome or wait for the budget version to be approved.',
     planLineNotUpdated:
       'The plan line is still past its purchase window. Move the window in the current budget version before concluding.',
     noBudgetToMake:
       'Every year of the request already has enough budget. Choose "Assessed" or return it to the department head.',
     noDepartmentHead: 'The department has no head to propose a budget. Ask the Super Admin to assign one.',
-    questionNotOpen: 'The question is already answered or closed. The data has been reloaded.',
     money: 'The amount is invalid: check the currency, decimal places and allowed range.',
     proposalNotOpen: 'The proposal is no longer waiting for Finance. The data has been reloaded.',
     lineIncomplete: 'A plan line is missing its purchase window, service period or repeat cycle.',
@@ -347,7 +343,6 @@ export const finance = {
     yearEnded: 'This fiscal year has ended. The budget can no longer be changed.',
     planNotFound: 'The selected plan is unavailable. Select another plan.',
     forbidden: 'You no longer have permission to perform this action.',
-    independentReview: 'Finance review and spending approval must be performed by different people.',
     ownRequest: 'You cannot process your own request.',
     ownVersion: 'The budget creator cannot approve this version.',
     reportingCurrency: 'Use the reporting currency required by this budget.',

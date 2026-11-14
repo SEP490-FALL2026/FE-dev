@@ -133,7 +133,8 @@ export const finance = {
       REMAINDER: 'Giải phóng phần dư',
       REVOKED: 'Quyền bị thu hồi',
       LATE_GRANT: 'Cấp trễ',
-      GRANTED_FROM_POOL: 'Cấp từ kho dùng chung'
+      GRANTED_FROM_POOL: 'Cấp từ kho dùng chung',
+      TRANSFER_EFFECTIVE: 'Điều chuyển có hiệu lực'
     },
     system: 'Hệ thống'
   },
@@ -273,7 +274,6 @@ export const finance = {
     BUDGET_REVISION_NEEDED: 'Chờ điều chỉnh ngân sách',
     LINE_UPDATED: 'Đã cập nhật dòng kế hoạch',
     RECOMMEND_APPROVE: 'Khuyến nghị chấp thuận',
-    RECOMMEND_OVERRIDE: 'Khuyến nghị chi vượt ngân sách',
     RECOMMEND_REJECT: 'Khuyến nghị không chấp thuận',
     WITHIN_LIMIT: 'Trong hạn mức',
     OVER_LIMIT: 'Vượt hạn mức',
@@ -318,13 +318,10 @@ export const finance = {
     invoiceDuplicate: 'Số hóa đơn này đã tồn tại cho nhà cung cấp này.',
     invoiceCommitmentReleased: 'Khoản cam kết đã bị giải phóng hết, không thể ghi hóa đơn.',
     invoiceVendorUnknown: 'Không xác định được nhà cung cấp của yêu cầu.',
-    reviewNotOpen: 'Yêu cầu không còn chờ Tài chính rà soát. Dữ liệu đã được tải lại.',
-    alreadyAwaitingBudget: 'Yêu cầu đã đang chờ ngân sách. Chọn kết cục khác hoặc chờ phiên bản ngân sách được duyệt.',
     planLineNotUpdated:
       'Dòng kế hoạch vẫn quá cửa sổ mua. Dời cửa sổ mua trong phiên bản ngân sách hiện hành trước khi kết luận.',
     noBudgetToMake: 'Các năm của yêu cầu đều đã đủ ngân sách. Chọn "Đã thẩm định" hoặc trả về trưởng phòng.',
     noDepartmentHead: 'Phòng chưa có trưởng phòng để lập đề xuất ngân sách. Đề nghị Super Admin gán trưởng phòng.',
-    questionNotOpen: 'Câu hỏi đã được trả lời hoặc đã đóng. Dữ liệu đã được tải lại.',
     money: 'Số tiền không hợp lệ: kiểm tra tiền tệ, số chữ số thập phân và giới hạn cho phép.',
     proposalNotOpen: 'Đề xuất không còn chờ Tài chính xử lý. Dữ liệu đã được tải lại.',
     lineIncomplete: 'Dòng kế hoạch thiếu cửa sổ mua, thời gian dịch vụ hoặc chu kỳ lặp.',
@@ -345,7 +342,6 @@ export const finance = {
     yearEnded: 'Năm tài chính đã kết thúc. Không thể thay đổi ngân sách.',
     planNotFound: 'Gói đã chọn không khả dụng. Hãy chọn lại gói.',
     forbidden: 'Bạn không còn quyền thực hiện thao tác này.',
-    independentReview: 'Người rà soát tài chính và người duyệt chi phải là hai người khác nhau.',
     ownRequest: 'Bạn không thể xử lý yêu cầu của chính mình.',
     ownVersion: 'Người lập ngân sách không thể duyệt phiên bản này.',
     reportingCurrency: 'Dùng đúng tiền tệ báo cáo của ngân sách.',

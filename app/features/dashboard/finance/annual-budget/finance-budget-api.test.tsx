@@ -170,9 +170,18 @@ describe('finance annual budget API workflows', () => {
     })
     await waitFor(() => expect(navigate).toHaveBeenCalledWith('budget-negotiation', { id: 'version-1' }))
   })
+  it('keeps sending disabled until the version has an explanation file', async () => {
+    const delegate = apiClient.defaults.adapter as (config: InternalAxiosRequestConfig) => Promise<never>
+    apiClient.defaults.adapter = async (config) => budgetSideList(config, false) ?? delegate(config)
+    mount(<FinanceBudgetNegotiationView itemId='version-1' formatCurrency={() => ''} onSelectTab={vi.fn()} />)
+    const send = await screen.findByRole('button', { name: 'Send for decision' })
+    expect(send).toHaveProperty('disabled', true)
+  })
   it('sends a draft and refetches its server state; Finance has no approval action', async () => {
     mount(<FinanceBudgetNegotiationView itemId='version-1' formatCurrency={() => ''} onSelectTab={vi.fn()} />)
-    fireEvent.click(await screen.findByRole('button', { name: 'Send for decision' }))
+    const send = await screen.findByRole('button', { name: 'Send for decision' })
+    await waitFor(() => expect(send).toHaveProperty('disabled', false))
+    fireEvent.click(send)
     fireEvent.click(screen.getByRole('button', { name: 'Confirm send' }))
     await waitFor(() =>
       expect(

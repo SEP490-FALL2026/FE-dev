@@ -27,7 +27,8 @@ import { attachmentAccept, attachmentStatus } from '../enums/attachment-rules'
 import { useBudgetAttachmentUpload } from '../hooks/use-budget-attachment-upload'
 
 type Attachment = BudgetAttachmentPageResponseDtoDataItemsItem
-const pageSize = 10
+export const attachmentPageSize = 10
+const pageSize = attachmentPageSize
 
 function formatBytes(bytes: number, locale: string) {
   const units = ['B', 'KB', 'MB']
@@ -141,7 +142,7 @@ export function BudgetAttachments({
   const canUpload = editable && target === 'version'
   return (
     <FinanceSection
-      title={translate('attachments.title')}
+      title={translate(target === 'version' ? 'attachments.explanationTitle' : 'attachments.title')}
       actions={
         canUpload && (
           <>
