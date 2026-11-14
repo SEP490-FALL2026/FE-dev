@@ -16,7 +16,10 @@ vi.mock('~/shared/api/generated/operations/provisioning-tasks', async (original)
   provisioningTaskComplete: vi.fn(),
   provisioningTaskCompleteRevocation: vi.fn()
 }))
-vi.mock('~/shared/api/generated/operations/license-keys/license-key-list', () => ({ useLicenseKeyList: vi.fn() }))
+vi.mock('~/shared/api/generated/operations/license-keys/license-key-list', async (original) => ({
+  ...(await original<object>()),
+  useLicenseKeyList: vi.fn()
+}))
 const task: TaskResponseDtoDataTask = {
   k1Checklist: null,
   id: 'task-1',
@@ -91,7 +94,12 @@ beforeEach(async () => {
   vi.mocked(useLicenseKeyList).mockReturnValue({
     isPending: false,
     isError: false,
-    data: { data: { items: [{ id: 'key-1', masked: '****-1234' }], pagination: { totalItems: 1 } } }
+    data: {
+      data: {
+        items: [{ id: 'key-1', subscriptionId: 'sub-1', status: 'IN_STORE', withdrawnAt: null, masked: '****-1234' }],
+        pagination: { totalItems: 1 }
+      }
+    }
   } as never)
   vi.mocked(api.provisioningTaskList).mockResolvedValue({
     success: true,

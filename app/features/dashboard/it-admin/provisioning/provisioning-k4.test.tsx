@@ -63,7 +63,7 @@ it('loads only masked available keys of the task subscription and requires a cho
   open()
   evidence()
   expect(screen.getByRole('button', { name: 'Confirm' })).toBeDisabled()
-  fireEvent.click(await screen.findByRole('combobox', { name: 'License key' }))
+  fireEvent.click(await screen.findByRole('combobox', { name: 'Available license key' }))
   fireEvent.click(await screen.findByRole('option', { name: /1234/ }))
   await waitFor(() => expect(screen.getByRole('button', { name: 'Confirm' })).toBeEnabled())
   fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
@@ -98,7 +98,7 @@ it('preserves evidence and invalidates the chosen key after a concurrent assignm
   rejectKey = true
   const close = open()
   evidence()
-  fireEvent.click(await screen.findByRole('combobox', { name: 'License key' }))
+  fireEvent.click(await screen.findByRole('combobox', { name: 'Available license key' }))
   fireEvent.click(await screen.findByRole('option', { name: /1234/ }))
   await waitFor(() => expect(screen.getByRole('button', { name: 'Confirm' })).toBeEnabled())
   fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
@@ -122,10 +122,10 @@ it('offers K4 revocation and returns the key to the pool by default', async () =
 it('requires a withdrawal reason and sends it only for withdrawal', async () => {
   open('revocation', { ...task, kind: 'REVOKE' })
   evidence()
-  fireEvent.click(screen.getByRole('combobox', { name: 'Key after revocation' }))
-  fireEvent.click(screen.getByRole('option', { name: 'Withdraw from store' }))
+  fireEvent.click(screen.getByRole('combobox', { name: 'Key handling' }))
+  fireEvent.click(screen.getByRole('option', { name: 'Withdraw key from stock' }))
   expect(screen.getByRole('button', { name: 'Confirm' })).toBeDisabled()
-  fireEvent.change(screen.getByLabelText('Key withdrawal reason'), {
+  fireEvent.change(screen.getByLabelText('Withdrawal reason'), {
     target: { value: '  Vendor key cannot be transferred  ' }
   })
   fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
@@ -144,7 +144,7 @@ it('completes an extension without assigning a key or offering revocation', asyn
   expect(taskActions(extension)).not.toContain('revocation')
   open('complete', extension)
   evidence()
-  expect(screen.queryByRole('combobox', { name: 'License key' })).not.toBeInTheDocument()
+  expect(screen.queryByRole('combobox', { name: 'Available license key' })).not.toBeInTheDocument()
   fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
   await waitFor(() => expect(posts()).toHaveLength(1))
   expect(posts()[0][0].data).toEqual({ evidence: 'Verified on the company device' })

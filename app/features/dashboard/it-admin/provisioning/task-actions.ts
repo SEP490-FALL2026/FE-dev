@@ -16,8 +16,9 @@ export function taskActions(task: TaskResponseDtoDataTask, withdrawalRequested =
   )
     actions.push('claim')
   if (task.channel === TaskChannel.MANUAL && task.status === TaskStatus.IN_PROGRESS) {
-    if (task.kind === TaskKind.GRANT) actions.push('complete')
-    else if (['K1', 'K2', 'K4', 'K5'].includes(task.plan?.provisioningType ?? '')) actions.push('revocation')
+    if (task.kind === TaskKind.GRANT || task.kind === TaskKind.EXTEND) actions.push('complete')
+    else if (task.kind === TaskKind.REVOKE && ['K1', 'K2', 'K4', 'K5'].includes(task.plan?.provisioningType ?? ''))
+      actions.push('revocation')
     actions.push('failure')
   }
   if (task.status === TaskStatus.FAILED) {

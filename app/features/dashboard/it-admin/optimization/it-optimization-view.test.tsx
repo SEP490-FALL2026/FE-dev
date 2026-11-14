@@ -6,7 +6,7 @@ import { setAppLanguage } from '~/shared/i18n/i18n'
 import { ItOptimizationView } from './it-optimization-view'
 
 vi.mock('~/shared/api/mutator/custom-axios', () => ({ customAxios: vi.fn() }))
-it('shows recommendations by software and holder without showing internal identifiers', async () => {
+it('shows recommendations by software and employee code without exposing the holder name or internal ID', async () => {
   await setAppLanguage('en', false)
   vi.mocked(customAxios).mockResolvedValue({
     data: {
@@ -18,7 +18,7 @@ it('shows recommendations by software and holder without showing internal identi
           tier: 'REVIEW',
           application: { applicationName: 'Workspace' },
           plan: { planName: 'Business' },
-          holder: { fullName: 'Alex' },
+          holder: { employeeId: 'holder-id', employeeCode: 'EMP-001' },
           inactiveDays: 45
         }
       ],
@@ -31,7 +31,8 @@ it('shows recommendations by software and holder without showing internal identi
     </QueryClientProvider>
   )
   expect(await screen.findByText('Workspace · Business')).toBeInTheDocument()
-  expect(screen.getByText('Alex')).toBeInTheDocument()
+  expect(screen.getByText('EMP-001')).toBeInTheDocument()
+  expect(screen.queryByText('holder-id')).not.toBeInTheDocument()
   expect(screen.queryByText('internal-id')).not.toBeInTheDocument()
   fireEvent.click(screen.getByRole('button', { name: 'Details' }))
   expect(screen.getByRole('button', { name: 'Back to recommendations' })).toBeInTheDocument()
