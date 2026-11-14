@@ -92,8 +92,7 @@ export const itCatalog = {
   free: 'Free',
   retirement: 'Application retirement',
   retire: 'Retire application permanently',
-  retirementHint:
-    'Retirement requires today’s Business Owner confirmation and no blocking assignments or subscriptions.',
+  retirementHint: 'Retirement requires no blocking assignments or subscriptions.',
   departmentUnavailable: 'The API does not provide department requestability rules.',
   baseline: 'Seat baseline',
   baselineOpen: 'Open',

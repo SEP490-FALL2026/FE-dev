@@ -56,6 +56,8 @@ export function pageData(items: unknown[], page = 1, totalPages = 1) {
   }
 }
 export const server = setupServer(
+  http.get('*/api/v1/me/department-transfer', () => HttpResponse.json({ success: true, data: null })),
+  http.get('*/api/v1/me/departure-notice', () => HttpResponse.json({ success: true, data: null })),
   http.get('*/api/v1/me', () => HttpResponse.json({ success: true, data: employeeProfile })),
   http.get('*/api/v1/me/devices', () => HttpResponse.json(pageData([device]))),
   http.get('*/api/v1/monitoring-notices/current', () => HttpResponse.json({ success: true, data: notice })),

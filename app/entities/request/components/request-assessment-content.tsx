@@ -44,7 +44,6 @@ export function RequestAssessmentContent({ assessment }: { assessment: Assessmen
           ['sensitivity', label(assessment.dataSensitivity)],
           ['vendor', assessment.vendor.name ?? translate('assessment.notRecorded')],
           ['plannedPlan', assessment.plannedPlanName ?? translate('assessment.notRecorded')],
-          ['businessOwner', assessment.proposedBusinessOwner?.fullName ?? translate('assessment.notRecorded')],
           ['expectedUsers', formatNumber(assessment.proposal.expectedUsers)],
           ['adminConsole', booleanLabel(assessment.adminConsole)],
           ['memberExport', booleanLabel(assessment.memberExport)],

@@ -11,7 +11,7 @@ import { EmployeeLiveCreateView } from './views/employee-live-create-view'
 
 const colleague = { employeeId, fullName: 'Test Colleague', workEmail: 'colleague@example.test' }
 const other = { employeeId: requestId, fullName: 'Test Colleague', workEmail: 'design@example.test' }
-const groupUrl = `/?tab=create-request&mode=group&planId=${planId}&planName=Standard&applicationName=Test%20Software`
+const groupUrl = '/?tab=create-request&mode=group'
 const server = setupServer(...employeeCatalogHandlers)
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 afterEach(() => server.resetHandlers())

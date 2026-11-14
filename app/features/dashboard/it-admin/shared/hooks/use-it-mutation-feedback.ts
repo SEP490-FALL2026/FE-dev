@@ -7,7 +7,6 @@ import { getItAdminDashboardGetQueryKey } from '~/shared/api/generated/operation
 import { getAssessmentQueueListQueryKey } from '~/shared/api/generated/operations/access-requests/assessment-queue-list'
 import { getSubscriptionRenewalListQueryKey } from '~/shared/api/generated/operations/subscription-renewals/subscription-renewal-list'
 import { getPlanWarningListQueryKey } from '~/shared/api/generated/operations/plan-terms/plan-warning-list'
-import { getBusinessOwnerWarningListQueryKey } from '~/shared/api/generated/operations/applications/business-owner-warning-list'
 import { getItError } from './it-errors'
 
 export function useItMutationFeedback(queryKeys: readonly QueryKey[], onSuccess?: () => void) {
@@ -37,11 +36,9 @@ export function useItMutationFeedback(queryKeys: readonly QueryKey[], onSuccess?
         matchQuery({ queryKey: getItAdminDashboardGetQueryKey() }, query) ||
         (changesAssessment && matchQuery({ queryKey: getAssessmentQueueListQueryKey() }, query)) ||
         (changesCatalog &&
-          [
-            getSubscriptionRenewalListQueryKey(),
-            getPlanWarningListQueryKey(),
-            getBusinessOwnerWarningListQueryKey()
-          ].some((queryKey) => matchQuery({ queryKey }, query))) ||
+          [getSubscriptionRenewalListQueryKey(), getPlanWarningListQueryKey()].some((queryKey) =>
+            matchQuery({ queryKey }, query)
+          )) ||
         queryKeys.some((queryKey) => matchQuery({ queryKey }, query)) ||
         // A grant or revocation changes both seat availability and departure prerequisites.
         ((changesAssignments || changesRenewals) &&

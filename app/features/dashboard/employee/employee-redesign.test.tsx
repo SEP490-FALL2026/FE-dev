@@ -5,9 +5,8 @@ import { setupServer } from 'msw/node'
 import { MemoryRouter } from 'react-router'
 import { afterAll, afterEach, beforeAll, beforeEach, expect, it, vi } from 'vitest'
 import { setAppLanguage } from '~/shared/i18n/i18n'
-import type { HandoverDutyPageResponseDtoDataItemsItem } from '~/shared/api/generated/model/handover-duties/handoverDutyPageResponseDtoDataItemsItem'
 import type { ExpiryReminderPageResponseDtoDataItemsItem } from '~/shared/api/generated/model/assignment-expiry/expiryReminderPageResponseDtoDataItemsItem'
-import { assignmentId, employeeId, pageResponse, plan, planId, requestId } from '../../../../test/fixtures/employee-api'
+import { assignmentId, employeeId, pageResponse, plan, requestId } from '../../../../test/fixtures/employee-api'
 import { EmployeeLiveOverview } from './overview/views/employee-live-overview'
 import { EmployeeLiveAccessView } from './my-software/views/employee-live-access-view'
 
@@ -27,25 +26,8 @@ function mount(children: React.ReactNode, url = '/') {
     </QueryClientProvider>
   )
 }
-const duty: HandoverDutyPageResponseDtoDataItemsItem = {
-  id: requestId,
-  assignmentId,
-  application: { id: planId, name: 'Test Software' },
-  plan: { id: planId, name: 'Standard' },
-  employee: { id: employeeId, fullName: 'Test Employee', employeeCode: 'EMP-TEST' },
-  source: 'DEPARTURE',
-  role: 'REQUESTER',
-  status: 'OPEN',
-  dataLoss: false,
-  dueOn: '2026-11-01',
-  overdue: false,
-  flaggedUnconfirmed: false,
-  waitingReason: null,
-  canConfirm: true
-}
-
-it('displays server totals and open handovers without treating the preview as the full list', async () => {
-  const requests: URL[] = []
+it('shows draft totals without requesting removed handover APIs', async () => {
+  const handovers = vi.fn()
   server.use(
     http.get('*/api/v1/access-requests/drafts', () =>
       HttpResponse.json({
@@ -53,30 +35,20 @@ it('displays server totals and open handovers without treating the preview as th
         data: { ...pageResponse().data, pagination: { page: 1, pageSize: 1, totalItems: 19, totalPages: 19 } }
       })
     ),
-    http.get('*/api/v1/handover-duties', ({ request }) => {
-      requests.push(new URL(request.url))
-      return HttpResponse.json({
-        success: true,
-        data: { items: [duty], pagination: { page: 1, pageSize: 4, totalItems: 7, totalPages: 2 } }
-      })
+    http.get('*/api/v1/handover-duties', () => {
+      handovers()
+      return new HttpResponse(null, { status: 404 })
     })
   )
   const navigate = vi.fn()
   mount(<EmployeeLiveOverview name='Test Employee' selfServiceOnly={false} onSelectTab={navigate} />)
-  expect(
-    await within(screen.getByRole('article', { name: 'Saved request drafts' })).findByText('19')
-  ).toBeInTheDocument()
-  expect(await within(screen.getByRole('article', { name: 'Open data handovers' })).findByText('7')).toBeInTheDocument()
-  expect(
-    await within(screen.getByRole('table', { name: 'Handovers to complete' })).findByText('Test Software')
-  ).toBeInTheDocument()
-  expect(requests[0].searchParams.get('scope')).toBe('mine')
-  expect(requests[0].searchParams.get('status')).toBe('OPEN')
-  fireEvent.click(
-    within(screen.getByRole('article', { name: 'Saved request drafts' })).getByRole('button', { name: 'View details' })
-  )
+  const drafts = screen.getByRole('article', { name: 'Saved request drafts' })
+  expect(await within(drafts).findByText('19')).toBeInTheDocument()
+  expect(screen.queryByRole('article', { name: 'Open data handovers' })).not.toBeInTheDocument()
+  expect(screen.queryByRole('table', { name: 'Handovers to complete' })).not.toBeInTheDocument()
+  expect(handovers).not.toHaveBeenCalled()
+  fireEvent.click(within(drafts).getByRole('button', { name: 'View details' }))
   expect(navigate).toHaveBeenCalledWith('my-requests')
-  expect(screen.queryByRole('button', { name: 'Notifications' })).not.toBeInTheDocument()
 })
 
 it('shows a failed count as unavailable and recovers it through retry', async () => {

@@ -1,28 +1,25 @@
 ﻿export const itOffboarding = {
   unknown: 'Not available',
-  duties: {
-    serviceTitle: 'Service account responsibilities',
-    handoverTitle: 'Data handover duties',
-    transfer: 'Transfer responsibility',
-    successor: 'Successor employee ID',
-    successorHint:
-      'Enter the UUID of an active employee in the account’s owning department, not a login account ID. The server verifies eligibility.',
-    effectiveFrom: 'Effective from',
-    expectedEndDate: 'Expected end date (optional)',
-    endHint: 'An expected end date is required for a contractor, freelancer or intern.',
-    sameEmployee: 'Choose a different employee.',
-    handoverHint:
-      'IT can record only duties assigned to IT. Department heads and requesters confirm their own duties; IT cannot confirm for them.',
-    confirm: 'Record IT handover',
-    confirmHint:
-      'Confirm only after the required data handling has been completed. This records completion of data handling. Access revocation remains separate.',
-    notConfirmer: 'This duty is no longer available for your confirmation.',
-    roles: { IT_ADMIN: 'IT Admin', DEPARTMENT_HEAD: 'Department head', REQUESTER: 'Requester' },
-    states: { OPEN: 'Open', CONFIRMED: 'Confirmed', CANCELLED: 'Cancelled' }
-  },
   title: 'Offboarding cases',
-  blockerSummary:
-    '{{count}} prerequisite groups are incomplete. Review the checklist, held rights and open work below.',
+  revocationDue: 'Revocation due',
+  rightsWithoutCompletedTask: 'Rights not yet revoked',
+  revocationOverdue:
+    'Revocation is overdue. IT in charge and Super Admin are reminded every working day until every right has a completed revocation task.',
+  revocationDueOn: 'Revocation due: {{date}}',
+  revocationOverdueOn: 'Revocation overdue since {{date}}',
+  overdueFilter: 'Revocation overdue',
+  lock1a: '1a. Company account blocked (mailbox password reset, every session signed out)',
+  lock1b: '1b. Mailbox locked for good',
+  bySystem: 'Recorded by the system from the last K1 revocation checklist',
+  closedBySystem: 'Closed by the system on {{at}}',
+  closedAt: 'Closed on {{at}}',
+  closureWaiting: 'The system closes this case on its own once nothing below remains.',
+  closureSweep: 'Nothing remains. The system closes the case at its next hourly check.',
+  blockers: {
+    ACCOUNT_LOCK_NOT_RECORDED: 'Company account block (1a) not recorded',
+    MAILBOX_LOCK_NOT_RECORDED: 'Mailbox lock (1b) not recorded',
+    PERSONAL_RIGHTS_OPEN: '{{count}} personal rights without a completed revocation task'
+  },
   filter: 'Filter by state',
   all: 'All',
   back: 'Back to cases',
@@ -35,48 +32,40 @@
   checklist: 'Closure checklist',
   noChecklist: 'No closure checklist is available',
   blocker: '{{code}}: {{count}}',
-  recordedLock: 'Account lock evidence',
   rights: 'Personal rights',
   openRequests: 'Open requests',
   openGrants: 'Open grant tasks',
   provisioning: 'Open provisioning queue',
-  noPermission: 'Only an IT Admin may record evidence or close this case.',
+  noPermission: 'Only an IT Admin may record evidence or open revocations for this case.',
   note: 'Evidence / reason',
   cancellationReason: 'Reason',
   cancellationEvidence: 'Rollback / invitation recovery evidence (optional)',
   rightContext: {
-    confirmer: 'Handover confirmer',
-    dueOn: 'Handover confirmation due: {{date}}',
-    accessRunsOnUntil: 'Access continues until: {{date}}',
-    overdue: 'Handover confirmation overdue',
-    flaggedUnconfirmed: 'Revocation continued without handover confirmation',
-    viewHandover: 'Review handover duty',
-    waitingReasons: { NO_HEAD: 'Waiting for a department head', NO_SUCCESSOR: 'Waiting for a successor' }
+    accessRunsOnUntil: 'Access continues until: {{date}}'
   },
   confirm: 'Confirm',
   saved: 'Operation recorded',
   failed: 'Operation failed. Refresh the case and try again.',
-  handover: 'Data handover',
   revocation: 'Revocation task',
   dataLoss: 'Removing access may cause data loss.',
   actions: {
+    mailbox: 'Record mailbox lock (1b)',
     lock: 'Record account lock',
     revoke: 'Open selected revocations',
-    close: 'Close case',
     cancel: 'Cancel request for departure',
     closeLine: 'Close departing employee’s line'
   },
   hints: {
+    mailbox:
+      'Usually recorded by the system when the last K1 revocation ticks the mailbox step. Record it here only when the person holds no K1 seat, after 1a.',
     lock: 'Record evidence only after locking the company account outside this system. This action does not lock the account.',
     revoke: 'Create revocation tasks for the selected rights. Access is removed when IT completes each task.',
-    close: 'Close this case after all backend blockers and checklist items are resolved.',
     cancel: 'Close the departing employee’s open request or group line. The server verifies eligibility.',
     closeLine: 'Other group members continue with their request. Only the departing employee’s line is closed.',
     cancellationEvidence:
       'If granting has started, record the vendor check and how the work was undone or the invitation recovered. The server determines when evidence is required. Never include passwords or keys.'
   },
   steps: {
-    dataHandover: 'Data handover',
     accountLock: 'Company account lock',
     revokeAccess: 'Access revocation',
     seatsReleased: 'Seats released'

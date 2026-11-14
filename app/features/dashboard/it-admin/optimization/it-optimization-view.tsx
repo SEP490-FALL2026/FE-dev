@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMutation } from '@tanstack/react-query'
 import {
@@ -57,7 +57,7 @@ export function ItOptimizationView() {
               <dl className='grid gap-4 rounded-lg border border-border bg-surface p-5 sm:grid-cols-2'>
                 <div>
                   <dt className='text-sm text-muted-foreground'>{t('optimization.holder')}</dt>
-                  <dd>{selected.holder?.fullName ?? t('unavailable')}</dd>
+                  <dd>{selected.holder?.employeeCode ?? t('unavailable')}</dd>
                 </div>
                 <div>
                   <dt className='text-sm text-muted-foreground'>{t('optimization.group')}</dt>
@@ -143,7 +143,7 @@ export function ItOptimizationView() {
                   <h2 className='font-medium'>
                     {item.application.applicationName} · {item.plan.planName}
                   </h2>
-                  <p className='text-sm text-muted-foreground'>{item.holder?.fullName ?? t('unavailable')}</p>
+                  <p className='text-sm text-muted-foreground'>{item.holder?.employeeCode ?? t('unavailable')}</p>
                   <p className='text-sm'>
                     {t(`optimization.states.${item.state}`, { defaultValue: t('unavailable') })}
                   </p>

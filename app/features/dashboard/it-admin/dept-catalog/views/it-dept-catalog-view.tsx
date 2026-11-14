@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useApplicationList } from '~/shared/api/generated/operations/applications/application-list'
 import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
@@ -9,13 +9,12 @@ import { CatalogApplicationForm } from '../components/catalog-application-form'
 import { CatalogApplicationDetail } from '../components/catalog-application-detail'
 import { CatalogTermWarnings } from '../components/catalog-term-warnings'
 import { CatalogPlanTerms } from '../components/catalog-plan-terms'
-import { CatalogOwnerWarnings } from '../components/catalog-owner-warnings'
 import { CatalogFunctionalGroups } from '../components/catalog-functional-groups'
 export function ItDeptCatalogView({
   initialView = 'applications'
 }: {
   onSelectTab?: (tab: ItAdminTabKey) => void
-  initialView?: 'applications' | 'terms' | 'owners' | 'groups'
+  initialView?: 'applications' | 'terms' | 'groups'
 }) {
   const { t: translate } = useTranslation('itCatalog')
   const [search, setSearch] = useState('')
@@ -70,19 +69,9 @@ export function ItDeptCatalogView({
         >
           {translate('terms.warnings')}
         </button>
-        <button
-          type='button'
-          className={itButtonClass}
-          aria-pressed={view === 'owners'}
-          onClick={() => setView('owners')}
-        >
-          {translate('ownerReview.title')}
-        </button>
       </div>
       {view === 'groups' ? (
         <CatalogFunctionalGroups />
-      ) : view === 'owners' ? (
-        <CatalogOwnerWarnings onOpen={setSelected} />
       ) : view === 'terms' ? (
         <CatalogTermWarnings onOpen={setTermsPlan} />
       ) : (

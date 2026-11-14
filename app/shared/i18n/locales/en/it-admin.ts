@@ -125,6 +125,17 @@ export const itAdmin = {
     identities: 'Usage identity matching has no API.',
     renewals: 'Renewal proposals have no API.'
   },
+  itHandover: {
+    title: 'IT Admin responsibilities',
+    states: { PENDING: 'Still in their name', DONE: 'Handed over', UNKNOWN: 'Unknown status' },
+    remaining: 'Still in their name: {{subscriptions}} subscriptions, {{applications}} applications',
+    done: 'Handed over on {{at}}: {{subscriptions}} subscriptions, {{applications}} applications',
+    hint: 'Hand everything to one IT Admin. Before access is blocked (or before a transfer takes effect) only the leaving IT Admin can do this; after that any IT Admin can. It never blocks closing the case.',
+    action: 'Hand over responsibilities',
+    dialogHint: 'Every subscription and application in this IT Admin’s name moves to the person you choose.',
+    target: 'Receiving IT Admin',
+    confirm: 'Hand over'
+  },
   errors: {
     accessNotBlocked: 'Access has not been blocked. Review the departure case before opening revocations.',
     nothingToRevoke: 'No rights are eligible for revocation. Refresh the rights list.',
@@ -154,6 +165,16 @@ export const itAdmin = {
     keyUnavailable: 'This key is no longer available for this subscription. Select a key from the refreshed list.',
     keyWithdrawalReasonRequired: 'Enter a reason for withdrawing the key from the store.',
     secret: 'The content may contain a password or secret key. Remove it before sending.',
-    blockers: 'Some prerequisites are incomplete. Review the checklist before closing.'
+    blockers: 'Some prerequisites are incomplete. Review the checklist before closing.',
+    k1ChecklistIncomplete: 'The checklist is missing a step. The task card was reloaded; tick every step it now lists.',
+    k1ChecklistOrder: 'A step was ticked earlier than the step before it. Correct the times and send again.',
+    completionNotAllowed:
+      'This completion does not match the task. The task card was reloaded; review its steps and send again.',
+    accountLockFirst: 'Record the company account lock (1a) before locking the mailbox.',
+    mailboxLockBeforeK1: 'The person still has a K1 seat whose revocation is not completed. Complete it first.',
+    handoverNotYetYours: 'Until access is blocked, only the leaving IT Admin can hand over their responsibilities.',
+    handoverNothing: 'This IT Admin no longer answers for any subscription or application.',
+    handoverSamePerson: 'Choose a different IT Admin to receive the responsibilities.',
+    handoverTargetInvalid: 'The selected person is not an IT Admin who works now. Choose another.'
   }
 } as const

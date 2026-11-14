@@ -1,21 +1,8 @@
 import { useTranslation } from 'react-i18next'
-import {
-  AlertTriangle,
-  ArrowLeft,
-  Boxes,
-  Building2,
-  Calendar,
-  Handshake,
-  Undo2,
-  UserCheck,
-  UserRound,
-  XCircle
-} from 'lucide-react'
+import { ArrowLeft, Boxes, Building2, Calendar, Undo2, UserCheck, UserRound, XCircle } from 'lucide-react'
 import { EmployeePageHeader } from '../../shared/components/employee-page-header'
 import { useReturnRequestGet } from '~/shared/api/generated/operations/return-requests/return-request-get'
 import { useDashboardFormat } from '../../../dashboard-ui'
-import { EmployeeReturnHandover } from '../components/employee-return-handover'
-import { RETURN_STATE } from '../enums/return-state'
 import {
   EmployeeButton,
   EmployeeQueryState,
@@ -23,18 +10,10 @@ import {
   EmployeeStatus
 } from '../../shared/components/employee-api-ui'
 
-export function EmployeeLiveReturnDetail({
-  id,
-  onBack,
-  employeeId
-}: {
-  id: string
-  onBack: () => void
-  employeeId: string
-}) {
+export function EmployeeLiveReturnDetail({ id, onBack }: { id: string; onBack: () => void; employeeId: string }) {
   const { t: translate } = useTranslation('employee')
   const query = useReturnRequestGet(id, { query: { enabled: !!id } })
-  const { formatDate, formatDateTime } = useDashboardFormat()
+  const { formatDate } = useDashboardFormat()
   const request = !query.isError ? query.data?.data?.returnRequest : undefined
 
   const appName = request?.plan.applicationName ?? translate('redesign.softwareDetails')
@@ -166,57 +145,6 @@ export function EmployeeLiveReturnDetail({
                 <dd className='rounded-xl border border-border/60 bg-surface-subtle/50 p-4 text-sm leading-relaxed text-foreground'>
                   <p className='whitespace-pre-wrap [overflow-wrap:anywhere]'>{request.revocationNote}</p>
                 </dd>
-              </div>
-            )}
-
-            {/* Handover Duty Card */}
-            {request.handover.required && (
-              <div className='space-y-3 rounded-xl border border-border/60 bg-surface p-4 text-sm'>
-                <div className='flex items-center gap-2 text-foreground font-semibold'>
-                  <Handshake strokeWidth={1.5} className='size-4 text-primary-ink' />
-                  <h3>
-                    {translate(
-                      request.handover.confirmed
-                        ? 'requestExtras.returnHandover.done'
-                        : 'requestExtras.returnHandover.needed'
-                    )}
-                  </h3>
-                </div>
-
-                <div className='grid gap-3 sm:grid-cols-2 text-xs'>
-                  {request.handover.dueOn && (
-                    <div>
-                      <span className='text-muted-foreground'>{translate('dueOn')}: </span>
-                      <span className='font-mono font-medium tabular-nums text-foreground'>
-                        {formatDate(request.handover.dueOn)}
-                      </span>
-                    </div>
-                  )}
-
-                  {request.handoverConfirmedAt && (
-                    <div>
-                      <span className='text-muted-foreground'>{translate('statuses.CONFIRMED')}: </span>
-                      <span className='font-mono font-medium tabular-nums text-foreground'>
-                        {formatDateTime(request.handoverConfirmedAt)}
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {request.handover.flagged && (
-                  <div className='flex items-center gap-2 rounded-lg border border-warning/30 bg-warning/10 p-3 text-xs text-warning-ink'>
-                    <AlertTriangle strokeWidth={1.5} className='size-4 shrink-0 text-warning' />
-                    <p>{translate('requestExtras.returnHandover.flagged')}</p>
-                  </div>
-                )}
-
-                {request.state === RETURN_STATE.AWAITING_REVOCATION &&
-                  !request.handover.confirmed &&
-                  request.requestedBy.employeeId === employeeId && (
-                    <div className='pt-2'>
-                      <EmployeeReturnHandover id={id} />
-                    </div>
-                  )}
               </div>
             )}
 

@@ -51,6 +51,7 @@ export const groupCheck: NonNullable<GroupCheckResponseDtoData> = {
   amountPerPerson: null
 }
 export const accessRequest: AccessRequestResponseDtoDataRequest = {
+  limitExemption: null,
   id: requestId,
   type: 'GRANT',
   branch: 'PAID_IN_CATALOG',
@@ -90,6 +91,7 @@ export const accessRequest: AccessRequestResponseDtoDataRequest = {
   cancellation: null
 }
 export const requestPreview: PreviewResponseDtoDataPreview = {
+  limitExemption: null,
   maxEndDate: '2027-10-31',
   termRequired: false,
   annualVendorAmount: null,

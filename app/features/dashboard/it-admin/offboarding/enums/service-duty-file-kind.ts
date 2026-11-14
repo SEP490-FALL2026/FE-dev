@@ -1,1 +1,0 @@
-export { ServiceAccountDutyPageResponseDtoDataItemsItemFileKind as ServiceDutyFileKind } from '~/shared/api/generated/model/service-account-duties/serviceAccountDutyPageResponseDtoDataItemsItemFileKind'

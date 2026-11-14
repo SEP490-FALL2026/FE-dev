@@ -7,6 +7,18 @@ export function isDecimal(value: string): boolean {
   return /^\d+(?:\.\d+)?$/.test(value)
 }
 
+/** Turn an amount in the currency's smallest unit (string, e.g. "150000" USD cents) into an exact decimal Money. */
+export function moneyFromMinor(amountMinor: string, currency: string): Money {
+  if (!/^-?\d+$/.test(amountMinor)) return { amount: amountMinor, currency }
+  const digits =
+    new Intl.NumberFormat('en', { style: 'currency', currency }).resolvedOptions().minimumFractionDigits ?? 0
+  const negative = amountMinor.startsWith('-')
+  const padded = amountMinor.replace(/^-/, '').padStart(digits + 1, '0')
+  const integer = padded.slice(0, padded.length - digits)
+  const amount = digits ? `${integer}.${padded.slice(padded.length - digits)}` : integer
+  return { amount: `${negative ? '-' : ''}${amount}`, currency }
+}
+
 /** Keep server decimal strings exact, including cents beyond the safe integer range. */
 export function formatMoney(money: Money | null | undefined, locale: string): string {
   if (!money) return '—'

@@ -15,7 +15,6 @@ export const EMPLOYEE_TAB_KEYS = [
   'privacy',
   'data-export',
   'data-usage',
-  'handovers',
   'issues',
   'issue-detail',
   'report-issue',

@@ -92,14 +92,6 @@ export function RenewalDetail({ id, onBack }: { id: string; onBack: () => void }
                   )}
                 </p>
                 <p className='whitespace-pre-wrap break-words text-sm text-muted-foreground'>{item.proposal.note}</p>
-                {item.proposal.businessOwnerOpinion && (
-                  <div className='text-sm'>
-                    <h3 className='font-medium'>{translate('opinion')}</h3>
-                    <p className='whitespace-pre-wrap break-words text-muted-foreground'>
-                      {item.proposal.businessOwnerOpinion}
-                    </p>
-                  </div>
-                )}
               </section>
               <section className='space-y-3 rounded-lg border border-border/70 bg-surface p-5'>
                 <h2 className='font-semibold'>{translate('decision')}</h2>

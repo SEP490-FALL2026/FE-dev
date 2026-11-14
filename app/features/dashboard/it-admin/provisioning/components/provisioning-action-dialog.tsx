@@ -13,6 +13,7 @@ import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { ItPagination } from '../../shared/components/it-pagination'
 import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
 import type { TaskAction } from '../task-actions'
+import { buildK1Checklist, K1ChecklistFields, k1ChecklistProblem, type K1ChecklistTicks } from './k1-checklist-fields'
 
 export function ProvisioningActionDialog({
   task,
@@ -49,6 +50,13 @@ export function ProvisioningActionDialog({
   const [paidThroughOn, setPaidThroughOn] = useState('')
   const [accessCutOn, setAccessCutOn] = useState('')
   const [accessEvidence, setAccessEvidence] = useState('')
+  const [k1Ticks, setK1Ticks] = useState<K1ChecklistTicks>({})
+  const completesK1 = action === 'revocation' && completion === 'RENEWAL_CANCELLED'
+  // The server decides the steps (5 or 6 for a departure, 2 otherwise) and they can change while another K1 seat
+  // of the same person is revoked, so the card is always read again before completing.
+  const card = api.useProvisioningTaskGet(task.id, { query: { enabled: completesK1, staleTime: 0 } })
+  const k1Template = completesK1 ? (card.data?.data?.task.k1Checklist ?? task.k1Checklist ?? null) : null
+  const k1Problem = k1Template ? k1ChecklistProblem(k1Template, k1Ticks) : null
   const feedback = useItMutationFeedback(
     [
       ['it-provisioning'],
@@ -98,7 +106,8 @@ export function ProvisioningActionDialog({
               ? {
                   paidThroughOn,
                   accessState,
-                  ...(accessState === 'CUT' ? { accessCutOn, accessEvidence: accessEvidence.trim() } : {})
+                  ...(accessState === 'CUT' ? { accessCutOn, accessEvidence: accessEvidence.trim() } : {}),
+                  ...(k1Template ? { k1Checklist: buildK1Checklist(k1Template, k1Ticks) } : {})
                 }
               : {})
           })
@@ -127,7 +136,8 @@ export function ProvisioningActionDialog({
           completion === 'KEY_DEACTIVATED' &&
           keyDisposition === 'WITHDRAW' &&
           !withdrawalReason.trim()) ||
-        (action === 'revocation' && completion === 'ALREADY_GONE' && !note.trim())
+        (action === 'revocation' && completion === 'ALREADY_GONE' && !note.trim()) ||
+        (completesK1 && (card.isFetching || Boolean(k1Problem)))
       }
     >
       <p className='text-sm text-muted-foreground'>{translate(action === 'cancel' ? 'cancelHint' : 'confirmHint')}</p>
@@ -270,6 +280,7 @@ export function ProvisioningActionDialog({
               />
             </ItField>
           )}
+          {k1Template && <K1ChecklistFields template={k1Template} ticks={k1Ticks} onChange={setK1Ticks} />}
         </>
       )}
       {(action === 'accessCut' ||

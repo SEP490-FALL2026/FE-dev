@@ -123,6 +123,17 @@ export const itAdmin = {
     identities: 'Ghép danh tính từ dữ liệu sử dụng chưa có API.',
     renewals: 'Đề xuất gia hạn chưa có API.'
   },
+  itHandover: {
+    title: 'Trách nhiệm của IT Admin',
+    states: { PENDING: 'Còn đứng tên', DONE: 'Đã bàn giao', UNKNOWN: 'Trạng thái chưa xác định' },
+    remaining: 'Còn đứng tên: {{subscriptions}} thuê bao, {{applications}} ứng dụng',
+    done: 'Đã bàn giao lúc {{at}}: {{subscriptions}} thuê bao, {{applications}} ứng dụng',
+    hint: 'Bàn giao toàn bộ cho một IT Admin. Trước mốc chặn truy cập (hoặc trước ngày điều chuyển có hiệu lực) chỉ chính IT Admin rời đi làm được; từ mốc đó mọi IT Admin làm được. Việc này không chặn đóng hồ sơ.',
+    action: 'Bàn giao trách nhiệm',
+    dialogHint: 'Mọi thuê bao và ứng dụng IT Admin này đứng tên sẽ chuyển cho người bạn chọn.',
+    target: 'IT Admin nhận bàn giao',
+    confirm: 'Bàn giao'
+  },
   errors: {
     accessNotBlocked: 'Quyền truy cập chưa bị chặn. Kiểm tra hồ sơ nghỉ việc trước khi mở thu hồi.',
     nothingToRevoke: 'Không còn quyền đủ điều kiện thu hồi. Tải lại danh sách quyền.',
@@ -152,6 +163,15 @@ export const itAdmin = {
     keyUnavailable: 'Khóa không còn khả dụng cho thuê bao này. Chọn khóa trong danh sách vừa cập nhật.',
     keyWithdrawalReasonRequired: 'Nhập lý do rút khóa khỏi kho.',
     secret: 'Nội dung có thể chứa mật khẩu hoặc khóa bí mật. Hãy loại bỏ trước khi gửi.',
-    blockers: 'Còn điều kiện chưa hoàn tất. Kiểm tra danh sách công việc trước khi đóng.'
+    blockers: 'Còn điều kiện chưa hoàn tất. Kiểm tra danh sách công việc trước khi đóng.',
+    k1ChecklistIncomplete: 'Checklist còn thiếu bước. Thẻ tác vụ đã được tải lại; tick đủ các bước đang hiện.',
+    k1ChecklistOrder: 'Có bước được tick sớm hơn bước đứng trước. Sửa giờ rồi gửi lại.',
+    completionNotAllowed: 'Cách hoàn tất không khớp tác vụ. Thẻ tác vụ đã được tải lại; xem lại các bước rồi gửi lại.',
+    accountLockFirst: 'Ghi chặn tài khoản công ty (1a) trước khi khóa hộp thư.',
+    mailboxLockBeforeK1: 'Người này còn ghế K1 chưa thu hồi xong. Hoàn tất thu hồi trước.',
+    handoverNotYetYours: 'Trước mốc chặn truy cập, chỉ chính IT Admin rời đi mới bàn giao được.',
+    handoverNothing: 'IT Admin này không còn đứng tên thuê bao hay ứng dụng nào.',
+    handoverSamePerson: 'Chọn một IT Admin khác để nhận bàn giao.',
+    handoverTargetInvalid: 'Người được chọn không phải IT Admin đang làm việc. Chọn người khác.'
   }
 } as const

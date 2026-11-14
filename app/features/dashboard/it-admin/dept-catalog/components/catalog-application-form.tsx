@@ -9,7 +9,6 @@ import { getApplicationListQueryKey } from '~/shared/api/generated/operations/ap
 import { getApplicationGetQueryKey } from '~/shared/api/generated/operations/applications/application-get'
 import { ItField, ItFormDialog, itInputClass } from '../../shared/components/it-form'
 import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
-import { ItDirectoryLookup } from '../../shared/components/it-directory-lookup'
 import { CatalogFunctionalGroupPicker } from './catalog-functional-groups'
 export const uuidPattern = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
 export function CatalogApplicationForm({
@@ -21,7 +20,6 @@ export function CatalogApplicationForm({
 }) {
   const { t: translate } = useTranslation('itCatalog')
   const [selectedKind, setSelectedKind] = useState('SAAS')
-  const [ownerId, setOwnerId] = useState(application?.businessOwner?.employeeId ?? '')
   const [functionalGroupId, setFunctionalGroupId] = useState(application?.functionalGroup?.id ?? '')
   const feedback = useItMutationFeedback(
     [getApplicationListQueryKey(), ...(application ? [getApplicationGetQueryKey(application.id)] : [])],
@@ -40,7 +38,6 @@ export function CatalogApplicationForm({
         event.preventDefault()
         const form = new FormData(event.currentTarget)
         const name = String(form.get('name') ?? '').trim()
-        const owner = String(form.get('owner') ?? '').trim()
         const sensitivityValue = String(form.get('sensitivity'))
         const dataSensitivity = Object.values(DeclareApplicationBodyDtoDataSensitivity).find(
           (value) => value === sensitivityValue
@@ -49,7 +46,6 @@ export function CatalogApplicationForm({
         if (!name || !dataSensitivity || (!application && !kind)) return
         const data = {
           name,
-          businessOwnerEmployeeId: owner,
           dataSensitivity,
           domains: String(form.get('domains') ?? '')
             .split('\n')
@@ -112,18 +108,6 @@ export function CatalogApplicationForm({
           </ItField>
         </fieldset>
       )}
-      <ItField label={translate('owner')} hint={translate('help.owner')}>
-        <input
-          placeholder={translate('placeholders.employeeId')}
-          name='owner'
-          required
-          pattern={uuidPattern}
-          value={ownerId}
-          onChange={(event) => setOwnerId(event.target.value)}
-          className={itInputClass}
-        />
-      </ItField>
-      <ItDirectoryLookup mode='employee' onSelect={setOwnerId} />
       <CatalogFunctionalGroupPicker
         value={functionalGroupId}
         initial={application?.functionalGroup}

@@ -10,7 +10,6 @@ import {
   ManagerSection,
   ManagerStatus
 } from '../../shared/components/manager-api-ui'
-import { ManagerOpenHandovers } from './manager-open-handovers'
 
 export function ManagerOverviewWork({
   onSelectTab
@@ -20,7 +19,7 @@ export function ManagerOverviewWork({
   const { t: translate } = useTranslation('manager')
   const queue = useSpendQueueList({ page: 1, pageSize: 4 })
   return (
-    <div className='grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_280px]'>
+    <div>
       <ManagerSection
         title={translate('batchQueue')}
         description={translate('pendingWorkHint')}
@@ -91,7 +90,6 @@ export function ManagerOverviewWork({
           />
         )}
       </ManagerSection>
-      <ManagerOpenHandovers onOpen={() => onSelectTab('handovers')} />
     </div>
   )
 }

@@ -309,20 +309,8 @@ it('submits a return only after a reason and keeps it separate from completed re
   await waitFor(() => expect(created).toHaveBeenCalledWith(requestId))
   expect(written).toHaveBeenCalledExactlyOnceWith({ assignmentId, reason: 'No longer needed' })
 })
-it.each([false, true])('only the sender can confirm a return handover, sender: %s', async (sender) => {
-  const written = vi.fn()
-  server.use(
-    http.post('*/api/v1/return-requests/:id/handover-confirmation', async ({ request }) => {
-      written(await request.text())
-      return HttpResponse.json({ success: true, data: {} })
-    })
-  )
+it.each([false, true])('shows the return without the removed handover action, sender: %s', async (sender) => {
   mount(<ManagerReturnDetail id={requestId} employeeId={sender ? managerId : employeeId} onBack={vi.fn()} />)
   await screen.findByText('Export work files')
-  if (!sender) expect(screen.queryByRole('button', { name: 'Confirm data handover' })).not.toBeInTheDocument()
-  else {
-    fireEvent.click(screen.getByRole('button', { name: 'Confirm data handover' }))
-    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm' }))
-    await waitFor(() => expect(written).toHaveBeenCalledExactlyOnceWith(''))
-  }
+  expect(screen.queryByRole('button', { name: 'Confirm data handover' })).not.toBeInTheDocument()
 })

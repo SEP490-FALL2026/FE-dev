@@ -22,6 +22,7 @@ import { EmployeeAssignmentPicker } from '../components/employee-assignment-pick
 import { useRequestAssignments } from '../hooks/use-request-assignments'
 import { useEmployeeCatalogSelection } from '../hooks/use-employee-catalog-selection'
 import type { EmployeeTabKey } from '../../enums'
+import { isEmployeeResourceId } from '../../shared/employee-identifiers'
 
 export function EmployeeLiveCreateView({
   onSelectTab
@@ -57,9 +58,12 @@ export function EmployeeLiveCreateView({
       </nav>
       <div className='grid items-start gap-5 2xl:grid-cols-[minmax(0,1fr)_300px]'>
         <LiveCreateForm
-          key={`${mode}:${searchParams.get('assignmentId') ?? ''}`}
+          key={`${mode}:${searchParams.get('assignmentId') ?? ''}:${searchParams.get('planId') ?? ''}`}
           mode={mode}
           assignmentId={searchParams.get('assignmentId') ?? ''}
+          initialPlanId={
+            isEmployeeResourceId(searchParams.get('planId') ?? '') ? (searchParams.get('planId') ?? '') : ''
+          }
           onSelectTab={onSelectTab}
         />
         <aside className='hidden min-w-0 2xl:block'>
@@ -73,10 +77,12 @@ export function EmployeeLiveCreateView({
 function LiveCreateForm({
   mode,
   assignmentId,
+  initialPlanId,
   onSelectTab
 }: {
   mode: RequestMode
   assignmentId: string
+  initialPlanId: string
   onSelectTab: (tab: EmployeeTabKey, params?: Record<string, string>) => void
 }) {
   const { t: translate } = useTranslation('employee')
@@ -85,7 +91,7 @@ function LiveCreateForm({
   const [selectedAssignmentId, setAssignmentId] = useState(assignmentId)
   const assignments = useRequestAssignments(mode)
   const selectedAssignment = assignments.items.find((item) => item.assignmentId === selectedAssignmentId)
-  const selection = useEmployeeCatalogSelection()
+  const selection = useEmployeeCatalogSelection(initialPlanId)
   const { plan, setPlan } = selection
   const workflow = useLiveRequestForm(
     mode,
@@ -134,6 +140,8 @@ function LiveCreateForm({
               <>
                 <EmployeeCatalogPicker
                   value={plan}
+                  initialPlanId={initialPlanId}
+                  onSelectPlanId={selection.setPlanId}
                   onChange={(choice) => {
                     setPlan(choice)
                     workflow.setMembers((members) => members.map((member) => ({ ...member, reasonRequired: false })))

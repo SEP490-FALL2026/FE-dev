@@ -19,7 +19,6 @@ import { ItEmpty, ItQueryState } from '../../shared/components/it-query-state'
 import { ItPagination } from '../../shared/components/it-pagination'
 import { ItField, ItFormDialog, itInputClass, itButtonClass } from '../../shared/components/it-form'
 import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
-import { ServiceAccountReviewDialog } from './service-account-review-dialog'
 import { BoundaryState } from '../enums/boundary-state'
 import { grantStockDecision } from '../grant-stock'
 
@@ -169,7 +168,6 @@ export function ProvisioningGrantQueue({ onCreated }: { onCreated: (id: string) 
   const [employee, setEmployee] = useState('')
   const [filter, setFilter] = useState('')
   const [selected, setSelected] = useState<GrantQueueResponseDtoDataItemsItem | null>(null)
-  const [reviewId, setReviewId] = useState<string | null>(null)
   const query = useQuery({
     queryKey: getGrantQueueListQueryKey({ page, pageSize: 20, ...(filter ? { beneficiaryEmployeeId: filter } : {}) }),
     queryFn: () => grantQueueList({ page, pageSize: 20, ...(filter ? { beneficiaryEmployeeId: filter } : {}) })
@@ -226,11 +224,6 @@ export function ProvisioningGrantQueue({ onCreated }: { onCreated: (id: string) 
                 >
                   {translate('startGrant')}
                 </button>
-                {item.type === 'SERVICE_ACCOUNT' && item.boundaryState === BoundaryState.PENDING && (
-                  <button className={itButtonClass} onClick={() => setReviewId(item.requestId)}>
-                    {translate('reviewBoundary')}
-                  </button>
-                )}
               </article>
             ))}
           </div>
@@ -240,7 +233,6 @@ export function ProvisioningGrantQueue({ onCreated }: { onCreated: (id: string) 
       </ItQueryState>
       {data && <ItPagination page={page} pageSize={20} total={data.pagination.totalItems} onChange={setPage} />}
       {selected && <GrantDialog request={selected} onCreated={onCreated} onClose={() => setSelected(null)} />}
-      {reviewId && <ServiceAccountReviewDialog requestId={reviewId} onClose={() => setReviewId(null)} />}
     </div>
   )
 }

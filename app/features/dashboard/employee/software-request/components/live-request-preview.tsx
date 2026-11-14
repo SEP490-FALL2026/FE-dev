@@ -4,6 +4,7 @@ import { EmployeeStatus } from '../../shared/components/employee-api-ui'
 import { useDashboardFormat } from '../../../dashboard-ui'
 import { EmployeeMoney } from '../../shared/components/employee-money'
 import { Link } from 'react-router'
+import { REQUEST_LIMIT_EXEMPTION } from '~/entities/request/enums/request-limit-exemption'
 
 export function LiveRequestPreview({ preview }: { preview: PreviewResponseDtoDataPreview }) {
   const { t: translate } = useTranslation('employee')
@@ -26,7 +27,13 @@ export function LiveRequestPreview({ preview }: { preview: PreviewResponseDtoDat
           paid: preview.limits.paidSoftwareCount
         })}
       </p>
-      {preview.existingAccess && (
+      {preview.limitExemption === REQUEST_LIMIT_EXEMPTION.TRANSFER_GRACE && (
+        <div role='status' className='space-y-1 rounded-md bg-primary-soft p-3 text-sm text-primary-ink'>
+          <p className='font-medium'>{flow('personnel.exemption')}</p>
+          <p>{flow('personnel.exemptionHint')}</p>
+        </div>
+      )}
+      {preview.existingAccess && preview.limitExemption !== REQUEST_LIMIT_EXEMPTION.TRANSFER_GRACE && (
         <p role='status' className='text-sm text-warning'>
           {flow('existingAccess')}
         </p>

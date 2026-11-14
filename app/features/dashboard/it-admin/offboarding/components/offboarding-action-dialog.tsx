@@ -6,8 +6,8 @@ import { getItError } from '../../shared/hooks/it-errors'
 import { recordAdminRetryDelay } from '~/shared/lib/use-retry-delay'
 import { getMeGetQueryOptions } from '~/shared/api/generated/operations/me/me-get'
 import { useOffboardingCaseRecordAccountLock } from '~/shared/api/generated/operations/offboarding-cases/offboarding-case-record-account-lock'
+import { useOffboardingCaseRecordMailboxLock } from '~/shared/api/generated/operations/offboarding-cases/offboarding-case-record-mailbox-lock'
 import { useOffboardingCaseOpenRevocations } from '~/shared/api/generated/operations/offboarding-cases/offboarding-case-open-revocations'
-import { useOffboardingCaseClose } from '~/shared/api/generated/operations/offboarding-cases/offboarding-case-close'
 import { useAccessRequestCancelForDeparture } from '~/shared/api/generated/operations/access-requests/access-request-cancel-for-departure'
 import { useAccessRequestLineCloseForDeparture } from '~/shared/api/generated/operations/group-requests/access-request-line-close-for-departure'
 import { ItField, ItFormDialog, itInputClass } from '../../shared/components/it-form'
@@ -15,7 +15,9 @@ import { ItField, ItFormDialog, itInputClass } from '../../shared/components/it-
 export type OffboardingAction = {
   caseId: string
   assignmentIds?: string[]
-} & ({ kind: 'lock' | 'revoke' | 'close' } | { kind: 'cancel'; requestId: string; employeeId: string; group: boolean })
+} & (
+  { kind: 'lock' | 'revoke' | 'mailbox' } | { kind: 'cancel'; requestId: string; employeeId: string; group: boolean }
+)
 export function OffboardingActionDialog({ action, onClose }: { action: OffboardingAction; onClose: () => void }) {
   const { t: translate } = useTranslation('itOffboarding')
   const { t: translateError } = useTranslation('itAdmin')
@@ -25,15 +27,17 @@ export function OffboardingActionDialog({ action, onClose }: { action: Offboardi
   const client = useQueryClient()
   const lock = useOffboardingCaseRecordAccountLock()
   const revoke = useOffboardingCaseOpenRevocations()
-  const close = useOffboardingCaseClose()
+  const mailbox = useOffboardingCaseRecordMailboxLock()
   const cancel = useAccessRequestCancelForDeparture()
   const closeLine = useAccessRequestLineCloseForDeparture()
-  const pending = lock.isPending || revoke.isPending || close.isPending || cancel.isPending || closeLine.isPending
+  const pending = lock.isPending || revoke.isPending || mailbox.isPending || cancel.isPending || closeLine.isPending
   async function submit() {
     if (sending.current || pending || (['lock', 'cancel'].includes(action.kind) && !note.trim())) return
     sending.current = true
     try {
       if (action.kind === 'lock') await lock.mutateAsync({ id: action.caseId, data: { note: note.trim() } })
+      if (action.kind === 'mailbox')
+        await mailbox.mutateAsync({ id: action.caseId, data: note.trim() ? { note: note.trim() } : {} })
       if (action.kind === 'revoke')
         await revoke.mutateAsync({
           id: action.caseId,
@@ -42,7 +46,6 @@ export function OffboardingActionDialog({ action, onClose }: { action: Offboardi
             ...(note.trim() ? { note: note.trim() } : {})
           }
         })
-      if (action.kind === 'close') await close.mutateAsync({ id: action.caseId })
       if (action.kind === 'cancel') {
         const data = {
           cause: 'BENEFICIARY_LEFT' as const,
@@ -93,17 +96,17 @@ export function OffboardingActionDialog({ action, onClose }: { action: Offboardi
     >
       <p className='text-sm text-muted-foreground'>{translate(`hints.${action.kind}`)}</p>
       {action.kind === 'cancel' && action.group && <p className='text-sm'>{translate('hints.closeLine')}</p>}
-      {action.kind !== 'close' && (
+      {
         <ItField label={translate(action.kind === 'cancel' ? 'cancellationReason' : 'note')}>
           <textarea
-            required={action.kind !== 'revoke'}
+            required={['lock', 'cancel'].includes(action.kind)}
             maxLength={1000}
             value={note}
             onChange={(event) => setNote(event.target.value)}
             className={itInputClass}
           />
         </ItField>
-      )}
+      }
       {action.kind === 'cancel' && (
         <ItField label={translate('cancellationEvidence')} hint={translate('hints.cancellationEvidence')}>
           <textarea

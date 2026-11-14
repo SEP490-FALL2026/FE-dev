@@ -3,6 +3,7 @@ import { useDashboardFormat } from '../../../dashboard-ui'
 import { useTranslation } from 'react-i18next'
 import { useOffboardingCaseList } from '~/shared/api/generated/operations/offboarding-cases/offboarding-case-list'
 import type { OffboardingCaseListParams } from '~/shared/api/generated/model/offboarding-cases/offboardingCaseListParams'
+import { OffboardingCaseListRevocationOverdue } from '~/shared/api/generated/model/offboarding-cases/offboardingCaseListRevocationOverdue'
 import type { ItAdminTabKey } from '../../it-admin-nav'
 import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { ItPagination } from '../../shared/components/it-pagination'
@@ -24,7 +25,13 @@ export function ItOffboardingView({
   const [page, setPage] = useState(1)
   const [state, setState] = useState<OffboardingCaseListParams['state']>(initialState)
   const [selected, setSelected] = useState(initialCaseId)
-  const query = useOffboardingCaseList({ page, pageSize: 20, state })
+  const [overdueOnly, setOverdueOnly] = useState(false)
+  const query = useOffboardingCaseList({
+    page,
+    pageSize: 20,
+    state,
+    ...(overdueOnly ? { revocationOverdue: OffboardingCaseListRevocationOverdue.true } : {})
+  })
   const data = query.data?.data
   if (selected)
     return (
@@ -52,6 +59,16 @@ export function ItOffboardingView({
             {value ? translate(`states.${value}`) : translate('all')}
           </button>
         ))}
+        <button
+          className={itButtonClass}
+          aria-pressed={overdueOnly}
+          onClick={() => {
+            setOverdueOnly(!overdueOnly)
+            setPage(1)
+          }}
+        >
+          {translate('overdueFilter')}
+        </button>
       </div>
       <ItQueryState query={query}>
         <div className='grid gap-3 md:grid-cols-2 xl:grid-cols-3'>
@@ -72,6 +89,13 @@ export function ItOffboardingView({
                 {translate(`states.${item.state}`, { defaultValue: translate('states.UNKNOWN') })} ·{' '}
                 {translate('rightsCount', { count: item.heldRights })}
               </p>
+              {item.revocation.dueOn && (
+                <p className={`text-sm ${item.revocation.overdue ? 'text-danger' : ''}`}>
+                  {translate(item.revocation.overdue ? 'revocationOverdueOn' : 'revocationDueOn', {
+                    date: formatDate(item.revocation.dueOn)
+                  })}
+                </p>
+              )}
               {item.accountLockMissing && <p className='text-sm text-danger'>{translate('lockMissing')}</p>}
               {item.closed && <p className='text-sm'>{translate('closed')}</p>}
             </button>

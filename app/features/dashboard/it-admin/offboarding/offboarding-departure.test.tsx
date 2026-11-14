@@ -10,25 +10,44 @@ const request = vi.mocked(customAxios)
 let group = true
 let accessBlocked = true
 let caseState = 'LEFT'
+let caseOverrides: Record<string, unknown> = {}
 beforeEach(async () => {
   vi.resetAllMocks()
   group = true
   accessBlocked = true
   caseState = 'LEFT'
+  caseOverrides = {}
   await setAppLanguage('en', false)
   request.mockImplementation(async (config) => {
     if (config.method === 'POST') return { data: {} }
     if (config.url?.endsWith('/me')) return { data: { roles: ['IT_ADMIN'] } }
+    if (config.url?.endsWith('/it-admins'))
+      return {
+        data: {
+          items: [
+            { employeeId: 'departing-employee', employeeCode: 'IT-1', fullName: 'Departing employee' },
+            { employeeId: 'it-2', employeeCode: 'IT-2', fullName: 'Other IT Admin' }
+          ],
+          pagination: { totalItems: 2 }
+        }
+      }
     if (config.url?.endsWith('/case-1'))
       return {
         data: {
           employee: { id: 'departing-employee', fullName: 'Departing employee' },
           state: caseState,
           accessBlocked,
+          closed: false,
           lastWorkingDay: '2026-11-01',
+          heldRights: 1,
+          revocation: { dueOn: '2026-11-02', overdue: false, rightsWithoutCompletedTask: 1 },
           blockers: {},
-          checklist: {},
-          accountLock: { note: 'Locked' }
+          checklist: { dataHandover: { state: 'DONE' }, accountLock: { state: 'DONE' } },
+          accountLock: { recordedAt: '2026-11-02T03:00:00Z', note: 'Locked' },
+          mailboxLock: null,
+          itHandover: null,
+          closure: null,
+          ...caseOverrides
         }
       }
     if (config.url?.endsWith('/open-requests'))
@@ -51,17 +70,7 @@ beforeEach(async () => {
               revocable: true,
               dataLossOnRemoval: true,
               revocationNote: 'Export workspace before removal',
-              accessRunsOnUntil: '2026-12-31',
-              handover: {
-                dutyId: 'duty-1',
-                status: 'OPEN',
-                role: 'DEPARTMENT_HEAD',
-                confirmer: { fullName: 'Head Person', employeeCode: 'HEAD-1' },
-                waitingReason: 'NO_SUCCESSOR',
-                dueOn: '2026-11-05',
-                overdue: true,
-                flaggedUnconfirmed: true
-              }
+              accessRunsOnUntil: '2026-12-31'
             }
           ],
           pagination: { totalItems: 1 }
@@ -159,30 +168,73 @@ it('blocks duplicate group closures while pending and omits unused evidence from
   await waitFor(() => expect(within(dialog).getByRole('button', { name: 'Confirm' })).toBeEnabled())
   expect(within(dialog).getByLabelText('Reason')).toHaveValue('  Employee left  ')
 })
-it('opens the right’s exact handover duty and refuses confirmation for another role', async () => {
-  const original = request.getMockImplementation()!
-  request.mockImplementation(async (...args) => {
-    if (args[0].url?.endsWith('/handover-duties/duty-1'))
-      return { data: { id: 'duty-1', role: 'DEPARTMENT_HEAD', status: 'OPEN', canConfirm: true } }
-    return original(...args)
-  })
-  mount()
-  fireEvent.click(await screen.findByRole('button', { name: 'Review handover duty' }))
-  const dialog = screen.getByRole('dialog')
-  expect(await within(dialog).findByText('This duty is no longer available for your confirmation.')).toBeInTheDocument()
-  expect(within(dialog).getByRole('button', { name: 'Record IT handover' })).toBeDisabled()
-  expect(request.mock.calls.some(([config]) => config.url?.endsWith('/handover-duties/duty-1'))).toBe(true)
-  expect(request.mock.calls.some(([config]) => config.method === 'POST')).toBe(false)
-})
-it('shows the plan instructions and returned handover context without treating its due date as a removal gate', async () => {
+it('shows the plan instructions and paid-period access without any data handover step', async () => {
   mount()
   expect(await screen.findByText('Export workspace before removal')).toBeInTheDocument()
-  expect(screen.getByText(/Head Person/)).toBeInTheDocument()
-  expect(screen.getByText(/Handover confirmation due/)).toBeInTheDocument()
   expect(screen.getByText(/Access continues until/)).toBeInTheDocument()
-  expect(screen.getByText('Waiting for a successor')).toBeInTheDocument()
-  expect(screen.getByText('Handover confirmation overdue')).toBeInTheDocument()
-  expect(screen.getByText('Revocation continued without handover confirmation')).toBeInTheDocument()
+  expect(screen.queryByText('Data handover')).not.toBeInTheDocument()
+})
+
+it('records the mailbox lock (1b) after 1a with an optional note', async () => {
+  mount()
+  fireEvent.click(await screen.findByRole('button', { name: 'Record mailbox lock (1b)' }))
+  const dialog = screen.getByRole('dialog')
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Confirm' }))
+  await waitFor(() => expect(request.mock.calls.some(([config]) => config.method === 'POST')).toBe(true))
+  const post = request.mock.calls.find(([config]) => config.method === 'POST')![0]
+  expect(post.url).toContain('/case-1/mailbox-lock')
+  expect(post.data).toStrictEqual({})
+})
+
+it('keeps the mailbox lock disabled until 1a is recorded', async () => {
+  caseOverrides = { accountLock: null }
+  mount()
+  expect(await screen.findByRole('button', { name: 'Record mailbox lock (1b)' })).toBeDisabled()
+})
+
+it('lists what keeps the system from closing the case and the overdue revocation', async () => {
+  caseOverrides = {
+    revocation: { dueOn: '2026-11-02', overdue: true, rightsWithoutCompletedTask: 2 },
+    blockers: { MAILBOX_LOCK_NOT_RECORDED: 1, PERSONAL_RIGHTS_OPEN: 2 }
+  }
+  mount()
+  expect(await screen.findByText('Mailbox lock (1b) not recorded')).toBeInTheDocument()
+  expect(screen.getByText('2 personal rights without a completed revocation task')).toBeInTheDocument()
+  expect(screen.getByText(/Revocation is overdue/)).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: /Close case/ })).not.toBeInTheDocument()
+})
+
+it('explains the hourly sweep when nothing blocks closure and shows the system closure', async () => {
+  mount()
+  expect(await screen.findByText(/next hourly check/)).toBeInTheDocument()
+})
+
+it('shows a case closed by the system without any action buttons', async () => {
+  caseOverrides = {
+    closed: true,
+    mailboxLock: { recordedAt: '2026-11-03T03:00:00Z', recordedBySystem: true, note: null },
+    closure: { closedAt: '2026-11-03T04:00:00Z', closedByAppUserId: null, closedBySystem: true }
+  }
+  mount()
+  expect(await screen.findByText(/Closed by the system on/)).toBeInTheDocument()
+  expect(screen.getByText(/Recorded by the system from the last K1 revocation checklist/)).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Record mailbox lock (1b)' })).not.toBeInTheDocument()
+})
+
+it('hands every IT responsibility of a leaving IT Admin to another IT Admin', async () => {
+  caseOverrides = { itHandover: { state: 'PENDING', subscriptions: 3, applications: 1, handedOver: null } }
+  mount()
+  expect(await screen.findByText('Still in their name: 3 subscriptions, 1 applications')).toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button', { name: 'Hand over responsibilities' }))
+  const dialog = screen.getByRole('dialog')
+  fireEvent.click(await within(dialog).findByRole('combobox'))
+  expect(screen.queryByRole('option', { name: /Departing employee/ })).not.toBeInTheDocument()
+  fireEvent.click(screen.getByRole('option', { name: /Other IT Admin/ }))
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Hand over' }))
+  await waitFor(() => expect(request.mock.calls.some(([config]) => config.method === 'POST')).toBe(true))
+  const post = request.mock.calls.find(([config]) => config.method === 'POST')![0]
+  expect(post.url).toContain('/offboarding-cases/case-1/it-admin-handover')
+  expect(post.data).toStrictEqual({ toItAdminEmployeeId: 'it-2' })
 })
 
 it('opens revocations while access is blocked before the employee leaves and sends only the new strict body', async () => {

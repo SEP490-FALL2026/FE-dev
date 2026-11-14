@@ -12,9 +12,6 @@ vi.mock('~/shared/api/generated/operations/offboarding-cases/offboarding-case-re
 vi.mock('~/shared/api/generated/operations/offboarding-cases/offboarding-case-open-revocations', () => ({
   useOffboardingCaseOpenRevocations: () => ({ isPending: false })
 }))
-vi.mock('~/shared/api/generated/operations/offboarding-cases/offboarding-case-close', () => ({
-  useOffboardingCaseClose: () => ({ isPending: false })
-}))
 vi.mock('~/shared/api/generated/operations/access-requests/access-request-cancel-for-departure', () => ({
   useAccessRequestCancelForDeparture: () => ({ isPending: false })
 }))

@@ -91,8 +91,7 @@ export const itCatalog = {
   free: 'Còn trống',
   retirement: 'Ngừng ứng dụng',
   retire: 'Ngừng ứng dụng vĩnh viễn',
-  retirementHint:
-    'Cần xác nhận của người phụ trách nghiệp vụ trong hôm nay và không còn cấp phát hoặc thuê bao chặn thao tác.',
+  retirementHint: 'Chỉ ngừng sử dụng khi không còn quyền hoặc thuê bao đang chặn.',
   departmentUnavailable: 'API chưa cung cấp quy tắc cho phép yêu cầu theo phòng ban.',
   baseline: 'Dữ liệu ghế ban đầu',
   baselineOpen: 'Đang mở',

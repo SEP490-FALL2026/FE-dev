@@ -70,7 +70,6 @@ const assessment: AssessmentResponseDtoDataAssessment = {
   grantRevokeMethod: null,
   dataSensitivity: null,
   opinion: null,
-  proposedBusinessOwner: null,
   controlLevel: null,
   controlRiskNote: null,
   quote: null,

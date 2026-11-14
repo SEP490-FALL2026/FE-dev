@@ -9,7 +9,6 @@ import { DASHBOARD_STATE } from '../enums/dashboard-state'
 const cards = [
   { key: 'needApprovals', tab: 'team-requests' },
   { key: 'departmentSoftware', tab: 'team-software' },
-  { key: 'transferReviews', tab: 'transfer-reviews' },
   { key: 'spendQueue', tab: 'weekly-batch' },
   { key: 'budgetProposals', tab: 'annual-budget' },
   { key: 'approvedBudgetLines', tab: 'annual-budget' },

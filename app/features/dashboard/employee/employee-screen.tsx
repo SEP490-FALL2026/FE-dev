@@ -9,8 +9,7 @@ import { EmployeeLiveAccessView } from './my-software/views/employee-live-access
 import { EmployeeLiveReturnDetail } from './my-software/views/employee-live-return-detail'
 import { EmployeeLiveProfile } from './profile-privacy/views/employee-live-profile'
 import { EmployeeLivePrivacy } from './profile-privacy/views/employee-live-privacy'
-import { EmployeeHandoversView } from './handovers/views/employee-handovers-view'
-import { EmployeeDepartureNotice } from './handovers/components/employee-departure-notice'
+import { PersonnelNotices } from '~/entities/personnel/components/personnel-notices'
 import { EmployeeIssuesView } from './saas-issues/views/employee-issues-view'
 import { EmployeeReportIssue } from './saas-issues/views/employee-report-issue'
 import { EmployeeIssueDetail } from './saas-issues/views/employee-issue-detail'
@@ -32,7 +31,7 @@ export function EmployeeScreen({
   if (!user || me.isError) return <EmployeeQueryState query={me} empty={!user} />
   const id = searchParams.get('id') ?? ''
   const selfServiceOnly = false
-  const restricted = selfServiceOnly && !['overview', 'handovers', 'profile', 'privacy'].includes(tab)
+  const restricted = selfServiceOnly && !['overview', 'profile', 'privacy'].includes(tab)
   if (!restricted && ['request-detail', 'issue-detail', 'return-detail'].includes(tab) && !isEmployeeResourceId(id))
     return (
       <div className='space-y-4'>
@@ -57,7 +56,6 @@ export function EmployeeScreen({
         onSelectTab={onSelectTab}
       />
     )
-  else if (tab === 'handovers') content = <EmployeeHandoversView />
   else if (tab === 'profile') content = <EmployeeLiveProfile />
   else if (tab === 'privacy' || tab === 'data-export' || tab === 'data-usage') content = <EmployeeLivePrivacy />
   else if (tab === 'my-requests') content = <EmployeeLiveRequestsView onSelectTab={onSelectTab} />
@@ -99,7 +97,7 @@ export function EmployeeScreen({
           {translate('selfService')}
         </p>
       )}
-      {selfServiceOnly && <EmployeeDepartureNotice />}
+      <PersonnelNotices onRequest={(planId) => onSelectTab('create-request', { mode: 'individual', planId })} />
       {content}
     </div>
   )

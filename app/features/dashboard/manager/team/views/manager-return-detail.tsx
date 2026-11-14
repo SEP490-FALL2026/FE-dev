@@ -1,62 +1,15 @@
-import { useState } from 'react'
-import {
-  AlertTriangle,
-  ArrowLeft,
-  Boxes,
-  Calendar,
-  CheckCircle2,
-  Clock,
-  Handshake,
-  Undo2,
-  UserCheck,
-  UserRound,
-  XCircle
-} from 'lucide-react'
+import { ArrowLeft, Boxes, Calendar, Undo2, UserCheck, UserRound, XCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import {
-  useReturnRequestGet,
-  getReturnRequestGetQueryKey
-} from '~/shared/api/generated/operations/return-requests/return-request-get'
-import { getReturnRequestListQueryKey } from '~/shared/api/generated/operations/return-requests/return-request-list'
-import { returnRequestHandoverConfirm } from '~/shared/api/generated/operations/return-requests/return-request-handover-confirm'
-import { Dialog, useDashboardFormat } from '../../../dashboard-ui'
-import { useManagerAction } from '../../shared/hooks/use-manager-action'
+import { useReturnRequestGet } from '~/shared/api/generated/operations/return-requests/return-request-get'
+import { useDashboardFormat } from '../../../dashboard-ui'
 import { ManagerPageHeader } from '../../shared/components/manager-page-header'
-import {
-  ManagerActionState,
-  ManagerButton,
-  ManagerQueryState,
-  ManagerSection,
-  ManagerStatus
-} from '../../shared/components/manager-api-ui'
-import { RETURN_STATE } from '../enums/return-state'
+import { ManagerButton, ManagerQueryState, ManagerSection, ManagerStatus } from '../../shared/components/manager-api-ui'
 
-export function ManagerReturnDetail({
-  id,
-  employeeId,
-  onBack
-}: {
-  id: string
-  employeeId: string
-  onBack: () => void
-}) {
+export function ManagerReturnDetail({ id, onBack }: { id: string; employeeId: string; onBack: () => void }) {
   const { t: translate } = useTranslation('manager')
-  const { formatDate, formatDateTime } = useDashboardFormat()
-  const [confirming, setConfirming] = useState(false)
+  const { formatDate } = useDashboardFormat()
   const query = useReturnRequestGet(id)
   const request = !query.isError ? query.data?.data?.returnRequest : null
-  // The handover is confirmed by the person who sent this return; reading it as head does not confer that action.
-  const canConfirm =
-    request?.state === RETURN_STATE.AWAITING_REVOCATION &&
-    request.handover.required &&
-    !request.handover.confirmed &&
-    request.requestedBy.employeeId === employeeId
-  const action = useManagerAction({
-    mutationFn: () => returnRequestHandoverConfirm(id),
-    invalidate: [getReturnRequestGetQueryKey(id), getReturnRequestListQueryKey()],
-    onSuccess: () => setConfirming(false)
-  })
-
   return (
     <div className='space-y-6'>
       <ManagerPageHeader
@@ -71,9 +24,9 @@ export function ManagerReturnDetail({
       />
       <ManagerQueryState query={query} empty={!request} />
       {request && (
-        <div className='grid items-start gap-6 lg:grid-cols-3'>
+        <div className='space-y-6'>
           {/* Main Info Column */}
-          <div className='space-y-6 lg:col-span-2'>
+          <div className='space-y-6'>
             <ManagerSection title={translate('integration.returnDetail')}>
               {/* Software Spotlight Banner */}
               <div className='flex flex-wrap items-center justify-between gap-4 rounded-xl border border-border/60 bg-surface-subtle/50 p-4'>
@@ -166,99 +119,7 @@ export function ManagerReturnDetail({
               )}
             </ManagerSection>
           </div>
-
-          {/* Right Column: Handover & Actions */}
-          <div className='space-y-6'>
-            {request.handover.required && (
-              <ManagerSection title={translate('handovers')}>
-                <div className='space-y-4'>
-                  <div className='flex items-center gap-3'>
-                    <span
-                      aria-hidden='true'
-                      className='grid size-10 shrink-0 place-items-center rounded-xl border border-primary/20 bg-primary-soft text-primary-ink'
-                    >
-                      <Handshake strokeWidth={1.5} className='size-5' />
-                    </span>
-                    <div>
-                      <p className='text-sm font-semibold text-foreground'>
-                        {translate(
-                          request.handover.confirmed ? 'integration.handoverDone' : 'integration.handoverNeeded'
-                        )}
-                      </p>
-                      <p className='text-xs text-muted-foreground'>{translate('handoverHint')}</p>
-                    </div>
-                  </div>
-
-                  <dl className='space-y-2.5 rounded-xl border border-border/60 bg-surface-subtle/40 p-3 text-xs'>
-                    {request.handover.dueOn && (
-                      <div className='flex items-center justify-between'>
-                        <dt className='flex items-center gap-1.5 text-muted-foreground'>
-                          <Clock strokeWidth={1.5} className='size-3.5' />
-                          {translate('integration.dueOn')}
-                        </dt>
-                        <dd className='font-mono font-medium text-foreground'>{formatDate(request.handover.dueOn)}</dd>
-                      </div>
-                    )}
-                    {request.handoverConfirmedAt && (
-                      <div className='flex items-center justify-between'>
-                        <dt className='flex items-center gap-1.5 text-muted-foreground'>
-                          <CheckCircle2 strokeWidth={1.5} className='size-3.5 text-success' />
-                          {translate('integration.handoverDone')}
-                        </dt>
-                        <dd className='font-mono font-medium text-foreground'>
-                          {formatDateTime(request.handoverConfirmedAt)}
-                        </dd>
-                      </div>
-                    )}
-                  </dl>
-
-                  {request.handover.flagged && (
-                    <div className='flex items-start gap-2.5 rounded-xl border border-warning/30 bg-warning/10 p-3 text-xs font-medium text-warning-ink'>
-                      <AlertTriangle strokeWidth={1.5} className='size-4 shrink-0 mt-0.5' />
-                      <span>{translate('integration.handoverFlagged')}</span>
-                    </div>
-                  )}
-
-                  {canConfirm && (
-                    <ManagerButton
-                      primary
-                      className='w-full'
-                      disabled={action.blocked}
-                      onClick={() => setConfirming(true)}
-                    >
-                      {translate('integration.confirmHandover')}
-                    </ManagerButton>
-                  )}
-                </div>
-              </ManagerSection>
-            )}
-            <ManagerActionState action={action} />
-          </div>
         </div>
-      )}
-      {confirming && (
-        <Dialog
-          presentation='sheet'
-          title={translate('integration.confirmHandover')}
-          hint={translate('confirmAction')}
-          onClose={() => {
-            if (!action.isPending) setConfirming(false)
-          }}
-        >
-          <div className='flex justify-end gap-3'>
-            <ManagerButton disabled={action.isPending} onClick={() => setConfirming(false)}>
-              {translate('cancel')}
-            </ManagerButton>
-            <ManagerButton
-              primary
-              busy={action.isPending}
-              disabled={action.blocked || !canConfirm}
-              onClick={() => action.mutate()}
-            >
-              {action.retrySeconds ? translate('retryAfter', { seconds: action.retrySeconds }) : translate('confirm')}
-            </ManagerButton>
-          </div>
-        </Dialog>
       )}
     </div>
   )

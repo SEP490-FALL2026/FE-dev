@@ -76,6 +76,25 @@ export const adminPersonnel = {
   memberHelp:
     'Read one department at a time. Choose the employee to correct their official record. Leave blank any field you do not want to change.',
   successorConflict: 'Choose a successor employee or no successor, not both.',
+  impact: {
+    preview: 'Preview impact',
+    confirm: 'Confirm and record',
+    title: 'Impact if recorded',
+    revocationDueOn: 'Revocation due',
+    graceEndsOn: 'Grace period ends',
+    graceReminderOn: 'Reminder on',
+    requestsCancelled: 'Open requests the system cancels',
+    provisioningInFlight: 'Requests with a grant under way (IT checks them)',
+    commitmentReleased: 'Returned to the budget',
+    responsibilities: 'IT Admin responsibilities to hand over',
+    responsibilityCounts: '{{subscriptions}} subscriptions · {{applications}} applications',
+    successorRequired: 'This person heads the department they leave: choose a successor employee.',
+    rightsToRevoke: 'Rights to revoke: {{count}}',
+    notRevocable: 'no revocation task for this kind',
+    vendorAdminRoles: 'Admin roles at vendors',
+    confirmHint:
+      'Nothing is saved yet. Confirm to record exactly this; if you change a field, the impact is shown again first.'
+  },
   transferRoute: '{{from}} → {{to}}',
   transferEventOption: '{{employee}} · {{from}} → {{to}} · {{date}}',
   leaveEventOption: '{{employee}} · Leave: {{start}} → {{end}}',

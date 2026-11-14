@@ -1,4 +1,4 @@
-import { managerDashboard, managerReadHandlers } from '../../../../../test/fixtures/manager-integration'
+import { managerReadHandlers } from '../../../../../test/fixtures/manager-integration'
 import { employeeId } from '../../../../../test/fixtures/employee-api'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, within } from '@testing-library/react'
@@ -45,75 +45,48 @@ function mount(departmentId?: string) {
   return select
 }
 
-it('shows one set of work metrics, retains server totals and scopes open handovers', async () => {
-  const requests: URL[] = []
+it('retains spending totals without loading removed handover or transfer-review APIs', async () => {
+  const removedRequests = vi.fn()
   server.use(
-    http.get('*/api/v1/spend-queue', ({ request }) => {
-      requests.push(new URL(request.url))
-      return HttpResponse.json(list(23))
+    http.get('*/api/v1/spend-queue', () => HttpResponse.json(list(23))),
+    http.get('*/api/v1/transfer-reviews', () => {
+      removedRequests()
+      return new HttpResponse(null, { status: 404 })
     }),
-    http.get('*/api/v1/transfer-reviews', ({ request }) => {
-      requests.push(new URL(request.url))
-      return HttpResponse.json(list(8))
-    }),
-    http.get('*/api/v1/handover-duties', ({ request }) => {
-      requests.push(new URL(request.url))
-      return HttpResponse.json(list(5))
+    http.get('*/api/v1/handover-duties', () => {
+      removedRequests()
+      return new HttpResponse(null, { status: 404 })
     })
   )
   const select = mount()
   expect(await screen.findByText('23 records')).toBeInTheDocument()
-  expect(await screen.findByRole('button', { name: 'Spending submission queue' })).toBeInTheDocument()
-  expect(screen.queryByRole('article', { name: 'Awaiting spending request submission' })).not.toBeInTheDocument()
-  expect(screen.queryByRole('article', { name: 'Open transfer reviews' })).not.toBeInTheDocument()
-  expect(screen.getAllByRole('button', { name: 'Open transfer reviews' })).toHaveLength(1)
-  expect(await within(screen.getByRole('article', { name: 'Open data handovers' })).findByText('5')).toBeInTheDocument()
-  expect(requests.some((url) => url.pathname.endsWith('/transfer-reviews'))).toBe(false)
-  const handovers = requests.find((url) => url.pathname.endsWith('/handover-duties'))?.searchParams
-  expect(handovers?.get('status')).toBe('OPEN')
-  expect(handovers?.get('scope')).toBe('mine')
-  fireEvent.click(screen.getByRole('button', { name: 'Open transfer reviews' }))
-  expect(select).toHaveBeenCalledWith('transfer-reviews', { departmentId: employeeId })
-  expect(screen.queryByRole('button', { name: 'Request software for staff' })).not.toBeInTheDocument()
-  expect(screen.queryByRole('button', { name: 'Request on behalf' })).not.toBeInTheDocument()
-  expect(select).not.toHaveBeenCalledWith('create-employee-request', expect.anything())
+  expect(screen.queryByRole('button', { name: 'Open transfer reviews' })).not.toBeInTheDocument()
+  expect(screen.queryByRole('article', { name: 'Open data handovers' })).not.toBeInTheDocument()
+  expect(removedRequests).not.toHaveBeenCalled()
+  fireEvent.click(await screen.findByRole('button', { name: 'Spending submission queue' }))
+  expect(select).toHaveBeenCalledWith('weekly-batch', { departmentId: employeeId })
 })
 
-it('keeps a failed count unavailable instead of presenting it as zero', async () => {
+it('retains retry when the spending queue fails', async () => {
+  let failed = true
   server.use(
-    http.get('*/api/v1/spend-queue', () => HttpResponse.json(list(0))),
-    http.get('*/api/v1/handover-duties', () =>
-      HttpResponse.json({ error: { code: 'SERVICE.UNAVAILABLE' } }, { status: 503 })
+    http.get('*/api/v1/spend-queue', () =>
+      failed
+        ? HttpResponse.json({ error: { code: 'SERVICE.UNAVAILABLE' } }, { status: 503 })
+        : HttpResponse.json(list(0))
     )
   )
   mount()
-  const reviews = screen.getByRole('article', { name: 'Open data handovers' })
-  expect(await within(reviews).findByText('Unable to load data. Try again.')).toBeInTheDocument()
-  expect(within(reviews).getByText('Not available')).toBeInTheDocument()
-  expect(within(reviews).queryByText('0')).not.toBeInTheDocument()
-  expect(within(reviews).getByRole('button', { name: 'Retry' })).toBeInTheDocument()
+  expect(await screen.findByText('Unable to load data. Try again.')).toBeInTheDocument()
+  failed = false
+  fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
+  expect(await screen.findByText('0 records')).toBeInTheDocument()
 })
 
-it('keeps an unavailable dashboard metric unavailable without a duplicate fallback card', async () => {
-  server.use(
-    http.get('*/api/v1/dashboards/manager', () =>
-      HttpResponse.json({
-        success: true,
-        data: {
-          ...managerDashboard,
-          sections: {
-            ...managerDashboard.sections,
-            transferReviews: { state: 'NOT_AVAILABLE', count: null, sourceOperationId: null, reason: 'NO_DATA_SOURCE' }
-          }
-        }
-      })
-    )
-  )
+it('keeps an unavailable dashboard metric unavailable', async () => {
   mount()
-  const card = await screen.findByRole('button', { name: 'Open transfer reviews' })
-  expect(within(card).getByText('Not available')).toBeInTheDocument()
-  expect(within(card).queryByText('0')).not.toBeInTheDocument()
-  expect(screen.queryByRole('article', { name: 'Open transfer reviews' })).not.toBeInTheDocument()
+  const card = await screen.findByText('Unused seats')
+  expect(within(card.closest('div')!).getByText('Not available')).toBeInTheDocument()
 })
 
 it.each([undefined, employeeId])(

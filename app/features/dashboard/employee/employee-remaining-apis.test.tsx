@@ -1,17 +1,16 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
 import { MemoryRouter } from 'react-router'
 import { afterAll, afterEach, beforeAll, beforeEach, expect, it, vi } from 'vitest'
-import { toast } from 'sonner'
 import { setAppLanguage } from '~/shared/i18n/i18n'
 import {
   catalogPlanDetails,
   chooseCatalogPlan,
   employeeCatalogHandlers
 } from '../../../../test/fixtures/employee-catalog'
-import { employeeId, employeeProfile, requestId } from '../../../../test/fixtures/employee-api'
+import { employeeId, requestId } from '../../../../test/fixtures/employee-api'
 import { employeeReturn } from '../../../../test/fixtures/employee-return'
 import { EmployeeLiveCreateView } from './software-request/views/employee-live-create-view'
 import { EmployeeLiveReturnDetail } from './my-software/views/employee-live-return-detail'
@@ -104,141 +103,34 @@ it('handles unknown sharing values without granting sharing permissions', async 
   expect(within(details).queryByText('Vendor', { exact: true })).not.toBeInTheDocument()
   expect(within(details).getByText('No')).toBeInTheDocument()
 })
-it('confirms return handover with no body, blocks duplicate clicks and refreshes the actual return', async () => {
-  let confirmed = false
-  const written = vi.fn()
-  const duty = vi.fn()
-  server.use(
-    http.get('*/api/v1/return-requests/:id', () =>
-      HttpResponse.json({
-        success: true,
-        data: { returnRequest: { ...employeeReturn, handover: { ...employeeReturn.handover, confirmed } } }
-      })
-    ),
-    http.post('*/api/v1/return-requests/:id/handover-confirmation', async ({ request, params }) => {
-      written(params.id, await request.text())
-      confirmed = true
-      return HttpResponse.json({
-        success: true,
-        data: { returnRequest: { ...employeeReturn, handover: { ...employeeReturn.handover, confirmed } } }
-      })
-    }),
-    http.post('*/api/v1/handover-duties/:id/confirmation', () => {
-      duty()
-      return HttpResponse.json({ success: true })
-    })
-  )
-  mount(<EmployeeLiveReturnDetail id={requestId} employeeId={employeeId} onBack={vi.fn()} />)
-  fireEvent.click(await screen.findByRole('button', { name: 'Confirm return data handover' }))
-  const button = within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm' })
-  expect(written).not.toHaveBeenCalled()
-  fireEvent.click(button)
-  fireEvent.click(button)
-  expect(await screen.findByText('Data handover confirmed')).toBeInTheDocument()
-  expect(written).toHaveBeenCalledExactlyOnceWith(requestId, '')
-  expect(duty).not.toHaveBeenCalled()
-  expect(screen.queryByRole('button', { name: 'Confirm return data handover' })).not.toBeInTheDocument()
-})
-it.each(['other_sender', 'completed', 'confirmed', 'not_required', 'unknown_state'])(
-  'does not offer return confirmation for %s',
-  async (condition) => {
+it.each(['AWAITING_REVOCATION', 'COMPLETED', 'FAILED'])(
+  'reads the return without the removed handover action in %s',
+  async (state) => {
     server.use(
       http.get('*/api/v1/return-requests/:id', () =>
-        HttpResponse.json({
-          success: true,
-          data: {
-            returnRequest: {
-              ...employeeReturn,
-              state:
-                condition === 'completed'
-                  ? 'COMPLETED'
-                  : condition === 'unknown_state'
-                    ? 'FUTURE_STATE'
-                    : 'AWAITING_REVOCATION',
-              requestedBy: {
-                ...employeeReturn.requestedBy,
-                employeeId: condition === 'other_sender' ? requestId : employeeId
-              },
-              handover: {
-                ...employeeReturn.handover,
-                required: condition !== 'not_required',
-                confirmed: condition === 'confirmed'
-              }
-            }
-          }
-        })
+        HttpResponse.json({ success: true, data: { returnRequest: { ...employeeReturn, state } } })
       )
     )
-    mount(<EmployeeLiveReturnDetail id={requestId} employeeId={employeeId} onBack={vi.fn()} />)
+    const back = vi.fn()
+    mount(<EmployeeLiveReturnDetail id={requestId} employeeId={employeeId} onBack={back} />)
     await screen.findByText('Export the project files')
     expect(screen.queryByRole('button', { name: 'Confirm return data handover' })).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Back' }))
+    expect(back).toHaveBeenCalledOnce()
   }
 )
-it('reloads a return after an already-confirmed conflict instead of repeating the write', async () => {
-  let confirmed = false
-  const written = vi.fn()
+it('retries a failed return read without exposing the backend message', async () => {
+  let failed = true
   server.use(
     http.get('*/api/v1/return-requests/:id', () =>
-      HttpResponse.json({
-        success: true,
-        data: { returnRequest: { ...employeeReturn, handover: { ...employeeReturn.handover, confirmed } } }
-      })
-    ),
-    http.post('*/api/v1/return-requests/:id/handover-confirmation', () => {
-      written()
-      confirmed = true
-      return HttpResponse.json({ error: { code: 'RETURN_REQUEST.HANDOVER_ALREADY_CONFIRMED' } }, { status: 409 })
-    })
-  )
-  mount(<EmployeeLiveReturnDetail id={requestId} employeeId={employeeId} onBack={vi.fn()} />)
-  fireEvent.click(await screen.findByRole('button', { name: 'Confirm return data handover' }))
-  fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm' }))
-  expect(await screen.findByText('Data handover confirmed')).toBeInTheDocument()
-  expect(written).toHaveBeenCalledOnce()
-  await waitFor(() =>
-    expect(toast.error).toHaveBeenCalledWith(
-      'The return no longer needs this confirmation. Reload and check its current status.',
-      expect.any(Object)
-    )
-  )
-})
-it('keeps return confirmation locked and explains an unknown outcome after closing the dialog', async () => {
-  const written = vi.fn()
-  server.use(
-    http.post('*/api/v1/return-requests/:id/handover-confirmation', () => {
-      written()
-      return HttpResponse.json({}, { status: 503 })
-    })
-  )
-  mount(<EmployeeLiveReturnDetail id={requestId} employeeId={employeeId} onBack={vi.fn()} />)
-  fireEvent.click(await screen.findByRole('button', { name: 'Confirm return data handover' }))
-  fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm' }))
-  await waitFor(() => expect(toast.error).toHaveBeenCalled())
-  fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Cancel' }))
-  expect(screen.getByRole('status')).toHaveTextContent('result is uncertain')
-  expect(screen.getByRole('button', { name: 'Confirm return data handover' })).toBeDisabled()
-  fireEvent.click(screen.getByRole('button', { name: 'Confirm return data handover' }))
-  expect(written).toHaveBeenCalledOnce()
-})
-it('refreshes the session after a return-specific 403 while preserving its translated feedback', async () => {
-  const sessionReads = vi.fn()
-  server.use(
-    http.get('*/api/v1/me', () => {
-      sessionReads()
-      return HttpResponse.json({ success: true, data: employeeProfile })
-    }),
-    http.post('*/api/v1/return-requests/:id/handover-confirmation', () =>
-      HttpResponse.json({ error: { code: 'RETURN_REQUEST.NOT_REQUESTER' } }, { status: 403 })
+      failed
+        ? HttpResponse.json({ message: 'private backend detail' }, { status: 503 })
+        : HttpResponse.json({ success: true, data: { returnRequest: employeeReturn } })
     )
   )
   mount(<EmployeeLiveReturnDetail id={requestId} employeeId={employeeId} onBack={vi.fn()} />)
-  fireEvent.click(await screen.findByRole('button', { name: 'Confirm return data handover' }))
-  fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm' }))
-  await waitFor(() =>
-    expect(toast.error).toHaveBeenCalledWith(
-      'Only the person who submitted this return can confirm its data handover.',
-      expect.any(Object)
-    )
-  )
-  expect(sessionReads).toHaveBeenCalledOnce()
+  expect(await screen.findByRole('alert')).not.toHaveTextContent('private backend detail')
+  failed = false
+  fireEvent.click(screen.getByRole('button', { name: 'Try again' }))
+  await screen.findByText('Export the project files')
 })

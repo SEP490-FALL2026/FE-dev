@@ -11,17 +11,9 @@ import { getApplicationListQueryKey } from '~/shared/api/generated/operations/ap
 import { ItQueryState } from '../../shared/components/it-query-state'
 import { ItFormDialog, itButtonClass } from '../../shared/components/it-form'
 import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
-import { CatalogRetirementConfirmation } from './catalog-retirement-confirmation'
-export function CatalogRetirement({
-  id,
-  application
-}: {
-  id: string
-  application: ApplicationDetailResponseDtoData | undefined
-}) {
+export function CatalogRetirement({ id }: { id: string; application: ApplicationDetailResponseDtoData | undefined }) {
   const { t: translate } = useTranslation('itCatalog')
   const [confirmRetire, setConfirmRetire] = useState(false)
-  const [ownerConfirmation, setOwnerConfirmation] = useState(false)
   const retirement = useApplicationRetirementGet(id)
   const feedback = useItMutationFeedback([
     getApplicationListQueryKey(),
@@ -51,22 +43,6 @@ export function CatalogRetirement({
                   </dd>
                 </div>
               </dl>
-              {retirement.data.data.retirement.confirmed ? (
-                <p className='text-sm text-success-ink'>{translate('ownerReview.confirmed')}</p>
-              ) : (
-                <button
-                  type='button'
-                  className={itButtonClass}
-                  disabled={
-                    !application?.businessOwner ||
-                    retirement.isFetching ||
-                    retirement.data.data.retirement.status !== 'APPROVED'
-                  }
-                  onClick={() => setOwnerConfirmation(true)}
-                >
-                  {translate('ownerReview.confirm')}
-                </button>
-              )}
             </>
           )}
           <button
@@ -95,13 +71,6 @@ export function CatalogRetirement({
         >
           <p>{translate('retirementHint')}</p>
         </ItFormDialog>
-      )}
-      {ownerConfirmation && application?.businessOwner && (
-        <CatalogRetirementConfirmation
-          applicationId={id}
-          owner={application.businessOwner}
-          onClose={() => setOwnerConfirmation(false)}
-        />
       )}
     </>
   )
