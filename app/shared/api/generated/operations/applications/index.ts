@@ -1,7 +1,0 @@
-export * from './application-list'
-export * from './application-create'
-export * from './application-get'
-export * from './application-update'
-export * from './application-retirement-get'
-export * from './application-retire'
-export * from './application-responsibility-transfer'
