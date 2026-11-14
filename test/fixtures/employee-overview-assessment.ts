@@ -43,7 +43,6 @@ export const requestAssessment: AssessmentResponseDtoDataAssessment = {
   dataSensitivity: 'LOW',
   opinion: null,
   equivalentTool: null,
-  proposedBusinessOwner: person,
   controlLevel: 'FULL',
   controlRiskNote: 'Reviewed by IT',
   quote: {

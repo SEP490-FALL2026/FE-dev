@@ -1,11 +1,12 @@
 export const itTransfers = {
   title: 'Department transfers',
-  hint: 'Review technical work for transfers in your scope. HR records and schedules are managed by Super Admin.',
+  hint: 'Old rights stay for a 5-working-day grace period from the effective day. After it, the system opens revocation tasks for the IT Admin of the new department and closes the transfer itself.',
   back: 'Back to transfers',
   refresh: 'Refresh transfer',
   details: 'View transfer',
   all: 'All statuses',
   status: 'Status',
+  phase: 'Phase',
   employeeId: 'Employee ID',
   employeePlaceholder: 'Official employee UUID (optional)',
   from: 'From department',
@@ -13,71 +14,59 @@ export const itTransfers = {
   effectiveOn: 'Effective on',
   effectiveFrom: 'Effective from',
   effectiveTo: 'Effective to',
+  graceEndsBefore: 'Grace ends before',
+  graceEndsBeforeHint: 'Transfers whose grace period ends before this day (the day itself excluded).',
+  graceEndsOn: 'Grace period ends',
+  graceReminderOn: 'Reminder sent on',
+  graceUntil: 'Grace until {{date}}',
+  commitmentsReleased: 'Returned to the old department’s budget',
   applyFilters: 'Apply filters',
-  closed: 'Technical work closed',
-  closedAt: 'Closed on',
+  closedAt: 'Closed on {{at}}',
+  closedBySystem: 'Closed by the system on {{at}}',
+  supersededAt: 'Taken over by a departure case on {{at}}; its revocation deadline applies to the old rights',
   unknown: 'Not available',
+  oldRights: 'Old rights',
+  snapshotOn: 'Snapshot of {{date}}',
+  noOldRights: 'No old rights to revoke.',
+  regranted: 'Granted again on the same subscription; not revoked',
+  revocationTask: 'Revocation task: {{status}}',
   values: {
     PENDING: 'Scheduled',
     EFFECTIVE: 'Effective',
+    CANCELLED: 'Cancelled'
+  },
+  phases: {
+    PENDING: 'Scheduled',
+    IN_GRACE: 'In grace period',
+    REVOKING: 'Revoking old rights',
+    CLOSED: 'Closed',
     CANCELLED: 'Cancelled',
-    TRANSFER: 'Transfer',
-    OFFBOARDING: 'Offboarding',
-    OPEN: 'Open',
-    CONFIRMED: 'Confirmed',
-    DEPARTMENT_HEAD: 'Department head',
-    REQUESTER: 'Requester',
-    IT_ADMIN: 'IT Admin'
+    SUPERSEDED: 'Taken over by departure'
   },
-  close: {
-    action: 'Close transfer',
-    confirm: 'Confirm closure',
-    hint: 'Close the technical work after the transfer takes effect and every service account has a new responsible person. Closing does not record or change the HR event.',
-    pending: 'The transfer must take effect before technical work can be closed.',
-    blockedService: 'Change the responsible person for all service accounts before closing this transfer.',
-    blockedEffective: 'The transfer has not taken effect. Refresh its status before closing.',
-    uncertain: 'The result is uncertain. Close this form and refresh the transfer before trying again.'
+  phaseHints: {
+    IN_GRACE:
+      'The person keeps the old rights until the grace period ends and may request the same software again in the new department.',
+    REVOKING:
+      'Revocation tasks are open in the queue of the new department’s IT Admin. The transfer closes when the last one is completed.'
   },
-  service: {
-    title: 'Service account responsibilities',
-    hint: 'All duties for this employee are shown with server pagination. Only duties linked to this transfer can be changed here.',
-    change: 'Change responsible person',
-    save: 'Save responsibility change',
-    employee: 'New responsible employee ID',
-    placeholder: 'Select a colleague or enter their official employee UUID',
-    employeeHint: 'Choose an active colleague in the account’s owning department. The server checks eligibility.',
-    sameEmployee: 'Choose a different responsible person.',
-    effectiveDate: 'Effective date',
-    endDate: 'Expected end date',
-    endHint: 'An expected end date is required for contractors, freelancers and interns.',
-    dueOn: 'Due on',
-    overdue: 'Overdue',
-    otherFile: 'Belongs to another HR file',
-    uncertain: 'The result is uncertain. Close this form and refresh responsibilities before trying again.'
+  rightStates: {
+    HELD: 'Still held',
+    REVOKING: 'Being revoked',
+    ENDED: 'Ended'
   },
-  handover: {
-    title: 'Employee data handovers',
-    hint: 'All handover duties for this employee are shown. Confirm only transfer-review duties assigned to IT; the department head handles their own confirmations.',
-    review: 'Review handover',
-    confirm: 'Confirm handled',
-    confirmHint:
-      'Confirm the required data handover has been handled. This confirmation does not start or complete access revocation.',
-    notAllowed: 'This handover is read-only for you or is no longer open.',
-    uncertain: 'The result is uncertain. Close this form and refresh handovers before trying again.',
-    sources: {
-      RETURN: 'Return request',
-      MANAGER_NOT_NEEDED: 'Manager review',
-      TRANSFER_REVIEW: 'Transfer review',
-      GHOST_SEAT: 'Inactive seat',
-      DEPARTURE: 'Departure',
-      ABRUPT_DEPARTURE: 'Abrupt departure',
-      TIME_LIMITED_EXPIRY: 'Time-limited access',
-      SUBSCRIPTION_REDUCTION: 'Subscription reduction',
-      SUBSCRIPTION_CANCELLATION: 'Subscription cancellation',
-      SUBSCRIPTION_EXPIRED: 'Subscription expiry',
-      NOT_LEGALIZED: 'Unapproved access',
-      RE_EXECUTION: 'Re-execution',
-      POST_SETUP_REVIEW: 'Post-setup review'
-    }
+  outcomes: {
+    REVOKED: 'Revoked',
+    ENDED: 'Ended',
+    REGRANTED: 'Granted again',
+    TAKEN_OVER: 'Taken over by the new grant'
+  },
+  taskStates: {
+    QUEUED: 'Queued',
+    IN_PROGRESS: 'In progress',
+    RETRY_SCHEDULED: 'Retry scheduled',
+    FAILED: 'Failed',
+    COMPLETED: 'Completed',
+    CANCELLED: 'Cancelled',
+    CLOSED_FAILED: 'Closed after failure'
   }
 } as const

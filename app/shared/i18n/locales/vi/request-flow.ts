@@ -1,4 +1,6 @@
+import { requestPersonnel } from './request-personnel'
 export const requestFlow = {
+  ...requestPersonnel,
   reload: 'Tải lại yêu cầu',
   retryAfter: 'Thử lại sau {{seconds}} giây',
   VIA_HEAD: 'Duyệt nhu cầu và duyệt chi',

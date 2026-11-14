@@ -87,3 +87,27 @@ it('shows one-step routing and blocking reasons without exposing budget amounts 
   expect(screen.getByText('Exceeds the available reserve')).toBeInTheDocument()
   expect(screen.queryByText(/123456789/)).not.toBeInTheDocument()
 })
+
+it('explains a system cancellation with a null actor and the department-head wait', () => {
+  render(
+    <RequestFlowSummary
+      request={{
+        ...accessRequest,
+        needStep: { ...accessRequest.needStep, assignee: null, waitingReason: 'NO_DEPARTMENT_HEAD' },
+        limitExemption: 'TRANSFER_GRACE',
+        cancellation: {
+          cause: 'SYSTEM_BENEFICIARY_TRANSFERRED',
+          cancelledBy: null,
+          cancelledAt: '2026-11-14T10:00:00Z',
+          note: null
+        }
+      }}
+    />
+  )
+  expect(screen.getByText('System')).toBeInTheDocument()
+  expect(
+    screen.getByText('Cancelled automatically because the beneficiary transferred to another department.')
+  ).toBeInTheDocument()
+  expect(screen.getByText(/Waiting for a department head/)).toBeInTheDocument()
+  expect(screen.getByText('Requesting again during your transfer grace period')).toBeInTheDocument()
+})

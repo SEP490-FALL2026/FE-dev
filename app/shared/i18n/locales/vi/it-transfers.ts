@@ -1,11 +1,12 @@
 export const itTransfers = {
   title: 'Điều chuyển phòng ban',
-  hint: 'Xử lý công việc kỹ thuật cho các điều chuyển trong phạm vi phụ trách. Super Admin quản lý sự kiện và lịch nhân sự.',
+  hint: 'Quyền cũ được giữ trong ân hạn 5 ngày làm việc kể từ ngày hiệu lực. Hết ân hạn, hệ thống mở tác vụ thu hồi cho IT Admin phụ trách phòng mới và tự đóng điều chuyển.',
   back: 'Về danh sách điều chuyển',
   refresh: 'Làm mới điều chuyển',
   details: 'Xem điều chuyển',
   all: 'Tất cả trạng thái',
   status: 'Trạng thái',
+  phase: 'Giai đoạn',
   employeeId: 'Mã định danh nhân viên',
   employeePlaceholder: 'UUID nhân viên chính thức (không bắt buộc)',
   from: 'Phòng ban cũ',
@@ -13,71 +14,58 @@ export const itTransfers = {
   effectiveOn: 'Ngày hiệu lực',
   effectiveFrom: 'Hiệu lực từ ngày',
   effectiveTo: 'Hiệu lực đến ngày',
+  graceEndsBefore: 'Ân hạn kết thúc trước',
+  graceEndsBeforeHint: 'Điều chuyển có ân hạn kết thúc trước ngày này (không tính ngày đó).',
+  graceEndsOn: 'Ngày cuối ân hạn',
+  graceReminderOn: 'Ngày nhắc',
+  graceUntil: 'Ân hạn tới {{date}}',
+  commitmentsReleased: 'Đã trả về ngân sách phòng cũ',
   applyFilters: 'Áp dụng bộ lọc',
-  closed: 'Đã đóng công việc kỹ thuật',
-  closedAt: 'Ngày đóng',
+  closedAt: 'Đã đóng lúc {{at}}',
+  closedBySystem: 'Hệ thống đã đóng lúc {{at}}',
+  supersededAt: 'Hồ sơ nghỉ việc đã tiếp quản lúc {{at}}; hạn thu hồi của hồ sơ đó áp lên quyền cũ',
   unknown: 'Chưa có dữ liệu',
+  oldRights: 'Quyền cũ',
+  snapshotOn: 'Ảnh quyền ngày {{date}}',
+  noOldRights: 'Không có quyền cũ cần thu hồi.',
+  regranted: 'Đã cấp lại trên cùng thuê bao; không thu hồi',
+  revocationTask: 'Tác vụ thu hồi: {{status}}',
   values: {
     PENDING: 'Đã lên lịch',
     EFFECTIVE: 'Đã có hiệu lực',
+    CANCELLED: 'Đã hủy'
+  },
+  phases: {
+    PENDING: 'Chờ tới ngày',
+    IN_GRACE: 'Đang trong ân hạn',
+    REVOKING: 'Đang thu hồi quyền cũ',
+    CLOSED: 'Đã đóng',
     CANCELLED: 'Đã hủy',
-    TRANSFER: 'Điều chuyển',
-    OFFBOARDING: 'Nghỉ việc',
-    OPEN: 'Đang mở',
-    CONFIRMED: 'Đã xác nhận',
-    DEPARTMENT_HEAD: 'Trưởng phòng',
-    REQUESTER: 'Người yêu cầu',
-    IT_ADMIN: 'IT Admin'
+    SUPERSEDED: 'Nghỉ việc đã tiếp quản'
   },
-  close: {
-    action: 'Đóng điều chuyển',
-    confirm: 'Xác nhận đóng',
-    hint: 'Đóng công việc kỹ thuật sau khi điều chuyển có hiệu lực và mọi tài khoản dịch vụ đã có người phụ trách mới. Việc đóng không ghi hay thay đổi sự kiện nhân sự.',
-    pending: 'Điều chuyển phải có hiệu lực trước khi đóng công việc kỹ thuật.',
-    blockedService: 'Đổi người phụ trách cho toàn bộ tài khoản dịch vụ trước khi đóng điều chuyển.',
-    blockedEffective: 'Điều chuyển chưa có hiệu lực. Làm mới trạng thái trước khi đóng.',
-    uncertain: 'Chưa rõ kết quả. Đóng biểu mẫu và làm mới điều chuyển trước khi thử lại.'
+  phaseHints: {
+    IN_GRACE: 'Người chuyển giữ quyền cũ tới hết ân hạn và có thể xin lại cùng phần mềm ở phòng mới.',
+    REVOKING:
+      'Tác vụ thu hồi đang nằm trong hàng đợi của IT Admin phụ trách phòng mới. Điều chuyển đóng khi tác vụ cuối hoàn tất.'
   },
-  service: {
-    title: 'Trách nhiệm tài khoản dịch vụ',
-    hint: 'Hiển thị mọi công việc của nhân viên theo phân trang máy chủ. Chỉ thay đổi được công việc gắn với điều chuyển này.',
-    change: 'Đổi người phụ trách',
-    save: 'Lưu thay đổi người phụ trách',
-    employee: 'Mã định danh người phụ trách mới',
-    placeholder: 'Chọn đồng nghiệp hoặc nhập UUID nhân viên chính thức',
-    employeeHint: 'Chọn đồng nghiệp đang làm việc tại phòng sở hữu tài khoản. Máy chủ kiểm tra điều kiện.',
-    sameEmployee: 'Chọn người phụ trách khác.',
-    effectiveDate: 'Ngày hiệu lực thay đổi',
-    endDate: 'Ngày kết thúc dự kiến',
-    endHint: 'Nhà thầu, freelancer và thực tập sinh bắt buộc có ngày kết thúc dự kiến.',
-    dueOn: 'Hạn xử lý',
-    overdue: 'Quá hạn',
-    otherFile: 'Thuộc hồ sơ nhân sự khác',
-    uncertain: 'Chưa rõ kết quả. Đóng biểu mẫu và làm mới trách nhiệm tài khoản trước khi thử lại.'
+  rightStates: {
+    HELD: 'Còn giữ',
+    REVOKING: 'Đang thu hồi',
+    ENDED: 'Đã kết thúc'
   },
-  handover: {
-    title: 'Bàn giao dữ liệu của nhân viên',
-    hint: 'Hiển thị mọi công việc bàn giao của nhân viên. Chỉ xác nhận việc rà soát điều chuyển giao cho IT; trưởng phòng tự xác nhận phần của mình.',
-    review: 'Xem bàn giao',
-    confirm: 'Xác nhận đã xử lý',
-    confirmHint:
-      'Xác nhận đã xử lý yêu cầu bàn giao dữ liệu. Xác nhận này không bắt đầu hay hoàn tất thu hồi quyền truy cập.',
-    notAllowed: 'Bạn chỉ được xem việc bàn giao này hoặc công việc không còn mở.',
-    uncertain: 'Chưa rõ kết quả. Đóng biểu mẫu và làm mới bàn giao trước khi thử lại.',
-    sources: {
-      RETURN: 'Yêu cầu hoàn trả',
-      MANAGER_NOT_NEEDED: 'Rà soát của trưởng phòng',
-      TRANSFER_REVIEW: 'Rà soát điều chuyển',
-      GHOST_SEAT: 'Ghế không hoạt động',
-      DEPARTURE: 'Nghỉ việc',
-      ABRUPT_DEPARTURE: 'Nghỉ việc đột xuất',
-      TIME_LIMITED_EXPIRY: 'Quyền có thời hạn',
-      SUBSCRIPTION_REDUCTION: 'Giảm thuê bao',
-      SUBSCRIPTION_CANCELLATION: 'Hủy thuê bao',
-      SUBSCRIPTION_EXPIRED: 'Thuê bao hết hạn',
-      NOT_LEGALIZED: 'Quyền chưa được hợp thức hóa',
-      RE_EXECUTION: 'Thực hiện lại',
-      POST_SETUP_REVIEW: 'Rà soát sau thiết lập'
-    }
+  outcomes: {
+    REVOKED: 'Đã thu hồi',
+    ENDED: 'Đã kết thúc',
+    REGRANTED: 'Đã cấp lại',
+    TAKEN_OVER: 'Quyền mới đã thay thế'
+  },
+  taskStates: {
+    QUEUED: 'Đang chờ',
+    IN_PROGRESS: 'Đang làm',
+    RETRY_SCHEDULED: 'Đã hẹn thử lại',
+    FAILED: 'Thất bại',
+    COMPLETED: 'Hoàn tất',
+    CANCELLED: 'Đã hủy',
+    CLOSED_FAILED: 'Đã đóng sau lỗi'
   }
 } as const

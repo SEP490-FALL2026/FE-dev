@@ -112,6 +112,27 @@
   confirmHint: 'Confirm only after performing the required work. Evidence must describe the verified result.',
   cancelHint: 'Cancel only when the linked request has been withdrawn. The server checks this prerequisite.',
   completion: 'Revocation result',
+  k1Checklist: {
+    title: 'K1 revocation checklist',
+    variants: {
+      DEPARTURE: 'Departure checklist',
+      STILL_EMPLOYED: 'Checklist for an employee who still works here'
+    },
+    hint: 'This system does not control Google or Microsoft 365. Do each step there, then tick it here with the time it was actually done.',
+    doneAt: 'Time done: {{step}}',
+    steps: {
+      MAILBOX_PASSWORD_RESET: 'Reset the mailbox password (mailbox stays open)',
+      SOFTWARE_FORGOT_PASSWORD: 'Use “Forgot password” on the software',
+      SESSIONS_SIGNED_OUT: 'Sign out all sessions',
+      RENEWAL_DISABLED: 'Turn off renewal',
+      EVIDENCE_RECORDED: 'Record the evidence',
+      MAILBOX_LOCKED: 'Lock the mailbox'
+    },
+    problems: {
+      incomplete: 'Tick every step and give the time it was done.',
+      order: 'Each step must be done at or after the time of the step before it.'
+    }
+  },
   note: 'Note',
   paidThroughOn: 'Paid through',
   accessState: 'Access after cancellation',

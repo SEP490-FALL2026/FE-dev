@@ -1,4 +1,5 @@
 export const MANAGER_TAB_KEYS = [
+  'personal-request',
   'overview',
   'my-team',
   'employee-detail',
@@ -15,9 +16,7 @@ export const MANAGER_TAB_KEYS = [
   'ghost-seat-review',
   'ghost-seat-detail',
   'access-review',
-  'transfer-reviews',
   'personnel-notices',
-  'handovers',
   'notifications',
   'profile'
 ] as const

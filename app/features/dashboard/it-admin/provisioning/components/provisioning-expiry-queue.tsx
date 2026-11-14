@@ -16,7 +16,6 @@ import { ItEmpty, ItQueryState } from '../../shared/components/it-query-state'
 import { ItPagination } from '../../shared/components/it-pagination'
 import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
 import { ExpiryStatus } from '../enums/expiry-status'
-import { ExpiryHandover } from './expiry-handover'
 
 export function ProvisioningExpiryQueue({ onOpenTask }: { onOpenTask: (id: string) => void }) {
   const { t: translate } = useTranslation('itProvisioning')
@@ -87,7 +86,6 @@ export function ProvisioningExpiryQueue({ onOpenTask }: { onOpenTask: (id: strin
                     {translate('overdueDays', { count: item.daysOverdue })}
                   </p>
                   {item.debt && <p className='text-sm text-warning'>{translate('withDebt')}</p>}
-                  {item.handover && <ExpiryHandover handover={item.handover} />}
                 </div>
                 {item.revocation ? (
                   <button className={itButtonClass} onClick={() => onOpenTask(item.revocation!.taskId)}>

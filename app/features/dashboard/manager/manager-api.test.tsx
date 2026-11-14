@@ -213,6 +213,42 @@ describe('Manager need approval and spend submission', () => {
     expect(await screen.findByRole('alert')).toBeInTheDocument()
     expect(calls).toEqual([])
   })
+  it.each(['personal-request', 'request-approval'] as const)(
+    'keeps %s available to a Manager before their head assignment starts',
+    async (tab) => {
+      const privileged = vi.fn()
+      server.use(
+        http.get('*/api/v1/me', () =>
+          HttpResponse.json({
+            success: true,
+            data: {
+              ...managerProfile,
+              managerScope: null,
+              upcomingUnits: [
+                {
+                  departmentId: planId,
+                  departmentCode: 'OPS',
+                  departmentName: 'Operations',
+                  effectiveFrom: '2026-12-01',
+                  costCenterId: null
+                }
+              ]
+            }
+          })
+        ),
+        http.get('*/api/v1/departments/:id', () => {
+          privileged()
+          return HttpResponse.json({}, { status: 403 })
+        })
+      )
+      serveRequest()
+      mount(<ManagerScreen tab={tab} onSelectTab={vi.fn()} />, `/?planId=${planId}&id=${requestId}`)
+      if (tab === 'personal-request') await screen.findByRole('heading', { name: 'Request software for myself' })
+      else await screen.findByRole('heading', { name: 'Test Software', level: 1 })
+      expect(privileged).not.toHaveBeenCalled()
+      expect(screen.queryByText('You do not have permission to perform this action.')).not.toBeInTheDocument()
+    }
+  )
   it('creates group requests with official IDs and no fixture fields', async () => {
     const written = vi.fn()
     server.use(

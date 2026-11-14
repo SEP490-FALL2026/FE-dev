@@ -22,6 +22,7 @@ import { useEmployeeFeedback } from '../../shared/hooks/use-employee-feedback'
 import { DRAFT_KIND } from '../../shared/enums/draft-kind'
 import { getMeSoftwareRightListQueryKey } from '~/shared/api/generated/operations/me/me-software-right-list'
 import axios from 'axios'
+import { getMeDepartmentTransferGetQueryKey } from '~/shared/api/generated/operations/me/me-department-transfer-get'
 
 export type RequestMode = 'individual' | 'group' | 'proposal' | 'renewal' | 'return'
 export type GroupSelection = {
@@ -79,7 +80,8 @@ export function useLiveRequestForm(
     getAccessRequestDraftListQueryKey(),
     getReturnRequestListQueryKey(),
     getMeSoftwareRightListQueryKey(),
-    getMeAccessRequestListQueryKey()
+    getMeAccessRequestListQueryKey(),
+    getMeDepartmentTransferGetQueryKey()
   ])
   const groupPayload = (fields: Fields): GroupBodyDto => ({
     planId: fields.planId,

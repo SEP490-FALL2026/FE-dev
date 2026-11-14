@@ -64,8 +64,9 @@ it('filters offboarding by current state and offers departed employees separatel
 it.each<[EmployeeEventKind, string]>([
   ['offboarding', '/api/v1/offboarding-cases'],
   ['transfer', '/api/v1/department-transfers']
-])('submits %s for the fixed employee', async (kind, endpoint) => {
+])('previews then submits %s for the fixed employee with the same body', async (kind, endpoint) => {
   let received: unknown
+  let previewed: unknown
   const departmentId = '22222222-2222-4222-8222-222222222222'
   server.use(
     http.get('*/api/v1/departments', () =>
@@ -86,6 +87,35 @@ it.each<[EmployeeEventKind, string]>([
         }
       })
     ),
+    http.post(`*${endpoint}/preview`, async ({ request }) => {
+      previewed = await request.json()
+      return HttpResponse.json({
+        success: true,
+        data: {
+          rightsToRevoke: [
+            {
+              assignmentId: 'assignment-1',
+              application: { id: 'app-1', name: 'Jira' },
+              plan: { id: 'plan-1', name: 'Standard' },
+              provisioningType: 'K2',
+              revocable: true,
+              dataLossOnRemoval: false,
+              revocationNote: null,
+              revocationUnderWay: false
+            }
+          ],
+          openRequestsToCancel: [{ requestId: 'request-1', type: 'PAID', state: 'PENDING', line: false }],
+          provisioningInFlight: [],
+          commitmentToRelease: [],
+          responsibilities: { subscriptions: 0, applications: 0 },
+          vendorAdminRoles: [],
+          headSuccessorRequired: false,
+          ...(kind === 'transfer'
+            ? { graceEndsOn: '2026-12-05', graceReminderOn: '2026-12-03' }
+            : { revocationDueOn: '2026-12-02' })
+        }
+      })
+    }),
     http.post(`*${endpoint}`, async ({ request }) => {
       received = await request.json()
       return HttpResponse.json({ success: false, error: { code: 'VALIDATION_ERROR' } }, { status: 422 })
@@ -111,7 +141,12 @@ it.each<[EmployeeEventKind, string]>([
     fireEvent.change(screen.getByLabelText('Last working day'), { target: { value: '2026-12-01' } })
   }
   fireEvent.change(screen.getByLabelText('Authoritative basis'), { target: { value: 'Decision 123' } })
-  fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Preview impact' }))
+  expect(await screen.findByText('Impact if recorded')).toBeInTheDocument()
+  expect(screen.getByText('Rights to revoke: 1')).toBeInTheDocument()
+  expect(screen.getByText(kind === 'transfer' ? 'Grace period ends' : 'Revocation due')).toBeInTheDocument()
+  expect(received).toBeUndefined()
+  fireEvent.click(screen.getByRole('button', { name: 'Confirm and record' }))
   await waitFor(() =>
     expect(received).toMatchObject({
       employeeId,
@@ -121,6 +156,7 @@ it.each<[EmployeeEventKind, string]>([
         : { lastWorkingDay: '2026-12-01', accessBlockMode: 'WITH_LAST_DAY' })
     })
   )
+  expect(received).toStrictEqual(previewed)
 })
 
 it('records leave for the employee whose profile is open', async () => {

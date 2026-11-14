@@ -1,6 +1,9 @@
 import axios from 'axios'
 
 const requestErrors = {
+  'DEPARTMENT_SOFTWARE.PROPOSAL_ALREADY_OPEN': 'departmentSoftware.duplicate',
+  'DEPARTMENT_SOFTWARE.ALREADY_LISTED': 'departmentSoftware.alreadyListed',
+  'DEPARTMENT_SOFTWARE.NOT_IN_CATALOG': 'departmentSoftware.notInCatalog',
   'ACCESS_REQUEST.OPEN_REQUEST_EXISTS': 'HAS_OPEN_REQUEST',
   'ACCESS_REQUEST.OPEN_LIMIT_REACHED': 'OPEN_LIMIT_REACHED',
   'ACCESS_REQUEST.MANY_PAID_SOFTWARE_REASON_REQUIRED': 'requestGuard',

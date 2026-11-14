@@ -10,7 +10,7 @@ import { ManagerGroupConfirmation } from '../components/manager-group-confirmati
 import { useManagerAction } from '../../shared/hooks/use-manager-action'
 import { ManagerPeoplePicker } from '../../shared/components/manager-people-picker'
 import type { ManagerChoice } from '../../shared/components/manager-choice-select'
-import { ManagerCatalogPicker, type ManagerCatalogPlan } from '../components/manager-catalog-picker'
+import { ManagerCatalogPicker, type ManagerCatalogPlan } from '../../shared/components/manager-catalog-picker'
 import { ManagerRequestSummary } from '../components/manager-request-summary'
 import {
   ManagerActionState,

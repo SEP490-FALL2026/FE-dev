@@ -1,28 +1,25 @@
 ﻿export const itOffboarding = {
   unknown: 'Không có thông tin',
-  duties: {
-    serviceTitle: 'Trách nhiệm tài khoản dịch vụ',
-    handoverTitle: 'Việc bàn giao dữ liệu',
-    transfer: 'Chuyển người phụ trách',
-    successor: 'ID nhân viên tiếp nhận',
-    successorHint:
-      'Nhập UUID của nhân viên đang làm việc thuộc phòng sở hữu tài khoản, không phải ID tài khoản đăng nhập. Máy chủ kiểm tra điều kiện tiếp nhận.',
-    effectiveFrom: 'Có hiệu lực từ',
-    expectedEndDate: 'Ngày kết thúc dự kiến (tùy chọn)',
-    endHint: 'Cần ngày kết thúc dự kiến nếu người tiếp nhận là nhà thầu, freelancer hoặc thực tập sinh.',
-    sameEmployee: 'Chọn nhân viên khác.',
-    handoverHint:
-      'IT chỉ xác nhận việc được giao cho IT. Trưởng phòng và người yêu cầu tự xác nhận việc của họ; IT không xác nhận thay.',
-    confirm: 'Ghi nhận bàn giao của IT',
-    confirmHint:
-      'Chỉ xác nhận sau khi hoàn thành xử lý dữ liệu cần thiết. Thao tác ghi nhận đã xử lý, không thu hồi quyền truy cập.',
-    notConfirmer: 'Bạn không còn có thể xác nhận việc này.',
-    roles: { IT_ADMIN: 'Quản trị CNTT', DEPARTMENT_HEAD: 'Trưởng phòng', REQUESTER: 'Người yêu cầu' },
-    states: { OPEN: 'Đang mở', CONFIRMED: 'Đã xác nhận', CANCELLED: 'Đã hủy' }
-  },
   title: 'Hồ sơ nghỉ việc',
-  blockerSummary:
-    'Còn {{count}} nhóm điều kiện chưa hoàn tất. Kiểm tra checklist, quyền đang giữ và công việc đang mở bên dưới.',
+  revocationDue: 'Hạn thu hồi',
+  rightsWithoutCompletedTask: 'Quyền chưa thu hồi xong',
+  revocationOverdue:
+    'Đã quá hạn thu hồi. IT phụ trách và Super Admin được nhắc mỗi ngày làm việc tới khi mọi quyền có tác vụ thu hồi hoàn tất.',
+  revocationDueOn: 'Hạn thu hồi: {{date}}',
+  revocationOverdueOn: 'Quá hạn thu hồi từ {{date}}',
+  overdueFilter: 'Quá hạn thu hồi',
+  lock1a: '1a. Chặn tài khoản công ty (đặt lại mật khẩu hộp thư, đăng xuất mọi phiên)',
+  lock1b: '1b. Khóa hẳn hộp thư',
+  bySystem: 'Hệ thống ghi theo checklist thu hồi K1 cuối cùng',
+  closedBySystem: 'Hệ thống đã đóng hồ sơ lúc {{at}}',
+  closedAt: 'Đã đóng hồ sơ lúc {{at}}',
+  closureWaiting: 'Hệ thống tự đóng hồ sơ khi không còn mục nào dưới đây.',
+  closureSweep: 'Không còn mục nào. Hệ thống sẽ đóng hồ sơ ở lượt kiểm tra hằng giờ kế tiếp.',
+  blockers: {
+    ACCOUNT_LOCK_NOT_RECORDED: 'Chưa ghi chặn tài khoản công ty (1a)',
+    MAILBOX_LOCK_NOT_RECORDED: 'Chưa ghi khóa hộp thư (1b)',
+    PERSONAL_RIGHTS_OPEN: '{{count}} quyền cá nhân chưa có tác vụ thu hồi hoàn tất'
+  },
   filter: 'Lọc trạng thái',
   all: 'Tất cả',
   back: 'Về danh sách',
@@ -35,48 +32,40 @@
   checklist: 'Điều kiện đóng hồ sơ',
   noChecklist: 'Chưa có danh sách kiểm tra',
   blocker: '{{code}}: {{count}}',
-  recordedLock: 'Bằng chứng khóa tài khoản',
   rights: 'Quyền cá nhân',
   openRequests: 'Yêu cầu còn mở',
   openGrants: 'Tác vụ cấp quyền còn mở',
   provisioning: 'Mở hàng đợi cấp phát',
-  noPermission: 'Chỉ IT Admin được ghi bằng chứng hoặc đóng hồ sơ này.',
+  noPermission: 'Chỉ IT Admin được ghi bằng chứng hoặc mở thu hồi cho hồ sơ này.',
   note: 'Bằng chứng / lý do',
   cancellationReason: 'Lý do',
   cancellationEvidence: 'Bằng chứng hoàn tác / thu lại lời mời (tùy chọn)',
   rightContext: {
-    confirmer: 'Người xác nhận bàn giao',
-    dueOn: 'Hạn xác nhận bàn giao: {{date}}',
-    accessRunsOnUntil: 'Quyền truy cập tiếp tục đến: {{date}}',
-    overdue: 'Đã quá hạn xác nhận bàn giao',
-    flaggedUnconfirmed: 'Đã tiếp tục thu hồi khi chưa có xác nhận bàn giao',
-    viewHandover: 'Xem việc bàn giao',
-    waitingReasons: { NO_HEAD: 'Đang chờ trưởng phòng', NO_SUCCESSOR: 'Đang chờ người kế nhiệm' }
+    accessRunsOnUntil: 'Quyền truy cập tiếp tục đến: {{date}}'
   },
   confirm: 'Xác nhận',
   saved: 'Đã ghi nhận thao tác',
   failed: 'Thao tác thất bại. Tải lại hồ sơ rồi thử lại.',
-  handover: 'Bàn giao dữ liệu',
   revocation: 'Tác vụ thu hồi',
   dataLoss: 'Thu hồi quyền có thể làm mất dữ liệu.',
   actions: {
+    mailbox: 'Ghi khóa hộp thư (1b)',
     lock: 'Ghi nhận khóa tài khoản',
     revoke: 'Mở thu hồi các quyền đã chọn',
-    close: 'Đóng hồ sơ',
     cancel: 'Hủy yêu cầu do nghỉ việc',
     closeLine: 'Đóng dòng của nhân viên nghỉ việc'
   },
   hints: {
+    mailbox:
+      'Thường hệ thống tự ghi khi tác vụ thu hồi K1 cuối tick bước khóa hộp thư. Chỉ ghi tay khi người này không còn ghế K1, sau mục 1a.',
     lock: 'Chỉ ghi bằng chứng sau khi đã khóa tài khoản công ty bên ngoài hệ thống. Thao tác này không khóa tài khoản.',
     revoke: 'Tạo tác vụ thu hồi cho các quyền đã chọn. Quyền chỉ được gỡ khi IT hoàn tất từng tác vụ.',
-    close: 'Đóng hồ sơ sau khi giải quyết toàn bộ điều kiện và mục kiểm tra từ hệ thống.',
     cancel: 'Đóng yêu cầu hoặc dòng nhóm còn mở của nhân viên nghỉ việc. Hệ thống kiểm tra điều kiện thực hiện.',
     closeLine: 'Yêu cầu của các thành viên khác vẫn tiếp tục. Chỉ đóng dòng của nhân viên nghỉ việc.',
     cancellationEvidence:
       'Nếu đã bắt đầu cấp quyền, ghi kết quả kiểm tra nhà cung cấp và cách hoàn tác hoặc thu lại lời mời. Hệ thống quyết định khi nào bắt buộc có bằng chứng. Không nhập mật khẩu hoặc khóa.'
   },
   steps: {
-    dataHandover: 'Bàn giao dữ liệu',
     accountLock: 'Khóa tài khoản công ty',
     revokeAccess: 'Thu hồi quyền',
     seatsReleased: 'Giải phóng ghế'

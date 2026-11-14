@@ -19,7 +19,6 @@ import {
 } from '../../../../test/fixtures/employee-api'
 import { ManagerBudgetForm } from './annual-budget/views/manager-budget-form'
 import { ManagerNoticeForm } from './personnel-notices/components/manager-notice-form'
-import { ManagerTransferReviews } from './access-review/views/manager-transfer-reviews'
 import { ManagerLiveTeam } from './team/views/manager-live-team'
 import { ManagerLiveCreate } from './team-requests/views/manager-live-create'
 import { ManagerGroupDecisions } from './team-requests/components/manager-group-decisions'
@@ -235,44 +234,6 @@ describe('Manager budget, group and personnel contracts', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm' }))
     await waitFor(() => expect(written).toHaveBeenCalledWith({ lines: [{ employeeId, decision: 'APPROVE' }] }))
-  })
-  it('requires the server canDecide permission for transfer decisions and sends assignment IDs', async () => {
-    const written = vi.fn()
-    const review = {
-      id: requestId,
-      employee: { id: employeeId, employeeCode: 'EMP-1', fullName: 'Transferred employee' },
-      status: 'OPEN',
-      dueOn: '2026-11-05',
-      canDecide: true
-    }
-    server.use(
-      http.get('*/api/v1/transfer-reviews', () => HttpResponse.json(pageResponse([review]))),
-      http.get('*/api/v1/transfer-reviews/:id', () => HttpResponse.json({ success: true, data: review })),
-      http.get('*/api/v1/transfer-reviews/:id/items', () =>
-        HttpResponse.json(
-          pageResponse([
-            {
-              assignmentId,
-              application: { name: 'Test Tool' },
-              plan: { name: 'Standard' },
-              decision: 'PENDING',
-              needsNewRequest: false
-            }
-          ])
-        )
-      ),
-      http.post('*/api/v1/transfer-reviews/:id/decisions', async ({ request }) => {
-        written(await request.json())
-        return HttpResponse.json({ success: true, data: { review } })
-      })
-    )
-    mount(<ManagerTransferReviews />, `/?reviewId=${requestId}`)
-    fireEvent.click(await screen.findByRole('button', { name: 'Decision' }))
-    fireEvent.change(screen.getByLabelText('Reason'), { target: { value: 'No longer needed' } })
-    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm' }))
-    await waitFor(() =>
-      expect(written).toHaveBeenCalledWith({ assignmentId, decision: 'NOT_NEEDED', reason: 'No longer needed' })
-    )
   })
   it('preserves fields and shows retry countdown for rate limits', async () => {
     server.use(

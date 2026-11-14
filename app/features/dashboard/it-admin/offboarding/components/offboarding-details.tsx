@@ -1,18 +1,20 @@
-﻿import { OffboardingServiceDuties } from './offboarding-service-duties'
-import { OffboardingHandoverDuties } from './offboarding-handover-duties'
 import { OffboardingRightContext } from './offboarding-right-context'
 import { useState } from 'react'
-import { useDashboardFormat } from '../../../dashboard-ui'
 import { useTranslation } from 'react-i18next'
 import { useMeGet } from '~/shared/api/generated/operations/me/me-get'
-import { useOffboardingCaseGet } from '~/shared/api/generated/operations/offboarding-cases/offboarding-case-get'
+import {
+  getOffboardingCaseGetQueryKey,
+  useOffboardingCaseGet
+} from '~/shared/api/generated/operations/offboarding-cases/offboarding-case-get'
+import { getOffboardingCaseListQueryKey } from '~/shared/api/generated/operations/offboarding-cases/offboarding-case-list'
+import { ItHandoverPanel } from '../../shared/components/it-handover-panel'
+import { OffboardingCaseStatus } from './offboarding-case-status'
 import { useOffboardingCaseRightList } from '~/shared/api/generated/operations/offboarding-cases/offboarding-case-right-list'
 import { useOffboardingCaseOpenRequestList } from '~/shared/api/generated/operations/offboarding-cases/offboarding-case-open-request-list'
 import { useOffboardingCaseOpenGrantTaskList } from '~/shared/api/generated/operations/offboarding-cases/offboarding-case-open-grant-task-list'
 import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { ItPagination } from '../../shared/components/it-pagination'
 import { itButtonClass, itPrimaryClass } from '../../shared/components/it-form'
-import { canCloseOffboarding } from '../hooks/offboarding-gates'
 import { OffboardingActionDialog, type OffboardingAction } from './offboarding-action-dialog'
 import type { ItAdminTabKey } from '../../it-admin-nav'
 import { OffboardingState } from '../enums/offboarding-state'
@@ -27,7 +29,6 @@ export function OffboardingDetails({
   onSelectTab?: (tab: ItAdminTabKey) => void
 }) {
   const { t: translate } = useTranslation('itOffboarding')
-  const { formatDate } = useDashboardFormat()
   const [page, setPage] = useState(1)
   const [requestPage, setRequestPage] = useState(1)
   const [grantPage, setGrantPage] = useState(1)
@@ -67,60 +68,21 @@ export function OffboardingDetails({
                 {translate('refresh')}
               </button>
             </div>
-            <dl className='grid gap-3 rounded-lg border border-border bg-surface p-4 sm:grid-cols-2'>
-              <div>
-                <dt className='text-sm text-muted-foreground'>{translate('lastDay')}</dt>
-                <dd className='text-right font-mono tabular-nums'>{formatDate(item.lastWorkingDay)}</dd>
-              </div>
-              <div>
-                <dt className='text-sm text-muted-foreground'>{translate('heldRights')}</dt>
-                <dd className='text-right font-mono tabular-nums'>{item.heldRights}</dd>
-              </div>
-            </dl>
-            <section className='space-y-3 rounded-lg border border-border bg-surface p-4'>
-              <h3 className='font-semibold [text-wrap:balance]'>{translate('checklist')}</h3>
-              {Object.entries(item.checklist ?? {}).map(([key, step]) => (
-                <div key={key} className='flex justify-between gap-3 text-sm'>
-                  <span>{translate(`steps.${key}`, { defaultValue: translate('states.UNKNOWN') })}</span>
-                  <span>{translate(`states.${step.state}`, { defaultValue: translate('states.UNKNOWN') })}</span>
-                </div>
-              ))}
-              {!item.checklist && <p className='text-sm text-muted-foreground'>{translate('noChecklist')}</p>}
-              {Object.values(item.blockers).some((count) => count > 0) && (
-                <p className='text-sm text-danger'>
-                  {translate('blockerSummary', {
-                    count: Object.values(item.blockers).filter((count) => count > 0).length
-                  })}
-                </p>
-              )}
-              {item.accountLock ? (
-                <p className='break-words text-sm'>
-                  {translate('recordedLock')}: {item.accountLock.note}
-                </p>
-              ) : (
-                <p className='text-sm text-muted-foreground'>{translate('hints.lock')}</p>
-              )}
-              {item.closed ? (
-                <p>{translate('closed')}</p>
-              ) : (
-                <div className='flex flex-wrap gap-2'>
-                  <button
-                    disabled={!active || Boolean(item.accountLock)}
-                    className={itButtonClass}
-                    onClick={() => setAction({ kind: 'lock', caseId: id })}
-                  >
-                    {translate('actions.lock')}
-                  </button>
-                  <button
-                    disabled={!active || !canCloseOffboarding(item)}
-                    className={itButtonClass}
-                    onClick={() => setAction({ kind: 'close', caseId: id })}
-                  >
-                    {translate('actions.close')}
-                  </button>
-                </div>
-              )}
-            </section>
+            <OffboardingCaseStatus
+              item={item}
+              active={active}
+              onLock={() => setAction({ kind: 'lock', caseId: id })}
+              onMailboxLock={() => setAction({ kind: 'mailbox', caseId: id })}
+            />
+            {item.itHandover && (
+              <ItHandoverPanel
+                source={{ kind: 'offboarding', id }}
+                handover={item.itHandover}
+                leavingEmployeeId={item.employee.id}
+                canAct={authorized && !detail.isFetching}
+                invalidates={[getOffboardingCaseGetQueryKey(id), getOffboardingCaseListQueryKey()]}
+              />
+            )}
             <section className='space-y-3'>
               <div className='flex flex-wrap items-center justify-between gap-2'>
                 <h3 className='font-semibold [text-wrap:balance]'>{translate('rights')}</h3>
@@ -247,16 +209,6 @@ export function OffboardingDetails({
                 </button>
               )}
             </section>
-            <OffboardingServiceDuties
-              caseId={id}
-              employeeId={item.employee.id}
-              authorized={authorized && !item.closed}
-            />
-            <OffboardingHandoverDuties
-              caseId={id}
-              employeeId={item.employee.id}
-              authorized={authorized && !item.closed}
-            />
             {!authorized && <p className='text-sm text-muted-foreground'>{translate('noPermission')}</p>}
           </>
         ) : (

@@ -1,10 +1,8 @@
 import {
-  ArrowRightLeft,
   Boxes,
   ClipboardList,
   Files,
   Grid2X2,
-  Handshake,
   Landmark,
   Plus,
   RefreshCw,
@@ -61,15 +59,14 @@ export const managerNavItems: ManagerNavItem[] = [
   },
   { icon: Files, key: 'weekly-batch', translationKey: 'weeklyBatch', liveLabel: 'batch' },
   { icon: Landmark, key: 'annual-budget', translationKey: 'annualBudget', liveLabel: 'budget' },
-  { icon: RefreshCw, key: 'subscription-renewals', translationKey: 'renewals', liveLabel: 'renewals' },
-  { icon: ArrowRightLeft, key: 'transfer-reviews', translationKey: 'transfers', liveLabel: 'transfers' },
-  { icon: Handshake, key: 'handovers', translationKey: 'handovers', liveLabel: 'handovers' }
+  { icon: RefreshCw, key: 'subscription-renewals', translationKey: 'renewals', liveLabel: 'renewals' }
 ]
 const validTabs = new Set<string>(MANAGER_TAB_KEYS)
 export function isValidManagerTab(value: string | null): value is ManagerTabKey {
   return value !== null && validTabs.has(value)
 }
 export function getParentManagerMenuKey(tab: ManagerTabKey, from?: string | null): ManagerTabKey {
+  if (tab === 'personal-request') return 'overview'
   if (tab === 'tool-detail' || tab === 'return-detail') return 'team-software'
   if (tab === 'personnel-notices') return 'my-team'
   if (tab === 'employee-detail') return from === 'access-review' ? 'access-review' : 'my-team'

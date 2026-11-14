@@ -5,7 +5,6 @@ import {
   LayoutDashboard,
   ShieldCheck,
   MessageSquare,
-  ClipboardCheck,
   type LucideIcon
 } from 'lucide-react'
 
@@ -63,12 +62,10 @@ export const employeeMenuItems: readonly EmployeeMenuItem[] = [
     key: 'privacy',
     translationKey: 'privacy'
   },
-  { directTabKey: 'handovers', icon: ClipboardCheck, key: 'handovers', translationKey: 'handovers' },
   { directTabKey: 'issues', icon: MessageSquare, key: 'issues', translationKey: 'issues' }
 ]
 
 export function getParentEmployeeMenuKey(tabKey: EmployeeTabKey): string {
-  if (tabKey === 'handovers') return tabKey
   if (tabKey === 'issues' || tabKey === 'issue-detail' || tabKey === 'report-issue') return 'issues'
   if (tabKey === 'return-detail') return 'my-software'
   if (tabKey === 'overview') return 'overview'

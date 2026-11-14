@@ -1,4 +1,4 @@
-﻿import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { getMeGetQueryKey } from '~/shared/api/generated/operations/me/me-get'
@@ -18,6 +18,7 @@ vi.mock('~/shared/api/generated/operations/provisioning-tasks', async (original)
 }))
 vi.mock('~/shared/api/generated/operations/license-keys/license-key-list', () => ({ useLicenseKeyList: vi.fn() }))
 const task: TaskResponseDtoDataTask = {
+  k1Checklist: null,
   id: 'task-1',
   kind: 'GRANT',
   channel: 'MANUAL',
@@ -25,6 +26,7 @@ const task: TaskResponseDtoDataTask = {
   accountIdentifier: 'employee@example.org',
   beneficiary: { employeeId: 'employee-1', employeeCode: 'E1', fullName: 'Employee One' },
   plan: {
+    preRevocationNote: null,
     planId: 'plan-1',
     applicationId: 'app-1',
     applicationName: 'Workspace',

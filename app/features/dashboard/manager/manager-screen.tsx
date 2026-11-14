@@ -16,14 +16,15 @@ import { ManagerLiveCreate } from './team-requests/views/manager-live-create'
 import { ManagerLiveBatch } from './team-requests/views/manager-live-batch'
 import { ManagerLiveBudget } from './annual-budget/views/manager-live-budget'
 import { ManagerBudgetForm } from './annual-budget/views/manager-budget-form'
-import { ManagerTransferReviews } from './access-review/views/manager-transfer-reviews'
 import { ManagerNotices } from './personnel-notices/views/manager-notices'
-import { ManagerHandovers } from './handovers/views/manager-handovers'
 import { ManagerReturns } from './team/views/manager-returns'
 import { ManagerReturnDetail } from './team/views/manager-return-detail'
 import { ManagerLiveEmployeeDetail } from './team/views/manager-live-employee-detail'
 import { ManagerLiveToolDetail } from './team/views/manager-live-tool-detail'
 import { ManagerProfileView } from './team/views/manager-profile-view'
+import { PersonnelNotices } from '~/entities/personnel/components/personnel-notices'
+import { ManagerDepartmentSoftware } from './department-software/views/manager-department-software'
+import { ManagerPersonalRequest } from './personal-requests/views/manager-personal-request'
 
 export function ManagerScreen({
   tab,
@@ -33,6 +34,7 @@ export function ManagerScreen({
   onSelectTab: (tab: ManagerTabKey, params?: Record<string, string>) => void
 }) {
   const { t: translate } = useTranslation('manager')
+  const { t: flow } = useTranslation('requestFlow')
   const [params] = useSearchParams()
   const location = useLocation()
   const { proposalId } = useParams()
@@ -44,6 +46,7 @@ export function ManagerScreen({
   const validDepartment = isResourceId(departmentId)
   const form = location.pathname.startsWith('/dashboard/manager/annual-budget/')
   const budgetSection = form || tab === 'annual-budget'
+  const personalSection = tab === 'personal-request' || tab === 'request-approval'
   const needsDepartment =
     form || ['overview', 'my-team', 'team-software', 'employee-detail', 'tool-detail'].includes(tab)
   const department = useDepartmentGet(departmentId, {
@@ -59,7 +62,7 @@ export function ManagerScreen({
   })
   if (!user) return <ManagerQueryState query={me} empty={!user} syncPermissions={false} />
   if (!user.roles.includes('MANAGER')) return <p role='alert'>{translate('errors.forbidden')}</p>
-  if (!user.managerScope && !budgetSection && user.upcomingUnits.length)
+  if (!user.managerScope && !budgetSection && !personalSection && user.upcomingUnits.length)
     return (
       <Navigate
         replace
@@ -73,7 +76,13 @@ export function ManagerScreen({
         }}
       />
     )
-  if (!user.managerScope && (!budgetSection || !upcoming)) return <p role='alert'>{translate('errors.forbidden')}</p>
+  if (!user.managerScope && !personalSection && (!budgetSection || !upcoming))
+    return (
+      <div className='space-y-5'>
+        <PersonnelNotices onRequest={(planId) => onSelectTab('personal-request', { planId })} />
+        <p role='alert'>{translate('errors.forbidden')}</p>
+      </div>
+    )
   if (tab === 'notifications' || tab === 'personnel-notices') {
     const next = new URLSearchParams(params)
     next.set('tab', tab === 'notifications' ? 'overview' : 'my-team')
@@ -188,22 +197,30 @@ export function ManagerScreen({
     content = (
       <div className='space-y-5'>
         <ManagerPageHeader title={translate('tools')} icon={Boxes} />
-        <nav aria-label={translate('tools')} className='flex gap-2 border-b border-border/60 pb-3'>
-          {(['assigned', 'returns'] as const).map((view) => (
+        <nav aria-label={translate('tools')} className='flex gap-2 overflow-x-auto border-b border-border/60 pb-3'>
+          {(['assigned', 'department', 'proposals', 'returns'] as const).map((view) => (
             <button
               key={view}
               type='button'
-              className='min-h-11 rounded-md px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-primary aria-pressed:bg-primary-soft aria-pressed:text-primary-ink'
-              aria-pressed={(params.get('toolsView') === 'returns') === (view === 'returns')}
+              className='min-h-11 shrink-0 whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-primary aria-pressed:bg-primary-soft aria-pressed:text-primary-ink'
+              aria-pressed={(params.get('toolsView') ?? 'assigned') === view}
               onClick={() =>
                 onSelectTab('team-software', { toolsView: view, ...(validDepartment ? { departmentId } : {}) })
               }
             >
-              {translate(view === 'returns' ? 'integration.returns' : 'integration.assigned')}
+              {view === 'department' || view === 'proposals'
+                ? flow(`departmentSoftware.${view}`)
+                : translate(view === 'returns' ? 'integration.returns' : 'integration.assigned')}
             </button>
           ))}
         </nav>
-        {params.get('toolsView') === 'returns' ? (
+        {(params.get('toolsView') === 'department' || params.get('toolsView') === 'proposals') && user.managerScope ? (
+          <ManagerDepartmentSoftware
+            key={`${user.managerScope.departmentId}:${params.get('toolsView')}`}
+            departmentId={user.managerScope.departmentId}
+            proposals={params.get('toolsView') === 'proposals'}
+          />
+        ) : params.get('toolsView') === 'returns' ? (
           <ManagerReturns onOpen={openReturn} />
         ) : (
           <>
@@ -264,6 +281,8 @@ export function ManagerScreen({
     ) : (
       <ManagerRequestLookup onOpen={openRequest} />
     )
+  else if (tab === 'personal-request')
+    content = <ManagerPersonalRequest key={params.get('planId') ?? 'new'} onOpen={openRequest} />
   else if (tab === 'create-employee-request') content = <ManagerLiveCreate onOpen={openRequest} />
   else if (tab === 'weekly-batch')
     content = (
@@ -274,8 +293,6 @@ export function ManagerScreen({
     )
   else if (tab === 'subscription-renewals') content = <ManagerSubscriptionRenewals />
   else if (tab === 'annual-budget') content = <ManagerLiveBudget />
-  else if (tab === 'transfer-reviews') content = <ManagerTransferReviews />
-  else if (tab === 'handovers') content = <ManagerHandovers />
   else
     content = (
       <div className='space-y-3'>
@@ -283,5 +300,10 @@ export function ManagerScreen({
         <p className='text-sm text-muted-foreground'>{translate('usageGap')}</p>
       </div>
     )
-  return <div className='space-y-6'>{content}</div>
+  return (
+    <div className='space-y-6'>
+      <PersonnelNotices onRequest={(planId) => onSelectTab('personal-request', { planId })} />
+      {content}
+    </div>
+  )
 }

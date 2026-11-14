@@ -89,9 +89,6 @@ export function CatalogApplicationDetail({ id, onBack }: { id: string; onBack: (
               {translate('status')}:{' '}
               {translate(`enums.${application.data.data.status}`, { defaultValue: translate('unknown') })}
             </p>
-            <p>
-              {translate('owner')}: {application.data.data.businessOwner?.fullName ?? translate('unknown')}
-            </p>
           </>
         )}
       </ItQueryState>

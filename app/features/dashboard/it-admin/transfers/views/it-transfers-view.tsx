@@ -30,7 +30,7 @@ export function ItTransfersView({ initialId }: { initialId?: string }) {
         <p className='mt-2 max-w-3xl text-sm text-muted-foreground'>{translate('hint')}</p>
       </header>
       <form
-        className='grid items-end gap-4 rounded-lg border border-border/70 bg-surface p-4 sm:grid-cols-2 xl:grid-cols-5'
+        className='grid items-end gap-4 rounded-lg border border-border/70 bg-surface p-4 sm:grid-cols-2 xl:grid-cols-6'
         onSubmit={(event) => {
           event.preventDefault()
           const form = new FormData(event.currentTarget)
@@ -40,7 +40,8 @@ export function ItTransfersView({ initialId }: { initialId?: string }) {
             status: Object.values(TransferStatus).find((value) => value === status),
             employeeId: String(form.get('employeeId') ?? '').trim() || undefined,
             effectiveFrom: String(form.get('effectiveFrom') ?? '') || undefined,
-            effectiveTo: String(form.get('effectiveTo') ?? '') || undefined
+            effectiveTo: String(form.get('effectiveTo') ?? '') || undefined,
+            graceEndsBefore: String(form.get('graceEndsBefore') ?? '') || undefined
           })
         }}
       >
@@ -68,6 +69,14 @@ export function ItTransfersView({ initialId }: { initialId?: string }) {
         <ItField label={translate('effectiveTo')}>
           <input name='effectiveTo' type='date' defaultValue={params.effectiveTo ?? ''} className={itInputClass} />
         </ItField>
+        <ItField label={translate('graceEndsBefore')} hint={translate('graceEndsBeforeHint')}>
+          <input
+            name='graceEndsBefore'
+            type='date'
+            defaultValue={params.graceEndsBefore ?? ''}
+            className={itInputClass}
+          />
+        </ItField>
         <button type='submit' className={itButtonClass}>
           {translate('applyFilters')}
         </button>
@@ -89,10 +98,15 @@ export function ItTransfersView({ initialId }: { initialId?: string }) {
                   </p>
                 </div>
                 <div className='space-y-1 text-sm'>
-                  <p>{translate(`values.${item.status}`, { defaultValue: translate('unknown') })}</p>
+                  <p>{translate(`phases.${item.phase}`, { defaultValue: translate('unknown') })}</p>
                   <p className='text-right font-mono text-xs tabular-nums text-muted-foreground'>
                     {formatDate(item.effectiveOn)}
                   </p>
+                  {item.grace && (
+                    <p className='text-right font-mono text-xs tabular-nums text-muted-foreground'>
+                      {translate('graceUntil', { date: formatDate(item.grace.endsOn) })}
+                    </p>
+                  )}
                 </div>
                 <button type='button' className={itButtonClass} onClick={() => setSelected(item.id)}>
                   {translate('details')}

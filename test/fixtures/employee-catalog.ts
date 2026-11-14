@@ -35,6 +35,37 @@ export const catalogPlanDetails: NonNullable<RequestablePlanResponseDtoData> = {
   dataLossOnRemoval: true
 }
 export const employeeCatalogHandlers = [
+  http.get('*/api/v1/me/department-transfer', () => HttpResponse.json({ success: true, data: null })),
+  http.get('*/api/v1/me/departure-notice', () => HttpResponse.json({ success: true, data: null })),
+  http.get('*/api/v1/me/department-software-list', () =>
+    HttpResponse.json({
+      ...pageResponse([
+        {
+          entryId: planId,
+          applicationId: planId,
+          applicationName: 'Test Software',
+          planId: null,
+          planName: null,
+          note: null,
+          addedAt: '2026-11-14'
+        }
+      ]),
+      data: {
+        ...pageResponse([
+          {
+            entryId: planId,
+            applicationId: planId,
+            applicationName: 'Test Software',
+            planId: null,
+            planName: null,
+            note: null,
+            addedAt: '2026-11-14'
+          }
+        ]).data,
+        departmentId: planId
+      }
+    })
+  ),
   http.get('*/api/v1/requestable-applications', () => HttpResponse.json(pageResponse([catalogApplication]))),
   http.get('*/api/v1/requestable-applications/:id', () =>
     HttpResponse.json({ success: true, data: catalogApplication })

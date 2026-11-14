@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { formatDateTime } from '~/shared/lib/format-date-time'
 import { useNotificationInbox } from '../hooks/use-notification-inbox'
 import { notificationRequestId } from '../notification-request-id'
+import { NotificationPersonnelContext } from './notification-personnel-context'
 
 const buttonClass =
   'inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-3 text-sm font-medium transition-colors hover:bg-primary-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-50 sm:min-h-8'
@@ -114,6 +115,7 @@ export function NotificationInbox({
                         ? translate('notifications.requestReference', { id: requestId })
                         : translate('notifications.updateHint')}
                     </p>
+                    <NotificationPersonnelContext notification={notification} />
                     <div className='mt-2 flex flex-wrap items-center gap-2'>
                       {!notification.readAt && (
                         <button

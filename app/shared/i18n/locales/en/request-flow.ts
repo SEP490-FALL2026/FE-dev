@@ -1,4 +1,6 @@
+import { requestPersonnel } from './request-personnel'
 export const requestFlow = {
+  ...requestPersonnel,
   reload: 'Reload request',
   retryAfter: 'Try again in {{seconds}} seconds',
   VIA_HEAD: 'Department review and spending approval',

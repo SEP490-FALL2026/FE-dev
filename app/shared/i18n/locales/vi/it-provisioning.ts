@@ -110,6 +110,27 @@
   confirmHint: 'Chỉ xác nhận sau khi đã thực hiện công việc. Bằng chứng cần mô tả kết quả đã kiểm tra.',
   cancelHint: 'Chỉ hủy khi yêu cầu liên quan đã được rút. Máy chủ kiểm tra điều kiện này.',
   completion: 'Kết quả thu hồi',
+  k1Checklist: {
+    title: 'Checklist thu hồi K1',
+    variants: {
+      DEPARTURE: 'Checklist nghỉ việc',
+      STILL_EMPLOYED: 'Checklist cho người vẫn làm việc'
+    },
+    hint: 'Hệ thống không điều khiển Google hay Microsoft 365. Làm từng bước ở đó rồi tick tại đây kèm giờ đã làm thật.',
+    doneAt: 'Giờ đã làm: {{step}}',
+    steps: {
+      MAILBOX_PASSWORD_RESET: 'Đặt lại mật khẩu hộp thư (chưa khóa hộp thư)',
+      SOFTWARE_FORGOT_PASSWORD: 'Dùng “Quên mật khẩu” trên phần mềm',
+      SESSIONS_SIGNED_OUT: 'Đăng xuất mọi phiên',
+      RENEWAL_DISABLED: 'Tắt gia hạn',
+      EVIDENCE_RECORDED: 'Ghi bằng chứng',
+      MAILBOX_LOCKED: 'Khóa hộp thư'
+    },
+    problems: {
+      incomplete: 'Tick đủ mọi bước và nhập giờ đã làm.',
+      order: 'Mỗi bước phải làm cùng lúc hoặc sau bước đứng trước.'
+    }
+  },
   note: 'Ghi chú',
   paidThroughOn: 'Đã thanh toán đến ngày',
   accessState: 'Truy cập sau khi hủy',

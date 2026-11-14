@@ -1,6 +1,6 @@
 import { employeeCatalogHandlers, chooseCatalogPlan } from '../../../../test/fixtures/employee-catalog'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
 import { MemoryRouter } from 'react-router'
@@ -18,7 +18,6 @@ import {
 } from '../../../../test/fixtures/employee-api'
 import { EmployeeLiveCreateView } from './software-request/views/employee-live-create-view'
 import { EmployeeIssueDetail } from './saas-issues/views/employee-issue-detail'
-import { EmployeeHandoversView } from './handovers/views/employee-handovers-view'
 import { EmployeeReportIssue } from './saas-issues/views/employee-report-issue'
 
 const server = setupServer(...employeeCatalogHandlers)
@@ -59,10 +58,7 @@ describe('Employee support and group contracts', () => {
         })
       })
     )
-    mount(
-      <EmployeeLiveCreateView onSelectTab={vi.fn()} />,
-      `/?tab=create-request&mode=group&planId=${planId}&planName=Standard&applicationName=Test%20Software`
-    )
+    mount(<EmployeeLiveCreateView onSelectTab={vi.fn()} />, '/?tab=create-request&mode=group')
     await chooseCatalogPlan()
     fireEvent.change(screen.getByLabelText('Business reason'), { target: { value: 'Team development' } })
     fireEvent.click(screen.getByRole('combobox', { name: 'Beneficiaries' }))
@@ -97,10 +93,7 @@ describe('Employee support and group contracts', () => {
         })
       )
     )
-    mount(
-      <EmployeeLiveCreateView onSelectTab={vi.fn()} />,
-      `/?tab=create-request&mode=group&planId=${planId}&planName=Standard&applicationName=Test%20Software`
-    )
+    mount(<EmployeeLiveCreateView onSelectTab={vi.fn()} />, '/?tab=create-request&mode=group')
     await chooseCatalogPlan()
     fireEvent.change(screen.getByLabelText('Business reason'), { target: { value: 'Team development' } })
     fireEvent.click(screen.getByRole('combobox', { name: 'Beneficiaries' }))
@@ -201,47 +194,5 @@ describe('Employee support and group contracts', () => {
     await waitFor(() => expect(posted).toHaveBeenCalledWith({ body: 'Still unable to access' }))
     await waitFor(() => expect(entriesReads).toBeGreaterThan(1))
     expect(screen.getByLabelText('Message')).toHaveValue('')
-  })
-  it('confirms only an actionable handover with the value allowed for its source', async () => {
-    const confirmed = vi.fn()
-    const duty = {
-      id: requestId,
-      assignmentId,
-      application: { id: planId, name: 'Test Software' },
-      plan: { id: planId, name: 'Standard' },
-      employee: { employeeId, fullName: 'Test Employee', employeeCode: 'EMP-TEST' },
-      source: 'DEPARTURE',
-      role: 'REQUESTER',
-      status: 'OPEN',
-      dataLoss: true,
-      dueOn: '2026-11-01',
-      overdue: false,
-      flaggedUnconfirmed: false,
-      waitingReason: null,
-      canConfirm: true,
-      confirmer: null,
-      noticeText: null,
-      confirmation: null,
-      cancellation: null,
-      createdAt: '2026-10-31T03:00:00Z'
-    }
-    server.use(
-      http.get('*/api/v1/handover-duties', () => HttpResponse.json(pageResponse([duty]))),
-      http.get('*/api/v1/handover-duties/:id', () => HttpResponse.json({ success: true, data: duty })),
-      http.post('*/api/v1/handover-duties/:id/confirmations', async ({ request }) => {
-        confirmed(await request.json())
-        return HttpResponse.json(
-          { success: true, data: { ...duty, status: 'CONFIRMED', canConfirm: false } },
-          { status: 201 }
-        )
-      })
-    )
-    mount(<EmployeeHandoversView />, '/?tab=handovers')
-    fireEvent.click(await screen.findByRole('button', { name: 'View details' }))
-    const dialog = screen.getByRole('dialog')
-    const value = await within(dialog).findByLabelText('Handover outcome')
-    expect(within(value).queryByRole('option', { name: 'Handled' })).not.toBeInTheDocument()
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Confirm' }))
-    await waitFor(() => expect(confirmed).toHaveBeenCalledWith({ value: 'HANDED_OVER' }))
   })
 })

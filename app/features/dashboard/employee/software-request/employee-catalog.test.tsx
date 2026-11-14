@@ -24,7 +24,7 @@ beforeEach(async () => {
   await setAppLanguage('en', false)
 })
 function mount() {
-  return render(
+  const view = render(
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })}
     >
@@ -33,6 +33,8 @@ function mount() {
       </MemoryRouter>
     </QueryClientProvider>
   )
+  fireEvent.click(screen.getByRole('button', { name: 'Entire catalog' }))
+  return view
 }
 function reason() {
   fireEvent.change(screen.getByLabelText('Business reason'), { target: { value: 'Development work' } })

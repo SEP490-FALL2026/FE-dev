@@ -23,7 +23,6 @@ export const managerDashboard: NonNullable<ManagerDashboardResponseDtoData> = {
   sections: {
     needApprovals: { state: 'COUNTED', count: 0, sourceOperationId: 'needDecisionList', reason: null },
     departmentSoftware: { state: 'COUNTED', count: 27, sourceOperationId: 'departmentToolsInUse', reason: null },
-    transferReviews: { state: 'COUNTED', count: 0, sourceOperationId: 'transferReviewList', reason: null },
     ghostSeats: { ...unavailable, reason: 'USAGE_DATA_NOT_DELIVERED' },
     spending: { ...unavailable, reason: 'FINANCE_FIGURES_NOT_DELIVERED' },
     spendQueue: { state: 'AT_SOURCE', count: null, sourceOperationId: 'spendQueueList', reason: null },

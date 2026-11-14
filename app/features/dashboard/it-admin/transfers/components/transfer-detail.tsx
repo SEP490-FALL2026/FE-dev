@@ -1,29 +1,25 @@
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useDepartmentTransferGet } from '~/shared/api/generated/operations/department-transfers/department-transfer-get'
+import {
+  getDepartmentTransferGetQueryKey,
+  useDepartmentTransferGet
+} from '~/shared/api/generated/operations/department-transfers/department-transfer-get'
+import { getDepartmentTransferListQueryKey } from '~/shared/api/generated/operations/department-transfers/department-transfer-list'
 import { useMeGet } from '~/shared/api/generated/operations/me/me-get'
+import { formatMoney, moneyFromMinor } from '~/shared/lib/money'
 import { useDashboardFormat } from '../../../dashboard-ui'
 import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { itButtonClass } from '../../shared/components/it-form'
-import { TransferStatus } from '../enums/transfer-status'
-import { TransferCloseDialog } from './transfer-close-dialog'
-import { TransferServiceDuties } from './transfer-service-duties'
-import { TransferHandovers } from './transfer-handovers'
+import { ItHandoverPanel } from '../../shared/components/it-handover-panel'
+import { TransferPhase } from '../enums/transfer-phase'
+import { TransferOldRights } from './transfer-old-rights'
 
 export function TransferDetail({ id, onBack }: { id: string; onBack: () => void }) {
-  const { t: translate } = useTranslation('itTransfers')
+  const { t: translate, i18n } = useTranslation('itTransfers')
   const { formatDate, formatDateTime } = useDashboardFormat()
   const query = useDepartmentTransferGet(id)
   const me = useMeGet()
-  const [closing, setClosing] = useState(false)
   const transfer = query.data?.data
-  const authorized = !me.isError && !!me.data?.data?.roles.includes('IT_ADMIN')
-  const allowed =
-    authorized &&
-    !query.isFetching &&
-    !query.isError &&
-    transfer?.status === TransferStatus.EFFECTIVE &&
-    !transfer.closure
+  const isItAdmin = !me.isError && (me.data?.data?.roles.includes('IT_ADMIN') ?? false)
   return (
     <section className='space-y-5'>
       <div className='flex flex-wrap justify-between gap-3'>
@@ -62,44 +58,67 @@ export function TransferDetail({ id, onBack }: { id: string; onBack: () => void 
                 <dd className='mt-1 text-right font-mono text-sm tabular-nums'>{formatDate(transfer.effectiveOn)}</dd>
               </div>
               <div>
-                <dt className='text-xs text-muted-foreground'>{translate('status')}</dt>
+                <dt className='text-xs text-muted-foreground'>{translate('phase')}</dt>
                 <dd className='mt-1 text-sm'>
-                  {translate(`values.${transfer.status}`, { defaultValue: translate('unknown') })}
+                  {translate(`phases.${transfer.phase}`, { defaultValue: translate('unknown') })}
                 </dd>
               </div>
-            </dl>
-            {authorized && (
-              <>
-                <TransferServiceDuties
-                  transferId={id}
-                  employeeId={transfer.employee.id}
-                  authorized={authorized}
-                  active={transfer.status !== TransferStatus.CANCELLED && !transfer.closure}
-                />
-                <TransferHandovers transferId={id} employeeId={transfer.employee.id} />
-              </>
-            )}
-            <section className='space-y-3 rounded-lg border border-border/70 bg-surface p-5'>
-              <p className='max-w-3xl text-sm text-muted-foreground'>{translate('close.hint')}</p>
-              {transfer.closure ? (
-                <p className='text-sm text-success-ink'>
-                  {translate('closed')}
-                  <span className='ml-2 font-mono text-xs tabular-nums'>
-                    {formatDateTime(transfer.closure.closedAt)}
-                  </span>
-                </p>
-              ) : (
+              {transfer.grace && (
                 <>
-                  <button type='button' className={itButtonClass} disabled={!allowed} onClick={() => setClosing(true)}>
-                    {translate('close.action')}
-                  </button>
-                  {transfer.status === TransferStatus.PENDING && (
-                    <p className='text-sm text-muted-foreground'>{translate('close.pending')}</p>
-                  )}
+                  <div>
+                    <dt className='text-xs text-muted-foreground'>{translate('graceEndsOn')}</dt>
+                    <dd className='mt-1 text-right font-mono text-sm tabular-nums'>
+                      {formatDate(transfer.grace.endsOn)}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className='text-xs text-muted-foreground'>{translate('graceReminderOn')}</dt>
+                    <dd className='mt-1 text-right font-mono text-sm tabular-nums'>
+                      {formatDate(transfer.grace.reminderOn)}
+                    </dd>
+                  </div>
                 </>
               )}
-            </section>
-            {closing && <TransferCloseDialog id={id} allowed={allowed} onClose={() => setClosing(false)} />}
+              {transfer.commitmentsReleased.length > 0 && (
+                <div className='sm:col-span-2'>
+                  <dt className='text-xs text-muted-foreground'>{translate('commitmentsReleased')}</dt>
+                  {transfer.commitmentsReleased.map((released) => (
+                    <dd key={released.currency} className='mt-1 text-right font-mono text-sm tabular-nums'>
+                      {formatMoney(moneyFromMinor(released.amountMinor, released.currency), i18n.language)}
+                    </dd>
+                  ))}
+                </div>
+              )}
+            </dl>
+            <p className='text-sm text-muted-foreground [text-wrap:pretty]'>
+              {translate(`phaseHints.${transfer.phase}`, { defaultValue: '' })}
+            </p>
+            {transfer.closure && (
+              <p className='text-sm text-success-ink'>
+                {translate(
+                  transfer.phase === TransferPhase.SUPERSEDED
+                    ? 'supersededAt'
+                    : transfer.closure.closedBySystem
+                      ? 'closedBySystem'
+                      : 'closedAt',
+                  { at: formatDateTime(transfer.closure.closedAt) }
+                )}
+              </p>
+            )}
+            <TransferOldRights
+              oldRights={transfer.oldRights}
+              outcomes={transfer.snapshot?.after?.rights ?? []}
+              snapshotOn={transfer.snapshot?.before?.takenOn ?? null}
+            />
+            {transfer.itHandover && (
+              <ItHandoverPanel
+                source={{ kind: 'transfer', id }}
+                handover={transfer.itHandover}
+                leavingEmployeeId={transfer.employee.id}
+                canAct={isItAdmin && !query.isFetching}
+                invalidates={[getDepartmentTransferGetQueryKey(id), getDepartmentTransferListQueryKey()]}
+              />
+            )}
           </>
         ) : (
           <ItEmpty />
