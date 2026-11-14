@@ -47,10 +47,6 @@ export const financeBudget = {
     flags: 'Cờ',
     highValuePercent: 'Ngưỡng giá trị cao (%)',
     highValueAmount: 'Ngưỡng số tiền cao',
-    q1: 'Quý 1',
-    q2: 'Quý 2',
-    q3: 'Quý 3',
-    q4: 'Quý 4',
     currency: 'Tiền tệ',
     reason: 'Lý do',
     number: 'Phiên bản',
@@ -207,7 +203,6 @@ export const financeBudget = {
     ATTACHMENT_ADDED: 'Thêm hồ sơ đính kèm',
     ATTACHMENT_REMOVED: 'Gỡ hồ sơ đính kèm'
   },
-  quartersMismatch: 'Tổng 4 quý phải bằng tổng ngân sách (số cơ sở cộng dự phòng).',
   reserveReasonHint: 'Dự phòng khác mức mặc định nên cần lý do khi gửi duyệt.',
   yearRange: 'Năm gồm 4 chữ số, từ 2000 đến 2200.',
   fieldInvalid: 'Giá trị chưa hợp lệ.',
@@ -229,7 +224,6 @@ export const financeBudget = {
     months: 'Ví dụ: 12',
     percent: 'Ví dụ: 50',
     highValueAmount: 'Để trống nếu chỉ dùng ngưỡng phần trăm',
-    quarter: 'Ví dụ: 30000000',
     note: 'Ghi chú cho Người duyệt chi (không bắt buộc)',
     financeComment: 'Nhận xét của Tài chính về dòng này',
     adjustmentReason: 'Vì sao điều chỉnh số tiền hoặc thời gian của dòng',
@@ -243,11 +237,12 @@ export const financeBudget = {
     schedule: 'Thời gian mua và chu kỳ',
     notes: 'Ghi chú',
     figures: 'Số liệu ngân sách',
-    quarters: 'Phân bổ theo quý',
     overview: 'Tóm tắt'
   },
   attachments: {
     title: 'Hồ sơ đính kèm',
+    explanationTitle: 'Tệp giải thích',
+    explanationRequired: 'Đính kèm ít nhất một tệp giải thích trước khi gửi phiên bản này cho Người duyệt chi.',
     upload: 'Tải hồ sơ lên',
     uploading: 'Đang tải lên…',
     choose: 'Chọn tệp đính kèm',
@@ -263,7 +258,6 @@ export const financeBudget = {
     confirmRemove: 'Gỡ tệp'
   },
   sendHint: 'Gửi phiên bản này cho Người duyệt chi để quyết định.',
-  optionalQuarters: 'Số tiền theo quý không bắt buộc: nhập đủ bốn quý hoặc để trống cả bốn.',
   decimalHint: 'Nhập số tiền thập phân không âm bằng tiền tệ báo cáo.',
   invalid: 'Kiểm tra các trường bắt buộc và số tiền thập phân.',
   importHint: 'Tải bảng dòng ngân sách. Kích thước tối đa: 2 MiB.',

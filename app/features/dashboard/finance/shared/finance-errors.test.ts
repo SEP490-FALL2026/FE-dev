@@ -15,7 +15,7 @@ function failure(code: string, status: number) {
 describe('Finance error handling', () => {
   it('maps contract errors by code without exposing backend messages', () => {
     expect(getFinanceError(failure('BUDGET.CURRENCY_NOT_REPORTING', 422)).key).toBe('reportingCurrency')
-    expect(getFinanceError(failure('SPEND.REVIEWER_IS_APPROVER', 403)).key).toBe('independentReview')
+    expect(getFinanceError(failure('BUDGET.OWN_VERSION', 403)).key).toBe('ownVersion')
     expect(getFinanceError(failure('VALIDATION_ERROR', 422)).key).toBe('validation')
     expect(getFinanceError(failure('UNKNOWN_CODE', 409)).key).toBe('conflict')
   })

@@ -67,8 +67,7 @@ export function BudgetProposalDetail({ itemId, onSelectTab }: BudgetViewProps & 
               proposalId: itemId,
               base: figures.base,
               reserve: figures.reserve,
-              reserveReason: figures.reserveReason,
-              quarters: figures.quarters
+              reserveReason: figures.reserveReason
             }
           })
         }

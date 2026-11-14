@@ -84,8 +84,10 @@ export const approvalsSpend = {
   },
   oneStepReason: {
     REQUESTER_IS_HEAD: 'Người yêu cầu là trưởng phòng: Người duyệt chi quyết một bước gộp nhu cầu và chi.',
-    NO_DEPARTMENT_HEAD: 'Phòng chưa có trưởng phòng: Người duyệt chi quyết một bước gộp nhu cầu và chi.',
-    HEAD_LEFT: 'Trưởng phòng đã rời vai: Người duyệt chi quyết một bước gộp nhu cầu và chi.',
+    NO_DEPARTMENT_HEAD:
+      'Phần mềm nội bộ miễn phí của phòng chưa có trưởng phòng: Người duyệt chi quyết một bước gộp nhu cầu và chi.',
+    HEAD_LEFT:
+      'Yêu cầu cũ do luật trước đánh dấu một bước vì trưởng phòng đã rời vai: Người duyệt chi quyết gộp nhu cầu và chi.',
     UNKNOWN: 'Yêu cầu một bước: Người duyệt chi quyết gộp nhu cầu và chi.'
   },
   outcome: 'Kết cục',

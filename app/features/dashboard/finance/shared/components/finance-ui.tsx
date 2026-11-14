@@ -225,8 +225,7 @@ const statusTones: Record<StatusTone, readonly string[]> = {
     'PLAN_LINE_OVERDUE',
     'STALE_COST_EVIDENCE',
     'OVER_CEILING',
-    'MISSING',
-    'RECOMMEND_OVERRIDE'
+    'MISSING'
   ],
   danger: [
     'REJECTED',

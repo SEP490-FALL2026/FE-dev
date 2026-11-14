@@ -77,7 +77,6 @@ export const approvals = {
     BUDGET_REVISION_NEEDED: 'Chờ điều chỉnh ngân sách',
     LINE_UPDATED: 'Đã cập nhật dòng kế hoạch',
     RECOMMEND_APPROVE: 'Khuyến nghị chấp thuận',
-    RECOMMEND_OVERRIDE: 'Khuyến nghị chi vượt ngân sách',
     RECOMMEND_REJECT: 'Khuyến nghị từ chối',
     WITHIN_LIMIT: 'Trong hạn mức',
     OVER_LIMIT: 'Vượt hạn mức',
