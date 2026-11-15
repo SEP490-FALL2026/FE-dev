@@ -5,6 +5,7 @@ import { useDepartmentGet } from '~/shared/api/generated/operations/departments/
 import type { ManagerTabKey } from '../../enums'
 import { ManagerQueryState, ManagerSection, ManagerStatus } from '../../shared/components/manager-api-ui'
 import { ManagerPageHeader } from '../../shared/components/manager-page-header'
+import { ManagerOverviewBudget } from '../components/manager-overview-budget'
 import { ManagerOverviewWork } from '../components/manager-overview-work'
 import { ManagerDashboardSummary } from '../components/manager-dashboard-summary'
 
@@ -32,6 +33,7 @@ export function ManagerLiveOverview({
         </div>
       </section>
       <ManagerDashboardSummary onSelectTab={onSelectTab} />
+      <ManagerOverviewBudget />
       <ManagerOverviewWork onSelectTab={onSelectTab} />
       <div className='grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(280px,0.8fr)]'>
         <ManagerSection title={translate('quickActions')}>

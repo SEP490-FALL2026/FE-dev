@@ -1,7 +1,0 @@
-export * from './department-transfer-record'
-export * from './department-transfer-list'
-export * from './department-transfer-get'
-export * from './department-transfer-change-list'
-export * from './department-transfer-reschedule'
-export * from './department-transfer-cancel'
-export * from './department-transfer-preview'
