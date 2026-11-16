@@ -25,7 +25,7 @@ const budget: MineResponseDtoDataBudget = {
   remainingBase: money('9007199254740958.25'),
   remainingWithReserve: money('9007199254740965.00'),
   overBudget: false,
-  departmentCeiling: null,
+  effectiveBudget: null,
   cycle: null,
   version: null,
   latestRefusal: null,

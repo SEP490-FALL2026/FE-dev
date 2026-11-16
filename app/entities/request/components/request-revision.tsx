@@ -11,17 +11,19 @@ import { getMeAccessRequestListQueryKey } from '~/shared/api/generated/operation
 import { getDepartmentAccessRequestListQueryKey } from '~/shared/api/generated/operations/access-requests/department-access-request-list'
 import { useAccessRequestLineList } from '~/shared/api/generated/operations/group-requests/access-request-line-list'
 import { requestContractErrorKey } from '../request-contract-errors'
+import { readTermMonths, termMonthsPayload } from '../term-months'
 
 export function RequestRevision({
   id,
   group,
   departmentId,
-  maxEndDate
+  termMonths
 }: {
   id: string
   group: boolean
   departmentId: string
-  maxEndDate?: string | null
+  /** Current "Thời gian dùng" of the request; a supplement may only shorten it. */
+  termMonths?: number | null
 }) {
   const { t } = useTranslation('requestFlow')
   const client = useQueryClient()
@@ -35,16 +37,15 @@ export function RequestRevision({
   }, [retrySeconds])
   const locked = useRef(false)
   const [drop, setDrop] = useState<string[]>([])
-  const [endDate, setEndDate] = useState('')
+  const [term, setTerm] = useState('')
   const lines = useAccessRequestLineList(id, { page: 1, pageSize: 100 }, { query: { enabled: group && editing } })
   const mutation = useMutation({
     retry: false,
     mutationFn: async (form?: FormData) => {
       if (!form) return accessRequestResubmit(id)
-      const expectedEndDate = String(form.get('expectedEndDate') ?? '')
       return accessRequestSupplementAdd(id, {
         reason: String(form.get('reason')).trim(),
-        ...(expectedEndDate ? { expectedEndDate } : {}),
+        ...termMonthsPayload(readTermMonths(form)),
         ...(drop.length ? { dropEmployeeIds: drop } : {})
       })
     },
@@ -108,20 +109,27 @@ export function RequestRevision({
           onSubmit={(event) => {
             event.preventDefault()
             const form = new FormData(event.currentTarget)
-            if (form.get('expectedEndDate') || drop.length) submit(form)
+            if (readTermMonths(form) !== undefined || drop.length) submit(form)
           }}
         >
           <fieldset disabled={mutation.isPending || uncertain || !!retrySeconds} className='space-y-4'>
             <label className='grid gap-2 text-sm'>
-              {t('endDate')}
+              {t('termMonths')}
               <input
                 className={inputClass}
-                type='date'
-                name='expectedEndDate'
-                max={maxEndDate ?? undefined}
-                value={endDate}
-                onChange={(event) => setEndDate(event.target.value)}
+                type='number'
+                inputMode='numeric'
+                name='termMonths'
+                min={1}
+                max={termMonths ? termMonths - 1 : 12}
+                step={1}
+                value={term}
+                onChange={(event) => setTerm(event.target.value)}
+                aria-describedby={`${id}-term-hint`}
               />
+              <span id={`${id}-term-hint`} className='text-xs text-muted-foreground'>
+                {t('supplementTermHint')}
+              </span>
             </label>
             {group && (
               <div>
@@ -158,7 +166,7 @@ export function RequestRevision({
               className={buttonClass}
               type='submit'
               aria-busy={mutation.isPending}
-              disabled={!endDate && !drop.length}
+              disabled={!term && !drop.length}
             >
               {t('save')}
             </button>

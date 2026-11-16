@@ -33,7 +33,7 @@ export function ManagerGroupConfirmation({
     check?.plan.eligible === true &&
     !check.tooManyLines &&
     !check.tooFewLines &&
-    !check.endDateOutOfRange &&
+    !check.termRefusal &&
     check.lines.length === body.lines.length &&
     check.lines.every((line) => line.ok === true && body.lines.some((person) => person.employeeId === line.employeeId))
   const failures = new Map<string | null, ManagerChoice[]>()
@@ -51,15 +51,14 @@ export function ManagerGroupConfirmation({
       {check && (
         <>
           <ManagerMoney money={check.pricing.amount} />
-          <p className='text-sm text-muted-foreground'>{flow('maxEndDate', { date: check.maxEndDate })}</p>
           {check.tooFewLines && (
             <p role='status' className='text-sm text-warning'>
               {translate('groupMinimum')}
             </p>
           )}
-          {check.endDateOutOfRange && (
+          {check.termRefusal && (
             <p role='status' className='text-sm text-warning'>
-              {flow('maxEndDate', { date: check.maxEndDate })}
+              {flow(`termRefusal.${check.termRefusal}`)}
             </p>
           )}
           {!check.plan.eligible && (

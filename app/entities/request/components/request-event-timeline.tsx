@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { useAccessRequestEventList } from '~/shared/api/generated/operations/access-requests/access-request-event-list'
 import { useWorkspaceFormat } from '~/shared/hooks/use-workspace-format'
 
-export function RequestEventTimeline({ id }: { id: string }) {
+/** `bare` drops the own heading and divider for use inside a card that already has a title. */
+export function RequestEventTimeline({ id, bare = false }: { id: string; bare?: boolean }) {
   const { t } = useTranslation('requestFlow')
   const { formatDateTime } = useWorkspaceFormat()
   const [page, setPage] = useState(1)
@@ -11,8 +12,8 @@ export function RequestEventTimeline({ id }: { id: string }) {
   const data = !query.isError ? query.data?.data : undefined
   const buttonClass = 'min-h-11 rounded-md border border-border px-3 text-sm disabled:opacity-50'
   return (
-    <section className='space-y-4 border-t border-border/60 pt-4'>
-      <h3 className='font-semibold'>{t('timeline')}</h3>
+    <section className={bare ? 'space-y-4' : 'space-y-4 border-t border-border/60 pt-4'}>
+      {!bare && <h3 className='font-semibold'>{t('timeline')}</h3>}
       {query.isPending && <p role='status'>{t('loading')}</p>}
       {query.isError && (
         <div role='alert'>

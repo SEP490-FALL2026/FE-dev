@@ -1,7 +1,6 @@
 import { employeeRequestExtras } from './employee-request-extras'
 import { employeeRequestAssignment } from './employee-request-assignment'
 export const employee = {
-  termLimit: 'Up to {{months}} months, ending by {{date}}',
   estimatedBudgetYear: 'Estimated budget year',
   extensionMonths: 'Extension in months',
   requestAssignment: employeeRequestAssignment,
@@ -360,7 +359,6 @@ export const employee = {
   noValue: 'Not available',
   selfService: 'Your account is in the handover phase. Only notifications, handovers and your profile are available.',
   errors: {
-    termLimit: 'The term exceeds the plan limit. Check the maximum months and preview again.',
     groupMinimum: 'A group request requires 2 to 10 different people.',
     renewalHolder: 'Only the current holder can request an extension of this access.',
     requestParty: 'The requester or beneficiary is not eligible. Check their role and department.',
@@ -368,11 +366,6 @@ export const employee = {
       'This access is no longer suitable for the selected action. Refresh the list and choose another assignment.',
     returnPending: 'This access already has a return request being processed.',
     renewalPending: 'This access already has a pending renewal request.',
-    renewalEnd: 'The new end date must be after today and the existing end date.',
-    serviceBaseline: employeeRequestExtras.errors.baseline,
-    servicePlan: employeeRequestExtras.errors.plan,
-    returnSender: employeeRequestExtras.errors.sender,
-    returnChanged: employeeRequestExtras.errors.changed,
     unavailable: 'Could not load data. Please try again.',
     forbidden: 'You do not have permission for this action.',
     missing: 'No record was found within your permitted scope.',
@@ -392,19 +385,19 @@ export const employee = {
   eligibility: {
     HEAD_IN_GROUP: 'The department head cannot be a beneficiary of this group',
     SPENDING_APPROVER: 'The spending approver cannot be a beneficiary',
-    TERM_REQUIRED: 'An access end date is required',
-    OPEN_LIMIT_REACHED: 'This person has reached the open request limit',
-    MANY_PAID_SOFTWARE_REASON_REQUIRED: 'Explain why this person needs multiple paid applications',
-    KIND_NOT_MULTI_SEAT: 'This plan does not support multiple seats',
-    NOT_PAID_SOFTWARE: 'Group requests require paid software',
     OUTSIDE_DEPARTMENT: 'Outside your department',
     NOT_ACTIVE: 'Employee is not active',
     EMAIL_REQUIRED: 'A work email is required',
-    END_DATE_REQUIRED: 'An access end date is required',
-    END_DATE_TOO_EARLY: 'The access end date is too early',
     HAS_ACCESS: 'Already has access',
     HAS_OPEN_REQUEST: 'Already has an open request',
-    DUPLICATE_LINE: 'Beneficiary selected more than once'
+    TERM_REQUIRED: 'This person needs a term of use in months',
+    TERM_LONG_TERM_NOT_ALLOWED:
+      'Contractors, collaborators and interns can only be granted access for a number of months',
+    TERM_CONTRACT_ENDED: 'This person’s contract has ended',
+    OPEN_LIMIT_REACHED: 'This person has reached the weekly limit of new requests',
+    DUPLICATE_LINE: 'Beneficiary selected more than once',
+    KIND_NOT_MULTI_SEAT: 'This plan does not support multiple seats',
+    NOT_PAID_SOFTWARE: 'Group requests require paid software'
   },
   statuses: {
     AWAITING_REQUESTER_REVISION: 'Awaiting requester revision',

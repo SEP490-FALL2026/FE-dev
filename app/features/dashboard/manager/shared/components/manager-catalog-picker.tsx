@@ -9,7 +9,7 @@ import type { WorkspaceChoice } from '~/shared/ui/workspace-choice-select'
 import { ManagerQueryState } from './manager-api-ui'
 import { ManagerCatalogApplication } from './manager-catalog-application'
 import { ManagerCatalogPlans } from './manager-catalog-plans'
-import { CATALOG_SENSITIVITY } from '../enums/catalog-sensitivity'
+import { isCatalogSensitivity } from '../enums/catalog-sensitivity'
 
 export type ManagerCatalogPlan = NonNullable<RequestablePlanResponseDtoData>
 export function ManagerCatalogPicker({
@@ -89,7 +89,7 @@ export function ManagerCatalogPicker({
           <div>
             <dt className='text-xs text-muted-foreground'>{translate('catalog.sensitivity')}</dt>
             <dd className='mt-1'>
-              {Object.values(CATALOG_SENSITIVITY).includes(details.dataSensitivity)
+              {isCatalogSensitivity(details.dataSensitivity)
                 ? translate(`catalog.sensitivities.${details.dataSensitivity}`)
                 : translate('unknownStatus')}
             </dd>

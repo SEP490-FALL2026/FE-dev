@@ -14,7 +14,7 @@ import { ManagerLiveCreate } from './views/manager-live-create'
 
 const checked = vi.fn()
 const submitted = vi.fn()
-let maxEndDate = '2027-10-31'
+let termRefusal: string | null = null
 const server = setupServer(
   ...managerCatalogHandlers,
   ...managerReadHandlers,
@@ -33,8 +33,7 @@ const server = setupServer(
       success: true,
       data: {
         ...groupCheck,
-        maxEndDate,
-        endDateOutOfRange: !!body.expectedEndDate && body.expectedEndDate > maxEndDate,
+        termRefusal,
         tooFewLines: body.lines.length < 2 ? { min: 2 } : null,
         lines: body.lines.map((line) => ({
           employeeId: line.employeeId,
@@ -53,7 +52,7 @@ beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 afterAll(() => server.close())
 afterEach(() => server.resetHandlers())
 beforeEach(async () => {
-  maxEndDate = '2027-10-31'
+  termRefusal = null
   checked.mockClear()
   submitted.mockClear()
   await setAppLanguage('en', false)
@@ -68,7 +67,7 @@ async function mount() {
   )
   await chooseCatalogPlan()
   await screen.findByText('Sharing not allowed')
-  fireEvent.change(screen.getByLabelText('Expected end date'), { target: { value: '2027-01-31' } })
+  fireEvent.change(screen.getByLabelText(/^Term of use/), { target: { value: '6' } })
   fireEvent.click(screen.getByRole('combobox', { name: 'Beneficiaries' }))
   fireEvent.click(await screen.findByRole('option', { name: /alex@example.test/ }))
   fireEvent.click(screen.getByRole('option', { name: /robin@example.test/ }))
@@ -90,7 +89,7 @@ it('checks and submits the same strict group body without removed fields', async
   const body = {
     planId,
     businessReason: 'Design work',
-    expectedEndDate: '2027-01-31',
+    termMonths: 6,
     lines: [{ employeeId }, { employeeId: planId }]
   }
   expect(checked).toHaveBeenCalledWith(body)
@@ -98,16 +97,15 @@ it('checks and submits the same strict group body without removed fields', async
 })
 it('requires at least two people', async () => {
   await mount()
-  fireEvent.change(screen.getByLabelText('Expected end date'), { target: { value: '2027-01-31' } })
   fireEvent.click(screen.getByRole('button', { name: 'Remove Robin' }))
   expect(screen.getByRole('button', { name: 'Submit' })).toBeDisabled()
 })
-it('blocks confirmation when the date exceeds the backend limit', async () => {
-  maxEndDate = '2027-01-01'
+it('blocks confirmation when the backend refuses the term of use', async () => {
+  termRefusal = 'TERM_LONG_TERM_NOT_ALLOWED'
   await mount()
   fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
   const dialog = await screen.findByRole('dialog')
-  await within(dialog).findAllByText('Latest allowed date: 2027-01-01')
+  await within(dialog).findByText(/can only be granted access for a number of months/)
   expect(within(dialog).getByRole('button', { name: 'Confirm' })).toBeDisabled()
   expect(submitted).not.toHaveBeenCalled()
 })

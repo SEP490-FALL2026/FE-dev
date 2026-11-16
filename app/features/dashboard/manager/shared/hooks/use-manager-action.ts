@@ -5,16 +5,20 @@ import { toast } from 'sonner'
 import { getMeGetQueryOptions } from '~/shared/api/generated/operations/me/me-get'
 import { getManagerError } from './manager-errors'
 import { requestContractErrorKey } from '~/entities/request/request-contract-errors'
+import { policyErrorKey } from '~/entities/policy/policy-errors'
 
 /** Shared UX for generated write operations; each caller owns its affected query keys. */
 export function useManagerAction<Result, Variables = void>(options: {
   mutationFn: (variables: Variables) => Promise<Result>
   invalidate: readonly QueryKey[]
   onSuccess?: (result: Result) => void
+  /** Runs after the shared error handling, e.g. to reload a policy checklist that changed version. */
+  onError?: (error: unknown) => void
 }) {
   const client = useQueryClient()
   const { t: translate } = useTranslation('manager')
   const { t: flow } = useTranslation('requestFlow')
+  const { t: policy } = useTranslation('policy')
   const [retrySeconds, setRetrySeconds] = useState(0)
   const [uncertain, setUncertain] = useState(false)
   const [fields, setFields] = useState<string[]>([])
@@ -52,10 +56,17 @@ export function useManagerAction<Result, Variables = void>(options: {
           .fetchQuery({ ...getMeGetQueryOptions(), staleTime: 0, retry: false, networkMode: 'always' })
           .catch(() => undefined)
       const contractKey = requestContractErrorKey(error)
-      toast.error(contractKey ? flow(contractKey) : translate(`errors.${failure.key}`), {
+      const policyKey = policyErrorKey(error)
+      const message = policyKey
+        ? policy(policyKey)
+        : contractKey
+          ? flow(contractKey)
+          : translate(`errors.${failure.key}`)
+      toast.error(message, {
         id: 'manager-write',
         description: failure.requestId ? translate('requestId', { id: failure.requestId }) : undefined
       })
+      if (active.current) options.onError?.(error)
     }
   })
   const mutate: typeof action.mutate = (variables, callbacks) => {

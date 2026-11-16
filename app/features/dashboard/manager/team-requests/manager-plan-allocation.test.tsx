@@ -6,8 +6,10 @@ import { afterAll, beforeAll, beforeEach, expect, it, vi } from 'vitest'
 import { setAppLanguage } from '~/shared/i18n/i18n'
 import { requestId } from '../../../../../test/fixtures/employee-api'
 import { ManagerNeedForm } from './components/manager-need-form'
+import { answerChecklist, checklistBody, policyStepHandlers } from '../../../../../test/fixtures/policy'
 const written = vi.fn()
 const server = setupServer(
+  ...policyStepHandlers,
   http.post('*/api/v1/access-requests/:id/need-decision', async ({ request }) => {
     written(await request.json())
     return HttpResponse.json({ success: true, data: null })
@@ -27,7 +29,9 @@ it('approves without requesting removed plan-line routes or sending allocation f
   )
   expect(screen.queryByLabelText('Outside the annual plan')).not.toBeInTheDocument()
   expect(screen.queryByLabelText(/Reason for confirming a term/)).not.toBeInTheDocument()
+  await answerChecklist()
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Confirm' })).toBeEnabled())
   fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
   fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm' }))
-  await waitFor(() => expect(written).toHaveBeenCalledWith({ decision: 'APPROVE' }))
+  await waitFor(() => expect(written).toHaveBeenCalledWith({ decision: 'APPROVE', checklist: checklistBody('1.2') }))
 })

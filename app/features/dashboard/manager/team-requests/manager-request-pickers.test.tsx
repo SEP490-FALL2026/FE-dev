@@ -158,7 +158,7 @@ describe('Manager request dropdowns', () => {
     fireEvent.click(await screen.findByRole('option', { name: /alex.nguyen@example.test/ }))
     fireEvent.click(screen.getByRole('option', { name: /alex.design@example.test/ }))
     fireEvent.keyDown(screen.getByRole('searchbox'), { key: 'Escape' })
-    fireEvent.change(screen.getByLabelText('Expected end date'), { target: { value: '2027-01-31' } })
+    fireEvent.change(screen.getByLabelText(/^Term of use/), { target: { value: '6' } })
     fireEvent.change(screen.getByLabelText('Reason'), { target: { value: 'Design work' } })
     fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
     const dialog = screen.getByRole('dialog')
@@ -166,7 +166,7 @@ describe('Manager request dropdowns', () => {
     expect(within(dialog).getByText('alex.design@example.test')).toBeInTheDocument()
     const expected = {
       businessReason: 'Design work',
-      expectedEndDate: '2027-01-31',
+      termMonths: 6,
       planId,
       lines: [{ employeeId }, { employeeId: requestId }]
     }

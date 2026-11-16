@@ -18,6 +18,8 @@ const proposal = {
   state: 'SUBMITTED',
   previousProposalId: null,
   total: money,
+  requestedAmount: money,
+  note: null,
   submittedAt: '2026-11-01T00:00:00Z',
   submittedBy: null,
   returned: null,
@@ -40,24 +42,12 @@ const version = {
   total: money,
   highValuePercent: 10,
   highValueAmount: null,
-  quarters: null,
+  carriedOverNextYear: { amount: '0', currency: 'USD' },
+  belowCarriedOver: false,
+  carriedOverShortfall: { amount: '0', currency: 'USD' },
+  noProposalSubmitted: false,
   reason: null,
   decision: null
-}
-const line = {
-  position: 1,
-  description: 'API plan line',
-  amount: money,
-  planId: null,
-  seats: 2,
-  windowFrom: '2027-01-01',
-  windowTo: '2027-03-31',
-  servicePeriodMonths: 12,
-  repeatCycle: 'ANNUAL',
-  quoteValidUntil: null,
-  financeComment: null,
-  adjustmentReason: null,
-  overdue: false
 }
 const page = (items: unknown[], pageNumber = 1) => ({
   items,
@@ -87,12 +77,10 @@ describe('finance annual budget API workflows', () => {
           config.params?.page
         )
       if (path === '/budget-proposals/proposal-1') data = { proposal }
-      if (path === '/budget-proposals/proposal-1/lines') data = page([line])
       if (path === '/budget-proposals/proposal-1/return') data = { proposal: { ...proposal, state: 'RETURNED' } }
       if (path === '/budget-versions' && config.method === 'get') data = page([version])
       if (path === '/budget-versions' && config.method === 'post') data = { version }
       if (path === '/budget-versions/version-1') data = { version: { ...version, state: sent ? 'SENT' : 'DRAFT' } }
-      if (path === '/budget-versions/version-1/lines') data = page([line])
       if (path === '/budget-versions/version-1/history') data = page([])
       if (path === '/budget-versions/version-1/submission') {
         sent = true
@@ -137,11 +125,9 @@ describe('finance annual budget API workflows', () => {
     await waitFor(() => expect(requests.some((request) => request.params?.page === 2)).toBe(true))
     expect(await screen.findAllByText('Second API page')).not.toHaveLength(0)
   })
-  it('loads proposal detail and separate paged lines before returning with a reason', async () => {
+  it('loads proposal detail before returning with a reason', async () => {
     mount(<FinanceAnnualProposalsView itemId='proposal-1' formatCurrency={() => ''} onSelectTab={vi.fn()} />)
-    await waitFor(() => expect(requests.some((request) => request.url?.endsWith('/proposal-1/lines'))).toBe(true))
-    await screen.findAllByText('API plan line')
-    fireEvent.click(screen.getByRole('button', { name: 'Return proposal' }))
+    fireEvent.click(await screen.findByRole('button', { name: 'Return proposal' }))
     fireEvent.change(screen.getByLabelText(/^Reason/), { target: { value: 'Please review seats' } })
     fireEvent.click(screen.getByRole('button', { name: 'Confirm return' }))
     await waitFor(() =>

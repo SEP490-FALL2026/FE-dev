@@ -23,6 +23,7 @@ import { ManagerLiveTeam } from './team/views/manager-live-team'
 import { ManagerLiveCreate } from './team-requests/views/manager-live-create'
 import { ManagerGroupDecisions } from './team-requests/components/manager-group-decisions'
 import { ManagerSpendCorrections } from './team-requests/components/manager-spend-corrections'
+import { answerChecklist, checklistBody } from '../../../../test/fixtures/policy'
 
 const server = setupServer(...managerCatalogHandlers, ...managerReadHandlers)
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
@@ -80,7 +81,7 @@ describe('Manager budget, group and personnel contracts', () => {
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm' }))
     await waitFor(() => expect(written).toHaveBeenCalledWith({ reason: 'Update participants' }))
   })
-  it('submits decimal money unchanged and omits empty optional budget fields', async () => {
+  it('keeps the BM-10 proposal unsent until at least one file is attached', async () => {
     const written = vi.fn()
     server.use(
       http.post('*/api/v1/budget-proposals', async ({ request }) => {
@@ -90,22 +91,12 @@ describe('Manager budget, group and personnel contracts', () => {
     )
     mount(<ManagerBudgetForm costCenterId={employeeId} />)
     fireEvent.change(screen.getByLabelText('Fiscal year'), { target: { value: '2027' } })
-    fireEvent.change(screen.getByLabelText('Description'), { target: { value: 'Development licenses' } })
     fireEvent.change(screen.getByLabelText('Amount'), { target: { value: '9007199254740993.25' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
-    await waitFor(() => expect(written).toHaveBeenCalledTimes(1))
-    expect(written).toHaveBeenCalledWith({
-      year: 2027,
-      costCenterId: employeeId,
-      lines: [
-        {
-          description: 'Development licenses',
-          lineType: 'RENEW',
-          priorityRank: 1,
-          amount: { amount: '9007199254740993.25' }
-        }
-      ]
-    })
+    expect(screen.queryByLabelText('Description')).not.toBeInTheDocument()
+    expect(await screen.findByText('No supporting documents yet')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Submit' })).toBeDisabled()
+    fireEvent.submit(screen.getByRole('button', { name: 'Submit' }).closest('form') as HTMLFormElement)
+    expect(written).not.toHaveBeenCalled()
   })
   it('uses only sendable BM-09 event kinds and waits for server confirmation before closing', async () => {
     const written = vi.fn()
@@ -192,7 +183,7 @@ describe('Manager budget, group and personnel contracts', () => {
     mount(<ManagerLiveCreate onOpen={vi.fn()} />, '/dashboard/manager')
     await chooseCatalogPlan()
     await screen.findByText('Sharing not allowed')
-    fireEvent.change(screen.getByLabelText('Expected end date'), { target: { value: '2027-01-31' } })
+    fireEvent.change(screen.getByLabelText(/^Term of use/), { target: { value: '6' } })
     fireEvent.click(screen.getByRole('combobox', { name: 'Beneficiaries' }))
     fireEvent.click(await screen.findByRole('option', { name: /Test Employee/ }))
     fireEvent.click(screen.getByRole('option', { name: /Second Employee/ }))
@@ -231,9 +222,16 @@ describe('Manager budget, group and personnel contracts', () => {
     )
     mount(<ManagerGroupDecisions id={requestId} employeeId={managerId} requestPending />)
     fireEvent.click(await screen.findByRole('radio', { name: 'Approve need' }))
+    await answerChecklist()
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Confirm' })).toBeEnabled())
     fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm' }))
-    await waitFor(() => expect(written).toHaveBeenCalledWith({ lines: [{ employeeId, decision: 'APPROVE' }] }))
+    await waitFor(() =>
+      expect(written).toHaveBeenCalledWith({
+        lines: [{ employeeId, decision: 'APPROVE' }],
+        checklist: checklistBody('1.2')
+      })
+    )
   })
   it('preserves fields and shows retry countdown for rate limits', async () => {
     server.use(

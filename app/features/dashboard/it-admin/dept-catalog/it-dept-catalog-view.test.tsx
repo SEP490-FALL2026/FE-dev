@@ -47,13 +47,17 @@ describe('IT catalog API integration', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Add application' }))
     fireEvent.change(screen.getByLabelText('Application name'), { target: { value: 'Draft application' } })
     fireEvent.change(screen.getByLabelText('Vendor name'), { target: { value: 'Vendor' } })
+    fireEvent.change(screen.getByLabelText('Plan name'), { target: { value: 'Professional' } })
     expect(screen.queryByLabelText('Business owner employee ID')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
     await waitFor(() =>
       expect(request).toHaveBeenCalledWith(
         expect.objectContaining({
           method: 'POST',
-          data: expect.objectContaining({ name: 'Draft application', kind: 'SAAS' })
+          data: expect.objectContaining({
+            name: 'Draft application',
+            plan: { name: 'Professional', provisioningType: 'K1' }
+          })
         }),
         undefined
       )

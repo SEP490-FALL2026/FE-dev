@@ -58,15 +58,18 @@ it('submits a manager re-request for themselves as a personal request during gra
   )
   const open = mount()
   await waitFor(() => expect(screen.getByRole('combobox', { name: 'Software plan' })).toHaveTextContent('Standard'))
+  fireEvent.change(screen.getByLabelText(/^Term of use/), { target: { value: '6' } })
   fireEvent.change(screen.getByLabelText('Reason'), { target: { value: 'Continue in my new department' } })
   fireEvent.click(screen.getByRole('button', { name: 'Review request' }))
   await screen.findByText('Requesting again during your transfer grace period')
   fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
-  await waitFor(() => expect(sent).toHaveBeenCalledWith({ planId, businessReason: 'Continue in my new department' }))
+  await waitFor(() =>
+    expect(sent).toHaveBeenCalledWith({ planId, businessReason: 'Continue in my new department', termMonths: 6 })
+  )
   await waitFor(() => expect(open).toHaveBeenCalledWith(accessRequest.id))
   expect(group).not.toHaveBeenCalled()
 })
-it('requires another preview when the end date changes and respects duplicate refusals', async () => {
+it('requires another preview when the term of use changes and respects duplicate refusals', async () => {
   const send = vi.fn()
   server.use(
     http.post('*/api/v1/access-requests/preview', () =>
@@ -89,11 +92,12 @@ it('requires another preview when the end date changes and respects duplicate re
   )
   mount()
   await waitFor(() => expect(screen.getByRole('combobox', { name: 'Software plan' })).toHaveTextContent('Standard'))
+  fireEvent.change(screen.getByLabelText(/^Term of use/), { target: { value: '6' } })
   fireEvent.change(screen.getByLabelText('Reason'), { target: { value: 'Need access' } })
   fireEvent.click(screen.getByRole('button', { name: 'Review request' }))
   await screen.findByText('Requesting again during your transfer grace period')
   expect(screen.queryByRole('button', { name: 'Submit' })).not.toBeInTheDocument()
-  fireEvent.change(screen.getByLabelText('Expected end date'), { target: { value: '2026-12-20' } })
+  fireEvent.change(screen.getByLabelText(/^Term of use/), { target: { value: '3' } })
   expect(screen.queryByText('Requesting again during your transfer grace period')).not.toBeInTheDocument()
   expect(send).not.toHaveBeenCalled()
 })

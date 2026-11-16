@@ -40,6 +40,7 @@ import { EmployeeMoney } from '../../shared/components/employee-money'
 import { LiveRequestAssessment } from '../components/live-request-assessment'
 import { RequestFlowSummary } from '~/entities/request/components/request-flow-summary'
 import { RequestEventTimeline } from '~/entities/request/components/request-event-timeline'
+import { requestTermLabel } from '~/entities/request/term-months'
 import { RequestRevision } from '~/entities/request/components/request-revision'
 
 export function EmployeeLiveRequestDetail({
@@ -157,9 +158,9 @@ export function EmployeeLiveRequestDetail({
                   </div>
 
                   <div className='rounded-xl border border-border/60 bg-surface p-3.5'>
-                    <dt className='text-xs font-medium text-muted-foreground'>{flow('endDate')}</dt>
+                    <dt className='text-xs font-medium text-muted-foreground'>{flow('termMonths')}</dt>
                     <dd className='mt-1 font-mono text-base font-semibold tabular-nums text-foreground'>
-                      {request.expectedEndDate ? formatDate(request.expectedEndDate) : flow('indefinite')}
+                      {requestTermLabel(request, flow, formatDate)}
                     </dd>
                   </div>
 
@@ -263,7 +264,7 @@ export function EmployeeLiveRequestDetail({
                       departmentId={request.department.id}
                       id={id}
                       group={request.type === REQUEST_TYPE.GROUP_GRANT}
-                      maxEndDate={request.expectedEndDate}
+                      termMonths={request.termMonths}
                     />
                   )}
                 {request.type === REQUEST_TYPE.GROUP_GRANT && (

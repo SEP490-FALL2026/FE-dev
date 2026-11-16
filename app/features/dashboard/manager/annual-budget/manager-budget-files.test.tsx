@@ -24,20 +24,6 @@ const uploaded = {
   createdAt: new Date().toISOString(),
   expiresAt: '2099-01-01T00:00:00Z'
 }
-const line = {
-  lineType: 'RENEW',
-  priorityRank: 1,
-  zbb: null,
-  overCeiling: null,
-  position: 1,
-  description: 'Software',
-  amount: { amount: '1250.50' },
-  planId: null,
-  seats: null,
-  repeatCycle: 'ANNUAL',
-  quoteValidUntil: null,
-  note: null
-}
 let files: (typeof uploaded)[] = []
 const server = setupServer(
   http.get('*/api/v1/budget-attachments/mine', () => HttpResponse.json(pageResponse(files))),
@@ -71,7 +57,6 @@ function mount(children = <ManagerBudgetForm costCenterId={employeeId} costCente
 function fill() {
   for (const [label, value] of Object.entries({
     'Fiscal year': '2027',
-    Description: 'Software',
     Amount: '1250.50'
   }))
     fireEvent.change(screen.getByLabelText(label), { target: { value } })
@@ -149,19 +134,12 @@ it('uploads raw bytes, completes the upload, and submits only its ID with decima
     expect(submitted).toHaveBeenCalledWith({
       year: 2027,
       costCenterId: employeeId,
-      lines: [
-        {
-          description: 'Software',
-          lineType: 'RENEW',
-          priorityRank: 1,
-          amount: { amount: '1250.50' }
-        }
-      ],
+      requestedAmount: { amount: '1250.50' },
       attachmentIds: [fileId]
     })
   )
 })
-it('requires explicit selection of recovered uploads and omits unselected attachments', async () => {
+it('requires explicit selection of a recovered upload before submitting', async () => {
   files = [uploaded]
   const submitted = vi.fn()
   server.use(
@@ -172,10 +150,14 @@ it('requires explicit selection of recovered uploads and omits unselected attach
   )
   mount()
   fill()
-  expect(await screen.findByRole('checkbox', { name: /quote.pdf/ })).not.toBeChecked()
+  const checkbox = await screen.findByRole('checkbox', { name: /quote.pdf/ })
+  expect(checkbox).not.toBeChecked()
+  expect(screen.getByRole('button', { name: 'Submit' })).toBeDisabled()
+  fireEvent.click(checkbox)
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Submit' })).toBeEnabled())
   fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
   await waitFor(() => expect(submitted).toHaveBeenCalledOnce())
-  expect(submitted.mock.calls[0][0]).not.toHaveProperty('attachmentIds')
+  expect(submitted.mock.calls[0][0]).toMatchObject({ attachmentIds: [fileId] })
 })
 it('does not complete or select a file when storage rejects the PUT', async () => {
   const handlers = uploadHandlers(403)
@@ -212,7 +194,6 @@ it('includes new uploads in resubmission without reusing attachments of the prev
     http.get('*/api/v1/budget-proposals/:id', () =>
       HttpResponse.json({ success: true, data: { proposal: { ...proposal, state: 'RETURNED' } } })
     ),
-    http.get('*/api/v1/budget-proposals/:id/lines', () => HttpResponse.json(pageResponse([line]))),
     http.post('*/api/v1/budget-proposals/:id/resubmission', async ({ request }) => {
       submitted(await request.json())
       return HttpResponse.json({ success: true, data: { proposal } })
@@ -222,7 +203,10 @@ it('includes new uploads in resubmission without reusing attachments of the prev
   fireEvent.click(await screen.findByRole('checkbox', { name: /quote.pdf/ }))
   fireEvent.click(screen.getByRole('button', { name: 'Submit revised proposal' }))
   await waitFor(() => expect(submitted).toHaveBeenCalledOnce())
-  expect(submitted.mock.calls[0][0]).toMatchObject({ attachmentIds: [fileId] })
+  expect(submitted.mock.calls[0][0]).toMatchObject({
+    attachmentIds: [fileId],
+    requestedAmount: { amount: proposal.requestedAmount.amount }
+  })
   expect(submitted.mock.calls[0][0]).not.toHaveProperty('costCenterId')
 })
 it('obtains a fresh download link for each click', async () => {

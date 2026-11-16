@@ -1,21 +1,17 @@
 import { ArrowLeft } from 'lucide-react'
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDashboardFormat } from '../../../dashboard-ui'
 import { useBudgetProposalGet } from '~/shared/api/generated/operations/budget-proposals/budget-proposal-get'
-import { useBudgetProposalLineList } from '~/shared/api/generated/operations/budget-proposals/budget-proposal-line-list'
 import {
   ApprovalsButton,
   ApprovalsEmpty,
   ApprovalsPage,
-  ApprovalsPagination,
   ApprovalsSection,
   ApprovalsStat,
   ApprovalsStatGrid,
   ApprovalsStatus
 } from '../../shared/components/approvals-ui'
 import { ApprovalsQueryState } from '../../shared/components/approvals-query-state'
-import { ApprovalsTable } from '../../shared/components/approvals-table'
 import { formatMoney } from '../../shared/approvals-money'
 import type { ApprovalBudgetViewProps } from '../budget-view-props'
 import { ApprovalBudgetAttachments } from './approval-budget-attachments'
@@ -71,7 +67,13 @@ export function ApprovalBudgetProposalDetail({ itemId, onSelectTab }: ApprovalBu
                 </div>
               </ApprovalsSection>
             )}
-            <ProposalLines itemId={itemId} />
+            {proposal.note && (
+              <ApprovalsSection title={translate('note')}>
+                <p className='rounded-lg border border-border/70 bg-surface p-4 text-sm whitespace-pre-wrap [overflow-wrap:anywhere]'>
+                  {proposal.note}
+                </p>
+              </ApprovalsSection>
+            )}
             <ApprovalBudgetAttachments target='proposal' ownerId={itemId} />
           </div>
         ) : (
@@ -79,46 +81,5 @@ export function ApprovalBudgetProposalDetail({ itemId, onSelectTab }: ApprovalBu
         )}
       </ApprovalsQueryState>
     </ApprovalsPage>
-  )
-}
-
-function ProposalLines({ itemId }: { itemId: string }) {
-  const { t: translate, i18n } = useTranslation('approvalsBudget')
-  const [page, setPage] = useState(1)
-  const query = useBudgetProposalLineList(itemId, { page, pageSize: 20 })
-  return (
-    <ApprovalsSection title={translate('lines')}>
-      <ApprovalsQueryState query={query}>
-        <ApprovalsTable
-          items={query.data?.data?.items ?? []}
-          rowKey={(line) => String(line.position)}
-          columns={[
-            {
-              key: 'description',
-              label: translate('description'),
-              render: (line) => <span title={line.description}>{line.description}</span>
-            },
-            {
-              key: 'amount',
-              label: translate('amount'),
-              numeric: true,
-              render: (line) => formatMoney(line.amount, i18n.language)
-            },
-            {
-              key: 'seats',
-              label: translate('seats'),
-              numeric: true,
-              render: (line) => line.seats ?? translate('unavailable')
-            },
-            {
-              key: 'note',
-              label: translate('note'),
-              render: (line) => <span title={line.note ?? undefined}>{line.note ?? translate('unavailable')}</span>
-            }
-          ]}
-        />
-        <ApprovalsPagination pagination={query.data?.data?.pagination} onPageChange={setPage} />
-      </ApprovalsQueryState>
-    </ApprovalsSection>
   )
 }

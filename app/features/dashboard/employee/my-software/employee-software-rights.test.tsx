@@ -11,7 +11,7 @@ import { EmployeeLiveAccessView } from './views/employee-live-access-view'
 
 const rights: MySoftwarePageResponseDtoDataItemsItem = {
   assignmentId,
-  application: { id: planId, name: 'Granted Software' },
+  application: { id: planId, name: 'Granted Software', logoUrl: null },
   plan: { id: planId, name: 'Team plan' },
   provisioningType: 'K4',
   status: 'ACTIVE',
@@ -113,7 +113,11 @@ describe('Employee software access lists', () => {
         requests(params.toString())
         const current = Number(params.get('page'))
         return HttpResponse.json(
-          response([{ ...rights, application: { id: planId, name: `Software page ${current}` } }], current, 2)
+          response(
+            [{ ...rights, application: { id: planId, name: `Software page ${current}`, logoUrl: null } }],
+            current,
+            2
+          )
         )
       })
     )

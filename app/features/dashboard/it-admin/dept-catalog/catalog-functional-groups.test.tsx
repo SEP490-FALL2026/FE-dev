@@ -54,6 +54,7 @@ it('sends an optional functional group with the application declaration', async 
   fireEvent.click(screen.getByRole('button', { name: 'Add application' }))
   fireEvent.change(screen.getByLabelText('Application name'), { target: { value: 'Design suite' } })
   fireEvent.change(screen.getByLabelText('Vendor name'), { target: { value: 'Supplier' } })
+  fireEvent.change(screen.getByLabelText('Plan name'), { target: { value: 'Professional' } })
   expect(screen.queryByLabelText('Business owner employee ID')).not.toBeInTheDocument()
   fireEvent.click(await screen.findByRole('combobox', { name: 'Functional group' }))
   fireEvent.click(await screen.findByRole('option', { name: 'Design tools' }))

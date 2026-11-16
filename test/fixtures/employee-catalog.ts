@@ -4,14 +4,15 @@ import { expect } from 'vitest'
 import type { RequestableApplicationResponseDtoData } from '../../app/shared/api/generated/model/requestable-software/requestableApplicationResponseDtoData'
 import type { RequestablePlanPageResponseDtoDataItemsItem } from '../../app/shared/api/generated/model/requestable-software/requestablePlanPageResponseDtoDataItemsItem'
 import type { RequestablePlanResponseDtoData } from '../../app/shared/api/generated/model/requestable-software/requestablePlanResponseDtoData'
-import { pageResponse, planId } from './employee-api'
+import { employeeId, pageResponse, planId } from './employee-api'
 
 export const catalogApplication: NonNullable<RequestableApplicationResponseDtoData> = {
   id: planId,
   name: 'Test Software',
   kind: 'SAAS',
+  logoUrl: null,
   vendorName: 'Test Vendor',
-  functionalGroup: null,
+  functionalGroup: { id: employeeId, name: 'Collaboration' },
   planCount: 1,
   costsMoney: true,
   canSubmit: true,
@@ -22,7 +23,7 @@ export const catalogPlan: RequestablePlanPageResponseDtoDataItemsItem = {
   id: planId,
   name: 'Standard',
   provisioningType: 'K1',
-  application: { id: planId, name: 'Test Software', kind: 'SAAS' },
+  application: { id: planId, name: 'Test Software', kind: 'SAAS', logoUrl: null },
   price: { status: 'PRICED', missingReason: null },
   costsMoney: true,
   canSubmit: true,
@@ -81,4 +82,10 @@ export async function chooseCatalogPlan() {
   fireEvent.click(await screen.findByRole('option', { name: /Standard/ }))
   const details = screen.queryByRole('region', { name: 'Selected plan details' })
   if (details) await waitFor(() => expect(within(details).queryByRole('status')).not.toBeInTheDocument())
+  // The fixture plan is K1, whose "Thời gian dùng" is required (1–9 months).
+  const term = screen.queryByLabelText(/^Term of use/)
+  if (term) fireEvent.change(term, { target: { value: catalogTermMonths } })
 }
+
+/** Term of use the catalog helper enters for the K1 fixture plan. */
+export const catalogTermMonths = '6'

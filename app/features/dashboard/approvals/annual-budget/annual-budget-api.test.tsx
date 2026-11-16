@@ -23,6 +23,8 @@ const version = {
   base: money,
   reserve: { amount: '0', currency: 'USD' },
   total: money,
+  requestedAmount: money,
+  note: null,
   highValuePercent: 10,
   highValueAmount: null,
   quarters: null,
@@ -40,22 +42,6 @@ const page = (items: unknown[], pageNumber = 1) => ({
   items,
   pagination: { page: pageNumber, pageSize: 20, totalItems: items.length ? 21 : 0, totalPages: items.length ? 2 : 0 }
 })
-const line = {
-  position: 1,
-  proposalPosition: null,
-  description: 'Original API line',
-  planId: null,
-  seats: 2,
-  amount: money,
-  windowFrom: '2027-01-01',
-  windowTo: '2027-03-31',
-  servicePeriodMonths: 12,
-  repeatCycle: 'ANNUAL',
-  quoteValidUntil: null,
-  financeComment: 'Finance basis',
-  adjustmentReason: null,
-  overdue: false
-}
 const proposal = {
   id: 'proposal-1',
   costCenter: center,
@@ -123,11 +109,6 @@ describe('Spending Approver annual budget API', () => {
         )
       if (path === '/budget-versions/version-1')
         data = { version: { ...version, state: decided ? 'APPROVED' : versionStatus } }
-      if (path === '/budget-versions/version-1/lines')
-        data = page(
-          [{ ...line, description: config.params?.page === 2 ? 'Second API line page' : line.description }],
-          config.params?.page
-        )
       if (path === '/budget-versions/version-1/history')
         data = page([
           {
@@ -183,9 +164,7 @@ describe('Spending Approver annual budget API', () => {
       if (path === '/budget-attachments/attachment-1/links')
         data = { url: 'https://files.example.test/quote.pdf', expiresAt: '2026-11-04T01:00:00Z' }
       if (path === '/budget-proposals') data = page([proposal])
-      if (path === '/budget-proposals/proposal-1') data = { proposal }
-      if (path === '/budget-proposals/proposal-1/lines')
-        data = page([{ ...line, description: 'API proposal line', note: null }])
+      if (path === '/budget-proposals/proposal-1') data = { proposal: { ...proposal, note: 'API proposal note' } }
       return {
         config,
         data: { success: true, message: 'BUDGET.FETCHED', data },
@@ -316,15 +295,6 @@ describe('Spending Approver annual budget API', () => {
     expect(decided).toBe(false)
   })
 
-  it('loads version lines on the server and shows the audit change details', async () => {
-    mount('version-1')
-    const lines = await screen.findByRole('region', { name: 'Budget lines' })
-    await within(lines).findAllByText('Original API line')
-    fireEvent.click(within(lines).getByRole('button', { name: /next/i }))
-    expect((await within(lines).findAllByText('Second API line page')).length).toBeGreaterThan(0)
-    expect(requests.some((request) => request.url?.endsWith('/lines') && request.params?.page === 2)).toBe(true)
-  })
-
   it('opens the version history on its own screen', async () => {
     mount('version-1')
     fireEvent.click(await screen.findByRole('button', { name: 'Version history' }))
@@ -345,10 +315,9 @@ describe('Spending Approver annual budget API', () => {
   it('reads department proposals without offering a decision action', async () => {
     mount('proposal:proposal-1')
     expect(await screen.findByText('Engineering API')).toBeInTheDocument()
-    expect((await screen.findAllByText('API proposal line')).length).toBeGreaterThan(0)
+    expect(await screen.findByText('API proposal note')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Review decision' })).not.toBeInTheDocument()
     expect(requests.some((request) => request.url?.endsWith('/budget-proposals/proposal-1'))).toBe(true)
-    expect(requests.some((request) => request.url?.endsWith('/budget-proposals/proposal-1/lines'))).toBe(true)
   })
 
   it('waits for the server and prevents duplicate decision submissions', async () => {

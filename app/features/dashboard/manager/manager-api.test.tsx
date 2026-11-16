@@ -15,6 +15,7 @@ import { ManagerLiveBatch } from './team-requests/views/manager-live-batch'
 import { ManagerLiveCreate } from './team-requests/views/manager-live-create'
 import { ManagerScreen } from './manager-screen'
 import { ManagerStatus } from './shared/components/manager-api-ui'
+import { answerChecklist, checklistBody } from '../../../../test/fixtures/policy'
 
 const server = setupServer(...managerCatalogHandlers, ...managerReadHandlers)
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
@@ -81,13 +82,14 @@ describe('Manager need approval and spend submission', () => {
     const view = mount(<ManagerLiveRequest id={requestId} employeeId={managerId} onBack={vi.fn()} />)
     view.client.setQueryData(getSpendQueueListQueryKey(), { success: true })
     await screen.findByRole('radio', { name: 'Approve need' })
+    await answerChecklist()
     fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
     const dialog = screen.getByRole('dialog')
     const confirm = within(dialog).getByRole('button', { name: 'Confirm' })
     fireEvent.click(confirm)
     fireEvent.click(confirm)
     await waitFor(() => expect(written).toHaveBeenCalledTimes(1))
-    expect(written).toHaveBeenCalledWith({ decision: 'APPROVE' })
+    expect(written).toHaveBeenCalledWith({ decision: 'APPROVE', checklist: checklistBody('1.2') })
     expect(confirm).toBeDisabled()
     finish()
     await waitFor(() => expect(view.client.getQueryState(getSpendQueueListQueryKey())?.isInvalidated).toBe(true))
@@ -118,12 +120,13 @@ describe('Manager need approval and spend submission', () => {
       })
     )
     mount(<ManagerLiveRequest id={requestId} employeeId={managerId} onBack={vi.fn()} />)
+    await answerChecklist()
     fireEvent.click(await screen.findByLabelText('Reject need'))
-    fireEvent.change(screen.getByLabelText('Reason'), { target: { value: 'No business requirement' } })
+    fireEvent.change(screen.getByLabelText('Reason for rejection'), { target: { value: 'No business requirement' } })
     fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm' }))
     expect(await screen.findByText(/The previous action may have been recorded/)).toBeInTheDocument()
-    expect(screen.getByLabelText('Reason')).toHaveValue('No business requirement')
+    expect(screen.getByLabelText('Reason for rejection')).toHaveValue('No business requirement')
     expect(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm' })).toBeDisabled()
     expect(written).toHaveBeenCalledTimes(1)
   })
@@ -163,7 +166,7 @@ describe('Manager need approval and spend submission', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm' }))
     expect(await screen.findByText('Sent to spending approver')).toBeInTheDocument()
-    expect(written).toHaveBeenCalledWith({ requestIds: [requestId], reserveConfirmations: [] })
+    expect(written).toHaveBeenCalledWith({ requestIds: [requestId] })
   })
   it('requires a reserve reason and sends it with the same selected request only once', async () => {
     const written = vi.fn()
@@ -189,12 +192,16 @@ describe('Manager need approval and spend submission', () => {
     fireEvent.change(dialog.getByLabelText(/Reason for using the reserve/), {
       target: { value: 'Additional project seats' }
     })
+    expect(confirm).toBeDisabled()
+    await answerChecklist()
+    await waitFor(() => expect(confirm).toBeEnabled())
     fireEvent.click(confirm)
     fireEvent.click(confirm)
     await waitFor(() =>
       expect(written).toHaveBeenCalledExactlyOnceWith({
         requestIds: [requestId],
-        reserveConfirmations: [{ requestId, reason: 'Additional project seats' }]
+        reserveConfirmations: [{ requestId, reason: 'Additional project seats' }],
+        checklist: checklistBody('1.6')
       })
     )
   })
@@ -280,7 +287,7 @@ describe('Manager need approval and spend submission', () => {
     mount(<ManagerLiveCreate onOpen={vi.fn()} />, '/dashboard/manager')
     await chooseCatalogPlan()
     await screen.findByText('Sharing not allowed')
-    fireEvent.change(screen.getByLabelText('Expected end date'), { target: { value: '2027-01-31' } })
+    fireEvent.change(screen.getByLabelText(/^Term of use/), { target: { value: '6' } })
     fireEvent.click(screen.getByRole('combobox', { name: 'Beneficiaries' }))
     fireEvent.click(await screen.findByRole('option', { name: /Test Employee/ }))
     fireEvent.click(screen.getByRole('option', { name: /Second Employee/ }))
@@ -294,7 +301,7 @@ describe('Manager need approval and spend submission', () => {
     expect(await screen.findByText('Created requests')).toBeInTheDocument()
     expect(written).toHaveBeenCalledWith({
       businessReason: 'Onboarding',
-      expectedEndDate: '2027-01-31',
+      termMonths: 6,
       planId,
       lines: [{ employeeId }, { employeeId: planId }]
     })

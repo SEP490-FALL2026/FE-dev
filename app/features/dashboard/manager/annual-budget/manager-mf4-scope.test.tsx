@@ -48,7 +48,7 @@ it('allows an assigned future department head to prepare BM-10 without requestin
       </MemoryRouter>
     </QueryClientProvider>
   )
-  expect(await screen.findByLabelText('Description')).toBeInTheDocument()
+  expect(await screen.findByLabelText('Amount')).toBeInTheDocument()
   expect(screen.getByLabelText('Department cost center')).toHaveValue('Upcoming department')
   expect(screen.getByLabelText('Fiscal year')).toHaveValue(2027)
   expect(departmentRead).not.toHaveBeenCalled()
@@ -62,7 +62,7 @@ it('does not grant current team operations to the future head', async () => {
       </MemoryRouter>
     </QueryClientProvider>
   )
-  await screen.findByLabelText('Description')
+  await screen.findByLabelText('Amount')
   expect(screen.queryByRole('heading', { name: 'Personnel' })).not.toBeInTheDocument()
   expect(departmentRead).not.toHaveBeenCalled()
 })

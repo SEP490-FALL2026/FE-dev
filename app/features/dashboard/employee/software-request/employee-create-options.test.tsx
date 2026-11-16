@@ -15,7 +15,7 @@ import { EmployeeLiveCreateView } from './views/employee-live-create-view'
 const secondId = '99999999-9999-4999-8999-999999999999'
 const right: MySoftwarePageResponseDtoDataItemsItem = {
   assignmentId,
-  application: { id: planId, name: 'Team Software' },
+  application: { id: planId, name: 'Team Software', logoUrl: null },
   plan: { id: planId, name: 'Standard' },
   provisioningType: 'K2',
   status: 'ACTIVE',
@@ -108,7 +108,7 @@ it('reads all personal-right pages, searches by software name and sends the sele
         response(
           params.get('page') === '1'
             ? [right]
-            : [{ ...right, assignmentId: secondId, application: { id: planId, name: 'Phần mềm khác' } }],
+            : [{ ...right, assignmentId: secondId, application: { id: planId, name: 'Phần mềm khác', logoUrl: null } }],
           Number(params.get('page')),
           2
         )

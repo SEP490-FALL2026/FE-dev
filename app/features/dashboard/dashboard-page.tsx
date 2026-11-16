@@ -7,6 +7,7 @@ import type { UserRole } from '~/entities/user-role/user-role'
 import { useDocumentTitle } from '~/shared/lib/use-document-title'
 import { LoadingIndicator } from '~/shared/ui/page-loading'
 import { getAuthState, subscribeAuthSession } from '../auth/auth-session'
+import { PolicyAcknowledgementGate } from '~/entities/policy/components/policy-acknowledgement-gate'
 
 import { DashboardHeader } from './components/dashboard-header'
 import { DashboardSidebar } from './components/dashboard-sidebar'
@@ -214,41 +215,47 @@ export function DashboardPage({ role }: { role: UserRole }) {
           }
           transition={{ duration: 0.25, ease: 'easeOut' }}
         >
-          {isItAdmin ? (
-            <ItAdminScreen tab={activeTab} itemId={searchParams.get('id') ?? undefined} onSelectTab={handleSelectTab} />
-          ) : isEmployee ? (
-            <EmployeeScreen tab={activeEmployeeTab} onSelectTab={handleSelectEmployeeTab} />
-          ) : isManager ? (
-            <ManagerScreen tab={activeManagerTab} onSelectTab={handleSelectManagerTab} />
-          ) : isApprover ? (
-            <ApprovalScreen
-              displayName={profile.displayName}
-              formatCurrency={formatCurrency}
-              itemId={searchParams.get('id') || undefined}
-              onSelectTab={handleSelectApprovalTab}
-              tab={activeApprovalTab}
-            />
-          ) : isFinance ? (
-            <FinanceScreen
-              formatCurrency={formatCurrency}
-              itemId={searchParams.get('id') || undefined}
-              onSelectTab={handleSelectFinanceTab}
-              tab={activeFinanceTab}
-            />
-          ) : isSuperAdmin ? (
-            <SuperAdminScreen tab={activeSuperAdminTab} onSelectTab={handleSelectSuperAdminTab} />
-          ) : (
-            <Suspense fallback={<LoadingIndicator message={tErrors('loading')} />}>
-              <DefaultDashboardView
-                displayName={profile.displayName}
-                formatCompact={formatCompact}
-                formatCurrency={formatCurrency}
-                formatDate={formatDate}
-                formatMonth={formatMonth}
-                formatNumber={formatNumber}
+          <PolicyAcknowledgementGate>
+            {isItAdmin ? (
+              <ItAdminScreen
+                tab={activeTab}
+                itemId={searchParams.get('id') ?? undefined}
+                onSelectTab={handleSelectTab}
               />
-            </Suspense>
-          )}
+            ) : isEmployee ? (
+              <EmployeeScreen tab={activeEmployeeTab} onSelectTab={handleSelectEmployeeTab} />
+            ) : isManager ? (
+              <ManagerScreen tab={activeManagerTab} onSelectTab={handleSelectManagerTab} />
+            ) : isApprover ? (
+              <ApprovalScreen
+                displayName={profile.displayName}
+                formatCurrency={formatCurrency}
+                itemId={searchParams.get('id') || undefined}
+                onSelectTab={handleSelectApprovalTab}
+                tab={activeApprovalTab}
+              />
+            ) : isFinance ? (
+              <FinanceScreen
+                formatCurrency={formatCurrency}
+                itemId={searchParams.get('id') || undefined}
+                onSelectTab={handleSelectFinanceTab}
+                tab={activeFinanceTab}
+              />
+            ) : isSuperAdmin ? (
+              <SuperAdminScreen tab={activeSuperAdminTab} onSelectTab={handleSelectSuperAdminTab} />
+            ) : (
+              <Suspense fallback={<LoadingIndicator message={tErrors('loading')} />}>
+                <DefaultDashboardView
+                  displayName={profile.displayName}
+                  formatCompact={formatCompact}
+                  formatCurrency={formatCurrency}
+                  formatDate={formatDate}
+                  formatMonth={formatMonth}
+                  formatNumber={formatNumber}
+                />
+              </Suspense>
+            )}
+          </PolicyAcknowledgementGate>
         </motion.main>
       </div>
     </div>

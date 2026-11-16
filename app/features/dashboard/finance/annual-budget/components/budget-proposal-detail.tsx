@@ -2,7 +2,6 @@ import { ArrowLeft } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useBudgetProposalGet } from '~/shared/api/generated/operations/budget-proposals/budget-proposal-get'
-import { useBudgetProposalLineList } from '~/shared/api/generated/operations/budget-proposals/budget-proposal-line-list'
 import { useBudgetProposalReturn } from '~/shared/api/generated/operations/budget-proposals/budget-proposal-return'
 import { useBudgetVersionCreate } from '~/shared/api/generated/operations/budget-versions/budget-version-create'
 import { AdminFormDialog as FinanceFormDialog } from '~/shared/ui/form-dialog'
@@ -11,31 +10,25 @@ import {
   FinanceEmpty,
   FinanceField,
   FinancePage,
-  FinancePagination,
   FinanceQueryState,
   FinanceStat,
   FinanceStatGrid,
   FinanceStatus,
   financeInputClass
 } from '../../shared/components/finance-ui'
-import { FinanceTable } from '../../shared/components/finance-table'
 import { useFinanceFeedback } from '../../shared/hooks/use-finance-feedback'
 import { formatMoney } from '../../shared/finance-money'
 import { budgetQueryKeys } from '../budget-query-keys'
 import type { BudgetViewProps } from '../budget-view-props'
 import { proposalState } from '../enums/proposal-state'
 import { BudgetVersionForm } from './budget-version-form'
-import { BudgetPlanLineFacts } from './budget-plan-line-facts'
 import { BudgetAttachments } from './budget-attachments'
 
 export function BudgetProposalDetail({ itemId, onSelectTab }: BudgetViewProps & { itemId: string }) {
   const { t: translate, i18n } = useTranslation('financeBudget')
-  const [page, setPage] = useState(1)
   const [dialog, setDialog] = useState<'return' | 'create'>()
   const [reason, setReason] = useState('')
-  const [linePosition, setLinePosition] = useState<number>()
   const query = useBudgetProposalGet(itemId)
-  const linesQuery = useBudgetProposalLineList(itemId, { page, pageSize: 20 })
   const feedback = useFinanceFeedback(budgetQueryKeys(undefined, itemId), () => setDialog(undefined))
   const returnMutation = useBudgetProposalReturn({ mutation: feedback })
   const createMutation = useBudgetVersionCreate({
@@ -48,8 +41,6 @@ export function BudgetProposalDetail({ itemId, onSelectTab }: BudgetViewProps & 
     }
   })
   const proposal = query.data?.data?.proposal
-  const lines = linesQuery.data?.data
-  const selectedLine = lines?.items.find((line) => line.position === linePosition)
   if (proposal && dialog === 'create')
     return (
       <BudgetVersionForm
@@ -113,37 +104,12 @@ export function BudgetProposalDetail({ itemId, onSelectTab }: BudgetViewProps & 
                 <FinanceButton onClick={() => setDialog('return')}>{translate('actions.return')}</FinanceButton>
               </div>
             )}
-            <h3 className='text-base font-semibold tracking-tight'>{translate('lines')}</h3>
-            <FinanceQueryState query={linesQuery}>
-              <FinanceTable
-                items={lines?.items ?? []}
-                rowKey={(line) => String(line.position)}
-                onOpen={(line) => setLinePosition(line.position)}
-                columns={[
-                  {
-                    key: 'position',
-                    label: translate('fields.position'),
-                    numeric: true,
-                    render: (line) => line.position
-                  },
-                  { key: 'description', label: translate('fields.description'), render: (line) => line.description },
-                  {
-                    key: 'amount',
-                    label: translate('fields.amount'),
-                    numeric: true,
-                    render: (line) => formatMoney(line.amount, i18n.language)
-                  },
-                  {
-                    key: 'seats',
-                    label: translate('fields.seats'),
-                    numeric: true,
-                    render: (line) => line.seats ?? translate('none')
-                  }
-                ]}
-              />
-              <FinancePagination pagination={lines?.pagination} onPageChange={setPage} />
-            </FinanceQueryState>
-            {selectedLine && <BudgetPlanLineFacts line={selectedLine} onClose={() => setLinePosition(undefined)} />}
+            {proposal.note && (
+              <div className='space-y-1'>
+                <h3 className='text-base font-semibold tracking-tight'>{translate('fields.note')}</h3>
+                <p className='text-sm whitespace-pre-wrap break-words [text-wrap:pretty]'>{proposal.note}</p>
+              </div>
+            )}
             <BudgetAttachments target='proposal' ownerId={itemId} />
           </>
         ) : (

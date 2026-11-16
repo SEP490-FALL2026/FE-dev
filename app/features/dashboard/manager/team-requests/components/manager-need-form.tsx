@@ -3,7 +3,7 @@ import { getNeedDecisionListQueryKey } from '~/shared/api/generated/operations/n
 import { getManagerDashboardGetQueryKey } from '~/shared/api/generated/operations/dashboards/manager-dashboard-get'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Check, CheckCircle2, X, XCircle } from 'lucide-react'
+import { Check, CheckCircle2, Undo2, XCircle, type LucideIcon } from 'lucide-react'
 import type { NeedDecisionBodyDto } from '~/shared/api/generated/model/access-requests/needDecisionBodyDto'
 import { accessRequestNeedDecide } from '~/shared/api/generated/operations/access-requests/access-request-need-decide'
 import { getAccessRequestGetQueryKey } from '~/shared/api/generated/operations/access-requests/access-request-get'
@@ -18,11 +18,33 @@ import {
   managerInputClass
 } from '../../shared/components/manager-api-ui'
 import { NEED_DECISION } from '../enums/need-decision'
+import { POLICY_STEP } from '~/entities/policy/policy-steps'
+import { usePolicyChecklist } from '~/entities/policy/hooks/use-policy-checklist'
+import { PolicyChecklist, useChecklistNoReason } from '~/entities/policy/components/policy-checklist'
+import { isPolicyVersionChanged } from '~/entities/policy/policy-errors'
 
+type NeedDecision = NeedDecisionBodyDto['decision']
+
+const decisionOptions = [
+  { value: NEED_DECISION.APPROVE, icon: CheckCircle2, label: 'approve' },
+  { value: NEED_DECISION.REJECT, icon: XCircle, label: 'reject' },
+  { value: NEED_DECISION.RETURN, icon: Undo2, label: 'requestDetail.returnLabel' }
+] as const satisfies readonly { value: NeedDecision; icon: LucideIcon; label: string }[]
+
+const confirmText = {
+  APPROVE: 'requestDetail.confirmApproveText',
+  REJECT: 'requestDetail.confirmRejectText',
+  RETURN: 'requestDetail.confirmReturnText'
+} as const satisfies Record<NeedDecision, string>
+
+/** Need review of one request (step 1.2): the policy checklist is answered first; a No locks Approve. */
 export function ManagerNeedForm({ id }: { id: string }) {
   const { t: translate } = useTranslation('manager')
-  const [decision, setDecision] = useState<NeedDecisionBodyDto['decision']>(NEED_DECISION.APPROVE)
+  const [decision, setDecision] = useState<NeedDecision>(NEED_DECISION.APPROVE)
+  const [reason, setReason] = useState('')
   const [confirmation, setConfirmation] = useState<NeedDecisionBodyDto | null>(null)
+  const checklist = usePolicyChecklist(POLICY_STEP.NEED_REVIEW)
+  const noReason = useChecklistNoReason(checklist)
   const action = useManagerAction({
     mutationFn: (body: NeedDecisionBodyDto) => accessRequestNeedDecide(id, body),
     invalidate: [
@@ -32,120 +54,103 @@ export function ManagerNeedForm({ id }: { id: string }) {
       getNeedDecisionListQueryKey(),
       getManagerDashboardGetQueryKey()
     ],
-    onSuccess: () => setConfirmation(null)
+    onSuccess: () => setConfirmation(null),
+    onError: (error) => {
+      if (!isPolicyVersionChanged(error)) return
+      setConfirmation(null)
+      checklist.reload()
+    }
   })
+  const effectiveDecision = checklist.hasNo && decision === NEED_DECISION.APPROVE ? NEED_DECISION.REJECT : decision
+  const needsReason = effectiveDecision !== NEED_DECISION.APPROVE
+  const reasonText = reason.trim() || (needsReason ? noReason : '')
+  const ready = !!checklist.body && (!needsReason || !!reasonText)
   return (
     <ManagerFormErrors fields={action.fields}>
       <form
         className='space-y-5'
         onSubmit={(event) => {
           event.preventDefault()
-          if (action.blocked) return
-          const form = new FormData(event.currentTarget)
-          const reason = String(form.get('reason') ?? '').trim()
-          if (decision === NEED_DECISION.REJECT && !reason) return
-          setConfirmation({ decision, ...(decision === NEED_DECISION.REJECT ? { reason } : {}) })
+          if (action.blocked || !ready || !checklist.body) return
+          setConfirmation({
+            decision: effectiveDecision,
+            checklist: checklist.body,
+            ...(needsReason ? { reason: reasonText } : {})
+          })
         }}
       >
         <fieldset disabled={action.blocked} className='space-y-4'>
-          {/* Card-based decision selector */}
-          <div className='grid gap-3 sm:grid-cols-2'>
-            <div
-              className={`rounded-md border p-3.5 transition-colors ${
-                decision === NEED_DECISION.APPROVE
-                  ? 'border-emerald-500/50 bg-emerald-50/50 shadow-xs ring-1 ring-emerald-500/30 dark:bg-emerald-950/20'
-                  : 'border-border/70 bg-surface hover:bg-surface-subtle/60'
-              }`}
-            >
-              <label className='flex cursor-pointer items-center gap-2 text-sm font-semibold text-foreground'>
-                <input
-                  name='decision'
-                  type='radio'
-                  checked={decision === NEED_DECISION.APPROVE}
-                  onChange={() => setDecision(NEED_DECISION.APPROVE)}
-                  className='size-4 accent-emerald-600'
-                />
-                <CheckCircle2
-                  className={`size-4 ${
-                    decision === NEED_DECISION.APPROVE
-                      ? 'text-emerald-600 dark:text-emerald-400'
-                      : 'text-muted-foreground'
-                  }`}
-                />
-                {translate('approve')}
-              </label>
-              <p className='mt-1.5 pl-6 text-xs leading-normal text-muted-foreground'>
-                {translate('requestDetail.approveDesc')}
-              </p>
-            </div>
-
-            <div
-              className={`rounded-md border p-3.5 transition-colors ${
-                decision === NEED_DECISION.REJECT
-                  ? 'border-rose-500/50 bg-rose-50/50 shadow-xs ring-1 ring-rose-500/30 dark:bg-rose-950/20'
-                  : 'border-border/70 bg-surface hover:bg-surface-subtle/60'
-              }`}
-            >
-              <label className='flex cursor-pointer items-center gap-2 text-sm font-semibold text-foreground'>
-                <input
-                  name='decision'
-                  type='radio'
-                  checked={decision === NEED_DECISION.REJECT}
-                  onChange={() => setDecision(NEED_DECISION.REJECT)}
-                  className='size-4 accent-rose-600'
-                />
-                <XCircle
-                  className={`size-4 ${
-                    decision === NEED_DECISION.REJECT ? 'text-rose-600 dark:text-rose-400' : 'text-muted-foreground'
-                  }`}
-                />
-                {translate('reject')}
-              </label>
-              <p className='mt-1.5 pl-6 text-xs leading-normal text-muted-foreground'>
-                {translate('requestDetail.rejectDesc')}
-              </p>
-            </div>
+          <PolicyChecklist checklist={checklist} disabled={action.blocked} />
+          <div className='grid gap-3 sm:grid-cols-3'>
+            {decisionOptions.map((option) => {
+              const Icon = option.icon
+              const selected = effectiveDecision === option.value
+              const locked = option.value === NEED_DECISION.APPROVE && checklist.hasNo
+              return (
+                <div
+                  key={option.value}
+                  className={`rounded-md border p-3.5 transition-colors ${
+                    selected
+                      ? 'border-primary/50 bg-primary-soft/40 ring-1 ring-primary/30'
+                      : 'border-border/70 bg-surface hover:bg-surface-subtle/60'
+                  } ${locked ? 'opacity-50' : ''}`}
+                >
+                  <label className='flex min-h-11 cursor-pointer items-center gap-2 text-sm font-semibold text-foreground'>
+                    <input
+                      name='decision'
+                      type='radio'
+                      checked={selected}
+                      disabled={locked}
+                      onChange={() => setDecision(option.value)}
+                      className='size-4'
+                    />
+                    <Icon
+                      aria-hidden
+                      strokeWidth={1.5}
+                      className={`size-4 ${selected ? 'text-primary-ink' : 'text-muted-foreground'}`}
+                    />
+                    {translate(option.label)}
+                  </label>
+                </div>
+              )
+            })}
           </div>
-
-          {decision === NEED_DECISION.REJECT && (
-            <ManagerField label={translate('requestForm.rejectionReason')}>
+          {needsReason && (
+            <ManagerField
+              label={translate(
+                effectiveDecision === NEED_DECISION.RETURN
+                  ? 'requestDetail.returnReason'
+                  : 'requestForm.rejectionReason'
+              )}
+            >
               <textarea
                 className={managerInputClass}
                 name='reason'
-                aria-label={translate('reason')}
                 rows={3}
-                required
                 maxLength={1000}
-                placeholder={translate('requestDetail.reasonPlaceholderReject')}
+                required={!noReason}
+                value={reason}
+                placeholder={
+                  noReason ||
+                  translate(
+                    effectiveDecision === NEED_DECISION.RETURN
+                      ? 'requestDetail.reasonPlaceholderReturn'
+                      : 'requestDetail.reasonPlaceholderReject'
+                  )
+                }
+                onChange={(event) => setReason(event.target.value)}
               />
             </ManagerField>
           )}
         </fieldset>
-
         <ManagerActionState action={action} />
-
         <div className='flex justify-end border-t border-border/50 pt-4'>
-          <ManagerButton
-            primary={decision === NEED_DECISION.APPROVE}
-            type='submit'
-            busy={action.isPending}
-            disabled={action.blocked}
-            className={
-              decision === NEED_DECISION.REJECT
-                ? 'border border-rose-500/40 bg-rose-600 text-white hover:bg-rose-700'
-                : undefined
-            }
-          >
-            {decision === NEED_DECISION.APPROVE ? (
-              <Check aria-hidden strokeWidth={1.5} className='size-4' />
-            ) : (
-              <X aria-hidden strokeWidth={1.5} className='size-4' />
-            )}
+          <ManagerButton primary type='submit' busy={action.isPending} disabled={action.blocked || !ready}>
+            <Check aria-hidden strokeWidth={1.5} className='size-4' />
             {action.retrySeconds ? translate('retryAfter', { seconds: action.retrySeconds }) : translate('confirm')}
           </ManagerButton>
         </div>
       </form>
-
       {confirmation && (
         <Dialog
           presentation='sheet'
@@ -157,18 +162,13 @@ export function ManagerNeedForm({ id }: { id: string }) {
         >
           <div className='space-y-4'>
             <div className='rounded-lg border border-border/60 bg-surface-subtle/50 p-4'>
-              <p className='text-sm text-foreground'>
-                {confirmation.decision === NEED_DECISION.APPROVE
-                  ? translate('requestDetail.confirmApproveText')
-                  : translate('requestDetail.confirmRejectText')}
-              </p>
+              <p className='text-sm text-foreground'>{translate(confirmText[confirmation.decision])}</p>
               {confirmation.reason && (
-                <p className='mt-2.5 border-l-2 border-border pl-3 text-xs italic text-muted-foreground'>
-                  "{confirmation.reason}"
+                <p className='mt-2.5 border-l-2 border-border pl-3 text-xs text-muted-foreground [overflow-wrap:anywhere]'>
+                  {confirmation.reason}
                 </p>
               )}
             </div>
-
             <div className='flex justify-end gap-3'>
               <ManagerButton disabled={action.isPending} onClick={() => setConfirmation(null)}>
                 {translate('cancel')}

@@ -3,8 +3,9 @@ import axios from 'axios'
 const errorKeys = {
   'FINANCE.SETUP_INCOMPLETE': 'financeSetup',
   'GROUP_REQUEST.LINES_MISMATCH': 'groupMismatch',
-  'ACCESS_REQUEST.TERM_BEYOND_LIMIT': 'termLimit',
-  'GROUP_REQUEST.TERM_BEYOND_LIMIT': 'termLimit',
+  'BUDGET_CYCLE.NOT_OPEN': 'cycleNotOpen',
+  'BUDGET_CYCLE.LOCKED': 'cycleLocked',
+  'BUDGET.COST_CENTER_REQUIRED': 'costCenterRequired',
   'GROUP_REQUEST.TOO_FEW_LINES': 'groupMinimum',
   'SUBSCRIPTION_RENEWAL.PROPOSAL_STALE': 'renewalStale',
   'SUBSCRIPTION_RENEWAL.ACTIVE_USERS_NOT_ACKNOWLEDGED': 'renewalAcknowledge',
@@ -12,8 +13,7 @@ const errorKeys = {
   'BUDGET.CURRENCY_NOT_REPORTING': 'currency',
   'BUDGET_ATTACHMENT.NOT_ATTACHABLE': 'budgetAttachments',
   'ACCESS_REQUEST.OWN_REQUEST': 'ownRequest',
-  'ACCESS_REQUEST.NOT_THE_ASSIGNEE': 'notAssigned',
-  'TRANSFER_REVIEW.NOT_REVIEWER': 'notAssigned'
+  'ACCESS_REQUEST.NOT_THE_ASSIGNEE': 'notAssigned'
 } as const
 
 export function getManagerError(error: unknown, writing = false) {
@@ -26,7 +26,6 @@ export function getManagerError(error: unknown, writing = false) {
         issues?: { path?: unknown }[]
         lines?: { line?: number; fields?: string[] }[]
         attachmentIds?: string[]
-        positions?: number[]
       }
     }
   }>(error)
@@ -63,20 +62,6 @@ export function getManagerError(error: unknown, writing = false) {
     requestId: response?.data?.error?.requestId,
     retrySeconds: Number.isFinite(seconds) ? Math.max(1, Math.ceil(seconds)) : 60,
     fields: [
-      ...(response?.data?.error?.details?.positions ?? []).flatMap((position) => {
-        if (!Number.isInteger(position) || position < 1) return []
-        const field =
-          code === 'BUDGET.PRIORITY_RANK_INVALID'
-            ? 'priorityRank'
-            : code === 'BUDGET.OVER_CEILING_NOTE_REQUIRED'
-              ? 'note'
-              : 'zbb'
-        return field === 'zbb'
-          ? ['purpose', 'alternatives', 'consequenceIfNot', 'usageIndicator'].map(
-              (key) => `lines.${position - 1}.zbb.${key}`
-            )
-          : [`lines.${position - 1}.${field}`]
-      }),
       ...(response?.data?.error?.details?.attachmentIds?.length ? ['attachmentIds'] : []),
       ...(response?.data?.error?.details?.issues ?? [])
         .map((issue) =>

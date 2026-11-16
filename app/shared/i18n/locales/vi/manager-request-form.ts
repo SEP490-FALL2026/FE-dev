@@ -17,6 +17,6 @@ export const managerRequestForm = {
     'Bắt buộc với nhà thầu, freelancer và thực tập sinh. Kiểm tra nhóm sẽ xác nhận điều kiện của từng người.',
   editEndDates: 'Sửa ngày kết thúc',
   termConfirmation: 'Lý do xác nhận thời hạn trên 12 tháng',
-  decisionsSummary: '{{approved}} người được duyệt, {{rejected}} người bị từ chối',
+  decisionsSummary: '{{approved}} người được duyệt, {{rejected}} người bị từ chối, {{returned}} người được trả về',
   requirementsUnavailable: 'Không tìm thấy bước nhu cầu đang được giao cho bạn. Tải lại hàng đợi để kiểm tra.'
 } as const

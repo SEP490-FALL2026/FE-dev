@@ -3,7 +3,6 @@ import { render } from '@testing-library/react'
 import { AxiosHeaders, type InternalAxiosRequestConfig } from 'axios'
 import type { ReactNode } from 'react'
 import type { VersionResponseDtoDataVersion } from '~/shared/api/generated/model/budget-versions/versionResponseDtoDataVersion'
-import type { VersionLinePageResponseDtoDataItemsItem } from '~/shared/api/generated/model/budget-versions/versionLinePageResponseDtoDataItemsItem'
 import { i18n, setAppLanguage } from '~/shared/i18n/i18n'
 import { financeBudget } from '~/shared/i18n/locales/en/finance-budget'
 
@@ -25,7 +24,10 @@ export const apiVersion: VersionResponseDtoDataVersion = {
   reserveReason: null,
   defaultReserve: { amount: '900719925474099.325', currency: 'USD' },
   total: exactMoney,
-  quarters: null,
+  carriedOverNextYear: { amount: '0', currency: 'USD' },
+  belowCarriedOver: false,
+  carriedOverShortfall: { amount: '0', currency: 'USD' },
+  noProposalSubmitted: false,
   reason: null,
   decision: null,
   createdBy: null,
@@ -34,20 +36,6 @@ export const apiVersion: VersionResponseDtoDataVersion = {
   detachedAt: null,
   neverCurrent: false,
   expiredAt: null
-}
-export const apiLine: VersionLinePageResponseDtoDataItemsItem = {
-  position: 1,
-  proposalPosition: 1,
-  description: 'API plan line',
-  planId: null,
-  seats: 2,
-  amount: exactMoney,
-  financeComment: null,
-  adjustmentReason: null,
-  lineType: 'RENEW',
-  zbb: null,
-  priorityRank: 1,
-  overCeiling: null
 }
 export const apiPage = <Item,>(items: Item[], page = 1) => ({
   items,

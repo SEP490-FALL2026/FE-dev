@@ -7,6 +7,7 @@ import {
   getAccessRequestSupplementListQueryKey
 } from '~/shared/api/generated/operations/spend-submission/access-request-supplement-list'
 import { getAccessRequestGetQueryKey } from '~/shared/api/generated/operations/access-requests/access-request-get'
+import { readTermMonths, termMonthsPayload } from '~/entities/request/term-months'
 import { getSpendQueueListQueryKey } from '~/shared/api/generated/operations/spend-submission/spend-queue-list'
 import { Dialog } from '../../../dashboard-ui'
 import { useManagerAction } from '../../shared/hooks/use-manager-action'
@@ -82,13 +83,21 @@ function CorrectionDialog({ id, onClose }: { id: string; onClose: () => void }) 
             supplement.mutate({
               reason: String(form.get('reason')).trim(),
               ...(dropEmployeeIds.length ? { dropEmployeeIds } : {}),
-              ...(form.get('expectedEndDate') ? { expectedEndDate: String(form.get('expectedEndDate')) } : {})
+              ...termMonthsPayload(readTermMonths(form))
             })
           }}
         >
           <fieldset disabled={action.blocked} className='space-y-4'>
-            <ManagerField label={flow('endDate')}>
-              <input type='date' name='expectedEndDate' className={managerInputClass} />
+            <ManagerField label={`${flow('termMonths')} · ${flow('supplementTermHint')}`}>
+              <input
+                type='number'
+                inputMode='numeric'
+                name='termMonths'
+                min={1}
+                max={12}
+                step={1}
+                className={managerInputClass}
+              />
             </ManagerField>
             <ManagerField label={translate('dropEmployees')}>
               <textarea

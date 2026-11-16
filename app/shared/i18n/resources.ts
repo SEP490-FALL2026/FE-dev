@@ -1,5 +1,7 @@
 import { requestFlow as enRequestFlow } from './locales/en/request-flow'
 import { requestFlow as viRequestFlow } from './locales/vi/request-flow'
+import { policy as enPolicy } from './locales/en/policy'
+import { policy as viPolicy } from './locales/vi/policy'
 import { auth as enAuth } from './locales/en/auth'
 import { approvals as enApprovals } from './locales/en/approvals'
 import { approvalsBudget as enApprovalsBudget } from './locales/en/approvals-budget'
@@ -70,6 +72,7 @@ export { defaultNS } from './resource-config'
 export const resources = {
   en: {
     requestFlow: enRequestFlow,
+    policy: enPolicy,
     devicePrivacy: enDevicePrivacy,
     itDepartmentWork: enItDepartmentWork,
     itDevices: enItDevices,
@@ -105,6 +108,7 @@ export const resources = {
   },
   vi: {
     requestFlow: viRequestFlow,
+    policy: viPolicy,
     devicePrivacy: viDevicePrivacy,
     itDepartmentWork: viItDepartmentWork,
     itDevices: viItDevices,

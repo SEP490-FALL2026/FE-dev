@@ -19,20 +19,23 @@ import {
   managerInputClass
 } from '../../shared/components/manager-api-ui'
 import { useManagerAction } from '../../shared/hooks/use-manager-action'
+import { useDashboardFormat } from '../../../dashboard-ui'
 import { REQUEST_LIMIT_EXEMPTION } from '~/entities/request/enums/request-limit-exemption'
 import { REQUEST_WAITING_REASON } from '~/entities/request/enums/request-waiting-reason'
+import { TermMonthsField } from '~/entities/request/components/term-months-field'
+import { readTermMonths, termMonthsPayload } from '~/entities/request/term-months'
 
 export function ManagerPersonalRequest({ onOpen }: { onOpen: (id: string) => void }) {
   const { t } = useTranslation('requestFlow')
   const { t: manager } = useTranslation('manager')
+  const { formatDate } = useDashboardFormat()
   const [plan, setPlan] = useState<ManagerCatalogPlan | null>(null)
   const [reason, setReason] = useState('')
-  const [endDate, setEndDate] = useState('')
-  const [manyReason, setManyReason] = useState('')
-  const fingerprint = `${plan?.id ?? ''}:${endDate}`
+  const [termMonths, setTermMonths] = useState<number>()
+  const fingerprint = `${plan?.id ?? ''}:${termMonths ?? 'long-term'}`
   const preview = useMutation({
-    mutationFn: async () => ({
-      response: await accessRequestPreview({ planId: plan!.id, ...(endDate ? { expectedEndDate: endDate } : {}) }),
+    mutationFn: async (planId: string) => ({
+      response: await accessRequestPreview({ planId, ...termMonthsPayload(termMonths) }),
       fingerprint
     }),
     retry: false
@@ -45,8 +48,7 @@ export function ManagerPersonalRequest({ onOpen }: { onOpen: (id: string) => voi
       const response = await accessRequestSubmit({
         planId: plan.id,
         businessReason: reason.trim(),
-        ...(endDate ? { expectedEndDate: endDate } : {}),
-        ...(manyReason.trim() ? { manyPaidSoftwareReason: manyReason.trim() } : {})
+        ...termMonthsPayload(termMonths)
       })
       if (!response.data?.request.id) throw new Error('Missing request result')
       return response.data.request.id
@@ -65,6 +67,7 @@ export function ManagerPersonalRequest({ onOpen }: { onOpen: (id: string) => voi
       <ManagerFormErrors fields={action.fields}>
         <form
           className='space-y-5'
+          onChange={(event) => setTermMonths(readTermMonths(new FormData(event.currentTarget)))}
           onSubmit={(event) => {
             event.preventDefault()
             if (!busy && reason.trim() && plan?.canSubmit && checked?.canSubmit) action.mutate()
@@ -78,17 +81,13 @@ export function ManagerPersonalRequest({ onOpen }: { onOpen: (id: string) => voi
               invalid={action.fields.includes('planId')}
             />
             <div className='grid items-start gap-4 sm:grid-cols-2'>
-              <ManagerField label={t('endDate')}>
-                <input
-                  name='expectedEndDate'
-                  type='date'
-                  className={managerInputClass}
-                  value={endDate}
-                  onChange={(event) => setEndDate(event.target.value)}
-                  required={checked?.termRequired}
-                  max={checked?.maxEndDate}
-                />
-              </ManagerField>
+              <TermMonthsField
+                key={plan?.provisioningType ?? 'none'}
+                subject={plan?.provisioningType}
+                refusal={checked?.termRefusal}
+                invalid={action.fields.includes('termMonths')}
+                inputClassName={managerInputClass}
+              />
             </div>
             <ManagerField label={manager('reason')}>
               <textarea
@@ -101,22 +100,11 @@ export function ManagerPersonalRequest({ onOpen }: { onOpen: (id: string) => voi
                 onChange={(event) => setReason(event.target.value)}
               />
             </ManagerField>
-            {checked?.limits.reasonRequired && (
-              <ManagerField label={t('manyReason')}>
-                <textarea
-                  name='manyPaidSoftwareReason'
-                  required
-                  maxLength={1000}
-                  rows={3}
-                  className={managerInputClass}
-                  value={manyReason}
-                  onChange={(event) => setManyReason(event.target.value)}
-                />
-              </ManagerField>
-            )}
           </fieldset>
           {preview.isError && (
-            <ManagerQueryState query={{ ...preview, isFetching: preview.isPending, refetch: () => preview.mutate() }} />
+            <ManagerQueryState
+              query={{ ...preview, isFetching: preview.isPending, refetch: () => plan && preview.mutate(plan.id) }}
+            />
           )}
           {checked && (
             <div className='space-y-3 border-t border-border/60 pt-4'>
@@ -124,12 +112,19 @@ export function ManagerPersonalRequest({ onOpen }: { onOpen: (id: string) => voi
                 <span>{t('departmentSoftware.estimate')}</span>
                 <ManagerMoney money={checked.costEstimate?.estimatedCost ?? checked.pricing.amount} />
               </div>
+              {checked.cost?.termCutAt && (
+                <p role='status' className='text-sm text-warning-ink'>
+                  {t('termCutAt', { date: formatDate(checked.cost.termCutAt) })}
+                </p>
+              )}
               {checked.limitExemption === REQUEST_LIMIT_EXEMPTION.TRANSFER_GRACE && (
                 <p className='text-sm text-primary-ink'>{t('personnel.exemption')}</p>
               )}
               {!checked.canSubmit && (
                 <p role='status' className='text-sm text-warning-ink'>
-                  {t(checked.limits.refusal ?? 'requestGuard', { defaultValue: t('requestGuard') })}
+                  {checked.termRefusal
+                    ? t(`termRefusal.${checked.termRefusal}`)
+                    : t(checked.limits.refusal ?? 'unknown', { defaultValue: t('unknown') })}
                 </p>
               )}
               <ol className='space-y-2 text-sm'>
@@ -154,9 +149,7 @@ export function ManagerPersonalRequest({ onOpen }: { onOpen: (id: string) => voi
                 primary
                 type='submit'
                 busy={action.isPending}
-                disabled={
-                  busy || !plan?.canSubmit || !reason.trim() || (checked.limits.reasonRequired && !manyReason.trim())
-                }
+                disabled={busy || !plan?.canSubmit || !reason.trim()}
               >
                 {manager('submit')}
               </ManagerButton>
@@ -166,7 +159,7 @@ export function ManagerPersonalRequest({ onOpen }: { onOpen: (id: string) => voi
                 busy={preview.isPending}
                 disabled={busy || !plan || !reason.trim()}
                 onClick={(event) => {
-                  if (event.currentTarget.form?.reportValidity()) preview.mutate()
+                  if (plan && event.currentTarget.form?.reportValidity()) preview.mutate(plan.id)
                 }}
               >
                 {t('departmentSoftware.preview')}

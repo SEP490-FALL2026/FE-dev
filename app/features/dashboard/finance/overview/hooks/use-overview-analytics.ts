@@ -1,4 +1,5 @@
 import { useQueries, useQuery } from '@tanstack/react-query'
+import type { QuarterSplit } from '../overview-analytics'
 import type { CommitmentListResponseDtoDataItemsItem } from '~/shared/api/generated/model/budget-commitments/commitmentListResponseDtoDataItemsItem'
 import {
   budgetCommitmentList,
@@ -32,7 +33,7 @@ export function useOverviewAnalytics(year: number) {
   const versions = useQueries({
     queries: budgetRows.flatMap((row) => (row.versionId ? [getBudgetVersionGetQueryOptions(row.versionId)] : [])),
     combine: (results) => ({
-      splits: results.flatMap((result) => (result.data?.data ? [result.data.data.version.quarters] : [])),
+      splits: results.flatMap((result): QuarterSplit[] => (result.data?.data ? [null] : [])),
       isPending: results.some((result) => result.isPending),
       isError: results.some((result) => result.isError),
       isFetching: results.some((result) => result.isFetching),

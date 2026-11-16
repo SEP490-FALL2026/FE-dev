@@ -15,12 +15,15 @@ export const employeeDashboard: NonNullable<EmployeeDashboardResponseDtoData> = 
 export const requestAssessment: AssessmentResponseDtoDataAssessment = {
   requestId,
   status: 'COMPLETED',
+  scope: 'FULL',
   proposal: {
     softwareName: 'Proposed software',
     homepageUrl: 'https://example.test',
     purpose: 'Design work',
     dataDescription: 'Project designs',
-    expectedUsers: 3
+    expectedUsers: 3,
+    existingApplicationId: null,
+    existingApplication: null
   },
   step: {
     state: 'APPROVED',
@@ -47,6 +50,7 @@ export const requestAssessment: AssessmentResponseDtoDataAssessment = {
   controlRiskNote: 'Reviewed by IT',
   quote: {
     unitPrice: pricing.amount,
+    originalPrice: null,
     billingCycle: 'ANNUAL',
     validFrom: '2026-11-01',
     validUntil: null

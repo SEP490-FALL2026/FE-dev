@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { ApplicationDetailResponseDtoData } from '~/shared/api/generated/model/applications'
-import { DeclareApplicationBodyDtoKind } from '~/shared/api/generated/model/applications/declareApplicationBodyDtoKind'
-import { DeclareApplicationBodyDtoDataSensitivity } from '~/shared/api/generated/model/applications/declareApplicationBodyDtoDataSensitivity'
+import { CreateApplicationBodyDtoDataSensitivity } from '~/shared/api/generated/model/applications/createApplicationBodyDtoDataSensitivity'
+import { CreateApplicationBodyDtoPlanProvisioningType } from '~/shared/api/generated/model/applications/createApplicationBodyDtoPlanProvisioningType'
 import { useApplicationCreate } from '~/shared/api/generated/operations/applications/application-create'
 import { useApplicationUpdate } from '~/shared/api/generated/operations/applications/application-update'
 import { getApplicationListQueryKey } from '~/shared/api/generated/operations/applications/application-list'
@@ -11,6 +11,9 @@ import { ItField, ItFormDialog, itInputClass } from '../../shared/components/it-
 import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
 import { CatalogFunctionalGroupPicker } from './catalog-functional-groups'
 export const uuidPattern = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
+const dataSensitivities = Object.values(CreateApplicationBodyDtoDataSensitivity)
+const provisioningTypes = Object.values(CreateApplicationBodyDtoPlanProvisioningType)
+
 export function CatalogApplicationForm({
   application,
   onClose
@@ -19,7 +22,6 @@ export function CatalogApplicationForm({
   onClose: () => void
 }) {
   const { t: translate } = useTranslation('itCatalog')
-  const [selectedKind, setSelectedKind] = useState('SAAS')
   const [functionalGroupId, setFunctionalGroupId] = useState(application?.functionalGroup?.id ?? '')
   const feedback = useItMutationFeedback(
     [getApplicationListQueryKey(), ...(application ? [getApplicationGetQueryKey(application.id)] : [])],
@@ -39,11 +41,8 @@ export function CatalogApplicationForm({
         const form = new FormData(event.currentTarget)
         const name = String(form.get('name') ?? '').trim()
         const sensitivityValue = String(form.get('sensitivity'))
-        const dataSensitivity = Object.values(DeclareApplicationBodyDtoDataSensitivity).find(
-          (value) => value === sensitivityValue
-        )
-        const kind = Object.values(DeclareApplicationBodyDtoKind).find((value) => value === form.get('kind'))
-        if (!name || !dataSensitivity || (!application && !kind)) return
+        const dataSensitivity = dataSensitivities.find((value) => value === sensitivityValue)
+        if (!name || !dataSensitivity) return
         const data = {
           name,
           dataSensitivity,
@@ -51,23 +50,19 @@ export function CatalogApplicationForm({
             .split('\n')
             .map((value) => value.trim())
             .filter(Boolean),
-          communication: {
-            personToPersonMessaging: form.has('personToPersonMessaging'),
-            callsOrMeetings: form.has('callsOrMeetings'),
-            mailbox: form.has('mailbox')
-          }
+          ...(functionalGroupId ? { functionalGroupId } : {})
         }
-        if (application)
-          update.mutate({ id: application.id, data: { ...data, functionalGroupId: functionalGroupId || null } })
-        else if (kind)
-          create.mutate({
-            data: {
-              ...data,
-              kind,
-              ...(functionalGroupId ? { functionalGroupId } : {}),
-              ...(kind !== 'INTERNAL' ? { vendorName: String(form.get('vendor') ?? '').trim() } : {})
-            }
-          })
+        if (application) {
+          update.mutate({ id: application.id, data })
+          return
+        }
+        const planName = String(form.get('planName') ?? '').trim()
+        const provisioningType = provisioningTypes.find((value) => value === form.get('provisioningType'))
+        const vendorName = String(form.get('vendor') ?? '').trim()
+        if (!planName || !provisioningType) return
+        create.mutate({
+          data: { ...data, ...(vendorName ? { vendorName } : {}), plan: { name: planName, provisioningType } }
+        })
       }}
     >
       <ItField label={translate('name')} hint={translate('help.name')}>
@@ -81,32 +76,36 @@ export function CatalogApplicationForm({
         />
       </ItField>
       {!application && (
-        <fieldset className='space-y-2'>
-          <legend>{translate('kind')}</legend>
-          <p className='text-xs font-normal text-muted-foreground'>{translate('help.kind')}</p>
-          {Object.values(DeclareApplicationBodyDtoKind).map((value) => (
-            <label key={value} className='mr-4 inline-flex items-center gap-2'>
-              <input
-                type='radio'
-                name='kind'
-                value={value}
-                defaultChecked={value === 'SAAS'}
-                onChange={() => setSelectedKind(value)}
-              />
-              {translate(`enums.${value}`)}
-            </label>
-          ))}
+        <>
           <ItField label={translate('vendor')} hint={translate('help.vendor')}>
             <input
               placeholder={translate('placeholders.vendor')}
               name='vendor'
-              required={selectedKind !== 'INTERNAL'}
-              disabled={selectedKind === 'INTERNAL'}
               maxLength={1000}
               className={itInputClass}
             />
           </ItField>
-        </fieldset>
+          <div className='grid gap-4 sm:grid-cols-2'>
+            <ItField label={translate('planName')} hint={translate('help.planName')}>
+              <input
+                placeholder={translate('placeholders.plan')}
+                name='planName'
+                required
+                maxLength={1000}
+                className={itInputClass}
+              />
+            </ItField>
+            <ItField label={translate('provisioning')} hint={translate('help.provisioning')}>
+              <select name='provisioningType' required defaultValue='K1' className={itInputClass}>
+                {provisioningTypes.map((value) => (
+                  <option key={value} value={value}>
+                    {translate(`enums.${value}`)}
+                  </option>
+                ))}
+              </select>
+            </ItField>
+          </div>
+        </>
       )}
       <CatalogFunctionalGroupPicker
         value={functionalGroupId}
@@ -116,7 +115,7 @@ export function CatalogApplicationForm({
       <fieldset>
         <legend>{translate('sensitivity')}</legend>
         <p className='text-xs font-normal text-muted-foreground'>{translate('help.sensitivity')}</p>
-        {Object.values(DeclareApplicationBodyDtoDataSensitivity).map((value) => (
+        {dataSensitivities.map((value) => (
           <label key={value} className='mr-4 inline-flex min-h-11 items-center gap-2'>
             <input
               type='radio'
@@ -136,16 +135,6 @@ export function CatalogApplicationForm({
           className={itInputClass}
         />
       </ItField>
-      <fieldset>
-        <legend>{translate('communication')}</legend>
-        <p className='text-xs font-normal text-muted-foreground'>{translate('help.communication')}</p>
-        {(['personToPersonMessaging', 'callsOrMeetings', 'mailbox'] as const).map((key) => (
-          <label key={key} className='flex min-h-11 items-center gap-2'>
-            <input type='checkbox' name={key} defaultChecked={application?.communication[key]} />
-            {translate(key)}
-          </label>
-        ))}
-      </fieldset>
     </ItFormDialog>
   )
 }

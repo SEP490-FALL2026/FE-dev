@@ -4,7 +4,7 @@ import { ArrowLeft, Boxes, Building2, Calendar, UserCheck, UserRound } from 'luc
 import { useTranslation } from 'react-i18next'
 import { useAccessRequestGet } from '~/shared/api/generated/operations/access-requests/access-request-get'
 import { useDashboardFormat } from '../../../dashboard-ui'
-import { ManagerButton, ManagerMoney, ManagerQueryState, ManagerSection } from '../../shared/components/manager-api-ui'
+import { ManagerMoney, ManagerQueryState, ManagerSection } from '../../shared/components/manager-api-ui'
 import { ManagerNeedForm } from '../components/manager-need-form'
 import { ManagerGroupDecisions } from '../components/manager-group-decisions'
 import { ManagerSpendCorrections } from '../components/manager-spend-corrections'
@@ -17,6 +17,7 @@ import { ManagerSimilarSeats } from '../components/manager-similar-seats'
 import { useManagerNeedRequirements } from '../hooks/use-manager-need-requirements'
 import { RequestFlowSummary } from '~/entities/request/components/request-flow-summary'
 import { RequestEventTimeline } from '~/entities/request/components/request-event-timeline'
+import { requestTermLabel } from '~/entities/request/term-months'
 import { RequestRevision } from '~/entities/request/components/request-revision'
 
 export function ManagerLiveRequest({
@@ -73,20 +74,20 @@ export function ManagerLiveRequest({
           </div>
         </div>
 
-        <div className='flex flex-wrap items-center gap-2'>
-          {mayWithdraw && <ManagerRequestWithdraw id={id} />}
-          <ManagerButton onClick={onBack}>
-            <ArrowLeft aria-hidden strokeWidth={1.5} className='size-4' />
-            {translate('back')}
-          </ManagerButton>
-        </div>
+        {mayWithdraw && (
+          <div className='flex flex-wrap items-center gap-2'>
+            <ManagerRequestWithdraw id={id} />
+          </div>
+        )}
       </div>
 
       <ManagerQueryState query={query} empty={!request} />
 
       {request && (
         <div
-          className={request.type === REQUEST_TYPE.GROUP_GRANT ? 'space-y-6' : 'grid items-start gap-6 lg:grid-cols-2'}
+          className={
+            request.type === REQUEST_TYPE.GROUP_GRANT ? 'space-y-6' : 'grid items-stretch gap-6 lg:grid-cols-2'
+          }
         >
           {/* Left Column: Request Details Card */}
           <ManagerSection title={translate('requestDetail.requestInfo')}>
@@ -118,9 +119,9 @@ export function ManagerLiveRequest({
               </div>
 
               <div className='rounded-xl border border-border/60 bg-surface p-3.5'>
-                <dt className='text-xs font-medium text-muted-foreground'>{flow('endDate')}</dt>
+                <dt className='text-xs font-medium text-muted-foreground'>{flow('termMonths')}</dt>
                 <dd className='mt-1 font-mono text-base font-semibold tabular-nums text-foreground'>
-                  {request.expectedEndDate ? formatDate(request.expectedEndDate) : flow('indefinite')}
+                  {requestTermLabel(request, flow, formatDate)}
                 </dd>
               </div>
 
@@ -220,9 +221,11 @@ export function ManagerLiveRequest({
               <p className='py-4 text-center text-sm text-muted-foreground'>{translate('noPermission')}</p>
             </ManagerSection>
           )}
-
+        </div>
+      )}
+      {request && (
+        <>
           <RequestFlowSummary request={request} />
-          <RequestEventTimeline id={id} />
           {request.routing.mode === ACCESS_REQUEST_ROUTING.ONE_STEP &&
             request.state === ACCESS_REQUEST_STATE.AWAITING_REQUESTER_REVISION &&
             request.requester.employeeId === employeeId && (
@@ -230,16 +233,22 @@ export function ManagerLiveRequest({
                 departmentId={request.department.id}
                 id={id}
                 group={request.type === REQUEST_TYPE.GROUP_GRANT}
-                maxEndDate={request.expectedEndDate}
+                termMonths={request.termMonths}
               />
             )}
           {request.routing.mode === ACCESS_REQUEST_ROUTING.VIA_HEAD &&
             request.state === REQUEST_STATE.AWAITING_SPEND_SUBMISSION &&
             request.requester.employeeId !== employeeId && <ManagerSpendCorrections id={id} />}
+        </>
+      )}
+      {request && (
+        <div className='grid items-stretch gap-6 lg:grid-cols-2'>
+          <ManagerRequestTimings id={id} />
+          <ManagerSection title={flow('timeline')}>
+            <RequestEventTimeline id={id} bare />
+          </ManagerSection>
         </div>
       )}
-
-      {request && <ManagerRequestTimings id={id} />}
       {request?.proposal && <ManagerRequestAssessment id={id} />}
     </div>
   )

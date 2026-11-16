@@ -23,6 +23,10 @@ import {
 } from '../../shared/components/manager-api-ui'
 import { NEED_STEP_STATE, NEED_DECISION, GROUP_LINE_STATE } from '../enums/need-decision'
 import { ManagerDecisionFields, type ManagerDecisionChoice } from './manager-decision-fields'
+import { POLICY_STEP } from '~/entities/policy/policy-steps'
+import { usePolicyChecklist } from '~/entities/policy/hooks/use-policy-checklist'
+import { PolicyChecklist } from '~/entities/policy/components/policy-checklist'
+import { isPolicyVersionChanged } from '~/entities/policy/policy-errors'
 
 export function ManagerGroupDecisions({
   id,
@@ -45,6 +49,7 @@ export function ManagerGroupDecisions({
   )
   const complete = query.isSuccess && query.data?.data?.pagination.totalPages === 1
   const [confirmation, setConfirmation] = useState<LineNeedDecisionBodyDto | null>(null)
+  const checklist = usePolicyChecklist(POLICY_STEP.NEED_REVIEW, requestPending && pending.length > 0)
   const [individual, setIndividual] = useState(false)
   const [common, setCommon] = useState<ManagerDecisionChoice>({ decision: '', reason: '' })
   const [choices, setChoices] = useState<Record<string, ManagerDecisionChoice>>({})
@@ -66,7 +71,12 @@ export function ManagerGroupDecisions({
       getNeedDecisionListQueryKey(),
       getManagerDashboardGetQueryKey()
     ],
-    onSuccess: () => setConfirmation(null)
+    onSuccess: () => setConfirmation(null),
+    onError: (error) => {
+      if (!isPolicyVersionChanged(error)) return
+      setConfirmation(null)
+      checklist.reload()
+    }
   })
   return (
     <ManagerSection title={translate('participants')}>
@@ -77,22 +87,26 @@ export function ManagerGroupDecisions({
           onSubmit={(event) => {
             event.preventDefault()
             if (action.blocked || !complete || query.isFetching || !requestPending || !pending.length) return
+            if (!checklist.body) return
             const decisions: LineNeedDecisionBodyDto['lines'] = []
             for (const line of pending) {
               const choice = choiceFor(line.employee.employeeId)
-              if (!choice.decision || (choice.decision === NEED_DECISION.REJECT && !choice.reason.trim())) return
+              const needsReason = choice.decision === NEED_DECISION.REJECT || choice.decision === NEED_DECISION.RETURN
+              if (!choice.decision || (needsReason && !choice.reason.trim())) return
+              if (choice.decision === NEED_DECISION.APPROVE && checklist.hasNo) return
               decisions.push({
                 employeeId: line.employee.employeeId,
                 decision: choice.decision,
-                ...(choice.decision === NEED_DECISION.REJECT ? { reason: choice.reason.trim() } : {})
+                ...(needsReason ? { reason: choice.reason.trim() } : {})
               })
             }
-            setConfirmation({ lines: decisions })
+            setConfirmation({ lines: decisions, checklist: checklist.body })
           }}
         >
           <fieldset disabled={action.blocked || !requestPending} className='space-y-4'>
             {!!pending.length && requestPending && (
               <>
+                <PolicyChecklist checklist={checklist} disabled={action.blocked} />
                 <label className='flex min-h-11 items-center gap-2 text-sm'>
                   <input
                     type='checkbox'
@@ -112,6 +126,7 @@ export function ManagerGroupDecisions({
                     name='common'
                     value={common}
                     onChange={setCommon}
+                    approveLocked={checklist.hasNo}
                   />
                 )}
               </>
@@ -129,6 +144,7 @@ export function ManagerGroupDecisions({
                     label={translate('requestForm.personDecision', { name: line.employee.fullName })}
                     name={`lines.${pending.indexOf(line)}`}
                     value={choiceFor(line.employee.employeeId)}
+                    approveLocked={checklist.hasNo}
                     onChange={(value) => setChoices((previous) => ({ ...previous, [line.employee.employeeId]: value }))}
                   />
                 )}
@@ -146,7 +162,7 @@ export function ManagerGroupDecisions({
               <ManagerButton
                 primary
                 type='submit'
-                disabled={action.blocked || !complete || query.isFetching}
+                disabled={action.blocked || !complete || query.isFetching || !checklist.body}
                 busy={action.isPending}
               >
                 {action.retrySeconds ? translate('retryAfter', { seconds: action.retrySeconds }) : translate('confirm')}
@@ -167,7 +183,8 @@ export function ManagerGroupDecisions({
           <p className='mb-4 text-sm'>
             {translate('requestForm.decisionsSummary', {
               approved: confirmation.lines.filter((line) => line.decision === NEED_DECISION.APPROVE).length,
-              rejected: confirmation.lines.filter((line) => line.decision === NEED_DECISION.REJECT).length
+              rejected: confirmation.lines.filter((line) => line.decision === NEED_DECISION.REJECT).length,
+              returned: confirmation.lines.filter((line) => line.decision === NEED_DECISION.RETURN).length
             })}
           </p>
           <div className='flex justify-end gap-3'>

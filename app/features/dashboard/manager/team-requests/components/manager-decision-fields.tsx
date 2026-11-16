@@ -5,41 +5,55 @@ import { NEED_DECISION } from '../enums/need-decision'
 
 export type ManagerDecisionChoice = { decision: NeedDecisionBodyDto['decision'] | ''; reason: string }
 
+const decisionLabel = {
+  APPROVE: 'approve',
+  REJECT: 'reject',
+  RETURN: 'requestDetail.returnLabel'
+} as const
+
 export function ManagerDecisionFields({
   label,
   name,
   value,
-  onChange
+  onChange,
+  approveLocked = false
 }: {
   label: string
   name: string
   value: ManagerDecisionChoice
   onChange: (value: ManagerDecisionChoice) => void
+  /** A checklist answer is No: only reject or return remain. */
+  approveLocked?: boolean
 }) {
   const { t: translate } = useTranslation('manager')
   return (
     <fieldset className='space-y-3'>
       <legend className='mb-2 text-sm font-medium'>{label}</legend>
-      <div className='grid gap-3 sm:grid-cols-2'>
-        {([NEED_DECISION.APPROVE, NEED_DECISION.REJECT] as const).map((decision) => (
+      <div className='grid gap-3 sm:grid-cols-3'>
+        {([NEED_DECISION.APPROVE, NEED_DECISION.REJECT, NEED_DECISION.RETURN] as const).map((decision) => (
           <label
             key={decision}
-            className='flex min-h-11 cursor-pointer items-center gap-2 rounded-md border border-border px-3 text-sm has-[:checked]:border-primary has-[:checked]:bg-primary-soft'
+            className='flex min-h-11 cursor-pointer items-center gap-2 rounded-md border border-border px-3 text-sm has-[:checked]:border-primary has-[:checked]:bg-primary-soft has-[:disabled]:opacity-50'
           >
             <input
               type='radio'
               name={`${name}.decision`}
               value={decision}
               required
+              disabled={decision === NEED_DECISION.APPROVE && approveLocked}
               checked={value.decision === decision}
               onChange={() => onChange({ ...value, decision })}
             />
-            {translate(decision === NEED_DECISION.APPROVE ? 'approve' : 'reject')}
+            {translate(decisionLabel[decision])}
           </label>
         ))}
       </div>
-      {value.decision === NEED_DECISION.REJECT && (
-        <ManagerField label={translate('requestForm.rejectionReason')}>
+      {(value.decision === NEED_DECISION.REJECT || value.decision === NEED_DECISION.RETURN) && (
+        <ManagerField
+          label={translate(
+            value.decision === NEED_DECISION.RETURN ? 'requestDetail.returnReason' : 'requestForm.rejectionReason'
+          )}
+        >
           <textarea
             name={`${name}.reason`}
             className={managerInputClass}

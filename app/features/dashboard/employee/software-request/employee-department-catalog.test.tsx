@@ -99,6 +99,7 @@ it.each([true, false])('uses server canSubmit for an existing right during grace
   )
   mount(`/?tab=create-request&planId=${planId}`)
   await waitFor(() => expect(screen.getByRole('combobox', { name: 'Software plan' })).toHaveTextContent('Standard'))
+  fireEvent.change(screen.getByLabelText(/^Term of use/), { target: { value: '6' } })
   fireEvent.change(screen.getByLabelText('Business reason'), { target: { value: 'Continue in Operations' } })
   fireEvent.click(screen.getByRole('button', { name: 'Preview request' }))
   expect(await screen.findByText('Requesting again during your transfer grace period')).toBeInTheDocument()
@@ -106,7 +107,9 @@ it.each([true, false])('uses server canSubmit for an existing right during grace
   const send = screen.getByRole('button', { name: 'Submit request' })
   if (allowed) {
     fireEvent.click(send)
-    await waitFor(() => expect(submit).toHaveBeenCalledWith({ planId, businessReason: 'Continue in Operations' }))
+    await waitFor(() =>
+      expect(submit).toHaveBeenCalledWith({ planId, businessReason: 'Continue in Operations', termMonths: 6 })
+    )
   } else {
     expect(send).toBeDisabled()
     expect(submit).not.toHaveBeenCalled()

@@ -31,19 +31,17 @@ it('revises a returned request using only the changed date and reason, then allo
   )
   render(
     <QueryClientProvider client={new QueryClient()}>
-      <RequestRevision id={requestId} departmentId={employeeId} group={false} maxEndDate='2027-06-30' />
+      <RequestRevision id={requestId} departmentId={employeeId} group={false} termMonths={6} />
     </QueryClientProvider>
   )
   fireEvent.click(screen.getByRole('button', { name: 'Revise returned request' }))
   expect(screen.getByRole('button', { name: 'Save changes' })).toBeDisabled()
-  fireEvent.change(screen.getByLabelText('Expected end date'), { target: { value: '2027-03-31' } })
+  fireEvent.change(screen.getByLabelText(/^Term of use/), { target: { value: '3' } })
   fireEvent.change(screen.getByLabelText('Reason for the change'), { target: { value: 'Shorter project' } })
   const save = screen.getByRole('button', { name: 'Save changes' })
   fireEvent.click(save)
   fireEvent.click(save)
-  await waitFor(() =>
-    expect(supplement).toHaveBeenCalledExactlyOnceWith({ expectedEndDate: '2027-03-31', reason: 'Shorter project' })
-  )
+  await waitFor(() => expect(supplement).toHaveBeenCalledExactlyOnceWith({ termMonths: 3, reason: 'Shorter project' }))
   await screen.findByRole('button', { name: 'Revise returned request' })
   fireEvent.click(screen.getByRole('button', { name: 'Resubmit request' }))
   await waitFor(() => expect(resubmit).toHaveBeenCalledExactlyOnceWith(''))
@@ -68,7 +66,7 @@ it('blocks further writes after an ambiguous resubmission instead of automatical
   expect(submitted).toHaveBeenCalledOnce()
 })
 
-it('shows one-step routing and blocking reasons without exposing budget amounts to the requester', () => {
+it('shows blocking reasons without the routing or term rows and without exposing budget amounts', () => {
   render(
     <RequestFlowSummary
       request={{
@@ -83,7 +81,8 @@ it('shows one-step routing and blocking reasons without exposing budget amounts 
       }}
     />
   )
-  expect(screen.getByText('One step')).toBeInTheDocument()
+  expect(screen.queryByText('One step')).not.toBeInTheDocument()
+  expect(screen.queryByText('Term of use (months)')).not.toBeInTheDocument()
   expect(screen.getByText('Exceeds the available reserve')).toBeInTheDocument()
   expect(screen.queryByText(/123456789/)).not.toBeInTheDocument()
 })
