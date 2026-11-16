@@ -1,8 +1,10 @@
+import { managerOverviewBudget } from './manager-overview-budget'
 import { managerRenewals } from './manager-renewals'
 import { managerIntegration } from './manager-integration'
 import { managerRequestForm } from './manager-request-form'
 import { managerBudgetForm } from './manager-budget-form'
 export const manager = {
+  overviewBudget: managerOverviewBudget,
   renewal: managerRenewals,
   renewals: managerRenewals.title,
   termLimit: 'Maximum term: {{months}} months',

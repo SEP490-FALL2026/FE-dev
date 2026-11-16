@@ -5,7 +5,7 @@ export function formatDecimalMoney(money: { amount: string; currency: string }, 
   try {
     const formatter = new Intl.NumberFormat(locale, { style: 'currency', currency: money.currency })
     const fraction = (match[3] ?? '').padEnd(formatter.resolvedOptions().minimumFractionDigits ?? 0, '0')
-    const integer = BigInt(`${match[1]}${match[2]}`)
+    const integer = match[1] && BigInt(match[2]) === 0n ? -0 : BigInt(`${match[1]}${match[2]}`)
     const decimalSeparator =
       new Intl.NumberFormat(locale).formatToParts(1.1).find((part) => part.type === 'decimal')?.value ?? '.'
     let inserted = false
