@@ -154,7 +154,11 @@ function RequestList({ onSelectTab }: Pick<Props, 'onSelectTab'>) {
           </FinanceField>
         </div>
         <div className='sm:w-40'>
-          <FinanceField label={translate('to')} error={rangeInvalid ? translate('dateRangeInvalid') : null}>
+          <FinanceField
+            label={translate('to')}
+            floatingError
+            error={rangeInvalid ? translate('dateRangeInvalid') : null}
+          >
             <input
               type='date'
               aria-invalid={rangeInvalid}

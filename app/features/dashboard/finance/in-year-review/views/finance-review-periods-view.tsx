@@ -49,6 +49,7 @@ export function FinanceReviewPeriodsView({
         <div className='sm:w-40'>
           <FinanceField
             label={translate('year')}
+            floatingError
             error={year !== '' && !validYear(year) ? translate('yearInvalid') : null}
           >
             <input

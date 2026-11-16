@@ -21,6 +21,7 @@ export function BudgetListFilters<State extends string>({
       <div className='w-full sm:w-44'>
         <FinanceField
           label={translate('fields.year')}
+          floatingError
           error={isYearFilterInvalid(year) ? translate('yearRange') : null}
         >
           <input

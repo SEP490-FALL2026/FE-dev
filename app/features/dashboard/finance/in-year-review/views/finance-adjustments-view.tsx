@@ -68,6 +68,7 @@ export function FinanceAdjustmentsView() {
         <div className='sm:w-32'>
           <FinanceField
             label={translate('year')}
+            floatingError
             error={year !== '' && !validYear(year) ? translate('yearInvalid') : null}
           >
             <input

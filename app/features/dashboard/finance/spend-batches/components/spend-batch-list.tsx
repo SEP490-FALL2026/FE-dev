@@ -86,7 +86,11 @@ export function SpendBatchList({ onOpen }: { onOpen: (batchId: string, departmen
           </FinanceField>
         </div>
         <div className='sm:w-44'>
-          <FinanceField label={translate('to')} error={rangeInvalid ? translate('dateRangeInvalid') : null}>
+          <FinanceField
+            label={translate('to')}
+            floatingError
+            error={rangeInvalid ? translate('dateRangeInvalid') : null}
+          >
             <input
               type='date'
               aria-invalid={rangeInvalid}

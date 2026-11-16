@@ -107,7 +107,11 @@ export function FinanceCommitmentsView({
         </div>
 
         <div className='sm:w-40'>
-          <FinanceField label={translate('budgetYear')} error={validYear(year) ? null : translate('invalidYear')}>
+          <FinanceField
+            label={translate('budgetYear')}
+            floatingError
+            error={validYear(year) ? null : translate('invalidYear')}
+          >
             <input
               type='number'
               inputMode='numeric'

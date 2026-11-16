@@ -55,7 +55,7 @@ export function FinanceSeatChargesView() {
     <FinancePage title={translate('seats.title')} description={translate('seats.description')}>
       <FinanceToolbar>
         <div className='sm:w-32'>
-          <FinanceField label={translate('year')} error={ready ? null : translate('yearInvalid')}>
+          <FinanceField label={translate('year')} floatingError error={ready ? null : translate('yearInvalid')}>
             <input
               type='number'
               inputMode='numeric'

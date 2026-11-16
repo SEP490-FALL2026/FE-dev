@@ -83,16 +83,21 @@ export function FinanceField({
   children,
   hint,
   required = false,
-  error
+  error,
+  floatingError = false
 }: {
   label: string
   children: ReactNode
   hint?: string
   required?: boolean
   error?: string | null
+  /** In a filter bar the error floats under the control so the bar keeps its height and the fields stay aligned. */
+  floatingError?: boolean
 }) {
   return (
-    <label className='block min-w-0 space-y-1.5 text-sm font-medium text-foreground'>
+    <label
+      className={`block min-w-0 space-y-1.5 text-sm font-medium text-foreground ${floatingError ? 'relative' : ''}`}
+    >
       <span className='flex items-center gap-1'>
         {label}
         {required && (
@@ -103,7 +108,12 @@ export function FinanceField({
       </span>
       {children}
       {error ? (
-        <span role='alert' className='block min-h-5 text-xs font-normal text-danger'>
+        <span
+          role='alert'
+          className={`text-xs font-normal text-danger ${
+            floatingError ? 'absolute top-full left-0 z-10 mt-0.5 whitespace-nowrap' : 'block min-h-5'
+          }`}
+        >
           {error}
         </span>
       ) : (
