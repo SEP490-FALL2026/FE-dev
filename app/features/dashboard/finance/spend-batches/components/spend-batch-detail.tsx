@@ -96,9 +96,8 @@ export function SpendBatchDetail({
             </div>
             <p className='text-sm text-muted-foreground'>
               {translateFinance('submittedBy')}:{' '}
-              <span className='font-medium text-foreground'>{batch?.submittedBy?.fullName}</span> (
-              <span className='font-mono text-xs'>{batch?.submittedBy?.employeeCode}</span>) ·{' '}
-              {batch?.submittedAt ? new Date(batch.submittedAt).toLocaleString(i18n.language) : '—'}
+              <span className='font-medium text-foreground'>{batch?.submittedBy?.fullName}</span> ·{' '}
+              {batch?.submittedAt ? new Date(batch.submittedAt).toLocaleDateString(i18n.language) : '—'}
             </p>
           </div>
           <FinanceButton variant='ghost' onClick={onClose}>

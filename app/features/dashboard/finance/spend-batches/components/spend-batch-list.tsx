@@ -117,12 +117,7 @@ export function SpendBatchList({ onOpen }: { onOpen: (batchId: string, departmen
               {
                 key: 'submittedBy',
                 label: translateFinance('submittedBy'),
-                render: (batch) => (
-                  <div className='text-xs'>
-                    <div className='font-medium text-foreground'>{batch.submittedBy.fullName}</div>
-                    <div className='font-mono text-muted-foreground'>{batch.submittedBy.employeeCode}</div>
-                  </div>
-                )
+                render: (batch) => <span className='font-medium text-foreground'>{batch.submittedBy.fullName}</span>
               },
               {
                 key: 'submittedAt',
@@ -131,7 +126,7 @@ export function SpendBatchList({ onOpen }: { onOpen: (batchId: string, departmen
                 align: 'center',
                 render: (batch) => (
                   <span className='text-xs text-muted-foreground'>
-                    {new Date(batch.submittedAt).toLocaleString(i18n.language)}
+                    {new Date(batch.submittedAt).toLocaleDateString(i18n.language)}
                   </span>
                 )
               },
