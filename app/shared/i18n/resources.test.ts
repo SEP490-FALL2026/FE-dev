@@ -21,6 +21,9 @@ describe('translation resources', () => {
       'errors',
       'finance',
       'financeBudget',
+      'financePurchases',
+      'financeRequests',
+      'financeReview',
       'financeSettings',
       'itAdmin',
       'itCatalog',
@@ -36,6 +39,7 @@ describe('translation resources', () => {
       'landing',
       'manager',
       'notFound',
+      'policyAcknowledgement',
       'requestFlow',
       'theme'
     ]
@@ -70,6 +74,9 @@ describe('translation resources', () => {
       'approvalsSpend',
       'finance',
       'financeBudget',
+      'financePurchases',
+      'financeRequests',
+      'financeReview',
       'financeSettings',
       'itAdmin',
       'itCatalog',

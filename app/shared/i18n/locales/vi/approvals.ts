@@ -16,7 +16,9 @@ export const approvals = {
   nav: {
     overview: 'Tổng quan',
     queue: 'Hàng chờ duyệt',
-    annualBudget: 'Duyệt ngân sách năm'
+    annualBudget: 'Duyệt ngân sách năm',
+    monitor: 'Theo dõi Request có chi',
+    inYear: 'Ngân sách trong năm'
   },
   status: {
     ESTIMATE: 'Chi phí ước tính',
@@ -27,8 +29,10 @@ export const approvals = {
     PARTIAL: 'Kiểm soát một phần',
     UNCONTROLLABLE: 'Không thể kiểm soát',
     STOPPED: 'Đã dừng',
+    AWAITING_RESERVE_CONFIRMATION: 'Chờ trưởng phòng xác nhận dự phòng',
     WAITING_CONTROLLED: 'Chờ có kiểm soát',
     AWAITING_IT_ASSESSMENT: 'Chờ IT thẩm định',
+    AWAITING_REQUESTER_REVISION: 'Chờ người gửi chỉnh sửa',
     AWAITING_SPEND_DECISION: 'Chờ quyết định chi',
     IT_REJECTED: 'IT đã từ chối',
     EXECUTING: 'Đang thực hiện',
@@ -110,7 +114,25 @@ export const approvals = {
     RETURN_TO_HEAD: 'Trả về trưởng phòng',
     NEEDS_BUDGET: 'Cần điều chỉnh ngân sách'
   },
+  checklist: {
+    title: 'Checklist quyết định',
+    yes: 'Có',
+    no: 'Không',
+    system: '(hệ thống tự kiểm)',
+    hasNo: 'Có câu trả lời Không: bạn chỉ có thể từ chối hoặc trả về, không thể duyệt.',
+    incomplete: 'Trả lời đủ mọi câu hỏi để tiếp tục.'
+  },
   errors: {
+    checklistIncomplete: 'Checklist chưa đầy đủ. Hãy trả lời mọi câu hỏi.',
+    checklistHasNo: 'Có câu trả lời Không nên không thể duyệt. Hãy từ chối hoặc trả về.',
+    versionChanged: 'Checklist chính sách vừa được cập nhật. Xem câu hỏi mới và trả lời lại.',
+    policyNotInForce: 'Chưa có chính sách hiệu lực cho bước này. Hãy báo Super Admin xuất bản.',
+    overCeiling: 'Duyệt phiên bản này sẽ vượt Trần ngân sách năm.',
+    adjustmentDecided: 'Điều chỉnh này đã được quyết định trước đó. Danh sách đã được tải lại.',
+    adjustmentRecheck:
+      'Theo số liệu hôm nay, điều chỉnh không còn thỏa điều kiện (số tiền, ngân sách cơ sở, phần còn lại hoặc mức dự báo). Hãy từ chối hoặc nhờ Finance sửa.',
+    adjustmentBlocked:
+      'Điều chỉnh đang bị chặn: kỳ còn nhận đề xuất, hoặc có phiên bản ngân sách đang chuẩn bị hay chờ quyết định.',
     conflictOfInterest: 'Bạn đã gửi đề xuất ngân sách gốc của phiên bản này nên không thể quyết định nó.',
     lineHoldsAccess: 'Có người trong nhóm đã giữ ghế của gói này. Từ chối dòng của người đó rồi quyết lại.',
     groupUsesLines: 'Yêu cầu nhóm phải được quyết theo từng người. Dữ liệu đã được tải lại.',
