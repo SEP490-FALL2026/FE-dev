@@ -120,9 +120,11 @@ function InvoiceQueue({ onSelectTab }: Pick<Props, 'onSelectTab'>) {
           </FinanceField>
         </div>
         <div className='sm:w-48'>
-          <FinanceField label={translate('invoice.servicePeriodMonth')} hint={translate('invoice.monthFilterHint')}>
+          <FinanceField label={translate('invoice.servicePeriodMonth')}>
             <input
               type='month'
+              title={translate('invoice.monthFilterHint')}
+              aria-label={`${translate('invoice.servicePeriodMonth')}. ${translate('invoice.monthFilterHint')}`}
               className={financeInputClass}
               value={month}
               onChange={(event) => {

@@ -16,7 +16,12 @@ function emptyTotals(currency: string): BudgetSummaryTotalsItem {
     base: zero(currency),
     reserve: zero(currency),
     total: zero(currency),
-    effectiveBudget: zero(currency),
+    effectiveBudget: {
+      base: zero(currency),
+      reserve: zero(currency),
+      total: zero(currency),
+      adjustment: zero(currency)
+    },
     committed: zero(currency),
     spent: zero(currency),
     pendingSpend: zero(currency),

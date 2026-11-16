@@ -8,7 +8,12 @@ export interface BudgetSummaryTotalsItem {
   reserve: { amount: string; currency: string }
   total: { amount: string; currency: string }
   /** Budget in force: the version plus approved adjustments. Everything below is measured against it. */
-  effectiveBudget: { amount: string; currency: string }
+  effectiveBudget: {
+    base: { amount: string; currency: string }
+    reserve: { amount: string; currency: string }
+    total: { amount: string; currency: string }
+    adjustment: { amount: string; currency: string }
+  }
   committed: { amount: string; currency: string }
   spent: { amount: string; currency: string }
   pendingSpend: { amount: string; currency: string }

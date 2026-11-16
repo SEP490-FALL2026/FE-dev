@@ -86,7 +86,7 @@ export function CostCenterKpis({
     <dl className='grid gap-3 sm:grid-cols-2 lg:grid-cols-3'>
       <KpiCard
         label={translate('kpis.total')}
-        value={full(totals.effectiveBudget)}
+        value={full(totals.effectiveBudget.total)}
         caption={translate('kpis.totalCaption', {
           budgeted: totals.costCenterCount,
           total: activeCenters ?? totals.costCenterCount

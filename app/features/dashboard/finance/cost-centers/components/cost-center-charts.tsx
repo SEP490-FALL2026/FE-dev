@@ -79,7 +79,7 @@ function UsageChart({ totals, lang }: { totals: BudgetSummaryTotalsItem; lang: s
   const pending = Math.max(0, Number(totals.pendingSpend.amount))
   const remainingValue = Number(totals.remaining.amount)
   const remaining = Math.max(0, remainingValue)
-  const total = Number(totals.effectiveBudget.amount)
+  const total = Number(totals.effectiveBudget.total.amount)
   const parts: Part[] = [
     { key: 'spent', label: translate('kpis.spent'), money: totals.spent, value: spent, color: chartSlot(0) },
     { key: 'held', label: translate('kpis.held'), money: totals.committed, value: held, color: chartSlot(1) },

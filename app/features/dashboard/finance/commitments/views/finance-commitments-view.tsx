@@ -12,7 +12,6 @@ import {
   financeInputClass
 } from '../../shared/components/finance-ui'
 import { FinanceTable } from '../../shared/components/finance-table'
-import { formatMoney } from '../../shared/finance-money'
 import { useFinanceCommitments, type CommitmentItem } from '../hooks/use-finance-commitments'
 import type { FinanceTabKey } from '../../enums'
 import { CommitmentRowActions } from '../components/commitment-row-actions'
@@ -24,7 +23,7 @@ export function FinanceCommitmentsView({
 }: {
   onSelectTab?: (tab: FinanceTabKey, extraParams?: Record<string, string>) => void
 }) {
-  const { t: translate, i18n } = useTranslation('financeSettings')
+  const { t: translate } = useTranslation('financeSettings')
   const { t: translateFinance } = useTranslation('finance')
 
   const [page, setPage] = useState(1)
@@ -142,25 +141,15 @@ export function FinanceCommitmentsView({
             {
               key: 'costCenter',
               label: translate('department'),
-              render: (item) => (
-                <div className='min-w-0'>
-                  <span className='font-semibold text-foreground'>{item.costCenter.name}</span>
-                  <div className='font-mono text-[11px] text-muted-foreground'>{item.costCenter.code}</div>
-                </div>
-              )
+              render: (item) => <span className='font-semibold text-foreground'>{item.costCenter.name}</span>
             },
             {
               key: 'software',
               label: translate('application'),
               render: (item) => (
-                <div className='min-w-0'>
-                  <span className='font-medium text-foreground'>
-                    {item.request?.software.name ?? translate('application')}
-                  </span>
-                  {item.request?.plan?.name && (
-                    <div className='text-xs text-muted-foreground'>{item.request.plan.name}</div>
-                  )}
-                </div>
+                <span className='font-medium text-foreground'>
+                  {item.request?.software.name ?? translate('application')}
+                </span>
               )
             },
             {
@@ -168,46 +157,10 @@ export function FinanceCommitmentsView({
               label: translateFinance('submittedBy'),
               render: (item) =>
                 item.request?.requester ? (
-                  <div className='text-xs'>
-                    <div className='font-medium text-foreground'>{item.request.requester.fullName}</div>
-                    <div className='text-muted-foreground'>
-                      <span className='font-mono'>{item.request.requester.employeeCode}</span> ·{' '}
-                      {item.request.beneficiaryCount} {translate('employees').toLowerCase()}
-                    </div>
-                  </div>
+                  <span className='font-medium text-foreground'>{item.request.requester.fullName}</span>
                 ) : (
                   '—'
                 )
-            },
-            {
-              key: 'amount',
-              label: translate('kpis.total'),
-              numeric: true,
-              render: (item) => formatMoney(item.amount, i18n.language)
-            },
-            {
-              key: 'held',
-              label: translateFinance('heldLabel', { defaultValue: 'Đã duyệt, chưa chi' }),
-              numeric: true,
-              render: (item) => (
-                <span className='font-mono font-bold text-warning-ink'>{formatMoney(item.held, i18n.language)}</span>
-              )
-            },
-            {
-              key: 'invoiced',
-              label: translate('commitmentsList.invoiced'),
-              numeric: true,
-              render: (item) => (
-                <div className='space-y-0.5'>
-                  <div className='font-mono'>{item.invoiced ? formatMoney(item.invoiced, i18n.language) : '—'}</div>
-                  <div className='text-xs text-muted-foreground'>
-                    {translate('commitmentsList.invoiceCount', { count: item.invoiceCount ?? 0 })}
-                    {item.hasDiscrepancy && (
-                      <span className='ml-1.5 font-medium text-danger'>{translate('commitmentsList.discrepancy')}</span>
-                    )}
-                  </div>
-                </div>
-              )
             },
             {
               key: 'state',
@@ -215,6 +168,9 @@ export function FinanceCommitmentsView({
               render: (item) => (
                 <div className='space-y-1'>
                   <FinanceStatus value={item.state} />
+                  {item.hasDiscrepancy && (
+                    <div className='text-xs font-medium text-danger'>{translate('commitmentsList.discrepancy')}</div>
+                  )}
                   {!item.attached && (
                     <div className='text-xs text-warning-ink'>
                       {translate(`commitmentsList.unattached.${item.unattachedReason ?? 'NO_BUDGET'}`)}

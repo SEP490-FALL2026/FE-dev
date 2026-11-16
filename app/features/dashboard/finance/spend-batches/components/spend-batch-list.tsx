@@ -131,27 +131,16 @@ export function SpendBatchList({ onOpen }: { onOpen: (batchId: string, departmen
                 )
               },
               {
-                key: 'itemCount',
-                label: translateFinance('itemCount'),
-                numeric: true,
-                align: 'center',
-                render: (batch) => <span className='font-mono font-medium'>{batch.itemCount}</span>
-              },
-              {
                 key: 'approvedCount',
                 label: translateFinance('approvedCount'),
                 numeric: true,
                 align: 'center',
                 render: (batch) => (
-                  <span className='font-mono font-semibold text-success-ink'>{batch.approvedCount}</span>
+                  <span className='font-mono'>
+                    <span className='font-semibold text-success-ink'>{batch.approvedCount}</span>
+                    <span className='text-muted-foreground'> / {batch.itemCount}</span>
+                  </span>
                 )
-              },
-              {
-                key: 'pendingCount',
-                label: translateFinance('pendingCount'),
-                numeric: true,
-                align: 'center',
-                render: (batch) => <span className='font-mono text-warning-ink'>{batch.pendingCount}</span>
               },
               {
                 key: 'approvedAmounts',

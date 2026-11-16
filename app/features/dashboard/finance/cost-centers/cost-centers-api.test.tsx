@@ -47,7 +47,12 @@ describe('Finance cost center contract integration', () => {
                         base: money('108000000'),
                         reserve: money('12000000'),
                         total: money('120000000'),
-                        effectiveBudget: money('120000000'),
+                        effectiveBudget: {
+                          base: money('108000000'),
+                          reserve: money('12000000'),
+                          total: money('120000000'),
+                          adjustment: money('0')
+                        },
                         committed: money('30000000'),
                         spent: money('0'),
                         pendingSpend: money('0'),
