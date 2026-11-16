@@ -5,7 +5,7 @@ import { ApprovalsEmpty, ApprovalsStat, ApprovalsStatGrid } from '../../shared/c
 import {
   DUE_SOON_DAYS,
   amountRows,
-  checkCodeCounts,
+  outcomeCounts,
   dueBuckets,
   localToday,
   soonestDue,
@@ -26,6 +26,7 @@ export function SpendInsights({ onOpen }: { onOpen: (requestId: string, batchId:
   const totals = totalsByCurrency(items.map((item) => item.amount))
   const mainCurrency = totals[0]?.currency
   const due = dueBuckets(items, today)
+  const usesReserve = items.filter((item) => item.outcome === 'USES_RESERVE').length
   const rows = mainCurrency
     ? amountRows(
         items.map((item) => ({ key: item.costCenter.id, label: item.costCenter.code, money: item.amount })),
@@ -61,6 +62,7 @@ export function SpendInsights({ onOpen }: { onOpen: (requestId: string, batchId:
                 )
               }
             />
+            <ApprovalsStat label={translate('insights.usesReserve')} value={usesReserve} />
             <ApprovalsStat label={translate('insights.overdue')} value={due.overdue} />
             <ApprovalsStat label={translate('insights.dueSoon', { days: DUE_SOON_DAYS })} value={due.dueSoon} />
           </ApprovalsStatGrid>
@@ -93,7 +95,7 @@ export function SpendInsights({ onOpen }: { onOpen: (requestId: string, batchId:
               title={translate('insights.checks')}
               scope={translate('insights.checksScope')}
             >
-              <BudgetCheckBreakdown breakdown={checkCodeCounts(items)} />
+              <BudgetCheckBreakdown breakdown={outcomeCounts(items)} />
             </InsightCard>
           </div>
           <InsightCard title={translate('insights.dueSoonTitle')} scope={translate('insights.dueSoonScope')}>

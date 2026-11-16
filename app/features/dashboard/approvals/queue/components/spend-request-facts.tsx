@@ -33,7 +33,19 @@ function FactList({ facts }: { facts: { label: string; value: string; numeric?: 
 export function SpendRequestFacts({ approval, isGroup }: { approval: SpendApproval; isGroup: boolean }) {
   const { t: translate, i18n } = useTranslation('approvalsSpend')
   const { formatDate, formatDateTime, formatNumber } = useDashboardFormat()
-  const { request, step, need, cost, assessment, decision, routing, budgetSnapshot, annualVendorAmount } = approval
+  const {
+    request,
+    step,
+    need,
+    cost,
+    assessment,
+    decision,
+    routing,
+    budgetSnapshot,
+    annualVendorAmount,
+    termCost,
+    nextYearBudget
+  } = approval
   const headlineCost = cost?.totalPayable ?? cost?.estimatedCost ?? null
   return (
     <div className='space-y-6'>
@@ -75,7 +87,11 @@ export function SpendRequestFacts({ approval, isGroup }: { approval: SpendApprov
         />
         <ApprovalsStat
           label={translate('term')}
-          value={request.termMonths === null ? translate('unavailable') : formatNumber(request.termMonths)}
+          value={
+            request.termMonths === null
+              ? translate('termOpenEnded')
+              : translate('termMonthsCount', { count: request.termMonths })
+          }
         />
         {annualVendorAmount && (
           <ApprovalsStat
@@ -86,7 +102,124 @@ export function SpendRequestFacts({ approval, isGroup }: { approval: SpendApprov
         <ApprovalsStat label={translate('openedAt')} value={formatDate(step.openedAt)} />
         <ApprovalsStat label={translate('sla')} value={formatNumber(step.slaWorkingDays)} />
         <ApprovalsStat label={translate('budgetYear')} value={request.budgetYear ?? translate('unavailable')} />
+        {request.expectedEndDate && (
+          <ApprovalsStat label={translate('legacyEndDate')} value={formatDate(request.expectedEndDate)} />
+        )}
       </ApprovalsStatGrid>
+      {termCost && (
+        <ApprovalsSection title={translate('termCostTitle')}>
+          <dl className='grid gap-px overflow-hidden rounded-lg border border-border/70 bg-border/70 sm:grid-cols-2 lg:grid-cols-3'>
+            <ApprovalsStat
+              label={translate('termCurrentYear', { year: termCost.currentYear.year })}
+              value={formatMoney(termCost.currentYear.amount, i18n.language)}
+              emphasis
+            />
+            {termCost.currentYear.months !== null && (
+              <ApprovalsStat
+                label={translate('termCurrentYearMonths', { count: termCost.currentYear.months })}
+                value={formatNumber(termCost.currentYear.months)}
+              />
+            )}
+            {termCost.nextYear && (
+              <ApprovalsStat
+                label={translate('termNextYear')}
+                value={formatMoney(termCost.nextYear.amount, i18n.language)}
+              />
+            )}
+            {termCost.months !== null && (
+              <ApprovalsStat label={translate('termStartedMonths')} value={formatNumber(termCost.months)} />
+            )}
+          </dl>
+          {termCost.nextYear && (
+            <p className='text-xs text-muted-foreground'>
+              {translate('termNextYearFrom', {
+                date: formatDate(termCost.nextYear.from),
+                count: termCost.nextYear.months ?? 12
+              })}
+            </p>
+          )}
+          {termCost.termCutAt && (
+            <p role='status' className={`${noticeClass} border-warning/30 bg-warning/10 text-warning-ink`}>
+              {translate('termCutAt', { date: formatDate(termCost.termCutAt) })}
+            </p>
+          )}
+        </ApprovalsSection>
+      )}
+      {budgetSnapshot && (
+        <ApprovalsSection title={translate('snapshotTitle', { year: budgetSnapshot.year })}>
+          <p className='text-xs text-muted-foreground'>
+            {translate(budgetSnapshot.decisionSnapshotCheckId ? 'snapshotKept' : 'snapshotLive')}
+          </p>
+          {budgetSnapshot.base === null && budgetSnapshot.remainingBase === null ? (
+            <p role='status' className='text-sm text-warning-ink'>
+              {translate('snapshotNone')}
+            </p>
+          ) : (
+            <dl className='grid gap-px overflow-hidden rounded-lg border border-border/70 bg-border/70 sm:grid-cols-2 lg:grid-cols-4'>
+              {(
+                [
+                  ['baseAmount', budgetSnapshot.base],
+                  ['reserveAmount', budgetSnapshot.reserve],
+                  ['spent', budgetSnapshot.spent],
+                  ['held', budgetSnapshot.committed],
+                  ['snapshotPending', budgetSnapshot.pending],
+                  ['remainingBase', budgetSnapshot.remainingBase],
+                  ['remainingWithReserve', budgetSnapshot.remainingWithReserve],
+                  ['overBaseBy', budgetSnapshot.overBaseBy],
+                  ['overBy', budgetSnapshot.overBy]
+                ] as const
+              ).map(([key, value]) => (
+                <ApprovalsStat
+                  key={key}
+                  label={translate(key)}
+                  value={value ? formatMoney(value, i18n.language) : translate('unavailable')}
+                />
+              ))}
+            </dl>
+          )}
+          <p className='text-xs text-muted-foreground'>
+            {translate('snapshotComputedAt')} {formatDateTime(budgetSnapshot.computedAt)}
+          </p>
+        </ApprovalsSection>
+      )}
+      {nextYearBudget && (
+        <ApprovalsSection title={translate('nextYearTitle', { year: nextYearBudget.year })}>
+          {nextYearBudget.approved === null ? (
+            <p role='status' className='text-sm text-muted-foreground'>
+              {translate('nextYearNoBudget', { year: nextYearBudget.year })}
+            </p>
+          ) : (
+            <dl className='grid gap-px overflow-hidden rounded-lg border border-border/70 bg-border/70 sm:grid-cols-3'>
+              <ApprovalsStat
+                label={translate('nextYearApproved')}
+                value={formatMoney(nextYearBudget.approved, i18n.language)}
+              />
+              <ApprovalsStat
+                label={translate('nextYearRemaining')}
+                value={
+                  nextYearBudget.remaining
+                    ? formatMoney(nextYearBudget.remaining, i18n.language)
+                    : translate('unavailable')
+                }
+              />
+              <ApprovalsStat
+                label={translate('nextYearRemainingAfter')}
+                value={
+                  nextYearBudget.remainingAfter
+                    ? formatMoney(nextYearBudget.remainingAfter, i18n.language)
+                    : translate('unavailable')
+                }
+              />
+            </dl>
+          )}
+          {nextYearBudget.warning && (
+            <p role='status' className={`${noticeClass} border-warning/30 bg-warning/10 text-warning-ink`}>
+              <AlertTriangle aria-hidden className='mt-0.5 size-4 shrink-0' strokeWidth={1.5} />
+              {translate('nextYearWarning', { year: nextYearBudget.year })}
+            </p>
+          )}
+        </ApprovalsSection>
+      )}
       <ApprovalsSection title={translate('requestInfo')}>
         <dl className='grid gap-4 rounded-lg border border-border/70 bg-surface p-4 sm:grid-cols-2 lg:grid-cols-3'>
           <FactList
@@ -109,14 +242,13 @@ export function SpendRequestFacts({ approval, isGroup }: { approval: SpendApprov
       </ApprovalsSection>
       {cost && (
         <ApprovalsSection title={translate('costs')} actions={<ApprovalsStatus value={cost.label} />}>
+          <p className='text-xs text-muted-foreground'>
+            {translate(cost.basis === 'PROFILE' ? 'costProfile' : 'costNoProfile', { group: cost.taxGroup })}
+          </p>
           <dl className='grid gap-px overflow-hidden rounded-lg border border-border/70 bg-border/70 sm:grid-cols-2 lg:grid-cols-3'>
             {(['preTax', 'tax', 'deductibleTax', 'nonDeductibleTax', 'estimatedCost', 'totalPayable'] as const).map(
               (key) => (
-                <ApprovalsStat
-                  key={key}
-                  label={translate(key === 'estimatedCost' ? 'amount' : key)}
-                  value={formatMoney(cost[key], i18n.language)}
-                />
+                <ApprovalsStat key={key} label={translate(key)} value={formatMoney(cost[key], i18n.language)} />
               )
             )}
           </dl>

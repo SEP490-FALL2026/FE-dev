@@ -8,7 +8,6 @@ import { ApprovalsQueryState } from '../../shared/components/approvals-query-sta
 import { versionState } from '../enums/version-state'
 import type { ApprovalBudgetViewProps } from '../budget-view-props'
 import { ApprovalAnnualBudgetDecision } from './approval-annual-budget-decision'
-import { ApprovalAnnualBudgetLines } from './approval-annual-budget-lines'
 import { ApprovalAnnualBudgetSummary, ApprovalBudgetWaitingNotice } from './approval-annual-budget-summary'
 import { ApprovalBudgetAttachments } from './approval-budget-attachments'
 
@@ -80,7 +79,6 @@ export function ApprovalAnnualBudgetDetail({ itemId, onSelectTab }: ApprovalBudg
               </p>
             )}
             <ApprovalAnnualBudgetSummary version={version} />
-            <ApprovalAnnualBudgetLines itemId={itemId} />
             <ApprovalBudgetAttachments target='version' ownerId={itemId} />
           </div>
         ) : (

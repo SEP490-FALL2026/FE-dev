@@ -1,3 +1,4 @@
+import { answerChecklistYes, expectedChecklist, policyStepData } from '../shared/checklist-test-utils'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { AxiosError, AxiosHeaders, type InternalAxiosRequestConfig } from 'axios'
@@ -25,7 +26,6 @@ const version = {
   total: money,
   highValuePercent: 10,
   highValueAmount: null,
-  quarters: null,
   reason: null,
   previousTotal: null,
   decision: null,
@@ -40,22 +40,6 @@ const page = (items: unknown[], pageNumber = 1) => ({
   items,
   pagination: { page: pageNumber, pageSize: 20, totalItems: items.length ? 21 : 0, totalPages: items.length ? 2 : 0 }
 })
-const line = {
-  position: 1,
-  proposalPosition: null,
-  description: 'Original API line',
-  planId: null,
-  seats: 2,
-  amount: money,
-  windowFrom: '2027-01-01',
-  windowTo: '2027-03-31',
-  servicePeriodMonths: 12,
-  repeatCycle: 'ANNUAL',
-  quoteValidUntil: null,
-  financeComment: 'Finance basis',
-  adjustmentReason: null,
-  overdue: false
-}
 const proposal = {
   id: 'proposal-1',
   costCenter: center,
@@ -123,11 +107,6 @@ describe('Spending Approver annual budget API', () => {
         )
       if (path === '/budget-versions/version-1')
         data = { version: { ...version, state: decided ? 'APPROVED' : versionStatus } }
-      if (path === '/budget-versions/version-1/lines')
-        data = page(
-          [{ ...line, description: config.params?.page === 2 ? 'Second API line page' : line.description }],
-          config.params?.page
-        )
       if (path === '/budget-versions/version-1/history')
         data = page([
           {
@@ -182,10 +161,9 @@ describe('Spending Approver annual budget API', () => {
         }
       if (path === '/budget-attachments/attachment-1/links')
         data = { url: 'https://files.example.test/quote.pdf', expiresAt: '2026-11-04T01:00:00Z' }
+      if (path.includes('/policies/') && path.includes('/steps/')) data = policyStepData(path)
       if (path === '/budget-proposals') data = page([proposal])
       if (path === '/budget-proposals/proposal-1') data = { proposal }
-      if (path === '/budget-proposals/proposal-1/lines')
-        data = page([{ ...line, description: 'API proposal line', note: null }])
       return {
         config,
         data: { success: true, message: 'BUDGET.FETCHED', data },
@@ -234,21 +212,23 @@ describe('Spending Approver annual budget API', () => {
     mount('version-1')
     fireEvent.click(await screen.findByRole('button', { name: 'Review decision' }))
     const dialog = screen.getByRole('dialog')
+    await answerChecklistYes()
     fireEvent.click(within(dialog).getByRole('button', { name: 'Confirm decision' }))
     await waitFor(() => expect(decided).toBe(true))
     const write = requests.find((request) => request.url?.endsWith('/decision'))
-    expect(JSON.parse(write?.data)).toEqual({ decision: 'APPROVE' })
+    expect(JSON.parse(write?.data)).toEqual({ decision: 'APPROVE', checklist: expectedChecklist })
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     expect(requests.filter((request) => request.url?.endsWith('/budget-versions/version-1')).length).toBeGreaterThan(1)
   })
 
-  it('requires a rejection reason and retains it after a stale decision response', async () => {
+  it('requires a return reason and retains it after a stale decision response', async () => {
     rejectWrite = true
     mount('version-1')
     fireEvent.click(await screen.findByRole('button', { name: 'Review decision' }))
     const dialog = screen.getByRole('dialog')
     fireEvent.click(within(dialog).getByRole('combobox', { name: 'Decision' }))
-    fireEvent.click(within(dialog).getByRole('option', { name: 'Reject' }))
+    fireEvent.click(within(dialog).getByRole('option', { name: 'Return to Finance' }))
+    await answerChecklistYes()
     expect(within(dialog).getByRole('button', { name: 'Confirm decision' })).toBeDisabled()
     fireEvent.change(within(dialog).getByRole('textbox', { name: /Reason/ }), {
       target: { value: 'Please revise the scope' }
@@ -256,8 +236,9 @@ describe('Spending Approver annual budget API', () => {
     fireEvent.click(within(dialog).getByRole('button', { name: 'Confirm decision' }))
     await waitFor(() => expect(requests.some((request) => request.url?.endsWith('/decision'))).toBe(true))
     expect(JSON.parse(requests.find((request) => request.url?.endsWith('/decision'))?.data)).toEqual({
-      decision: 'REJECT',
-      reason: 'Please revise the scope'
+      decision: 'RETURN',
+      reason: 'Please revise the scope',
+      checklist: expectedChecklist
     })
     await waitFor(() =>
       expect(requests.filter((request) => request.url?.endsWith('/budget-versions/version-1')).length).toBeGreaterThan(
@@ -286,27 +267,11 @@ describe('Spending Approver annual budget API', () => {
     expect(screen.queryByRole('button', { name: 'Review decision' })).not.toBeInTheDocument()
   })
 
-  it('requests changes with a trimmed reason instead of a fabricated return decision', async () => {
-    mount('version-1')
-    fireEvent.click(await screen.findByRole('button', { name: 'Review decision' }))
-    const dialog = screen.getByRole('dialog')
-    fireEvent.click(within(dialog).getByRole('combobox', { name: 'Decision' }))
-    fireEvent.click(within(dialog).getByRole('option', { name: 'Request changes' }))
-    fireEvent.change(within(dialog).getByRole('textbox', { name: /Reason/ }), {
-      target: { value: '  Amend the reserve  ' }
-    })
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Confirm decision' }))
-    await waitFor(() => expect(decided).toBe(true))
-    expect(JSON.parse(requests.find((request) => request.url?.endsWith('/decision'))?.data)).toEqual({
-      decision: 'REQUEST_CHANGES',
-      reason: 'Amend the reserve'
-    })
-  })
-
   it('retains the dialog but blocks another write after a server own-version denial', async () => {
     ownVersionResponse = true
     mount('version-1')
     fireEvent.click(await screen.findByRole('button', { name: 'Review decision' }))
+    await answerChecklistYes()
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm decision' }))
     await waitFor(() => expect(requests.some((request) => request.url?.endsWith('/decision'))).toBe(true))
     await waitFor(() =>
@@ -314,15 +279,6 @@ describe('Spending Approver annual budget API', () => {
     )
     expect(screen.queryByText('technical forbidden message')).not.toBeInTheDocument()
     expect(decided).toBe(false)
-  })
-
-  it('loads version lines on the server and shows the audit change details', async () => {
-    mount('version-1')
-    const lines = await screen.findByRole('region', { name: 'Budget lines' })
-    await within(lines).findAllByText('Original API line')
-    fireEvent.click(within(lines).getByRole('button', { name: /next/i }))
-    expect((await within(lines).findAllByText('Second API line page')).length).toBeGreaterThan(0)
-    expect(requests.some((request) => request.url?.endsWith('/lines') && request.params?.page === 2)).toBe(true)
   })
 
   it('opens the version history on its own screen', async () => {
@@ -345,10 +301,9 @@ describe('Spending Approver annual budget API', () => {
   it('reads department proposals without offering a decision action', async () => {
     mount('proposal:proposal-1')
     expect(await screen.findByText('Engineering API')).toBeInTheDocument()
-    expect((await screen.findAllByText('API proposal line')).length).toBeGreaterThan(0)
     expect(screen.queryByRole('button', { name: 'Review decision' })).not.toBeInTheDocument()
     expect(requests.some((request) => request.url?.endsWith('/budget-proposals/proposal-1'))).toBe(true)
-    expect(requests.some((request) => request.url?.endsWith('/budget-proposals/proposal-1/lines'))).toBe(true)
+    expect(requests.some((request) => request.url?.endsWith('/budget-proposals/proposal-1/lines'))).toBe(false)
   })
 
   it('waits for the server and prevents duplicate decision submissions', async () => {
@@ -356,6 +311,7 @@ describe('Spending Approver annual budget API', () => {
     mount('version-1')
     fireEvent.click(await screen.findByRole('button', { name: 'Review decision' }))
     const submit = within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm decision' })
+    await answerChecklistYes()
     fireEvent.click(submit)
     await waitFor(() => expect(submit).toBeDisabled())
     fireEvent.click(submit)

@@ -7,6 +7,7 @@ import { apiClient } from '~/shared/api/axios-client'
 import { setAppLanguage } from '~/shared/i18n/i18n'
 import { isApprovalRelatedKey } from '../shared/approvals-query-keys'
 import { ApprovalBatchView } from './views/spend-batch-view'
+import { answerChecklistYes, expectedChecklist, policyStepData } from '../shared/checklist-test-utils'
 
 const batchId = '81000000-0000-4000-8000-000000000001'
 const firstRequestId = '81000000-0000-4000-8000-000000000002'
@@ -97,6 +98,14 @@ beforeEach(async () => {
         }
       }
     }
+    if (config.url?.includes('/steps/'))
+      return {
+        config,
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        data: { success: true, data: policyStepData(config.url) }
+      }
     const data = config.url?.endsWith('/items')
       ? {
           items: items.map((item) =>
@@ -141,11 +150,13 @@ describe('Spending Approver batch API', () => {
     await screen.findByText('Batch sender')
     fireEvent.click(screen.getAllByRole('checkbox', { name: 'Select request #1' })[0])
     fireEvent.click(screen.getAllByRole('checkbox', { name: 'Select request #2' })[0])
+    await answerChecklistYes()
     fireEvent.click(screen.getByRole('button', { name: 'Confirm submission decision' }))
     await waitFor(() => expect(calls.some((config) => config.method === 'post')).toBe(true))
     expect(JSON.parse(calls.find((config) => config.method === 'post')?.data)).toEqual({
       decision: 'APPROVE',
-      requestIds: [firstRequestId, skippedRequestId]
+      requestIds: [firstRequestId, skippedRequestId],
+      checklist: expectedChecklist
     })
     expect(await screen.findAllByText('Insufficient budget must be corrected before approval')).not.toHaveLength(0)
     await waitFor(() => expect(warning).toHaveBeenCalledOnce())
@@ -162,16 +173,36 @@ describe('Spending Approver batch API', () => {
     const submit = screen.getByRole('button', { name: 'Confirm submission decision' })
     expect(submit).toBeDisabled()
     fireEvent.change(screen.getByLabelText('Reason for rejection'), { target: { value: 'Insufficient business need' } })
+    await answerChecklistYes()
     failMutation = true
     fireEvent.click(submit)
     await waitFor(() => expect(calls.some((config) => config.method === 'post')).toBe(true))
     expect(JSON.parse(calls.find((config) => config.method === 'post')?.data)).toEqual({
       decision: 'REJECT',
       requestIds: [firstRequestId],
-      reason: 'Insufficient business need'
+      reason: 'Insufficient business need',
+      checklist: expectedChecklist
     })
     await waitFor(() => expect(submit).not.toBeDisabled())
     expect(screen.getByLabelText('Reason for rejection')).toHaveValue('Insufficient business need')
+  })
+
+  it('returns the whole batch to the head with a reason and names no requests', async () => {
+    setup()
+    await screen.findByText('Batch sender')
+    fireEvent.click(screen.getByRole('combobox', { name: 'Decision' }))
+    fireEvent.click(screen.getByRole('option', { name: 'Return' }))
+    const submit = screen.getByRole('button', { name: 'Confirm submission decision' })
+    expect(submit).toBeDisabled()
+    fireEvent.change(screen.getByLabelText('Reason for returning'), { target: { value: 'Use the team plan' } })
+    await answerChecklistYes()
+    fireEvent.click(submit)
+    await waitFor(() => expect(calls.some((config) => config.method === 'post')).toBe(true))
+    expect(JSON.parse(calls.find((config) => config.method === 'post')?.data)).toEqual({
+      decision: 'RETURN',
+      reason: 'Use the team plan',
+      checklist: expectedChecklist
+    })
   })
 
   it('matches generated API keys with relative or absolute base URL prefixes', () => {

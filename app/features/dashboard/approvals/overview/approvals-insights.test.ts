@@ -4,7 +4,7 @@ import {
   OTHER_ROW_KEY,
   addDays,
   amountRows,
-  checkCodeCounts,
+  outcomeCounts,
   dueBuckets,
   soonestDue,
   sumDecimal,
@@ -15,7 +15,7 @@ const spend = (overrides: Partial<ApprovalListResponseDtoDataItemsItem>) =>
   ({
     stepId: overrides.stepId ?? 'step',
     dueOn: '2026-11-10',
-    primaryCode: 'BUDGET_OK',
+    outcome: 'WITHIN_BASE',
     ...overrides
   }) as ApprovalListResponseDtoDataItemsItem
 
@@ -69,18 +69,20 @@ describe('approvals insights', () => {
     ])
   })
 
-  it('counts check codes in a fixed order and keeps unknown or missing codes apart', () => {
+  it('counts check outcomes in a fixed order and keeps unknown or missing outcomes apart', () => {
     const items = [
-      spend({ stepId: '1', primaryCode: 'INSUFFICIENT_BUDGET' }),
-      spend({ stepId: '2', primaryCode: 'BUDGET_OK' }),
-      spend({ stepId: '3', primaryCode: 'BUDGET_OK' }),
-      spend({ stepId: '4', primaryCode: null }),
-      spend({ stepId: '5', primaryCode: 'SOMETHING_NEW' as never })
+      spend({ stepId: '1', outcome: 'BLOCKED' }),
+      spend({ stepId: '2', outcome: 'WITHIN_BASE' }),
+      spend({ stepId: '3', outcome: 'WITHIN_BASE' }),
+      spend({ stepId: '4', outcome: 'USES_RESERVE' }),
+      spend({ stepId: '5', outcome: null }),
+      spend({ stepId: '6', outcome: 'SOMETHING_NEW' as never })
     ]
-    expect(checkCodeCounts(items)).toEqual({
+    expect(outcomeCounts(items)).toEqual({
       counts: [
-        { code: 'BUDGET_OK', count: 2 },
-        { code: 'INSUFFICIENT_BUDGET', count: 1 }
+        { outcome: 'WITHIN_BASE', count: 2 },
+        { outcome: 'USES_RESERVE', count: 1 },
+        { outcome: 'BLOCKED', count: 1 }
       ],
       unknown: 2
     })

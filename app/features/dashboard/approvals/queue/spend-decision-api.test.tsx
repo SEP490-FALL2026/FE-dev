@@ -6,6 +6,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { apiClient } from '~/shared/api/axios-client'
 import { setAppLanguage } from '~/shared/i18n/i18n'
 import { ApprovalRequestView } from './views/spend-request-view'
+import { answerChecklistYes, expectedChecklist, policyStepData } from '../shared/checklist-test-utils'
 
 const requestId = '83c00000-0000-4000-8000-000000000001'
 const actor = { employeeId: 'approver', employeeCode: 'AP01', fullName: 'Approver' }
@@ -155,6 +156,7 @@ beforeEach(async () => {
         }
       })
     }
+    if (config.url?.includes('/steps/')) return response(policyStepData(config.url))
     throw new AxiosError('unexpected test request', 'ERR_NETWORK', config)
   }
 })
@@ -172,29 +174,43 @@ function mount(initialUrl = '/', onSelectTab = vi.fn()) {
   )
   return client
 }
-async function choose(value: 'Approve' | 'Reject', index = 0) {
+async function choose(value: 'Approve' | 'Reject' | 'Return', index = 0) {
   // Re-query on every attempt: the one-decision field is replaced by per-person fields once the group is known.
   await waitFor(() => expect(screen.getAllByRole('combobox', { name: 'Decision' })[index]).toBeEnabled())
   fireEvent.click(screen.getAllByRole('combobox', { name: 'Decision' })[index])
   fireEvent.click(screen.getByRole('option', { name: value }))
 }
-function confirm() {
+async function confirm() {
   fireEvent.click(
     screen.getByRole('checkbox', { name: 'I have reviewed the request, budget check and supporting information.' })
   )
+  await answerChecklistYes()
 }
 
 it('requires a rejection reason and sends only the strict rejection payload', async () => {
   mount()
   await choose('Reject')
-  confirm()
+  await confirm()
   expect(screen.getByRole('button', { name: 'Confirm decision' })).toBeDisabled()
   fireEvent.change(screen.getByPlaceholderText('E.g. The team already has an equivalent tool under contract'), {
     target: { value: '  No business need  ' }
   })
   fireEvent.click(screen.getByRole('button', { name: 'Confirm decision' }))
   await waitFor(() => expect(posted).toHaveLength(1))
-  expect(posted[0].body).toEqual({ decision: 'REJECT', reason: 'No business need' })
+  expect(posted[0].body).toEqual({ decision: 'REJECT', reason: 'No business need', checklist: expectedChecklist })
+})
+
+it('requires a reason to return a request and sends the strict return payload', async () => {
+  mount()
+  await choose('Return')
+  await confirm()
+  expect(screen.getByRole('button', { name: 'Confirm decision' })).toBeDisabled()
+  fireEvent.change(screen.getByPlaceholderText('E.g. Choose a cheaper plan and submit again'), {
+    target: { value: '  Pick the team plan  ' }
+  })
+  fireEvent.click(screen.getByRole('button', { name: 'Confirm decision' }))
+  await waitFor(() => expect(posted).toHaveLength(1))
+  expect(posted[0].body).toEqual({ decision: 'RETURN', reason: 'Pick the team plan', checklist: expectedChecklist })
 })
 
 it('blocks insufficient-budget approval without offering removed override fields', async () => {
@@ -214,7 +230,7 @@ it('blocks repeated decisions while the server has not confirmed the write', asy
   })
   mount()
   await choose('Approve')
-  confirm()
+  await confirm()
   const submit = screen.getByRole('button', { name: 'Confirm decision' })
   fireEvent.click(submit)
   fireEvent.click(submit)
@@ -227,7 +243,7 @@ it('keeps a failed decision draft and refreshes authoritative data after conflic
   failMutation = true
   mount()
   await choose('Reject')
-  confirm()
+  await confirm()
   fireEvent.change(screen.getByPlaceholderText('E.g. The team already has an equivalent tool under contract'), {
     target: { value: 'Keep this reason' }
   })
@@ -267,7 +283,7 @@ it('loads all beneficiary pages and sends a decision for every confirmed person'
   fireEvent.change(screen.getByPlaceholderText('E.g. This person already has a seat on another plan'), {
     target: { value: 'Duplicate seat' }
   })
-  confirm()
+  await confirm()
   fireEvent.click(screen.getByRole('button', { name: 'Confirm decision' }))
   await waitFor(() => expect(posted).toHaveLength(1))
   expect(posted[0].url).toMatch(/line-spend-decisions$/)
@@ -275,7 +291,51 @@ it('loads all beneficiary pages and sends a decision for every confirmed person'
     lines: [
       { employeeId: 'beneficiary', decision: 'APPROVE' },
       { employeeId: 'beneficiary-2', decision: 'REJECT', reason: 'Duplicate seat' }
-    ]
+    ],
+    checklist: expectedChecklist
+  })
+})
+
+it('returns a group to its head as a whole: choosing Return for one person chooses it for everyone', async () => {
+  approval.request.beneficiary = null
+  approval.request.lineCount = 2
+  const line = (employee: typeof beneficiary) => ({
+    employee,
+    position: 1,
+    state: 'NEED_CONFIRMED',
+    needStep: { id: 'need-step', state: 'APPROVED', assignee: requester },
+    expectedEndDate: null,
+    needDecision: null,
+    spendDecision: null,
+    cost: money,
+    share: money,
+    endedAt: null,
+    endedBy: null,
+    endReason: null,
+    cancelCause: null
+  })
+  groupPages = {
+    1: [line(beneficiary)],
+    2: [line({ ...beneficiary, employeeId: 'beneficiary-2', fullName: 'Second beneficiary' })]
+  }
+  mount()
+  await choose('Return', 0)
+  await waitFor(() => expect(screen.getAllByRole('combobox', { name: 'Decision' })[1]).toHaveTextContent('Return'))
+  await confirm()
+  expect(screen.getByRole('button', { name: 'Confirm decision' })).toBeDisabled()
+  const reasons = screen.getAllByPlaceholderText('E.g. This person already has a seat on another plan')
+  expect(reasons).toHaveLength(2)
+  fireEvent.change(reasons[0], { target: { value: 'Use the team plan' } })
+  fireEvent.change(reasons[1], { target: { value: 'Use the team plan' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Confirm decision' }))
+  await waitFor(() => expect(posted).toHaveLength(1))
+  expect(posted[0].url).toMatch(/line-spend-decisions$/)
+  expect(posted[0].body).toEqual({
+    lines: [
+      { employeeId: 'beneficiary', decision: 'RETURN', reason: 'Use the team plan' },
+      { employeeId: 'beneficiary-2', decision: 'RETURN', reason: 'Use the team plan' }
+    ],
+    checklist: expectedChecklist
   })
 })
 
@@ -290,10 +350,10 @@ it('lets the approver decide a request that uses the department reserve', async 
   checkOutcome = 'USES_RESERVE'
   mount()
   await choose('Approve')
-  confirm()
+  await confirm()
   fireEvent.click(screen.getByRole('button', { name: 'Confirm decision' }))
   await waitFor(() => expect(posted).toHaveLength(1))
-  expect(posted[0].body).toEqual({ decision: 'APPROVE' })
+  expect(posted[0].body).toEqual({ decision: 'APPROVE', checklist: expectedChecklist })
 })
 
 it('keeps the decision closed when the recheck blocks the request', async () => {
@@ -308,7 +368,7 @@ it('treats a request without beneficiary and without group lines as one decision
   approval.request.beneficiary = null
   mount()
   await choose('Approve')
-  confirm()
+  await confirm()
   fireEvent.click(screen.getByRole('button', { name: 'Confirm decision' }))
   await waitFor(() => expect(posted).toHaveLength(1))
   expect(posted[0].url).toMatch(/spend-approval$/)
@@ -317,7 +377,7 @@ it('treats a request without beneficiary and without group lines as one decision
 it('refreshes the active request once after a confirmed decision', async () => {
   mount()
   await choose('Approve')
-  confirm()
+  await confirm()
   const submit = screen.getByRole('button', { name: 'Confirm decision' })
   fireEvent.click(submit)
   await waitFor(() => expect(readCount).toBeGreaterThan(1))
@@ -341,7 +401,7 @@ it('hides the batch action when the batch id is missing or malformed', () => {
 it('never reads accessRequestGet and decides a named-beneficiary request at once', async () => {
   mount()
   await choose('Approve')
-  confirm()
+  await confirm()
   fireEvent.click(screen.getByRole('button', { name: 'Confirm decision' }))
   await waitFor(() => expect(posted).toHaveLength(1))
   expect(posted[0].url).toMatch(/spend-approval$/)
@@ -356,4 +416,50 @@ it('keeps the decision closed and offers a retry when the group check fails for 
   expect(await screen.findByRole('button', { name: 'Retry' })).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Confirm decision' })).toBeDisabled()
   expect(posted).toHaveLength(0)
+})
+
+it('shows the cost by year, the live Cost Center budget, the next-year warning and an open-ended term', async () => {
+  const vnd = (amount: string) => ({ amount, currency: 'VND' })
+  Object.assign(approval, {
+    termCost: {
+      currentYear: { year: 2026, months: 2, amount: vnd('2000000') },
+      nextYear: { from: '2027-01-01', months: 10, amount: vnd('10000000'), estimate: true },
+      termCutAt: '2027-03-31',
+      months: 12
+    },
+    budgetSnapshot: {
+      year: 2026,
+      base: vnd('100000000'),
+      reserve: vnd('10000000'),
+      spent: vnd('40000000'),
+      committed: vnd('20000000'),
+      pending: vnd('5000000'),
+      remainingBase: vnd('35000000'),
+      remainingWithReserve: vnd('45000000'),
+      outcome: 'WITHIN_BASE',
+      blockedReasons: [],
+      overBaseBy: null,
+      overBy: null,
+      reserveConfirmation: null,
+      decisionSnapshotCheckId: null,
+      computedAt: '2026-11-02T03:00:00Z'
+    },
+    nextYearBudget: {
+      year: 2027,
+      approved: vnd('50000000'),
+      remaining: vnd('8000000'),
+      remainingAfter: vnd('-2000000'),
+      warning: true
+    }
+  })
+  approval.request.termMonths = null as unknown as number
+  mount()
+  expect(await screen.findByText('Cost by year (before tax)')).toBeInTheDocument()
+  expect(screen.getByText('Year 2026 (checked against the budget)')).toBeInTheDocument()
+  expect(screen.getByText('Next-year part (estimate, saved at the spend decision)')).toBeInTheDocument()
+  expect(screen.getByText(/Access ends on/)).toBeInTheDocument()
+  expect(screen.getByText('Cost Center budget 2026')).toBeInTheDocument()
+  expect(screen.getByText('Other requests waiting for a spend decision')).toBeInTheDocument()
+  expect(screen.getByText(/exceeds the approved budget of 2027/)).toBeInTheDocument()
+  expect(screen.getByText('Long-term / not counted in months')).toBeInTheDocument()
 })

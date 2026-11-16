@@ -12,34 +12,9 @@ vi.mock('react-i18next', async (importOriginal) => ({
   useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'en' } })
 }))
 const originalAdapter = apiClient.defaults.adapter
-const requestId = '12345678-1234-4234-8234-123456789012'
 const totals: Record<string, number> = {
   '/spend-approvals': 37,
-  '/need-decisions': 5,
   '/budget-versions': 4
-}
-const needItem = {
-  requestId,
-  stepId: 'need-step',
-  stepKind: 'NEED',
-  deciderRole: 'SPENDING_APPROVER',
-  type: 'GRANT',
-  openedAt: '2026-11-01T00:00:00Z',
-  assignedAt: '2026-11-01T00:00:00Z',
-  slaWorkingDays: 3,
-  dueOn: '2026-11-05',
-  plan: { planId: 'plan', planName: 'Team', applicationName: 'Need application' },
-  softwareName: null,
-  requester: { employeeId: 'head', employeeCode: 'H01', fullName: 'Department head' },
-  beneficiary: null,
-  lineCount: 1,
-  department: { id: 'dept', code: 'ENG', name: 'Engineering' },
-  businessReasonExcerpt: 'Project',
-  termMonths: 12,
-  termConfirmationRequired: false,
-  pricing: { status: 'PRICED', amount: { amount: '120.00', currency: 'USD' } },
-  planLineRequired: false,
-  samePersonAsSpend: false
 }
 let requests: Array<{ url: string; params: Record<string, unknown> }>
 beforeEach(() => {
@@ -48,9 +23,8 @@ beforeEach(() => {
     const params = (config.params ?? {}) as Record<string, unknown>
     requests.push({ url: config.url ?? '', params })
     const path = Object.keys(totals).find((suffix) => config.url?.endsWith(suffix)) ?? ''
-    const listing = path === '/need-decisions' && params.pageSize === 20
     const data = {
-      items: listing ? [needItem] : [],
+      items: [],
       pagination: {
         page: Number(params.page ?? 1),
         pageSize: Number(params.pageSize),
@@ -65,7 +39,7 @@ afterEach(() => {
   apiClient.defaults.adapter = originalAdapter
 })
 
-it('shows server totals for every work queue and opens the matching screen', async () => {
+it('shows server totals for the spend queue and the budget versions and opens the matching screen', async () => {
   const onSelectTab = vi.fn()
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   render(
@@ -73,7 +47,7 @@ it('shows server totals for every work queue and opens the matching screen', asy
       <ApprovalsOverviewView onSelectTab={onSelectTab} />
     </QueryClientProvider>
   )
-  for (const total of ['37', '5', '4']) expect(await screen.findByText(total)).toBeInTheDocument()
+  for (const total of ['37', '4']) expect(await screen.findByText(total)).toBeInTheDocument()
   fireEvent.click(screen.getByRole('button', { name: /spendQueue/ }))
   expect(onSelectTab).toHaveBeenCalledWith('queue')
   fireEvent.click(screen.getByRole('button', { name: /annualBudget/ }))
@@ -84,21 +58,7 @@ it('shows server totals for every work queue and opens the matching screen', asy
   expect(requests.every((request) => !request.url.endsWith('/notifications'))).toBe(true)
 })
 
-it('opens the need list inside the queue instead of repeating it on the overview', async () => {
-  const onSelectTab = vi.fn()
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
-  render(
-    <QueryClientProvider client={client}>
-      <ApprovalsOverviewView onSelectTab={onSelectTab} />
-    </QueryClientProvider>
-  )
-  expect(await screen.findByText('5')).toBeInTheDocument()
-  expect(screen.queryByText('Need application')).not.toBeInTheDocument()
-  fireEvent.click(screen.getByRole('button', { name: /overview.needs/ }))
-  expect(onSelectTab).toHaveBeenCalledWith('queue', { list: 'need' })
-})
-
-const spendItem = (stepId: string, costCenter: string, amount: string, dueOn: string, primaryCode: string) => ({
+const spendItem = (stepId: string, costCenter: string, amount: string, dueOn: string, outcome: string) => ({
   requestId: `${stepId}-request`,
   stepId,
   stepKind: 'SPEND_APPROVAL',
@@ -112,7 +72,7 @@ const spendItem = (stepId: string, costCenter: string, amount: string, dueOn: st
   lineCount: 1,
   costCenter: { id: costCenter, code: costCenter },
   amount: { amount, currency: 'VND' },
-  primaryCode,
+  outcome,
   samePersonAsSpend: false,
   noIndependentReview: false,
   batchId: stepId === 'late' ? 'batch-1' : null
@@ -132,9 +92,9 @@ const version = (id: string, costCenter: string, amount: string, state: string) 
 it('builds figures and charts from every waiting request and the budget versions of the year', async () => {
   const today = localToday()
   const spendItems = [
-    spendItem('late', 'CC-ENG', '1500000', addDays(today, -1), 'BUDGET_OK'),
-    spendItem('soon', 'CC-ENG', '800000', today, 'INSUFFICIENT_BUDGET'),
-    spendItem('later', 'CC-SAL', '1000000', addDays(today, 7), 'BUDGET_OK')
+    spendItem('late', 'CC-ENG', '1500000', addDays(today, -1), 'WITHIN_BASE'),
+    spendItem('soon', 'CC-ENG', '800000', today, 'BLOCKED'),
+    spendItem('later', 'CC-SAL', '1000000', addDays(today, 7), 'WITHIN_BASE')
   ]
   const versions = [
     version('v1', 'CC-ENG', '50000000', 'APPROVED'),
@@ -168,9 +128,10 @@ it('builds figures and charts from every waiting request and the budget versions
   expect(await screen.findByText(formatMoney({ amount: '3300000', currency: 'VND' }, 'en'))).toBeInTheDocument()
   expect(screen.getByText('insights.overdue').nextElementSibling).toHaveTextContent('1')
   expect(screen.getByText('insights.dueSoon').nextElementSibling).toHaveTextContent('1')
+  expect(screen.getByText('insights.usesReserve').nextElementSibling).toHaveTextContent('0')
   // Donut legends name every part with its count, so identity never rests on colour alone.
-  expect(screen.getByText('status.BUDGET_OK').closest('li')).toHaveTextContent('2')
-  expect(screen.getByText('status.INSUFFICIENT_BUDGET').closest('li')).toHaveTextContent('1')
+  expect(screen.getByText('status.WITHIN_BASE').closest('li')).toHaveTextContent('2')
+  expect(screen.getByText('status.BLOCKED').closest('li')).toHaveTextContent('1')
   expect((await screen.findByText('status.APPROVED')).closest('li')).toHaveTextContent('2')
   expect(screen.getByText('status.SENT').closest('li')).toHaveTextContent('1')
   const [spendTable, budgetTable] = await screen.findAllByRole('button', { name: 'insights.views.table' })

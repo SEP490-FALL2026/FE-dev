@@ -11,6 +11,8 @@ import { useBudgetVersionDecide } from '~/shared/api/generated/operations/budget
 import { ApprovalsField, ApprovalsSelect, approvalsInputClass } from '../../shared/components/approvals-ui'
 import { useApprovalsFeedback } from '../../shared/hooks/use-approvals-feedback'
 import { getApprovalsError } from '../../shared/approvals-errors'
+import { DecisionChecklistPanel } from '../../shared/components/decision-checklist'
+import { DECISION_STEP, useDecisionChecklist } from '../../shared/hooks/use-decision-checklist'
 import { versionDecision, type VersionDecision } from '../enums/version-decision'
 
 export function ApprovalAnnualBudgetDecision({
@@ -47,6 +49,7 @@ export function ApprovalAnnualBudgetDecision({
             /\/(budget-check|spend-approvals|spend-batches|budget-commitments|notifications)(\/|$)/.test(part)
         )
     })
+  const checklist = useDecisionChecklist(DECISION_STEP.BUDGET_VERSION)
   const mutation = useBudgetVersionDecide({
     mutation: {
       onSettled: () => {
@@ -57,6 +60,7 @@ export function ApprovalAnnualBudgetDecision({
         await feedback.onSuccess()
       },
       onError: async (error) => {
+        checklist.handleError(error)
         if (['ownVersion', 'forbidden'].includes(getApprovalsError(error).key)) setPermissionBlocked(true)
         if (getApprovalsError(error).key !== 'rateLimit') await invalidateSpend()
         await feedback.onError(error)
@@ -65,18 +69,24 @@ export function ApprovalAnnualBudgetDecision({
   })
   const requiresReason = decision !== versionDecision.APPROVE
   const invalidReason = requiresReason && !reason.trim()
+  const invalidChecklist = !checklist.complete || (!requiresReason && checklist.hasNo)
+  const blocked = disabled || permissionBlocked || invalidReason || invalidChecklist
   return (
     <AdminFormDialog
       title={translate('reviewDecision')}
       pending={mutation.isPending}
       submitLabel={translate('confirmDecision')}
-      submitDisabled={disabled || permissionBlocked || invalidReason}
+      submitDisabled={blocked}
       onClose={onClose}
       onSubmit={(event) => {
         event.preventDefault()
-        if (submissionLocked.current || mutation.isPending || disabled || permissionBlocked || invalidReason) return
+        const checklistPayload = checklist.payload()
+        if (submissionLocked.current || mutation.isPending || blocked || !checklistPayload) return
         submissionLocked.current = true
-        mutation.mutate({ id: itemId, data: { decision, ...(requiresReason ? { reason: reason.trim() } : {}) } })
+        mutation.mutate({
+          id: itemId,
+          data: { decision, checklist: checklistPayload, ...(requiresReason ? { reason: reason.trim() } : {}) }
+        })
       }}
     >
       <ApprovalsSelect
@@ -85,8 +95,7 @@ export function ApprovalAnnualBudgetDecision({
         disabled={mutation.isPending || permissionBlocked}
         options={[
           { value: versionDecision.APPROVE, label: translate('approve') },
-          { value: versionDecision.REJECT, label: translate('reject') },
-          { value: versionDecision.REQUEST_CHANGES, label: translate('requestChanges') }
+          { value: versionDecision.RETURN, label: translate('returnToFinance') }
         ]}
         onChange={(selected) => {
           const next = Object.values(versionDecision).find((value) => value === selected)
@@ -109,6 +118,7 @@ export function ApprovalAnnualBudgetDecision({
       ) : (
         <p className='text-sm text-muted-foreground'>{translate('approvalHint')}</p>
       )}
+      <DecisionChecklistPanel checklist={checklist} disabled={mutation.isPending || permissionBlocked} />
     </AdminFormDialog>
   )
 }

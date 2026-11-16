@@ -3,7 +3,9 @@ import { act, render, renderHook, screen } from '@testing-library/react'
 import { AxiosError, AxiosHeaders } from 'axios'
 import type { ReactNode } from 'react'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { setAppLanguage } from '~/shared/i18n/i18n'
+import { i18n, setAppLanguage } from '~/shared/i18n/i18n'
+import { approvals } from '~/shared/i18n/locales/en/approvals'
+import { requestFlow } from '~/shared/i18n/locales/en/request-flow'
 import { ApprovalsButton } from '../components/approvals-ui'
 import { useApprovalsFeedback } from './use-approvals-feedback'
 
@@ -20,6 +22,9 @@ function failure(status: number, code: string, headers: Record<string, string> =
 }
 
 beforeEach(async () => {
+  // Preload the namespaces the hook reads, so the first render never suspends while they load lazily.
+  i18n.addResourceBundle('en', 'approvals', approvals)
+  i18n.addResourceBundle('en', 'requestFlow', requestFlow)
   await setAppLanguage('en', false)
 })
 

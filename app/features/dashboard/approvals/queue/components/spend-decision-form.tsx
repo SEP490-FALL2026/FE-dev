@@ -11,6 +11,8 @@ import {
   approvalsInputClass
 } from '../../shared/components/approvals-ui'
 import { ApprovalsQueryState } from '../../shared/components/approvals-query-state'
+import { DecisionChecklistPanel } from '../../shared/components/decision-checklist'
+import { DECISION_STEP, useDecisionChecklist } from '../../shared/hooks/use-decision-checklist'
 import { useSpendBeneficiaries } from '../hooks/use-spend-beneficiaries'
 import { useSpendDecision } from '../hooks/use-spend-decision'
 import type { useSpendYears } from '../hooks/use-spend-years'
@@ -38,6 +40,7 @@ export function SpendDecisionForm({
   const employeeId = me.data?.data?.employee?.id
   const beneficiaries = useSpendBeneficiaries(approval.requestId, isGroup, approval.request.lineCount)
   const mutations = useSpendDecision()
+  const checklist = useDecisionChecklist(DECISION_STEP.SPEND)
   const [decision, setDecision] = useState('')
   const [reason, setReason] = useState('')
   const [confirmed, setConfirmed] = useState(false)
@@ -67,23 +70,44 @@ export function SpendDecisionForm({
       return (
         draft &&
         (draft.decision === SPEND_DECISION.APPROVE ||
-          (draft.decision === SPEND_DECISION.REJECT && Boolean(draft.reason.trim())))
+          ((draft.decision === SPEND_DECISION.REJECT || draft.decision === SPEND_DECISION.RETURN) &&
+            Boolean(draft.reason.trim())))
       )
     })
+  const returnedLines = confirmedLines.filter(
+    (line) => lineDrafts[line.employee.employeeId]?.decision === SPEND_DECISION.RETURN
+  ).length
+  const returnAllOrNone = returnedLines === 0 || returnedLines === confirmedLines.length
   const decisionValid = isGroup
-    ? allLinesDecided
-    : decision === SPEND_DECISION.APPROVE || (decision === SPEND_DECISION.REJECT && Boolean(reason.trim()))
-  const valid = canDecide && confirmed && decisionValid
+    ? allLinesDecided && returnAllOrNone
+    : decision === SPEND_DECISION.APPROVE ||
+      ((decision === SPEND_DECISION.REJECT || decision === SPEND_DECISION.RETURN) && Boolean(reason.trim()))
+  const approving = isGroup
+    ? confirmedLines.some((line) => lineDrafts[line.employee.employeeId]?.decision === SPEND_DECISION.APPROVE)
+    : decision === SPEND_DECISION.APPROVE
+  const checklistValid = checklist.complete && !(approving && checklist.hasNo)
+  const valid = canDecide && confirmed && decisionValid && checklistValid
   const options = [
     { value: '', label: translate('choose') },
     { value: SPEND_DECISION.APPROVE, label: translate('approve') },
-    { value: SPEND_DECISION.REJECT, label: translate('reject') }
+    { value: SPEND_DECISION.REJECT, label: translate('reject') },
+    { value: SPEND_DECISION.RETURN, label: translate('return') }
   ]
+  // A group goes back to its head as a whole: choosing RETURN for one person chooses it for everyone,
+  // and moving one person away from RETURN clears the others that were returned.
   const changeLine = (id: string, patch: Partial<{ decision: string; reason: string }>) =>
-    setLineDrafts((previous) => ({
-      ...previous,
-      [id]: { ...(previous[id] ?? { decision: '', reason: '' }), ...patch }
-    }))
+    setLineDrafts((previous) => {
+      const next = { ...previous, [id]: { ...(previous[id] ?? { decision: '', reason: '' }), ...patch } }
+      if (patch.decision === undefined) return next
+      for (const line of confirmedLines) {
+        const key = line.employee.employeeId
+        if (key === id) continue
+        const draft = next[key] ?? { decision: '', reason: '' }
+        if (patch.decision === SPEND_DECISION.RETURN) next[key] = { ...draft, decision: SPEND_DECISION.RETURN }
+        else if (draft.decision === SPEND_DECISION.RETURN) next[key] = { ...draft, decision: '' }
+      }
+      return next
+    })
   return (
     <ApprovalsSection title={translate('decision')}>
       <ApprovalsQueryState query={me}>{null}</ApprovalsQueryState>
@@ -103,25 +127,39 @@ export function SpendDecisionForm({
       <form
         onSubmit={(event) => {
           event.preventDefault()
-          if (!valid || submissionLocked.current) return
+          const checklistPayload = checklist.payload()
+          if (!valid || !checklistPayload || submissionLocked.current) return
           submissionLocked.current = true
           const submissionOptions = {
             onSettled: () => {
               submissionLocked.current = false
-            }
+            },
+            onError: checklist.handleError
           }
           if (isGroup) {
             const lines: LineSpendDecisionBodyDto['lines'] = confirmedLines.map((line) => {
               const draft = lineDrafts[line.employee.employeeId]
               return draft.decision === SPEND_DECISION.APPROVE
                 ? { employeeId: line.employee.employeeId, decision: SPEND_DECISION.APPROVE }
-                : { employeeId: line.employee.employeeId, decision: SPEND_DECISION.REJECT, reason: draft.reason.trim() }
+                : {
+                    employeeId: line.employee.employeeId,
+                    decision: draft.decision === SPEND_DECISION.RETURN ? SPEND_DECISION.RETURN : SPEND_DECISION.REJECT,
+                    reason: draft.reason.trim()
+                  }
             })
-            mutations.group.mutate({ id: approval.requestId, data: { lines } }, submissionOptions)
-          } else if (decision === SPEND_DECISION.APPROVE || decision === SPEND_DECISION.REJECT) {
+            mutations.group.mutate(
+              { id: approval.requestId, data: { lines, checklist: checklistPayload } },
+              submissionOptions
+            )
+          } else if (
+            decision === SPEND_DECISION.APPROVE ||
+            decision === SPEND_DECISION.REJECT ||
+            decision === SPEND_DECISION.RETURN
+          ) {
             const data: SpendDecisionBodyDto = {
               decision,
-              ...(decision === SPEND_DECISION.REJECT ? { reason: reason.trim() } : {})
+              checklist: checklistPayload,
+              ...(decision !== SPEND_DECISION.APPROVE ? { reason: reason.trim() } : {})
             }
             mutations.single.mutate({ id: approval.requestId, data }, submissionOptions)
           }
@@ -143,8 +181,17 @@ export function SpendDecisionForm({
                     onChange={(value) => changeLine(line.employee.employeeId, { decision: value })}
                     disabled={!canDecide}
                   />
-                  {lineDrafts[line.employee.employeeId]?.decision === SPEND_DECISION.REJECT && (
-                    <ApprovalsField label={translate('lineReason', { name: line.employee.fullName })} required>
+                  {(lineDrafts[line.employee.employeeId]?.decision === SPEND_DECISION.REJECT ||
+                    lineDrafts[line.employee.employeeId]?.decision === SPEND_DECISION.RETURN) && (
+                    <ApprovalsField
+                      label={translate(
+                        lineDrafts[line.employee.employeeId]?.decision === SPEND_DECISION.RETURN
+                          ? 'lineReturnReason'
+                          : 'lineReason',
+                        { name: line.employee.fullName }
+                      )}
+                      required
+                    >
                       <textarea
                         rows={3}
                         className={approvalsInputClass}
@@ -168,14 +215,19 @@ export function SpendDecisionForm({
                 onChange={setDecision}
                 disabled={!canDecide}
               />
-              {decision === SPEND_DECISION.REJECT && (
-                <ApprovalsField label={translate('rejectReason')} required>
+              {(decision === SPEND_DECISION.REJECT || decision === SPEND_DECISION.RETURN) && (
+                <ApprovalsField
+                  label={translate(decision === SPEND_DECISION.RETURN ? 'returnReason' : 'rejectReason')}
+                  required
+                >
                   <textarea
                     rows={3}
                     className={approvalsInputClass}
                     value={reason}
                     onChange={(event) => setReason(event.target.value)}
-                    placeholder={translate('rejectPlaceholder')}
+                    placeholder={translate(
+                      decision === SPEND_DECISION.RETURN ? 'returnPlaceholder' : 'rejectPlaceholder'
+                    )}
                     required
                     maxLength={1000}
                   />
@@ -183,6 +235,7 @@ export function SpendDecisionForm({
               )}
             </>
           )}
+          <DecisionChecklistPanel checklist={checklist} disabled={!canDecide} />
           <label className='flex min-h-11 items-start gap-3 text-sm'>
             <input
               className='mt-0.5 size-4 accent-primary'

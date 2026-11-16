@@ -24,9 +24,10 @@ const item = {
   costCenter: { id: 'cc-1', code: 'CC-LIVE' },
   amount: { amount: '9007199254740993.25', currency: 'USD' },
   primaryCode: 'BUDGET_OK',
-  samePersonAsSpend: false,
-  noIndependentReview: false,
-  offPlan: false,
+  stepKind: 'SPEND_APPROVAL',
+  routing: { mode: 'VIA_HEAD', oneStepReason: null },
+  outcome: 'WITHIN_BASE',
+  nextYearBudget: null,
   batchId: null
 }
 function setup(adapter: AxiosAdapter, onSelectTab = vi.fn(), initialUrl = '/?tab=queue') {
@@ -113,70 +114,37 @@ it('keeps the queue compact and carries the batch into the request detail', asyn
   expect(onSelectTab).toHaveBeenCalledWith('request', { id: item.requestId, batch: batchId })
 })
 
-const needItem = {
-  requestId: '12345678-1234-4234-8234-123456789012',
-  stepId: 'need-step',
-  stepKind: 'NEED',
-  deciderRole: 'SPENDING_APPROVER',
-  type: 'GROUP_GRANT',
-  openedAt: '2026-11-01T00:00:00Z',
-  assignedAt: '2026-11-01T00:00:00Z',
-  slaWorkingDays: 3,
-  dueOn: '2026-11-05',
-  plan: { planId: 'plan', planName: 'Team', applicationName: 'Need application' },
-  softwareName: null,
-  requester: { employeeId: 'head', employeeCode: 'H01', fullName: 'Department head' },
-  beneficiary: null,
-  lineCount: 1,
-  department: { id: 'dept', code: 'ENG', name: 'Engineering' },
-  businessReasonExcerpt: 'Project',
-  termMonths: 12,
-  pricing: { status: 'PRICED', amount: { amount: '120.00', currency: 'USD' } },
-  samePersonAsSpend: false
-}
-
-function bothQueues(): AxiosAdapter {
-  return async (config) => {
-    calls.push(config)
-    const isNeed = config.url?.endsWith('/need-decisions') ?? false
-    const total = isNeed ? 5 : 37
-    return {
-      config,
-      status: 200,
-      statusText: 'OK',
-      headers: {},
+it('flags one-step routing, the reserve, a next-year warning, a group and an overdue step', async () => {
+  setup(async (config) => ({
+    config,
+    status: 200,
+    statusText: 'OK',
+    headers: {},
+    data: {
+      success: true,
       data: {
-        success: true,
-        data: {
-          items: isNeed ? [needItem] : [item],
-          pagination: { page: config.params?.page ?? 1, pageSize: 20, totalItems: total, totalPages: 2 }
-        }
+        items: [
+          {
+            ...item,
+            routing: { mode: 'ONE_STEP', oneStepReason: 'REQUESTER_IS_HEAD' },
+            outcome: 'USES_RESERVE',
+            lineCount: 3,
+            nextYearBudget: {
+              year: 2027,
+              approved: null,
+              remaining: null,
+              remainingAfter: null,
+              warning: true
+            }
+          }
+        ],
+        pagination
       }
     }
-  }
-}
-
-it('shows both lists with server totals and switches through the URL', async () => {
-  const onSelectTab = vi.fn()
-  setup(bothQueues(), onSelectTab)
-  expect(await screen.findByRole('button', { name: /^Spend decisions\s*37$/ })).toHaveAttribute('aria-pressed', 'true')
-  expect(await screen.findByRole('button', { name: /^Department heads' requests\s*5$/ })).toHaveAttribute(
-    'aria-pressed',
-    'false'
-  )
-  fireEvent.click(screen.getByRole('button', { name: /Department heads' requests/ }))
-  expect(onSelectTab).toHaveBeenCalledWith('queue', { list: 'need' })
-})
-
-it('lists need confirmations on the server and opens the need detail', async () => {
-  const onSelectTab = vi.fn()
-  setup(bothQueues(), onSelectTab, '/?tab=queue&list=need')
-  expect((await screen.findAllByText('Need application')).length).toBeGreaterThan(0)
-  expect(screen.queryByText('Live application')).not.toBeInTheDocument()
-  fireEvent.click(screen.getAllByRole('button', { name: 'View details' })[0])
-  expect(onSelectTab).toHaveBeenCalledWith('need', { id: needItem.requestId })
-  fireEvent.click(screen.getByRole('button', { name: 'Next page' }))
-  await waitFor(() =>
-    expect(calls.some((config) => config.url?.endsWith('/need-decisions') && config.params?.page === 2)).toBe(true)
-  )
+  }))
+  expect(await screen.findAllByText('One step')).not.toHaveLength(0)
+  expect(screen.getAllByText('Uses reserve')).not.toHaveLength(0)
+  expect(screen.getAllByText('Next-year part over budget')).not.toHaveLength(0)
+  expect(screen.getAllByText('3 people')).not.toHaveLength(0)
+  expect(screen.getAllByText('Overdue')).not.toHaveLength(0)
 })

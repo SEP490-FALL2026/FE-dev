@@ -12,6 +12,7 @@ import {
 import { ApprovalsQueryState } from '../../shared/components/approvals-query-state'
 import { ApprovalsTable } from '../../shared/components/approvals-table'
 import { formatMoney } from '../../shared/approvals-money'
+import { ApprovalCycleDetail, ApprovalCycleList, CYCLE_ID_PREFIX } from '../components/approval-cycle-overview'
 import { ApprovalAnnualBudgetDetail } from '../components/approval-annual-budget-detail'
 import { ApprovalAnnualBudgetFilters } from '../components/approval-annual-budget-filters'
 import { ApprovalBudgetProposalDetail } from '../components/approval-budget-proposal-detail'
@@ -24,13 +25,15 @@ export function ApprovalAnnualBudgetView(props: ApprovalBudgetViewProps) {
     return (
       <ApprovalBudgetProposalDetail {...props} key={props.itemId} itemId={props.itemId.slice('proposal:'.length)} />
     )
+  if (props.itemId?.startsWith(CYCLE_ID_PREFIX))
+    return <ApprovalCycleDetail {...props} key={props.itemId} itemId={props.itemId} />
   if (props.itemId) return <ApprovalAnnualBudgetDetail {...props} key={props.itemId} itemId={props.itemId} />
   return <ApprovalBudgetLists {...props} />
 }
 
 function ApprovalBudgetLists({ onSelectTab }: ApprovalBudgetViewProps) {
   const { t: translate } = useTranslation('approvalsBudget')
-  const [section, setSection] = useState<'versions' | 'proposals'>('versions')
+  const [section, setSection] = useState<'versions' | 'proposals' | 'cycles'>('versions')
   return (
     <ApprovalsPage title={translate('title')} description={translate('pageDescription')}>
       <div
@@ -38,16 +41,18 @@ function ApprovalBudgetLists({ onSelectTab }: ApprovalBudgetViewProps) {
         aria-label={translate('title')}
         className='inline-flex flex-wrap gap-1 rounded-lg border border-border/70 bg-surface-subtle p-1'
       >
-        {(['versions', 'proposals'] as const).map((item) => (
+        {(['versions', 'proposals', 'cycles'] as const).map((item) => (
           <ApprovalsButton key={item} variant='ghost' aria-pressed={section === item} onClick={() => setSection(item)}>
-            {translate(item)}
+            {translate(item === 'cycles' ? 'cycles.tab' : item)}
           </ApprovalsButton>
         ))}
       </div>
-      {section === 'versions' ? (
-        <VersionList onOpen={(id) => onSelectTab('annual-budget', { id })} />
-      ) : (
+      {section === 'versions' && <VersionList onOpen={(id) => onSelectTab('annual-budget', { id })} />}
+      {section === 'proposals' && (
         <ProposalList onOpen={(id) => onSelectTab('annual-budget', { id: `proposal:${id}` })} />
+      )}
+      {section === 'cycles' && (
+        <ApprovalCycleList onOpen={(year) => onSelectTab('annual-budget', { id: `${CYCLE_ID_PREFIX}${year}` })} />
       )}
     </ApprovalsPage>
   )

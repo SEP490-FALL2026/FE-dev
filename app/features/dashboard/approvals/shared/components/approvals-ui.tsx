@@ -202,6 +202,7 @@ const statusTones: Record<StatusTone, readonly string[]> = {
     'ANSWERED',
     'COMPLETED',
     'BUDGET_OK',
+    'WITHIN_BASE',
     'DECLARED',
     'ASSESSED',
     'WITHIN_LIMIT',
@@ -220,6 +221,7 @@ const statusTones: Record<StatusTone, readonly string[]> = {
     'WAITING',
     'OPEN',
     'HIGH_VALUE',
+    'USES_RESERVE',
     'HELD',
     'CHANGES_REQUESTED',
     'NEEDS_BUDGET',
@@ -281,7 +283,7 @@ export function ApprovalsStat({
   emphasis?: boolean
 }) {
   return (
-    <div className='min-w-0 space-y-1 bg-surface p-4'>
+    <div className='min-w-0 space-y-1 border-r border-b border-border/70 bg-surface p-4'>
       <dt className='text-xs font-medium tracking-wider text-muted-foreground uppercase'>{label}</dt>
       <dd
         className={`truncate font-mono text-lg font-semibold tabular-nums ${emphasis ? 'text-primary-ink' : 'text-foreground'}`}
@@ -294,9 +296,11 @@ export function ApprovalsStat({
 
 export function ApprovalsStatGrid({ children }: { children: ReactNode }) {
   return (
-    <dl className='grid gap-px overflow-hidden rounded-lg border border-border/70 bg-border/70 sm:grid-cols-2 lg:grid-cols-3'>
-      {children}
-    </dl>
+    <div className='overflow-hidden rounded-lg border border-border/70 bg-surface'>
+      {/* Each stat draws its own right and bottom rule and the grid is pulled over the frame, so a last row with fewer
+          stats than columns stays clean instead of showing the grid background. */}
+      <dl className='-mr-px -mb-px grid sm:grid-cols-2 lg:grid-cols-3'>{children}</dl>
+    </div>
   )
 }
 
