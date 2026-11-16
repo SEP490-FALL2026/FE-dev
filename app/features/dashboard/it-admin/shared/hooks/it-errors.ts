@@ -1,6 +1,20 @@
 import axios from 'axios'
 
 const errors = {
+  'PROVISIONING.K1_CHECKLIST_INCOMPLETE': 'k1ChecklistIncomplete',
+  'PROVISIONING.K1_CHECKLIST_OUT_OF_ORDER': 'k1ChecklistOrder',
+  'PROVISIONING.CONTRACT_ENDED': 'contractEnded',
+  'PROVISIONING.SUBSCRIPTION_NEXT_PERIOD_SEATS': 'nextPeriodSeats',
+  'POLICY.CHECKLIST_INCOMPLETE': 'policyChecklistIncomplete',
+  'POLICY.CHECKLIST_HAS_NO': 'policyChecklistHasNo',
+  'POLICY.VERSION_CHANGED': 'policyVersionChanged',
+  'POLICY.NOT_IN_FORCE': 'policyVersionChanged',
+  'APPLICATION.DUPLICATE': 'applicationDuplicate',
+  'DEPARTMENT_SOFTWARE.ALREADY_LISTED': 'softwareAlreadyListed',
+  'DEPARTMENT_SOFTWARE.OWN_PROPOSAL': 'ownProposal',
+  'DEPARTMENT_SOFTWARE.NOT_IN_CATALOG': 'softwareNotInCatalog',
+  'PURCHASE_INVOICE.NUMBER_TAKEN': 'invoiceNumberTaken',
+  'SUBSCRIPTION.PRICE_NOT_VND': 'priceNotVnd',
   'PROVISIONING.ANOTHER_IT_ADMIN_NEEDED': 'anotherAdmin',
   'PROVISIONING_TASK.NOT_CLAIMABLE': 'conflict',
   'PROVISIONING_TASK.NOT_IN_PROGRESS': 'conflict',

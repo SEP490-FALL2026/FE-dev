@@ -6,6 +6,16 @@ export const itDevices = {
   allowlist: 'Collector allowlist',
   create: 'Create device',
   detail: 'Device details',
+  history: 'Holder history',
+  backToDevices: 'Back to devices',
+  backToDevice: 'Back to device',
+  backToHistory: 'Back to holder history',
+  noCollection: 'No collection received yet',
+  noHolder: 'No holder available',
+  validUntil: 'Last handover day',
+  openRegistration: 'Current registration',
+  notAcknowledged: 'Not acknowledged',
+  partialCoverage: 'Partial observation: these counts are a lower bound.',
   assetCode: 'Asset code',
   hostname: 'Hostname',
   os: 'Operating system',
@@ -97,7 +107,7 @@ export const itDevices = {
     ENDED: 'Registration ended',
     DEPARTURE: 'Departure',
     EMPLOYEE_LEFT: 'Employee left',
-    ACTIVE: 'Active',
+    ACTIVE: 'Acknowledged',
     AWAITING_ACKNOWLEDGEMENT: 'Awaiting acknowledgement',
     COLLECTION_STOPPED: 'Collection stopped',
     UNREGISTERED: 'No holder',
@@ -120,6 +130,7 @@ export const itDevices = {
     HOLDER_CHANGED: 'Holder changed',
     DEVICE_RETIRED: 'Device retired',
     HOLDER_ACCESS_BLOCKED: 'Holder access blocked',
+    DEPARTURE_BLOCKED: 'Departure access blocked',
     MANUAL: 'Manual revocation'
   },
   blocked: {
@@ -140,6 +151,13 @@ export const itDevices = {
     INVALID_QUOTA: 'Invalid quota data'
   },
   hints: {
+    search: 'Find a company machine by its asset code or hostname.',
+    holderFilter:
+      'Choose a department, then a member to filter their current machines. Clear the field to show all holders.',
+    collectionState: 'Acknowledgement permits collection; it does not confirm the collector is sending data.',
+    credentials:
+      'Credentials belong to this handover registration. Revoking one prevents that collector from submitting more data.',
+    reasonCode: 'Show rejected submissions for one reason, or select all reasons.',
     assetCode: 'Use the unique company asset tag printed on the machine.',
     hostname: 'Enter the machine hostname, up to 63 characters.',
     os: 'Enter the installed operating system, for example its product name and version.',

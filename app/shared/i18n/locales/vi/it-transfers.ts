@@ -1,6 +1,6 @@
 export const itTransfers = {
   title: 'Điều chuyển phòng ban',
-  hint: 'Quyền cũ được giữ trong ân hạn 5 ngày làm việc kể từ ngày hiệu lực. Hết ân hạn, hệ thống mở tác vụ thu hồi cho IT Admin phụ trách phòng mới và tự đóng điều chuyển.',
+  hint: 'Quyền cũ được giữ trong ân hạn 5 ngày làm việc kể từ ngày hiệu lực. Hết ân hạn, hệ thống mở tác vụ thu hồi cho quản trị viên công nghệ thông tin phụ trách phòng mới và tự đóng điều chuyển.',
   back: 'Về danh sách điều chuyển',
   refresh: 'Làm mới điều chuyển',
   details: 'Xem điều chuyển',
@@ -8,13 +8,14 @@ export const itTransfers = {
   status: 'Trạng thái',
   phase: 'Giai đoạn',
   employeeId: 'Mã định danh nhân viên',
-  employeePlaceholder: 'UUID nhân viên chính thức (không bắt buộc)',
+  employeePlaceholder: 'mã định danh nhân viên chính thức (không bắt buộc)',
   from: 'Phòng ban cũ',
   to: 'Phòng ban mới',
   effectiveOn: 'Ngày hiệu lực',
   effectiveFrom: 'Hiệu lực từ ngày',
   effectiveTo: 'Hiệu lực đến ngày',
   graceEndsBefore: 'Ân hạn kết thúc trước',
+  graceEndsFrom: 'Ân hạn kết thúc từ',
   graceEndsBeforeHint: 'Điều chuyển có ân hạn kết thúc trước ngày này (không tính ngày đó).',
   graceEndsOn: 'Ngày cuối ân hạn',
   graceReminderOn: 'Ngày nhắc',
@@ -22,6 +23,15 @@ export const itTransfers = {
   commitmentsReleased: 'Đã trả về ngân sách phòng cũ',
   applyFilters: 'Áp dụng bộ lọc',
   closedAt: 'Đã đóng lúc {{at}}',
+  cancelledAt: 'Đã hủy lúc {{at}}',
+  viewRevocationTask: 'Xem tác vụ thu hồi',
+  accessMethods: {
+    K1: 'Tài khoản cá nhân',
+    K2: 'Suất sử dụng trong không gian làm việc',
+    K3: 'Tài khoản dùng chung',
+    K4: 'Khóa bản quyền',
+    K5: 'Quyền thủ công'
+  },
   closedBySystem: 'Hệ thống đã đóng lúc {{at}}',
   supersededAt: 'Hồ sơ nghỉ việc đã tiếp quản lúc {{at}}; hạn thu hồi của hồ sơ đó áp lên quyền cũ',
   unknown: 'Chưa có dữ liệu',
@@ -46,7 +56,7 @@ export const itTransfers = {
   phaseHints: {
     IN_GRACE: 'Người chuyển giữ quyền cũ tới hết ân hạn và có thể xin lại cùng phần mềm ở phòng mới.',
     REVOKING:
-      'Tác vụ thu hồi đang nằm trong hàng đợi của IT Admin phụ trách phòng mới. Điều chuyển đóng khi tác vụ cuối hoàn tất.'
+      'Tác vụ thu hồi đang nằm trong hàng đợi của quản trị viên công nghệ thông tin phụ trách phòng mới. Điều chuyển đóng khi tác vụ cuối hoàn tất.'
   },
   rightStates: {
     HELD: 'Còn giữ',

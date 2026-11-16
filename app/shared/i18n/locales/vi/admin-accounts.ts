@@ -1,4 +1,23 @@
 export const adminAccounts = {
+  applicationHandover: {
+    title: 'Bàn giao người phụ trách ứng dụng',
+    submit: 'Lưu người phụ trách mới',
+    help: 'Chuyển trách nhiệm quản lý ứng dụng sang một quản trị viên công nghệ thông tin đang làm việc. Thay đổi áp dụng cho ứng dụng trong toàn công ty.',
+    department: 'Phòng ban đang sử dụng',
+    departmentHelp:
+      'Chọn phòng ban để tìm ứng dụng trong danh sách phần mềm của phòng. Chuyển trang để xem thêm phòng ban.',
+    application: 'Ứng dụng cần bàn giao',
+    applicationHelp:
+      'Chọn ứng dụng cần đổi người phụ trách. Danh sách chỉ gồm phần mềm đã được ghi nhận tại phòng ban đã chọn.',
+    target: 'Người tiếp nhận',
+    targetHelp: 'Chọn quản trị viên công nghệ thông tin đang làm việc để tiếp nhận trách nhiệm ứng dụng.'
+  },
+  releaseDepartureBlock: 'Gỡ chặn truy cập sau hủy nghỉ việc',
+  roleHelp: 'Chọn vai trò thay thế vai trò hiện tại. Quyền truy cập mới có hiệu lực từ yêu cầu tiếp theo.',
+  employeeHelp:
+    'Chọn nhân viên chưa có tài khoản. Thư kích hoạt được gửi đến địa chỉ thư điện tử công việc của người này.',
+  emailFromPersonnel:
+    'Địa chỉ đăng nhập và nhận lời mời được lấy từ hồ sơ nhân viên. Muốn thay đổi, hãy cập nhật hồ sơ trước khi tạo tài khoản.',
   retryIn: 'Thử lại sau {{count}} giây',
   title: 'Tài khoản và trách nhiệm',
   list: 'Tài khoản',
@@ -36,6 +55,9 @@ export const adminAccounts = {
   confirm: 'Xác nhận',
   resend: 'Gửi lại lời mời',
   resendHint: 'Gửi lời mời kích hoạt mới đến email đăng nhập của tài khoản này.',
+  removeAvatar: 'Gỡ ảnh đại diện',
+  removeAvatarReasonPlaceholder: 'Nêu lý do gỡ ảnh đại diện không phù hợp (tối đa 500 ký tự)',
+  removeAvatarHint: 'Ảnh đại diện sẽ bị gỡ và ghi nhận vào nhật ký kiểm toán. Người dùng không nhận được thông báo.',
   createdAt: 'Ngày tạo',
   invitation: 'Lời mời kích hoạt',
   usable: 'Lời mời còn sử dụng được',

@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useIsFetching } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import type { ParameterListResponseDtoDataItemsItem } from '~/shared/api/generated/model'
 import {
@@ -23,8 +22,6 @@ export function SuperAdminRemindersView() {
   const presentation = useParameterPresentation()
   const [editing, setEditing] = useState<ParameterListResponseDtoDataItemsItem | null>(null)
   const [historyParameter, setHistoryParameter] = useState<ParameterListResponseDtoDataItemsItem | null>(null)
-  const historyFetching =
-    useIsFetching({ queryKey: getOperatingParameterHistoryQueryKey(historyParameter?.key ?? '') }) > 0
   const [value, setValue] = useState('')
   const [invalid, setInvalid] = useState(false)
   const feedback = useAdminMutationFeedback(
@@ -35,9 +32,11 @@ export function SuperAdminRemindersView() {
   const items = query.data?.data?.items ?? []
   const groups = new Map<string, ParameterListResponseDtoDataItemsItem[]>()
   for (const parameter of items) {
-    const group = parameter.groupLabel || translate('parameters.contract.ungrouped')
+    const group = presentation.group(parameter.group, parameter.groupLabel)
     groups.set(group, [...(groups.get(group) ?? []), parameter])
   }
+  if (historyParameter)
+    return <ParameterHistory parameter={historyParameter} onClose={() => setHistoryParameter(null)} />
   return (
     <div className='space-y-5'>
       <h1 className='text-2xl font-semibold tracking-tight [text-wrap:balance]'>{translate('parameters.title')}</h1>
@@ -54,7 +53,7 @@ export function SuperAdminRemindersView() {
                     key={parameter.key}
                     parameter={parameter}
                     disabled={mutation.isPending || Boolean(editing) || Boolean(historyParameter)}
-                    historyLoading={historyFetching && historyParameter?.key === parameter.key}
+                    historyLoading={false}
                     onEdit={() => {
                       setEditing(parameter)
                       setValue(Array.isArray(parameter.value) ? parameter.value.join(', ') : String(parameter.value))
@@ -85,15 +84,14 @@ export function SuperAdminRemindersView() {
             mutation.mutate({ key: editing.key, data: { value: parsed } })
           }}
         >
-          <p className='text-sm font-semibold'>{editing.label || presentation.name(editing.key)}</p>
-          <p className='text-sm text-muted-foreground'>{presentation.description(editing.key, editing.description)}</p>
+          <p className='text-sm font-semibold'>{presentation.name(editing.key, editing.label)}</p>
+          <p className='text-sm text-muted-foreground'>{presentation.description(editing.key)}</p>
           <p className='text-xs text-muted-foreground'>
-            {translate('parameters.unit')}: {editing.unitLabel || presentation.unit(editing.unit)}
+            {translate('parameters.unit')}: {presentation.unit(editing.unit, editing.unitLabel)}
           </p>
           <ParameterInput parameter={editing} value={value} invalid={invalid} onChange={setValue} />
         </AdminFormDialog>
       )}
-      {historyParameter && <ParameterHistory parameter={historyParameter} onClose={() => setHistoryParameter(null)} />}
     </div>
   )
 }

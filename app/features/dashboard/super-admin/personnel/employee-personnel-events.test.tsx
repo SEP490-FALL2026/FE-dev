@@ -32,7 +32,9 @@ it('filters the leave list to active leave and keeps creation in the employee pr
   )
   render(
     <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
-      <LeavePanel />
+      <MemoryRouter>
+        <LeavePanel />
+      </MemoryRouter>
     </QueryClientProvider>
   )
   await waitFor(() => expect(status).toBe('ACTIVE'))
@@ -52,7 +54,9 @@ it('filters offboarding by current state and offers departed employees separatel
   )
   render(
     <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
-      <OffboardingPanel />
+      <MemoryRouter>
+        <OffboardingPanel />
+      </MemoryRouter>
     </QueryClientProvider>
   )
   await waitFor(() => expect(states).toContain('HANDING_OVER'))
@@ -212,4 +216,51 @@ it('records leave for the employee whose profile is open', async () => {
       groundsNote: 'Decision 123'
     })
   )
+})
+
+it('requires an actual successor after the impact preview identifies a department head', async () => {
+  let recorded = false
+  server.use(
+    http.get('*/api/v1/employees', () =>
+      HttpResponse.json({
+        success: true,
+        data: { items: [], pagination: { page: 1, pageSize: 100, totalItems: 0, totalPages: 0 } }
+      })
+    ),
+    http.post('*/api/v1/offboarding-cases/preview', () =>
+      HttpResponse.json({
+        success: true,
+        data: {
+          rightsToRevoke: [],
+          openRequestsToCancel: [],
+          provisioningInFlight: [],
+          commitmentToRelease: [],
+          responsibilities: { subscriptions: 0, applications: 0 },
+          vendorAdminRoles: [],
+          headSuccessorRequired: true
+        }
+      })
+    ),
+    http.post('*/api/v1/offboarding-cases', () => {
+      recorded = true
+      return HttpResponse.json({ success: true })
+    })
+  )
+  render(
+    <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+      <EmployeeEventForm
+        kind='offboarding'
+        employee={{ id: employeeId, employeeCode: 'EMP-01', fullName: 'Department head' }}
+        onClose={() => {}}
+      />
+    </QueryClientProvider>
+  )
+  fireEvent.change(screen.getByLabelText('Last working day'), { target: { value: '2026-12-01' } })
+  fireEvent.change(screen.getByLabelText('Authoritative basis'), { target: { value: 'Decision 123' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Preview impact' }))
+  expect(await screen.findByText('Impact if recorded')).toBeInTheDocument()
+  expect(screen.getByLabelText('Successor employee')).toBeRequired()
+  expect(screen.queryByLabelText('No successor')).not.toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button', { name: 'Confirm and record' }))
+  expect(recorded).toBe(false)
 })

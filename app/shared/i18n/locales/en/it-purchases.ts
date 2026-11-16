@@ -1,4 +1,18 @@
 export const itPurchases = {
+  listTitle: 'Contracts',
+  vendor: 'Provider',
+  vendorHint: 'Choose a provider from the catalog.',
+  startDate: 'Effective start date',
+  startDateHint: 'Choose the date the contract takes effect.',
+  contractListHint: 'Choose a contract to view its linked subscriptions and documents.',
+  subscriptions: 'Linked subscriptions',
+  documents: 'Attachments',
+  contractStates: {
+    INCOMPLETE: 'Incomplete',
+    NOT_YET_EFFECTIVE: 'Not yet effective',
+    ACTIVE: 'Active',
+    EXPIRED: 'Expired'
+  },
   back: 'Back',
   help: {
     name: 'Use the agreement name shown in the signed contract so it can be identified later.',

@@ -47,11 +47,14 @@ vi.mock('../../shared/hooks/use-it-mutation-feedback', () => ({
   useItMutationFeedback: () => ({ onSuccess: mocks.success, onError: mocks.error })
 }))
 const assessment: AssessmentResponseDtoDataAssessment = {
+  scope: 'FULL',
   requestId: 'request-1',
   status: 'COMPLETED',
   classification: 'PAID_LICENSED',
   equivalentTool: null,
   proposal: {
+    existingApplicationId: null,
+    existingApplication: null,
     softwareName: 'Actual application',
     homepageUrl: 'https://example.com',
     purpose: 'Work',

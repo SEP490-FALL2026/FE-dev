@@ -1,5 +1,10 @@
 export const itIssues = {
-  title: 'Báo lỗi SaaS',
+  title: 'Báo lỗi phần mềm trực tuyến',
+  fieldHints: {
+    duplicateId: 'Nhập mã báo lỗi đang có cho cùng một sự cố.',
+    vendorTicket: 'Nhập mã phiếu hỗ trợ của nhà cung cấp nếu đã tạo.',
+    message: 'Mô tả sự cố hoặc cập nhật xử lý. Không nhập mật khẩu hay khóa bí mật.'
+  },
   scope: 'Phạm vi',
   assigned: 'Được giao cho tôi',
   allIssues: 'Tất cả phiếu',
@@ -19,19 +24,19 @@ export const itIssues = {
   send: 'Gửi tin nhắn',
   transition: 'Cập nhật trạng thái',
   resolution: 'Kết quả xử lý',
-  vendorTicket: 'Mã ticket nhà cung cấp',
-  ticketPlaceholder: 'Nhập mã ticket đã tạo với nhà cung cấp',
+  vendorTicket: 'Mã phiếu hỗ trợ nhà cung cấp',
+  ticketPlaceholder: 'Nhập mã đánh dấuet đã tạo với nhà cung cấp',
   resolutionPlaceholder: 'Mô tả cách xử lý và kết quả đã xác nhận',
   duplicate: 'Đánh dấu trùng',
   duplicateId: 'Mã định danh phiếu gốc',
-  duplicatePlaceholder: 'Nhập UUID của phiếu gốc',
+  duplicatePlaceholder: 'Nhập mã định danh của phiếu gốc',
   reason: 'Lý do',
   reasonPlaceholder: 'Mô tả vì sao hai phiếu cùng một sự cố',
   save: 'Lưu thay đổi',
   close: 'Quay lại danh sách',
   notFound: 'Không tìm thấy phiếu.',
   secretHint:
-    'Không gửi mật khẩu, token hoặc khóa bí mật. Mã ticket chỉ được lưu tham chiếu, không gửi đến nhà cung cấp.',
+    'Không gửi mật khẩu, mã truy cập hoặc khóa bí mật. Mã phiếu hỗ trợ chỉ được lưu tham chiếu, không gửi đến nhà cung cấp.',
   states: {
     NEW: 'Mới',
     IN_PROGRESS: 'Đang xử lý',

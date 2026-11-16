@@ -81,7 +81,7 @@ export function AssessmentFields({
             </label>
           ))}
         </div>
-        <ItField label={translate('opinionNote')}>
+        <ItField label={translate('opinionNote')} hint={translate('fieldHints.opinionNote')}>
           <input
             className={itInputClass}
             maxLength={1000}
@@ -133,7 +133,11 @@ export function AssessmentFields({
         ))}
       </div>
       <AssessmentQuote
-        quote={draft.quote === undefined ? item.quote : draft.quote}
+        quote={
+          draft.quote === undefined && item.quote
+            ? { ...item.quote, originalPrice: item.quote.originalPrice ?? undefined }
+            : draft.quote
+        }
         onChange={(quote) => set('quote', quote)}
       />
     </div>

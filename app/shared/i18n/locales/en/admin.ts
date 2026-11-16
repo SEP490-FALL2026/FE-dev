@@ -3,8 +3,18 @@ import { parameterPresentation } from './admin-parameters'
 import { operationPresentation } from './admin-operations-presentation'
 import { overviewMetrics } from './admin-overview-metrics'
 import { parameterContract } from './admin-parameter-contract'
+import { adminFormHelp } from './admin-form-help'
+import { adminOversight } from './admin-oversight'
+import { policyLibrary } from './admin-policy-library'
+import { adminGhostSeats } from './admin-ghost-seats'
+import { operatingDefinitions } from './admin-operating-definitions'
+import { adminAuditView } from './admin-audit-view'
 
 export const admin = {
+  ...adminAuditView,
+  ghostSeats: adminGhostSeats,
+  ...adminFormHelp,
+  ...adminOversight,
   retryIn: 'Try again in {{count}}s',
   navigation: {
     overview: 'Overview',
@@ -12,6 +22,8 @@ export const admin = {
     departments: 'Departments',
     personnel: 'Personnel',
     reminders: 'Operating parameters',
+    policies: 'Policy library',
+    'ghost-seats': 'Unused software access',
     settings: 'System settings',
     transfer: 'Department transfers',
     'audit-trail': 'Audit trail',
@@ -39,6 +51,11 @@ export const admin = {
   remove: 'Remove',
   create: 'Create',
   errors: {
+    activeDepartureBlock: 'The departure case is still active. Cancel the departure before releasing its access block.',
+    itAdminLimit:
+      'This technology administrator already manages the maximum number of departments. Choose another person.',
+    policyStepsFixed:
+      'The system decision steps and automatic checks must be preserved. Reload the draft and edit their displayed text.',
     duplicate: 'This identifier, email or date already exists. Choose a different value.',
     financeAssigned: 'A Finance account is already assigned. Review the current assignment first.',
     derivedRole: 'This role comes from a department head assignment or approval responsibility.',
@@ -148,6 +165,19 @@ export const admin = {
     }
   },
   parameters: {
+    additionalDefinitions: operatingDefinitions,
+    options: { ON: 'Enabled', OFF: 'Disabled', DAILY: 'Every day', WEEKLY: 'Every week' },
+    groups: {
+      WORKFLOW: 'Workflow',
+      BUDGET: 'Budget',
+      PERSONNEL: 'Personnel',
+      PROVISIONING: 'Access provisioning',
+      ACCOUNT: 'Accounts',
+      DOCUMENT: 'Documents',
+      SUBSCRIPTION: 'Subscriptions',
+      USAGE: 'Software usage',
+      AI: 'Artificial intelligence'
+    },
     contract: parameterContract,
     ...parameterPresentation,
     title: 'Operating parameters',
@@ -175,10 +205,51 @@ export const admin = {
     removeDate: 'Remove non-working date',
     confirmRemove: 'Remove this date from the working calendar?',
     currency: 'Reporting currency',
+    currencyReadOnly: 'Reporting currency is fixed to VND per system policy.',
     currencyImpact: 'The currency becomes locked once exchange rates or converted prices exist.',
     currencySave: 'Set reporting currency',
     from: 'From date',
     to: 'To date'
+  },
+  policies: {
+    title: 'Policy library',
+    description: 'Manage and publish operating policies and decision step checklists.',
+    draftBadge: 'Draft open',
+    applicableRoles: 'Applicable roles',
+    publishedAt: 'Published date',
+    viewDetails: 'Read policy',
+    createDraft: 'Draft new version',
+    editDraft: 'Edit draft',
+    saveDraft: 'Save draft',
+    discardDraft: 'Discard draft',
+    publish: 'Publish',
+    publishTitle: 'Publish policy {{code}}',
+    publishConfirm: 'Confirm publish',
+    publishNotice:
+      'The policy takes effect immediately upon publishing. Subsequent decisions will enforce the new version.',
+    changeNote: 'Issuing grounds',
+    changeNotePlaceholder: 'Specify the directive, document number, date, and issuer…',
+    requiresReacknowledgement: 'Require re-acknowledgement (users who read prior versions must read again)',
+    draftTitle: 'Policy draft {{code}}',
+    targetVersion: 'Target version: v{{version}}',
+    titleLabel: 'Policy title',
+    firstSectionHeading: 'Opening section heading',
+    firstSectionBody: 'Policy body text',
+    version: 'Version',
+    versionNumber: 'Version {{version}}',
+    sections: 'Sections',
+    steps: 'Decision steps with checklists',
+    report: 'Acknowledgement report',
+    reportTitle: 'Acknowledgement report: {{code}}',
+    filterState: 'Acknowledgement status',
+    status: 'Status',
+    stateDone: 'Acknowledged',
+    statePending: 'Pending',
+    state_DONE: 'Done',
+    state_PENDING: 'Pending',
+    ackVersion: 'Version read',
+    acknowledgedAt: 'Acknowledged at',
+    ...policyLibrary
   },
   audit: {
     placeholders: {

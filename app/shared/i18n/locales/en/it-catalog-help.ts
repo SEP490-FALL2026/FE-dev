@@ -6,8 +6,9 @@ export const itCatalogHelp = {
   domains: 'Enter hostnames only, one per line. These identify the application in software discovery.',
   planName: 'Use the vendor plan or edition name to distinguish access and purchase options.',
   quantity: 'Record the seats covered by this purchase. Leave blank if the quantity has not been confirmed.',
-  unitAmount: 'Enter the price for one billing unit as a decimal number. Currency is required with a price.',
-  currency: 'Use the three-letter currency code from the contract, such as VND or USD.',
+  unitAmount: 'Enter the price for one billing unit in Vietnamese dong, without a fractional amount.',
+  currency:
+    'Subscription prices are recorded in Vietnamese dong. Keep a foreign vendor price separately as the original price.',
   startDate: 'The first day covered by this purchased period.',
   endDate: 'The final day covered by this period. Leave blank if the purchase has no known end date.',
   renewalDate: 'The next renewal date confirmed with the vendor.',

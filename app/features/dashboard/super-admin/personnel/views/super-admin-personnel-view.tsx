@@ -53,6 +53,15 @@ export function SuperAdminPersonnelView({
                   next.set('tab', 'personnel')
                   next.set('section', key)
                   if (key !== 'employees') next.delete('employeeId')
+                  for (const field of [
+                    'importId',
+                    'noticeId',
+                    'offboardingId',
+                    'longLeaveId',
+                    'transferId',
+                    'personnelView'
+                  ])
+                    next.delete(field)
                   return next
                 })
               }

@@ -1,6 +1,7 @@
 ﻿import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
+import { MemoryRouter } from 'react-router'
 import { customAxios } from '~/shared/api/mutator/custom-axios'
 import { setAppLanguage } from '~/shared/i18n/i18n'
 import { ItOptimizationView } from './it-optimization-view'
@@ -27,7 +28,9 @@ it('shows recommendations by software and employee code without exposing the hol
   } as never)
   render(
     <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
-      <ItOptimizationView />
+      <MemoryRouter>
+        <ItOptimizationView />
+      </MemoryRouter>
     </QueryClientProvider>
   )
   expect(await screen.findByText('Workspace · Business')).toBeInTheDocument()
@@ -57,7 +60,9 @@ it('loads the current recommendation details when opening a row', async () => {
   )
   render(
     <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
-      <ItOptimizationView />
+      <MemoryRouter>
+        <ItOptimizationView />
+      </MemoryRouter>
     </QueryClientProvider>
   )
   fireEvent.click(await screen.findByRole('button', { name: 'Details' }))
@@ -87,7 +92,9 @@ it('opens a reclaim task for an eligible departed employee after confirmation', 
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })}
     >
-      <ItOptimizationView />
+      <MemoryRouter>
+        <ItOptimizationView />
+      </MemoryRouter>
     </QueryClientProvider>
   )
   fireEvent.click(await screen.findByRole('button', { name: 'Details' }))
@@ -125,7 +132,9 @@ it('requires a reason to return a reclaim decision to the department head', asyn
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })}
     >
-      <ItOptimizationView />
+      <MemoryRouter>
+        <ItOptimizationView />
+      </MemoryRouter>
     </QueryClientProvider>
   )
   fireEvent.click(await screen.findByRole('button', { name: 'Details' }))
@@ -142,5 +151,70 @@ it('requires a reason to return a reclaim decision to the department head', asyn
           JSON.stringify(config.data) === JSON.stringify({ reason: 'Activity resumed' })
       )
     ).toBe(true)
+  )
+})
+
+it('requires the current person checklist before escalating monitor recommendations', async () => {
+  await setAppLanguage('en', false)
+  const request = vi.mocked(customAxios)
+  request.mockReset()
+  request.mockImplementation(async (config) => {
+    if (config.url?.includes('/policies/'))
+      return {
+        data: {
+          policyVersionId: 'v1',
+          step: {
+            checklist: [
+              { code: '5.3-1', text: 'Review evidence', check: 'PERSON' },
+              { code: '5.3-2', text: 'Automatic check', check: 'SYSTEM' }
+            ]
+          }
+        }
+      }
+    if (config.method === 'POST')
+      return { data: { results: [{ recommendationId: 'r1', outcome: 'ESCALATED', state: 'AWAITING_DECISION' }] } }
+    return {
+      data: {
+        items: [
+          {
+            id: 'r1',
+            group: 'G3',
+            state: 'OPEN',
+            tier: 'MONITOR',
+            application: { applicationName: 'Workspace' },
+            plan: { planName: 'Business' },
+            holder: { employeeCode: 'EMP-1' }
+          }
+        ],
+        pagination: { totalItems: 1 }
+      }
+    }
+  })
+  render(
+    <QueryClientProvider
+      client={new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })}
+    >
+      <MemoryRouter>
+        <ItOptimizationView />
+      </MemoryRouter>
+    </QueryClientProvider>
+  )
+  fireEvent.click(await screen.findByRole('checkbox', { name: /Select EMP-1/ }))
+  fireEvent.click(screen.getByRole('button', { name: 'Send to department head' }))
+  const send = await screen.findByRole('button', { name: 'Confirm' })
+  expect(send).toBeDisabled()
+  fireEvent.click(await screen.findByRole('radio', { name: 'Yes' }))
+  fireEvent.click(send)
+  await waitFor(() =>
+    expect(request).toHaveBeenCalledWith(
+      expect.objectContaining({
+        method: 'POST',
+        data: {
+          recommendationIds: ['r1'],
+          checklist: { policyVersionId: 'v1', answers: [{ itemCode: '5.3-1', answer: 'YES' }] }
+        }
+      }),
+      expect.objectContaining({ headers: { 'Idempotency-Key': expect.any(String) } })
+    )
   )
 })

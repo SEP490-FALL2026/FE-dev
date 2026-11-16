@@ -1,6 +1,16 @@
 import { itCatalogTerms } from './it-catalog-terms'
 import { itCatalogHelp } from './it-catalog-help'
 export const itCatalog = {
+  applicationPlanHint: 'Nhập tên gói đầu tiên của phần mềm.',
+  applicationProvision: 'Cách cấp quyền',
+  applicationProvisionHint: 'Chọn cách cấp quyền phù hợp với gói phần mềm.',
+  applicationProvisionValues: {
+    K1: 'Tài khoản cá nhân',
+    K2: 'Không gian làm việc dùng chung',
+    K3: 'Đăng nhập và đồng bộ tập trung',
+    K4: 'Khóa bản quyền',
+    K5: 'Truy cập nội bộ'
+  },
   help: itCatalogHelp,
   detailBack: 'Quay lại',
   groups: {
@@ -33,8 +43,8 @@ export const itCatalog = {
     title: 'Phụ trách nghiệp vụ',
     confirm: 'Ghi xác nhận',
     evidence: 'Căn cứ xác nhận',
-    placeholder: 'Business Owner xác nhận ngừng ứng dụng khi nào và bằng cách nào?',
-    hint: 'Ghi xác nhận của Business Owner trong hôm nay. Thao tác này chưa ngừng ứng dụng hoặc thu hồi quyền.',
+    placeholder: 'người phụ trách nghiệp vụ xác nhận ngừng ứng dụng khi nào và bằng cách nào?',
+    hint: 'Ghi xác nhận của người phụ trách nghiệp vụ trong hôm nay. Thao tác này chưa ngừng ứng dụng hoặc thu hồi quyền.',
     ownerLeft: 'Người phụ trách đã nghỉ việc',
     assignments: 'Quyền sử dụng đang chặn',
     subscriptions: 'Thuê bao đang chặn',
@@ -44,8 +54,8 @@ export const itCatalog = {
     application: 'Ví dụ: Figma',
     plan: 'Ví dụ: Professional',
     vendor: 'Ví dụ: Figma, Inc.',
-    employeeId: 'UUID nhân viên phụ trách nghiệp vụ',
-    departmentId: 'UUID phòng ban sở hữu thuê bao',
+    employeeId: 'mã định danh nhân viên phụ trách nghiệp vụ',
+    departmentId: 'mã định danh phòng ban sở hữu thuê bao',
     domains: 'app.example.com\nworkspace.example.com',
     quantity: 'Ví dụ: 20',
     amount: 'Ví dụ: 250000',
@@ -210,7 +220,7 @@ export const itCatalog = {
     FULL: 'Toàn bộ',
     PARTIAL: 'Một phần',
     UNCONTROLLABLE: 'Không kiểm soát được',
-    SAAS: 'SaaS',
+    SAAS: 'Phần mềm trực tuyến',
     LICENSED: 'Phần mềm bản quyền',
     INTERNAL: 'Phần mềm nội bộ',
     LOW: 'Thấp',
@@ -225,10 +235,10 @@ export const itCatalog = {
     INCOMPLETE: 'Chưa đầy đủ',
     EXPIRED: 'Hết hạn',
     CANCELLED: 'Đã hủy',
-    K1: 'K1 · Tài khoản cá nhân',
-    K2: 'K2 · Không gian làm việc',
-    K3: 'K3 · Enterprise SSO / SCIM (chưa hỗ trợ)',
-    K4: 'K4 · Khóa bản quyền',
-    K5: 'K5 · Truy cập nội bộ'
+    K1: 'Tài khoản cá nhân',
+    K2: 'Không gian làm việc dùng chung',
+    K3: 'Đăng nhập và đồng bộ tập trung (chưa hỗ trợ)',
+    K4: 'Khóa bản quyền',
+    K5: 'Truy cập nội bộ'
   }
 }

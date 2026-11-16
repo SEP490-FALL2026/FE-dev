@@ -1,10 +1,10 @@
 import { expect, it } from 'vitest'
 import { isValidItAdminTab, itAdminMenuItems } from './it-admin-nav'
 
-it('does not expose cost reconciliation without a backend workflow', () => {
-  expect(isValidItAdminTab('reconciliation')).toBe(false)
+it('exposes the backend reconciliation workflow', () => {
+  expect(isValidItAdminTab('reconciliation')).toBe(true)
   const tabs: string[] = itAdminMenuItems.flatMap((item) => item.children ?? []).map((item) => item.key)
-  expect(tabs).not.toContain('reconciliation')
+  expect(tabs).toContain('reconciliation')
 })
 
 it('makes the shared stock workspace accessible from navigation', () => {

@@ -51,7 +51,7 @@ export function ItShadowItView({
         }}
       >
         <div className='min-w-0 flex-1'>
-          <ItField label={translate('requestId')}>
+          <ItField label={translate('requestId')} hint={translate('fieldHints.requestId')}>
             <input
               required
               pattern='[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'

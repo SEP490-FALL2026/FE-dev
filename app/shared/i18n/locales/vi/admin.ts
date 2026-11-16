@@ -3,8 +3,18 @@ import { parameterPresentation } from './admin-parameters'
 import { operationPresentation } from './admin-operations-presentation'
 import { overviewMetrics } from './admin-overview-metrics'
 import { parameterContract } from './admin-parameter-contract'
+import { adminFormHelp } from './admin-form-help'
+import { adminOversight } from './admin-oversight'
+import { policyLibrary } from './admin-policy-library'
+import { adminGhostSeats } from './admin-ghost-seats'
+import { operatingDefinitions } from './admin-operating-definitions'
+import { adminAuditView } from './admin-audit-view'
 
 export const admin = {
+  ...adminAuditView,
+  ghostSeats: adminGhostSeats,
+  ...adminFormHelp,
+  ...adminOversight,
   retryIn: 'Thử lại sau {{count}} giây',
   navigation: {
     overview: 'Tổng quan',
@@ -12,6 +22,8 @@ export const admin = {
     departments: 'Phòng ban',
     personnel: 'Nhân sự',
     reminders: 'Tham số vận hành',
+    policies: 'Thư viện chính sách',
+    'ghost-seats': 'Quyền phần mềm không sử dụng',
     settings: 'Cấu hình hệ thống',
     transfer: 'Điều chuyển phòng ban',
     'audit-trail': 'Nhật ký kiểm toán',
@@ -39,6 +51,10 @@ export const admin = {
   remove: 'Xóa',
   create: 'Tạo',
   errors: {
+    activeDepartureBlock: 'Hồ sơ nghỉ việc vẫn còn hiệu lực. Hủy hồ sơ trước khi gỡ chặn truy cập do nghỉ việc.',
+    itAdminLimit: 'Quản trị viên công nghệ thông tin này đã phụ trách đủ số phòng ban cho phép. Chọn người khác.',
+    policyStepsFixed:
+      'Phải giữ nguyên các bước quyết định và mục kiểm tra tự động của hệ thống. Tải lại bản nháp và chỉ sửa nội dung hiển thị.',
     duplicate: 'Mã, email hoặc ngày này đã tồn tại. Chọn giá trị khác.',
     financeAssigned: 'Đã có tài khoản giữ vai trò tài chính. Kiểm tra phân công hiện tại trước.',
     derivedRole: 'Vai này được suy ra từ trưởng phòng hoặc trách nhiệm phê duyệt.',
@@ -153,6 +169,19 @@ export const admin = {
     }
   },
   parameters: {
+    additionalDefinitions: operatingDefinitions,
+    options: { ON: 'Đang bật', OFF: 'Đang tắt', DAILY: 'Hằng ngày', WEEKLY: 'Hằng tuần' },
+    groups: {
+      WORKFLOW: 'Quy trình',
+      BUDGET: 'Ngân sách',
+      PERSONNEL: 'Nhân sự',
+      PROVISIONING: 'Cấp quyền sử dụng',
+      ACCOUNT: 'Tài khoản',
+      DOCUMENT: 'Tài liệu',
+      SUBSCRIPTION: 'Thuê bao',
+      USAGE: 'Sử dụng phần mềm',
+      AI: 'Trí tuệ nhân tạo'
+    },
     contract: parameterContract,
     ...parameterPresentation,
     title: 'Tham số vận hành',
@@ -180,10 +209,51 @@ export const admin = {
     removeDate: 'Xóa ngày nghỉ',
     confirmRemove: 'Xóa ngày này khỏi lịch nghỉ?',
     currency: 'Tiền tệ báo cáo',
+    currencyReadOnly: 'Tiền tệ báo cáo cố định theo quy định hệ thống (VND).',
     currencyImpact: 'Tiền tệ sẽ bị khóa khi đã có tỷ giá hoặc giá được quy đổi.',
     currencySave: 'Đặt tiền tệ báo cáo',
     from: 'Từ ngày',
     to: 'Đến ngày'
+  },
+  policies: {
+    title: 'Thư viện chính sách',
+    description: 'Soạn và công bố chính sách vận hành cùng các điều kiện kiểm tra khi phê duyệt.',
+    draftBadge: 'Có bản nháp',
+    applicableRoles: 'Vai áp dụng',
+    publishedAt: 'Ngày ban hành',
+    viewDetails: 'Đọc chính sách',
+    createDraft: 'Soạn nháp',
+    editDraft: 'Sửa bản nháp',
+    saveDraft: 'Lưu bản nháp',
+    discardDraft: 'Hủy bản nháp',
+    publish: 'Xuất bản',
+    publishTitle: 'Xuất bản chính sách {{code}}',
+    publishConfirm: 'Xác nhận xuất bản',
+    publishNotice:
+      'Chính sách sẽ có hiệu lực ngay lập tức sau khi xuất bản. Mọi quyết định tiếp theo sẽ áp dụng phiên bản mới.',
+    changeNote: 'Căn cứ ban hành',
+    changeNotePlaceholder: 'Ghi rõ quyết định, số hiệu, ngày ban hành và người ký ban hành…',
+    requiresReacknowledgement: 'Yêu cầu nhân sự xác nhận lại (người đã đọc bản cũ phải đọc lại)',
+    draftTitle: 'Bản nháp chính sách {{code}}',
+    targetVersion: 'Phiên bản dự kiến: v{{version}}',
+    titleLabel: 'Tiêu đề chính sách',
+    firstSectionHeading: 'Tiêu đề phần mở đầu',
+    firstSectionBody: 'Nội dung quy định',
+    version: 'Phiên bản',
+    versionNumber: 'Phiên bản {{version}}',
+    sections: 'Các điều khoản',
+    steps: 'Các bước và điều kiện kiểm tra',
+    report: 'Báo cáo xác nhận',
+    reportTitle: 'Báo cáo xác nhận đã đọc: {{code}}',
+    filterState: 'Trạng thái xác nhận',
+    status: 'Trạng thái',
+    stateDone: 'Đã xác nhận',
+    statePending: 'Chờ xác nhận',
+    state_DONE: 'Đã đọc',
+    state_PENDING: 'Chưa đọc',
+    ackVersion: 'Bản đã đọc',
+    acknowledgedAt: 'Thời điểm xác nhận',
+    ...policyLibrary
   },
   audit: {
     placeholders: {

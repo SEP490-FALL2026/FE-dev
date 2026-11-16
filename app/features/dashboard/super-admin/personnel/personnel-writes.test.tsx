@@ -56,7 +56,16 @@ it('edits only the employee in the profile and submits changed values', async ()
     ),
     http.patch('*/api/v1/employees/:id', async ({ request, params }) => {
       received = { id: params.id, body: await request.json() }
-      return HttpResponse.json({ success: false, error: { code: 'EMPLOYEE.ROW_INVALID' } }, { status: 422 })
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            code: 'EMPLOYEE.ROW_INVALID',
+            details: { reasons: [{ field: 'workEmail', code: 'WORK_EMAIL_TAKEN' }] }
+          }
+        },
+        { status: 422 }
+      )
     })
   )
   mount(<EmployeePanel />, `/dashboard/super-admin/personnel/correct?employeeId=${id}`)
@@ -68,6 +77,8 @@ it('edits only the employee in the profile and submits changed values', async ()
   fill('Job title', 'Senior Engineer')
   fireEvent.click(screen.getByRole('button', { name: 'Save' }))
   await waitFor(() => expect(received).toEqual({ id, body: { jobTitle: 'Senior Engineer' } }))
+  expect(await screen.findByText('This work email is already used by another employee.')).toBeInTheDocument()
+  expect(screen.getByLabelText('Work email')).toHaveAttribute('aria-invalid', 'true')
 })
 
 it('creates a personnel record with only contract fields and keeps the draft when the server rejects it', async () => {
@@ -162,10 +173,43 @@ it('allows creating an employee without assigning a department', async () => {
   fill('Employee code', 'E-021')
   fill('Full name', 'Unassigned Employee')
   fill('Employment type', 'STAFF')
+  expect(screen.queryByLabelText('Contract end date')).not.toBeInTheDocument()
   fill('Hire date', '2026-11-02')
   fireEvent.click(screen.getByRole('button', { name: 'Save' }))
   await waitFor(() => expect(received).toMatchObject({ employeeCode: 'E-021' }))
   expect(received).not.toHaveProperty('departmentCode')
+})
+
+it('clears the contract date when changing a contractor to staff', async () => {
+  let received: unknown
+  const id = '11111111-1111-4111-8111-111111111111'
+  server.use(
+    http.get('*/api/v1/employees/:id', () =>
+      HttpResponse.json({
+        success: true,
+        data: {
+          id,
+          employeeCode: 'EMP-001',
+          fullName: 'Contract Worker',
+          employmentType: 'CONTRACTOR',
+          hireDate: '2026-01-01',
+          contractEndDate: '2026-12-31',
+          workEmail: null,
+          jobTitle: null
+        }
+      })
+    ),
+    http.patch('*/api/v1/employees/:id', async ({ request }) => {
+      received = await request.json()
+      return HttpResponse.json({ success: false, error: { code: 'SERVICE_UNAVAILABLE' } }, { status: 503 })
+    })
+  )
+  mount(<EmployeePanel />, `/dashboard/super-admin/personnel/correct?employeeId=${id}`)
+  expect(await screen.findByLabelText('Contract end date')).toHaveValue('2026-12-31')
+  fill('Employment type', 'STAFF')
+  expect(screen.queryByLabelText('Contract end date')).not.toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+  await waitFor(() => expect(received).toEqual({ employmentType: 'STAFF', contractEndDate: null }))
 })
 
 it('replays an import confirmation with the same idempotency key after an uncertain result', async () => {
@@ -209,6 +253,7 @@ it('replays an import confirmation with the same idempotency key after an uncert
     })
   )
   mount(<ImportPanel />, `/?importId=${importId}`)
+  expect(screen.queryByLabelText('Employee file')).not.toBeInTheDocument()
   expect(screen.queryByRole('textbox', { name: /UUID|ID/ })).not.toBeInTheDocument()
   fireEvent.click(await screen.findByRole('button', { name: 'Confirm import' }))
   const dialog = screen.getByRole('dialog')

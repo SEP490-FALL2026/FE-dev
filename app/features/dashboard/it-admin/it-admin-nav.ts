@@ -12,7 +12,6 @@ import {
   Sparkles,
   UploadCloud,
   UserMinus,
-  UserX,
   type LucideIcon
 } from 'lucide-react'
 import { IT_ADMIN_TAB_KEYS, type ItAdminTabKey } from './enums'
@@ -27,6 +26,8 @@ export type ItAdminSubMenuItem = {
     | 'provisioning'
     | 'sharedStock'
     | 'purchaseDocuments'
+    | 'purchaseInvoices'
+    | 'reconciliation'
     | 'usageImport'
     | 'deviceCollectors'
     | 'licenseOptimization'
@@ -42,7 +43,7 @@ export type ItAdminMenuItem = {
   directTabKey?: ItAdminTabKey
   icon: LucideIcon
   key: string
-  translationKey: 'overview' | 'licenses' | 'usageSources' | 'optimize' | 'deptCatalog'
+  translationKey: 'overview' | 'licenses' | 'usageSources' | 'optimize' | 'deptCatalog' | 'departmentSoftware'
 }
 export const itAdminMenuItems: readonly ItAdminMenuItem[] = [
   { key: 'overview', directTabKey: 'overview', icon: LayoutDashboard, translationKey: 'overview' },
@@ -57,6 +58,8 @@ export const itAdminMenuItems: readonly ItAdminMenuItem[] = [
       { key: 'transfers', icon: ArrowRightLeft, translationKey: 'transfers' },
       { key: 'saas-issues', icon: MessageSquare, translationKey: 'saasIssues' },
       { key: 'purchase-documents', icon: FileText, translationKey: 'purchaseDocuments' },
+      { key: 'purchase-invoices', icon: FileText, translationKey: 'purchaseInvoices' },
+      { key: 'reconciliation', icon: FileText, translationKey: 'reconciliation' },
       { key: 'renewals', icon: CalendarClock, translationKey: 'renewals' }
     ]
   },
@@ -66,8 +69,7 @@ export const itAdminMenuItems: readonly ItAdminMenuItem[] = [
     translationKey: 'usageSources',
     children: [
       { key: 'usage-import', icon: UploadCloud, translationKey: 'usageImport' },
-      { key: 'device-collectors', icon: Laptop, translationKey: 'deviceCollectors' },
-      { key: 'identities', icon: UserX, translationKey: 'identities' }
+      { key: 'device-collectors', icon: Laptop, translationKey: 'deviceCollectors' }
     ]
   },
   {
@@ -79,7 +81,13 @@ export const itAdminMenuItems: readonly ItAdminMenuItem[] = [
       { key: 'shadow-it', icon: ShieldAlert, translationKey: 'shadowIt' }
     ]
   },
-  { key: 'dept-catalog', directTabKey: 'dept-catalog', icon: Layers, translationKey: 'deptCatalog' }
+  { key: 'dept-catalog', directTabKey: 'dept-catalog', icon: Layers, translationKey: 'deptCatalog' },
+  {
+    key: 'department-software',
+    directTabKey: 'department-software',
+    icon: Layers,
+    translationKey: 'departmentSoftware'
+  }
 ]
 export function getParentMenuKey(tab: ItAdminTabKey): string {
   return (

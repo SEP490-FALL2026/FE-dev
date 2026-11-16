@@ -1,4 +1,18 @@
 ﻿export const itProvisioning = {
+  responsibleEmployeeHint: 'Choose the employee responsible for this service account from the department directory.',
+  beneficiaryFilterHint: 'Select an employee to show their approved requests.',
+  fieldHints: {
+    evidence: 'Describe the work completed and how you verified its result. Do not include passwords or secret keys.',
+    reason: 'Explain why this action is necessary and what needs to be resolved.',
+    note: 'Add context for the next administrator. You may leave this blank.',
+    paidThroughOn: 'Enter the last day access remains paid for after renewal is stopped.',
+    accessEvidence: 'Describe how access at the provider was checked.',
+    accessCutOn: 'Enter the date access was actually disabled at the provider.'
+  },
+  submitInvoice: 'Submit purchase invoice',
+  executionFilter: 'Grant progress',
+  viewExecution: 'View execution',
+  grantStates: { WAITING: 'Ready to grant', EXECUTING: 'In progress or awaiting resolution', DONE: 'Processed' },
   optimization: {
     title: 'License optimization',
     reclaim: 'Start reclaim',
@@ -115,12 +129,15 @@
   k1Checklist: {
     title: 'K1 revocation checklist',
     variants: {
+      GRANT: 'Individual account grant checklist',
       DEPARTURE: 'Departure checklist',
       STILL_EMPLOYED: 'Checklist for an employee who still works here'
     },
     hint: 'This system does not control Google or Microsoft 365. Do each step there, then tick it here with the time it was actually done.',
     doneAt: 'Time done: {{step}}',
     steps: {
+      COMPANY_EMAIL_REGISTERED: 'Register using the company email address of the person receiving access',
+      NO_PERSONAL_DEVICE_MFA: 'Confirm multi-factor authentication is not tied to a personal device',
       MAILBOX_PASSWORD_RESET: 'Reset the mailbox password (mailbox stays open)',
       SOFTWARE_FORGOT_PASSWORD: 'Use “Forgot password” on the software',
       SESSIONS_SIGNED_OUT: 'Sign out all sessions',
@@ -168,8 +185,8 @@
   keySubscriptionMissing: 'This task has no subscription. Reload the task before selecting a key.',
   withdrawalHint: 'Explain why this key must not be assigned again. Withdrawing it removes it from the usable pool.',
   expectedEndDate: 'Expected end date',
-  responsibleEmployeeId: 'Responsible employee UUID (optional replacement)',
-  beneficiaryFilter: 'Beneficiary employee UUID',
+  responsibleEmployeeId: 'Responsible employee (optional replacement)',
+  beneficiaryFilter: 'Person receiving access',
   employeeIdHint: 'Enter an employee UUID to filter',
   applyFilter: 'Apply filter',
   boundaryRequired: 'Review and accept the service-account boundary before starting the grant.',

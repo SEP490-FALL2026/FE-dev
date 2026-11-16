@@ -1,16 +1,16 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { ApplicationDetailResponseDtoData } from '~/shared/api/generated/model/applications'
-import { DeclareApplicationBodyDtoKind } from '~/shared/api/generated/model/applications/declareApplicationBodyDtoKind'
-import { DeclareApplicationBodyDtoDataSensitivity } from '~/shared/api/generated/model/applications/declareApplicationBodyDtoDataSensitivity'
+import { CreateApplicationBodyDtoPlanProvisioningType } from '~/shared/api/generated/model/applications/createApplicationBodyDtoPlanProvisioningType'
 import { useApplicationCreate } from '~/shared/api/generated/operations/applications/application-create'
 import { useApplicationUpdate } from '~/shared/api/generated/operations/applications/application-update'
 import { getApplicationListQueryKey } from '~/shared/api/generated/operations/applications/application-list'
 import { getApplicationGetQueryKey } from '~/shared/api/generated/operations/applications/application-get'
 import { ItField, ItFormDialog, itInputClass } from '../../shared/components/it-form'
 import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
-import { CatalogFunctionalGroupPicker } from './catalog-functional-groups'
+
 export const uuidPattern = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
+
 export function CatalogApplicationForm({
   application,
   onClose
@@ -18,9 +18,8 @@ export function CatalogApplicationForm({
   application?: NonNullable<ApplicationDetailResponseDtoData>
   onClose: () => void
 }) {
-  const { t: translate } = useTranslation('itCatalog')
-  const [selectedKind, setSelectedKind] = useState('SAAS')
-  const [functionalGroupId, setFunctionalGroupId] = useState(application?.functionalGroup?.id ?? '')
+  const { t } = useTranslation('itCatalog')
+  const [provisioning, setProvisioning] = useState('')
   const feedback = useItMutationFeedback(
     [getApplicationListQueryKey(), ...(application ? [getApplicationGetQueryKey(application.id)] : [])],
     onClose
@@ -30,122 +29,64 @@ export function CatalogApplicationForm({
   return (
     <ItFormDialog
       wide
-      title={translate(application ? 'edit' : 'add')}
+      title={t(application ? 'edit' : 'add')}
       pending={create.isPending || update.isPending}
       onClose={onClose}
-      submitLabel={translate('save')}
+      submitLabel={t('save')}
       onSubmit={(event) => {
         event.preventDefault()
+        if (create.isPending || update.isPending) return
         const form = new FormData(event.currentTarget)
         const name = String(form.get('name') ?? '').trim()
-        const sensitivityValue = String(form.get('sensitivity'))
-        const dataSensitivity = Object.values(DeclareApplicationBodyDtoDataSensitivity).find(
-          (value) => value === sensitivityValue
-        )
-        const kind = Object.values(DeclareApplicationBodyDtoKind).find((value) => value === form.get('kind'))
-        if (!name || !dataSensitivity || (!application && !kind)) return
-        const data = {
-          name,
-          dataSensitivity,
-          domains: String(form.get('domains') ?? '')
-            .split('\n')
-            .map((value) => value.trim())
-            .filter(Boolean),
-          communication: {
-            personToPersonMessaging: form.has('personToPersonMessaging'),
-            callsOrMeetings: form.has('callsOrMeetings'),
-            mailbox: form.has('mailbox')
-          }
+        if (!name) return
+        if (application) {
+          update.mutate({ id: application.id, data: { name } })
+          return
         }
-        if (application)
-          update.mutate({ id: application.id, data: { ...data, functionalGroupId: functionalGroupId || null } })
-        else if (kind)
-          create.mutate({
-            data: {
-              ...data,
-              kind,
-              ...(functionalGroupId ? { functionalGroupId } : {}),
-              ...(kind !== 'INTERNAL' ? { vendorName: String(form.get('vendor') ?? '').trim() } : {})
-            }
-          })
+        const planName = String(form.get('planName') ?? '').trim()
+        const provision = Object.values(CreateApplicationBodyDtoPlanProvisioningType).find(
+          (value) => value === form.get('provision')
+        )
+        const vendorName = String(form.get('vendor') ?? '').trim()
+        if (!planName || !provision) return
+        create.mutate({
+          data: { name, ...(vendorName ? { vendorName } : {}), plan: { name: planName, provisioningType: provision } }
+        })
       }}
     >
-      <ItField label={translate('name')} hint={translate('help.name')}>
-        <input
-          placeholder={translate('placeholders.application')}
-          name='name'
-          required
-          maxLength={1000}
-          defaultValue={application?.name}
-          className={itInputClass}
-        />
+      <ItField label={t('name')} hint={t('help.name')}>
+        <input name='name' required maxLength={1000} defaultValue={application?.name} className={itInputClass} />
       </ItField>
       {!application && (
-        <fieldset className='space-y-2'>
-          <legend>{translate('kind')}</legend>
-          <p className='text-xs font-normal text-muted-foreground'>{translate('help.kind')}</p>
-          {Object.values(DeclareApplicationBodyDtoKind).map((value) => (
-            <label key={value} className='mr-4 inline-flex items-center gap-2'>
-              <input
-                type='radio'
-                name='kind'
-                value={value}
-                defaultChecked={value === 'SAAS'}
-                onChange={() => setSelectedKind(value)}
-              />
-              {translate(`enums.${value}`)}
-            </label>
-          ))}
-          <ItField label={translate('vendor')} hint={translate('help.vendor')}>
+        <>
+          <ItField label={t('vendor')} hint={t('help.vendor')}>
             <input
-              placeholder={translate('placeholders.vendor')}
               name='vendor'
-              required={selectedKind !== 'INTERNAL'}
-              disabled={selectedKind === 'INTERNAL'}
+              required={!!provisioning && provisioning !== 'K5'}
               maxLength={1000}
               className={itInputClass}
             />
           </ItField>
-        </fieldset>
+          <ItField label={t('planName')} hint={t('applicationPlanHint')}>
+            <input name='planName' required maxLength={1000} className={itInputClass} />
+          </ItField>
+          <fieldset className='space-y-2'>
+            <legend>
+              {t('applicationProvision')}{' '}
+              <span aria-hidden='true' className='text-danger'>
+                *
+              </span>
+            </legend>
+            <p className='text-sm text-muted-foreground'>{t('applicationProvisionHint')}</p>
+            {Object.values(CreateApplicationBodyDtoPlanProvisioningType).map((value) => (
+              <label key={value} className='flex min-h-11 items-center gap-3'>
+                <input type='radio' name='provision' value={value} required onChange={() => setProvisioning(value)} />
+                {t(`applicationProvisionValues.${value}`)}
+              </label>
+            ))}
+          </fieldset>
+        </>
       )}
-      <CatalogFunctionalGroupPicker
-        value={functionalGroupId}
-        initial={application?.functionalGroup}
-        onChange={setFunctionalGroupId}
-      />
-      <fieldset>
-        <legend>{translate('sensitivity')}</legend>
-        <p className='text-xs font-normal text-muted-foreground'>{translate('help.sensitivity')}</p>
-        {Object.values(DeclareApplicationBodyDtoDataSensitivity).map((value) => (
-          <label key={value} className='mr-4 inline-flex min-h-11 items-center gap-2'>
-            <input
-              type='radio'
-              name='sensitivity'
-              value={value}
-              defaultChecked={value === (application?.dataSensitivity ?? 'MEDIUM')}
-            />
-            {translate(`enums.${value}`)}
-          </label>
-        ))}
-      </fieldset>
-      <ItField label={translate('domains')} hint={translate('help.domains')}>
-        <textarea
-          placeholder={translate('placeholders.domains')}
-          name='domains'
-          defaultValue={application?.domains.join('\n')}
-          className={itInputClass}
-        />
-      </ItField>
-      <fieldset>
-        <legend>{translate('communication')}</legend>
-        <p className='text-xs font-normal text-muted-foreground'>{translate('help.communication')}</p>
-        {(['personToPersonMessaging', 'callsOrMeetings', 'mailbox'] as const).map((key) => (
-          <label key={key} className='flex min-h-11 items-center gap-2'>
-            <input type='checkbox' name={key} defaultChecked={application?.communication[key]} />
-            {translate(key)}
-          </label>
-        ))}
-      </fieldset>
     </ItFormDialog>
   )
 }

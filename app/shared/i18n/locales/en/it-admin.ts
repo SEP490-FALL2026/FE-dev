@@ -10,6 +10,7 @@ export const itAdmin = {
     atSource: 'View at source',
     notAvailable: 'Not available',
     metrics: {
+      missingInvoicePeriods: 'Periods missing invoices',
       grantTasks: 'Pending grants',
       revocationTasks: 'Pending revocations',
       saasIssues: 'Open SaaS issues',
@@ -23,6 +24,8 @@ export const itAdmin = {
   },
   retryIn: 'Try again in {{count}} seconds',
   navigation: {
+    purchaseInvoices: 'Purchase invoices',
+    departmentSoftware: 'Department software suggestions',
     sharedStock: 'Shared stock',
     transfers: 'Technical transfers',
     purchaseDocuments: 'Contracts & documents',
@@ -32,8 +35,8 @@ export const itAdmin = {
     optimize: 'Optimization and assessment',
     deptCatalog: 'Software catalog',
     provisioning: 'Grant / revocation tasks',
-    reconciliation: 'Cost reconciliation',
-    usageImport: 'Usage imports',
+    reconciliation: 'Reconciliation and discrepancies',
+    usageImport: 'Usage data',
     deviceCollectors: 'Device collectors',
     licenseOptimization: 'License optimization',
     shadowIt: 'External software assessment',
@@ -95,6 +98,7 @@ export const itAdmin = {
       'Only working people on this page are selectable. Technical member access is limited to the departments you manage or cover.'
   },
   loading: 'Loading data',
+  templateLoading: 'Downloading template',
   retry: 'Try again',
   empty: 'No matching records.',
   saved: 'Changes saved',
@@ -137,6 +141,17 @@ export const itAdmin = {
     confirm: 'Hand over'
   },
   errors: {
+    contractEnded: 'The contract has ended. Check the subscription and contract before granting access.',
+    nextPeriodSeats: 'These seats belong to the next paid period. Check the effective dates before granting access.',
+    policyChecklistIncomplete: 'Answer every question in the current policy checklist before confirming.',
+    policyChecklistHasNo: 'One or more answers do not meet the policy. Review the decision and checklist.',
+    policyVersionChanged: 'The policy changed. Reload it and complete the current checklist before confirming.',
+    applicationDuplicate: 'This application already exists. Find and use the existing catalogue entry.',
+    softwareAlreadyListed: 'This software suggestion already exists. Reload the department list.',
+    ownProposal: 'Another administrator must decide on a proposal you submitted.',
+    softwareNotInCatalog: 'This application or package is unavailable in the catalogue. Choose an active entry.',
+    invoiceNumberTaken: 'An invoice with this number already exists for the vendor. Check the submitted invoices.',
+    priceNotVnd: 'Enter the subscription price in Vietnamese dong. Record a foreign price in the original price field.',
     accessNotBlocked: 'Access has not been blocked. Review the departure case before opening revocations.',
     nothingToRevoke: 'No rights are eligible for revocation. Refresh the rights list.',
     excessSelection: 'Select the correct rights to release before reducing the seat quantity.',

@@ -6,6 +6,7 @@ import { useCatalogSearch } from '~/shared/hooks/use-catalog-search'
 import { ItQueryState, ItEmpty } from './it-query-state'
 import { ItPagination } from './it-pagination'
 import { itInputClass, itButtonClass } from './it-form'
+import { ItDetailDialog } from './it-detail-dialog'
 
 export function ItDirectoryLookup({
   mode,
@@ -28,14 +29,19 @@ export function ItDirectoryLookup({
         </p>
       )}
       {open && (
-        <DirectoryPanel
-          mode={mode}
-          onSelect={(id, name) => {
-            onSelect(id)
-            setSelectedName(name)
-            setOpen(false)
-          }}
-        />
+        <ItDetailDialog
+          title={translate(mode === 'employee' ? 'directory.people' : 'directory.departments')}
+          onClose={() => setOpen(false)}
+        >
+          <DirectoryPanel
+            mode={mode}
+            onSelect={(id, name) => {
+              onSelect(id)
+              setSelectedName(name)
+              setOpen(false)
+            }}
+          />
+        </ItDetailDialog>
       )}
     </div>
   )

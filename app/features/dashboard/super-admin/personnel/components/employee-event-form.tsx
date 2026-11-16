@@ -44,6 +44,10 @@ export function EmployeeEventForm({
   const showPreview = (body: string, impact: EventImpact | null | undefined) => {
     if (impact) setPreviewed({ body, impact })
   }
+  const eventSuccessorFields = successorFields.map((field) => ({
+    ...field,
+    optional: !previewed?.impact.headSuccessorRequired
+  }))
   return (
     <PersonnelForm
       page
@@ -65,17 +69,18 @@ export function EmployeeEventForm({
             ? [
                 { name: 'lastWorkingDay', type: 'date' as const, optionalWhenChecked: 'blockAccessNow' },
                 { name: 'blockAccessNow', type: 'checkbox' as const, optional: true },
-                ...successorFields,
+                ...eventSuccessorFields,
                 { name: 'cancelPendingTransfer', type: 'checkbox' as const, optional: true }
               ]
             : [
                 { name: 'toDepartmentId', type: 'uuid' as const },
                 { name: 'effectiveOn', type: 'date' as const },
-                ...successorFields
+                ...eventSuccessorFields
               ])
       ]}
       onSubmit={(values) => {
         if (pending) return
+        if (previewed?.impact.headSuccessorRequired && !value(values, 'successorEmployeeId')) return
         const groundsNote = value(values, 'groundsNote')
         if (kind === 'leave') {
           leave.mutate({

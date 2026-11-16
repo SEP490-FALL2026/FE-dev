@@ -1,6 +1,16 @@
 import { itCatalogTerms } from './it-catalog-terms'
 import { itCatalogHelp } from './it-catalog-help'
 export const itCatalog = {
+  applicationPlanHint: 'Enter the name of the first software plan.',
+  applicationProvision: 'Provisioning method',
+  applicationProvisionHint: 'Choose how access to this plan is provisioned.',
+  applicationProvisionValues: {
+    K1: 'Individual account',
+    K2: 'Shared workspace',
+    K3: 'Centralized sign-in and synchronization',
+    K4: 'License key',
+    K5: 'Internal access'
+  },
   help: itCatalogHelp,
   detailBack: 'Back',
   groups: {
@@ -227,10 +237,10 @@ export const itCatalog = {
     INCOMPLETE: 'Incomplete',
     EXPIRED: 'Expired',
     CANCELLED: 'Cancelled',
-    K1: 'K1 · Individual account',
-    K2: 'K2 · Workspace',
-    K3: 'K3 · Enterprise SSO / SCIM (unavailable)',
-    K4: 'K4 · License key',
-    K5: 'K5 · Internal access'
+    K1: 'Individual account',
+    K2: 'Shared workspace',
+    K3: 'Central sign-in and account synchronisation (unavailable)',
+    K4: 'License key',
+    K5: 'Internal access'
   }
 }

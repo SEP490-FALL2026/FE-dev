@@ -21,8 +21,9 @@ export function ParameterRow({
   const { t: translate } = useTranslation('admin')
   const presentation = useParameterPresentation()
   const { formatDateTime } = useDashboardFormat()
-  const name = parameter.label || presentation.name(parameter.key)
-  const editable = ['int', 'enum', 'int-list'].includes(parameter.constraints?.kind)
+  const name = presentation.name(parameter.key, parameter.label)
+  const editable =
+    ['int', 'enum', 'int-list'].includes(parameter.constraints?.kind) && !parameter.key.startsWith('BUDGET_')
   return (
     <article className='grid min-w-0 gap-4 p-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-start'>
       <div className='min-w-0'>
@@ -36,15 +37,13 @@ export function ParameterRow({
             {translate(parameter.isDefault ? 'parameters.usingDefault' : 'parameters.customized')}
           </span>
         </div>
-        <p className='mt-2 text-sm leading-relaxed text-muted-foreground'>
-          {presentation.description(parameter.key, parameter.description)}
-        </p>
+        <p className='mt-2 text-sm leading-relaxed text-muted-foreground'>{presentation.description(parameter.key)}</p>
         <dl className='mt-4 grid max-w-3xl gap-3 text-sm sm:grid-cols-3'>
           <div className='flex min-w-0 items-center justify-between gap-3 rounded-md bg-surface-subtle/70 px-3 py-2.5'>
             <dt className='min-w-0 text-xs leading-relaxed text-muted-foreground'>{translate('parameters.value')}</dt>
             <dd className='min-w-0 break-words text-right font-mono text-base font-semibold tabular-nums [overflow-wrap:anywhere]'>
               {parameter.constraints?.kind === 'enum' && typeof parameter.value === 'string'
-                ? (parameter.constraints.optionLabels[parameter.value] ?? parameter.value)
+                ? presentation.option(parameter.value, parameter.constraints.optionLabels)
                 : presentation.value(parameter.value)}
             </dd>
           </div>
@@ -52,14 +51,14 @@ export function ParameterRow({
             <dt className='min-w-0 text-xs leading-relaxed text-muted-foreground'>{translate('parameters.default')}</dt>
             <dd className='min-w-0 break-words text-right font-mono font-medium tabular-nums [overflow-wrap:anywhere]'>
               {parameter.constraints?.kind === 'enum' && typeof parameter.default === 'string'
-                ? (parameter.constraints.optionLabels[parameter.default] ?? parameter.default)
+                ? presentation.option(parameter.default, parameter.constraints.optionLabels)
                 : presentation.value(parameter.default)}
             </dd>
           </div>
           <div className='flex min-w-0 items-center justify-between gap-3 rounded-md bg-surface-subtle/70 px-3 py-2.5'>
             <dt className='shrink-0 text-xs leading-relaxed text-muted-foreground'>{translate('parameters.unit')}</dt>
             <dd className='min-w-0 text-right text-xs font-medium [overflow-wrap:anywhere]'>
-              {parameter.unitLabel || presentation.unit(parameter.unit)}
+              {presentation.unit(parameter.unit, parameter.unitLabel)}
             </dd>
           </div>
         </dl>

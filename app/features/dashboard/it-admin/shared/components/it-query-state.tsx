@@ -24,6 +24,9 @@ export function ItQueryState({
     return (
       <div role='alert' className='space-y-3 rounded-lg border border-border bg-surface p-6'>
         <p>{translate(`errors.${failure.key}`)}</p>
+        {failure.requestId && (
+          <p className='break-all text-xs text-muted-foreground'>{translate('requestId', { id: failure.requestId })}</p>
+        )}
         <button className={itButtonClass} onClick={() => void query.refetch()} type='button'>
           {translate('retry')}
         </button>

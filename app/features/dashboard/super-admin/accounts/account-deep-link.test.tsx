@@ -71,7 +71,7 @@ it('opens an account linked from an employee profile and clears its selected URL
       <SuperAdminAccountsView accountId={accountId} onCloseAccount={onCloseAccount} />
     </QueryClientProvider>
   )
-  const dialog = await screen.findByRole('dialog', { name: 'View details' })
+  const dialog = await screen.findByRole('region', { name: 'View details' })
   expect(await within(dialog).findByText('linked@example.invalid')).toBeInTheDocument()
   fireEvent.click(within(dialog).getByRole('button', { name: 'Cancel' }))
   expect(onCloseAccount).toHaveBeenCalledOnce()

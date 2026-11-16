@@ -6,6 +6,10 @@ import { useDashboardFormat } from '../../../dashboard-ui'
 import { AdminEmpty, AdminQueryState } from '../../shared/components/admin-query-state'
 import { AdminField, adminButtonClass, adminInputClass } from '../../shared/components/admin-form'
 import { AdminPagination } from '../../shared/components/admin-pagination'
+import { AuditEventDetail } from '../components/audit-event-detail'
+import { useAuditLabels } from '../components/audit-values'
+import { AiAuditLookup } from '../components/ai-audit-lookup'
+import type { AuditEventPageResponseDtoDataItemsItem } from '~/shared/api/generated/model/audit'
 
 const filterFields = ['resourceType', 'resourceId', 'actorAppUserId', 'action', 'occurredFrom', 'occurredTo'] as const
 export function SuperAdminAuditView() {
@@ -14,9 +18,25 @@ export function SuperAdminAuditView() {
   const [params, setParams] = useState<AuditEventListParams>({ page: 1, pageSize: 20 })
   const query = useAuditEventList(params)
   const items = query.data?.data?.items ?? []
+  const [selected, setSelected] = useState<AuditEventPageResponseDtoDataItemsItem | null>(null)
+  const [aiOpen, setAiOpen] = useState(false)
+  const labels = useAuditLabels()
+  if (selected) return <AuditEventDetail event={selected} onClose={() => setSelected(null)} />
+  if (aiOpen)
+    return (
+      <div className='space-y-5'>
+        <button type='button' className={adminButtonClass} onClick={() => setAiOpen(false)}>
+          {translate('auditView.back')}
+        </button>
+        <AiAuditLookup />
+      </div>
+    )
   return (
     <div className='space-y-5'>
       <h1 className='text-2xl font-semibold tracking-tight [text-wrap:balance]'>{translate('audit.title')}</h1>
+      <button type='button' className={adminButtonClass} onClick={() => setAiOpen(true)}>
+        {translate('auditView.aiTitle')}
+      </button>
       <form
         className='grid gap-3 rounded-lg border border-border bg-surface p-5 md:grid-cols-3'
         onSubmit={(event) => {
@@ -61,8 +81,8 @@ export function SuperAdminAuditView() {
           {items.map((item) => (
             <article key={item.id} className='rounded-lg border border-border bg-surface p-5'>
               <div className='flex flex-wrap justify-between gap-3'>
-                <h2 className='truncate font-medium' title={item.action}>
-                  {item.action}
+                <h2 className='truncate font-medium' title={labels.action(item.action)}>
+                  {labels.action(item.action)}
                 </h2>
                 <time className='text-right font-mono text-xs tabular-nums' dateTime={item.occurredAt}>
                   {formatDateTime(item.occurredAt)}
@@ -71,8 +91,8 @@ export function SuperAdminAuditView() {
               <dl className='mt-3 grid gap-3 text-sm sm:grid-cols-2'>
                 <div>
                   <dt className='text-muted-foreground'>{translate('audit.resourceType')}</dt>
-                  <dd className='truncate' title={item.resourceType}>
-                    {item.resourceType}
+                  <dd className='truncate' title={labels.resource(item.resourceType)}>
+                    {labels.resource(item.resourceType)}
                   </dd>
                 </div>
                 <div>
@@ -89,31 +109,9 @@ export function SuperAdminAuditView() {
                   </dd>
                 </div>
               </dl>
-              <details className='mt-3'>
-                <summary className='cursor-pointer py-2 text-sm text-primary'>{translate('details')}</summary>
-                <dl className='grid gap-3 py-3 text-xs sm:grid-cols-2'>
-                  <div>
-                    <dt>{translate('audit.before')}</dt>
-                    <dd>
-                      <pre className='mt-2 max-h-64 overflow-auto whitespace-pre-wrap break-all rounded-md bg-surface-subtle p-3'>
-                        {JSON.stringify(item.before, null, 2)}
-                      </pre>
-                    </dd>
-                  </div>
-                  <div>
-                    <dt>{translate('audit.after')}</dt>
-                    <dd>
-                      <pre className='mt-2 max-h-64 overflow-auto whitespace-pre-wrap break-all rounded-md bg-surface-subtle p-3'>
-                        {JSON.stringify(item.after, null, 2)}
-                      </pre>
-                    </dd>
-                  </div>
-                  <div>
-                    <dt>{translate('audit.correlation')}</dt>
-                    <dd className='break-all font-mono'>{item.correlationId}</dd>
-                  </div>
-                </dl>
-              </details>
+              <button className={`${adminButtonClass} mt-3`} type='button' onClick={() => setSelected(item)}>
+                {translate('details')}
+              </button>
             </article>
           ))}
         </div>

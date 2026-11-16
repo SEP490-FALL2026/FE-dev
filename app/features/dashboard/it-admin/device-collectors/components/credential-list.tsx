@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useDeviceCredentialList } from '~/shared/api/generated/operations/device-credentials/device-credential-list'
 import { deviceCredentialRevocationCreate } from '~/shared/api/generated/operations/device-credentials/device-credential-revocation-create'
 import { useWorkspaceFormat } from '~/shared/hooks/use-workspace-format'
-import { ItDetailDialog } from '../../shared/components/it-detail-dialog'
+import { DevicePage } from './device-page'
 import { ItField, ItFormDialog, itButtonClass, itInputClass } from '../../shared/components/it-form'
 import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { ItPagination } from '../../shared/components/it-pagination'
@@ -13,11 +13,13 @@ import { useDeviceFeedback } from '../hooks/use-device-feedback'
 export function CredentialList({
   deviceId,
   registrationId,
-  onClose
+  onClose,
+  backLabel
 }: {
   deviceId: string
   registrationId: string
   onClose: () => void
+  backLabel?: string
 }) {
   const { t: translate } = useTranslation('itDevices')
   const { formatDateTime } = useWorkspaceFormat()
@@ -60,7 +62,8 @@ export function CredentialList({
       </ItFormDialog>
     )
   return (
-    <ItDetailDialog title={translate('credentials')} onClose={onClose}>
+    <DevicePage title={translate('credentials')} backLabel={backLabel ?? translate('backToDevice')} onBack={onClose}>
+      <p className='text-sm text-muted-foreground'>{translate('hints.credentials')}</p>
       <ItQueryState query={query}>
         {data?.items.length ? (
           <div className='divide-y divide-border/40'>
@@ -102,6 +105,6 @@ export function CredentialList({
           />
         )}
       </ItQueryState>
-    </ItDetailDialog>
+    </DevicePage>
   )
 }

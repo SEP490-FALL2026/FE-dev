@@ -16,6 +16,7 @@ import {
 import { useEmployeeImportPreviewRefresh } from '~/shared/api/generated/operations/employee-imports/employee-import-preview-refresh'
 import { useEmployeeImportConfirm } from '~/shared/api/generated/operations/employee-imports/employee-import-confirm'
 import { useEmployeeImportCancel } from '~/shared/api/generated/operations/employee-imports/employee-import-cancel'
+import { importTemplateGet } from '~/shared/api/generated/operations/import-templates/import-template-get'
 import { getAccountCandidatesListQueryKey } from '~/shared/api/generated/operations/app-users/account-candidates-list'
 import { AdminField, adminButtonClass, adminInputClass, adminPrimaryClass } from '../../shared/components/admin-form'
 import { AdminQueryState } from '../../shared/components/admin-query-state'
@@ -36,8 +37,17 @@ export function ImportPanel() {
   const { t: translateAdmin } = useTranslation('admin')
   const retrySeconds = useAdminRetryDelay()
   const { formatDateTime } = useDashboardFormat()
-  const [searchParams] = useSearchParams()
-  const [importId, setImportId] = useState(searchParams.get('importId') ?? '')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const importId = searchParams.get('importId') ?? ''
+  const setImportId = (id: string) =>
+    setSearchParams((previous) => {
+      const next = new URLSearchParams(previous)
+      if (id) {
+        next.set('importId', id)
+        next.set('section', 'imports')
+      } else next.delete('importId')
+      return next
+    })
   const [page, setPage] = useState(1)
   const [outcome, setOutcome] = useState<EmployeeImportRowListOutcome | undefined>()
   const [action, setAction] = useState<'confirm' | 'cancel' | null>(null)
@@ -57,6 +67,26 @@ export function ImportPanel() {
     ],
     () => setAction(null)
   )
+  const [downloadingTemplate, setDownloadingTemplate] = useState(false)
+  async function handleDownloadTemplate(format: 'xlsx' | 'csv') {
+    if (downloadingTemplate) return
+    setDownloadingTemplate(true)
+    try {
+      const file = await importTemplateGet('employees', { format })
+      const url = URL.createObjectURL(file)
+      const anchor = document.createElement('a')
+      anchor.href = url
+      anchor.download = `employee-template.${format}`
+      document.body.append(anchor)
+      anchor.click()
+      anchor.remove()
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000)
+    } catch {
+      toast.error(translate('downloadTemplateError'), { id: 'admin-import-template' })
+    } finally {
+      setDownloadingTemplate(false)
+    }
+  }
   const upload = useEmployeeImportUpload({
     mutation: {
       ...feedback,
@@ -93,64 +123,107 @@ export function ImportPanel() {
   }
   return (
     <section className='space-y-5'>
-      <p className='text-sm text-muted-foreground'>{translate('importHelp')}</p>
-      <form
-        className='flex flex-wrap items-end gap-3'
-        onSubmit={(event) => {
-          event.preventDefault()
-          if (pending || retrySeconds > 0) return
-          const file = new FormData(event.currentTarget).get('file')
-          if (
-            !(file instanceof File) ||
-            !file.size ||
-            file.size > 2 * 1024 * 1024 ||
-            !/\.(csv|xlsx)$/i.test(file.name)
-          ) {
-            toast.error(translate('invalidFile'), { id: 'admin-import' })
-            return
-          }
-          upload.mutate({ data: { file } })
-        }}
-      >
-        <AdminField label={translate('file')}>
-          <input className={adminInputClass} name='file' type='file' accept='.csv,.xlsx' required disabled={pending} />
-        </AdminField>
-        <button className={adminPrimaryClass} disabled={pending || retrySeconds > 0} aria-busy={upload.isPending}>
-          {upload.isPending && <LoaderCircle aria-hidden className='size-4 animate-spin' strokeWidth={1.5} />}
-          {upload.isPending
-            ? translateAdmin('saving')
-            : retrySeconds > 0
-              ? translateAdmin('retryIn', { count: retrySeconds })
-              : translate('upload')}
-        </button>
-      </form>
-      <form
-        className='flex flex-wrap items-end gap-3'
-        onSubmit={(event) => {
-          event.preventDefault()
-          if (!pending) {
-            setImportId(value(new FormData(event.currentTarget), 'importId'))
+      {importId ? (
+        <button
+          type='button'
+          className={adminButtonClass}
+          disabled={pending}
+          onClick={() => {
+            setImportId('')
+            setAction(null)
             setPage(1)
             setOutcome(undefined)
-            intents.current.clear()
-          }
-        }}
-      >
-        <AdminField label={translate('fields.importId')}>
-          <select className={adminInputClass} name='importId' defaultValue='' required disabled={pending}>
-            <option value=''>{translate('choose')}</option>
-            {recentImports.map((item) => (
-              <option key={item.id} value={item.id}>
-                {translate('recentImportOption', { file: item.fileName, date: formatDateTime(item.createdAt) })}
-              </option>
-            ))}
-          </select>
-        </AdminField>
-        <button className={adminButtonClass} disabled={pending}>
-          {translate('resumeImport')}
+          }}
+        >
+          {translate('details.backImports')}
         </button>
-      </form>
-      <p className='text-xs text-muted-foreground'>{translate('recentImportsHelp')}</p>
+      ) : (
+        <>
+          <p className='text-sm text-muted-foreground'>{translate('importHelp')}</p>
+          <form
+            className='flex flex-wrap items-end gap-3'
+            onSubmit={(event) => {
+              event.preventDefault()
+              if (pending || retrySeconds > 0) return
+              const file = new FormData(event.currentTarget).get('file')
+              if (
+                !(file instanceof File) ||
+                !file.size ||
+                file.size > 2 * 1024 * 1024 ||
+                !/\.(csv|xlsx)$/i.test(file.name)
+              ) {
+                toast.error(translate('invalidFile'), { id: 'admin-import' })
+                return
+              }
+              upload.mutate({ data: { file } })
+            }}
+          >
+            <AdminField label={translate('file')} description={translate('fieldHelp.file')}>
+              <input
+                className={adminInputClass}
+                name='file'
+                type='file'
+                accept='.csv,.xlsx'
+                required
+                disabled={pending}
+              />
+            </AdminField>
+            <button className={adminPrimaryClass} disabled={pending || retrySeconds > 0} aria-busy={upload.isPending}>
+              {upload.isPending && <LoaderCircle aria-hidden className='size-4 animate-spin' strokeWidth={1.5} />}
+              {upload.isPending
+                ? translateAdmin('saving')
+                : retrySeconds > 0
+                  ? translateAdmin('retryIn', { count: retrySeconds })
+                  : translate('upload')}
+            </button>
+            <button
+              type='button'
+              className={adminButtonClass}
+              disabled={pending || downloadingTemplate}
+              aria-busy={downloadingTemplate}
+              onClick={() => void handleDownloadTemplate('xlsx')}
+            >
+              {downloadingTemplate && <LoaderCircle aria-hidden className='size-4 animate-spin' strokeWidth={1.5} />}
+              {translate(downloadingTemplate ? 'templateLoading' : 'downloadTemplate')}
+            </button>
+            <button
+              type='button'
+              className={adminButtonClass}
+              disabled={pending || downloadingTemplate}
+              onClick={() => void handleDownloadTemplate('csv')}
+            >
+              {translate('downloadCsvTemplate')}
+            </button>
+          </form>
+          <form
+            className='flex flex-wrap items-end gap-3'
+            onSubmit={(event) => {
+              event.preventDefault()
+              if (!pending) {
+                setImportId(value(new FormData(event.currentTarget), 'importId'))
+                setPage(1)
+                setOutcome(undefined)
+                intents.current.clear()
+              }
+            }}
+          >
+            <AdminField label={translate('fields.importId')} description={translate('fieldHelp.importId')}>
+              <select className={adminInputClass} name='importId' defaultValue='' required disabled={pending}>
+                <option value=''>{translate('choose')}</option>
+                {recentImports.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {translate('recentImportOption', { file: item.fileName, date: formatDateTime(item.createdAt) })}
+                  </option>
+                ))}
+              </select>
+            </AdminField>
+            <button className={adminButtonClass} disabled={pending}>
+              {translate('resumeImport')}
+            </button>
+          </form>
+          <p className='text-xs text-muted-foreground'>{translate('recentImportsHelp')}</p>
+        </>
+      )}
       {importId && (
         <AdminQueryState query={query}>
           {data && (
@@ -204,7 +277,7 @@ export function ImportPanel() {
       )}
       {importId && (
         <>
-          <AdminField label={translate('allRows')}>
+          <AdminField label={translate('allRows')} description={translate('fieldHelp.allRows')}>
             <select
               className={`${adminInputClass} max-w-xs`}
               value={outcome ?? ''}
@@ -231,7 +304,11 @@ export function ImportPanel() {
                       <div key={key}>
                         <dt className='text-xs'>{columnLabel(key)}</dt>
                         <dd className='break-words'>
-                          {importColumnField(key) ? cell : translate('unsupportedImportValue')}
+                          {importColumnField(key) === 'employmentType'
+                            ? translate(`codes.${cell}`, { defaultValue: translate('unknown') })
+                            : importColumnField(key)
+                              ? cell
+                              : translate('unsupportedImportValue')}
                         </dd>
                       </div>
                     ))}

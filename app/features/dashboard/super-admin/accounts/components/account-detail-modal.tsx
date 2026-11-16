@@ -105,6 +105,16 @@ export function AccountDetailModal({ id, onClose, page = false }: { id: string; 
               >
                 {translate(account.status === 'LOCKED' ? 'unlock' : 'lock')}
               </button>
+              {account.status === 'ACTIVE' && !account.roles.includes('SUPER_ADMIN') && (
+                <button
+                  type='button'
+                  className={adminButtonClass}
+                  disabled={!canWrite}
+                  onClick={() => setAction('unlock')}
+                >
+                  {translate('releaseDepartureBlock')}
+                </button>
+              )}
               <button
                 type='button'
                 className={adminButtonClass}
@@ -124,6 +134,14 @@ export function AccountDetailModal({ id, onClose, page = false }: { id: string; 
                 onClick={() => setAction('resend')}
               >
                 {translate('resend')}
+              </button>
+              <button
+                type='button'
+                className={adminButtonClass}
+                disabled={!canWrite || account.roles.includes('SUPER_ADMIN')}
+                onClick={() => setAction('removeAvatar')}
+              >
+                {translate('removeAvatar')}
               </button>
             </div>
             {account.id === selfId && <p className='text-xs text-muted-foreground'>{translate('selfHint')}</p>}

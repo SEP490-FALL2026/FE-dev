@@ -26,7 +26,7 @@ export function OffboardingDetails({
 }: {
   id: string
   onBack: () => void
-  onSelectTab?: (tab: ItAdminTabKey) => void
+  onSelectTab?: (tab: ItAdminTabKey, extraParams?: Record<string, string>) => void
 }) {
   const { t: translate } = useTranslation('itOffboarding')
   const [page, setPage] = useState(1)
@@ -41,10 +41,14 @@ export function OffboardingDetails({
   const me = useMeGet()
   const item = detail.data?.data
   const authorized = !me.isError && (me.data?.data?.roles.includes('IT_ADMIN') ?? false)
-  const active = authorized && !detail.isFetching && item?.accessBlocked === true && !item.closed
+  const cancelled = item?.state === OffboardingState.CANCELLED
+  const active = authorized && !detail.isFetching && item?.accessBlocked === true && !item.closed && !cancelled
   const rightData = rights.data?.data
   const requestData = requests.data?.data
   const grantData = grants.data?.data
+  const hasPersonalAccountRevocations = rightData?.items.some(
+    (right) => right.provisioningType === 'K1' && right.revocation?.status !== 'COMPLETED'
+  )
   const visibleSelected = selected.filter((assignmentId) =>
     rightData?.items.some((right) => right.assignmentId === assignmentId && right.revocable && !right.revocation)
   )
@@ -71,6 +75,7 @@ export function OffboardingDetails({
             <OffboardingCaseStatus
               item={item}
               active={active}
+              mailboxBlocked={rights.isFetching || Boolean(hasPersonalAccountRevocations)}
               onLock={() => setAction({ kind: 'lock', caseId: id })}
               onMailboxLock={() => setAction({ kind: 'mailbox', caseId: id })}
             />
@@ -79,7 +84,12 @@ export function OffboardingDetails({
                 source={{ kind: 'offboarding', id }}
                 handover={item.itHandover}
                 leavingEmployeeId={item.employee.id}
-                canAct={authorized && !detail.isFetching}
+                canAct={
+                  authorized &&
+                  !detail.isFetching &&
+                  !cancelled &&
+                  (item.accessBlocked || me.data?.data?.employee.id === item.employee.id)
+                }
                 invalidates={[getOffboardingCaseGetQueryKey(id), getOffboardingCaseListQueryKey()]}
               />
             )}
@@ -97,12 +107,16 @@ export function OffboardingDetails({
               <ItQueryState query={rights}>
                 <div className='space-y-2'>
                   {rightData?.items.map((right) => (
-                    <label
+                    <div
                       key={right.assignmentId}
                       className='flex items-start gap-3 rounded-lg border border-border bg-surface p-4'
                     >
                       <input
                         type='checkbox'
+                        aria-label={translate('selectRight', {
+                          application: right.application.name,
+                          plan: right.plan.name
+                        })}
                         disabled={!active || !right.revocable || Boolean(right.revocation)}
                         checked={visibleSelected.includes(right.assignmentId)}
                         onChange={(event) =>
@@ -118,16 +132,36 @@ export function OffboardingDetails({
                         <p className='text-sm text-muted-foreground'>{right.plan.name}</p>
                         <OffboardingRightContext right={right} caseId={id} authorized={authorized && !item.closed} />
                         {right.revocation && (
-                          <p className='text-sm'>
-                            {translate('revocation')}:{' '}
-                            {translate(`states.${right.revocation.status}`, {
-                              defaultValue: translate('states.UNKNOWN')
-                            })}
-                          </p>
+                          <div className='space-y-2 text-sm'>
+                            <p>
+                              {translate('revocation')}:{' '}
+                              {translate(`states.${right.revocation.status}`, {
+                                defaultValue: translate('states.UNKNOWN')
+                              })}
+                            </p>
+                            {onSelectTab && (
+                              <button
+                                type='button'
+                                className={itButtonClass}
+                                onClick={() =>
+                                  onSelectTab('provisioning', {
+                                    id: right.revocation!.taskId,
+                                    queue: 'tasks',
+                                    scope: 'ALL'
+                                  })
+                                }
+                              >
+                                {translate('viewRevocationTask')}
+                              </button>
+                            )}
+                            {['FAILED', 'CLOSED_FAILED'].includes(right.revocation.status) && (
+                              <p className='text-muted-foreground'>{translate('failedRevocationHint')}</p>
+                            )}
+                          </div>
                         )}
                         {right.dataLossOnRemoval && <p className='text-sm text-danger'>{translate('dataLoss')}</p>}
                       </div>
-                    </label>
+                    </div>
                   ))}
                   {!rightData?.items.length && <ItEmpty />}
                 </div>
@@ -192,6 +226,15 @@ export function OffboardingDetails({
                     <div key={task.taskId} className='rounded-lg border border-border p-4 text-sm'>
                       {task.plan.planName} ·{' '}
                       {translate(`states.${task.status}`, { defaultValue: translate('states.UNKNOWN') })}
+                      {onSelectTab && (
+                        <button
+                          type='button'
+                          className={`${itButtonClass} mt-2`}
+                          onClick={() => onSelectTab('provisioning', { id: task.taskId, queue: 'tasks', scope: 'ALL' })}
+                        >
+                          {translate('viewGrantTask')}
+                        </button>
+                      )}
                     </div>
                   ))}
                   {!grantData?.items.length && <ItEmpty />}

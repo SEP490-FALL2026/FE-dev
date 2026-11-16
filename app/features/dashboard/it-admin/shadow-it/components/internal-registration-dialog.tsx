@@ -60,7 +60,7 @@ export function InternalRegistrationDialog({
       }}
     >
       <p className='text-sm text-muted-foreground'>{translate('internalRegistrationHint')}</p>
-      <ItField label={translate('softwareName')}>
+      <ItField label={translate('softwareName')} hint={translate('fieldHints.softwareName')}>
         <input
           required
           maxLength={200}

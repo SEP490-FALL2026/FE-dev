@@ -11,16 +11,20 @@ let group = true
 let accessBlocked = true
 let caseState = 'LEFT'
 let caseOverrides: Record<string, unknown> = {}
+let rightOverrides: Record<string, unknown> = {}
+let currentEmployeeId = 'another-it'
 beforeEach(async () => {
   vi.resetAllMocks()
   group = true
   accessBlocked = true
   caseState = 'LEFT'
   caseOverrides = {}
+  rightOverrides = {}
+  currentEmployeeId = 'another-it'
   await setAppLanguage('en', false)
   request.mockImplementation(async (config) => {
     if (config.method === 'POST') return { data: {} }
-    if (config.url?.endsWith('/me')) return { data: { roles: ['IT_ADMIN'] } }
+    if (config.url?.endsWith('/me')) return { data: { roles: ['IT_ADMIN'], employee: { id: currentEmployeeId } } }
     if (config.url?.endsWith('/it-admins'))
       return {
         data: {
@@ -70,7 +74,8 @@ beforeEach(async () => {
               revocable: true,
               dataLossOnRemoval: true,
               revocationNote: 'Export workspace before removal',
-              accessRunsOnUntil: '2026-12-31'
+              accessRunsOnUntil: '2026-12-31',
+              ...rightOverrides
             }
           ],
           pagination: { totalItems: 1 }
@@ -79,12 +84,12 @@ beforeEach(async () => {
     return { data: { items: [], pagination: { totalItems: 0 } } }
   })
 })
-function mount() {
+function mount(onSelectTab = vi.fn()) {
   render(
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })}
     >
-      <OffboardingDetails id='case-1' onBack={vi.fn()} />
+      <OffboardingDetails id='case-1' onBack={vi.fn()} onSelectTab={onSelectTab} />
     </QueryClientProvider>
   )
 }
@@ -217,7 +222,9 @@ it('shows a case closed by the system without any action buttons', async () => {
   }
   mount()
   expect(await screen.findByText(/Closed by the system on/)).toBeInTheDocument()
-  expect(screen.getByText(/Recorded by the system from the last K1 revocation checklist/)).toBeInTheDocument()
+  expect(
+    screen.getByText(/Recorded by the system from the last personal-account revocation checklist/)
+  ).toBeInTheDocument()
   expect(screen.queryByRole('button', { name: 'Record mailbox lock (1b)' })).not.toBeInTheDocument()
 })
 
@@ -255,4 +262,52 @@ it('keeps revocations blocked when the backend says access is not blocked', asyn
   accessBlocked = false
   mount()
   expect(await screen.findByRole('checkbox')).toBeDisabled()
+})
+
+it('keeps a cancelled case read only even when access remains blocked', async () => {
+  caseState = 'CANCELLED'
+  caseOverrides = {
+    accountLock: null,
+    cancellation: { cancelledAt: '2026-11-03T03:00:00Z', reason: 'Departure withdrawn' },
+    itHandover: { state: 'PENDING', subscriptions: 1, applications: 0, handedOver: null }
+  }
+  mount()
+  expect(await screen.findByRole('checkbox')).toBeDisabled()
+  expect(screen.getByRole('button', { name: 'Record account lock' })).toBeDisabled()
+  expect(screen.getByRole('button', { name: 'Hand over responsibilities' })).toBeDisabled()
+  expect(screen.getByText('Departure withdrawn')).toBeInTheDocument()
+})
+
+it('allows only the departing IT Admin to hand responsibilities over before access is blocked', async () => {
+  caseState = 'HANDING_OVER'
+  accessBlocked = false
+  caseOverrides = { itHandover: { state: 'PENDING', subscriptions: 1, applications: 0, handedOver: null } }
+  mount()
+  expect(await screen.findByRole('button', { name: 'Hand over responsibilities' })).toBeDisabled()
+})
+
+it('lets the departing IT Admin hand responsibilities over before access is blocked', async () => {
+  caseState = 'HANDING_OVER'
+  accessBlocked = false
+  currentEmployeeId = 'departing-employee'
+  caseOverrides = { itHandover: { state: 'PENDING', subscriptions: 1, applications: 0, handedOver: null } }
+  mount()
+  expect(await screen.findByRole('button', { name: 'Hand over responsibilities' })).toBeEnabled()
+})
+
+it('opens the precise failed revocation task and explains how to start a replacement', async () => {
+  const onSelectTab = vi.fn()
+  rightOverrides = { revocation: { taskId: 'failed-task', status: 'CLOSED_FAILED', source: 'DEPARTURE' } }
+  mount(onSelectTab)
+  expect(await screen.findByRole('checkbox')).toBeDisabled()
+  fireEvent.click(screen.getByRole('button', { name: 'View revocation task' }))
+  expect(onSelectTab).toHaveBeenCalledWith('provisioning', { id: 'failed-task', queue: 'tasks', scope: 'ALL' })
+  expect(screen.getByText(/Refresh this case after closing the failed task/)).toBeInTheDocument()
+})
+
+it('does not record mailbox lock while a personal-account revocation remains incomplete', async () => {
+  rightOverrides = { provisioningType: 'K1', revocation: { taskId: 'last-task', status: 'IN_PROGRESS' } }
+  caseOverrides = { checklist: { accountLock: { state: 'DONE' }, revokeAccess: { state: 'PENDING' } } }
+  mount()
+  expect(await screen.findByRole('button', { name: 'Record mailbox lock (1b)' })).toBeDisabled()
 })

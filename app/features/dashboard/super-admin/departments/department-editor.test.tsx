@@ -35,7 +35,7 @@ const envelope = (data: unknown) => HttpResponse.json({ success: true, message: 
 let current = { ...department }
 const writes: { method: string; body: unknown }[] = []
 function submit() {
-  const form = screen.getByRole('dialog').querySelector('form')
+  const form = screen.getByRole('region').querySelector('form')
   if (!form) throw new Error('Expected form')
   fireEvent.submit(form)
 }
@@ -122,7 +122,9 @@ describe('Unified department editor', () => {
     fireEvent.change(field, { target: { value: 'Changed function' } })
     submit()
     await waitFor(() => expect(field).toHaveAttribute('aria-invalid', 'true'))
-    expect(field).toHaveAccessibleDescription(i18n.t('editor.errors.validation', { ns: 'adminOrganization' }))
+    expect(field).toHaveAccessibleDescription(
+      expect.stringContaining(i18n.t('editor.errors.validation', { ns: 'adminOrganization' }))
+    )
     expect(field).toHaveValue('Changed function')
     expect(screen.queryByText('Internal validation detail')).not.toBeInTheDocument()
   })

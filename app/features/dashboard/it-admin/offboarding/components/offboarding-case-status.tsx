@@ -10,18 +10,22 @@ type OffboardingCase = NonNullable<OffboardingCaseGet200['data']>
 export function OffboardingCaseStatus({
   item,
   active,
+  mailboxBlocked = false,
   onLock,
   onMailboxLock
 }: {
   item: OffboardingCase
   active: boolean
+  mailboxBlocked?: boolean
   onLock: () => void
   onMailboxLock: () => void
 }) {
   const { t: translate } = useTranslation('itOffboarding')
   const { formatDate, formatDateTime } = useDashboardFormat()
   // `dataHandover` stays in the payload for old clients only; there is no data handover any more (QĐ-110g).
-  const steps = Object.entries(item.checklist ?? {}).filter(([key]) => key !== 'dataHandover')
+  const steps = (['accountLock', 'revokeAccess', 'seatsReleased'] as const).flatMap((key) =>
+    item.checklist?.[key] ? [{ key, step: item.checklist[key] }] : []
+  )
   const blockers = Object.entries(item.blockers).filter(([, count]) => count > 0)
   return (
     <>
@@ -52,7 +56,7 @@ export function OffboardingCaseStatus({
       )}
       <section className='space-y-3 rounded-lg border border-border bg-surface p-4'>
         <h3 className='font-semibold [text-wrap:balance]'>{translate('checklist')}</h3>
-        {steps.map(([key, step]) => (
+        {steps.map(({ key, step }) => (
           <div key={key} className='flex justify-between gap-3 text-sm'>
             <span>{translate(`steps.${key}`, { defaultValue: translate('states.UNKNOWN') })}</span>
             <span>{translate(`states.${step.state}`, { defaultValue: translate('states.UNKNOWN') })}</span>
@@ -85,11 +89,22 @@ export function OffboardingCaseStatus({
             <p className='text-muted-foreground [text-wrap:pretty]'>{translate('hints.mailbox')}</p>
           )}
           {!item.closed && !item.mailboxLock && (
-            <button disabled={!active || !item.accountLock} className={itButtonClass} onClick={onMailboxLock}>
+            <button
+              disabled={!active || !item.accountLock || mailboxBlocked}
+              className={itButtonClass}
+              onClick={onMailboxLock}
+            >
               {translate('actions.mailbox')}
             </button>
           )}
         </div>
+        {item.cancellation && (
+          <div className='space-y-1 border-t border-border/60 pt-3 text-sm'>
+            <p>{translate('cancelledAt', { at: formatDateTime(item.cancellation.cancelledAt) })}</p>
+            <p className='break-words'>{item.cancellation.reason}</p>
+            <p className='text-muted-foreground'>{translate('cancelledHint')}</p>
+          </div>
+        )}
         {item.closure ? (
           <p className='border-t border-border/60 pt-3 text-sm text-success-ink'>
             {translate(item.closure.closedBySystem ? 'closedBySystem' : 'closedAt', {
@@ -104,7 +119,7 @@ export function OffboardingCaseStatus({
                 <ul className='list-inside list-disc text-danger'>
                   {blockers.map(([code, count]) => (
                     <li key={code}>
-                      {translate(`blockers.${code}`, { count, defaultValue: translate('blocker', { code, count }) })}
+                      {translate(`blockers.${code}`, { count, defaultValue: translate('blocker', { count }) })}
                     </li>
                   ))}
                 </ul>

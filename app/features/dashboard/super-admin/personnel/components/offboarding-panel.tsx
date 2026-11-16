@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router'
+import { OffboardingDetail } from './offboarding-detail'
 import { useTranslation } from 'react-i18next'
 import {
   useOffboardingCaseList,
@@ -7,6 +9,9 @@ import {
 import { useOffboardingCaseChangeLastDay } from '~/shared/api/generated/operations/offboarding-cases/offboarding-case-change-last-day'
 import { useOffboardingCaseMarkLeft } from '~/shared/api/generated/operations/offboarding-cases/offboarding-case-mark-left'
 import { useOffboardingCaseCancel } from '~/shared/api/generated/operations/offboarding-cases/offboarding-case-cancel'
+import { getOffboardingCaseGetQueryKey } from '~/shared/api/generated/operations/offboarding-cases/offboarding-case-get'
+import { getOffboardingCaseRightListQueryKey } from '~/shared/api/generated/operations/offboarding-cases/offboarding-case-right-list'
+import { getOffboardingCaseChangeListQueryKey } from '~/shared/api/generated/operations/offboarding-cases/offboarding-case-change-list'
 import { AdminQueryState } from '../../shared/components/admin-query-state'
 import { AdminPagination } from '../../shared/components/admin-pagination'
 import { AdminField, adminButtonClass, adminInputClass } from '../../shared/components/admin-form'
@@ -21,10 +26,31 @@ export function OffboardingPanel() {
   const { t: translate } = useTranslation('adminPersonnel')
   const { formatDate } = useDashboardFormat()
   const [page, setPage] = useState(1)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const selectedId = searchParams.get('offboardingId')
+  const select = (id: string | null) =>
+    setSearchParams((previous) => {
+      const next = new URLSearchParams(previous)
+      if (id) next.set('offboardingId', id)
+      else next.delete('offboardingId')
+      return next
+    })
   const [state, setState] = useState<'HANDING_OVER' | 'LEFT'>('HANDING_OVER')
   const [action, setAction] = useState<Action | null>(null)
-  const query = useOffboardingCaseList({ page, pageSize: 20, state })
-  const feedback = usePersonnelMutationFeedback([getOffboardingCaseListQueryKey()], () => setAction(null))
+  const query = useOffboardingCaseList({ page, pageSize: 20, state }, { query: { enabled: !selectedId } })
+  const feedback = usePersonnelMutationFeedback(
+    [
+      getOffboardingCaseListQueryKey(),
+      ...(selectedId
+        ? [
+            getOffboardingCaseGetQueryKey(selectedId),
+            getOffboardingCaseRightListQueryKey(selectedId),
+            getOffboardingCaseChangeListQueryKey(selectedId)
+          ]
+        : [])
+    ],
+    () => setAction(null)
+  )
   const change = useOffboardingCaseChangeLastDay({ mutation: { ...feedback, retry: false } })
   const left = useOffboardingCaseMarkLeft({ mutation: { ...feedback, retry: false } })
   const cancel = useOffboardingCaseCancel({ mutation: { ...feedback, retry: false } })
@@ -37,57 +63,76 @@ export function OffboardingPanel() {
   } as const
   return (
     <section className='space-y-5'>
-      <div className='max-w-xs'>
-        <AdminField label={translate('offboardingFilter')}>
-          <select
-            className={adminInputClass}
-            value={state}
-            onChange={(event) => {
-              setState(event.target.value === 'LEFT' ? 'LEFT' : 'HANDING_OVER')
-              setPage(1)
-            }}
-          >
-            <option value='HANDING_OVER'>{translate('codes.HANDING_OVER')}</option>
-            <option value='LEFT'>{translate('codes.LEFT')}</option>
-          </select>
-        </AdminField>
-      </div>
-      <AdminQueryState query={query}>
-        <PersonnelList empty={!data?.items.length}>
-          {data?.items.map((item) => (
-            <PersonnelCard
-              key={item.id}
-              title={item.employee.fullName}
-              actions={
-                item.state === handingOver && !item.closed ? (
-                  <>
-                    <button
-                      disabled={item.pastLastDay}
-                      className={adminButtonClass}
-                      onClick={() => setAction({ kind: 'change', id: item.id })}
-                    >
-                      {translate('changeLastDay')}
-                    </button>
-                    <button className={adminButtonClass} onClick={() => setAction({ kind: 'left', id: item.id })}>
-                      {translate('markLeft')}
-                    </button>
-                    <button className={adminButtonClass} onClick={() => setAction({ kind: 'cancel', id: item.id })}>
-                      {translate('cancelEvent')}
-                    </button>
-                  </>
-                ) : undefined
-              }
-            >
-              <p className='font-mono tabular-nums'>
-                {translate('lastDay', { date: formatDate(item.lastWorkingDay) })}
-              </p>
-              <PersonnelCode code={item.state} values={offboardingStates} />
-              {item.pastLastDay && <p className='text-warning'>{translate('overdue')}</p>}
-            </PersonnelCard>
-          ))}
-        </PersonnelList>
-        <AdminPagination pagination={data?.pagination} onPageChange={setPage} disabled={query.isFetching} />
-      </AdminQueryState>
+      {selectedId ? (
+        <OffboardingDetail
+          key={selectedId}
+          id={selectedId}
+          onClose={() => select(null)}
+          onAction={(kind) => setAction({ kind, id: selectedId })}
+        />
+      ) : (
+        <>
+          <div className='max-w-xs'>
+            <AdminField label={translate('offboardingFilter')}>
+              <select
+                className={adminInputClass}
+                value={state}
+                onChange={(event) => {
+                  setState(event.target.value === 'LEFT' ? 'LEFT' : 'HANDING_OVER')
+                  setPage(1)
+                }}
+              >
+                <option value='HANDING_OVER'>{translate('codes.HANDING_OVER')}</option>
+                <option value='LEFT'>{translate('codes.LEFT')}</option>
+              </select>
+            </AdminField>
+          </div>
+          <AdminQueryState query={query}>
+            <PersonnelList empty={!data?.items.length}>
+              {data?.items.map((item) => (
+                <PersonnelCard
+                  key={item.id}
+                  title={item.employee.fullName}
+                  actions={
+                    <>
+                      <button type='button' className={adminButtonClass} onClick={() => select(item.id)}>
+                        {translate('details.view')}
+                      </button>
+                      {item.state === handingOver && !item.closed ? (
+                        <>
+                          <button
+                            disabled={item.pastLastDay}
+                            className={adminButtonClass}
+                            onClick={() => setAction({ kind: 'change', id: item.id })}
+                          >
+                            {translate('changeLastDay')}
+                          </button>
+                          <button className={adminButtonClass} onClick={() => setAction({ kind: 'left', id: item.id })}>
+                            {translate('markLeft')}
+                          </button>
+                          <button
+                            className={adminButtonClass}
+                            onClick={() => setAction({ kind: 'cancel', id: item.id })}
+                          >
+                            {translate('cancelEvent')}
+                          </button>
+                        </>
+                      ) : undefined}
+                    </>
+                  }
+                >
+                  <p className='font-mono tabular-nums'>
+                    {translate('lastDay', { date: formatDate(item.lastWorkingDay) })}
+                  </p>
+                  <PersonnelCode code={item.state} values={offboardingStates} />
+                  {item.pastLastDay && <p className='text-warning'>{translate('overdue')}</p>}
+                </PersonnelCard>
+              ))}
+            </PersonnelList>
+            <AdminPagination pagination={data?.pagination} onPageChange={setPage} disabled={query.isFetching} />
+          </AdminQueryState>
+        </>
+      )}
       {action && (
         <PersonnelForm
           title={translate(titles[action.kind])}

@@ -67,10 +67,10 @@ export function EmployeePlacementForm({
         {employee.fullName}
       </p>
       <p className='text-sm text-muted-foreground'>{translate('directory.placementHelp')}</p>
-      <AdminField label={translate('fields.departmentId')}>
+      <AdminField label={translate('fields.departmentId')} required description={translate('fieldHelp.departmentId')}>
         <DepartmentLookup name='departmentId' />
       </AdminField>
-      <AdminField label={translate('directory.effectiveFrom')}>
+      <AdminField label={translate('directory.effectiveFrom')} description={translate('fieldHelp.effectiveFrom')}>
         <input
           aria-label={translate('directory.effectiveFrom')}
           name='effectiveFrom'

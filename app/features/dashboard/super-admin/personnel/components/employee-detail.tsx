@@ -1,6 +1,6 @@
 import { useId, useState, type ReactNode } from 'react'
 import { BriefcaseBusiness, History, ShieldCheck, UserRound } from 'lucide-react'
-import { useNavigate } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { EmployeeDetailResponseDtoDataAccountRolesItem } from '~/shared/api/generated/model/employees'
 import { AccountDetailResponseDtoDataInvitationDeliveryStatus } from '~/shared/api/generated/model/app-users'
@@ -11,6 +11,7 @@ import { AdminFormDialog, adminButtonClass } from '../../shared/components/admin
 import { AdminQueryState } from '../../shared/components/admin-query-state'
 import { PersonnelCode } from '../../shared/components/personnel-list'
 import { employeeWorkStates } from '../enums/employee-work-state'
+import { readEmployeeContractDate } from '../employee-contract-date'
 import { EmployeePlacementForm } from './employee-placement-form'
 import { EmployeeEventForm, type EmployeeEventKind } from './employee-event-form'
 import { SuperAdminTransferView } from '../../transfer/views/super-admin-transfer-view'
@@ -32,11 +33,23 @@ export function EmployeeDetail({
   const navigate = useNavigate()
   const query = useEmployeeGet(employeeId, { query: { retry: false } })
   const employee = query.data?.data
+  const contractDate = readEmployeeContractDate(employee)
   const accountId = employee?.account?.id
   const accountQuery = useAppUserGet(accountId ?? '', { query: { enabled: !!accountId, retry: false } })
   const [placing, setPlacing] = useState(false)
   const [eventKind, setEventKind] = useState<EmployeeEventKind | null>(null)
-  const [transferHistory, setTransferHistory] = useState(false)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const transferHistory = searchParams.get('personnelView') === 'transfers' || searchParams.has('transferId')
+  const setTransferHistory = (open: boolean) =>
+    setSearchParams((previous) => {
+      const next = new URLSearchParams(previous)
+      if (open) next.set('personnelView', 'transfers')
+      else {
+        next.delete('personnelView')
+        next.delete('transferId')
+      }
+      return next
+    })
   const [managingAccount, setManagingAccount] = useState(false)
   const sectionId = useId()
   const canPlace =
@@ -133,6 +146,14 @@ export function EmployeeDetail({
                         {formatDate(employee.hireDate)}
                       </dd>
                     </div>
+                    {contractDate && (
+                      <div>
+                        <dt className='text-muted-foreground'>{translate('fields.contractEndDate')}</dt>
+                        <dd className='mt-1 font-mono font-medium tabular-nums text-foreground'>
+                          {formatDate(contractDate)}
+                        </dd>
+                      </div>
+                    )}
                     <div className='sm:col-span-2'>
                       <dt className='text-muted-foreground'>{translate('directory.department')}</dt>
                       <dd title={employee.department?.name} className='mt-1 break-words font-medium text-foreground'>

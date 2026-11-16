@@ -11,6 +11,7 @@ import { AdminHealthCard } from '../components/admin-health-card'
 import { DepartmentAttention } from '../components/department-attention'
 import { SetupChecklist } from '../components/setup-checklist'
 import { DashboardMetrics } from '../components/dashboard-metrics'
+import { PersonnelMetrics } from '../components/personnel-metrics'
 import '../overview.css'
 
 export function SuperAdminOverviewView({ onSelectTab }: { onSelectTab: SuperAdminSelectTab }) {
@@ -47,11 +48,14 @@ export function SuperAdminOverviewView({ onSelectTab }: { onSelectTab: SuperAdmi
       </header>
       <AdminQueryState query={dashboard}>
         {dashboard.data?.data ? (
-          <DashboardMetrics
-            sections={dashboard.data.data.sections}
-            asOf={dashboard.data.data.asOf}
-            onSelectTab={onSelectTab}
-          />
+          <>
+            <DashboardMetrics
+              sections={dashboard.data.data.sections}
+              asOf={dashboard.data.data.asOf}
+              onSelectTab={onSelectTab}
+            />
+            <PersonnelMetrics data={dashboard.data.data} />
+          </>
         ) : (
           <p className='text-sm text-muted-foreground'>{translate('overview.metrics.missing')}</p>
         )}

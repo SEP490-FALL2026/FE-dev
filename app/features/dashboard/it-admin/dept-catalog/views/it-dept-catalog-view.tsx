@@ -10,11 +10,18 @@ import { CatalogApplicationDetail } from '../components/catalog-application-deta
 import { CatalogTermWarnings } from '../components/catalog-term-warnings'
 import { CatalogPlanTerms } from '../components/catalog-plan-terms'
 import { CatalogFunctionalGroups } from '../components/catalog-functional-groups'
+import { DepartmentSoftware } from '../components/department-software'
 export function ItDeptCatalogView({
-  initialView = 'applications'
+  initialView = 'applications',
+  departmentId,
+  departmentName,
+  onBackToDepartments
 }: {
   onSelectTab?: (tab: ItAdminTabKey) => void
   initialView?: 'applications' | 'terms' | 'groups'
+  departmentId?: string
+  departmentName?: string
+  onBackToDepartments?: () => void
 }) {
   const { t: translate } = useTranslation('itCatalog')
   const [search, setSearch] = useState('')
@@ -32,6 +39,15 @@ export function ItDeptCatalogView({
     { search: debouncedSearch || undefined, page, pageSize: 20 },
     { query: { enabled: view === 'applications' && !termsPlan } }
   )
+  if (departmentId)
+    return (
+      <DepartmentSoftware
+        key={departmentId}
+        departmentId={departmentId}
+        departmentName={departmentName ?? ''}
+        onBack={onBackToDepartments ?? (() => undefined)}
+      />
+    )
   if (termsPlan) return <CatalogPlanTerms planId={termsPlan} onBack={() => setTermsPlan(undefined)} />
   if (selected) return <CatalogApplicationDetail id={selected} onBack={() => setSelected(undefined)} />
   return (

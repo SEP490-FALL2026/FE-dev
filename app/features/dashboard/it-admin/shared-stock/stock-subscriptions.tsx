@@ -58,13 +58,6 @@ export function StockSubscriptions({
         <p className='max-w-3xl text-sm text-muted-foreground'>{t('stock.baselineDescription')}</p>
         <div className='space-y-2 text-sm text-muted-foreground'>
           <p>{t('stock.csvColumns')}</p>
-          <a
-            className='inline-flex min-h-11 items-center font-medium text-primary hover:underline'
-            href='data:text/csv;charset=utf-8,employee_code%2Caccount_identifier%2Ckind%2Cgranted_on%2Cexpected_end_date%2Creason%0A'
-            download='seat-baseline.csv'
-          >
-            {t('stock.downloadTemplate')}
-          </a>
         </div>
         <CatalogSeatBaseline applicationId={plan.applicationId} planId={plan.id} />
       </section>

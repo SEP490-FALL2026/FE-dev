@@ -11,7 +11,15 @@ import { AdminPagination } from './admin-pagination'
 export type NoticeEventSource = 'transfers' | 'leaves' | 'offboarding'
 
 /** Only request events for this notice's employee and event kind. */
-export function NoticeEventLookup({ employeeId, source }: { employeeId: string; source: NoticeEventSource }) {
+export function NoticeEventLookup({
+  employeeId,
+  source,
+  descriptionId
+}: {
+  employeeId: string
+  source: NoticeEventSource
+  descriptionId?: string
+}) {
   const { t: translate } = useTranslation('adminPersonnel')
   const { formatDate } = useDashboardFormat()
   const [page, setPage] = useState(1)
@@ -54,6 +62,7 @@ export function NoticeEventLookup({ employeeId, source }: { employeeId: string; 
         className={adminInputClass}
         name='eventId'
         aria-label={translate('fields.eventId')}
+        aria-describedby={descriptionId}
         required
         value={selection?.id ?? ''}
         onChange={(event) => setSelection(items?.find((item) => item.id === event.target.value) ?? null)}

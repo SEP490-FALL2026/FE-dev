@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
+import { MemoryRouter, useLocation } from 'react-router'
 import { afterAll, afterEach, beforeAll, beforeEach, expect, it } from 'vitest'
 import { i18n, setAppLanguage } from '~/shared/i18n/i18n'
 import { itTransfers } from '~/shared/i18n/locales/en/it-transfers'
@@ -67,13 +68,19 @@ beforeEach(() => {
 })
 afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
-async function mount(initialId?: string) {
+function CurrentUrl() {
+  return <output data-testid='current-url'>{useLocation().search}</output>
+}
+async function mount(initialId?: string, search = '') {
   i18n.addResourceBundle('en', 'itTransfers', itTransfers, true, true)
   await setAppLanguage('en', false)
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })
   render(
     <QueryClientProvider client={client}>
-      <ItTransfersView initialId={initialId} />
+      <MemoryRouter initialEntries={[`/dashboard/it-admin${search}`]}>
+        <ItTransfersView initialId={initialId} />
+        <CurrentUrl />
+      </MemoryRouter>
     </QueryClientProvider>
   )
 }
@@ -169,4 +176,62 @@ it('hands the responsibilities of a transferred IT Admin to another IT Admin', a
   fireEvent.click(await screen.findByRole('option', { name: /Other IT Admin/ }))
   fireEvent.click(within(dialog).getByRole('button', { name: 'Hand over' }))
   await waitFor(() => expect(payload).toEqual({ toItAdminEmployeeId: 'it-2' }))
+})
+
+it('prevents another IT Admin handing over a scheduled transfer before its effective day', async () => {
+  detail = {
+    ...transfer,
+    status: 'PENDING',
+    phase: 'PENDING',
+    effectiveAt: null,
+    itHandover: { state: 'PENDING', subscriptions: 2, applications: 0, handedOver: null }
+  }
+  await mount('transfer-1')
+  expect(await screen.findByRole('button', { name: 'Hand over responsibilities' })).toBeDisabled()
+})
+
+it('keeps handover disabled on a cancelled transfer and shows its cancellation reason', async () => {
+  detail = {
+    ...transfer,
+    status: 'CANCELLED',
+    phase: 'CANCELLED',
+    cancellation: { cancelledAt: '2026-11-02T03:00:00Z', reason: 'Move withdrawn' },
+    itHandover: { state: 'PENDING', subscriptions: 2, applications: 0, handedOver: null }
+  }
+  await mount('transfer-1')
+  expect(await screen.findByRole('button', { name: 'Hand over responsibilities' })).toBeDisabled()
+  expect(screen.getByText('Move withdrawn')).toBeInTheDocument()
+})
+
+it('links each revocation directly to its task and uses translated access methods', async () => {
+  detail = {
+    ...transfer,
+    oldRights: [{ ...transfer.oldRights[0], revocation: { taskId: 'task-22', status: 'FAILED' } }]
+  }
+  await mount('transfer-1')
+  const task = await screen.findByRole('link', { name: 'View revocation task' })
+  expect(task).toHaveAttribute('href', '/dashboard/it-admin?tab=provisioning&queue=tasks&scope=ALL&id=task-22')
+  expect(screen.getByText('Standard · Workspace seat')).toBeInTheDocument()
+})
+
+it('restores filters and page from the URL and preserves them across detail navigation', async () => {
+  const requests: URL[] = []
+  server.use(
+    http.get('*/api/v1/department-transfers', ({ request }) => {
+      requests.push(new URL(request.url))
+      return HttpResponse.json(page([transfer], 41))
+    })
+  )
+  await mount(undefined, '?tab=transfers&page=2&status=EFFECTIVE&graceEndsFrom=2026-11-01&graceEndsBefore=2026-11-12')
+  expect(await screen.findByText('Alex Nguyen')).toBeInTheDocument()
+  expect(requests.at(-1)?.searchParams.get('page')).toBe('2')
+  expect(requests.at(-1)?.searchParams.get('graceEndsFrom')).toBe('2026-11-01')
+  expect(screen.getByLabelText('Grace ends from')).toHaveValue('2026-11-01')
+  fireEvent.click(screen.getByRole('button', { name: 'View transfer' }))
+  await screen.findByText('Jira')
+  expect(screen.getByTestId('current-url')).toHaveTextContent('id=transfer-1')
+  fireEvent.click(screen.getByRole('button', { name: 'Back to transfers' }))
+  await screen.findByText('Alex Nguyen')
+  expect(screen.getByTestId('current-url')).toHaveTextContent('page=2')
+  expect(screen.getByTestId('current-url')).not.toHaveTextContent('id=')
 })

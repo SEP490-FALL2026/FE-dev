@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import { useAccessRequestAssessmentSave } from '~/shared/api/generated/operations/access-requests/access-request-assessment-save'
 import { useAccessRequestAssessmentComplete } from '~/shared/api/generated/operations/access-requests/access-request-assessment-complete'
 import { useAccessRequestAssessmentReject } from '~/shared/api/generated/operations/access-requests/access-request-assessment-reject'
+import { usePolicyStepGet } from '~/shared/api/generated/operations/policies/policy-step-get'
 import type { AssessmentPatchDto } from '~/shared/api/generated/model/access-requests/assessmentPatchDto'
 import type { AssessmentResponseDtoDataAssessment } from '~/shared/api/generated/model/access-requests/assessmentResponseDtoDataAssessment'
 import { ItFormDialog, ItField, itInputClass } from '../../shared/components/it-form'
@@ -12,6 +13,7 @@ import { getItError } from '../../shared/hooks/it-errors'
 import { recordAdminRetryDelay } from '~/shared/lib/use-retry-delay'
 import { getMeGetQueryOptions } from '~/shared/api/generated/operations/me/me-get'
 import { AssessmentFields } from './assessment-fields'
+import { ItQueryState } from '../../shared/components/it-query-state'
 
 export function AssessmentDialog({
   item,
@@ -28,22 +30,51 @@ export function AssessmentDialog({
   const [reason, setReason] = useState('')
   const [alternative, setAlternative] = useState('')
   const [kind, setKind] = useState<'UNCONTROLLABLE' | 'NOT_ELIGIBLE'>('NOT_ELIGIBLE')
+  const [answers, setAnswers] = useState<{ version: string; values: Record<string, 'YES' | 'NO'> }>({
+    version: '',
+    values: {}
+  })
   const lock = useRef(false)
   const client = useQueryClient()
   const save = useAccessRequestAssessmentSave()
   const complete = useAccessRequestAssessmentComplete()
   const reject = useAccessRequestAssessmentReject()
+  const policy = usePolicyStepGet('POL-SAAS', '1.3', { query: { enabled: mode !== 'save' } })
+  const policyData = policy.data?.data
+  const questions = policyData?.step.checklist.filter((entry) => entry.check === 'PERSON') ?? []
+  const checklistReady =
+    !!policyData &&
+    (questions.length === 0 ||
+      (answers.version === policyData.policyVersionId && questions.every((entry) => answers.values[entry.code])))
+  const checklist = policyData
+    ? {
+        policyVersionId: policyData.policyVersionId,
+        answers: questions.map((entry) => ({ itemCode: entry.code, answer: answers.values[entry.code] }))
+      }
+    : null
   const pending = save.isPending || complete.isPending || reject.isPending
   async function submit() {
-    if (lock.current || pending || (mode === 'reject' && (!reason.trim() || !alternative.trim()))) return
+    if (
+      lock.current ||
+      pending ||
+      (mode !== 'save' && (!checklistReady || !checklist)) ||
+      (mode === 'reject' && !reason.trim())
+    )
+      return
     lock.current = true
     try {
       if (mode === 'save') await save.mutateAsync({ id: item.requestId, data: draft })
-      if (mode === 'complete') await complete.mutateAsync({ id: item.requestId })
-      if (mode === 'reject')
+      if (mode === 'complete' && checklist) await complete.mutateAsync({ id: item.requestId, data: { checklist } })
+      if (mode === 'reject' && checklist)
         await reject.mutateAsync({
           id: item.requestId,
-          data: { kind, reason: reason.trim(), alternativeNote: alternative.trim() }
+          data: {
+            decision: 'REJECT',
+            kind,
+            reason: reason.trim(),
+            ...(alternative.trim() ? { alternativeNote: alternative.trim() } : {}),
+            checklist
+          }
         })
       await client.invalidateQueries({
         predicate: (query) =>
@@ -55,6 +86,10 @@ export function AssessmentDialog({
       onClose()
     } catch (error) {
       recordAdminRetryDelay(client, error)
+      if (mode !== 'save') {
+        await policy.refetch()
+        setAnswers({ version: '', values: {} })
+      }
       if (getItError(error).key === 'forbidden')
         await client.fetchQuery({ ...getMeGetQueryOptions(), staleTime: 0, retry: false }).catch(() => undefined)
       await client.invalidateQueries({
@@ -76,7 +111,7 @@ export function AssessmentDialog({
       onClose={onClose}
       submitLabel={translate('confirm')}
       submitDisabled={
-        mode === 'save' ? Object.keys(draft).length === 0 : mode === 'reject' && (!reason.trim() || !alternative.trim())
+        mode === 'save' ? Object.keys(draft).length === 0 : !checklistReady || (mode === 'reject' && !reason.trim())
       }
       onSubmit={(event) => {
         event.preventDefault()
@@ -85,6 +120,49 @@ export function AssessmentDialog({
     >
       {mode === 'complete' && <p className='text-sm'>{translate('completeHint')}</p>}
       {mode === 'save' && <AssessmentFields item={item} draft={draft} onChange={setDraft} />}
+      {mode !== 'save' && (
+        <ItQueryState query={policy}>
+          {policyData && (
+            <fieldset className='space-y-4'>
+              <legend className='font-semibold'>{translate('checklistTitle')}</legend>
+              <p className='text-sm text-muted-foreground'>{translate('checklistHint')}</p>
+              {questions.map((question) => (
+                <fieldset key={question.code} className='space-y-2 rounded-md border border-border p-3'>
+                  <legend className='px-1 text-sm'>
+                    {question.text}{' '}
+                    <span className='text-danger' aria-hidden='true'>
+                      *
+                    </span>
+                  </legend>
+                  <div className='flex gap-4'>
+                    {(['YES', 'NO'] as const).map((value) => (
+                      <label key={value} className='flex min-h-11 items-center gap-2'>
+                        <input
+                          type='radio'
+                          name={question.code}
+                          checked={
+                            answers.version === policyData.policyVersionId && answers.values[question.code] === value
+                          }
+                          onChange={() =>
+                            setAnswers((previous) => ({
+                              version: policyData.policyVersionId,
+                              values: {
+                                ...(previous.version === policyData.policyVersionId ? previous.values : {}),
+                                [question.code]: value
+                              }
+                            }))
+                          }
+                        />
+                        {translate(value === 'YES' ? 'yes' : 'no')}
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+              ))}
+            </fieldset>
+          )}
+        </ItQueryState>
+      )}
       {mode === 'reject' && (
         <>
           <fieldset className='space-y-2'>
@@ -96,7 +174,7 @@ export function AssessmentDialog({
               </label>
             ))}
           </fieldset>
-          <ItField label={translate('reason')}>
+          <ItField label={translate('reason')} hint={translate('reasonHint')}>
             <textarea
               className={itInputClass}
               required
@@ -105,10 +183,9 @@ export function AssessmentDialog({
               onChange={(event) => setReason(event.target.value)}
             />
           </ItField>
-          <ItField label={translate('alternative')}>
+          <ItField label={translate('alternative')} hint={translate('alternativeHint')}>
             <textarea
               className={itInputClass}
-              required
               maxLength={1000}
               value={alternative}
               onChange={(event) => setAlternative(event.target.value)}

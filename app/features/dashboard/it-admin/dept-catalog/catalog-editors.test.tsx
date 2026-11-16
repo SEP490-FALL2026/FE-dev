@@ -5,6 +5,7 @@ import { customAxios } from '~/shared/api/mutator/custom-axios'
 import { setAppLanguage } from '~/shared/i18n/i18n'
 import { CatalogPlanEditor } from './components/catalog-plan-editor'
 import { CatalogSubscriptionEditor } from './components/catalog-subscription-editor'
+import { CatalogPurchaseForm } from './components/catalog-purchase-form'
 vi.mock('~/shared/api/mutator/custom-axios', () => ({ customAxios: vi.fn() }))
 const request = vi.mocked(customAxios)
 beforeEach(async () => {
@@ -20,6 +21,22 @@ function mount(child: React.ReactNode) {
     </QueryClientProvider>
   )
 }
+it('lets the server derive pricing when creating a license-key plan', async () => {
+  request.mockResolvedValue({ data: {} })
+  mount(<CatalogPurchaseForm mode='plan' applicationId='app-one' applicationKind='LICENSED' onClose={vi.fn()} />)
+  fireEvent.change(screen.getByLabelText('Plan name'), { target: { value: 'Professional' } })
+  fireEvent.click(screen.getByLabelText('License key'))
+  expect(screen.queryByText('Pricing model')).not.toBeInTheDocument()
+  fireEvent.click(screen.getByLabelText('Full'))
+  fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+  await waitFor(() => expect(request.mock.calls.some(([config]) => config.method === 'POST')).toBe(true))
+  expect(request.mock.calls.find(([config]) => config.method === 'POST')?.[0].data).toEqual({
+    applicationId: 'app-one',
+    name: 'Professional',
+    provisioningType: 'K4',
+    controlLevel: 'FULL'
+  })
+})
 it('loads plan details and preserves edited draft after update failure', async () => {
   request.mockImplementation(async (config) => {
     if (config.method === 'PATCH') throw new Error('failed')
@@ -106,25 +123,20 @@ it('activates a complete draft through the completion endpoint', async () => {
     )
   )
 })
-it('lets Finance recover an exchange-rate-only draft through completion', async () => {
+it('does not complete a draft with missing required data', async () => {
   request.mockResolvedValue({
     data: {
       id: 'sub-1',
       status: 'DRAFT',
       planName: 'Plan',
-      missing: ['EXCHANGE_RATE'],
+      missing: ['UNIT_PRICE'],
       autoRenew: false,
       allowsMidTermReduction: false
     }
   })
   mount(<CatalogSubscriptionEditor id='sub-1' onClose={() => undefined} />)
-  fireEvent.click(await screen.findByRole('button', { name: 'Activate subscription' }))
-  await waitFor(() =>
-    expect(request).toHaveBeenCalledWith(
-      expect.objectContaining({ method: 'POST', url: expect.stringContaining('/completions') }),
-      undefined
-    )
-  )
+  expect(await screen.findByRole('button', { name: 'Activate subscription' })).toBeDisabled()
+  expect(request.mock.calls.some(([config]) => config.method === 'POST')).toBe(false)
 })
 it('waits for the opening plan refresh instead of mounting stale default values', async () => {
   const { getPlanGetQueryKey } = await import('~/shared/api/generated/operations/plans/plan-get')

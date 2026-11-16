@@ -99,7 +99,7 @@ export function RenewalProposalDialog({
         ))}
       </fieldset>
       {choice === RenewalChoice.REDUCE && (
-        <ItField label={translate('quantity')}>
+        <ItField label={translate('quantity')} hint={translate('fieldHints.quantity')}>
           <input
             type='number'
             required
@@ -156,10 +156,10 @@ export function RenewalProposalDialog({
           />
         </fieldset>
       )}
-      <ItField label={translate('note')}>
+      <ItField label={translate('note')} hint={translate('fieldHints.note')}>
         <textarea name='note' maxLength={2000} placeholder={translate('notePlaceholder')} className={itInputClass} />
       </ItField>
-      <ItField label={translate('opinion')}>
+      <ItField label={translate('opinion')} hint={translate('fieldHints.opinion')}>
         <textarea
           name='businessOwnerOpinion'
           maxLength={2000}

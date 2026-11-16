@@ -39,7 +39,7 @@ export function CatalogLinkPlanPicker({
   const planItems = plans.data?.data?.items ?? []
   return (
     <div className='space-y-3'>
-      <ItField label={translate('catalogLink.searchApplication')}>
+      <ItField label={translate('catalogLink.searchApplication')} hint={translate('fieldHints.searchApplication')}>
         <input
           className={itInputClass}
           type='search'

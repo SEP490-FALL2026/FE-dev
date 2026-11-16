@@ -17,6 +17,33 @@ const departureSteps = [
   'EVIDENCE_RECORDED',
   'MAILBOX_LOCKED'
 ] as const
+it('requires the grant checklist before completing an individual account purchase', async () => {
+  const grantSteps = ['COMPANY_EMAIL_REGISTERED', 'NO_PERSONAL_DEVICE_MFA']
+  const grantTask = {
+    ...task,
+    kind: 'GRANT',
+    k1Checklist: checklist(grantSteps, 'GRANT')
+  } as unknown as TaskResponseDtoDataTask
+  request.mockImplementation(async (config) =>
+    config.method === 'POST' ? { data: {} } : { data: { task: grantTask } }
+  )
+  render(
+    <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+      <ProvisioningActionDialog task={grantTask} action='complete' onClose={vi.fn()} />
+    </QueryClientProvider>
+  )
+  fireEvent.change(screen.getByLabelText('Evidence'), { target: { value: 'Purchased with company email' } })
+  const confirm = screen.getByRole('button', { name: 'Confirm' })
+  expect(confirm).toBeDisabled()
+  const boxes = await screen.findAllByRole('checkbox')
+  boxes.forEach((box) => fireEvent.click(box))
+  await waitFor(() => expect(confirm).toBeEnabled())
+  fireEvent.click(confirm)
+  await waitFor(() => expect(request.mock.calls.some(([config]) => config.method === 'POST')).toBe(true))
+  expect(request.mock.calls.find(([config]) => config.method === 'POST')?.[0].data).toMatchObject({
+    k1Checklist: { items: grantSteps.map((code) => ({ code, done: true })) }
+  })
+})
 const checklist = (codes: readonly string[], variant = 'DEPARTURE') => ({
   variant,
   items: codes.map((code, index) => ({ code, label: code, order: index + 1, doneAt: null }))

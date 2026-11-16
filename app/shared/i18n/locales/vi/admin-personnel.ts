@@ -1,9 +1,11 @@
 import { adminEmployeeDirectory } from './admin-employee-directory'
 import { adminImportImpact } from './admin-import-impact'
+import { adminPersonnelHelp } from './admin-personnel-help'
 
 export const adminPersonnel = {
   ...adminEmployeeDirectory,
   ...adminImportImpact,
+  ...adminPersonnelHelp,
   fieldPlaceholder: 'Nhập {{field}}',
   placeholders: {
     groundsNote: 'Nhập thông tin quyết định hoặc văn bản nhân sự có thẩm quyền',
@@ -71,7 +73,8 @@ export const adminPersonnel = {
   searchMembers: 'Đọc thành viên phòng',
   basisHelp:
     'Nhập đầy đủ thông tin của quyết định hoặc văn bản nhân sự có thẩm quyền. Thông báo biến động nhân sự của trưởng phòng không thay thế văn bản này.',
-  eventHelp: 'Chọn nhân viên và phòng đến. Điều chuyển trưởng phòng phải có người kế nhiệm hoặc xác nhận không có.',
+  eventHelp:
+    'Chọn nhân viên và phòng đến. Trưởng phòng cần có người kế nhiệm hợp lệ trước khi ghi điều chuyển hoặc nghỉ việc.',
   memberHelp: 'Đọc thành viên theo từng phòng. Chọn nhân viên để sửa hồ sơ chính thức. Để trống trường không cần sửa.',
   successorConflict: 'Chọn người kế nhiệm hoặc xác nhận không có, không chọn đồng thời.',
   impact: {
@@ -88,7 +91,7 @@ export const adminPersonnel = {
     requestsCancelled: 'Request đang mở hệ thống sẽ hủy',
     provisioningInFlight: 'Request đang có tác vụ cấp chạy (IT kiểm tra)',
     commitmentReleased: 'Trả về ngân sách',
-    responsibilities: 'Trách nhiệm IT Admin cần bàn giao',
+    responsibilities: 'Trách nhiệm công nghệ thông tin cần bàn giao',
     responsibilityCounts: '{{subscriptions}} thuê bao · {{applications}} ứng dụng',
     successorRequired: 'Người này là trưởng phòng của phòng họ rời đi: phải chọn người kế nhiệm.',
     rightsToRevoke: 'Quyền sẽ thu hồi: {{count}}',
@@ -110,6 +113,10 @@ export const adminPersonnel = {
     'Xác minh nguồn có thẩm quyền trước khi ghi hoặc liên kết sự kiện. Thông báo đổi chức danh cần thủ tục kiểm soát.',
   overdue: 'Quá hạn',
   upload: 'Tải tệp để xem trước',
+  downloadTemplate: 'Tải file mẫu (.xlsx)',
+  downloadCsvTemplate: 'Tải tệp mẫu (.csv)',
+  templateLoading: 'Đang tải file mẫu…',
+  downloadTemplateError: 'Không thể tải file mẫu. Vui lòng thử lại sau.',
   file: 'Tệp nhân sự',
   importHelp:
     'Chọn tệp bảng tính định dạng CSV hoặc XLSX, tối đa 2.097.152 byte. Các cột bắt buộc: mã nhân viên (employee_code), họ tên (full_name), loại nhân sự (employment_type) và ngày vào làm (hire_date). Mã phòng (department_code), email công việc (work_email) và chức danh (job_title) là tùy chọn. Để trống mã phòng để tạo nhân viên chưa xếp phòng. Tải tệp chỉ tạo bản xem trước.',
@@ -138,6 +145,7 @@ export const adminPersonnel = {
     workEmail: 'Email công việc',
     employmentType: 'Loại nhân sự',
     hireDate: 'Ngày vào làm',
+    contractEndDate: 'Ngày kết thúc hợp đồng',
     departmentCode: 'Mã phòng',
     jobTitle: 'Chức danh',
     departmentId: 'Phòng ban',
@@ -149,7 +157,7 @@ export const adminPersonnel = {
     reference: 'Số tham chiếu văn bản',
     issuer: 'Người ban hành',
     issuedOn: 'Ngày ban hành',
-    successorEmployeeId: 'Người kế nhiệm (nếu có)',
+    successorEmployeeId: 'Người kế nhiệm',
     noSuccessor: 'Không có người kế nhiệm',
     startedOn: 'Ngày bắt đầu nghỉ',
     approvedReturnOn: 'Ngày về được duyệt',

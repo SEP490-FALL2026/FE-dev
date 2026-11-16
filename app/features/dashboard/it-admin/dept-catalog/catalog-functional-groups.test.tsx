@@ -49,21 +49,20 @@ it('lists and creates functional groups without adding a form below the catalog'
     )
   )
 })
-it('sends an optional functional group with the application declaration', async () => {
+it('creates an application with its first plan using the current contract', async () => {
   mount()
   fireEvent.click(screen.getByRole('button', { name: 'Add application' }))
   fireEvent.change(screen.getByLabelText('Application name'), { target: { value: 'Design suite' } })
   fireEvent.change(screen.getByLabelText('Vendor name'), { target: { value: 'Supplier' } })
-  expect(screen.queryByLabelText('Business owner employee ID')).not.toBeInTheDocument()
-  fireEvent.click(await screen.findByRole('combobox', { name: 'Functional group' }))
-  fireEvent.click(await screen.findByRole('option', { name: 'Design tools' }))
+  fireEvent.change(screen.getByLabelText('Plan name'), { target: { value: 'Team' } })
+  fireEvent.click(screen.getByLabelText('Shared workspace'))
   fireEvent.click(screen.getByRole('button', { name: 'Save' }))
   await waitFor(() =>
     expect(request).toHaveBeenCalledWith(
       expect.objectContaining({
         method: 'POST',
         url: expect.stringMatching(/\/api\/v1\/applications$/),
-        data: expect.objectContaining({ functionalGroupId: 'group-1' })
+        data: { name: 'Design suite', vendorName: 'Supplier', plan: { name: 'Team', provisioningType: 'K2' } }
       }),
       undefined
     )

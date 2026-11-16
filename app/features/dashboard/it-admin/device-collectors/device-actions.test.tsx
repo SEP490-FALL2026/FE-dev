@@ -6,6 +6,7 @@ import i18n from 'i18next'
 import { deviceCreate } from '~/shared/api/generated/operations/devices/device-create'
 import { deviceHolderChange } from '~/shared/api/generated/operations/devices/device-holder-change'
 import { deviceRetire } from '~/shared/api/generated/operations/devices/device-retire'
+import { getDeviceRegistrationListQueryKey } from '~/shared/api/generated/operations/devices/device-registration-list'
 import { DeviceCreateDialog, DeviceActionDialog } from './components/device-forms'
 
 vi.mock('~/shared/api/generated/operations/devices/device-create', () => ({ deviceCreate: vi.fn() }))
@@ -63,4 +64,22 @@ it('changes the holder and retires only through explicit action submission', asy
   fireEvent.change(screen.getByLabelText('Reason'), { target: { value: 'Hardware replacement' } })
   fireEvent.click(screen.getByRole('button', { name: 'Retire device' }))
   await waitFor(() => expect(deviceRetire).toHaveBeenCalledWith('device-1', { reason: 'Hardware replacement' }))
+})
+
+it('refreshes holder history after retiring a machine', async () => {
+  await i18n.changeLanguage('en')
+  vi.mocked(deviceRetire).mockResolvedValue({ success: true, message: '', data: null })
+  const client = new QueryClient()
+  const historyKey = getDeviceRegistrationListQueryKey('device-1', { page: 1, pageSize: 20 })
+  client.setQueryData(historyKey, { data: { items: [{ id: 'open-registration' }] } })
+  const close = vi.fn()
+  render(
+    <QueryClientProvider client={client}>
+      <DeviceActionDialog device={device} action='retire' onClose={close} />
+    </QueryClientProvider>
+  )
+  fireEvent.change(screen.getByLabelText('Reason'), { target: { value: 'Hardware replacement' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Retire device' }))
+  await waitFor(() => expect(close).toHaveBeenCalled())
+  expect(client.getQueryState(historyKey)?.isInvalidated).toBe(true)
 })

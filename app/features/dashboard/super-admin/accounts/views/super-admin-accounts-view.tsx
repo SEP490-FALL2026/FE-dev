@@ -32,6 +32,17 @@ export function SuperAdminAccountsView({
   const state = useSuperAdminAccounts(accountId, section, invite)
   const { query, filters } = state
   const data = query.data?.data
+  if (state.selectedId)
+    return (
+      <AccountDetailModal
+        page
+        id={state.selectedId}
+        onClose={() => {
+          state.setSelectedId(null)
+          onCloseAccount?.()
+        }}
+      />
+    )
   return (
     <section className='space-y-5'>
       <header className='flex flex-wrap items-center justify-between gap-4'>
@@ -227,15 +238,6 @@ export function SuperAdminAccountsView({
           onClose={() => {
             state.setInviteOpen(false)
             onCloseInvite?.()
-          }}
-        />
-      )}
-      {state.selectedId && (
-        <AccountDetailModal
-          id={state.selectedId}
-          onClose={() => {
-            state.setSelectedId(null)
-            onCloseAccount?.()
           }}
         />
       )}

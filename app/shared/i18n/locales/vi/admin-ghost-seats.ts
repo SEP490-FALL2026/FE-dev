@@ -1,0 +1,103 @@
+export const adminGhostSeats = {
+  title: 'Giám sát ghế không sử dụng',
+  subtitle: 'Đặt ngưỡng ứng dụng, xem quyết định của trưởng phòng và kiểm tra lượt phát hiện.',
+  sections: { thresholds: 'Ngưỡng ứng dụng', decisions: 'Quyết định và tỷ lệ chấp nhận', runs: 'Lượt phát hiện' },
+  back: 'Quay lại lượt phát hiện',
+  thresholds: {
+    title: 'Ngưỡng ứng dụng',
+    add: 'Đặt ngưỡng ứng dụng',
+    edit: 'Sửa ngưỡng cho {{name}}',
+    restore: 'Dùng ngưỡng tổ chức cho {{name}}',
+    restoreTitle: 'Dùng ngưỡng tổ chức',
+    restoreHelp: 'Ứng dụng sẽ dùng ngưỡng của tổ chức từ lượt quét tuần sau.',
+    future: 'Thay đổi ngưỡng áp dụng từ lượt quét tuần sau. Ứng dụng không có ngưỡng riêng dùng tham số tổ chức.',
+    monitorDays: 'Bắt đầu theo dõi sau',
+    reviewDays: 'Đề nghị trưởng phòng xem xét sau',
+    actionDays: 'Đánh dấu cần xử lý sau',
+    daysHelp: 'Số nguyên từ 1 đến 365 ngày lịch không có hoạt động.',
+    days: '{{count}} ngày',
+    invalid: 'Nhập ba số nguyên từ 1 đến 365 theo thứ tự tăng dần.',
+    department: 'Phòng ban',
+    departmentHelp: 'Chọn phòng để xem danh sách phần mềm. Có thể sửa trực tiếp ngưỡng riêng đã đặt.',
+    application: 'Ứng dụng',
+    applicationHelp:
+      'Chọn phần mềm của phòng. Nếu chưa thấy, đề nghị quản trị viên công nghệ thông tin thêm phần mềm vào danh sách của phòng.',
+    choose: 'Chọn một mục',
+    currentSelection: 'Phòng ban đã chọn',
+    chooseDepartment: 'Chọn phòng ban trước.',
+    updated: 'Cập nhật {{date}}',
+    sequence: 'Theo dõi {{monitor}} · Xem xét {{review}} · Xử lý {{action}} ngày'
+  },
+  decisions: {
+    scope: 'Phạm vi quyết định',
+    scopeHelp: 'Xem mọi quyết định hoặc các quyết định trưởng phòng tự đưa ra về ghế của mình.',
+    all: 'Mọi quyết định',
+    self: 'Quyết định về ghế của mình',
+    other: 'Quyết định về ghế người khác',
+    own: 'Trưởng phòng tự quyết về ghế của mình',
+    reason: 'Lý do',
+    exemption: 'Miễn trừ đến {{date}}',
+    choice: { KEEP: 'Giữ quyền', RECLAIM: 'Thu hồi quyền', EXEMPT: 'Miễn trừ' }
+  },
+  acceptance: {
+    title: 'Tỷ lệ chấp nhận khuyến nghị',
+    from: 'Từ ngày',
+    to: 'Đến ngày',
+    dateHelp: 'Chọn ngày lịch, bao gồm cả ngày được chọn trong kỳ báo cáo.',
+    apply: 'Áp dụng kỳ',
+    total: 'Tỷ lệ chấp nhận chung',
+    fraction: '{{accepted}} được chấp nhận trên {{total}} khuyến nghị',
+    unavailable: 'Không có khuyến nghị trong kỳ này',
+    dateInvalid: 'Ngày kết thúc phải từ ngày bắt đầu trở đi.',
+    internal: 'Dữ liệu nội bộ hệ thống',
+    groups: {
+      G1: 'Ghế thuê bao chưa cấp',
+      G2: 'Ghế của người đã nghỉ việc',
+      G3: 'Ghế chưa từng được sử dụng',
+      G4: 'Ghế không còn được sử dụng'
+    }
+  },
+  runs: {
+    rules: 'Bộ luật cần chạy',
+    rulesHelp: 'Chọn dữ liệu nội bộ, bằng chứng sử dụng hoặc cả hai. Khuyến nghị đang mở được cập nhật.',
+    both: 'Tất cả bộ luật',
+    internal: 'Dữ liệu nội bộ',
+    usage: 'Bằng chứng sử dụng',
+    run: 'Chạy ngay',
+    routing: 'Lượt định tuyến hằng giờ sẽ gửi khuyến nghị mới đến trưởng phòng.',
+    status: { RUNNING: 'Đang chạy', COMPLETED: 'Hoàn tất', FAILED: 'Thất bại' },
+    count: '{{created}} mới · {{updated}} cập nhật · {{closed}} đóng · {{skipped}} bỏ qua · {{failed}} lỗi',
+    attempt: 'Lần thử {{count}}',
+    skips: 'Xem lý do bỏ qua',
+    skipsTitle: 'Đối tượng bị bỏ qua',
+    noAutomaticReclaim:
+      'Lượt phát hiện tạo khuyến nghị. Trưởng phòng quyết định và quản trị viên công nghệ thông tin thực hiện thu hồi.',
+    subject: { SUBSCRIPTION: 'Thuê bao', ASSIGNMENT: 'Ghế đã cấp' },
+    detail: {
+      pricingModel: 'Cách tính phí',
+      provisioningType: 'Phương thức cấp',
+      reason: 'Lý do',
+      coverageDays: 'Ngày có dữ liệu',
+      requiredDays: 'Số ngày cần có',
+      until: 'Đến ngày',
+      sourceName: 'Nguồn dữ liệu sử dụng'
+    },
+    gates: {
+      PER_SEAT: 'Không tính phí theo ghế',
+      INTERNAL_SOFTWARE: 'Phần mềm nội bộ',
+      OPEN_RECOMMENDATION: 'Đã có khuyến nghị đang mở',
+      SERVICE_ACCOUNT: 'Tài khoản máy',
+      LEAVE_OR_HANDOVER: 'Nghỉ dài hạn hoặc bàn giao nghỉ việc',
+      NOT_USABLE: 'Không dùng được',
+      NEW_ASSIGNMENT: 'Ghế mới cấp',
+      COVERAGE: 'Chưa đủ ngày bao phủ',
+      STALE_SOURCE: 'Nguồn sử dụng đã cũ',
+      EXEMPT: 'Đang được miễn trừ',
+      TIME_BOUND_ENDING: 'Quyền sắp hết hạn',
+      REVOCATION_IN_PROGRESS: 'Đang thu hồi',
+      NO_DATA: 'Không có dữ liệu sử dụng',
+      UNMATCHED_IDENTITY: 'Chưa khớp định danh',
+      INSUFFICIENT_EVIDENCE: 'Chưa đủ bằng chứng'
+    }
+  }
+}

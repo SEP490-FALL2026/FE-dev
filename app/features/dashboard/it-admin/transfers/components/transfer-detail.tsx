@@ -11,6 +11,7 @@ import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { itButtonClass } from '../../shared/components/it-form'
 import { ItHandoverPanel } from '../../shared/components/it-handover-panel'
 import { TransferPhase } from '../enums/transfer-phase'
+import { TransferStatus } from '../enums/transfer-status'
 import { TransferOldRights } from './transfer-old-rights'
 
 export function TransferDetail({ id, onBack }: { id: string; onBack: () => void }) {
@@ -105,6 +106,12 @@ export function TransferDetail({ id, onBack }: { id: string; onBack: () => void 
                 )}
               </p>
             )}
+            {transfer.cancellation && (
+              <div className='space-y-1 rounded-lg border border-border/70 bg-surface p-4 text-sm'>
+                <p>{translate('cancelledAt', { at: formatDateTime(transfer.cancellation.cancelledAt) })}</p>
+                <p className='break-words'>{transfer.cancellation.reason}</p>
+              </div>
+            )}
             <TransferOldRights
               oldRights={transfer.oldRights}
               outcomes={transfer.snapshot?.after?.rights ?? []}
@@ -115,7 +122,12 @@ export function TransferDetail({ id, onBack }: { id: string; onBack: () => void 
                 source={{ kind: 'transfer', id }}
                 handover={transfer.itHandover}
                 leavingEmployeeId={transfer.employee.id}
-                canAct={isItAdmin && !query.isFetching}
+                canAct={
+                  isItAdmin &&
+                  !query.isFetching &&
+                  transfer.status !== TransferStatus.CANCELLED &&
+                  (transfer.status === TransferStatus.EFFECTIVE || me.data?.data?.employee.id === transfer.employee.id)
+                }
                 invalidates={[getDepartmentTransferGetQueryKey(id), getDepartmentTransferListQueryKey()]}
               />
             )}

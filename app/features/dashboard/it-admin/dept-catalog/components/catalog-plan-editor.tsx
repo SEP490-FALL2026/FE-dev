@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { usePlanGet } from '~/shared/api/generated/operations/plans/plan-get'
 import { usePlanUpdate } from '~/shared/api/generated/operations/plans/plan-update'
 import { getPlanListQueryKey } from '~/shared/api/generated/operations/plans/plan-list'
-import { DeclarePlanBodyDtoPricingModel } from '~/shared/api/generated/model/plans/declarePlanBodyDtoPricingModel'
 import { DeclarePlanBodyDtoControlLevel } from '~/shared/api/generated/model/plans/declarePlanBodyDtoControlLevel'
 import type { PlanDetailResponseDtoData } from '~/shared/api/generated/model/plans'
 import { ItQueryState } from '../../shared/components/it-query-state'
@@ -72,9 +71,6 @@ function PlanFields({
         event.preventDefault()
         if (blocked || update.isPending) return
         const values = new FormData(event.currentTarget)
-        const pricingModel = Object.values(DeclarePlanBodyDtoPricingModel).find(
-          (value) => value === values.get('pricingModel')
-        )
         const controlLevel = Object.values(DeclarePlanBodyDtoControlLevel).find(
           (value) => value === values.get('controlLevel')
         )
@@ -86,7 +82,7 @@ function PlanFields({
             name,
             dataLossOnRemoval: dataLoss,
             revocationNote: String(values.get('note') ?? '').trim() || null,
-            ...(plan.provisioningType !== 'K5' ? { pricingModel, controlLevel } : {})
+            ...(plan.provisioningType !== 'K5' ? { controlLevel } : {})
           }
         })
       }}
@@ -114,23 +110,20 @@ function PlanFields({
           {translate(`enums.${plan.provisioningType}`, { defaultValue: translate('unknown') })}
         </p>
         {plan.provisioningType !== 'K5' &&
-          (
-            [
-              ['pricingModel', DeclarePlanBodyDtoPricingModel, plan.pricingModel],
-              ['controlLevel', DeclarePlanBodyDtoControlLevel, plan.controlLevel]
-            ] as const
-          ).map(([key, options, initial]) => (
-            <fieldset key={key}>
-              <legend>{translate(key)}</legend>
-              <p className='text-xs font-normal text-muted-foreground'>{translate(`help.${key}`)}</p>
-              {Object.values(options).map((value) => (
-                <label key={value} className='flex min-h-11 items-center gap-2'>
-                  <input type='radio' required name={key} value={value} defaultChecked={value === initial} />
-                  {translate(`enums.${value}`, { defaultValue: translate('unknown') })}
-                </label>
-              ))}
-            </fieldset>
-          ))}
+          ([['controlLevel', DeclarePlanBodyDtoControlLevel, plan.controlLevel]] as const).map(
+            ([key, options, initial]) => (
+              <fieldset key={key}>
+                <legend>{translate(key)}</legend>
+                <p className='text-xs font-normal text-muted-foreground'>{translate(`help.${key}`)}</p>
+                {Object.values(options).map((value) => (
+                  <label key={value} className='flex min-h-11 items-center gap-2'>
+                    <input type='radio' required name={key} value={value} defaultChecked={value === initial} />
+                    {translate(`enums.${value}`, { defaultValue: translate('unknown') })}
+                  </label>
+                ))}
+              </fieldset>
+            )
+          )}
         <label className='flex min-h-11 items-center gap-2'>
           <input type='checkbox' checked={dataLoss} onChange={(event) => setDataLoss(event.target.checked)} />
           {translate('dataLoss')}

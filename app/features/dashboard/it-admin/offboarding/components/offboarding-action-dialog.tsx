@@ -97,7 +97,10 @@ export function OffboardingActionDialog({ action, onClose }: { action: Offboardi
       <p className='text-sm text-muted-foreground'>{translate(`hints.${action.kind}`)}</p>
       {action.kind === 'cancel' && action.group && <p className='text-sm'>{translate('hints.closeLine')}</p>}
       {
-        <ItField label={translate(action.kind === 'cancel' ? 'cancellationReason' : 'note')}>
+        <ItField
+          label={translate(action.kind === 'cancel' ? 'cancellationReason' : 'note')}
+          hint={translate(['lock', 'cancel'].includes(action.kind) ? 'hints.noteRequired' : 'hints.noteOptional')}
+        >
           <textarea
             required={['lock', 'cancel'].includes(action.kind)}
             maxLength={1000}
