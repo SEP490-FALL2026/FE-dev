@@ -1,5 +1,19 @@
 export const itRenewals = {
   title: 'Subscription renewals',
+  fieldHints: {
+    outcomeNote: 'Describe the vendor confirmation or the follow-up still needed.',
+    purchasedQuantity: 'Enter the confirmed number of seats in the new period.',
+    amount: 'Enter the confirmed price in Vietnamese dong, without a fractional amount.',
+    currency: 'Subscription prices are recorded in Vietnamese dong.',
+    startDate: 'Enter the first day of the confirmed paid period.',
+    endDate: 'Enter the final day of the confirmed paid period when applicable.',
+    renewalDate: 'Enter the next renewal date confirmed by the vendor.',
+    noticeDeadline: 'Enter the final day for giving cancellation notice.',
+    noticePeriodDays: 'Enter the notice period required by the vendor, in days.',
+    quantity: 'Enter the number of seats to keep after the reduction.',
+    note: 'Explain the reason for renewal, reduction or cancellation.',
+    opinion: 'Record the opinion of the person responsible for the software business use, if available.'
+  },
   propose: 'Propose renewal',
   submitProposal: 'Submit proposal',
   recordOutcome: 'Record outcome',

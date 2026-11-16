@@ -1,9 +1,11 @@
 import { adminEmployeeDirectory } from './admin-employee-directory'
 import { adminImportImpact } from './admin-import-impact'
+import { adminPersonnelHelp } from './admin-personnel-help'
 
 export const adminPersonnel = {
   ...adminEmployeeDirectory,
   ...adminImportImpact,
+  ...adminPersonnelHelp,
   fieldPlaceholder: 'Enter {{field}}',
   placeholders: {
     groundsNote: 'Describe the authorized personnel decision or document',
@@ -72,7 +74,7 @@ export const adminPersonnel = {
   basisHelp:
     'Enter all details of the authorized personnel decision or document. A department head’s personnel change notice does not replace it.',
   eventHelp:
-    'Choose the employee and destination department. Head transfers require a successor or an explicit declaration that there is none.',
+    'Choose the employee and destination department. A department head must have an eligible successor before their transfer or departure can be recorded.',
   memberHelp:
     'Read one department at a time. Choose the employee to correct their official record. Leave blank any field you do not want to change.',
   successorConflict: 'Choose a successor employee or no successor, not both.',
@@ -113,6 +115,10 @@ export const adminPersonnel = {
     'Verify the authoritative source before recording or linking an event. Job title notices require the controlled procedure.',
   overdue: 'Overdue',
   upload: 'Upload for preview',
+  downloadTemplate: 'Download template (.xlsx)',
+  downloadCsvTemplate: 'Download template (.csv)',
+  templateLoading: 'Downloading template…',
+  downloadTemplateError: 'Could not download template. Please try again later.',
   file: 'Employee file',
   importHelp:
     'Choose a CSV or XLSX spreadsheet up to 2,097,152 bytes. Required columns: employee code (employee_code), full name (full_name), employment type (employment_type), and hire date (hire_date). Department code (department_code), work email (work_email), and job title (job_title) are optional. Leave the department code blank for unplaced staff. Uploading only creates a preview.',
@@ -141,6 +147,7 @@ export const adminPersonnel = {
     workEmail: 'Work email',
     employmentType: 'Employment type',
     hireDate: 'Hire date',
+    contractEndDate: 'Contract end date',
     departmentCode: 'Department code',
     jobTitle: 'Job title',
     departmentId: 'Department',
@@ -152,7 +159,7 @@ export const adminPersonnel = {
     reference: 'Personnel document reference',
     issuer: 'Personnel document issuer',
     issuedOn: 'Personnel document issue date',
-    successorEmployeeId: 'Successor employee (optional)',
+    successorEmployeeId: 'Successor employee',
     noSuccessor: 'No successor',
     startedOn: 'Leave start date',
     approvedReturnOn: 'Approved return date',

@@ -52,14 +52,12 @@ export function readSuccessor(values: FormData) {
       ? { kind: 'NONE' as const }
       : undefined
 }
-export const successorFields: PersonnelField[] = [
-  { name: 'successorEmployeeId', type: 'uuid', optional: true },
-  { name: 'noSuccessor', type: 'checkbox', optional: true }
-]
+export const successorFields: PersonnelField[] = [{ name: 'successorEmployeeId', type: 'uuid', optional: true }]
 
 export function PersonnelForm({
   title,
   fields,
+  errors = {},
   basis = false,
   pending,
   page,
@@ -70,6 +68,7 @@ export function PersonnelForm({
 }: {
   title: string
   fields: PersonnelField[]
+  errors?: Readonly<Record<string, string>>
   basis?: boolean | 'note'
   pending: boolean
   page?: boolean
@@ -82,11 +81,14 @@ export function PersonnelForm({
   const [validation, setValidation] = useState(false)
   const [departmentReady, setDepartmentReady] = useState(false)
   const [checkedFields, setCheckedFields] = useState<Record<string, boolean>>({})
+  const [employmentType, setEmploymentType] = useState(
+    fields.find((field) => field.name === 'employmentType')?.initial ?? ''
+  )
   return (
     <AdminFormDialog
       page={page ?? fields.length + (basis === 'note' ? 1 : basis ? basisFields.length : 0) > 10}
       title={title}
-      wide
+      wide={fields.length + (basis === 'note' ? 1 : basis ? basisFields.length : 0) > 6}
       pending={pending}
       submitDisabled={fields.some((field) => field.name === 'departmentCode') && !departmentReady}
       onClose={onClose}
@@ -106,81 +108,101 @@ export function PersonnelForm({
         {[
           ...fields,
           ...(basis === 'note' ? [{ name: 'groundsNote', minLength: 1, maxLength: 500 }] : basis ? basisFields : [])
-        ].map((field) =>
-          field.name === 'departmentCode' ? (
-            <EmployeeDepartmentSelect key={field.name} onReadyChange={setDepartmentReady} />
-          ) : (
-            <AdminField
-              key={field.name}
-              label={translate(`fields.${field.name}`, { defaultValue: translate('unknown') })}
-            >
-              {field.fixed ? (
-                <input
-                  className={adminInputClass}
-                  value={field.initialLabel ?? ''}
-                  disabled
-                  readOnly
-                  required={!field.optional}
-                />
-              ) : field.name === 'employeeId' || field.name === 'successorEmployeeId' ? (
-                <EmployeeLookup
-                  name={field.name}
-                  required={!field.optional}
-                  initial={field.initial}
-                  initialLabel={field.initialLabel}
-                />
-              ) : field.name === 'toDepartmentId' || field.name === 'departmentId' ? (
-                <DepartmentLookup
-                  name={field.name}
-                  required={!field.optional}
-                  initial={field.initial}
-                  initialLabel={field.initialLabel}
-                />
-              ) : field.name === 'eventId' && field.eventSource && field.employeeId ? (
-                <NoticeEventLookup source={field.eventSource} employeeId={field.employeeId} />
-              ) : field.options ? (
-                <select
-                  name={field.name}
-                  required={!field.optional}
-                  defaultValue={field.initial ?? ''}
-                  className={adminInputClass}
-                >
-                  <option value=''>{translate('choose')}</option>
-                  {field.options.map((option) => (
-                    <option key={option} value={option}>
-                      {translate(`codes.${option}`, { defaultValue: translate('unknown') })}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <input
-                  name={field.name}
-                  type={field.type === 'uuid' ? 'text' : (field.type ?? 'text')}
-                  pattern={field.type === 'uuid' ? uuidPattern : field.pattern}
-                  minLength={field.minLength}
-                  maxLength={field.maxLength}
-                  defaultValue={field.initial}
-                  placeholder={
-                    field.type === 'checkbox' || field.type === 'date'
-                      ? undefined
-                      : translate(`placeholders.${field.name}`, {
-                          defaultValue: translate('fieldPlaceholder', {
-                            field: translate(`fields.${field.name}`, { defaultValue: translate('unknown') })
+        ]
+          .filter((field) => field.name !== 'contractEndDate' || (employmentType !== 'STAFF' && employmentType !== ''))
+          .map((field) =>
+            field.name === 'departmentCode' ? (
+              <EmployeeDepartmentSelect
+                key={field.name}
+                onReadyChange={setDepartmentReady}
+                error={errors[field.name]}
+              />
+            ) : (
+              <AdminField
+                key={field.name}
+                label={translate(`fields.${field.name}`, { defaultValue: translate('unknown') })}
+                required={
+                  !field.optional &&
+                  !field.fixed &&
+                  !(field.optionalWhenChecked && checkedFields[field.optionalWhenChecked])
+                }
+                description={translate(`fieldHelp.${field.name}`, { defaultValue: translate('fieldHelp.default') })}
+                error={errors[field.name]}
+              >
+                {field.fixed ? (
+                  <input
+                    className={adminInputClass}
+                    value={field.initialLabel ?? ''}
+                    disabled
+                    readOnly
+                    required={!field.optional}
+                  />
+                ) : field.name === 'employeeId' || field.name === 'successorEmployeeId' ? (
+                  <EmployeeLookup
+                    name={field.name}
+                    required={!field.optional}
+                    initial={field.initial}
+                    initialLabel={field.initialLabel}
+                  />
+                ) : field.name === 'toDepartmentId' || field.name === 'departmentId' ? (
+                  <DepartmentLookup
+                    name={field.name}
+                    required={!field.optional}
+                    initial={field.initial}
+                    initialLabel={field.initialLabel}
+                  />
+                ) : field.name === 'eventId' && field.eventSource && field.employeeId ? (
+                  <NoticeEventLookup source={field.eventSource} employeeId={field.employeeId} />
+                ) : field.options ? (
+                  <select
+                    name={field.name}
+                    aria-invalid={!!errors[field.name] || undefined}
+                    required={!field.optional}
+                    defaultValue={field.initial ?? ''}
+                    className={adminInputClass}
+                    onChange={
+                      field.name === 'employmentType' ? (event) => setEmploymentType(event.target.value) : undefined
+                    }
+                  >
+                    <option value=''>{translate('choose')}</option>
+                    {field.options.map((option) => (
+                      <option key={option} value={option}>
+                        {translate(`codes.${option}`, { defaultValue: translate('unknown') })}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    name={field.name}
+                    aria-invalid={!!errors[field.name] || undefined}
+                    type={field.type === 'uuid' ? 'text' : (field.type ?? 'text')}
+                    pattern={field.type === 'uuid' ? uuidPattern : field.pattern}
+                    minLength={field.minLength}
+                    maxLength={field.maxLength}
+                    defaultValue={field.initial}
+                    placeholder={
+                      field.type === 'checkbox' || field.type === 'date'
+                        ? undefined
+                        : translate(`placeholders.${field.name}`, {
+                            defaultValue: translate('fieldPlaceholder', {
+                              field: translate(`fields.${field.name}`, { defaultValue: translate('unknown') })
+                            })
                           })
-                        })
-                  }
-                  required={!field.optional && !(field.optionalWhenChecked && checkedFields[field.optionalWhenChecked])}
-                  onChange={
-                    field.type === 'checkbox'
-                      ? (event) => setCheckedFields((current) => ({ ...current, [field.name]: event.target.checked }))
-                      : undefined
-                  }
-                  className={field.type === 'checkbox' ? 'size-5 accent-primary' : adminInputClass}
-                />
-              )}
-            </AdminField>
-          )
-        )}
+                    }
+                    required={
+                      !field.optional && !(field.optionalWhenChecked && checkedFields[field.optionalWhenChecked])
+                    }
+                    onChange={
+                      field.type === 'checkbox'
+                        ? (event) => setCheckedFields((current) => ({ ...current, [field.name]: event.target.checked }))
+                        : undefined
+                    }
+                    className={field.type === 'checkbox' ? 'size-5 accent-primary' : adminInputClass}
+                  />
+                )}
+              </AdminField>
+            )
+          )}
       </div>
       {basis === true && <p className='text-xs text-muted-foreground'>{translate('basisHelp')}</p>}
       {validation && (

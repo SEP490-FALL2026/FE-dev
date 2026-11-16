@@ -11,6 +11,8 @@ import { SuperAdminSettingsView } from './settings/views/super-admin-settings-vi
 import { SuperAdminRemindersView } from './reminders/views/super-admin-reminders-view'
 import { SuperAdminOperationsView } from './operations/views/super-admin-operations-view'
 import { SuperAdminAuditView } from './audit/views/super-admin-audit-view'
+import { SuperAdminPoliciesView } from './policies'
+import { SuperAdminGhostSeatsView } from './ghost-seats'
 import './super-admin.css'
 
 export function SuperAdminScreen({ tab, onSelectTab }: { tab: SuperAdminTabKey; onSelectTab: SuperAdminSelectTab }) {
@@ -75,6 +77,10 @@ function SuperAdminContent({ tab, onSelectTab }: { tab: SuperAdminTabKey; onSele
       return <SuperAdminRemindersView />
     case 'operations':
       return <SuperAdminOperationsView />
+    case 'policies':
+      return <SuperAdminPoliciesView />
+    case 'ghost-seats':
+      return <SuperAdminGhostSeatsView />
     case 'audit-trail':
       return <SuperAdminAuditView />
     default:

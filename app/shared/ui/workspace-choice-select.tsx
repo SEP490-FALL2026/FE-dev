@@ -21,6 +21,7 @@ export function WorkspaceChoiceSelect({
   limit = 1,
   disabled = false,
   invalid = false,
+  required = true,
   onOpenChange,
   search,
   state,
@@ -37,6 +38,7 @@ export function WorkspaceChoiceSelect({
   limit?: number
   disabled?: boolean
   invalid?: boolean
+  required?: boolean
   onOpenChange?: (open: boolean) => void
   search?: { label: string; placeholder: string; value: string; onChange: (value: string) => void }
   state?: ReactNode
@@ -106,6 +108,11 @@ export function WorkspaceChoiceSelect({
     >
       <p id={`${id}-label`} className='text-sm font-medium'>
         {label}
+        {required && (
+          <span aria-hidden='true' className='ml-1 text-danger'>
+            *
+          </span>
+        )}
       </p>
       <button
         ref={trigger}
@@ -115,7 +122,7 @@ export function WorkspaceChoiceSelect({
         aria-controls={`${id}-options`}
         aria-expanded={expanded}
         aria-haspopup='listbox'
-        aria-required='true'
+        aria-required={required}
         aria-invalid={invalid || undefined}
         aria-describedby={hint ? `${id}-hint` : undefined}
         disabled={disabled}

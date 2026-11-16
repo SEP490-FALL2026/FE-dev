@@ -124,6 +124,20 @@ it('shows unavailable observation as no data and preserves real zero observation
   expect(articles[1]).toHaveTextContent('Tokens0')
 })
 
+it('labels partial daily observation as a lower bound on a dedicated page', async () => {
+  vi.mocked(customAxios).mockResolvedValue({
+    data: {
+      items: [
+        { date: '2026-11-05', tool: 'CODEX', coverage: 'PARTIAL', responses: 2, totalTokens: 100, experimental: false }
+      ],
+      pagination
+    }
+  })
+  mount(<DeviceResults id='device-1' kind='usage' onClose={vi.fn()} />)
+  expect(await screen.findByText('Partial observation: these counts are a lower bound.')).toBeVisible()
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+})
+
 it('opens lifecycle actions in a replacement dialog without writing until submitted', async () => {
   vi.mocked(customAxios).mockResolvedValue({
     data: {

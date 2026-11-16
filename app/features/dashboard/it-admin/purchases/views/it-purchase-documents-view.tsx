@@ -2,9 +2,11 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FileText } from 'lucide-react'
 import { useContractGet } from '~/shared/api/generated/operations/contracts/contract-get'
+import { useContractList } from '~/shared/api/generated/operations/contracts/contract-list'
 import { useDashboardFormat } from '../../../dashboard-ui'
 import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
-import { ItField, itButtonClass, itPrimaryClass, itInputClass } from '../../shared/components/it-form'
+import { ItPagination } from '../../shared/components/it-pagination'
+import { itButtonClass, itPrimaryClass } from '../../shared/components/it-form'
 import { ContractCreateDialog } from '../components/contract-create-dialog'
 import { DocumentUploadDialog } from '../components/document-upload-dialog'
 import { DocumentDetail } from '../components/document-detail'
@@ -17,16 +19,22 @@ export function ItPurchaseDocumentsView() {
   const [creating, setCreating] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [view, setView] = useState<'lookup' | 'contract' | 'document'>('lookup')
+  const [page, setPage] = useState(1)
   const pageRef = useRef<HTMLElement>(null)
   useEffect(() => {
     pageRef.current?.focus()
   }, [view])
   const query = useContractGet(contractId, { query: { enabled: !!contractId } })
+  const contracts = useContractList({ page, pageSize: 20 }, { query: { enabled: view === 'lookup' } })
   const contract = query.data?.data?.contract
   return (
     <section ref={pageRef} tabIndex={-1} className='space-y-5 outline-none'>
       {view !== 'lookup' && (
-        <button type='button' className={itButtonClass} onClick={() => setView('lookup')}>
+        <button
+          type='button'
+          className={itButtonClass}
+          onClick={() => setView(view === 'document' ? 'contract' : 'lookup')}
+        >
           {translate('back')}
         </button>
       )}
@@ -41,31 +49,42 @@ export function ItPurchaseDocumentsView() {
               {translate('create')}
             </button>
           </header>
-          <p className='max-w-3xl text-sm text-muted-foreground'>{translate('lookupHint')}</p>
-          <div className='grid gap-4 lg:grid-cols-2'>
-            <LookupForm
-              label={translate('contractId')}
-              placeholder={translate('contractPlaceholder')}
-              hint={translate('help.contractId')}
-              button={translate('openContract')}
-              initialValue={contractId}
-              onSubmit={(id) => {
-                setContractId(id)
-                setView('contract')
-              }}
-            />
-            <LookupForm
-              label={translate('documentId')}
-              placeholder={translate('documentPlaceholder')}
-              hint={translate('help.documentId')}
-              button={translate('openDocument')}
-              initialValue={documentId}
-              onSubmit={(id) => {
-                setDocumentId(id)
-                setView('document')
-              }}
-            />
-          </div>
+          <p className='max-w-3xl text-sm text-muted-foreground'>{translate('contractListHint')}</p>
+          <ItQueryState query={contracts}>
+            {contracts.data?.data?.items.length ? (
+              <div className='divide-y divide-border rounded-lg border border-border bg-surface'>
+                {contracts.data.data.items.map((item) => (
+                  <article key={item.id} className='flex flex-wrap items-center justify-between gap-4 p-4'>
+                    <div>
+                      <h2 className='font-medium'>{item.name}</h2>
+                      <p className='text-sm text-muted-foreground'>
+                        {item.vendor?.name ?? translate('unknown')} ·{' '}
+                        {translate(`contractStates.${item.status}`, { defaultValue: translate('unknown') })}
+                      </p>
+                    </div>
+                    <button
+                      type='button'
+                      className={itButtonClass}
+                      onClick={() => {
+                        setContractId(item.id)
+                        setView('contract')
+                      }}
+                    >
+                      {translate('openContract')}
+                    </button>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <ItEmpty />
+            )}
+          </ItQueryState>
+          <ItPagination
+            page={page}
+            pageSize={20}
+            total={contracts.data?.data?.pagination.totalItems ?? 0}
+            onChange={setPage}
+          />
         </>
       )}
       {view === 'contract' && contractId && (
@@ -79,6 +98,30 @@ export function ItPurchaseDocumentsView() {
               <p className='text-right font-mono text-xs tabular-nums text-muted-foreground'>
                 {formatDateTime(contract.createdAt)}
               </p>
+              <p>
+                {contract.vendor?.name ?? translate('unknown')} ·{' '}
+                {translate(`contractStates.${contract.status}`, { defaultValue: translate('unknown') })}
+              </p>
+              <h3 className='font-semibold'>{translate('subscriptions')}</h3>
+              {contract.subscriptions.map((subscription) => (
+                <p key={subscription.subscriptionId}>
+                  {subscription.applicationName} · {subscription.planName}
+                </p>
+              ))}
+              <h3 className='font-semibold'>{translate('documents')}</h3>
+              {contract.documents.map((document) => (
+                <button
+                  type='button'
+                  key={document.id}
+                  className={itButtonClass}
+                  onClick={() => {
+                    setDocumentId(document.id)
+                    setView('document')
+                  }}
+                >
+                  {document.fileName}
+                </button>
+              ))}
               <button
                 type='button'
                 className={itButtonClass}
@@ -116,47 +159,5 @@ export function ItPurchaseDocumentsView() {
         />
       )}
     </section>
-  )
-}
-
-function LookupForm({
-  label,
-  placeholder,
-  hint,
-  button,
-  initialValue,
-  onSubmit
-}: {
-  label: string
-  placeholder: string
-  hint: string
-  button: string
-  initialValue: string
-  onSubmit: (id: string) => void
-}) {
-  return (
-    <form
-      className='flex flex-wrap items-end gap-3 rounded-lg border border-border/70 bg-surface p-4'
-      onSubmit={(event) => {
-        event.preventDefault()
-        onSubmit(String(new FormData(event.currentTarget).get('id')).trim())
-      }}
-    >
-      <div className='min-w-0 flex-1 basis-48'>
-        <ItField label={label} hint={hint}>
-          <input
-            name='id'
-            required
-            pattern='[0-9a-fA-F-]{36}'
-            defaultValue={initialValue}
-            placeholder={placeholder}
-            className={itInputClass}
-          />
-        </ItField>
-      </div>
-      <button type='submit' className={itButtonClass}>
-        {button}
-      </button>
-    </form>
   )
 }

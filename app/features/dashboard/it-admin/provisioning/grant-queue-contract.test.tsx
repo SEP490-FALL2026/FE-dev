@@ -10,12 +10,25 @@ const request = vi.mocked(customAxios)
 const employeeId = '11111111-1111-4111-8111-111111111111'
 let stock: { kind: string; free: number; inRevocation: number } | undefined
 let rejectGrant: boolean
+let queueState: 'WAITING' | 'EXECUTING' | 'DONE'
 beforeEach(async () => {
   vi.resetAllMocks()
   await setAppLanguage('en', false)
   stock = { kind: 'SEATS', free: 1, inRevocation: 0 }
   rejectGrant = false
+  queueState = 'WAITING'
   request.mockImplementation(async (config) => {
+    if (config.url?.endsWith('/technical-members'))
+      return {
+        data: {
+          items: [{ id: employeeId, code: 'E-1', fullName: 'Alice', employmentStatus: 'WORKING' }],
+          pagination: { totalItems: 1 }
+        }
+      }
+    if (config.url?.endsWith('/departments'))
+      return {
+        data: { items: [{ id: 'department-one', code: 'ENG', name: 'Engineering' }], pagination: { totalItems: 1 } }
+      }
     if (config.method === 'POST') {
       if (rejectGrant)
         throw { isAxiosError: true, response: { status: 503, data: { error: { code: 'SERVICE_UNAVAILABLE' } } } }
@@ -27,6 +40,7 @@ beforeEach(async () => {
           items: [
             {
               requestId: 'request-1',
+              state: queueState,
               type: 'GRANT',
               stock,
               expectedEndDate: null,
@@ -67,14 +81,61 @@ it('sends the beneficiary filter to the server and returns to the first page', a
   mount()
   await screen.findByText(/Alice/)
   fireEvent.click(screen.getByRole('button', { name: 'Next' }))
-  fireEvent.change(screen.getByLabelText('Beneficiary employee UUID'), { target: { value: employeeId } })
+  fireEvent.click(screen.getByRole('button', { name: 'Browse people' }))
+  fireEvent.click(await screen.findByRole('button', { name: /Engineering/ }))
+  fireEvent.click(await screen.findByRole('button', { name: /Alice/ }))
   fireEvent.click(screen.getByRole('button', { name: 'Apply filter' }))
   await waitFor(() =>
     expect(request).toHaveBeenCalledWith(
-      expect.objectContaining({ params: { page: 1, pageSize: 20, beneficiaryEmployeeId: employeeId } }),
+      expect.objectContaining({
+        params: { page: 1, pageSize: 20, state: 'WAITING', beneficiaryEmployeeId: employeeId }
+      }),
       undefined
     )
   )
+})
+
+it('requests only waiting grants', async () => {
+  mount()
+  await screen.findByText(/Alice/)
+  expect(request).toHaveBeenCalledWith(
+    expect.objectContaining({ params: { page: 1, pageSize: 20, state: 'WAITING' } }),
+    undefined
+  )
+})
+
+it('does not allow starting a grant for an item already being executed', async () => {
+  queueState = 'EXECUTING'
+  mount()
+  expect(await screen.findByRole('button', { name: 'Start grant' })).toBeDisabled()
+})
+
+it('opens the actual execution task from the request list without granting it again', async () => {
+  request.mockResolvedValue({
+    data: {
+      items: [
+        {
+          requestId: 'request-one',
+          type: 'GRANT',
+          state: 'EXECUTING',
+          beneficiary: { employeeId, fullName: 'Alice' },
+          plan: { planId: 'plan-one', applicationName: 'Figma', planName: 'Team' },
+          department: { name: 'Design' },
+          execution: { taskId: 'task-existing', status: 'IN_PROGRESS' }
+        }
+      ],
+      pagination: { totalItems: 1 }
+    }
+  })
+  const openTask = vi.fn()
+  render(
+    <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+      <ProvisioningGrantQueue onCreated={openTask} />
+    </QueryClientProvider>
+  )
+  fireEvent.click(await screen.findByRole('button', { name: 'View execution' }))
+  expect(openTask).toHaveBeenCalledWith('task-existing')
+  expect(posts()).toHaveLength(0)
 })
 
 it('blocks submission when the server does not provide stock availability', async () => {

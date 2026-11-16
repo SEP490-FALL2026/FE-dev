@@ -1,4 +1,18 @@
-﻿export const itProvisioning = {
+export const itProvisioning = {
+  responsibleEmployeeHint: 'Chọn nhân viên chịu trách nhiệm cho tài khoản dịch vụ trong danh bạ phòng ban.',
+  beneficiaryFilterHint: 'Chọn nhân viên để xem các yêu cầu đã được duyệt của người đó.',
+  fieldHints: {
+    evidence: 'Mô tả công việc đã làm và cách kiểm tra kết quả. Không nhập mật khẩu hoặc khóa bí mật.',
+    reason: 'Giải thích vì sao cần thực hiện thao tác và vấn đề cần xử lý.',
+    note: 'Bổ sung ngữ cảnh cho người xử lý tiếp theo. Có thể để trống.',
+    paidThroughOn: 'Nhập ngày cuối còn quyền sử dụng theo kỳ đã trả sau khi tắt gia hạn.',
+    accessEvidence: 'Mô tả cách đã kiểm tra quyền truy cập tại nhà cung cấp.',
+    accessCutOn: 'Nhập ngày thực tế đã ngắt quyền truy cập tại nhà cung cấp.'
+  },
+  submitInvoice: 'Nộp hóa đơn mua phần mềm',
+  executionFilter: 'Tiến độ cấp quyền',
+  viewExecution: 'Xem kết quả thực hiện',
+  grantStates: { WAITING: 'Sẵn sàng cấp', EXECUTING: 'Đang thực hiện hoặc chờ xử lý', DONE: 'Đã xử lý' },
   optimization: {
     title: 'Tối ưu bản quyền',
     reclaim: 'Bắt đầu thu hồi',
@@ -36,7 +50,7 @@
       OPEN: 'Chờ xác nhận',
       CONFIRMED: 'Đã xác nhận',
       CANCELLED: 'Đã hủy',
-      IT_ADMIN: 'IT Admin',
+      IT_ADMIN: 'quản trị viên công nghệ thông tin',
       DEPARTMENT_HEAD: 'Trưởng phòng',
       REQUESTER: 'Người yêu cầu',
       NO_HEAD: 'Chờ trưởng phòng',
@@ -45,7 +59,7 @@
   },
   placeholders: {
     account: 'Ví dụ: nhanvien@company.example',
-    employeeId: 'UUID nhân viên chịu trách nhiệm',
+    employeeId: 'mã định danh nhân viên chịu trách nhiệm',
     evidence: 'Ghi nơi thực hiện, thời điểm và cách cấp hoặc thu hồi quyền',
     reason: 'Mô tả lỗi và các bước đã thử xử lý',
     note: 'Nêu căn cứ xác nhận quyền truy cập đã kết thúc',
@@ -64,10 +78,10 @@
     READY_TO_REVOKE: 'Sẵn sàng thu hồi',
     REVOCATION_OPEN: 'Đang thu hồi'
   },
-  accessRequired: 'Cần vai trò IT Admin để thực hiện cấp quyền.',
+  accessRequired: 'Cần vai trò quản trị viên công nghệ thông tin để thực hiện cấp quyền.',
   reviewBoundary: 'Kiểm tra ranh giới tài khoản dịch vụ',
   boundaryReviewHint:
-    'Xác nhận mục đích thuộc tài khoản phi con người. Từ chối sẽ kết thúc yêu cầu và hoàn trả khoản cam kết ngân sách. Máy chủ kiểm tra trường hợp cần IT Admin khác quyết định.',
+    'Xác nhận mục đích thuộc tài khoản phi con người. Từ chối sẽ kết thúc yêu cầu và hoàn trả khoản cam kết ngân sách. Máy chủ kiểm tra trường hợp cần quản trị viên công nghệ thông tin khác quyết định.',
   servicePurpose: 'Mục đích tài khoản dịch vụ',
   accountOwner: 'Nhân viên chịu trách nhiệm',
   department: 'Phòng ban',
@@ -111,14 +125,17 @@
   cancelHint: 'Chỉ hủy khi yêu cầu liên quan đã được rút. Máy chủ kiểm tra điều kiện này.',
   completion: 'Kết quả thu hồi',
   k1Checklist: {
-    title: 'Checklist thu hồi K1',
+    title: 'Các bước thu hồi tài khoản cá nhân',
     variants: {
-      DEPARTURE: 'Checklist nghỉ việc',
-      STILL_EMPLOYED: 'Checklist cho người vẫn làm việc'
+      GRANT: 'Các bước cấp tài khoản cá nhân',
+      DEPARTURE: 'Thu hồi khi nghỉ việc',
+      STILL_EMPLOYED: 'Thu hồi của người đang làm việc'
     },
-    hint: 'Hệ thống không điều khiển Google hay Microsoft 365. Làm từng bước ở đó rồi tick tại đây kèm giờ đã làm thật.',
+    hint: 'Hệ thống không điều khiển Google hay Microsoft 365. Làm từng bước ở đó rồi đánh dấu tại đây kèm giờ đã làm thật.',
     doneAt: 'Giờ đã làm: {{step}}',
     steps: {
+      COMPANY_EMAIL_REGISTERED: 'Đăng ký bằng địa chỉ thư điện tử công ty của chính người được cấp',
+      NO_PERSONAL_DEVICE_MFA: 'Xác nhận không gắn xác thực nhiều lớp với thiết bị cá nhân',
       MAILBOX_PASSWORD_RESET: 'Đặt lại mật khẩu hộp thư (chưa khóa hộp thư)',
       SOFTWARE_FORGOT_PASSWORD: 'Dùng “Quên mật khẩu” trên phần mềm',
       SESSIONS_SIGNED_OUT: 'Đăng xuất mọi phiên',
@@ -163,9 +180,9 @@
   keySubscriptionMissing: 'Tác vụ chưa có thuê bao. Tải lại tác vụ trước khi chọn khóa.',
   withdrawalHint: 'Nêu lý do khóa không được cấp lại. Rút khóa sẽ loại khóa khỏi kho còn sử dụng được.',
   expectedEndDate: 'Ngày kết thúc dự kiến',
-  responsibleEmployeeId: 'UUID người phụ trách (thay thế nếu cần)',
-  beneficiaryFilter: 'UUID nhân viên thụ hưởng',
-  employeeIdHint: 'Nhập UUID nhân viên để lọc',
+  responsibleEmployeeId: 'Người phụ trách thay thế (nếu cần)',
+  beneficiaryFilter: 'Người được cấp quyền',
+  employeeIdHint: 'Nhập mã định danh nhân viên để lọc',
   applyFilter: 'Áp dụng bộ lọc',
   boundaryRequired: 'Kiểm tra và chấp nhận ranh giới tài khoản dịch vụ trước khi bắt đầu cấp quyền.',
   actions: {
@@ -208,13 +225,13 @@
   },
   stepsValues: {
     BUY_ON_COMPANY_ACCOUNT: 'Mua bằng tài khoản công ty',
-    ADD_TO_WORKSPACE: 'Thêm tài khoản vào workspace',
+    ADD_TO_WORKSPACE: 'Thêm tài khoản vào không gian làm việc',
     GRANT_IN_INTERNAL_SOFTWARE: 'Cấp quyền trong phần mềm nội bộ',
     OPEN_KEY_STORE: 'Mở kho khóa',
     ASSIGN_KEY_WITH_COMPANY_DEVICE: 'Gán khóa cùng thiết bị công ty',
     CANCEL_RENEWAL_ON_PROVIDER: 'Hủy gia hạn với nhà cung cấp',
     RECORD_ACCESS_STATE: 'Ghi nhận trạng thái truy cập',
-    REMOVE_FROM_WORKSPACE: 'Xóa tài khoản khỏi workspace',
+    REMOVE_FROM_WORKSPACE: 'Xóa tài khoản khỏi không gian làm việc',
     REVOKE_IN_INTERNAL_SOFTWARE: 'Thu hồi trong phần mềm nội bộ',
     DEACTIVATE_KEY_ON_DEVICE: 'Vô hiệu khóa trên thiết bị',
     CONFIRM_WITH_EVIDENCE: 'Xác nhận kèm bằng chứng'

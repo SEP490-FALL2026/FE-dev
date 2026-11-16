@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import type { DepartmentTransferGet200 } from '~/shared/api/generated/model'
 import { useDashboardFormat } from '../../../dashboard-ui'
+import { itButtonClass } from '../../shared/components/it-form'
 
 type Transfer = NonNullable<DepartmentTransferGet200['data']>
 
@@ -38,7 +39,8 @@ export function TransferOldRights({
                     {right.application.name}
                   </p>
                   <p className='truncate text-muted-foreground' title={right.plan.name}>
-                    {right.plan.name} · {right.provisioningType}
+                    {right.plan.name} ·{' '}
+                    {translate(`accessMethods.${right.provisioningType}`, { defaultValue: translate('unknown') })}
                   </p>
                 </div>
                 <div className='space-y-0.5 sm:text-right'>
@@ -49,13 +51,21 @@ export function TransferOldRights({
                   </p>
                   {right.regranted && <p className='text-success-ink'>{translate('regranted')}</p>}
                   {right.revocation && (
-                    <p className='text-muted-foreground'>
-                      {translate('revocationTask', {
-                        status: translate(`taskStates.${right.revocation.status}`, {
-                          defaultValue: right.revocation.status
-                        })
-                      })}
-                    </p>
+                    <div className='space-y-2 text-muted-foreground'>
+                      <p>
+                        {translate('revocationTask', {
+                          status: translate(`taskStates.${right.revocation.status}`, {
+                            defaultValue: translate('unknown')
+                          })
+                        })}
+                      </p>
+                      <a
+                        className={itButtonClass}
+                        href={`/dashboard/it-admin?tab=provisioning&queue=tasks&scope=ALL&id=${encodeURIComponent(right.revocation.taskId)}`}
+                      >
+                        {translate('viewRevocationTask')}
+                      </a>
+                    </div>
                   )}
                 </div>
               </li>

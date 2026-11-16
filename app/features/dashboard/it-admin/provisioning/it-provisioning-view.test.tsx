@@ -21,6 +21,7 @@ vi.mock('~/shared/api/generated/operations/license-keys/license-key-list', async
   useLicenseKeyList: vi.fn()
 }))
 const task: TaskResponseDtoDataTask = {
+  termCutAt: null,
   k1Checklist: null,
   id: 'task-1',
   kind: 'GRANT',

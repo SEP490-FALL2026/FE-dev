@@ -4,6 +4,7 @@ import { useAppUserLock } from '~/shared/api/generated/operations/app-users/app-
 import { useAppUserUnlock } from '~/shared/api/generated/operations/app-users/app-user-unlock'
 import { useAppUserChangeRole } from '~/shared/api/generated/operations/app-users/app-user-change-role'
 import { useAppUserResendInvitation } from '~/shared/api/generated/operations/app-users/app-user-resend-invitation'
+import { useAppUserAvatarDelete } from '~/shared/api/generated/operations/profile/app-user-avatar-delete'
 import type { AccountDetailResponseDtoData } from '~/shared/api/generated/model'
 import { AdminField, AdminFormDialog, adminInputClass } from '../../shared/components/admin-form'
 import { useAdminMutationFeedback } from '../../shared/hooks/use-admin-mutation-feedback'
@@ -12,7 +13,7 @@ import { directRoles, type DirectRole } from '../enums/direct-role'
 import { accountWriteKeys } from '../hooks/use-super-admin-accounts'
 import { useAccountWriteGuard } from '../hooks/use-account-write-guard'
 
-export type AccountAction = 'lock' | 'unlock' | 'grant' | 'resend'
+export type AccountAction = 'lock' | 'unlock' | 'grant' | 'resend' | 'removeAvatar'
 export function AccountActionDialog({
   account,
   action,
@@ -45,14 +46,17 @@ export function AccountActionDialog({
   const unlock = useAppUserUnlock(options)
   const changeRole = useAppUserChangeRole(options)
   const resend = useAppUserResendInvitation(options)
-  const pending = lock.isPending || unlock.isPending || changeRole.isPending || resend.isPending
+  const removeAvatar = useAppUserAvatarDelete(options)
+  const pending =
+    lock.isPending || unlock.isPending || changeRole.isPending || resend.isPending || removeAvatar.isPending
   const canAct =
     !blocked &&
     hasKnownAccountState(account.status, account.activationState) &&
     (action !== 'lock' || (account.status === 'ACTIVE' && !account.roles.includes('SUPER_ADMIN'))) &&
-    (action !== 'unlock' || account.status === 'LOCKED') &&
+    (action !== 'unlock' || !account.roles.includes('SUPER_ADMIN')) &&
     (action !== 'resend' || (account.status === 'ACTIVE' && account.activationState === 'INVITED')) &&
-    (action !== 'grant' || !account.roles.includes('SUPER_ADMIN'))
+    (action !== 'grant' || !account.roles.includes('SUPER_ADMIN')) &&
+    (action !== 'removeAvatar' || !account.roles.includes('SUPER_ADMIN'))
   return (
     <AdminFormDialog
       title={translate(action === 'grant' ? 'changeRole' : action)}
@@ -60,26 +64,32 @@ export function AccountActionDialog({
       pending={pending}
       submitLabel={guard.remaining ? translate('retryIn', { count: guard.remaining }) : translate('confirm')}
       submitDisabled={!canAct || guard.remaining > 0 || (action === 'grant' && !role)}
-      danger={action === 'lock'}
+      danger={action === 'lock' || action === 'removeAvatar'}
       onSubmit={(event) => {
         event.preventDefault()
         if (pending || !canAct) return
-        if ((action === 'lock' || action === 'unlock') && !reason.trim()) return
+        if ((action === 'lock' || action === 'unlock' || action === 'removeAvatar') && !reason.trim()) return
         if (action === 'grant' && (!role || !allowedRoles.includes(role))) return
         if (!guard.acquire()) return
         if (action === 'lock' && reason.trim()) lock.mutate({ id: account.id, data: { reason: reason.trim() } })
         if (action === 'unlock' && reason.trim()) unlock.mutate({ id: account.id, data: { reason: reason.trim() } })
+        if (action === 'removeAvatar' && reason.trim())
+          removeAvatar.mutate({ id: account.id, data: { reason: reason.trim() } })
         if (action === 'grant' && role) changeRole.mutate({ id: account.id, data: { role } })
         if (action === 'resend') resend.mutate({ id: account.id })
       }}
     >
       <p className='text-sm text-muted-foreground'>{account.loginEmail}</p>
-      {(action === 'lock' || action === 'unlock') && (
-        <AdminField label={translate('reason')}>
+      {action === 'removeAvatar' && <p className='text-xs text-muted-foreground'>{translate('removeAvatarHint')}</p>}
+      {(action === 'lock' || action === 'unlock' || action === 'removeAvatar') && (
+        <AdminField
+          label={translate('reason')}
+          description={translate(action === 'removeAvatar' ? 'removeAvatarReasonPlaceholder' : 'reasonPlaceholder')}
+        >
           <textarea
             required
-            maxLength={1000}
-            placeholder={translate('reasonPlaceholder')}
+            maxLength={action === 'removeAvatar' ? 500 : 1000}
+            placeholder={translate(action === 'removeAvatar' ? 'removeAvatarReasonPlaceholder' : 'reasonPlaceholder')}
             className={adminInputClass}
             value={reason}
             onChange={(event) => setReason(event.target.value)}
@@ -88,7 +98,7 @@ export function AccountActionDialog({
       )}
       {action === 'grant' && (
         <>
-          <AdminField label={translate('role')}>
+          <AdminField label={translate('role')} required description={translate('roleHelp')}>
             <select
               required
               className={adminInputClass}

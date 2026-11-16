@@ -14,7 +14,6 @@ export function AccountInviteDialog({ onClose }: { onClose: () => void }) {
   const { t: translate } = useTranslation('adminAccounts')
   const [search, setSearch] = useState('')
   const [employeeId, setEmployeeId] = useState('')
-  const [email, setEmail] = useState('')
   const [role, setRole] = useState<DirectRole>('EMPLOYEE')
   const [invalid, setInvalid] = useState(false)
   const debouncedSearch = useAdminSearch(search)
@@ -42,7 +41,6 @@ export function AccountInviteDialog({ onClose }: { onClose: () => void }) {
       pending={mutation.isPending}
       submitLabel={guard.remaining ? translate('retryIn', { count: guard.remaining }) : translate('inviteSubmit')}
       submitDisabled={guard.remaining > 0}
-      wide
       onSubmit={(event) => {
         event.preventDefault()
         if (mutation.isPending) return
@@ -50,8 +48,7 @@ export function AccountInviteDialog({ onClose }: { onClose: () => void }) {
           setInvalid(true)
           return
         }
-        if (guard.acquire())
-          mutation.mutate({ data: { employeeId, ...(email.trim() ? { loginEmail: email.trim() } : {}), role } })
+        if (guard.acquire()) mutation.mutate({ data: { employeeId, role } })
       }}
     >
       <AdminField label={translate('employeeSearch')}>
@@ -65,7 +62,13 @@ export function AccountInviteDialog({ onClose }: { onClose: () => void }) {
         />
       </AdminField>
       <fieldset className='grid gap-2'>
-        <legend className='mb-2 text-sm font-medium'>{translate('employee')}</legend>
+        <legend className='mb-2 text-sm font-medium'>
+          {translate('employee')}
+          <span aria-hidden className='ml-1 text-danger'>
+            *
+          </span>
+        </legend>
+        <p className='text-xs text-muted-foreground'>{translate('employeeHelp')}</p>
         <AdminQueryState query={candidates}>
           {!candidates.data?.data?.items.length && <AdminEmpty />}
           {candidates.data?.data?.items.map((candidate) => (
@@ -80,7 +83,6 @@ export function AccountInviteDialog({ onClose }: { onClose: () => void }) {
                 checked={employeeId === candidate.id}
                 onChange={() => {
                   setEmployeeId(candidate.id)
-                  setEmail(candidate.workEmail ?? '')
                   setInvalid(false)
                 }}
               />
@@ -98,19 +100,10 @@ export function AccountInviteDialog({ onClose }: { onClose: () => void }) {
           </p>
         )}
       </fieldset>
-      <AdminField label={translate('loginEmail')}>
-        <input
-          className={adminInputClass}
-          type='email'
-          maxLength={254}
-          placeholder={translate('loginEmailPlaceholder')}
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-        />
-      </AdminField>
-      <p className='text-xs text-muted-foreground'>{translate('emailHint')}</p>
+      <p className='text-xs text-muted-foreground'>{translate('emailFromPersonnel')}</p>
       <fieldset>
         <legend className='mb-2 text-sm font-medium'>{translate('role')}</legend>
+        <p className='text-xs text-muted-foreground'>{translate('roleHelp')}</p>
         {directRoles
           .filter((value) => value !== 'SPENDING_APPROVER')
           .map((value) => (

@@ -4,7 +4,7 @@ import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useModalLayer } from '~/shared/ui/use-modal-layer'
 
-/** Read-only detail drawer. Forms use ItFormDialog so their submit lifecycle stays separate. */
+/** Compact read-only popup. Long histories and workflows use dedicated pages. */
 export function ItDetailDialog({
   title,
   onClose,
@@ -22,7 +22,7 @@ export function ItDetailDialog({
   return createPortal(
     <div
       ref={layerRef}
-      className='fixed inset-0 z-50 flex items-end justify-end bg-foreground/40 md:items-stretch'
+      className='fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 p-3 md:p-5'
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose()
       }}
@@ -33,7 +33,7 @@ export function ItDetailDialog({
         aria-modal='true'
         aria-labelledby={titleId}
         tabIndex={-1}
-        className='flex max-h-[95dvh] w-full flex-col rounded-t-lg border border-border bg-surface text-foreground shadow-xl outline-none md:h-dvh md:max-h-dvh md:max-w-2xl md:rounded-none'
+        className='flex max-h-[90dvh] w-full max-w-xl flex-col rounded-lg border border-border bg-surface text-foreground shadow-xl outline-none'
         onKeyDown={(event) => {
           if (event.key === 'Escape') {
             event.preventDefault()

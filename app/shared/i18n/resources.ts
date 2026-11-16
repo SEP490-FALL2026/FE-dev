@@ -65,10 +65,23 @@ import { itDevices as viItDevices } from './locales/vi/it-devices'
 import { devicePrivacy as enDevicePrivacy } from './locales/en/device-privacy'
 import { devicePrivacy as viDevicePrivacy } from './locales/vi/device-privacy'
 
+import { itDepartmentSoftware as enItDepartmentSoftware } from './locales/en/it-department-software'
+import { itDepartmentSoftware as viItDepartmentSoftware } from './locales/vi/it-department-software'
+import { itInvoices as enItInvoices } from './locales/en/it-invoices'
+import { itInvoices as viItInvoices } from './locales/vi/it-invoices'
+import { itOptimization as enItOptimization } from './locales/en/it-optimization'
+import { itOptimization as viItOptimization } from './locales/vi/it-optimization'
+import { itReconciliation as enItReconciliation } from './locales/en/it-reconciliation'
+import { itReconciliation as viItReconciliation } from './locales/vi/it-reconciliation'
+
 export { defaultNS } from './resource-config'
 
 export const resources = {
   en: {
+    itReconciliation: enItReconciliation,
+    itOptimization: enItOptimization,
+    itInvoices: enItInvoices,
+    itDepartmentSoftware: enItDepartmentSoftware,
     requestFlow: enRequestFlow,
     devicePrivacy: enDevicePrivacy,
     itDepartmentWork: enItDepartmentWork,
@@ -104,6 +117,10 @@ export const resources = {
     theme: enTheme
   },
   vi: {
+    itReconciliation: viItReconciliation,
+    itOptimization: viItOptimization,
+    itInvoices: viItInvoices,
+    itDepartmentSoftware: viItDepartmentSoftware,
     requestFlow: viRequestFlow,
     devicePrivacy: viDevicePrivacy,
     itDepartmentWork: viItDepartmentWork,

@@ -5,7 +5,16 @@ import { setupServer } from 'msw/node'
 import { afterAll, afterEach, beforeAll, expect, it, vi } from 'vitest'
 import { setAppLanguage } from '~/shared/i18n/i18n'
 import { ContractCreateDialog } from './components/contract-create-dialog'
-const server = setupServer()
+const server = setupServer(
+  http.get('*/api/v1/vendors', () =>
+    HttpResponse.json({
+      data: {
+        items: [{ id: 'vendor-1', name: 'Example vendor' }],
+        pagination: { totalItems: 1, totalPages: 1, page: 1, pageSize: 20 }
+      }
+    })
+  )
+)
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
 afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
@@ -24,6 +33,8 @@ it('blocks a second contract creation when the first response has an unknown out
     </QueryClientProvider>
   )
   fireEvent.change(screen.getByLabelText('Contract name'), { target: { value: 'Annual contract' } })
+  fireEvent.click(await screen.findByLabelText('Example vendor'))
+  fireEvent.change(screen.getByLabelText('Effective start date'), { target: { value: '2026-11-01' } })
   fireEvent.click(screen.getByRole('button', { name: 'Create contract' }))
   await screen.findByText(
     'The creation result is uncertain. Check the contract with the administrator before creating it again.'
@@ -45,6 +56,8 @@ it('keeps creation unresolved when a successful envelope omits the contract refe
       <ContractCreateDialog onClose={close} onCreated={created} />
     </QueryClientProvider>
   )
+  fireEvent.click(await screen.findByLabelText('Example vendor'))
+  fireEvent.change(screen.getByLabelText('Effective start date'), { target: { value: '2026-11-01' } })
   fireEvent.click(screen.getByRole('button', { name: 'Create contract' }))
   await screen.findByText(
     'The creation result is uncertain. Check the contract with the administrator before creating it again.'

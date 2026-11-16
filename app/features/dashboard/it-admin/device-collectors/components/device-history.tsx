@@ -5,7 +5,7 @@ import { useWorkspaceFormat } from '~/shared/hooks/use-workspace-format'
 
 export function DeviceHistory({ device }: { device: NonNullable<DeviceDetailResponseDtoData> }) {
   const { t: translate } = useTranslation('itDevices')
-  const { formatDate } = useWorkspaceFormat()
+  const { formatDate, formatDateTime } = useWorkspaceFormat()
   const row = (key: ParseKeys<'itDevices'>, value: string | null | undefined) => (
     <div key={key} className='grid gap-1 border-b border-border/40 py-3 sm:grid-cols-2'>
       <dt className='text-sm text-muted-foreground'>{translate(key)}</dt>
@@ -19,6 +19,11 @@ export function DeviceHistory({ device }: { device: NonNullable<DeviceDetailResp
       {row('os', device.os)}
       {row('holderEmployeeId', device.holder ? `${device.holder.fullName} (${device.holder.employeeCode})` : null)}
       {row('state', translate(`values.${device.state}`, { defaultValue: translate('unknown') }))}
+      {row(
+        'lastAcceptedAt',
+        device.collection?.lastAcceptedAt ? formatDateTime(device.collection.lastAcceptedAt) : translate('noCollection')
+      )}
+      <div className='py-3 text-sm text-muted-foreground'>{translate('hints.collectionState')}</div>
       {row('registeredFrom', device.registeredFrom && formatDate(device.registeredFrom))}
       {row('acknowledgedFrom', device.acknowledgedFrom && formatDate(device.acknowledgedFrom))}
       {row('signatureRecorded', translate(device.signatureRecorded ? 'yes' : 'no'))}

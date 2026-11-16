@@ -57,5 +57,5 @@ it('uses the scoped dashboard and preserves unavailable and at-source metrics', 
   expect(screen.getByText('View at source')).toBeInTheDocument()
   expect(screen.getAllByText('0')).toHaveLength(1)
   fireEvent.click(screen.getByRole('button', { name: /Pending grants/ }))
-  expect(navigate).toHaveBeenCalledWith('provisioning', { scope: 'MINE' })
+  expect(navigate).toHaveBeenCalledWith('provisioning', { scope: 'MINE', queue: 'tasks' })
 })

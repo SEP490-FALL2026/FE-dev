@@ -6,6 +6,11 @@ import type { SupportedLanguage, TranslationNamespace } from './resources'
 // Explicit imports keep each namespace independently cacheable in production.
 export const namespaceLoaders: Record<SupportedLanguage, Record<TranslationNamespace, () => Promise<ResourceKey>>> = {
   vi: {
+    itReconciliation: () => import('./locales/vi/it-reconciliation').then((module) => module.itReconciliation),
+    itOptimization: () => import('./locales/vi/it-optimization').then((module) => module.itOptimization),
+    itInvoices: () => import('./locales/vi/it-invoices').then((module) => module.itInvoices),
+    itDepartmentSoftware: () =>
+      import('./locales/vi/it-department-software').then((module) => module.itDepartmentSoftware),
     requestFlow: () => import('./locales/vi/request-flow').then((module) => module.requestFlow),
     devicePrivacy: () => import('./locales/vi/device-privacy').then((module) => module.devicePrivacy),
     itDepartmentWork: () => import('./locales/vi/it-department-work').then((module) => module.itDepartmentWork),
@@ -41,6 +46,11 @@ export const namespaceLoaders: Record<SupportedLanguage, Record<TranslationNames
     theme: () => Promise.resolve(initialResources.vi.theme)
   },
   en: {
+    itReconciliation: () => import('./locales/en/it-reconciliation').then((module) => module.itReconciliation),
+    itOptimization: () => import('./locales/en/it-optimization').then((module) => module.itOptimization),
+    itInvoices: () => import('./locales/en/it-invoices').then((module) => module.itInvoices),
+    itDepartmentSoftware: () =>
+      import('./locales/en/it-department-software').then((module) => module.itDepartmentSoftware),
     requestFlow: () => import('./locales/en/request-flow').then((module) => module.requestFlow),
     devicePrivacy: () => import('./locales/en/device-privacy').then((module) => module.devicePrivacy),
     itDepartmentWork: () => import('./locales/en/it-department-work').then((module) => module.itDepartmentWork),

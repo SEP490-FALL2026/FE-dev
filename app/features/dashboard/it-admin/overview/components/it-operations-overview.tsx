@@ -20,14 +20,15 @@ import { itButtonClass } from '../../shared/components/it-form'
 import { ItDepartmentWork } from './it-department-work'
 
 const metrics = [
-  { key: 'grantTasks', icon: PackageCheck, tab: 'provisioning', params: { scope: 'MINE' } },
-  { key: 'revocationTasks', icon: ShieldCheck, tab: 'provisioning', params: { scope: 'MINE' } },
+  { key: 'grantTasks', icon: PackageCheck, tab: 'provisioning', params: { scope: 'MINE', queue: 'tasks' } },
+  { key: 'revocationTasks', icon: ShieldCheck, tab: 'provisioning', params: { scope: 'MINE', queue: 'tasks' } },
   { key: 'saasIssues', icon: MessageSquare, tab: 'saas-issues', params: { scope: 'assigned' } },
   { key: 'offboardingHandovers', icon: UserMinus, tab: 'offboarding', params: { state: 'HANDING_OVER' } },
   { key: 'licenseKeys', icon: KeyRound, tab: 'shared-stock', params: {} },
   { key: 'termsToReview', icon: FileCheck2, tab: 'dept-catalog', params: { view: 'terms' } },
   { key: 'cancellationDeadlines', icon: CalendarClock, tab: 'renewals', params: { view: 'subscriptions' } },
-  { key: 'unconfirmedDevices', icon: Laptop, tab: 'device-collectors', params: {} }
+  { key: 'unconfirmedDevices', icon: Laptop, tab: 'device-collectors', params: {} },
+  { key: 'missingInvoicePeriods', icon: FileCheck2, tab: 'purchase-invoices', params: { view: 'missing' } }
 ] as const
 
 export function ItOperationsOverview({
@@ -86,6 +87,7 @@ export function ItOperationsOverview({
             <div className='grid gap-4 sm:grid-cols-2 xl:grid-cols-3'>
               {metrics.map(({ key, icon: Icon, tab, params }) => {
                 const metric = data.sections[key]
+                if (!metric) return null
                 const counted = metric.state === 'COUNTED' && metric.count !== null
                 const available = metric.state === 'COUNTED' || metric.state === 'AT_SOURCE'
                 return (

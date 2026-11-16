@@ -13,9 +13,40 @@ export const adminButtonClass = `${adminControlClass} border-border bg-surface h
 export const adminPrimaryClass = `${adminControlClass} border-transparent bg-primary text-primary-foreground hover:bg-primary-hover enabled:active:bg-primary-hover enabled:active:shadow-inner`
 const adminDangerClass = `${adminControlClass} border-danger bg-danger text-white hover:bg-danger/90`
 
-export function AdminField({ label, children, error }: { label: string; children: ReactNode; error?: string }) {
-  const control = isValidElement<{ required?: boolean; 'aria-label'?: string }>(children) ? children : null
-  const required = control?.props.required
+export function AdminField({
+  label,
+  children,
+  error,
+  description,
+  required: requiredOverride
+}: {
+  label: string
+  children: ReactNode
+  error?: string
+  description?: string
+  required?: boolean
+}) {
+  const descriptionId = useId()
+  const errorId = useId()
+  const control = isValidElement<{
+    required?: boolean
+    disabled?: boolean
+    readOnly?: boolean
+    'aria-label'?: string
+    'aria-describedby'?: string
+    descriptionId?: string
+  }>(children)
+    ? children
+    : null
+  const describedBy =
+    [
+      control?.props['aria-describedby'] ?? control?.props.descriptionId,
+      description ? descriptionId : undefined,
+      error ? errorId : undefined
+    ]
+      .filter(Boolean)
+      .join(' ') || undefined
+  const required = !control?.props.disabled && !control?.props.readOnly && (requiredOverride ?? control?.props.required)
   return (
     <label className='grid min-w-0 content-start gap-1.5 text-sm font-medium'>
       <span>
@@ -27,9 +58,23 @@ export function AdminField({ label, children, error }: { label: string; children
         )}
       </span>
       {control && typeof control.type === 'string'
-        ? cloneElement(control, { 'aria-label': control.props['aria-label'] ?? label })
-        : children}
-      {error && <span className='min-h-5 text-xs text-danger'>{error}</span>}
+        ? cloneElement(control, {
+            'aria-label': control.props['aria-label'] ?? label,
+            'aria-describedby': describedBy
+          })
+        : control
+          ? cloneElement(control, { descriptionId: describedBy })
+          : children}
+      {description && (
+        <span id={descriptionId} className='text-xs font-normal leading-relaxed text-muted-foreground'>
+          {description}
+        </span>
+      )}
+      {error && (
+        <span id={errorId} className='min-h-5 text-xs text-danger'>
+          {error}
+        </span>
+      )}
     </label>
   )
 }

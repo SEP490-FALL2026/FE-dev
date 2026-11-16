@@ -32,6 +32,7 @@ beforeEach(async () => {
           items: [
             {
               requestId: 'request-1',
+              state: 'WAITING',
               type: 'GRANT',
               stock: { ...stock },
               expectedEndDate: null,

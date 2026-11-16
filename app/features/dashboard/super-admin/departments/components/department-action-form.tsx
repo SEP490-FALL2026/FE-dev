@@ -47,7 +47,6 @@ export function DepartmentActionForm({
   ].join('-')
   return (
     <AdminFormDialog
-      wide={person}
       danger={action === 'deactivate'}
       title={translate(`actions.${action}`)}
       onClose={onClose}

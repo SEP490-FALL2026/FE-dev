@@ -89,7 +89,7 @@ export function RenewalOutcomeDialog({
           {translate('cancelBlocked', { count: renewal.period.seatsInUse })}
         </p>
       )}
-      <ItField label={translate('outcomeNote')}>
+      <ItField label={translate('outcomeNote')} hint={translate('fieldHints.outcomeNote')}>
         <textarea
           name='note'
           required={needsNote}
@@ -113,7 +113,7 @@ export function RenewalOutcomeDialog({
       {showPeriod && (
         <fieldset className='grid gap-4 sm:grid-cols-2'>
           <legend className='mb-3 font-semibold'>{translate('nextPeriod')}</legend>
-          <ItField label={translate('purchasedQuantity')}>
+          <ItField label={translate('purchasedQuantity')} hint={translate('fieldHints.purchasedQuantity')}>
             <input
               name='purchasedQuantity'
               type='number'
@@ -135,33 +135,35 @@ export function RenewalOutcomeDialog({
               if (next) setBillingCycle(next)
             }}
           />
-          <ItField label={translate('amount')}>
+          <ItField label={translate('amount')} hint={translate('fieldHints.amount')}>
             <input
               name='amount'
               required
-              inputMode='decimal'
-              pattern='[0-9]+([.][0-9]+)?'
+              inputMode='numeric'
+              pattern='[0-9]{1,16}'
               placeholder={translate('amountPlaceholder')}
               className={itInputClass}
             />
           </ItField>
-          <ItField label={translate('currency')}>
+          <ItField label={translate('currency')} hint={translate('fieldHints.currency')}>
             <input
               name='currency'
               required
               minLength={3}
               maxLength={3}
-              pattern='[A-Za-z]{3}'
+              pattern='VND'
+              value='VND'
+              readOnly
               placeholder={translate('currencyPlaceholder')}
               className={itInputClass}
             />
           </ItField>
           {(['startDate', 'endDate', 'renewalDate', 'noticeDeadline'] as const).map((key) => (
-            <ItField key={key} label={translate(key)}>
+            <ItField key={key} label={translate(key)} hint={translate(`fieldHints.${key}`)}>
               <input name={key} type='date' required={key === 'startDate'} className={itInputClass} />
             </ItField>
           ))}
-          <ItField label={translate('noticePeriodDays')}>
+          <ItField label={translate('noticePeriodDays')} hint={translate('fieldHints.noticePeriodDays')}>
             <input
               name='noticePeriodDays'
               type='number'

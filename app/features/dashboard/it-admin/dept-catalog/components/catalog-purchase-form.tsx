@@ -1,7 +1,6 @@
 import { CatalogProvisioningType } from '../enums/provisioning-type'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { DeclarePlanBodyDtoPricingModel } from '~/shared/api/generated/model/plans/declarePlanBodyDtoPricingModel'
 import { DeclarePlanBodyDtoControlLevel } from '~/shared/api/generated/model/plans/declarePlanBodyDtoControlLevel'
 import { DeclareSubscriptionBodyDtoKind } from '~/shared/api/generated/model/subscriptions/declareSubscriptionBodyDtoKind'
 import { usePlanCreate } from '~/shared/api/generated/operations/plans/plan-create'
@@ -12,6 +11,7 @@ import { ItField, ItFormDialog, itInputClass } from '../../shared/components/it-
 import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
 import { uuidPattern } from './catalog-application-form'
 import { ItDirectoryLookup } from '../../shared/components/it-directory-lookup'
+import { usePlanGet } from '~/shared/api/generated/operations/plans/plan-get'
 export function CatalogPurchaseForm({
   mode,
   applicationId,
@@ -28,6 +28,10 @@ export function CatalogPurchaseForm({
   const { t: translate } = useTranslation('itCatalog')
   const [selectedType, setSelectedType] = useState('')
   const [departmentId, setDepartmentId] = useState('')
+  const selectedPlan = usePlanGet(planId ?? '', { query: { enabled: mode === 'subscription' && !!planId } })
+  const sharedPool =
+    selectedPlan.data?.data?.provisioningType === 'K2' || selectedPlan.data?.data?.provisioningType === 'K4'
+  const perpetualOnly = selectedPlan.data?.data?.provisioningType === 'K4'
   const feedback = useItMutationFeedback([getPlanListQueryKey(), getSubscriptionListQueryKey()], onClose)
   const plan = usePlanCreate({ mutation: feedback })
   const subscription = useSubscriptionCreate({ mutation: feedback })
@@ -46,9 +50,6 @@ export function CatalogPurchaseForm({
             (value) => value === values.get('provisioning')
           )
           const name = String(values.get('name') ?? '').trim()
-          const pricingModel = Object.values(DeclarePlanBodyDtoPricingModel).find(
-            (value) => value === values.get('pricingModel')
-          )
           const controlLevel = Object.values(DeclarePlanBodyDtoControlLevel).find(
             (value) => value === values.get('controlLevel')
           )
@@ -58,7 +59,7 @@ export function CatalogPurchaseForm({
                 applicationId,
                 name,
                 provisioningType,
-                ...(provisioningType !== 'K5' ? { pricingModel, controlLevel } : {})
+                ...(provisioningType !== 'K5' ? { controlLevel } : {})
               }
             })
         } else if (planId) {
@@ -68,7 +69,7 @@ export function CatalogPurchaseForm({
             subscription.mutate({
               data: {
                 planId,
-                ownerDepartmentId: String(values.get('department')).trim(),
+                ...(!sharedPool && departmentId ? { ownerDepartmentId: departmentId } : {}),
                 kind,
                 ...(quantity ? { purchasedQuantity: Number(quantity) } : {})
               }
@@ -115,12 +116,7 @@ export function CatalogPurchaseForm({
           </fieldset>
           {selectedType && selectedType !== 'K5' && (
             <>
-              {(
-                [
-                  ['pricingModel', DeclarePlanBodyDtoPricingModel],
-                  ['controlLevel', DeclarePlanBodyDtoControlLevel]
-                ] as const
-              ).map(([key, options]) => (
+              {([['controlLevel', DeclarePlanBodyDtoControlLevel]] as const).map(([key, options]) => (
                 <fieldset key={key}>
                   <legend>{translate(key)}</legend>
                   <p className='text-xs font-normal text-muted-foreground'>{translate(`help.${key}`)}</p>
@@ -137,27 +133,30 @@ export function CatalogPurchaseForm({
         </>
       ) : (
         <>
-          <ItField label={translate('department')} hint={translate('help.department')}>
-            <input
-              placeholder={translate('placeholders.departmentId')}
-              name='department'
-              required
-              pattern={uuidPattern}
-              value={departmentId}
-              onChange={(event) => setDepartmentId(event.target.value)}
-              className={itInputClass}
-            />
-          </ItField>
-          <ItDirectoryLookup mode='department' onSelect={setDepartmentId} />
+          {!sharedPool && (
+            <ItField label={translate('department')} hint={translate('help.department')}>
+              <input
+                placeholder={translate('placeholders.departmentId')}
+                name='department'
+                pattern={uuidPattern}
+                value={departmentId}
+                onChange={(event) => setDepartmentId(event.target.value)}
+                className={itInputClass}
+              />
+            </ItField>
+          )}
+          {!sharedPool && <ItDirectoryLookup mode='department' onSelect={setDepartmentId} />}
           <fieldset>
             <legend>{translate('subscriptionKind')}</legend>
             <p className='text-xs font-normal text-muted-foreground'>{translate('help.subscriptionKind')}</p>
-            {Object.values(DeclareSubscriptionBodyDtoKind).map((value) => (
-              <label key={value} className='mr-4 inline-flex min-h-11 items-center gap-2'>
-                <input type='radio' required name='kind' value={value} />
-                {translate(`enums.${value}`)}
-              </label>
-            ))}
+            {Object.values(DeclareSubscriptionBodyDtoKind)
+              .filter((value) => !perpetualOnly || value === 'PERPETUAL')
+              .map((value) => (
+                <label key={value} className='mr-4 inline-flex min-h-11 items-center gap-2'>
+                  <input type='radio' required name='kind' value={value} />
+                  {translate(`enums.${value}`)}
+                </label>
+              ))}
           </fieldset>
           <ItField label={translate('quantity')} hint={translate('help.quantity')}>
             <input

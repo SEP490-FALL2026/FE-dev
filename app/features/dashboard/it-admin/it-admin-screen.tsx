@@ -15,6 +15,10 @@ import { ItDevicesView } from './device-collectors/views/it-devices-view'
 import { TaskScope } from './provisioning/enums/task-scope'
 import { ItOptimizationView } from './optimization/it-optimization-view'
 import { ItSharedStockView } from './shared-stock/it-shared-stock-view'
+import { ItUsageView } from './usage/views/it-usage-view'
+import { ItDepartmentSoftwareView } from './dept-catalog/views/it-department-software-view'
+import { ItInvoicesView } from './purchases/views/it-invoices-view'
+import { ItReconciliationView } from './reconciliation/views/it-reconciliation-view'
 
 export function ItAdminScreen({
   tab,
@@ -52,7 +56,7 @@ function ItAdminContent({
           initialTaskId={itemId}
           initialScope={params.get('scope') === 'ALL' ? TaskScope.ALL : TaskScope.MINE}
           initialQueue={
-            params.get('queue') === 'grants' ? 'grants' : params.get('queue') === 'expiry' ? 'expiry' : 'tasks'
+            params.get('queue') === 'tasks' ? 'tasks' : params.get('queue') === 'expiry' ? 'expiry' : 'grants'
           }
           onSelectTab={onSelectTab}
         />
@@ -66,6 +70,8 @@ function ItAdminContent({
           initialView={params.get('view') === 'terms' ? 'terms' : 'applications'}
         />
       )
+    case 'department-software':
+      return <ItDepartmentSoftwareView />
     case 'offboarding':
       return (
         <ItOffboardingView
@@ -93,6 +99,12 @@ function ItAdminContent({
       )
     case 'purchase-documents':
       return <ItPurchaseDocumentsView />
+    case 'purchase-invoices':
+      return <ItInvoicesView />
+    case 'reconciliation':
+      return <ItReconciliationView />
+    case 'usage-import':
+      return <ItUsageView />
     case 'transfers':
       return <ItTransfersView key={itemId ?? tab} initialId={itemId} />
     case 'shadow-it':

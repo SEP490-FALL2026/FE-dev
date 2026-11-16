@@ -1,4 +1,18 @@
 export const itPurchases = {
+  listTitle: 'Danh sách hợp đồng',
+  vendor: 'Nhà cung cấp',
+  vendorHint: 'Chọn nhà cung cấp đã có trong danh mục.',
+  startDate: 'Ngày bắt đầu hiệu lực',
+  startDateHint: 'Chọn ngày hợp đồng bắt đầu có hiệu lực.',
+  contractListHint: 'Chọn hợp đồng để xem các thuê bao và chứng từ liên quan.',
+  subscriptions: 'Thuê bao liên kết',
+  documents: 'Tệp đính kèm',
+  contractStates: {
+    INCOMPLETE: 'Thiếu thông tin',
+    NOT_YET_EFFECTIVE: 'Chưa có hiệu lực',
+    ACTIVE: 'Đang có hiệu lực',
+    EXPIRED: 'Đã hết hạn'
+  },
   back: 'Quay lại',
   help: {
     name: 'Dùng tên thỏa thuận trên hợp đồng đã ký để dễ nhận diện về sau.',
@@ -13,8 +27,8 @@ export const itPurchases = {
   namePlaceholder: 'Ví dụ: Hợp đồng Workspace theo năm',
   contractId: 'Mã hợp đồng',
   documentId: 'Mã chứng từ',
-  contractPlaceholder: 'Nhập UUID hợp đồng đã lưu',
-  documentPlaceholder: 'Nhập UUID chứng từ đã lưu',
+  contractPlaceholder: 'Nhập mã định danh hợp đồng đã lưu',
+  documentPlaceholder: 'Nhập mã định danh chứng từ đã lưu',
   openContract: 'Mở hợp đồng',
   openDocument: 'Mở chứng từ',
   lookupHint: 'Dùng mã tham chiếu đã lưu để mở hợp đồng hoặc chứng từ.',

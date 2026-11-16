@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { useId } from 'react'
 import type { ParameterListResponseDtoDataItemsItem } from '~/shared/api/generated/model/operating-parameters'
 import { AdminField, adminInputClass } from '../../shared/components/admin-form'
+import { useParameterPresentation } from '../hooks/use-parameter-presentation'
 
 export function ParameterInput({
   parameter,
@@ -18,10 +19,17 @@ export function ParameterInput({
   const constraintsId = useId()
   const errorId = useId()
   const constraints = parameter.constraints
+  const presentation = useParameterPresentation()
   if (constraints?.kind === 'enum')
     return (
       <fieldset className='space-y-2' aria-invalid={invalid} aria-describedby={invalid ? errorId : undefined}>
-        <legend className='text-sm font-medium'>{translate('parameters.value')}</legend>
+        <legend className='text-sm font-medium'>
+          {translate('parameters.value')}
+          <span className='ml-1 text-danger' aria-hidden>
+            *
+          </span>
+        </legend>
+        <p className='text-xs text-muted-foreground'>{presentation.description(parameter.key)}</p>
         <div className='flex flex-wrap gap-2'>
           {constraints.options.map((option) => (
             <label
@@ -30,13 +38,14 @@ export function ParameterInput({
             >
               <input
                 type='radio'
+                required
                 name='parameterValue'
                 value={option}
                 checked={value === option}
                 onChange={() => onChange(option)}
                 className='accent-primary'
               />
-              {constraints.optionLabels[option] ?? option}
+              {presentation.option(option, constraints.optionLabels)}
             </label>
           ))}
         </div>

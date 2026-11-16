@@ -116,7 +116,14 @@ function ItHandoverDialog({
     >
       <p className='text-sm text-muted-foreground [text-wrap:pretty]'>{translate('itHandover.dialogHint')}</p>
       <ItQueryState query={admins}>
-        <ItChoiceSelect label={translate('itHandover.target')} value={target} options={options} onChange={setTarget} />
+        <ItChoiceSelect
+          label={translate('itHandover.target')}
+          required
+          hint={translate('itHandover.dialogHint')}
+          value={target}
+          options={options}
+          onChange={setTarget}
+        />
         <ItPagination
           page={page}
           pageSize={20}

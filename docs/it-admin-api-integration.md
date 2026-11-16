@@ -1,5 +1,7 @@
 # IT Admin: API integration
 
+Current alignment (16/11/2026): use the live Swagger through `orval.config.ts`, with the 423-operation backend guide. See [current mappings, workflow differences and verification limits](reviews/2026-11-16-it-admin-guide-alignment.md). The sections below record the earlier integration and may mention endpoints or limitations that have since changed.
+
 Implementation uses `openapi/openapi.yaml` and the Orval-generated operations. On 03/11/2026 the live OpenAPI contained 302 operations and was identical to the existing local snapshot; this change did not edit or regenerate the contract. Flow/reference documentation is under `../docs/Figma UI-UX/API-Integration/`. The current review and verification are recorded in [03/11 contract and UI review](reviews/2026-11-03-it-admin-contract-ui-review.md); verification further below describes the earlier integration.
 
 ## Supported screens

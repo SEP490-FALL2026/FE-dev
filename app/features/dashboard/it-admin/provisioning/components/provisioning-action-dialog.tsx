@@ -57,7 +57,8 @@ export function ProvisioningActionDialog({
   const [accessCutOn, setAccessCutOn] = useState('')
   const [accessEvidence, setAccessEvidence] = useState('')
   const [k1Ticks, setK1Ticks] = useState<K1ChecklistTicks>({})
-  const completesK1 = action === 'revocation' && completion === 'RENEWAL_CANCELLED'
+  const grantsK1 = action === 'complete' && task.kind === 'GRANT' && task.plan?.provisioningType === 'K1'
+  const completesK1 = grantsK1 || (action === 'revocation' && completion === 'RENEWAL_CANCELLED')
   // The server decides the steps (5 or 6 for a departure, 2 otherwise) and they can change while another K1 seat
   // of the same person is revoked, so the card is always read again before completing.
   const card = api.useProvisioningTaskGet(task.id, { query: { enabled: completesK1, staleTime: 0 } })
@@ -85,6 +86,7 @@ export function ProvisioningActionDialog({
         case 'complete':
           return api.provisioningTaskComplete(id, {
             evidence: evidence.trim(),
+            ...(grantsK1 && k1Template ? { k1Checklist: buildK1Checklist(k1Template, k1Ticks) } : {}),
             ...(needsKey ? { licenseKeyId: keyId } : {})
           })
         case 'failure':
@@ -135,7 +137,8 @@ export function ProvisioningActionDialog({
       onClose={onClose}
       onSubmit={(event) => {
         event.preventDefault()
-        if (!mutation.isPending) mutation.mutate()
+        if (!mutation.isPending && !(completesK1 && (card.isFetching || card.isError || !k1Template || k1Problem)))
+          mutation.mutate()
       }}
       pending={mutation.isPending}
       submitLabel={translate('confirm')}
@@ -152,10 +155,15 @@ export function ProvisioningActionDialog({
           keyDisposition === 'WITHDRAW' &&
           !withdrawalReason.trim()) ||
         (action === 'revocation' && completion === 'ALREADY_GONE' && !note.trim()) ||
-        (completesK1 && (card.isFetching || Boolean(k1Problem)))
+        (completesK1 && (card.isFetching || card.isError || !k1Template || Boolean(k1Problem)))
       }
     >
       <p className='text-sm text-muted-foreground'>{translate(action === 'cancel' ? 'cancelHint' : 'confirmHint')}</p>
+      {grantsK1 && (
+        <ItQueryState query={card}>
+          {k1Template && <K1ChecklistFields template={k1Template} ticks={k1Ticks} onChange={setK1Ticks} />}
+        </ItQueryState>
+      )}
       {needsKey &&
         (task.subscriptionId ? (
           <ItQueryState query={keys}>
@@ -228,7 +236,7 @@ export function ProvisioningActionDialog({
         </>
       )}
       {needsEvidence && (
-        <ItField label={translate('evidence')}>
+        <ItField label={translate('evidence')} hint={translate('fieldHints.evidence')}>
           <textarea
             className={itInputClass}
             required
@@ -240,7 +248,7 @@ export function ProvisioningActionDialog({
         </ItField>
       )}
       {['failure', 'closeFailed'].includes(action) && (
-        <ItField label={translate('reason')}>
+        <ItField label={translate('reason')} hint={translate('fieldHints.reason')}>
           <textarea
             className={itInputClass}
             required
@@ -252,7 +260,7 @@ export function ProvisioningActionDialog({
         </ItField>
       )}
       {action === 'revocation' && completion === 'ALREADY_GONE' && (
-        <ItField label={translate('note')}>
+        <ItField label={translate('note')} hint={translate('fieldHints.note')}>
           <textarea
             required
             className={itInputClass}
@@ -265,7 +273,7 @@ export function ProvisioningActionDialog({
       )}
       {action === 'revocation' && completion === 'RENEWAL_CANCELLED' && (
         <>
-          <ItField label={translate('paidThroughOn')}>
+          <ItField label={translate('paidThroughOn')} hint={translate('fieldHints.paidThroughOn')}>
             <input
               required
               type='date'
@@ -286,7 +294,7 @@ export function ProvisioningActionDialog({
             }}
           />
           {accessState === 'CUT' && (
-            <ItField label={translate('accessEvidence')}>
+            <ItField label={translate('accessEvidence')} hint={translate('fieldHints.accessEvidence')}>
               <textarea
                 required
                 maxLength={2000}
@@ -302,7 +310,7 @@ export function ProvisioningActionDialog({
       )}
       {(action === 'accessCut' ||
         (action === 'revocation' && completion === 'RENEWAL_CANCELLED' && accessState === 'CUT')) && (
-        <ItField label={translate('accessCutOn')}>
+        <ItField label={translate('accessCutOn')} hint={translate('fieldHints.accessCutOn')}>
           <input
             required
             type='date'

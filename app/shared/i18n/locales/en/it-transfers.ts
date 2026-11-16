@@ -15,6 +15,7 @@ export const itTransfers = {
   effectiveFrom: 'Effective from',
   effectiveTo: 'Effective to',
   graceEndsBefore: 'Grace ends before',
+  graceEndsFrom: 'Grace ends from',
   graceEndsBeforeHint: 'Transfers whose grace period ends before this day (the day itself excluded).',
   graceEndsOn: 'Grace period ends',
   graceReminderOn: 'Reminder sent on',
@@ -22,6 +23,15 @@ export const itTransfers = {
   commitmentsReleased: 'Returned to the old department’s budget',
   applyFilters: 'Apply filters',
   closedAt: 'Closed on {{at}}',
+  cancelledAt: 'Cancelled on {{at}}',
+  viewRevocationTask: 'View revocation task',
+  accessMethods: {
+    K1: 'Personal account',
+    K2: 'Workspace seat',
+    K3: 'Shared account',
+    K4: 'License key',
+    K5: 'Manual access'
+  },
   closedBySystem: 'Closed by the system on {{at}}',
   supersededAt: 'Taken over by a departure case on {{at}}; its revocation deadline applies to the old rights',
   unknown: 'Not available',

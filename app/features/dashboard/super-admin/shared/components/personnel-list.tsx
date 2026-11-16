@@ -18,7 +18,7 @@ export function PersonnelCard({
   const { t: translate } = useTranslation('adminPersonnel')
   return (
     <article className='rounded-lg border border-border bg-surface p-4'>
-      <div className='flex items-start justify-between gap-3'>
+      <div className='flex flex-wrap items-start justify-between gap-3'>
         <h3 className='min-w-0 truncate font-semibold' title={title}>
           {title}
         </h3>

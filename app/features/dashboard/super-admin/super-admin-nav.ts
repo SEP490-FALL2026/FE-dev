@@ -1,4 +1,4 @@
-import { Activity, BellRing, Building2, FileClock, Grid2X2, Settings, UserCheck } from 'lucide-react'
+import { Activity, BellRing, BookOpen, Building2, FileClock, Grid2X2, Settings, UserCheck, Users } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 export const SUPER_ADMIN_TAB_KEYS = [
@@ -7,6 +7,8 @@ export const SUPER_ADMIN_TAB_KEYS = [
   'accounts',
   'personnel',
   'reminders',
+  'policies',
+  'ghost-seats',
   'settings',
   'operations',
   'audit-trail'
@@ -35,6 +37,11 @@ export const superAdminNavItems: SuperAdminNavItem[] = [
     translationKey: 'departments'
   },
   {
+    icon: Users,
+    key: 'accounts',
+    translationKey: 'accounts'
+  },
+  {
     icon: UserCheck,
     key: 'personnel',
     translationKey: 'personnel'
@@ -44,7 +51,13 @@ export const superAdminNavItems: SuperAdminNavItem[] = [
     key: 'reminders',
     translationKey: 'reminders'
   },
+  {
+    icon: BookOpen,
+    key: 'policies',
+    translationKey: 'policies'
+  },
   { icon: Activity, key: 'operations', translationKey: 'operations' },
+  { icon: Activity, key: 'ghost-seats', translationKey: 'ghost-seats' },
   { icon: Settings, key: 'settings', translationKey: 'settings' },
   { icon: FileClock, key: 'audit-trail', translationKey: 'audit-trail' }
 ]

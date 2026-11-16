@@ -18,7 +18,7 @@ export function AssessmentQuote({
         type='button'
         onClick={() => {
           setEnabled(true)
-          onChange(quote ?? { unitPrice: { amount: '', currency: '' }, billingCycle: 'MONTHLY', validFrom: '' })
+          onChange(quote ?? { unitPrice: { amount: '', currency: 'VND' }, billingCycle: 'MONTHLY', validFrom: '' })
         }}
       >
         {translate('quote.edit')}
@@ -30,6 +30,7 @@ export function AssessmentQuote({
               <ItField key={key} label={translate(`quote.${key}`)}>
                 <input
                   className={itInputClass}
+                  readOnly={key === 'currency'}
                   required={key === 'amount' || key === 'currency' || key === 'validFrom'}
                   type={key === 'validFrom' || key === 'validUntil' ? 'date' : 'text'}
                   maxLength={key === 'amount' ? 40 : key === 'currency' ? 3 : undefined}

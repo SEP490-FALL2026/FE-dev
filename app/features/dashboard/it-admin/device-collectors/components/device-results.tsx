@@ -7,7 +7,7 @@ import { useMyDeviceToolStatusList } from '~/shared/api/generated/operations/ai-
 import { useDeviceIntakeRejectionList } from '~/shared/api/generated/operations/intake-rejections/device-intake-rejection-list'
 import { DeviceIntakeRejectionListReasonCode } from '~/shared/api/generated/model/intake-rejections/deviceIntakeRejectionListReasonCode'
 import { useWorkspaceFormat } from '~/shared/hooks/use-workspace-format'
-import { ItDetailDialog } from '../../shared/components/it-detail-dialog'
+import { DevicePage } from './device-page'
 import { ItField, itInputClass } from '../../shared/components/it-form'
 import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { ItPagination } from '../../shared/components/it-pagination'
@@ -25,7 +25,7 @@ export function DeviceResults({
 }) {
   const { t: translate } = useTranslation('itDevices')
   return (
-    <ItDetailDialog title={translate(kind)} onClose={onClose}>
+    <DevicePage title={translate(kind)} backLabel={translate('backToDevice')} onBack={onClose}>
       {kind === 'usage' ? (
         <Usage id={id} mine={mine} />
       ) : kind === 'status' ? (
@@ -33,7 +33,7 @@ export function DeviceResults({
       ) : !mine ? (
         <Rejections id={id} />
       ) : null}
-    </ItDetailDialog>
+    </DevicePage>
   )
 }
 
@@ -88,10 +88,13 @@ function Usage({ id, mine }: { id: string; mine: boolean }) {
                   )}
                 </p>
                 <p className='text-xs text-muted-foreground'>{formatDate(item.date)}</p>
+                {item.coverage === 'PARTIAL' && (
+                  <p className='text-xs text-muted-foreground'>{translate('partialCoverage')}</p>
+                )}
                 {item.coverage === 'NOT_OBSERVABLE' ? (
                   <p>{translate('noData')}</p>
                 ) : (
-                  <dl className='grid grid-cols-2 gap-3'>
+                  <dl className='grid grid-cols-2 gap-3 text-right'>
                     <div>
                       <dt className='text-muted-foreground'>{translate('responses')}</dt>
                       <dd className='font-mono tabular-nums'>{formatNumber(item.responses)}</dd>
@@ -150,7 +153,9 @@ function ToolStatus({ id, mine }: { id: string; mine: boolean }) {
                 </div>
                 <div>
                   <dt className='text-muted-foreground'>{translate('usedPercent')}</dt>
-                  <dd>{item.usedPercent === null ? translate('noData') : formatPercent(item.usedPercent / 100)}</dd>
+                  <dd className='text-right font-mono tabular-nums'>
+                    {item.usedPercent == null ? translate('noData') : formatPercent(item.usedPercent / 100)}
+                  </dd>
                 </div>
                 <div>
                   <dt className='text-muted-foreground'>{translate('resetsAt')}</dt>
@@ -185,7 +190,7 @@ function Rejections({ id }: { id: string }) {
   const data = query.data?.data
   return (
     <div className='space-y-4'>
-      <ItField label={translate('reasonCode')}>
+      <ItField label={translate('reasonCode')} hint={translate('hints.reasonCode')}>
         <select
           className={itInputClass}
           value={reasonCode ?? ''}

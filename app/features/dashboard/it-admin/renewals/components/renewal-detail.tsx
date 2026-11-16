@@ -7,7 +7,6 @@ import { itButtonClass, itPrimaryClass } from '../../shared/components/it-form'
 import { RenewalOutcomeDialog } from './renewal-outcome-dialog'
 import { RenewalSeatRanking } from './renewal-seat-ranking'
 import { RenewalState } from '../enums/renewal-state'
-import { ItDetailDialog } from '../../shared/components/it-detail-dialog'
 
 export function RenewalDetail({ id, onBack }: { id: string; onBack: () => void }) {
   const { t: translate } = useTranslation('itRenewals')
@@ -17,6 +16,16 @@ export function RenewalDetail({ id, onBack }: { id: string; onBack: () => void }
   const [outcomeOpen, setOutcomeOpen] = useState(false)
   const [rankingOpen, setRankingOpen] = useState(false)
   if (outcomeOpen && item) return <RenewalOutcomeDialog renewal={item} onClose={() => setOutcomeOpen(false)} />
+  if (rankingOpen)
+    return (
+      <section className='space-y-5'>
+        <button type='button' className={itButtonClass} onClick={() => setRankingOpen(false)}>
+          {translate('back')}
+        </button>
+        <h1 className='text-2xl font-semibold'>{translate('ranking')}</h1>
+        <RenewalSeatRanking id={id} />
+      </section>
+    )
   return (
     <section className='space-y-5'>
       <button type='button' className={itButtonClass} onClick={onBack}>
@@ -133,11 +142,6 @@ export function RenewalDetail({ id, onBack }: { id: string; onBack: () => void }
             >
               {translate('ranking')}
             </button>
-            {rankingOpen && (
-              <ItDetailDialog title={translate('ranking')} onClose={() => setRankingOpen(false)}>
-                <RenewalSeatRanking id={id} />
-              </ItDetailDialog>
-            )}
           </>
         ) : (
           <ItEmpty />

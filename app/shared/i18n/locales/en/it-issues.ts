@@ -1,5 +1,10 @@
 export const itIssues = {
   title: 'SaaS issues',
+  fieldHints: {
+    duplicateId: 'Enter the reference of the existing issue that describes the same incident.',
+    vendorTicket: 'Enter the vendor support ticket reference if one was created.',
+    message: 'Describe the issue or update. Do not include passwords or secret keys.'
+  },
   scope: 'Scope',
   assigned: 'Assigned to me',
   allIssues: 'All reports',

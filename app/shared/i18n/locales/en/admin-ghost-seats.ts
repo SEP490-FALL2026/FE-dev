@@ -1,0 +1,103 @@
+export const adminGhostSeats = {
+  title: 'Unused seat oversight',
+  subtitle: 'Set application thresholds, review manager decisions and inspect detection runs.',
+  sections: { thresholds: 'Application thresholds', decisions: 'Decisions and acceptance', runs: 'Detection runs' },
+  back: 'Back to detection runs',
+  thresholds: {
+    title: 'Application thresholds',
+    add: 'Set application thresholds',
+    edit: 'Edit thresholds for {{name}}',
+    restore: 'Restore defaults for {{name}}',
+    restoreTitle: 'Restore defaults',
+    restoreHelp: 'This application will use organization thresholds from the next weekly scan.',
+    future:
+      'Threshold changes apply from the next weekly scan. Applications without an override use organization settings.',
+    monitorDays: 'Start monitoring after',
+    reviewDays: 'Ask manager to review after',
+    actionDays: 'Mark for action after',
+    daysHelp: 'Whole calendar days without activity, from 1 to 365.',
+    days: '{{count}} days',
+    invalid: 'Enter three whole numbers from 1 to 365, in increasing order.',
+    department: 'Department',
+    departmentHelp: 'Select a department to browse its software list. Existing overrides can also be edited directly.',
+    application: 'Application',
+    applicationHelp:
+      'Select software from this department. Ask its IT Admin to add missing software to the department list.',
+    choose: 'Choose an option',
+    currentSelection: 'Selected department',
+    chooseDepartment: 'Select a department first.',
+    updated: 'Updated {{date}}',
+    sequence: 'Monitor {{monitor}} · Review {{review}} · Action {{action}} days'
+  },
+  decisions: {
+    scope: 'Decision scope',
+    scopeHelp: 'Review all decisions or decisions managers made about their own seats.',
+    all: 'All decisions',
+    self: 'Decisions about own seat',
+    other: 'Decisions about other seats',
+    own: 'Manager decided about their own seat',
+    reason: 'Reason',
+    exemption: 'Exempt until {{date}}',
+    choice: { KEEP: 'Keep access', RECLAIM: 'Reclaim access', EXEMPT: 'Grant exemption' }
+  },
+  acceptance: {
+    title: 'Recommendation acceptance',
+    from: 'From date',
+    to: 'To date',
+    dateHelp: 'Choose an inclusive calendar date for this report.',
+    apply: 'Apply period',
+    total: 'Overall acceptance',
+    fraction: '{{accepted}} accepted of {{total}} recommendations',
+    unavailable: 'No recommendations in this period',
+    dateInvalid: 'The end date must be on or after the start date.',
+    internal: 'Internal system records',
+    groups: {
+      G1: 'Unassigned subscription seats',
+      G2: 'Seats held by former employees',
+      G3: 'Seats never used',
+      G4: 'Seats no longer used'
+    }
+  },
+  runs: {
+    rules: 'Rules to run',
+    rulesHelp: 'Choose internal records, usage evidence or both. Existing open recommendations are updated.',
+    both: 'All detection rules',
+    internal: 'Internal records',
+    usage: 'Usage evidence',
+    run: 'Run now',
+    routing: 'New recommendations are sent to managers by the hourly routing job.',
+    status: { RUNNING: 'Running', COMPLETED: 'Completed', FAILED: 'Failed' },
+    count: '{{created}} created · {{updated}} updated · {{closed}} closed · {{skipped}} skipped · {{failed}} failed',
+    attempt: 'Attempt {{count}}',
+    skips: 'View skip reasons',
+    skipsTitle: 'Skipped subjects',
+    noAutomaticReclaim: 'Detection identifies recommendations. Managers decide and IT Admins carry out revocation.',
+    subject: { SUBSCRIPTION: 'Subscription', ASSIGNMENT: 'Seat assignment' },
+    detail: {
+      pricingModel: 'Pricing model',
+      provisioningType: 'Provisioning method',
+      reason: 'Reason',
+      coverageDays: 'Days covered',
+      requiredDays: 'Days required',
+      until: 'Until',
+      sourceName: 'Usage source'
+    },
+    gates: {
+      PER_SEAT: 'Not billed by seat',
+      INTERNAL_SOFTWARE: 'Internal software',
+      OPEN_RECOMMENDATION: 'Recommendation already open',
+      SERVICE_ACCOUNT: 'Service account',
+      LEAVE_OR_HANDOVER: 'Leave or departure handover',
+      NOT_USABLE: 'Not usable',
+      NEW_ASSIGNMENT: 'Recently assigned',
+      COVERAGE: 'Insufficient coverage',
+      STALE_SOURCE: 'Usage source out of date',
+      EXEMPT: 'Active exemption',
+      TIME_BOUND_ENDING: 'Access ending soon',
+      REVOCATION_IN_PROGRESS: 'Revocation in progress',
+      NO_DATA: 'No usage data',
+      UNMATCHED_IDENTITY: 'Identity not matched',
+      INSUFFICIENT_EVIDENCE: 'Insufficient evidence'
+    }
+  }
+}

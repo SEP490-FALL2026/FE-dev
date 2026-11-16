@@ -59,12 +59,13 @@ export function K1ChecklistFields({
       <ol className='space-y-2'>
         {orderedItems(template).map((item) => {
           const doneAt = ticks[item.code]
-          const label = translate(`k1Checklist.steps.${item.code}`, { defaultValue: item.label })
+          const label = translate(`k1Checklist.steps.${item.code}`, { defaultValue: translate('unavailable') })
           return (
             <li key={item.code} className='grid gap-2 sm:grid-cols-[1fr_auto] sm:items-center'>
               <label className='flex items-start gap-2 text-sm'>
                 <input
                   type='checkbox'
+                  required
                   className='mt-0.5'
                   checked={Boolean(doneAt)}
                   onChange={(event) =>
@@ -74,6 +75,9 @@ export function K1ChecklistFields({
                 <span>
                   <span className='font-mono tabular-nums text-muted-foreground'>{item.order}. </span>
                   {label}
+                  <span aria-hidden='true' className='ml-1 text-danger'>
+                    *
+                  </span>
                 </span>
               </label>
               <input

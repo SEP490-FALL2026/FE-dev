@@ -19,6 +19,7 @@ it('requires a reason before buying when shared stock is being reclaimed', async
           items: [
             {
               requestId: 'request-1',
+              state: 'WAITING',
               type: 'GRANT',
               beneficiary: { employeeId: 'employee-1', fullName: 'Employee' },
               plan: { planId: 'plan-1', applicationName: 'Workspace', planName: 'Business' },

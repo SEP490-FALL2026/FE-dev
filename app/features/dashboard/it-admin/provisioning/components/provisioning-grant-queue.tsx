@@ -14,13 +14,18 @@ import {
   subscriptionList,
   getSubscriptionListQueryKey
 } from '~/shared/api/generated/operations/subscriptions/subscription-list'
-import type { GrantQueueResponseDtoDataItemsItem, GrantBodyDto } from '~/shared/api/generated/model'
+import type {
+  GrantQueueResponseDtoDataItemsItem,
+  GrantBodyDto,
+  GrantQueueListState
+} from '~/shared/api/generated/model'
 import { ItEmpty, ItQueryState } from '../../shared/components/it-query-state'
 import { ItPagination } from '../../shared/components/it-pagination'
 import { ItField, ItFormDialog, itInputClass, itButtonClass } from '../../shared/components/it-form'
 import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
 import { BoundaryState } from '../enums/boundary-state'
 import { grantStockDecision } from '../grant-stock'
+import { ItDirectoryLookup } from '../../shared/components/it-directory-lookup'
 
 function GrantDialog({
   request,
@@ -144,7 +149,7 @@ function GrantDialog({
           />
         )}
       </ItQueryState>
-      <ItField label={translate('account')}>
+      <ItField label={translate('account')} hint={translate('accountHint')}>
         <input
           className={itInputClass}
           maxLength={254}
@@ -161,14 +166,8 @@ function GrantDialog({
         </p>
       )}
       {request.type === 'SERVICE_ACCOUNT' && (
-        <ItField label={translate('responsibleEmployeeId')}>
-          <input
-            className={itInputClass}
-            pattern='[0-9a-fA-F-]{36}'
-            placeholder={translate('placeholders.employeeId')}
-            value={draft.responsibleEmployeeId ?? ''}
-            onChange={(event) => update('responsibleEmployeeId', event.target.value)}
-          />
+        <ItField label={translate('responsibleEmployeeId')} hint={translate('responsibleEmployeeHint')}>
+          <ItDirectoryLookup mode='employee' onSelect={(id) => update('responsibleEmployeeId', id)} />
         </ItField>
       )}
     </ItFormDialog>
@@ -180,10 +179,12 @@ export function ProvisioningGrantQueue({ onCreated }: { onCreated: (id: string) 
   const [page, setPage] = useState(1)
   const [employee, setEmployee] = useState('')
   const [filter, setFilter] = useState('')
+  const [state, setState] = useState<GrantQueueListState | undefined>('WAITING')
   const [selected, setSelected] = useState<GrantQueueResponseDtoDataItemsItem | null>(null)
+  const params = { page, pageSize: 20, state, ...(filter ? { beneficiaryEmployeeId: filter } : {}) }
   const query = useQuery({
-    queryKey: getGrantQueueListQueryKey({ page, pageSize: 20, ...(filter ? { beneficiaryEmployeeId: filter } : {}) }),
-    queryFn: () => grantQueueList({ page, pageSize: 20, ...(filter ? { beneficiaryEmployeeId: filter } : {}) })
+    queryKey: getGrantQueueListQueryKey(params),
+    queryFn: () => grantQueueList(params)
   })
   const data = query.data?.data
   return (
@@ -197,20 +198,30 @@ export function ProvisioningGrantQueue({ onCreated }: { onCreated: (id: string) 
         }}
       >
         <div className='w-full sm:max-w-sm'>
-          <ItField label={translate('beneficiaryFilter')}>
-            <input
-              className={itInputClass}
-              value={employee}
-              pattern='[0-9a-fA-F-]{36}'
-              placeholder={translate('employeeIdHint')}
-              onChange={(event) => setEmployee(event.target.value)}
-            />
+          <ItField label={translate('beneficiaryFilter')} hint={translate('beneficiaryFilterHint')}>
+            <ItDirectoryLookup mode='employee' onSelect={setEmployee} />
           </ItField>
         </div>
         <button type='submit' className={itButtonClass}>
           {translate('applyFilter')}
         </button>
       </form>
+      <div className='flex flex-wrap gap-2' role='group' aria-label={translate('executionFilter')}>
+        {([undefined, 'WAITING', 'EXECUTING', 'DONE'] as const).map((value) => (
+          <button
+            key={value ?? 'all'}
+            type='button'
+            className={itButtonClass}
+            aria-pressed={state === value}
+            onClick={() => {
+              setState(value)
+              setPage(1)
+            }}
+          >
+            {translate(value ? `grantStates.${value}` : 'allStatuses')}
+          </button>
+        ))}
+      </div>
       <ItQueryState query={query}>
         {data?.items.length ? (
           <div className='space-y-3'>
@@ -226,17 +237,29 @@ export function ProvisioningGrantQueue({ onCreated }: { onCreated: (id: string) 
                   <p className='truncate text-sm text-muted-foreground' title={item.beneficiary.fullName}>
                     {item.beneficiary.fullName} · {translate(`values.${item.type}`)}
                   </p>
+                  {item.department?.name && <p className='text-sm text-muted-foreground'>{item.department.name}</p>}
+                  <p className='text-sm'>
+                    {translate(`grantStates.${item.state}`, { defaultValue: translate('unavailable') })}
+                  </p>
                   {item.type === 'SERVICE_ACCOUNT' && item.boundaryState !== BoundaryState.ACCEPTED && (
                     <p className='mt-1 text-sm text-muted-foreground'>{translate('boundaryRequired')}</p>
                   )}
                 </div>
                 <button
                   className={itButtonClass}
-                  disabled={item.type === 'SERVICE_ACCOUNT' && item.boundaryState !== BoundaryState.ACCEPTED}
+                  disabled={
+                    item.state !== 'WAITING' ||
+                    (item.type === 'SERVICE_ACCOUNT' && item.boundaryState !== BoundaryState.ACCEPTED)
+                  }
                   onClick={() => setSelected(item)}
                 >
                   {translate('startGrant')}
                 </button>
+                {item.execution && (
+                  <button type='button' className={itButtonClass} onClick={() => onCreated(item.execution!.taskId)}>
+                    {translate('viewExecution')}
+                  </button>
+                )}
               </article>
             ))}
           </div>

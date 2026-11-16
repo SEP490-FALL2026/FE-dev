@@ -5,6 +5,7 @@ import { setupServer } from 'msw/node'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { i18n, setAppLanguage } from '~/shared/i18n/i18n'
 import { SuperAdminTransferView } from '../transfer/views/super-admin-transfer-view'
+import { MemoryRouter } from 'react-router'
 
 const server = setupServer()
 const employeeId = '11111111-1111-4111-8111-111111111111'
@@ -17,7 +18,9 @@ function renderView() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })
   return render(
     <QueryClientProvider client={client}>
-      <SuperAdminTransferView employeeId={employeeId} onClose={() => {}} />
+      <MemoryRouter>
+        <SuperAdminTransferView employeeId={employeeId} onClose={() => {}} />
+      </MemoryRouter>
     </QueryClientProvider>
   )
 }

@@ -63,7 +63,7 @@ export function IssueTransitionDialog({
       }}
     >
       {mode === 'duplicate' ? (
-        <ItField label={translate('duplicateId')}>
+        <ItField label={translate('duplicateId')} hint={translate('fieldHints.duplicateId')}>
           <input
             required
             className={itInputClass}
@@ -103,7 +103,7 @@ export function IssueTransitionDialog({
         />
       </ItField>
       {mode === 'transition' && to === ISSUE_STATE.WAITING_PROVIDER && (
-        <ItField label={translate('vendorTicket')}>
+        <ItField label={translate('vendorTicket')} hint={translate('fieldHints.vendorTicket')}>
           <input
             maxLength={100}
             className={itInputClass}

@@ -1,4 +1,22 @@
 export const adminAccounts = {
+  applicationHandover: {
+    title: 'Transfer application responsibility',
+    submit: 'Save new administrator',
+    help: 'Transfer application management to a technology administrator who currently works here. The change applies to this application across the company.',
+    department: 'Department using the application',
+    departmentHelp:
+      'Choose a department to find applications in its software list. Change pages to see more departments.',
+    application: 'Application to transfer',
+    applicationHelp:
+      'Choose the application whose administrator will change. Only software registered for the selected department is listed.',
+    target: 'Receiving administrator',
+    targetHelp: 'Choose a current technology administrator to take responsibility for the application.'
+  },
+  releaseDepartureBlock: 'Release access block after cancelled departure',
+  roleHelp: 'Choose the role that will replace the current role. New access permissions apply from the next request.',
+  employeeHelp: 'Choose an employee without an account. The activation invitation goes to their work email address.',
+  emailFromPersonnel:
+    'The login and invitation address comes from the employee record. Update the record before creating the account to change this address.',
   retryIn: 'Try again in {{count}}s',
   title: 'Accounts and responsibilities',
   list: 'Accounts',
@@ -36,6 +54,10 @@ export const adminAccounts = {
   confirm: 'Confirm',
   resend: 'Resend invitation',
   resendHint: 'Send a new activation invitation to this account’s login email.',
+  removeAvatar: 'Remove avatar',
+  removeAvatarReasonPlaceholder: 'Enter reason for removing inappropriate avatar (max 500 characters)',
+  removeAvatarHint:
+    'The avatar will be removed and recorded in the audit trail. The user will not receive a notification.',
   createdAt: 'Created',
   invitation: 'Activation invitation',
   usable: 'Invitation is usable',

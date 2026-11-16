@@ -10,10 +10,12 @@ import { adminInputClass } from './admin-form'
 
 export function EmployeeDepartmentSelect({
   onReadyChange,
-  mode = 'create'
+  mode = 'create',
+  error
 }: {
   onReadyChange?: (ready: boolean) => void
   mode?: 'create' | 'filter'
+  error?: string
 }) {
   const { t: translate } = useTranslation('adminPersonnel')
   const query = useQuery({
@@ -47,6 +49,8 @@ export function EmployeeDepartmentSelect({
       <AdminQueryState query={query}>
         <select
           id='employee-department-code'
+          aria-describedby={`employee-department-help${error ? ' employee-department-error' : ''}`}
+          aria-invalid={!!error || undefined}
           name={mode === 'create' ? 'departmentCode' : 'departmentId'}
           defaultValue=''
           className={adminInputClass}
@@ -59,6 +63,14 @@ export function EmployeeDepartmentSelect({
           ))}
         </select>
       </AdminQueryState>
+      <p id='employee-department-help' className='text-xs font-normal leading-relaxed text-muted-foreground'>
+        {translate(mode === 'create' ? 'fieldHelp.departmentCode' : 'fieldHelp.departmentId')}
+      </p>
+      {error && (
+        <p id='employee-department-error' className='text-xs text-danger'>
+          {error}
+        </p>
+      )}
     </div>
   )
 }

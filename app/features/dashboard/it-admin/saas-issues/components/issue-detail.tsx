@@ -116,7 +116,7 @@ export function IssueDetail({ id, onClose }: { id: string; onClose: () => void }
                   }}
                 >
                   <p className='text-xs text-muted-foreground'>{translate('secretHint')}</p>
-                  <ItField label={translate('message')}>
+                  <ItField label={translate('message')} hint={translate('fieldHints.message')}>
                     <textarea
                       required
                       maxLength={2000}

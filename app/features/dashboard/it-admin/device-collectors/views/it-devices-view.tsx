@@ -1,7 +1,9 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { useDeviceList } from '~/shared/api/generated/operations/devices/device-list'
 import { useCatalogSearch } from '~/shared/hooks/use-catalog-search'
+import { useWorkspaceFormat } from '~/shared/hooks/use-workspace-format'
 import { ItField, itButtonClass, itInputClass, itPrimaryClass } from '../../shared/components/it-form'
 import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { ItPagination } from '../../shared/components/it-pagination'
@@ -10,10 +12,14 @@ import { DeviceCreateDialog } from '../components/device-forms'
 import { DeviceDetail } from '../components/device-detail'
 import { AllowlistView } from '../components/allowlist-view'
 import { MyDevices } from '../components/my-devices'
+import { DeviceSection } from '../enums/device-section'
+import { ItDirectoryLookup } from '../../shared/components/it-directory-lookup'
 
 export function ItDevicesView({ initialId }: { initialId?: string }) {
   const { t: translate } = useTranslation('itDevices')
-  const [view, setView] = useState<'registry' | 'mine' | 'allowlist'>('registry')
+  const [params, setParams] = useSearchParams()
+  const view =
+    params.get('deviceView') === 'mine' ? 'mine' : params.get('deviceView') === 'allowlist' ? 'allowlist' : 'registry'
   return (
     <section className='space-y-6'>
       <header>
@@ -27,37 +33,81 @@ export function ItDevicesView({ initialId }: { initialId?: string }) {
             type='button'
             className={itButtonClass}
             aria-pressed={view === value}
-            onClick={() => setView(value)}
+            onClick={() =>
+              setParams((previous) => {
+                const next = new URLSearchParams(previous)
+                if (value === 'registry') next.delete('deviceView')
+                else next.set('deviceView', value)
+                return next
+              })
+            }
           >
             {translate(value)}
           </button>
         ))}
       </div>
-      {view === 'registry' ? <Registry initialId={initialId} /> : view === 'mine' ? <MyDevices /> : <AllowlistView />}
+      <div hidden={view !== 'registry'}>
+        <Registry initialId={initialId} active={view === 'registry'} />
+      </div>
+      {view === 'mine' ? <MyDevices /> : view === 'allowlist' ? <AllowlistView /> : null}
     </section>
   )
 }
 
-function Registry({ initialId }: { initialId?: string }) {
+function Registry({ initialId, active }: { initialId?: string; active: boolean }) {
   const { t: translate } = useTranslation('itDevices')
+  const { formatDateTime } = useWorkspaceFormat()
   const { draft, setDraft, search, page, setPage } = useCatalogSearch()
   const [state, setState] = useState<DeviceState>()
   const [holder, setHolder] = useState('')
-  const [selected, setSelected] = useState(initialId)
+  const [params, setParams] = useSearchParams()
+  const selected = params.get('deviceId') ?? (params.get('deviceList') === 'true' ? undefined : initialId)
+  const section = Object.values(DeviceSection).find((value) => value === params.get('deviceSection')) ?? 'detail'
+  const navigate = (id?: string, nextSection?: DeviceSection, registrationId?: string, credentialBack?: 'history') =>
+    setParams((previous) => {
+      const next = new URLSearchParams(previous)
+      for (const key of ['deviceId', 'deviceSection', 'deviceRegistration', 'deviceBack']) next.delete(key)
+      if (id) next.set('deviceId', id)
+      if (nextSection && nextSection !== 'detail') next.set('deviceSection', nextSection)
+      if (registrationId) next.set('deviceRegistration', registrationId)
+      if (credentialBack) next.set('deviceBack', credentialBack)
+      if (!id) {
+        next.delete('id')
+        next.set('deviceList', 'true')
+      }
+      return next
+    })
   const [create, setCreate] = useState(false)
-  const query = useDeviceList({
-    page,
-    pageSize: 20,
-    ...(search ? { search } : {}),
-    ...(state ? { state } : {}),
-    ...(/^[0-9a-fA-F-]{36}$/.test(holder) ? { holderEmployeeId: holder } : {})
-  })
+  const query = useDeviceList(
+    {
+      page,
+      pageSize: 20,
+      ...(search ? { search } : {}),
+      ...(state ? { state } : {}),
+      ...(/^[0-9a-fA-F-]{36}$/.test(holder) ? { holderEmployeeId: holder } : {})
+    },
+    { query: { enabled: active && !selected } }
+  )
   const data = query.data?.data
+  if (selected)
+    return (
+      <DeviceDetail
+        key={selected}
+        id={selected}
+        section={section}
+        registrationId={params.get('deviceRegistration') ?? undefined}
+        credentialBack={params.get('deviceBack') === 'history' ? 'history' : undefined}
+        onNavigate={(nextSection, registrationId, credentialBack) =>
+          navigate(selected, nextSection, registrationId, credentialBack)
+        }
+        onClose={() => navigate()}
+      />
+    )
   return (
     <div className='space-y-4'>
       <div className='flex flex-wrap items-end gap-3'>
         <div className='min-w-48 flex-1'>
-          <ItField label={translate('search')}>
+          <ItField label={translate('search')} hint={translate('hints.search')}>
             <input
               className={itInputClass}
               type='search'
@@ -68,7 +118,7 @@ function Registry({ initialId }: { initialId?: string }) {
           </ItField>
         </div>
         <div className='min-w-48 flex-1'>
-          <ItField label={translate('holderEmployeeId')}>
+          <ItField label={translate('holderEmployeeId')} hint={translate('hints.holderFilter')}>
             <input
               className={itInputClass}
               value={holder}
@@ -78,8 +128,15 @@ function Registry({ initialId }: { initialId?: string }) {
               }}
             />
           </ItField>
+          <ItDirectoryLookup
+            mode='employee'
+            onSelect={(id) => {
+              setHolder(id)
+              setPage(1)
+            }}
+          />
         </div>
-        <ItField label={translate('state')}>
+        <ItField label={translate('state')} hint={translate('hints.collectionState')}>
           <select
             className={itInputClass}
             value={state ?? ''}
@@ -106,7 +163,7 @@ function Registry({ initialId }: { initialId?: string }) {
             <table className='w-full text-sm'>
               <thead className='border-b border-border text-xs text-muted-foreground'>
                 <tr>
-                  {(['assetCode', 'hostname', 'holderEmployeeId', 'state'] as const).map((key) => (
+                  {(['assetCode', 'hostname', 'holderEmployeeId', 'state', 'lastAcceptedAt'] as const).map((key) => (
                     <th className='px-4 py-3 text-left font-medium' key={key}>
                       {translate(key)}
                     </th>
@@ -121,7 +178,7 @@ function Registry({ initialId }: { initialId?: string }) {
                         type='button'
                         className='max-w-48 truncate font-medium text-primary-ink underline-offset-4 hover:underline'
                         title={item.assetCode}
-                        onClick={() => setSelected(item.id)}
+                        onClick={() => navigate(item.id)}
                       >
                         {item.assetCode}
                       </button>
@@ -134,6 +191,11 @@ function Registry({ initialId }: { initialId?: string }) {
                     </td>
                     <td className='px-4 py-3'>
                       {translate(`values.${item.state}`, { defaultValue: translate('unknown') })}
+                    </td>
+                    <td className='px-4 py-3'>
+                      {item.collection?.lastAcceptedAt
+                        ? formatDateTime(item.collection.lastAcceptedAt)
+                        : translate('noCollection')}
                     </td>
                   </tr>
                 ))}
@@ -154,7 +216,6 @@ function Registry({ initialId }: { initialId?: string }) {
         />
       )}
       {create && <DeviceCreateDialog onClose={() => setCreate(false)} />}
-      {selected && <DeviceDetail id={selected} onClose={() => setSelected(undefined)} />}
     </div>
   )
 }

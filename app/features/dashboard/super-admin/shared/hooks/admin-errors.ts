@@ -1,6 +1,11 @@
 import axios from 'axios'
 
 const contractErrorKeys = {
+  'PERSONNEL.SUCCESSOR_REQUIRED': 'successorRequired',
+  'APP_USER.ACCESS_BLOCK_NOT_RELEASABLE': 'activeDepartureBlock',
+  'DEPARTMENT.IT_ADMIN_LIMIT_REACHED': 'itAdminLimit',
+  'POLICY.STEP_SET_FIXED': 'policyStepsFixed',
+  'POLICY.SYSTEM_ITEM_UNKNOWN': 'policyStepsFixed',
   'APP_USER.ALREADY_EXISTS_FOR_EMPLOYEE': 'duplicate',
   'APP_USER.LOGIN_EMAIL_TAKEN': 'duplicate',
   'APP_USER.FINANCE_ALREADY_ASSIGNED': 'financeAssigned',

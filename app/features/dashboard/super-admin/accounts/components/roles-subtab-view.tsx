@@ -5,15 +5,22 @@ import { adminButtonClass } from '../../shared/components/admin-form'
 import { AdminEmpty, AdminQueryState } from '../../shared/components/admin-query-state'
 import { AdminPagination } from '../../shared/components/admin-pagination'
 import { AccountDetailModal } from './account-detail-modal'
+import { ResponsibilityTransfer } from './responsibility-transfer'
 
 export function RolesSubtabView() {
   const { t: translate } = useTranslation('adminAccounts')
   const [page, setPage] = useState(1)
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [transferring, setTransferring] = useState(false)
   const query = useAppUserList({ role: 'SPENDING_APPROVER', page, pageSize: 20 }, { query: { retry: false } })
   const data = query.data?.data
+  if (transferring) return <ResponsibilityTransfer onClose={() => setTransferring(false)} />
+  if (selectedId) return <AccountDetailModal page id={selectedId} onClose={() => setSelectedId(null)} />
   return (
     <div className='space-y-5'>
+      <button type='button' className={adminButtonClass} onClick={() => setTransferring(true)}>
+        {translate('applicationHandover.title')}
+      </button>
       <p className='max-w-3xl text-sm text-muted-foreground'>{translate('derivedHint')}</p>
       <AdminQueryState query={query}>
         {!data?.items.length && <AdminEmpty />}
@@ -37,7 +44,6 @@ export function RolesSubtabView() {
         ))}
         <AdminPagination pagination={data?.pagination} onPageChange={setPage} disabled={query.isFetching} />
       </AdminQueryState>
-      {selectedId && <AccountDetailModal id={selectedId} onClose={() => setSelectedId(null)} />}
     </div>
   )
 }

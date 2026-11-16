@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDeviceGet } from '~/shared/api/generated/operations/devices/device-get'
-import { ItDetailDialog } from '../../shared/components/it-detail-dialog'
 import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { itButtonClass } from '../../shared/components/it-form'
 import { DeviceHistory } from './device-history'
@@ -11,15 +10,56 @@ import { EnrollmentDialog } from './enrollment-dialog'
 import { CredentialList } from './credential-list'
 import { DeviceResults } from './device-results'
 import { DeviceState } from '../enums/device-state'
+import { DeviceSection } from '../enums/device-section'
+import { DevicePage } from './device-page'
+import { RegistrationHistory } from './registration-history'
 
-export function DeviceDetail({ id, onClose }: { id: string; onClose: () => void }) {
+export function DeviceDetail({
+  id,
+  onClose,
+  section: controlledSection,
+  registrationId,
+  credentialBack,
+  onNavigate
+}: {
+  id: string
+  onClose: () => void
+  section?: DeviceSection
+  registrationId?: string
+  credentialBack?: 'history'
+  onNavigate?: (section: DeviceSection, registrationId?: string, credentialBack?: 'history') => void
+}) {
   const { t: translate } = useTranslation('itDevices')
   const query = useDeviceGet(id)
   const device = query.data?.data
-  const [action, setAction] = useState<
-    'holder' | 'retire' | 'signature' | 'enroll' | 'credentials' | 'usage' | 'status' | 'rejections'
-  >()
+  const [action, setAction] = useState<'holder' | 'retire' | 'signature' | 'enroll'>()
+  const [localSection, setLocalSection] = useState<DeviceSection>('detail')
+  const section = controlledSection ?? localSection
+  const navigate = (next: DeviceSection, historyRegistrationId?: string, backTo?: 'history') => {
+    if (onNavigate) onNavigate(next, historyRegistrationId, backTo)
+    else setLocalSection(next)
+  }
   const back = () => setAction(undefined)
+  if (section === 'history')
+    return (
+      <RegistrationHistory
+        id={id}
+        onClose={() => navigate('detail')}
+        onCredentials={(registration) => navigate('credentials', registration, 'history')}
+      />
+    )
+  if (section === 'usage' || section === 'status' || section === 'rejections')
+    return <DeviceResults id={id} kind={section} onClose={() => navigate('detail')} />
+  const credentialsRegistration = registrationId ?? device?.registrationId
+  if (section === 'credentials' && credentialsRegistration)
+    return (
+      <CredentialList
+        deviceId={id}
+        registrationId={credentialsRegistration}
+        backLabel={translate(credentialBack === 'history' ? 'backToHistory' : 'backToDevice')}
+        onClose={() => navigate(credentialBack === 'history' ? 'history' : 'detail')}
+      />
+    )
   if (device) {
     if (action === 'holder' || action === 'retire')
       return <DeviceActionDialog device={device} action={action} onClose={back} />
@@ -27,14 +67,14 @@ export function DeviceDetail({ id, onClose }: { id: string; onClose: () => void 
       return <SignatureDialog deviceId={id} registrationId={device.registrationId} onClose={back} />
     if (action === 'enroll' && device.registrationId)
       return <EnrollmentDialog registrationId={device.registrationId} onClose={back} />
-    if (action === 'credentials' && device.registrationId)
-      return <CredentialList deviceId={id} registrationId={device.registrationId} onClose={back} />
-    if (action === 'usage' || action === 'status' || action === 'rejections')
-      return <DeviceResults id={id} kind={action} onClose={back} />
   }
   const known = device && Object.values(DeviceState).some((value) => value === device.state)
   return (
-    <ItDetailDialog title={device?.assetCode ?? translate('detail')} onClose={onClose}>
+    <DevicePage
+      title={device?.assetCode ?? translate('detail')}
+      backLabel={translate('backToDevices')}
+      onBack={onClose}
+    >
       <ItQueryState query={query}>
         {device ? (
           <div className='space-y-5'>
@@ -60,12 +100,12 @@ export function DeviceDetail({ id, onClose }: { id: string; onClose: () => void 
                 </>
               )}
               {device.registrationId && (
-                <button type='button' className={itButtonClass} onClick={() => setAction('credentials')}>
+                <button type='button' className={itButtonClass} onClick={() => navigate('credentials')}>
                   {translate('credentials')}
                 </button>
               )}
-              {(['usage', 'status', 'rejections'] as const).map((kind) => (
-                <button key={kind} type='button' className={itButtonClass} onClick={() => setAction(kind)}>
+              {(['history', 'usage', 'status', 'rejections'] as const).map((kind) => (
+                <button key={kind} type='button' className={itButtonClass} onClick={() => navigate(kind)}>
                   {translate(kind)}
                 </button>
               ))}
@@ -76,6 +116,6 @@ export function DeviceDetail({ id, onClose }: { id: string; onClose: () => void 
           <ItEmpty />
         )}
       </ItQueryState>
-    </ItDetailDialog>
+    </DevicePage>
   )
 }

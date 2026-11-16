@@ -27,12 +27,13 @@ import { TaskScope } from '../enums/task-scope'
 export function ItProvisioningView({
   initialTaskId,
   initialScope = TaskScope.MINE,
-  initialQueue = 'tasks'
+  initialQueue = 'tasks',
+  onSelectTab
 }: {
   initialTaskId?: string
   initialScope?: TaskScope
   initialQueue?: 'tasks' | 'grants' | 'expiry'
-  onSelectTab?: (tab: ItAdminTabKey) => void
+  onSelectTab?: (tab: ItAdminTabKey, params?: Record<string, string>) => void
 }) {
   const { t: translate } = useTranslation('itProvisioning')
   const { formatDate } = useDashboardFormat()
@@ -167,6 +168,15 @@ export function ItProvisioningView({
                   <h3 className='font-medium'>{translate('reason')}</h3>
                   <p className='whitespace-pre-wrap break-words text-sm'>{task.failureReason}</p>
                 </div>
+              )}
+              {task.kind === 'GRANT' && task.requestId && onSelectTab && (
+                <button
+                  type='button'
+                  className={itButtonClass}
+                  onClick={() => onSelectTab('purchase-invoices', { requestId: task.requestId ?? '', view: 'new' })}
+                >
+                  {translate('submitInvoice')}
+                </button>
               )}
               {task.revocation?.paidThroughOn && (
                 <p className='text-sm'>

@@ -113,17 +113,16 @@ describe('Super Admin account requests', () => {
       'Enter a name, employee code or work email'
     )
     fireEvent.click(await within(dialog).findByRole('radio', { name: /Jamie/ }))
-    fireEvent.change(within(dialog).getByLabelText('Login email'), { target: { value: 'other@example.com' } })
+    expect(within(dialog).queryByLabelText('Login email')).not.toBeInTheDocument()
     fireEvent.click(within(dialog).getByRole('button', { name: 'Send invitation' }))
     await waitFor(() =>
       expect(create).toHaveBeenCalledWith({
         employeeId: 'employee-2',
-        loginEmail: 'other@example.com',
         role: 'EMPLOYEE'
       })
     )
     await waitFor(() => expect(within(dialog).getByRole('button', { name: 'Send invitation' })).toBeEnabled())
-    expect(within(dialog).getByLabelText('Login email')).toHaveValue('other@example.com')
+    expect(within(dialog).getByRole('radio', { name: /Jamie/ })).toBeChecked()
   })
 
   it('blocks duplicate invite submissions while pending and invalidates the account list on success', async () => {
@@ -159,7 +158,7 @@ describe('Super Admin account requests', () => {
     )
     mount()
     fireEvent.click(await screen.findByRole('button', { name: 'View details' }))
-    const dialog = await screen.findByRole('dialog')
+    const dialog = await screen.findByRole('region', { name: 'View details' })
     await within(dialog).findByText('Unknown')
     expect(within(dialog).getByRole('button', { name: 'Lock account' })).toBeDisabled()
     expect(within(dialog).getByRole('button', { name: 'Change role' })).toBeDisabled()
@@ -261,7 +260,7 @@ describe('Super Admin account requests', () => {
     fireEvent.click(await within(dialog).findByRole('radio', { name: /Jamie/ }))
     fireEvent.click(within(dialog).getByRole('button', { name: 'Send invitation' }))
     expect(await within(dialog).findByRole('button', { name: /Try again in/ })).toBeDisabled()
-    expect(within(dialog).getByLabelText('Login email')).toHaveValue('jamie@example.com')
+    expect(within(dialog).getByRole('radio', { name: /Jamie/ })).toBeChecked()
     expect(within(dialog).getByRole('button', { name: 'Cancel' })).toBeEnabled()
   })
 })

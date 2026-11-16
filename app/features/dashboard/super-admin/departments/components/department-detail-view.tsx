@@ -12,6 +12,7 @@ import { DepartmentMembersPanel } from './department-members-panel'
 import { DepartmentHeadHistory } from './department-head-history'
 import { DepartmentActionForm, type DepartmentAction } from './department-action-form'
 import { DepartmentAddEmployee } from './department-add-employee'
+import { DepartmentHistoryPage } from './department-history-page'
 
 export function DepartmentDetailView({ id, onBack }: { id: string; onBack: () => void }) {
   const { t: translate } = useTranslation('adminOrganization')
@@ -43,6 +44,9 @@ export function DepartmentDetailView({ id, onBack }: { id: string; onBack: () =>
   const query = useDepartmentGet(id)
   const department = query.data?.data
   const active = department?.status === DepartmentStatus.ACTIVE
+  if (historyOpen && department && (department.headHistory.length > 6 || department.headHistoryHasMore))
+    return <DepartmentHistoryPage department={department} onClose={closeHistory} />
+  if (action === 'edit' && department) return <DepartmentForm department={department} onClose={() => setAction(null)} />
   if (addingEmployee && active && department)
     return (
       <DepartmentAddEmployee
@@ -148,7 +152,6 @@ export function DepartmentDetailView({ id, onBack }: { id: string; onBack: () =>
             {historyOpen && (
               <DepartmentHeadHistory department={department} onClose={closeHistory} onReady={historyReady} />
             )}
-            {action === 'edit' && <DepartmentForm department={department} onClose={() => setAction(null)} />}
             {action && action !== 'edit' && (
               <DepartmentActionForm department={department} action={action} onClose={() => setAction(null)} />
             )}

@@ -24,14 +24,16 @@ it.each([
 ] as const)('keeps future setup keys out of visible text and accessible names in %s', async (language, label) => {
   await setAppLanguage(language, false)
   const { container } = render(
-    <SetupChecklist
-      steps={[{ step: 6, key: 'FUTURE_INTERNAL_STAGE', status: 'NOT_AVAILABLE', reasons: [] }]}
-      onSelectTab={vi.fn()}
-    />
+    <QueryClientProvider client={new QueryClient()}>
+      <SetupChecklist
+        steps={[{ step: 6, key: 'FUTURE_INTERNAL_STAGE', status: 'NOT_AVAILABLE', reasons: [] }]}
+        onSelectTab={vi.fn()}
+      />
+    </QueryClientProvider>
   )
   const trigger = screen.getByRole('button', { name: new RegExp(label) })
   fireEvent.click(trigger)
-  expect(screen.getByRole('region', { name: label })).toBeInTheDocument()
+  expect(screen.getByRole('dialog', { name: label })).toBeInTheDocument()
   expect(container.innerHTML).not.toContain('FUTURE_INTERNAL_STAGE')
 })
 

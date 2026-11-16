@@ -18,6 +18,7 @@ beforeEach(async () => {
           items: [
             {
               requestId: 'request-1',
+              state: 'WAITING',
               type: 'PERSONAL',
               stock: { kind: 'NONE', free: 0, inRevocation: 0 },
               expectedEndDate: '2026-12-01',

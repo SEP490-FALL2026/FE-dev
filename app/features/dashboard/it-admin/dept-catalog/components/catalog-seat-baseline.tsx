@@ -9,6 +9,7 @@ import { usePlanList } from '~/shared/api/generated/operations/plans/plan-list'
 import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { ItPagination } from '../../shared/components/it-pagination'
 import { ItField, ItFormDialog, itButtonClass, itInputClass } from '../../shared/components/it-form'
+import { ItImportTemplateButton } from '../../shared/components/it-import-template-button'
 import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
 import { CatalogSeatPreview } from './catalog-seat-preview'
 import { useDashboardFormat } from '../../../dashboard-ui'
@@ -59,6 +60,7 @@ export function CatalogSeatBaseline({
   return (
     <section className='space-y-4 rounded-lg border border-border p-4'>
       <h2 className='font-semibold [text-wrap:balance]'>{translate('baseline')}</h2>
+      <ItImportTemplateButton kind='seat-baseline' />
       <ItQueryState query={baseline}>
         <p>
           {translate(!baseline.data?.data ? 'unknown' : baseline.data.data.closed ? 'baselineClosed' : 'baselineOpen')}

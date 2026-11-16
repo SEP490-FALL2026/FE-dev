@@ -10,8 +10,35 @@ import { AdminField, AdminFormDialog, adminButtonClass, adminInputClass } from '
 import { useAdminMutationFeedback } from '../../shared/hooks/use-admin-mutation-feedback'
 import { useDashboardFormat } from '../../../dashboard-ui'
 import { CongestionDetails } from '../components/congestion-details'
+import { OperationsReports, type OperationsReport } from '../components/operations-reports'
 
 export function SuperAdminOperationsView() {
+  const { t: translate } = useTranslation('admin')
+  const [report, setReport] = useState<'workflow' | OperationsReport>('workflow')
+  return (
+    <div className='space-y-5'>
+      <AdminField label={translate('oversight.choose')}>
+        <select
+          className={adminInputClass}
+          value={report}
+          onChange={(event) => {
+            const next = event.target.value
+            if (next === 'workflow' || next === 'sla' || next === 'auditFlags' || next === 'deadlines') setReport(next)
+          }}
+        >
+          {(['workflow', 'sla', 'auditFlags', 'deadlines'] as const).map((value) => (
+            <option key={value} value={value}>
+              {translate(`oversight.${value}`)}
+            </option>
+          ))}
+        </select>
+      </AdminField>
+      {report === 'workflow' ? <WorkflowMonitoring /> : <OperationsReports key={report} report={report} />}
+    </div>
+  )
+}
+
+function WorkflowMonitoring() {
   const { t: translate } = useTranslation('admin')
   const { formatDateTime, formatNumber } = useDashboardFormat()
   const [waitPage, setWaitPage] = useState(1)
@@ -22,6 +49,8 @@ export function SuperAdminOperationsView() {
   const [selectedHolder, setSelectedHolder] = useState<string | null | undefined>(undefined)
   const feedback = useAdminMutationFeedback([getStepCongestionIncidentListQueryKey()], () => setIncident(null))
   const mutation = useStepCongestionIncidentRecord({ mutation: feedback })
+  if (selectedHolder !== undefined)
+    return <CongestionDetails holderEmployeeId={selectedHolder} onClose={() => setSelectedHolder(undefined)} />
   return (
     <div className='space-y-6'>
       <h1 className='text-2xl font-semibold tracking-tight [text-wrap:balance]'>{translate('operations.title')}</h1>
@@ -121,9 +150,6 @@ export function SuperAdminOperationsView() {
           />
         </AdminQueryState>
       </section>
-      {selectedHolder !== undefined && (
-        <CongestionDetails holderEmployeeId={selectedHolder} onClose={() => setSelectedHolder(undefined)} />
-      )}
       {incident && (
         <AdminFormDialog
           title={translate('operations.incident')}

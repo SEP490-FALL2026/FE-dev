@@ -13,12 +13,14 @@ export function DepartmentLookup({
   name,
   required = true,
   initial = '',
-  initialLabel = ''
+  initialLabel = '',
+  descriptionId
 }: {
   name: string
   required?: boolean
   initial?: string
   initialLabel?: string
+  descriptionId?: string
 }) {
   const { t: translate } = useTranslation('adminPersonnel')
   const [selected, setSelected] = useState(initial)
@@ -53,6 +55,7 @@ export function DepartmentLookup({
         value={selected}
         onChange={(event) => setSelected(event.target.value)}
         aria-busy={query.isFetching}
+        aria-describedby={descriptionId}
       >
         <option value=''>{translate(required ? 'choose' : 'noSelection')}</option>
         {initial && selected === initial && !items.some((item) => item.id === initial) && (

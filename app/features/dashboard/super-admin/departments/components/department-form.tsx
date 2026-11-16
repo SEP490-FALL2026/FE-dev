@@ -48,7 +48,7 @@ export function DepartmentForm({
   const error = editor.fieldError
   return (
     <AdminFormDialog
-      wide
+      page={Boolean(department)}
       title={translate(department ? 'editDepartment' : 'createDepartment')}
       onClose={onClose}
       pending={create.isPending || editor.pending}

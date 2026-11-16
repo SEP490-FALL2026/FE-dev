@@ -1,4 +1,14 @@
 ﻿export const itNewSoftware = {
+  checklistTitle: 'Decision checklist',
+  fieldHints: {
+    opinionNote: 'Record the business owner opinion received. Leave blank if none is available.',
+    requestId: 'Enter the request reference, or find the request using the department queue.',
+    searchApplication: 'Search by the name of an existing application in the shared catalogue.',
+    softwareName: 'Enter the display name for the internal software being added to the catalogue.'
+  },
+  checklistHint: 'Answer each question before completing the assessment.',
+  reasonHint: 'Explain the reason for refusal to the requester.',
+  alternativeHint: 'Describe an alternative if available.',
   title: 'Software requests outside the catalog',
   placeholders: {
     vendorName: 'e.g. Miro',
@@ -116,11 +126,11 @@
     equivalentPlanId: 'Equivalent catalog plan ID'
   },
   values: {
-    K1: 'K1',
-    K2: 'K2',
-    K3: 'K3',
-    K4: 'K4',
-    K5: 'K5',
+    K1: 'Individual account',
+    K2: 'Shared workspace',
+    K3: 'Central sign-in and account synchronisation',
+    K4: 'License key',
+    K5: 'Internal access',
     OBTAINED: 'Obtained',
     NOT_AVAILABLE: 'Not available',
     DRAFT: 'Draft',
