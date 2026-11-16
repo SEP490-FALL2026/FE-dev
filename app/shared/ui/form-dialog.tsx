@@ -137,15 +137,16 @@ export function AdminFormDialog({
               onSubmit(event)
             }}
           >
-            <fieldset
-              disabled={pending}
-              className={
-                page
-                  ? 'grid min-w-0 content-start gap-4 p-5'
-                  : 'grid min-h-0 min-w-0 flex-1 grid-cols-[minmax(0,1fr)] content-start gap-4 overflow-x-hidden overflow-y-auto p-5'
-              }
-            >
-              {children}
+            {/* A fieldset cannot shrink or scroll inside a flex column, so it only disables the controls (display: contents)
+                and the scrolling body is its own element. */}
+            <fieldset disabled={pending} className={page ? 'grid min-w-0 content-start gap-4 p-5' : 'contents'}>
+              {page ? (
+                children
+              ) : (
+                <div className='grid min-h-0 min-w-0 flex-1 grid-cols-[minmax(0,1fr)] content-start gap-4 overflow-x-hidden overflow-y-auto p-5'>
+                  {children}
+                </div>
+              )}
             </fieldset>
             <footer className='flex justify-end gap-3 border-t border-border p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]'>
               <button type='button' disabled={pending} onClick={onClose} className={adminButtonClass}>
