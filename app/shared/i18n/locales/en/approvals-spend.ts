@@ -89,6 +89,14 @@ export const approvalsSpend = {
     from: 'Sent from',
     to: 'Sent until',
     states: 'Status',
+    allStates: 'All statuses',
+    stateGroups: {
+      decision: 'Awaiting spending decision',
+      revision: 'Awaiting requester revision',
+      running: 'In progress',
+      done: 'Completed',
+      stopped: 'Rejected or stopped'
+    },
     clearFilters: 'Clear filters',
     types: {
       GRANT: 'Access request',

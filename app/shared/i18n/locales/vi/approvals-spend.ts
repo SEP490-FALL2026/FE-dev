@@ -88,6 +88,14 @@ export const approvalsSpend = {
     from: 'Gửi từ ngày',
     to: 'Gửi đến ngày',
     states: 'Trạng thái',
+    allStates: 'Tất cả trạng thái',
+    stateGroups: {
+      decision: 'Chờ quyết định chi',
+      revision: 'Chờ người gửi chỉnh sửa',
+      running: 'Đang thực hiện',
+      done: 'Hoàn tất',
+      stopped: 'Bị từ chối hoặc dừng'
+    },
     clearFilters: 'Xóa bộ lọc',
     types: {
       GRANT: 'Xin quyền',

@@ -12,6 +12,7 @@ import {
   dayEnd,
   dayStart,
   emptyMonitorFilters,
+  statesOfGroup,
   type MonitorFilters
 } from './approval-monitor-filters'
 import {
@@ -38,7 +39,7 @@ export function ApprovalMonitorView({
   const [filters, setFilters] = useState<MonitorFilters>(emptyMonitorFilters)
   const query = useAccessRequestList({
     view,
-    ...(filters.states.length ? { state: filters.states.join(',') } : {}),
+    ...(filters.stateGroup ? { state: statesOfGroup(filters.stateGroup).join(',') } : {}),
     ...(filters.type ? { type: filters.type } : {}),
     ...(filters.from ? { from: dayStart(filters.from) } : {}),
     ...(filters.to ? { to: dayEnd(filters.to) } : {}),

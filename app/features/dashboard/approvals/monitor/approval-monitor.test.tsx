@@ -146,13 +146,15 @@ describe('Spending Approver request monitoring', () => {
     expect(await screen.findByText(/cannot be opened yet/)).toBeTruthy()
   })
 
-  it('narrows the list by several states, a flag and a date range, and clears them again', async () => {
+  it('narrows the list by a status group, a flag and a date range, and clears them again', async () => {
     mount()
     await screen.findAllByText('Design tool')
-    fireEvent.click(screen.getByLabelText('Awaiting spending decision'))
-    fireEvent.click(screen.getByLabelText('Failed'))
+    fireEvent.click(screen.getByRole('combobox', { name: 'Status' }))
+    fireEvent.click(screen.getByRole('option', { name: 'Rejected or stopped' }))
     await waitFor(() =>
-      expect(requests.some((config) => config.params?.state === 'AWAITING_SPEND_DECISION,FAILED')).toBe(true)
+      expect(
+        requests.some((config) => config.params?.state === 'REJECTED,IT_REJECTED,FAILED,WITHDRAWN,CANCELLED')
+      ).toBe(true)
     )
     fireEvent.click(screen.getByRole('combobox', { name: 'Flag' }))
     fireEvent.click(screen.getByRole('option', { name: 'One-step request' }))
@@ -165,7 +167,7 @@ describe('Spending Approver request monitoring', () => {
             config.params?.flag === 'ONE_STEP' &&
             typeof config.params?.from === 'string' &&
             typeof config.params?.to === 'string' &&
-            config.params?.state === 'AWAITING_SPEND_DECISION,FAILED'
+            config.params?.state === 'REJECTED,IT_REJECTED,FAILED,WITHDRAWN,CANCELLED'
         )
       ).toBe(true)
     )

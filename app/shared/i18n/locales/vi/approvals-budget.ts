@@ -214,6 +214,7 @@ export const approvalsBudget = {
     autoRenew: 'Tự gia hạn',
     recordedOn: 'Ghi nhận ngày',
     yearHint: 'Bỏ trống để xem mọi năm.',
+    allYears: 'Mọi năm',
     allKinds: 'Mọi loại',
     createdReason: 'Lý do lập',
     decisionReason: 'Lý do quyết định',

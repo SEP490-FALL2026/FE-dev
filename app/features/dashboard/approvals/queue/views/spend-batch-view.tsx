@@ -79,8 +79,10 @@ function BatchLookup({
       }}
     >
       <div className='w-full max-w-md'>
-        <ApprovalsField label={translate('batchId')} hint={translate('batchIdHint')}>
+        <ApprovalsField label={translate('batchId')}>
           <input
+            title={translate('batchIdHint')}
+            aria-label={`${translate('batchId')}. ${translate('batchIdHint')}`}
             className={`${approvalsInputClass} font-mono text-xs tabular-nums md:text-xs`}
             value={batchId}
             placeholder={translate('batchPlaceholder')}

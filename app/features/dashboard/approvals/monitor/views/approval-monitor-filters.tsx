@@ -10,8 +10,30 @@ import { ApprovalsSelect } from '../../shared/components/approvals-select'
 export const MONITOR_FLAGS = ['ONE_STEP', 'RESERVE_USED'] as const
 export type MonitorFlag = (typeof MONITOR_FLAGS)[number]
 
+/** The states are grouped by what the Approver wants to know; each group narrows to several states of the list. */
+export const MONITOR_STATE_GROUPS = {
+  decision: [RequestState.AWAITING_SPEND_DECISION],
+  revision: [RequestState.AWAITING_REQUESTER_REVISION],
+  running: [RequestState.AWAITING_EXECUTION, RequestState.EXECUTING, RequestState.AWAITING_IT_CLOSE],
+  done: [RequestState.COMPLETED],
+  stopped: [
+    RequestState.REJECTED,
+    RequestState.IT_REJECTED,
+    RequestState.FAILED,
+    RequestState.WITHDRAWN,
+    RequestState.CANCELLED
+  ]
+} as const
+export type MonitorStateGroup = keyof typeof MONITOR_STATE_GROUPS
+const STATE_GROUP_KEYS = Object.keys(MONITOR_STATE_GROUPS) as MonitorStateGroup[]
+const parseStateGroup = (value: string) => STATE_GROUP_KEYS.find((group) => group === value)
+
+export function statesOfGroup(group: MonitorStateGroup | ''): string[] {
+  return group ? [...MONITOR_STATE_GROUPS[group]] : []
+}
+
 export interface MonitorFilters {
-  states: string[]
+  stateGroup: MonitorStateGroup | ''
   type: AccessRequestListType | ''
   from: string
   to: string
@@ -20,7 +42,7 @@ export interface MonitorFilters {
 }
 
 export const emptyMonitorFilters: MonitorFilters = {
-  states: [],
+  stateGroup: '',
   type: '',
   from: '',
   to: '',
@@ -59,21 +81,22 @@ export function ApprovalMonitorFilters({
   onChange: (next: MonitorFilters) => void
 }) {
   const { t: translate } = useTranslation('approvalsSpend')
-  const { t: translateStatus } = useTranslation('approvals')
   const departments = useDepartmentOptions()
-  const toggleState = (state: string) =>
-    onChange({
-      ...filters,
-      states: filters.states.includes(state)
-        ? filters.states.filter((item) => item !== state)
-        : [...filters.states, state]
-    })
-  const active =
-    filters.states.length > 0 ||
-    Boolean(filters.type || filters.from || filters.to || filters.departmentId || filters.flag)
+  const active = Boolean(
+    filters.stateGroup || filters.type || filters.from || filters.to || filters.departmentId || filters.flag
+  )
   return (
     <div className='space-y-4'>
       <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+        <ApprovalsSelect
+          label={translate('monitor.states')}
+          value={filters.stateGroup}
+          options={[
+            { value: '', label: translate('monitor.allStates') },
+            ...STATE_GROUP_KEYS.map((value) => ({ value, label: translate(`monitor.stateGroups.${value}`) }))
+          ]}
+          onChange={(value) => onChange({ ...filters, stateGroup: parseStateGroup(value) ?? '' })}
+        />
         <ApprovalsSelect
           label={translate('monitor.type')}
           value={filters.type}
@@ -120,25 +143,6 @@ export function ApprovalMonitorFilters({
           />
         </ApprovalsField>
       </div>
-      <fieldset className='space-y-2'>
-        <legend className='text-sm font-medium text-foreground'>{translate('monitor.states')}</legend>
-        <div className='flex flex-wrap gap-2'>
-          {Object.values(RequestState).map((state) => {
-            const checked = filters.states.includes(state)
-            return (
-              <label
-                key={state}
-                className={`inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-md px-3 text-sm ring-1 ring-inset ${
-                  checked ? 'bg-primary-soft text-primary-ink ring-primary/40' : 'text-muted-foreground ring-border/70'
-                }`}
-              >
-                <input type='checkbox' className='size-4' checked={checked} onChange={() => toggleState(state)} />
-                {translateStatus(`status.${state}`, { defaultValue: state })}
-              </label>
-            )
-          })}
-        </div>
-      </fieldset>
       {active && (
         <button
           type='button'

@@ -210,6 +210,7 @@ export const approvalsBudget = {
     milestoneDate: 'Milestone',
     autoRenew: 'Auto-renew',
     recordedOn: 'Recorded on',
+    allYears: 'All years',
     yearHint: 'Leave empty for every year.',
     allKinds: 'Every type',
     createdReason: 'Reason it was raised',

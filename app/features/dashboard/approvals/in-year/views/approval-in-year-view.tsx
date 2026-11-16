@@ -78,10 +78,13 @@ function YearFilter({ value, onChange }: { value: string; onChange: (value: stri
   const { t: translate } = useTranslation('approvalsBudget')
   return (
     <div className='w-40'>
-      <ApprovalsField label={translate('year')} hint={translate('inYear.yearHint')}>
+      <ApprovalsField label={translate('year')}>
         <input
           inputMode='numeric'
           maxLength={4}
+          placeholder={translate('inYear.allYears')}
+          title={translate('inYear.yearHint')}
+          aria-label={`${translate('year')}. ${translate('inYear.yearHint')}`}
           className={`${approvalsInputClass} font-mono tabular-nums`}
           value={value}
           onChange={(event) => onChange(event.target.value.replace(/\D/g, ''))}
