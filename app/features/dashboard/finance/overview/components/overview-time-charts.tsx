@@ -1,6 +1,6 @@
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { useTranslation } from 'react-i18next'
-import type { MonthPoint, QuarterPoint } from '../overview-analytics'
+import type { MonthPoint } from '../overview-analytics'
 import type { OverviewMoney } from '../use-overview-money'
 import { OverviewDataTable, OverviewTooltip, chartAxisTick, chartSlot } from './overview-chart-card'
 
@@ -85,78 +85,6 @@ export function CommitmentMonthTable({ points, money }: { points: readonly Month
         key: String(point.month),
         muted: !point.inPeriod,
         cells: { month: monthLabel.long(point.month), count: point.count, amount: money.full(point.amount) }
-      }))}
-    />
-  )
-}
-
-export function PlannedQuarterChart({ points, money }: { points: readonly QuarterPoint[]; money: OverviewMoney }) {
-  const { t: translate } = useTranslation('finance')
-  const quarterLabel = (quarter: string) => translate('analytics.quarterShort', { quarter: quarter.slice(1) })
-  return (
-    <div role='img' aria-label={translate('analytics.charts.quarters')} className='h-64 w-full'>
-      <ResponsiveContainer width='100%' height='100%'>
-        <BarChart data={[...points]} barCategoryGap='30%' margin={{ top: 4, right: 4, bottom: 0, left: 4 }}>
-          <CartesianGrid vertical={false} stroke='var(--theme-border)' strokeDasharray='3 3' strokeOpacity={0.6} />
-          <XAxis
-            dataKey='quarter'
-            axisLine={false}
-            tickLine={false}
-            tick={chartAxisTick}
-            tickFormatter={quarterLabel}
-          />
-          <YAxis
-            axisLine={false}
-            tickLine={false}
-            tick={chartAxisTick}
-            width={56}
-            tickFormatter={(value: number) => money.compact(value)}
-          />
-          <Tooltip
-            cursor={{ fill: 'var(--theme-surface-subtle)' }}
-            content={({ active, payload }) => {
-              const point = payload?.[0]?.payload as QuarterPoint | undefined
-              if (!active || !point) return null
-              return (
-                <OverviewTooltip
-                  title={quarterLabel(point.quarter)}
-                  rows={[
-                    {
-                      color: chartSlot(2),
-                      label: translate('analytics.series.planned'),
-                      value: money.full(point.amount)
-                    }
-                  ]}
-                />
-              )
-            }}
-          />
-          <Bar dataKey='amount' radius={[4, 4, 0, 0]} maxBarSize={56} isAnimationActive={false}>
-            {points.map((point) => (
-              <Cell key={point.quarter} fill={chartSlot(2)} fillOpacity={point.inPeriod ? 1 : outsideOpacity} />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-  )
-}
-
-export function PlannedQuarterTable({ points, money }: { points: readonly QuarterPoint[]; money: OverviewMoney }) {
-  const { t: translate } = useTranslation('finance')
-  return (
-    <OverviewDataTable
-      columns={[
-        { key: 'quarter', label: translate('analytics.columns.quarter') },
-        { key: 'amount', label: translate('analytics.series.planned'), numeric: true }
-      ]}
-      rows={points.map((point) => ({
-        key: point.quarter,
-        muted: !point.inPeriod,
-        cells: {
-          quarter: translate('analytics.quarterShort', { quarter: point.quarter.slice(1) }),
-          amount: money.full(point.amount)
-        }
       }))}
     />
   )

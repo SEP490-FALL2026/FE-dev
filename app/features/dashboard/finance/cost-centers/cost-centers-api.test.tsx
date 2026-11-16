@@ -47,9 +47,13 @@ describe('Finance cost center contract integration', () => {
                         base: money('108000000'),
                         reserve: money('12000000'),
                         total: money('120000000'),
+                        effectiveBudget: money('120000000'),
                         committed: money('30000000'),
                         spent: money('0'),
+                        pendingSpend: money('0'),
                         remaining: money('90000000'),
+                        remainingBase: money('78000000'),
+                        remainingWithReserve: money('90000000'),
                         costCenterCount: 1,
                         overBudgetCount: 0
                       }
@@ -90,6 +94,12 @@ describe('Finance cost center contract integration', () => {
                   base: money('108000000'),
                   reserve: money('12000000'),
                   total: money('120000000'),
+                  effectiveBudget: {
+                    base: money('108000000'),
+                    reserve: money('12000000'),
+                    total: money('120000000'),
+                    adjustment: money('0')
+                  },
                   committed: money('30000000'),
                   spent: money('0'),
                   remaining: money('90000000'),
@@ -188,7 +198,7 @@ describe('Finance cost center contract integration', () => {
     mount()
     expect((await screen.findAllByText(financeSettings.kpis.total)).length).toBeGreaterThan(0)
     expect(screen.getAllByText(financeSettings.kpis.held).length).toBeGreaterThan(0)
-    expect(await screen.findByText('1/21 cost centers have a budget')).toBeInTheDocument()
+    expect(await screen.findByText(/1\/21 cost centers have a budget/)).toBeInTheDocument()
     expect(screen.getAllByText(/120,000,000/).length).toBeGreaterThan(0)
     expect(screen.getAllByText(/90,000,000/).length).toBeGreaterThan(0)
   })
@@ -204,14 +214,14 @@ describe('Finance cost center contract integration', () => {
     expect((await screen.findAllByText(financeSettings.kpis.total)).length).toBeGreaterThan(0)
     expect(await screen.findAllByText(financeSettings.charts.empty)).toHaveLength(2)
   })
-  it('shows budget figures in the detail without rename or deactivate', async () => {
+  it('shows budget figures and the catalogue actions in the detail', async () => {
     mount()
     fireEvent.click((await screen.findAllByRole('button', { name: finance.open }))[0])
     const figures = await screen.findByRole('region', { name: /^Budget for \d{4}$/ })
     expect(await within(figures).findByText(/90,000,000/)).toBeInTheDocument()
     expect(within(figures).getByText(financeSettings.budgetUtilization)).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: financeSettings.rename })).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: financeSettings.deactivate })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: financeSettings.costCenterActions.rename })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: financeSettings.costCenterActions.deactivate })).toBeInTheDocument()
     expect(requests.some((request) => request.url?.endsWith('/employees'))).toBe(false)
   })
 })

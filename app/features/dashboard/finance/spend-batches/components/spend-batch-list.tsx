@@ -1,34 +1,27 @@
-import { ArrowLeft } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
-  FinanceButton,
   FinanceField,
   FinancePage,
   FinancePagination,
   FinanceQueryState,
+  FinanceSelect,
   FinanceToolbar,
   financeInputClass
 } from '../../shared/components/finance-ui'
 import { FinanceTable } from '../../shared/components/finance-table'
 import { formatMoney } from '../../shared/finance-money'
 import type { SpendBatchListItem } from '../../shared/finance-api-extensions'
+import { useFinanceDepartments } from '../../shared/hooks/use-finance-departments'
 import { useSpendBatchList } from '../hooks/use-spend-batches'
-import type { SpendBatchDepartment } from './spend-batch-department-list'
 
-export function SpendBatchList({
-  department,
-  onBack,
-  onOpen
-}: {
-  department: SpendBatchDepartment
-  onBack: () => void
-  onOpen: (batchId: string) => void
-}) {
+export function SpendBatchList({ onOpen }: { onOpen: (batchId: string, departmentName: string) => void }) {
   const { t: translate, i18n } = useTranslation('financeSettings')
   const { t: translateFinance } = useTranslation('finance')
 
   const [page, setPage] = useState(1)
+  const [departmentId, setDepartmentId] = useState('')
+  const { departments } = useFinanceDepartments()
   const [submittedFrom, setSubmittedFrom] = useState('')
   const [submittedTo, setSubmittedTo] = useState('')
 
@@ -37,7 +30,7 @@ export function SpendBatchList({
     {
       page,
       pageSize: 20,
-      departmentId: department.id,
+      departmentId: departmentId || undefined,
       submittedFrom: submittedFrom ? `${submittedFrom}T00:00:00+07:00` : undefined,
       submittedTo: submittedTo ? `${submittedTo}T23:59:59+07:00` : undefined
     },
@@ -59,17 +52,26 @@ export function SpendBatchList({
   }
 
   return (
-    <FinancePage
-      title={`${translateFinance('spendBatches')} · ${department.name}`}
-      description={translateFinance('spendBatchesDescription')}
-      actions={
-        <FinanceButton variant='ghost' onClick={onBack}>
-          <ArrowLeft aria-hidden className='size-4' strokeWidth={1.5} />
-          {translateFinance('spendBatchBackToDepartments')}
-        </FinanceButton>
-      }
-    >
+    <FinancePage title={translateFinance('spendBatches')} description={translateFinance('spendBatchesDescription')}>
       <FinanceToolbar>
+        <div className='sm:w-56'>
+          <FinanceField label={translate('department')}>
+            <FinanceSelect
+              value={departmentId}
+              onChange={(event) => {
+                setDepartmentId(event.target.value)
+                setPage(1)
+              }}
+            >
+              <option value=''>{translateFinance('spendBatchAllDepartments')}</option>
+              {departments.map((department) => (
+                <option key={department.id} value={department.id}>
+                  {department.name}
+                </option>
+              ))}
+            </FinanceSelect>
+          </FinanceField>
+        </div>
         <div className='sm:w-44'>
           <FinanceField label={translate('from')}>
             <input
@@ -105,8 +107,13 @@ export function SpendBatchList({
           <FinanceTable<SpendBatchListItem>
             items={query.data?.items ?? []}
             rowKey={(batch) => batch.id}
-            onOpen={(batch) => onOpen(batch.id)}
+            onOpen={(batch) => onOpen(batch.id, batch.department.name)}
             columns={[
+              {
+                key: 'department',
+                label: translate('department'),
+                render: (batch) => <span className='font-medium text-foreground'>{batch.department.name}</span>
+              },
               {
                 key: 'submittedBy',
                 label: translateFinance('submittedBy'),

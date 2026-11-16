@@ -9,15 +9,16 @@ import { useBudgetCycleActions } from '../hooks/use-budget-cycle-actions'
 const MIN_YEAR = 2000
 const MAX_YEAR = 2999
 
-export function CycleOpenDialog({ onClose, onOpened }: { onClose: () => void; onOpened: (year: number) => void }) {
+export function CycleCreateDialog({ onClose, onCreated }: { onClose: () => void; onCreated: (year: number) => void }) {
   const { t: translate } = useTranslation('financeBudget')
   const [year, setYear] = useState(String(new Date().getFullYear() + 1))
   const [submissionDeadline, setSubmissionDeadline] = useState('')
   const [decisionDeadline, setDecisionDeadline] = useState('')
   const [ceiling, setCeiling] = useState('')
+  const [reserve, setReserve] = useState('')
   const [priorities, setPriorities] = useState('')
-  const { open } = useBudgetCycleActions(undefined, (openedYear) => {
-    onOpened(openedYear)
+  const { create } = useBudgetCycleActions(undefined, (createdYear) => {
+    onCreated(createdYear)
     onClose()
   })
 
@@ -26,19 +27,29 @@ export function CycleOpenDialog({ onClose, onOpened }: { onClose: () => void; on
   const yearValid =
     Number.isInteger(yearNumber) && yearNumber >= Math.max(MIN_YEAR, new Date().getFullYear()) && yearNumber <= MAX_YEAR
   const ceilingValid = isDecimal(ceiling)
+  const reserveValid = isDecimal(reserve)
+  // The API does not stop it, so the form does: the shared-pool reserve is a slice of the annual ceiling.
+  const reserveOverCeiling = ceilingValid && reserveValid && Number(reserve) > Number(ceiling)
   const deadlinesOrdered = !submissionDeadline || !decisionDeadline || submissionDeadline <= decisionDeadline
   const valid =
-    yearValid && ceilingValid && Boolean(submissionDeadline) && Boolean(decisionDeadline) && deadlinesOrdered
+    yearValid &&
+    ceilingValid &&
+    reserveValid &&
+    !reserveOverCeiling &&
+    Boolean(submissionDeadline) &&
+    Boolean(decisionDeadline) &&
+    deadlinesOrdered
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (!valid || open.isPending) return
-    open.mutate({
+    if (!valid || create.isPending) return
+    create.mutate({
       data: {
         year: yearNumber,
         submissionDeadline,
         decisionDeadline,
         annualCeiling: { amount: ceiling },
+        sharedPoolReserve: { amount: reserve },
         ...(priorities.trim() ? { priorities: priorities.trim() } : {})
       }
     })
@@ -46,9 +57,9 @@ export function CycleOpenDialog({ onClose, onOpened }: { onClose: () => void; on
 
   return (
     <AdminFormDialog
-      title={translate('budgetCycle.openTitle')}
-      pending={open.isPending}
-      submitLabel={translate('budgetCycle.openSubmit')}
+      title={translate('budgetCycle.createTitle')}
+      pending={create.isPending}
+      submitLabel={translate('budgetCycle.createSubmit')}
       submitDisabled={!valid}
       onClose={onClose}
       onSubmit={submit}
@@ -83,6 +94,27 @@ export function CycleOpenDialog({ onClose, onOpened }: { onClose: () => void; on
             placeholder={translate('placeholders.amount')}
             value={ceiling}
             onValueChange={setCeiling}
+          />
+        </FinanceField>
+        <FinanceField
+          label={translate('budgetCycle.sharedPoolReserve')}
+          required
+          hint={translate('budgetCycle.sharedPoolHint')}
+          error={
+            reserve && !reserveValid
+              ? translate('fieldInvalid')
+              : reserveOverCeiling
+                ? translate('budgetCycle.reserveOverCeiling')
+                : null
+          }
+        >
+          <MoneyInput
+            maxLength={40}
+            aria-invalid={Boolean(reserve) && !reserveValid}
+            className={`${financeInputClass} font-mono tabular-nums`}
+            placeholder={translate('placeholders.amount')}
+            value={reserve}
+            onValueChange={setReserve}
           />
         </FinanceField>
         <FinanceField label={translate('budgetCycle.submissionDeadline')} required>

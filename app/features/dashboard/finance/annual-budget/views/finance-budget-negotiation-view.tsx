@@ -84,6 +84,12 @@ function VersionList({ onSelectTab }: BudgetViewProps) {
               label: translate('fields.total'),
               numeric: true,
               render: (version) => formatMoney(version.total, i18n.language)
+            },
+            {
+              key: 'sentAt',
+              label: translate('detail.sentColumn'),
+              numeric: true,
+              render: (version) => (version.sentAt ? new Date(version.sentAt).toLocaleDateString(i18n.language) : '—')
             }
           ]}
         />

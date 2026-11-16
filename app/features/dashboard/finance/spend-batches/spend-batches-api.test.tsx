@@ -159,21 +159,24 @@ describe('Finance spend batches integration', () => {
       </QueryClientProvider>
     )
 
-    // Bước 1: danh sách phòng ban, chưa gọi danh sách đợt
-    expect((await screen.findAllByText('Engineering')).length).toBeGreaterThan(0)
-    expect(requests.some((request) => request.url?.endsWith('/spend-batches'))).toBe(false)
-
-    fireEvent.click(screen.getAllByRole('button', { name: finance.open })[0])
-
-    // Bước 2: các đợt của phòng ban đã chọn
+    // The batches of every department are listed at once, newest first
     expect((await screen.findAllByText('John Manager')).length).toBeGreaterThan(0)
     expect(screen.getAllByText(/45,000,000/).length).toBeGreaterThan(0)
-    const batchRequest = requests.find((request) => request.url?.endsWith('/spend-batches'))
-    expect(batchRequest?.params?.departmentId).toBe('dept-eng')
+    const first = requests.find((request) => request.url?.endsWith('/spend-batches'))
+    expect(first?.params?.departmentId).toBeUndefined()
 
-    // Bước 3: chi tiết đợt
-    fireEvent.click(screen.getAllByRole('button', { name: finance.open })[0])
+    // Choosing a department filters the batches
+    fireEvent.change(screen.getByLabelText('Department'), { target: { value: 'dept-eng' } })
+    await waitFor(() =>
+      expect(
+        requests.some(
+          (request) => request.url?.endsWith('/spend-batches') && request.params?.departmentId === 'dept-eng'
+        )
+      ).toBe(true)
+    )
 
+    // A batch opens to its Requests
+    fireEvent.click((await screen.findAllByRole('button', { name: finance.open }))[0])
     await waitFor(() => {
       expect(screen.getAllByText(finance.requestStates.AWAITING_SPEND_DECISION).length).toBeGreaterThan(0)
     })

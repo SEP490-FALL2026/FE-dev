@@ -19,7 +19,7 @@ import { FinanceTable } from '../../shared/components/finance-table'
 import { getFinanceError } from '../../shared/finance-errors'
 import { formatMoney } from '../../shared/finance-money'
 import type { FinanceTabKey } from '../../enums'
-import { useCommitmentReleases, useFinanceCommitments, useReleaseCommitment } from '../hooks/use-finance-commitments'
+import { useCommitmentLookup, useCommitmentReleases, useReleaseCommitment } from '../hooks/use-finance-commitments'
 
 interface CommitmentReleaseViewProps {
   itemId?: string
@@ -33,10 +33,10 @@ export function FinanceCommitmentReleaseView({ itemId, onSelectTab }: Commitment
   const [searchParams] = useSearchParams()
   const requestId = searchParams.get('request') ?? undefined
   const [reason, setReason] = useState('')
-  const list = useFinanceCommitments({ requestId, pageSize: 100 })
+  const list = useCommitmentLookup(itemId, { requestId })
   const releases = useCommitmentReleases(itemId)
   const mutation = useReleaseCommitment(itemId ?? '')
-  const commitment = list.data?.items.find((item) => item.id === itemId)
+  const commitment = list.data ?? undefined
   const releasable = Boolean(commitment && commitment.state !== 'RELEASED' && Number(commitment.held.amount) > 0)
   const back = () => onSelectTab('commitments')
 

@@ -13,10 +13,9 @@ import {
 } from '../../shared/components/finance-ui'
 import { FinanceTable } from '../../shared/components/finance-table'
 import { formatMoney } from '../../shared/finance-money'
-import { useFinanceCommitments } from '../hooks/use-finance-commitments'
+import { useFinanceCommitments, type CommitmentItem } from '../hooks/use-finance-commitments'
 import type { FinanceTabKey } from '../../enums'
 import { CommitmentRowActions } from '../components/commitment-row-actions'
-import type { ExtendedCommitmentItem } from '../../shared/finance-api-extensions'
 
 const validYear = (value: string) => /^\d{4}$/.test(value) && Number(value) >= 2000 && Number(value) <= 2200
 
@@ -32,6 +31,7 @@ export function FinanceCommitmentsView({
   const [costCenterId, setCostCenterId] = useState<string>('')
   const [state, setState] = useState<'HELD' | 'RELEASED' | 'EXPENSED' | ''>('HELD')
   const [year, setYear] = useState<string>(String(new Date().getFullYear()))
+  const [attached, setAttached] = useState<'' | 'true' | 'false'>('')
 
   const costCenters = useCostCenterList({ pageSize: 100 })
 
@@ -42,6 +42,7 @@ export function FinanceCommitmentsView({
     pageSize: 20,
     costCenterId: costCenterId || undefined,
     state: state || undefined,
+    attached: attached === '' ? undefined : attached,
     year: parsedYear
   })
 
@@ -81,15 +82,27 @@ export function FinanceCommitmentsView({
               }}
             >
               <option value=''>{translate('all')}</option>
-              <option value='HELD'>
-                {translateFinance('heldStatusOption', { defaultValue: 'Đã duyệt, chưa chi (HELD)' })}
-              </option>
-              <option value='EXPENSED'>
-                {translateFinance('expensedStatusOption', { defaultValue: 'Đã thành chi phí (EXPENSED)' })}
-              </option>
-              <option value='RELEASED'>
-                {translateFinance('releasedStatusOption', { defaultValue: 'Đã giải phóng (RELEASED)' })}
-              </option>
+              {(['HELD', 'EXPENSED', 'RELEASED'] as const).map((value) => (
+                <option key={value} value={value}>
+                  {translateFinance(`status.${value}`)}
+                </option>
+              ))}
+            </FinanceSelect>
+          </FinanceField>
+        </div>
+
+        <div className='sm:w-56'>
+          <FinanceField label={translate('commitmentsList.attachedFilter')}>
+            <FinanceSelect
+              value={attached}
+              onChange={(e) => {
+                setAttached(e.target.value === 'true' ? 'true' : e.target.value === 'false' ? 'false' : '')
+                setPage(1)
+              }}
+            >
+              <option value=''>{translate('all')}</option>
+              <option value='true'>{translate('commitmentsList.attachedYes')}</option>
+              <option value='false'>{translate('commitmentsList.attachedNo')}</option>
             </FinanceSelect>
           </FinanceField>
         </div>
@@ -114,9 +127,17 @@ export function FinanceCommitmentsView({
       </FinanceToolbar>
 
       <FinanceQueryState query={query}>
-        <FinanceTable<ExtendedCommitmentItem>
+        <FinanceTable<CommitmentItem>
           items={commitments}
           rowKey={(item) => item.id}
+          onOpen={(item) =>
+            onSelectTab?.('commitment-detail', {
+              id: item.id,
+              request: item.requestId,
+              cc: item.costCenter.id,
+              year: String(item.year)
+            })
+          }
           columns={[
             {
               key: 'costCenter',
@@ -173,9 +194,34 @@ export function FinanceCommitmentsView({
               )
             },
             {
+              key: 'invoiced',
+              label: translate('commitmentsList.invoiced'),
+              numeric: true,
+              render: (item) => (
+                <div className='space-y-0.5'>
+                  <div className='font-mono'>{item.invoiced ? formatMoney(item.invoiced, i18n.language) : '—'}</div>
+                  <div className='text-xs text-muted-foreground'>
+                    {translate('commitmentsList.invoiceCount', { count: item.invoiceCount ?? 0 })}
+                    {item.hasDiscrepancy && (
+                      <span className='ml-1.5 font-medium text-danger'>{translate('commitmentsList.discrepancy')}</span>
+                    )}
+                  </div>
+                </div>
+              )
+            },
+            {
               key: 'state',
               label: translate('status'),
-              render: (item) => <FinanceStatus value={item.state} />
+              render: (item) => (
+                <div className='space-y-1'>
+                  <FinanceStatus value={item.state} />
+                  {!item.attached && (
+                    <div className='text-xs text-warning-ink'>
+                      {translate(`commitmentsList.unattached.${item.unattachedReason ?? 'NO_BUDGET'}`)}
+                    </div>
+                  )}
+                </div>
+              )
             },
             {
               key: 'actions',

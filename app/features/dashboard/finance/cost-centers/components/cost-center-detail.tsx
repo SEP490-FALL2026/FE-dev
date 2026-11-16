@@ -17,6 +17,7 @@ import { formatMoney } from '../../shared/finance-money'
 import { useCurrentBudgetsByCostCenter } from '../hooks/use-cost-center-budgets'
 import { CostCenterBudgetVersions } from './cost-center-budget-versions'
 import { CostCenterCommitments } from './cost-center-commitments'
+import { CostCenterManageActions } from './cost-center-manage-actions'
 
 /** Read-only view of one cost center: its current budget figures, commitments/payment batches, and versions. */
 export function CostCenterDetail({
@@ -50,6 +51,8 @@ export function CostCenterDetail({
           {translate('budgetOfYear', { year: year ?? '—' })}
         </span>
       </div>
+
+      <CostCenterManageActions item={item} />
 
       <FinanceSection title={translate('budgetOfYear', { year: year ?? '—' })}>
         <FinanceQueryState query={budgets}>

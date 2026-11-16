@@ -8,10 +8,14 @@ const vnd = (amount: string) => ({ amount, currency: 'VND' })
 const totals: BudgetSummaryTotalsItem = {
   currency: 'VND',
   total: vnd('833800000'),
+  effectiveBudget: vnd('833800000'),
   base: vnd('758000000'),
   reserve: vnd('75800000'),
   committed: vnd('12600000'),
   spent: vnd('400000'),
+  pendingSpend: vnd('0'),
+  remainingBase: vnd('819700000'),
+  remainingWithReserve: vnd('819700000'),
   remaining: vnd('819700000'),
   costCenterCount: 8,
   overBudgetCount: 0

@@ -209,7 +209,9 @@ const statusTones: Record<StatusTone, readonly string[]> = {
     'AVAILABLE',
     'EXPENSED',
     'ATTACHED',
-    'RECOMMEND_APPROVE'
+    'RECOMMEND_APPROVE',
+    'SIGNED',
+    'EXPLAINED'
   ],
   warning: [
     'SUBMITTED',
@@ -225,7 +227,8 @@ const statusTones: Record<StatusTone, readonly string[]> = {
     'PLAN_LINE_OVERDUE',
     'STALE_COST_EVIDENCE',
     'OVER_CEILING',
-    'MISSING'
+    'MISSING',
+    'AWAITING_EXPLANATIONS'
   ],
   danger: [
     'REJECTED',
@@ -236,9 +239,10 @@ const statusTones: Record<StatusTone, readonly string[]> = {
     'BLOCKED',
     'GRANT_FAILED',
     'RECOMMEND_REJECT',
-    'CLOSED_OR_EXPIRED_BUDGET_PERIOD'
+    'CLOSED_OR_EXPIRED_BUDGET_PERIOD',
+    'UNEXPLAINED'
   ],
-  info: ['DRAFT', 'RETURNED', 'RETURN_TO_HEAD', 'RETURNED_TO_HEAD', 'REVIEWED', 'RELEASED'],
+  info: ['SNAPSHOT', 'DRAFT', 'RETURNED', 'RETURN_TO_HEAD', 'RETURNED_TO_HEAD', 'REVIEWED', 'RELEASED'],
   neutral: []
 }
 
@@ -280,7 +284,7 @@ export function FinanceStat({
   emphasis?: boolean
 }) {
   return (
-    <div className='min-w-0 space-y-1 bg-surface p-4'>
+    <div className='min-w-48 flex-1 basis-56 space-y-1 bg-surface p-4'>
       <dt className='text-xs font-medium tracking-wider text-muted-foreground uppercase'>{label}</dt>
       <dd
         className={`truncate font-mono text-lg font-semibold tabular-nums ${emphasis ? 'text-primary-ink' : 'text-foreground'}`}
@@ -294,7 +298,7 @@ export function FinanceStat({
 export function FinanceStatGrid({ children, columns = 3 }: { children: ReactNode; columns?: 3 | 4 }) {
   return (
     <dl
-      className={`grid gap-px overflow-hidden rounded-lg border border-border/70 bg-border/70 sm:grid-cols-2 ${columns === 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3'}`}
+      className={`flex flex-wrap gap-px overflow-hidden rounded-lg border border-border/70 bg-border/70 ${columns === 4 ? '[&>div]:basis-60' : '[&>div]:basis-72'}`}
     >
       {children}
     </dl>

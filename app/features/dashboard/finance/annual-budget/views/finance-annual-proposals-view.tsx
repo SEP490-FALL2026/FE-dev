@@ -8,6 +8,7 @@ import { FinanceTable } from '../../shared/components/finance-table'
 import { useFinanceList } from '../../shared/hooks/use-finance-list'
 import { formatMoney } from '../../shared/finance-money'
 import type { BudgetViewProps } from '../budget-view-props'
+import { BudgetTemplateDownload } from '../components/budget-template-download'
 import { BudgetListFilters } from '../components/budget-list-filters'
 import { BudgetProposalDetail } from '../components/budget-proposal-detail'
 import { proposalStates } from '../enums/proposal-state'
@@ -29,7 +30,7 @@ function ProposalList({ onSelectTab }: BudgetViewProps) {
   })
   const result = query.data?.data
   return (
-    <FinancePage title={translate('proposals')}>
+    <FinancePage title={translate('proposals')} actions={<BudgetTemplateDownload />}>
       <BudgetListFilters
         year={year}
         onYearChange={setYear}
@@ -61,13 +62,26 @@ function ProposalList({ onSelectTab }: BudgetViewProps) {
             {
               key: 'state',
               label: translate('fields.state'),
-              render: (proposal) => <FinanceStatus value={proposal.state} />
+              render: (proposal) => (
+                <div className='flex flex-wrap items-center gap-1.5'>
+                  <FinanceStatus value={proposal.state} />
+                  {proposal.previousProposalId && (
+                    <span className='text-xs text-muted-foreground'>{translate('detail.resubmission')}</span>
+                  )}
+                </div>
+              )
             },
             {
               key: 'total',
               label: translate('fields.total'),
               numeric: true,
               render: (proposal) => formatMoney(proposal.total, i18n.language)
+            },
+            {
+              key: 'submittedAt',
+              label: translate('detail.submittedAt'),
+              numeric: true,
+              render: (proposal) => new Date(proposal.submittedAt).toLocaleDateString(i18n.language)
             }
           ]}
         />

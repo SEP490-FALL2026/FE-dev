@@ -15,14 +15,22 @@ export const FINANCE_TAB_KEYS = [
   'spend-batches',
   'commitments',
   'commitment-release',
+  'commitment-detail',
   'saas-cost',
   'spend-import',
   'charge-exceptions',
   'period-close',
   'cost-analysis',
+  'seat-charges',
+  'budget-adjustments',
+  'budget-parameters',
   'period-report',
   'cost-centers',
-  'vendor-tax'
+  'vendor-tax',
+  'request-monitor',
+  'purchase-invoices',
+  'invoice-discrepancies',
+  'out-of-process'
 ] as const
 
 export type FinanceTabKey = (typeof FINANCE_TAB_KEYS)[number]

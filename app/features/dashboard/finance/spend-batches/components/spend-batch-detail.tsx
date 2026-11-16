@@ -17,14 +17,19 @@ import { useSpendBatchGet, useSpendBatchItemList } from '../hooks/use-spend-batc
 import { isBatchRequestState } from '../enums/batch-request-state'
 import type { BatchItemListResponseDtoDataItemsItem } from '~/shared/api/generated/model/spend-submission'
 
+/** Requests of a batch whose spend was approved: only those Finance can open in the Request monitor. */
+const OPENABLE_STATES = new Set(['AWAITING_EXECUTION', 'EXECUTING', 'COMPLETED', 'FAILED', 'AWAITING_IT_CLOSE'])
+
 export function SpendBatchDetail({
   batchId,
   departmentName,
-  onClose
+  onClose,
+  onOpenRequest
 }: {
   batchId: string
   departmentName: string
   onClose: () => void
+  onOpenRequest?: (requestId: string) => void
 }) {
   const { t: translate, i18n } = useTranslation('financeSettings')
   const { t: translateFinance } = useTranslation('finance')
@@ -43,31 +48,38 @@ export function SpendBatchDetail({
         return (
           <span className='inline-flex items-center gap-1 rounded-full bg-success/15 px-2 py-0.5 text-xs font-medium text-success-ink'>
             <CheckCircle2 className='size-3' />
-            {translateFinance('outcomes.SENT_TO_APPROVER', { defaultValue: 'Chuyển Người duyệt chi' })}
+            {translateFinance('outcomes.SENT_TO_APPROVER')}
+          </span>
+        )
+      case 'AWAITING_RESERVE_CONFIRMATION':
+        return (
+          <span className='inline-flex items-center gap-1 rounded-full bg-warning/15 px-2 py-0.5 text-xs font-medium text-warning-ink'>
+            <Clock className='size-3' />
+            {translateFinance('outcomes.AWAITING_RESERVE_CONFIRMATION')}
           </span>
         )
       case 'SENT_TO_FINANCE':
         return (
           <span className='inline-flex items-center gap-1 rounded-full bg-info/15 px-2 py-0.5 text-xs font-medium text-info-ink'>
             <Clock className='size-3' />
-            {translateFinance('outcomes.SENT_TO_FINANCE', { defaultValue: 'Chuyển Finance rà soát' })}
+            {translateFinance('outcomes.SENT_TO_FINANCE')}
           </span>
         )
       case 'STOPPED':
         return (
           <div className='space-y-0.5'>
             <span className='inline-flex items-center rounded-full bg-danger/15 px-2 py-0.5 text-xs font-medium text-danger'>
-              {translateFinance('outcomes.STOPPED', { defaultValue: 'Bị dừng' })}
+              {translateFinance('outcomes.STOPPED')}
             </span>
             {stopReason && (
               <div className='text-[11px] text-muted-foreground'>
-                {translateFinance(`stopReasons.${stopReason}`, { defaultValue: stopReason })}
+                {translateFinance(`stopReasons.${stopReason}`, { defaultValue: translateFinance('unknown') })}
               </div>
             )}
           </div>
         )
       default:
-        return <span className='text-xs text-muted-foreground'>{outcome}</span>
+        return <span className='text-xs text-muted-foreground'>{translateFinance('unknown')}</span>
     }
   }
 
@@ -129,6 +141,23 @@ export function SpendBatchDetail({
                       render: (item) => outcomeBadge(item.outcome, item.stopReason)
                     },
                     {
+                      key: 'left',
+                      label: translateFinance('leftBatch'),
+                      render: (item) =>
+                        item.leftReason ? (
+                          <div className='text-xs'>
+                            <div>{translateFinance(`leftReasons.${item.leftReason}`)}</div>
+                            {item.leftAt && (
+                              <div className='text-muted-foreground'>
+                                {new Date(item.leftAt).toLocaleDateString(i18n.language)}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <span className='text-muted-foreground'>—</span>
+                        )
+                    },
+                    {
                       key: 'requestState',
                       label: translateFinance('requestState'),
                       render: (item) => (
@@ -141,6 +170,17 @@ export function SpendBatchDetail({
                           }
                         />
                       )
+                    },
+                    {
+                      key: 'open',
+                      label: '',
+                      actions: true,
+                      render: (item) =>
+                        onOpenRequest && OPENABLE_STATES.has(item.requestState) ? (
+                          <FinanceButton onClick={() => onOpenRequest(item.requestId)}>
+                            {translateFinance('openRequest')}
+                          </FinanceButton>
+                        ) : null
                     }
                   ]}
                 />

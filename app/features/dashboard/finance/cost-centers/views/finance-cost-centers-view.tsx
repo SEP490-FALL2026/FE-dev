@@ -9,6 +9,7 @@ import { useCostCenterLabel } from '../../shared/hooks/use-cost-center-label'
 import { useCostCenterRows } from '../hooks/use-cost-center-rows'
 import type { FinanceTabKey } from '../../enums'
 import {
+  FinanceButton,
   FinanceField,
   FinanceDetailPage,
   FinancePage,
@@ -24,9 +25,10 @@ import { BudgetUtilization } from '../../shared/components/budget-utilization'
 import { FinanceTable } from '../../shared/components/finance-table'
 import { hasBudget } from '../../shared/finance-budget-row'
 import { formatMoney } from '../../shared/finance-money'
+import { CostCenterCreateDialog } from '../components/cost-center-create-dialog'
 import { CostCenterDetail } from '../components/cost-center-detail'
 import { CostCenterCharts } from '../components/cost-center-charts'
-import { CostCenterKpis } from '../components/cost-center-kpis'
+import { CompanyBudgetLines, CostCenterKpis } from '../components/cost-center-kpis'
 import { useCurrentBudgetsByCostCenter } from '../hooks/use-cost-center-budgets'
 import { useBudgetSummary } from '../hooks/use-budget-summary'
 
@@ -43,6 +45,7 @@ export function FinanceCostCentersView({
   const [page, setPage] = useState(1)
   const [year, setYear] = useState(String(new Date().getFullYear()))
   const [selected, setSelected] = useState<CostCenterPageResponseDtoDataItemsItem | null>(null)
+  const [creating, setCreating] = useState(false)
 
   const costCenterLabel = useCostCenterLabel()
   const centers = useCostCenterRows({ status, search: debouncedSearch, page, label: costCenterLabel })
@@ -58,7 +61,11 @@ export function FinanceCostCentersView({
     if (budgets.isPending || budgets.isError) return <span className='text-muted-foreground'>—</span>
     const budget = budgetOf(item)
     if (!budget || !hasBudget(budget)) return <span className='text-muted-foreground'>{translate('noBudget')}</span>
-    return formatMoney(budget[field], i18n.language)
+    // The budget of a Cost Center is the one in force: the version plus approved adjustments.
+    return formatMoney(
+      field === 'total' ? (budget.effectiveBudget?.total ?? budget.total) : budget[field],
+      i18n.language
+    )
   }
 
   if (selected)
@@ -74,7 +81,15 @@ export function FinanceCostCentersView({
     )
 
   return (
-    <FinancePage title={translate('costCenters')} description={translate('costCentersDescription')}>
+    <FinancePage
+      title={translate('costCenters')}
+      description={translate('costCentersDescription')}
+      actions={
+        <FinanceButton variant='primary' onClick={() => setCreating(true)}>
+          {translate('costCenterActions.create')}
+        </FinanceButton>
+      }
+    >
       <FinanceToolbar>
         <FinanceSearch
           label={translate('searchCenters')}
@@ -129,6 +144,7 @@ export function FinanceCostCentersView({
                 lastInvoiceRecordedAt={summary.lastInvoiceRecordedAt}
                 activeCenters={activeCenters.data?.data?.pagination.totalItems}
               />
+              {summary.company && <CompanyBudgetLines company={summary.company} />}
               <CostCenterCharts totals={summary.totals} />
             </div>
           )}
@@ -174,7 +190,7 @@ export function FinanceCostCentersView({
                 const budget = budgetOf(item)
                 return budget && hasBudget(budget) ? (
                   <BudgetUtilization
-                    total={budget.total}
+                    total={budget.effectiveBudget?.total ?? budget.total}
                     committed={budget.committed}
                     spent={budget.spent}
                     overCommitted={budget.overCommitted}
@@ -187,6 +203,7 @@ export function FinanceCostCentersView({
         <FinancePagination pagination={centers.pagination} onPageChange={setPage} />
         {budgets.data?.truncated && <p className='text-xs text-muted-foreground'>{translate('listTruncated')}</p>}
       </FinanceQueryState>
+      {creating && <CostCenterCreateDialog onClose={() => setCreating(false)} />}
     </FinancePage>
   )
 }

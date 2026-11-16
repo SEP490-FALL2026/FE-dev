@@ -38,7 +38,8 @@ beforeEach(async () => {
               purchasedQuantity: null,
               unitPrice: null,
               billingCycle: null,
-              missingFinancialData: true
+              missingFinancialData: true,
+              missing: ['QUANTITY', 'UNIT_PRICE']
             }
           ]
     return {

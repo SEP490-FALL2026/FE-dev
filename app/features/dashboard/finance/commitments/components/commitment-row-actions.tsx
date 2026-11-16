@@ -1,6 +1,6 @@
 import { Unlock, type LucideIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import type { ExtendedCommitmentItem } from '../../shared/finance-api-extensions'
+import type { CommitmentItem } from '../hooks/use-finance-commitments'
 
 const iconButtonClass =
   'inline-flex size-11 cursor-pointer items-center justify-center rounded-md border transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-none md:size-9'
@@ -37,13 +37,7 @@ function RowIconButton({
   )
 }
 
-export function CommitmentRowActions({
-  commitment,
-  onRelease
-}: {
-  commitment: ExtendedCommitmentItem
-  onRelease: () => void
-}) {
+export function CommitmentRowActions({ commitment, onRelease }: { commitment: CommitmentItem; onRelease: () => void }) {
   const { t: translate } = useTranslation('finance')
   return (
     <div className='inline-flex items-center justify-end gap-1.5'>

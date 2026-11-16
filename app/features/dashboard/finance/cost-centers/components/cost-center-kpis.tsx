@@ -86,7 +86,7 @@ export function CostCenterKpis({
     <dl className='grid gap-3 sm:grid-cols-2 lg:grid-cols-3'>
       <KpiCard
         label={translate('kpis.total')}
-        value={full(totals.total)}
+        value={full(totals.effectiveBudget)}
         caption={translate('kpis.totalCaption', {
           budgeted: totals.costCenterCount,
           total: activeCenters ?? totals.costCenterCount
@@ -113,6 +113,13 @@ export function CostCenterKpis({
         value={full(totals.committed)}
         caption={translate('kpis.heldCaption')}
         icon={Lock}
+        tone='held'
+      />
+      <KpiCard
+        label={translate('kpis.pending')}
+        value={full(totals.pendingSpend)}
+        caption={translate('kpis.pendingCaption')}
+        icon={Clock}
         tone='held'
       />
       <KpiCard
@@ -157,5 +164,68 @@ export function CostCenterKpis({
         }
       />
     </dl>
+  )
+}
+
+type Money = { amount: string; currency: string } | null
+
+export interface CompanyBudgetFigures {
+  annualCeiling: Money
+  sharedPoolReserve: Money
+  sharedPoolUnallocated: Money
+  sharedPoolOverReserve: boolean | null
+  seatMonthsWithoutCostCenter: Money
+  companySpent: Money
+}
+
+/** Company-level lines of the year: the two control figures, the shared pool and the seat-months nobody bears yet. */
+export function CompanyBudgetLines({ company }: { company: CompanyBudgetFigures }) {
+  const { t: translate, i18n } = useTranslation('financeSettings')
+  const money = (value: Money) => (value ? formatMoney(value, i18n.language) : translate('company.none'))
+  const rows: { key: string; label: string; hint?: string; value: string }[] = [
+    { key: 'ceiling', label: translate('company.annualCeiling'), value: money(company.annualCeiling) },
+    {
+      key: 'reserve',
+      label: translate('company.sharedPoolReserve'),
+      hint: translate('company.sharedPoolReserveHint'),
+      value: money(company.sharedPoolReserve)
+    },
+    {
+      key: 'pool',
+      label: translate('company.sharedPoolUnallocated'),
+      hint: translate('company.sharedPoolUnallocatedHint'),
+      value: money(company.sharedPoolUnallocated)
+    },
+    {
+      key: 'noCostCenter',
+      label: translate('company.noCostCenter'),
+      hint: translate('company.noCostCenterHint'),
+      value: money(company.seatMonthsWithoutCostCenter)
+    },
+    {
+      key: 'companySpent',
+      label: translate('company.companySpent'),
+      hint: translate('company.companySpentHint'),
+      value: money(company.companySpent)
+    }
+  ]
+  return (
+    <section aria-label={translate('company.title')} className='space-y-2'>
+      <h3 className='text-sm font-semibold'>{translate('company.title')}</h3>
+      <dl className='grid gap-px overflow-hidden rounded-lg border border-border/70 bg-border/70 sm:grid-cols-2 lg:grid-cols-3'>
+        {rows.map((row) => (
+          <div key={row.key} className='min-w-0 space-y-1 bg-surface p-4'>
+            <dt className='text-xs font-medium text-muted-foreground'>{row.label}</dt>
+            <dd className='truncate font-mono text-base font-semibold tabular-nums'>{row.value}</dd>
+            {row.hint && <dd className='text-xs text-muted-foreground [text-wrap:pretty]'>{row.hint}</dd>}
+          </div>
+        ))}
+      </dl>
+      {company.sharedPoolOverReserve && (
+        <p role='alert' className='text-sm text-danger'>
+          {translate('company.overReserve')}
+        </p>
+      )}
+    </section>
   )
 }

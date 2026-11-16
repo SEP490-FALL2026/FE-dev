@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { AxiosHeaders, type InternalAxiosRequestConfig } from 'axios'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { apiClient } from '~/shared/api/axios-client'
@@ -11,7 +11,7 @@ const vnd = (amount: string) => ({ amount, currency: 'VND' })
 describe('Budget cycle edit', () => {
   const previousAdapter = apiClient.defaults.adapter
   let requests: InternalAxiosRequestConfig[] = []
-  let status = 'NOT_PUBLISHED'
+  let status = 'DRAFT'
 
   const reply = (config: InternalAxiosRequestConfig, data: unknown) => ({
     config,
@@ -25,20 +25,16 @@ describe('Budget cycle edit', () => {
     submissionDeadline: '2026-11-02',
     decisionDeadline: '2026-12-02',
     annualCeiling: vnd('500000000'),
-    sharedPoolReserve: null,
+    sharedPoolReserve: vnd('50000000'),
+    available: vnd('450000000'),
     priorities: null,
     status,
-    openedAt: '2026-10-01T00:00:00Z',
-    publishedAt: null,
-    firstPublishedAt: null,
-    allocated: vnd('0'),
-    unallocated: vnd('500000000'),
-    ceilings: {}
+    openedAt: null
   })
 
   beforeEach(async () => {
     requests = []
-    status = 'NOT_PUBLISHED'
+    status = 'DRAFT'
     await setAppLanguage('en', false)
     apiClient.defaults.adapter = async (config) => {
       requests.push(config)
@@ -85,36 +81,60 @@ describe('Budget cycle edit', () => {
       </QueryClientProvider>
     )
 
-  it('edits an unpublished cycle and sends only what changed, with a reason for a new ceiling', async () => {
+  it('edits a draft freely: no reason is asked and only what changed is sent', async () => {
     mount()
     fireEvent.click(await screen.findByRole('button', { name: 'Edit cycle' }))
-    const ceiling = screen.getByDisplayValue('500,000,000')
-    fireEvent.change(ceiling, { target: { value: '600000000' } })
-    expect(screen.getByRole('button', { name: 'Save changes' })).toBeDisabled()
-    fireEvent.change(screen.getByLabelText(/Reason for the new ceiling/), { target: { value: 'Leadership raised it' } })
+    fireEvent.change(screen.getByDisplayValue('500,000,000'), { target: { value: '600000000' } })
+    expect(screen.queryByLabelText(/Reason for the new amount/)).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: 'Save changes' }))
     await waitFor(() => expect(requests.some((request) => request.method === 'patch')).toBe(true))
     const patch = requests.find((request) => request.method === 'patch')
     expect(patch?.url?.endsWith('/budget-cycles/2027')).toBe(true)
-    expect(JSON.parse(patch?.data)).toEqual({
+    expect(JSON.parse(patch?.data)).toEqual({ annualCeiling: { amount: '600000000' } })
+  })
+
+  it('asks for a reason once the cycle is open', async () => {
+    status = 'OPEN'
+    mount()
+    fireEvent.click(await screen.findByRole('button', { name: 'Edit cycle' }))
+    fireEvent.change(screen.getByDisplayValue('500,000,000'), { target: { value: '600000000' } })
+    expect(screen.getByRole('button', { name: 'Save changes' })).toBeDisabled()
+    fireEvent.change(screen.getByLabelText(/Reason for the new amount/), { target: { value: 'Leadership raised it' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Save changes' }))
+    await waitFor(() => expect(requests.some((request) => request.method === 'patch')).toBe(true))
+    expect(JSON.parse(requests.find((request) => request.method === 'patch')?.data)).toEqual({
       annualCeiling: { amount: '600000000' },
       reason: 'Leadership raised it'
     })
   })
 
-  it('locks the cycle once it is published: no edit, no ceilings change, no second publication', async () => {
-    status = 'PUBLISHED'
+  it('does not accept a shared-pool reserve above the annual ceiling', async () => {
     mount()
-    expect(await screen.findByText(/The cycle is published: its details/)).toBeTruthy()
-    expect(screen.queryByRole('button', { name: 'Edit cycle' })).toBeNull()
-    expect(screen.queryByRole('button', { name: 'Publish department ceilings' })).toBeNull()
-    expect(screen.queryByRole('button', { name: 'Save division' })).toBeNull()
-    expect((screen.getByLabelText('Reserve for shared software') as HTMLInputElement).disabled).toBe(true)
+    fireEvent.click(await screen.findByRole('button', { name: 'Edit cycle' }))
+    fireEvent.change(screen.getByDisplayValue('50,000,000'), { target: { value: '900000000' } })
+    expect(screen.getByRole('button', { name: 'Save changes' })).toBeDisabled()
+    expect(screen.getByText(/should not be larger than the annual ceiling/)).toBeTruthy()
   })
 
-  it('offers the publication while the cycle is not published', async () => {
+  it('locks the cycle: no edit, no open, no delete', async () => {
+    status = 'LOCKED'
     mount()
-    expect(await screen.findByRole('button', { name: 'Publish department ceilings' })).toBeTruthy()
-    expect(screen.getByRole('button', { name: 'Save division' })).toBeTruthy()
+    expect(await screen.findByText(/locked after the submission deadline/)).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Edit cycle' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Open cycle' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Delete draft' })).toBeNull()
+  })
+
+  it('offers opening and deleting a draft, and opens with no body', async () => {
+    mount()
+    expect(await screen.findByRole('button', { name: 'Delete draft' })).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Open cycle' }))
+    // Opening notifies every department head, so it asks first.
+    expect(screen.getByText(/Every department head is notified/)).toBeTruthy()
+    expect(requests.some((request) => request.url?.endsWith('/opening'))).toBe(false)
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Open cycle' }))
+    await waitFor(() =>
+      expect(requests.some((request) => request.url?.endsWith('/budget-cycles/2027/opening'))).toBe(true)
+    )
   })
 })

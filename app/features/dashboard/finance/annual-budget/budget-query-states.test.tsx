@@ -5,7 +5,6 @@ import { apiClient } from '~/shared/api/axios-client'
 import { FinanceAnnualProposalsView } from './views/finance-annual-proposals-view'
 import { FinanceBudgetNegotiationView } from './views/finance-budget-negotiation-view'
 import {
-  apiLine,
   apiPage,
   apiResponse,
   budgetSideList,
@@ -52,17 +51,12 @@ describe('budget server states and pending writes', () => {
   })
   it('uses the unknown status fallback and exposes no edit/send/approve action', async () => {
     apiClient.defaults.adapter = async (config) =>
-      budgetSideList(config) ??
-      apiResponse(
-        config,
-        config.url?.endsWith('/lines') ? apiPage([apiLine]) : { version: { ...apiVersion, state: 'FUTURE_STATE' } }
-      )
+      budgetSideList(config) ?? apiResponse(config, { version: { ...apiVersion, state: 'FUTURE_STATE' } })
     renderBudget(<FinanceBudgetNegotiationView itemId='version-1' />)
     expect(await screen.findByText('Unknown status')).toBeTruthy()
     expect(screen.queryByRole('button', { name: 'Send for decision' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Edit figures' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Approve' })).toBeNull()
-    expect(screen.queryByRole('button', { name: 'Add line' })).toBeNull()
   })
   it('blocks duplicate sends while a mutation is pending', async () => {
     let sends = 0
@@ -77,7 +71,7 @@ describe('budget server states and pending writes', () => {
         sends += 1
         await gate
       }
-      return apiResponse(config, config.url?.endsWith('/lines') ? apiPage([apiLine]) : { version: apiVersion })
+      return apiResponse(config, { version: apiVersion })
     }
     renderBudget(<FinanceBudgetNegotiationView itemId='version-1' />)
     const send = await screen.findByRole('button', { name: 'Send for decision' })

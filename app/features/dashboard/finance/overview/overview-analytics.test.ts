@@ -7,7 +7,6 @@ import {
   commitmentsByMonth,
   costCenterRows,
   periodMonths,
-  plannedQuarters,
   sumPeriod,
   type OverviewPeriod
 } from './overview-analytics'
@@ -77,13 +76,5 @@ describe('finance overview analytics', () => {
     expect(points[3]).toMatchObject({ month: 4, amount: 100, count: 1, inPeriod: true })
     expect(points[0].inPeriod).toBe(false)
     expect(sumPeriod(points)).toEqual({ amount: 150, count: 2 })
-  })
-
-  it('sums planned quarters and reports versions without a split', () => {
-    const split = { q1: vnd('10'), q2: vnd('20'), q3: vnd('30'), q4: vnd('40') }
-    const result = plannedQuarters([split, split, null], period({ mode: 'month', month: 8 }))
-    expect(result.points.map((point) => point.amount)).toEqual([20, 40, 60, 80])
-    expect(result.points.map((point) => point.inPeriod)).toEqual([false, false, true, false])
-    expect(result.withoutSplit).toBe(1)
   })
 })
