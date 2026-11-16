@@ -212,9 +212,9 @@ export function CompanyBudgetLines({ company }: { company: CompanyBudgetFigures 
   return (
     <section aria-label={translate('company.title')} className='space-y-2'>
       <h3 className='text-sm font-semibold'>{translate('company.title')}</h3>
-      <dl className='grid gap-px overflow-hidden rounded-lg border border-border/70 bg-border/70 sm:grid-cols-2 lg:grid-cols-3'>
+      <dl className='grid gap-3 sm:grid-cols-2 lg:grid-cols-3'>
         {rows.map((row) => (
-          <div key={row.key} className='min-w-0 space-y-1 bg-surface p-4'>
+          <div key={row.key} className='min-w-0 space-y-1 rounded-lg border border-border/70 bg-surface p-4'>
             <dt className='text-xs font-medium text-muted-foreground'>{row.label}</dt>
             <dd className='truncate font-mono text-base font-semibold tabular-nums'>{row.value}</dd>
             {row.hint && <dd className='text-xs text-muted-foreground [text-wrap:pretty]'>{row.hint}</dd>}
