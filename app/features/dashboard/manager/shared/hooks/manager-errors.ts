@@ -1,6 +1,9 @@
 import axios from 'axios'
 
 const errorKeys = {
+  'BUDGET_REVIEW.NOT_AWAITING_EXPLANATIONS': 'budgetReviewClosed',
+  'BUDGET_REVIEW.EXPLANATION_NOT_REQUIRED': 'budgetExplanationNotRequired',
+  'BUDGET.NOT_YOUR_COST_CENTER': 'forbidden',
   'FINANCE.SETUP_INCOMPLETE': 'financeSetup',
   'GROUP_REQUEST.LINES_MISMATCH': 'groupMismatch',
   'BUDGET_CYCLE.NOT_OPEN': 'cycleNotOpen',

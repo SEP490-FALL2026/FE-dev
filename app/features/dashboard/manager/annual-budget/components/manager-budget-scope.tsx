@@ -2,6 +2,7 @@ import { useSearchParams } from 'react-router'
 import { useBudgetScope } from '../hooks/use-budget-scope'
 import { useTranslation } from 'react-i18next'
 import { ManagerChoiceSelect } from '../../shared/components/manager-choice-select'
+import { resetBudgetDetails } from '../budget-navigation'
 
 export function ManagerBudgetScope() {
   const { t } = useTranslation('manager')
@@ -25,9 +26,7 @@ export function ManagerBudgetScope() {
           const cc = scope.units.find((unit) => unit.departmentId === id)?.costCenterId
           if (cc) next.set('costCenterId', cc)
           else next.delete('costCenterId')
-          next.delete('proposalId')
-          next.delete('page')
-          return next
+          return resetBudgetDetails(next)
         })
       }}
     />

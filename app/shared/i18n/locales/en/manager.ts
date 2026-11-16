@@ -1,9 +1,11 @@
+import { managerBudgetWorkspace } from './manager-budget-workspace'
 import { managerOverviewBudget } from './manager-overview-budget'
 import { managerRenewals } from './manager-renewals'
 import { managerIntegration } from './manager-integration'
 import { managerRequestForm } from './manager-request-form'
 import { managerBudgetForm } from './manager-budget-form'
 export const manager = {
+  budgetWorkspace: managerBudgetWorkspace,
   overviewBudget: managerOverviewBudget,
   renewal: managerRenewals,
   renewals: managerRenewals.title,
@@ -198,7 +200,7 @@ export const manager = {
   versionFiles: 'Version documents',
   emptyVersionFiles: 'No attachments for this version',
   currentBudget: 'Current annual budget',
-  budgetHint: 'Prepare plan lines and attach supporting documents for Finance review.',
+  budgetHint: 'Enter the total annual amount in VND and attach the completed BM-10 template for Finance review.',
   budgetMissing: 'No active budget for this year',
   windowFrom: 'Purchase window starts',
   windowTo: 'Purchase window ends',
@@ -333,6 +335,7 @@ export const manager = {
     confirmRejectText: 'Are you sure you want to REJECT this software need?'
   },
   errors: {
+    ...managerBudgetWorkspace.errors,
     cycleNotOpen: 'The budget cycle of this year is not open yet.',
     cycleLocked: 'The budget cycle is locked because the submission deadline has passed.',
     costCenterRequired: 'You are responsible for more than one Cost Center this year; choose the one to work on.',

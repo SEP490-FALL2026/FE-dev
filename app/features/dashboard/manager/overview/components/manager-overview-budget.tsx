@@ -49,22 +49,36 @@ export function ManagerOverviewBudget() {
           </div>
           {budget.status === MineResponseDtoDataBudgetStatus.NO_ACTIVE_BUDGET ? (
             <p className='text-sm text-muted-foreground'>{t('overviewBudget.noBudget')}</p>
-          ) : budget.status !== MineResponseDtoDataBudgetStatus.ACTIVE || !budget.total ? (
+          ) : budget.status !== MineResponseDtoDataBudgetStatus.ACTIVE || !budget.effectiveBudget ? (
             <p className='text-sm text-muted-foreground'>{t('overviewBudget.unavailable')}</p>
           ) : (
             <>
               <div className='border-y border-border/60 py-4'>
-                <p className='text-sm text-muted-foreground'>{t('overviewBudget.allocated')}</p>
-                <p className='mt-1 break-all text-2xl font-semibold tracking-tight'>
-                  <ManagerMoney money={budget.total} />
+                <p className='text-sm text-muted-foreground'>{t('overviewBudget.effective')}</p>
+                <p className='mt-1 break-all text-right font-mono text-2xl font-semibold tabular-nums tracking-tight'>
+                  <ManagerMoney money={budget.effectiveBudget.total} />
                 </p>
+                <dl className='mt-4 grid gap-4 text-sm sm:grid-cols-2'>
+                  <div>
+                    <dt className='text-muted-foreground'>{t('overviewBudget.allocated')}</dt>
+                    <dd className='mt-1 text-right font-mono tabular-nums'>
+                      <ManagerMoney money={budget.total} />
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className='text-muted-foreground'>{t('overviewBudget.adjustment')}</dt>
+                    <dd className='mt-1 text-right font-mono tabular-nums'>
+                      <ManagerMoney money={budget.effectiveBudget.adjustment} />
+                    </dd>
+                  </div>
+                </dl>
               </div>
               <div className='grid gap-8 lg:grid-cols-2 lg:gap-12'>
                 <ManagerBudgetChart
                   title={t('overviewBudget.structure')}
                   rows={[
-                    { label: t('overviewBudget.base'), money: budget.base, accent: true },
-                    { label: t('overviewBudget.reserve'), money: budget.reserve }
+                    { label: t('overviewBudget.base'), money: budget.effectiveBudget.base, accent: true },
+                    { label: t('overviewBudget.reserve'), money: budget.effectiveBudget.reserve }
                   ]}
                 />
                 <ManagerBudgetChart

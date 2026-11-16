@@ -7,6 +7,8 @@ export const managerOverviewBudget = {
   unavailable: 'Không có dữ liệu ngân sách phù hợp với Cost Center của phòng ban.',
   noBudget: 'Cost Center của phòng ban chưa có ngân sách hiện hành trong năm này.',
   allocated: 'Ngân sách được duyệt',
+  effective: 'Ngân sách hiệu lực',
+  adjustment: 'Điều chỉnh đã duyệt (ròng)',
   structure: 'Cơ cấu ngân sách',
   usage: 'Tình hình sử dụng ngân sách',
   base: 'Ngân sách cơ sở',

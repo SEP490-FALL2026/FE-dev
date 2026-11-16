@@ -8,13 +8,14 @@ import { isCycleStatus } from '../enums/cycle-status'
 /** Cycle of the year (status and deadlines), effective budget and the baseline used to prepare BM-10. */
 export function ManagerBudgetContext({ year, context }: { year: number; context: BudgetContextState }) {
   const { t: translate } = useTranslation('requestFlow')
+  const { t: manager } = useTranslation('manager')
   const { query, budget, departmentId } = context
   const baseline = useBudgetCycleBaseline(year, { departmentId }, { query: { enabled: !!departmentId } })
   const { formatDate, formatNumber } = useWorkspaceFormat()
   const cycle = budget?.cycle
   return (
     <ManagerSection title={translate('budgetCycle')}>
-      <ManagerQueryState query={query} />
+      <ManagerQueryState query={query} empty={!budget} emptyTitle={manager('budgetWorkspace.unavailable')} />
       {budget && (
         <dl className='grid gap-4 text-sm sm:grid-cols-4'>
           <div>
@@ -31,18 +32,18 @@ export function ManagerBudgetContext({ year, context }: { year: number; context:
             <>
               <div>
                 <dt className='text-xs text-muted-foreground'>{translate('submissionDue')}</dt>
-                <dd className='font-mono tabular-nums'>{formatDate(cycle.submissionDeadline)}</dd>
+                <dd className='text-right font-mono tabular-nums'>{formatDate(cycle.submissionDeadline)}</dd>
               </div>
               <div>
                 <dt className='text-xs text-muted-foreground'>{translate('approvalDue')}</dt>
-                <dd className='font-mono tabular-nums'>{formatDate(cycle.decisionDeadline)}</dd>
+                <dd className='text-right font-mono tabular-nums'>{formatDate(cycle.decisionDeadline)}</dd>
               </div>
             </>
           )}
           {budget.effectiveBudget && (
             <div>
               <dt className='text-xs text-muted-foreground'>{translate('effectiveBudget')}</dt>
-              <dd className='font-mono tabular-nums'>
+              <dd className='text-right font-mono tabular-nums'>
                 <ManagerMoney money={budget.effectiveBudget.total} />
               </dd>
             </div>
@@ -54,7 +55,7 @@ export function ManagerBudgetContext({ year, context }: { year: number; context:
           {translate('cycleClosedHint')}
         </p>
       )}
-      {departmentId && (
+      {budget && departmentId && (
         <details className='border-t border-border/60 pt-3'>
           <summary className='cursor-pointer text-sm font-medium'>{translate('baseline')}</summary>
           <ManagerQueryState query={baseline} />

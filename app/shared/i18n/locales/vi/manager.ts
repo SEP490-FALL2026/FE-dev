@@ -1,9 +1,11 @@
+import { managerBudgetWorkspace } from './manager-budget-workspace'
 import { managerOverviewBudget } from './manager-overview-budget'
 import { managerRenewals } from './manager-renewals'
 import { managerIntegration } from './manager-integration'
 import { managerRequestForm } from './manager-request-form'
 import { managerBudgetForm } from './manager-budget-form'
 export const manager = {
+  budgetWorkspace: managerBudgetWorkspace,
   overviewBudget: managerOverviewBudget,
   renewal: managerRenewals,
   renewals: managerRenewals.title,
@@ -196,7 +198,7 @@ export const manager = {
   versionFiles: 'Tài liệu phiên bản',
   emptyVersionFiles: 'Phiên bản này không có tài liệu đính kèm',
   currentBudget: 'Ngân sách năm hiện hành',
-  budgetHint: 'Lập các dòng kế hoạch và đính kèm tài liệu để Finance thẩm tra.',
+  budgetHint: 'Nhập một số tiền đề nghị cho cả năm bằng VND và đính kèm mẫu BM-10 đã điền để Finance thẩm tra.',
   budgetMissing: 'Năm này chưa có ngân sách hiện hành',
   windowFrom: 'Bắt đầu cửa sổ mua',
   windowTo: 'Kết thúc cửa sổ mua',
@@ -330,6 +332,7 @@ export const manager = {
     confirmRejectText: 'Bạn có chắc chắn muốn TỪ CHỐI nhu cầu phần mềm này?'
   },
   errors: {
+    ...managerBudgetWorkspace.errors,
     cycleNotOpen: 'Kỳ ngân sách của năm này chưa được mở.',
     cycleLocked: 'Kỳ ngân sách đã khóa vì quá hạn nộp.',
     costCenterRequired:

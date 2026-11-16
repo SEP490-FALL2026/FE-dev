@@ -32,6 +32,7 @@ import { managerBudgetYear } from './manager-live-budget'
 import { ManagerBudgetContext } from '../components/manager-budget-context'
 import { ManagerBudgetTemplate } from '../components/manager-budget-template'
 import { useBudgetContext } from '../hooks/use-budget-context'
+import { budgetAmountPattern, BUDGET_PROPOSAL_FILE_LIMIT } from '../budget-limits'
 
 export function ManagerBudgetForm({
   id,
@@ -149,7 +150,16 @@ function ProposalForm({
         className='space-y-6'
         onSubmit={(event) => {
           event.preventDefault()
-          if (action.blocked || attachments.blocked || !validCostCenter || !budgetContext.cycleOpen) return
+          if (!event.currentTarget.reportValidity()) return
+          if (
+            action.blocked ||
+            attachments.blocked ||
+            !validCostCenter ||
+            !budgetContext.cycleOpen ||
+            attachments.selected.length < 1 ||
+            attachments.selected.length > BUDGET_PROPOSAL_FILE_LIMIT
+          )
+            return
           const form = new FormData(event.currentTarget)
           const note = String(form.get('note') ?? '').trim()
           action.mutate({
@@ -193,9 +203,9 @@ function ProposalForm({
                   name='requestedAmount'
                   className={managerInputClass}
                   required
-                  inputMode='decimal'
-                  pattern='[0-9]{1,16}(\.[0-9]+)?'
-                  maxLength={40}
+                  inputMode='numeric'
+                  pattern={budgetAmountPattern}
+                  maxLength={16}
                   defaultValue={initialAmount}
                 />
               </ManagerField>
@@ -239,7 +249,7 @@ function ProposalForm({
               !validCostCenter ||
               !budgetContext.cycleOpen ||
               attachments.selected.length < 1 ||
-              attachments.selected.length > 10
+              attachments.selected.length > BUDGET_PROPOSAL_FILE_LIMIT
             }
             busy={action.isPending}
           >

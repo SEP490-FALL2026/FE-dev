@@ -6,6 +6,7 @@ import { ManagerButton, ManagerQueryState, ManagerSection } from '../../shared/c
 import { BUDGET_ATTACHMENT_STATUS } from '../enums/attachment-status'
 import { budgetFileAccept, budgetFileType } from '../hooks/budget-file-upload'
 import type { useBudgetAttachments } from '../hooks/use-budget-attachments'
+import { BUDGET_PROPOSAL_FILE_LIMIT, BUDGET_DRAFT_FILE_LIMIT } from '../budget-limits'
 
 export function ManagerBudgetAttachments({
   files,
@@ -36,7 +37,12 @@ export function ManagerBudgetAttachments({
         </p>
         <div className='flex flex-wrap items-center justify-between gap-3'>
           <ManagerButton
-            disabled={locked || files.uncertain || files.selected.length >= 20 || files.items.length >= 20}
+            disabled={
+              locked ||
+              files.uncertain ||
+              files.selected.length >= BUDGET_PROPOSAL_FILE_LIMIT ||
+              files.items.length >= BUDGET_DRAFT_FILE_LIMIT
+            }
             busy={files.busy}
             onClick={() => input.current?.click()}
           >
@@ -53,7 +59,12 @@ export function ManagerBudgetAttachments({
           tabIndex={-1}
           className='sr-only'
           accept={budgetFileAccept}
-          disabled={locked || files.uncertain || files.selected.length >= 20 || files.items.length >= 20}
+          disabled={
+            locked ||
+            files.uncertain ||
+            files.selected.length >= BUDGET_PROPOSAL_FILE_LIMIT ||
+            files.items.length >= BUDGET_DRAFT_FILE_LIMIT
+          }
           aria-label={translate('budgetForm.selectFile')}
           onChange={(event) => {
             const file = event.target.files?.[0]
@@ -91,7 +102,7 @@ export function ManagerBudgetAttachments({
                   <input
                     type='checkbox'
                     checked={selected}
-                    disabled={locked || (!selected && (!ready || files.selected.length >= 20))}
+                    disabled={locked || (!selected && (!ready || files.selected.length >= BUDGET_PROPOSAL_FILE_LIMIT))}
                     onChange={(event) =>
                       files.setSelected((previous) =>
                         event.target.checked

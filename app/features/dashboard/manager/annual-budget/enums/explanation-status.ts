@@ -1,0 +1,2 @@
+import { ReviewPeriodDetailResponseDtoDataItemsItemExplanationStatus } from '~/shared/api/generated/model/budget-review-periods/reviewPeriodDetailResponseDtoDataItemsItemExplanationStatus'
+export const EXPLANATION_STATUS = ReviewPeriodDetailResponseDtoDataItemsItemExplanationStatus
