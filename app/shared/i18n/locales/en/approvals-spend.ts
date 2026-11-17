@@ -137,9 +137,6 @@ export const approvalsSpend = {
   decide: 'Confirm decision',
   rejectReason: 'Reason for rejection',
   rejectPlaceholder: 'E.g. The team already has an equivalent tool under contract',
-  agreeAll: 'I have read and agree to everything (answers Yes to every checklist question).',
-  declineReason: 'Reason',
-  declineCriteria: 'Criteria not met (the ground of the decision)',
   declineNeedsNo:
     'Reject or Return is open only when at least one checklist criterion is answered "No". Open the checklist and answer "No" on the criterion that is not met.',
   declineRejectTitle: 'Reject this request',
@@ -149,7 +146,6 @@ export const approvalsSpend = {
     'Are you sure you want to return this request? It goes back to the head or the requester to be revised.',
   declineRejectConfirm: 'Confirm rejection',
   declineReturnConfirm: 'Confirm return',
-  declinePlaceholder: 'State why you reject or return it',
   decisionConfirmation: 'I have reviewed the request, budget check and supporting information.',
   savedDecision: 'Recorded decision',
   decidedBy: 'Decided by',

@@ -1,4 +1,4 @@
-import { answerChecklistYes, expectedChecklist, policyStepData } from '../shared/checklist-test-utils'
+import { expectedChecklist, policyStepData } from '../shared/checklist-test-utils'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { AxiosError, AxiosHeaders, type InternalAxiosRequestConfig } from 'axios'
@@ -66,6 +66,22 @@ const attachment = {
   uploadedBy: { employeeId: 'finance-1', employeeCode: 'FIN', fullName: 'Finance uploader' },
   attachedAt: '2026-11-01T00:00:00Z',
   removedAt: null
+}
+
+/** Ticks "read and agree to all": it confirms the review and answers every checklist question Yes. */
+async function agreeToAll(dialog: HTMLElement) {
+  await within(dialog).findByText('0 of 2 questions answered')
+  fireEvent.click(within(dialog).getByRole('checkbox', { name: /I have read and agree to everything/ }))
+}
+
+/** The review is confirmed and one criterion answered No: the ground to return the version. */
+async function failOneCriterion(dialog: HTMLElement) {
+  fireEvent.click(
+    await within(dialog).findByRole('checkbox', { name: /I have reviewed the version, the department proposal/ })
+  )
+  fireEvent.click(await within(dialog).findByRole('button', { name: 'Show the decision checklist' }))
+  fireEvent.click(within(dialog).getAllByRole('radio', { name: 'No' }).at(-1) as HTMLElement)
+  for (const radio of within(dialog).getAllByRole('radio', { name: 'Yes' }).slice(1, -1)) fireEvent.click(radio)
 }
 
 describe('Spending Approver annual budget API', () => {
@@ -212,8 +228,11 @@ describe('Spending Approver annual budget API', () => {
     mount('version-1')
     fireEvent.click(await screen.findByRole('button', { name: 'Review decision' }))
     const dialog = screen.getByRole('dialog')
-    await answerChecklistYes()
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Confirm decision' }))
+    expect(within(dialog).queryByRole('combobox', { name: 'Decision' })).not.toBeInTheDocument()
+    expect(within(dialog).getByRole('button', { name: 'Return to Finance' })).toBeDisabled()
+    await agreeToAll(dialog)
+    expect(within(dialog).getByRole('button', { name: 'Return to Finance' })).toBeDisabled()
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Approve' }))
     await waitFor(() => expect(decided).toBe(true))
     const write = requests.find((request) => request.url?.endsWith('/decision'))
     expect(JSON.parse(write?.data)).toEqual({ decision: 'APPROVE', checklist: expectedChecklist })
@@ -221,33 +240,43 @@ describe('Spending Approver annual budget API', () => {
     expect(requests.filter((request) => request.url?.endsWith('/budget-versions/version-1')).length).toBeGreaterThan(1)
   })
 
-  it('requires a return reason and retains it after a stale decision response', async () => {
+  it('returns a version only on a criterion answered No, with the reason asked in its own dialog', async () => {
     rejectWrite = true
     mount('version-1')
     fireEvent.click(await screen.findByRole('button', { name: 'Review decision' }))
     const dialog = screen.getByRole('dialog')
-    fireEvent.click(within(dialog).getByRole('combobox', { name: 'Decision' }))
-    fireEvent.click(within(dialog).getByRole('option', { name: 'Return to Finance' }))
-    await answerChecklistYes()
-    expect(within(dialog).getByRole('button', { name: 'Confirm decision' })).toBeDisabled()
-    fireEvent.change(within(dialog).getByRole('textbox', { name: /Reason/ }), {
+    await failOneCriterion(dialog)
+    expect(within(dialog).getByRole('button', { name: 'Approve' })).toBeDisabled()
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Return to Finance' }))
+    const returnDialog = await screen.findByRole('dialog', { name: 'Return the version to Finance' })
+    expect(within(returnDialog).getByText('Vendor is verified')).toBeInTheDocument()
+    expect(within(returnDialog).getByRole('button', { name: 'Confirm return' })).toBeDisabled()
+    fireEvent.change(within(returnDialog).getByRole('textbox', { name: /Reason/ }), {
       target: { value: 'Please revise the scope' }
     })
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Confirm decision' }))
+    fireEvent.click(within(returnDialog).getByRole('button', { name: 'Confirm return' }))
     await waitFor(() => expect(requests.some((request) => request.url?.endsWith('/decision'))).toBe(true))
     expect(JSON.parse(requests.find((request) => request.url?.endsWith('/decision'))?.data)).toEqual({
       decision: 'RETURN',
       reason: 'Please revise the scope',
-      checklist: expectedChecklist
+      checklist: {
+        policyVersionId: expectedChecklist.policyVersionId,
+        answers: [
+          { itemCode: 'P-01', answer: 'YES' },
+          { itemCode: 'P-02', answer: 'NO' }
+        ]
+      }
     })
     await waitFor(() =>
       expect(requests.filter((request) => request.url?.endsWith('/budget-versions/version-1')).length).toBeGreaterThan(
         1
       )
     )
-    expect(within(screen.getByRole('dialog')).getByRole('textbox', { name: /Reason/ })).toHaveValue(
-      'Please revise the scope'
-    )
+    expect(
+      within(screen.getByRole('dialog', { name: 'Return the version to Finance' })).getByRole('textbox', {
+        name: /Reason/
+      })
+    ).toHaveValue('Please revise the scope')
     expect(screen.queryByText('technical message')).not.toBeInTheDocument()
   })
 
@@ -271,11 +300,11 @@ describe('Spending Approver annual budget API', () => {
     ownVersionResponse = true
     mount('version-1')
     fireEvent.click(await screen.findByRole('button', { name: 'Review decision' }))
-    await answerChecklistYes()
-    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm decision' }))
+    await agreeToAll(screen.getByRole('dialog'))
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Approve' }))
     await waitFor(() => expect(requests.some((request) => request.url?.endsWith('/decision'))).toBe(true))
     await waitFor(() =>
-      expect(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm decision' })).toBeDisabled()
+      expect(within(screen.getByRole('dialog')).getByRole('button', { name: 'Approve' })).toBeDisabled()
     )
     expect(screen.queryByText('technical forbidden message')).not.toBeInTheDocument()
     expect(decided).toBe(false)
@@ -310,8 +339,8 @@ describe('Spending Approver annual budget API', () => {
     deferDecision = true
     mount('version-1')
     fireEvent.click(await screen.findByRole('button', { name: 'Review decision' }))
-    const submit = within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm decision' })
-    await answerChecklistYes()
+    const submit = within(screen.getByRole('dialog')).getByRole('button', { name: 'Approve' })
+    await agreeToAll(screen.getByRole('dialog'))
     fireEvent.click(submit)
     await waitFor(() => expect(submit).toBeDisabled())
     fireEvent.click(submit)

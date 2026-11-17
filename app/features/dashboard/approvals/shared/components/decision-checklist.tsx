@@ -2,7 +2,9 @@ import { ChevronDown } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ApprovalsQueryState } from './approvals-query-state'
+import { termsOf } from '../checklist-glossary'
 import { CHECKLIST_ANSWER, type DecisionChecklist } from '../hooks/use-decision-checklist'
+import { ChecklistFootnotes, ChecklistText, useChecklistPlainText } from './checklist-text'
 
 /**
  * Yes/No questions of a decision step; `SYSTEM` items show as answered Yes by the system.
@@ -19,6 +21,8 @@ export function DecisionChecklistPanel({
 }) {
   const { t: translate } = useTranslation('approvals')
   const [open, setOpen] = useState(!collapsible)
+  const plainText = useChecklistPlainText()
+  const terms = termsOf(checklist.items.map((item) => item.text))
   const personItems = checklist.items.filter((item) => item.check === 'PERSON')
   const answered = personItems.filter((item) => checklist.answers[item.code] !== undefined).length
   return (
@@ -51,10 +55,10 @@ export function DecisionChecklistPanel({
           return (
             <div key={item.code} className='flex flex-wrap items-start justify-between gap-3 text-sm'>
               <p className='min-w-0 flex-1'>
-                {item.text}
+                <ChecklistText text={item.text} terms={terms} />
                 {system && <span className='ml-2 text-xs text-muted-foreground'>{translate('checklist.system')}</span>}
               </p>
-              <div role='radiogroup' aria-label={item.text} className='flex gap-4'>
+              <div role='radiogroup' aria-label={plainText(item.text)} className='flex gap-4'>
                 {([CHECKLIST_ANSWER.YES, CHECKLIST_ANSWER.NO] as const).map((answer) => (
                   <label key={answer} className='flex min-h-11 items-center gap-2'>
                     <input
@@ -72,6 +76,7 @@ export function DecisionChecklistPanel({
             </div>
           )
         })}
+        {open && <ChecklistFootnotes terms={terms} />}
         {checklist.hasNo && (
           <p role='status' className='text-sm text-warning-ink'>
             {translate('checklist.hasNo')}

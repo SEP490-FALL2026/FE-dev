@@ -39,6 +39,12 @@ export const approvalsBudget = {
   approve: 'Phê duyệt',
   reject: 'Từ chối',
   returnToFinance: 'Trả về Finance',
+  confirmReview: 'Tôi đã xem phiên bản, đề nghị của phòng và thông tin liên quan.',
+  returnNeedsNo:
+    'Trả về chỉ dùng được khi có ít nhất một tiêu chí checklist chọn "Không". Mở checklist và chọn "Không" ở tiêu chí chưa đạt.',
+  returnTitle: 'Trả phiên bản về Finance',
+  returnAsk: 'Bạn chắc chắn muốn trả phiên bản này về Finance? Finance sẽ nhận được lý do bạn nhập để sửa và gửi lại.',
+  returnConfirm: 'Xác nhận trả về',
   requestedAmount: 'Số tiền đề xuất',
   approvalHint: 'Phê duyệt sẽ đưa phiên bản này thành ngân sách hiện hành của trung tâm chi phí và năm tương ứng.',
   reasonPlaceholder: 'Ví dụ: Chi phí license quý 4 tăng 30% so với năm trước nhưng chưa có báo giá',

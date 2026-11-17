@@ -114,7 +114,43 @@ export const approvals = {
     RETURN_TO_HEAD: 'Trả về trưởng phòng',
     NEEDS_BUDGET: 'Cần điều chỉnh ngân sách'
   },
+  glossary: {
+    citation: 'Trích dẫn: {{policy}}, mục Quy định, điểm {{point}}.',
+    policies: {
+      'POL-GEN': 'Quy định chung về sử dụng phần mềm và bảo mật dữ liệu',
+      'POL-MF1': 'Chính sách cấp phát quyền dùng phần mềm',
+      'POL-MF4': 'Chính sách ngân sách phần mềm năm và rà soát trong năm'
+    },
+    terms: {
+      K1: {
+        label: 'gói cá nhân',
+        definition: 'gói tháng đăng ký trên email công ty của chính người dùng, dùng từ 1 đến 9 tháng.'
+      },
+      K2: {
+        label: 'kho dùng chung',
+        definition: 'gói Team hoặc Business trong kho dùng chung của công ty, có trang quản trị.'
+      },
+      'GH-1': {
+        label: 'giới hạn xin trùng gói',
+        definition: 'không xin gói đang có quyền hoặc đang có Request mở.'
+      },
+      'GH-2': {
+        label: 'giới hạn 10 Request mỗi tuần',
+        definition: 'tối đa 10 Request cấp mới mỗi tuần lịch; Request đã rút hoặc bị từ chối vẫn tính.'
+      },
+      'BM-10': {
+        label: 'đề nghị ngân sách',
+        definition: 'gồm ít nhất một file theo mẫu, một số tiền đề nghị và ghi chú tùy chọn, nộp trước hạn.'
+      }
+    }
+  },
+  decline: {
+    reason: 'Lý do',
+    placeholder: 'Nêu lý do từ chối hoặc trả về',
+    criteria: 'Tiêu chí chưa đạt (căn cứ của quyết định)'
+  },
   checklist: {
+    agreeAll: 'Tôi đã đọc và đồng ý tất cả (tự chọn "Có" cho mọi câu hỏi của checklist).',
     title: 'Checklist quyết định',
     yes: 'Có',
     no: 'Không',

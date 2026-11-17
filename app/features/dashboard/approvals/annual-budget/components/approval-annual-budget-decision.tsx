@@ -1,20 +1,25 @@
 import { useRef, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { AdminFormDialog } from '~/shared/ui/form-dialog'
+import { adminButtonClass, AdminFormDialog } from '~/shared/ui/form-dialog'
 import { getBudgetVersionGetQueryKey } from '~/shared/api/generated/operations/budget-versions/budget-version-get'
 import { getBudgetVersionListQueryKey } from '~/shared/api/generated/operations/budget-versions/budget-version-list'
 import { getBudgetVersionHistoryListQueryKey } from '~/shared/api/generated/operations/budget-versions/budget-version-history-list'
 import { getBudgetTableQueryKey } from '~/shared/api/generated/operations/budgets/budget-table'
 import { getBudgetProposalListQueryKey } from '~/shared/api/generated/operations/budget-proposals/budget-proposal-list'
 import { useBudgetVersionDecide } from '~/shared/api/generated/operations/budget-versions/budget-version-decide'
-import { ApprovalsField, ApprovalsSelect, approvalsInputClass } from '../../shared/components/approvals-ui'
 import { useApprovalsFeedback } from '../../shared/hooks/use-approvals-feedback'
 import { getApprovalsError } from '../../shared/approvals-errors'
 import { DecisionChecklistPanel } from '../../shared/components/decision-checklist'
-import { DECISION_STEP, useDecisionChecklist } from '../../shared/hooks/use-decision-checklist'
-import { versionDecision, type VersionDecision } from '../enums/version-decision'
+import { DecisionDeclineDialog } from '../../shared/components/decision-decline-dialog'
+import { CHECKLIST_ANSWER, DECISION_STEP, useDecisionChecklist } from '../../shared/hooks/use-decision-checklist'
+import { versionDecision } from '../enums/version-decision'
 
+/**
+ * The decision on a budget version, laid out like the spend decision: the checklist starts folded, two boxes confirm
+ * the review, and the buttons are the decision. Approve needs every answer Yes; Return needs a criterion answered No
+ * as its ground and asks for the reason in its own dialog.
+ */
 export function ApprovalAnnualBudgetDecision({
   itemId,
   disabled,
@@ -25,10 +30,11 @@ export function ApprovalAnnualBudgetDecision({
   onClose: () => void
 }) {
   const { t: translate } = useTranslation('approvalsBudget')
+  const { t: translateChecklist } = useTranslation('approvals')
   const queryClient = useQueryClient()
   const submissionLocked = useRef(false)
-  const [decision, setDecision] = useState<VersionDecision>(versionDecision.APPROVE)
-  const [reason, setReason] = useState('')
+  const [confirmed, setConfirmed] = useState(false)
+  const [returning, setReturning] = useState(false)
   const [permissionBlocked, setPermissionBlocked] = useState(false)
   const feedback = useApprovalsFeedback(
     [
@@ -67,58 +73,85 @@ export function ApprovalAnnualBudgetDecision({
       }
     }
   })
-  const requiresReason = decision !== versionDecision.APPROVE
-  const invalidReason = requiresReason && !reason.trim()
-  const invalidChecklist = !checklist.complete || (!requiresReason && checklist.hasNo)
-  const blocked = disabled || permissionBlocked || invalidReason || invalidChecklist
+
+  const open = !disabled && !permissionBlocked && !mutation.isPending
+  const answered = open && confirmed && checklist.complete
+  const hasPersonQuestions = checklist.items.some((item) => item.check === 'PERSON')
+  const canApprove = answered && !checklist.hasNo
+  const canReturn = answered && (checklist.hasNo || !hasPersonQuestions)
+  const agreeAll = confirmed && checklist.complete && !checklist.hasNo
+
+  const decide = (decision: typeof versionDecision.APPROVE | typeof versionDecision.RETURN, reason = '') => {
+    const checklistPayload = checklist.payload()
+    const allowed = decision === versionDecision.APPROVE ? canApprove : canReturn
+    if (submissionLocked.current || !allowed || !checklistPayload) return
+    submissionLocked.current = true
+    mutation.mutate({
+      id: itemId,
+      data: { decision, checklist: checklistPayload, ...(decision === versionDecision.RETURN ? { reason } : {}) }
+    })
+  }
+
   return (
-    <AdminFormDialog
-      title={translate('reviewDecision')}
-      pending={mutation.isPending}
-      submitLabel={translate('confirmDecision')}
-      submitDisabled={blocked}
-      onClose={onClose}
-      onSubmit={(event) => {
-        event.preventDefault()
-        const checklistPayload = checklist.payload()
-        if (submissionLocked.current || mutation.isPending || blocked || !checklistPayload) return
-        submissionLocked.current = true
-        mutation.mutate({
-          id: itemId,
-          data: { decision, checklist: checklistPayload, ...(requiresReason ? { reason: reason.trim() } : {}) }
-        })
-      }}
-    >
-      <ApprovalsSelect
-        label={translate('decision')}
-        value={decision}
-        disabled={mutation.isPending || permissionBlocked}
-        options={[
-          { value: versionDecision.APPROVE, label: translate('approve') },
-          { value: versionDecision.RETURN, label: translate('returnToFinance') }
-        ]}
-        onChange={(selected) => {
-          const next = Object.values(versionDecision).find((value) => value === selected)
-          if (next) setDecision(next)
+    <>
+      <AdminFormDialog
+        title={translate('reviewDecision')}
+        pending={mutation.isPending}
+        submitLabel={translate('approve')}
+        submitDisabled={!canApprove}
+        onClose={onClose}
+        onSubmit={(event) => {
+          event.preventDefault()
+          decide(versionDecision.APPROVE)
         }}
-      />
-      {requiresReason ? (
-        <ApprovalsField label={translate('reason')} hint={translate('reasonRequired')} required>
-          <textarea
-            rows={4}
-            className={approvalsInputClass}
-            value={reason}
-            maxLength={1000}
-            required
-            disabled={mutation.isPending}
-            placeholder={translate('reasonPlaceholder')}
-            onChange={(event) => setReason(event.target.value)}
-          />
-        </ApprovalsField>
-      ) : (
+        secondaryActions={
+          <button type='button' className={adminButtonClass} disabled={!canReturn} onClick={() => setReturning(true)}>
+            {translate('returnToFinance')}
+          </button>
+        }
+      >
         <p className='text-sm text-muted-foreground'>{translate('approvalHint')}</p>
+        <DecisionChecklistPanel checklist={checklist} disabled={!open} collapsible />
+        <label className='flex min-h-11 items-start gap-3 text-sm'>
+          <input
+            className='mt-0.5 size-4 accent-primary'
+            type='checkbox'
+            checked={confirmed}
+            disabled={!open}
+            onChange={(event) => setConfirmed(event.target.checked)}
+          />
+          {translate('confirmReview')}
+        </label>
+        <label className='flex min-h-11 items-start gap-3 text-sm font-medium'>
+          <input
+            className='mt-0.5 size-4 accent-primary'
+            type='checkbox'
+            checked={agreeAll}
+            disabled={!open}
+            onChange={(event) => {
+              setConfirmed(event.target.checked)
+              checklist.setAll(event.target.checked ? CHECKLIST_ANSWER.YES : null)
+            }}
+          />
+          {translateChecklist('checklist.agreeAll')}
+        </label>
+        {answered && !canReturn && (
+          <p role='note' className='text-xs text-muted-foreground'>
+            {translate('returnNeedsNo')}
+          </p>
+        )}
+      </AdminFormDialog>
+      {returning && (
+        <DecisionDeclineDialog
+          title={translate('returnTitle')}
+          question={translate('returnAsk')}
+          confirmLabel={translate('returnConfirm')}
+          criteria={checklist.noItems.map((item) => item.text)}
+          pending={mutation.isPending}
+          onSubmit={(reason) => decide(versionDecision.RETURN, reason)}
+          onClose={() => setReturning(false)}
+        />
       )}
-      <DecisionChecklistPanel checklist={checklist} disabled={mutation.isPending || permissionBlocked} />
-    </AdminFormDialog>
+    </>
   )
 }

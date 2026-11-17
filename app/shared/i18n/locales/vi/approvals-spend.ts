@@ -136,9 +136,6 @@ export const approvalsSpend = {
   rejectReason: 'Lý do từ chối',
   rejectPlaceholder: 'Ví dụ: Nhóm đã có công cụ tương đương trong hợp đồng hiện tại',
   decisionConfirmation: 'Tôi đã xem yêu cầu, kiểm tra ngân sách và thông tin liên quan.',
-  agreeAll: 'Tôi đã đọc và đồng ý tất cả (tự chọn "Có" cho mọi câu hỏi của checklist).',
-  declineReason: 'Lý do',
-  declineCriteria: 'Tiêu chí chưa đạt (căn cứ của quyết định)',
   declineNeedsNo:
     'Từ chối hoặc Trả về chỉ dùng được khi có ít nhất một tiêu chí checklist chọn "Không". Mở checklist và chọn "Không" ở tiêu chí chưa đạt.',
   declineRejectTitle: 'Từ chối Request',
@@ -147,7 +144,6 @@ export const approvalsSpend = {
   declineReturnAsk: 'Bạn chắc chắn muốn trả Request này về? Request quay lại trưởng phòng hoặc người gửi để chỉnh sửa.',
   declineRejectConfirm: 'Xác nhận từ chối',
   declineReturnConfirm: 'Xác nhận trả về',
-  declinePlaceholder: 'Nêu lý do từ chối hoặc trả về',
   savedDecision: 'Quyết định đã ghi nhận',
   decidedBy: 'Người quyết định',
   decidedAt: 'Ngày quyết định',

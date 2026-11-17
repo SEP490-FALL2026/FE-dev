@@ -44,7 +44,8 @@ export function AdminFormDialog({
   submitDisabled = false,
   page = false,
   wide = false,
-  danger = false
+  danger = false,
+  secondaryActions
 }: {
   title: string
   children: ReactNode
@@ -56,6 +57,8 @@ export function AdminFormDialog({
   page?: boolean
   wide?: boolean
   danger?: boolean
+  /** Extra buttons between Cancel and the submit button, for a decision that has more than one outcome. */
+  secondaryActions?: ReactNode
 }) {
   const { t: translate } = useTranslation('admin')
   const titleId = useId()
@@ -152,6 +155,7 @@ export function AdminFormDialog({
               <button type='button' disabled={pending} onClick={onClose} className={adminButtonClass}>
                 {translate('cancel')}
               </button>
+              {secondaryActions}
               <button
                 type='submit'
                 disabled={pending || submitDisabled || retrySeconds > 0}

@@ -114,7 +114,44 @@ export const approvals = {
     RETURN_TO_HEAD: 'Return to department head',
     NEEDS_BUDGET: 'Budget revision needed'
   },
+  glossary: {
+    citation: 'Source: {{policy}}, Rules section, point {{point}}.',
+    policies: {
+      'POL-GEN': 'General rules on software use and data security',
+      'POL-MF1': 'Software access policy',
+      'POL-MF4': 'Annual software budget and in-year review policy'
+    },
+    terms: {
+      K1: {
+        label: 'personal plan',
+        definition: 'a monthly plan bought on the company email of the user, used for 1 to 9 months.'
+      },
+      K2: {
+        label: 'shared stock',
+        definition: 'a Team or Business plan in the shared stock of the company, with an admin console.'
+      },
+      'GH-1': {
+        label: 'duplicate request limit',
+        definition: 'no request for a plan the person already has or already has an open request for.'
+      },
+      'GH-2': {
+        label: 'limit of 10 requests a week',
+        definition: 'at most 10 new access requests per calendar week; withdrawn or rejected requests still count.'
+      },
+      'BM-10': {
+        label: 'budget proposal',
+        definition:
+          'at least one file on the template, a requested amount and an optional note, sent before the deadline.'
+      }
+    }
+  },
+  decline: {
+    reason: 'Reason',
+    placeholder: 'State why you reject or return it',
+    criteria: 'Criteria not met (the ground of the decision)'
+  },
   checklist: {
+    agreeAll: 'I have read and agree to everything (answers Yes to every checklist question).',
     title: 'Decision checklist',
     yes: 'Yes',
     no: 'No',

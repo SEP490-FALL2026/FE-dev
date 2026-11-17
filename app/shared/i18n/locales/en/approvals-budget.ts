@@ -38,6 +38,13 @@ export const approvalsBudget = {
   confirmDecision: 'Confirm decision',
   approve: 'Approve',
   reject: 'Reject',
+  confirmReview: 'I have reviewed the version, the department proposal and the supporting information.',
+  returnNeedsNo:
+    'Return is open only when at least one checklist criterion is answered "No". Open the checklist and answer "No" on the criterion that is not met.',
+  returnTitle: 'Return the version to Finance',
+  returnAsk:
+    'Are you sure you want to return this version to Finance? Finance receives the reason you enter, revises it and sends it again.',
+  returnConfirm: 'Confirm return',
   returnToFinance: 'Return to Finance',
   requestedAmount: 'Requested amount',
   approvalHint: 'Approval makes this version the current budget for its Cost Center and year.',

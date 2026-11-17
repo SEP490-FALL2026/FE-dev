@@ -19,7 +19,7 @@ import type { useSpendYears } from '../hooks/use-spend-years'
 import { SPEND_DECISION } from '../enums/spend-decision'
 import { SPEND_STEP_STATE } from '../enums/spend-step-state'
 import { BENEFICIARY_STATE } from '../enums/beneficiary-state'
-import { SpendDeclineDialog, type DeclineKind } from './spend-decline-dialog'
+import { DecisionDeclineDialog } from '../../shared/components/decision-decline-dialog'
 import type { SpendApproval } from './spend-request-facts'
 
 type Year = ReturnType<typeof useSpendYears>['years'][number]
@@ -36,13 +36,14 @@ export function SpendDecisionForm({
   blocked: boolean
 }) {
   const { t: translate } = useTranslation('approvalsSpend')
+  const { t: translateChecklist } = useTranslation('approvals')
   const submissionLocked = useRef(false)
   const me = useMeGet()
   const employeeId = me.data?.data?.employee?.id
   const beneficiaries = useSpendBeneficiaries(approval.requestId, isGroup, approval.request.lineCount)
   const mutations = useSpendDecision()
   const checklist = useDecisionChecklist(DECISION_STEP.SPEND)
-  const [declining, setDeclining] = useState<DeclineKind | null>(null)
+  const [declining, setDeclining] = useState<'REJECT' | 'RETURN' | null>(null)
   const [confirmed, setConfirmed] = useState(false)
   const [lineDrafts, setLineDrafts] = useState<Record<string, { decision: string; reason: string }>>({})
   const confirmedLines = beneficiaries.lines.filter((line) => line.state === BENEFICIARY_STATE.NEED_CONFIRMED)
@@ -249,7 +250,7 @@ export function SpendDecisionForm({
                 checklist.setAll(event.target.checked ? CHECKLIST_ANSWER.YES : null)
               }}
             />
-            {translate('agreeAll')}
+            {translateChecklist('checklist.agreeAll')}
           </label>
         </fieldset>
         <div className='flex flex-wrap items-center justify-between gap-3 border-t border-border/60 pt-4'>
@@ -295,8 +296,11 @@ export function SpendDecisionForm({
         )}
       </form>
       {declining && (
-        <SpendDeclineDialog
-          kind={declining}
+        <DecisionDeclineDialog
+          title={translate(declining === 'REJECT' ? 'declineRejectTitle' : 'declineReturnTitle')}
+          question={translate(declining === 'REJECT' ? 'declineRejectAsk' : 'declineReturnAsk')}
+          confirmLabel={translate(declining === 'REJECT' ? 'declineRejectConfirm' : 'declineReturnConfirm')}
+          danger={declining === 'REJECT'}
           criteria={checklist.noItems.map((item) => item.text)}
           pending={mutations.single.isPending}
           onSubmit={(reason) => submitSingle(declining, reason)}
