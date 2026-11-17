@@ -9,6 +9,7 @@ import { pageResponse, requestId } from '../../../../../test/fixtures/employee-a
 import { managerId, managerRequest } from '../../../../../test/fixtures/manager-api'
 import { managerReadHandlers, needItem } from '../../../../../test/fixtures/manager-integration'
 import { ManagerLiveRequest } from './views/manager-live-request'
+import { answerChecklist, checklistBody } from '../../../../../test/fixtures/policy'
 
 const written = vi.fn()
 const matching = {
@@ -80,10 +81,12 @@ it('does not guess requirements or offer a decision when the step has left the q
 it('drops the rejection reason when a single request is changed to approval', async () => {
   mount()
   fireEvent.click(await screen.findByRole('radio', { name: 'Reject need' }))
-  fireEvent.change(screen.getByLabelText('Reason'), { target: { value: 'Old rejection reason' } })
+  fireEvent.change(screen.getByLabelText('Reason for rejection'), { target: { value: 'Old rejection reason' } })
   fireEvent.click(screen.getByRole('radio', { name: 'Approve need' }))
-  expect(screen.queryByLabelText('Reason')).not.toBeInTheDocument()
+  expect(screen.queryByLabelText('Reason for rejection')).not.toBeInTheDocument()
+  await answerChecklist()
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Confirm' })).toBeEnabled())
   fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
   fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm' }))
-  await waitFor(() => expect(written).toHaveBeenCalledWith({ decision: 'APPROVE' }))
+  await waitFor(() => expect(written).toHaveBeenCalledWith({ decision: 'APPROVE', checklist: checklistBody('1.2') }))
 })

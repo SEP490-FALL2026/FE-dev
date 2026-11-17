@@ -12,6 +12,7 @@ export function LiveGroupEligibility({
   members: GroupSelection[]
 }) {
   const { t: translate } = useTranslation('employee')
+  const { t: flow } = useTranslation('requestFlow')
   const knownPlanReason =
     check.plan.reason && Object.values(GROUP_PLAN_ELIGIBILITY_REASON).some((reason) => reason === check.plan.reason)
   return (
@@ -30,6 +31,11 @@ export function LiveGroupEligibility({
         <span className='text-sm text-muted-foreground'>{translate('estimatedCost')}</span>
         <EmployeeMoney value={check.pricing.amount} />
       </div>
+      {check.termRefusal && (
+        <p role='status' className='text-sm text-warning'>
+          {flow(`termRefusal.${check.termRefusal}`)}
+        </p>
+      )}
       <ul className='space-y-2'>
         {check.lines
           .filter((line) => !line.ok)
@@ -44,7 +50,7 @@ export function LiveGroupEligibility({
                 </span>
                 <span className='text-warning'>
                   {known
-                    ? translate(`eligibility.${line.reason}` as 'eligibility.END_DATE_REQUIRED')
+                    ? translate(`eligibility.${line.reason}` as 'eligibility.HAS_ACCESS')
                     : translate('ineligible')}
                 </span>
               </li>

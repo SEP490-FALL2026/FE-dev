@@ -1,4 +1,5 @@
 import { Menu, X } from 'lucide-react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { UserRole } from '~/entities/user-role/user-role'
 import { LanguageSwitch } from '~/shared/ui/language-switch'
@@ -31,6 +32,8 @@ export function DashboardHeader({
   const { t } = useTranslation('dashboard')
   const { t: tAuth } = useTranslation('auth')
   const isEmployee = role === 'employee'
+  const isManager = role === 'manager'
+  const [brokenAvatar, setBrokenAvatar] = useState<string | null>(null)
   const isProfileActive =
     (isEmployee && activeEmployeeTab === 'profile') || (role === 'manager' && activeManagerTab === 'profile')
 
@@ -74,8 +77,13 @@ export function DashboardHeader({
           type='button'
         >
           <span className='grid size-8 shrink-0 place-items-center overflow-hidden rounded-lg bg-primary text-xs font-bold text-primary-foreground'>
-            {isEmployee && employeeAvatarUrl ? (
-              <img alt='' className='size-full object-cover' src={employeeAvatarUrl} />
+            {(isEmployee || isManager) && employeeAvatarUrl && employeeAvatarUrl !== brokenAvatar ? (
+              <img
+                alt=''
+                className='size-full object-cover'
+                src={employeeAvatarUrl}
+                onError={() => setBrokenAvatar(employeeAvatarUrl)}
+              />
             ) : (
               profile.initials
             )}

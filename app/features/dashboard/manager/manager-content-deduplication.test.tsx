@@ -178,8 +178,8 @@ it('groups identical validation reasons and identifies affected colleagues with 
       onCancel={vi.fn()}
     />
   )
-  expect(await screen.findByText('An access end date is required')).toBeInTheDocument()
-  expect(screen.getAllByText('An access end date is required')).toHaveLength(1)
+  expect(await screen.findByText('This person needs a term of use in months')).toBeInTheDocument()
+  expect(screen.getAllByText('This person needs a term of use in months')).toHaveLength(1)
   expect(screen.getByText('alex.build@example.test')).toBeInTheDocument()
   expect(screen.getByText('alex.design@example.test')).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Confirm' })).toBeDisabled()

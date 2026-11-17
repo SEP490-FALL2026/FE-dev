@@ -15,7 +15,7 @@ import { EmployeeLiveCreateView } from './views/employee-live-create-view'
 const secondId = '99999999-9999-4999-8999-999999999999'
 const right: MySoftwarePageResponseDtoDataItemsItem = {
   assignmentId,
-  application: { id: planId, name: 'Team Software' },
+  application: { id: planId, name: 'Team Software', logoUrl: null },
   plan: { id: planId, name: 'Standard' },
   provisioningType: 'K2',
   status: 'ACTIVE',
@@ -108,7 +108,7 @@ it('reads all personal-right pages, searches by software name and sends the sele
         response(
           params.get('page') === '1'
             ? [right]
-            : [{ ...right, assignmentId: secondId, application: { id: planId, name: 'Phần mềm khác' } }],
+            : [{ ...right, assignmentId: secondId, application: { id: planId, name: 'Phần mềm khác', logoUrl: null } }],
           Number(params.get('page')),
           2
         )
@@ -299,4 +299,47 @@ it('reports a pending renewal from the server without automatically submitting a
     expect(errors).toHaveBeenCalledWith('This access already has a pending renewal request.', expect.anything())
   )
   expect(written).toHaveBeenCalledOnce()
+})
+
+it('limits K1 renewal to nine months and does not offer long-term use', async () => {
+  server.use(
+    http.get('*/api/v1/me/software-rights', () => HttpResponse.json(response([{ ...right, provisioningType: 'K1' }])))
+  )
+  mount('renewal', assignmentId)
+  await waitFor(() => expect(screen.getByLabelText('Extension in months')).toBeEnabled())
+  expect(screen.getByLabelText('Extension in months')).toHaveAttribute('max', '9')
+  expect(screen.queryByRole('checkbox', { name: 'Long-term use' })).not.toBeInTheDocument()
+})
+
+it('removes a K4 assignment from renewal choices', async () => {
+  server.use(
+    http.get('*/api/v1/me/software-rights', () => HttpResponse.json(response([{ ...right, provisioningType: 'K4' }])))
+  )
+  mount('renewal', assignmentId)
+  await waitFor(() => expect(document.querySelector<HTMLInputElement>('input[name="assignmentId"]')?.value).toBe(''))
+  expect(screen.getByRole('button', { name: 'Submit request' })).toBeDisabled()
+})
+
+it('shows the server renewal opening date and blocks another send for that assignment', async () => {
+  const sent = vi.fn()
+  server.use(
+    http.post('*/api/v1/access-requests/renewals', () => {
+      sent()
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: 'RENEWAL_REQUEST.WINDOW_NOT_OPEN', details: { opensOn: '2026-12-01', windowDays: 30 } }
+        },
+        { status: 422 }
+      )
+    })
+  )
+  mount('renewal', assignmentId)
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Submit request' })).toBeEnabled())
+  fillRenewal()
+  fireEvent.click(screen.getByRole('button', { name: 'Submit request' }))
+  expect(await screen.findByText('You can request renewal from 12/01/2026.')).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Submit request' })).toBeDisabled()
+  fireEvent.submit(screen.getByLabelText('Extension in months').closest('form')!)
+  expect(sent).toHaveBeenCalledOnce()
 })

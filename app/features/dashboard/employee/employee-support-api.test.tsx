@@ -72,7 +72,7 @@ describe('Employee support and group contracts', () => {
     expect(check).toHaveBeenCalledWith({
       planId,
       businessReason: 'Team development',
-
+      termMonths: 6,
       lines: [{ employeeId }, { employeeId: planId }]
     })
   })
@@ -174,25 +174,47 @@ describe('Employee support and group contracts', () => {
     expect(screen.getByRole('button', { name: 'Report issue' })).toBeDisabled()
     expect(created).not.toHaveBeenCalled()
   })
-  it('posts an issue reply once and refreshes the conversation only after confirmation', async () => {
+  it.each(['WAITING_REPORTER', 'RESOLVED'])('shows read-only issue information in state %s', async (state) => {
     const posted = vi.fn()
-    let entriesReads = 0
+    const entriesRead = vi.fn()
+    const reopened = vi.fn()
+    const onBack = vi.fn()
     server.use(
-      http.get('*/api/v1/saas-issues/:id', () => HttpResponse.json({ success: true, data: softwareIssue })),
+      http.get('*/api/v1/saas-issues/:id', () =>
+        HttpResponse.json({
+          success: true,
+          data: {
+            ...softwareIssue,
+            state,
+            resolution: state === 'RESOLVED' ? 'Access restored by IT' : null,
+            reopenUntil: '2099-12-31'
+          }
+        })
+      ),
       http.get('*/api/v1/saas-issues/:id/entries', () => {
-        entriesReads++
+        entriesRead()
         return HttpResponse.json(pageResponse())
       }),
-      http.post('*/api/v1/saas-issues/:id/messages', async ({ request }) => {
-        posted(await request.json())
+      http.post('*/api/v1/saas-issues/:id/messages', () => {
+        posted()
+        return HttpResponse.json({ success: true, data: softwareIssue })
+      }),
+      http.post('*/api/v1/saas-issues/:id/reopen', () => {
+        reopened()
         return HttpResponse.json({ success: true, data: softwareIssue })
       })
     )
-    mount(<EmployeeIssueDetail id={requestId} onBack={vi.fn()} />, '/?tab=issue-detail')
-    fireEvent.change(await screen.findByLabelText('Message'), { target: { value: 'Still unable to access' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Send reply' }))
-    await waitFor(() => expect(posted).toHaveBeenCalledWith({ body: 'Still unable to access' }))
-    await waitFor(() => expect(entriesReads).toBeGreaterThan(1))
-    expect(screen.getByLabelText('Message')).toHaveValue('')
+    mount(<EmployeeIssueDetail id={requestId} onBack={onBack} />, '/?tab=issue-detail')
+    expect(await screen.findByText(softwareIssue.description)).toBeInTheDocument()
+    expect(screen.getByText(softwareIssue.code)).toBeInTheDocument()
+    if (state === 'RESOLVED') expect(screen.getByText('Access restored by IT')).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Conversation' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
+    expect(screen.getAllByRole('button')).toHaveLength(1)
+    expect(entriesRead).not.toHaveBeenCalled()
+    expect(posted).not.toHaveBeenCalled()
+    expect(reopened).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByRole('button', { name: 'Back' }))
+    expect(onBack).toHaveBeenCalledOnce()
   })
 })

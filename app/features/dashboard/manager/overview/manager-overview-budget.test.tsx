@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen, within } from '@testing-library/react'
+import { configure, render, screen, within } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
 import { MemoryRouter } from 'react-router'
@@ -25,7 +25,12 @@ const budget: MineResponseDtoDataBudget = {
   remainingBase: money('9007199254740958.25'),
   remainingWithReserve: money('9007199254740965.00'),
   overBudget: false,
-  departmentCeiling: null,
+  effectiveBudget: {
+    base: money('9007199254740993.25'),
+    reserve: money('6.75'),
+    total: money('9007199254741000.00'),
+    adjustment: money('0')
+  },
   cycle: null,
   version: null,
   latestRefusal: null,
@@ -47,9 +52,15 @@ const server = setupServer(
     return HttpResponse.json({ success: true, data: { budget } })
   })
 )
-beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
+beforeAll(() => {
+  configure({ asyncUtilTimeout: 5000 })
+  server.listen({ onUnhandledRequest: 'error' })
+})
 afterEach(() => server.resetHandlers())
-afterAll(() => server.close())
+afterAll(() => {
+  configure({ asyncUtilTimeout: 1000 })
+  server.close()
+})
 beforeEach(async () => {
   budgetRead.mockClear()
   departmentRead.mockClear()
@@ -139,15 +150,93 @@ it('keeps negative remaining amounts visible', async () => {
   expect(within(chart).getByText(/-\$0\.25/)).toBeInTheDocument()
 })
 
-it('does not compare bar lengths when currencies differ', async () => {
+it('does not draw proportions when currencies differ', async () => {
   server.use(
     http.get('*/api/v1/budgets/mine', () =>
-      HttpResponse.json({ success: true, data: { budget: { ...budget, reserve: { amount: '10', currency: 'VND' } } } })
+      HttpResponse.json({
+        success: true,
+        data: {
+          budget: {
+            ...budget,
+            effectiveBudget: { ...budget.effectiveBudget, reserve: { amount: '10', currency: 'VND' } }
+          }
+        }
+      })
     )
   )
   mount()
   const chart = await screen.findByRole('region', { name: 'Budget composition' })
   expect(
-    within(chart).getByText('Bar lengths are unavailable because monetary data is inconsistent or invalid.')
+    within(chart).getByText(
+      'Shares are unavailable because figures are missing, use different currencies or do not match the budget total.'
+    )
   ).toBeInTheDocument()
+})
+
+it('uses effective figures after adjustments while retaining the original approved amount', async () => {
+  server.use(
+    http.get('*/api/v1/budgets/mine', () =>
+      HttpResponse.json({
+        success: true,
+        data: {
+          budget: {
+            ...budget,
+            effectiveBudget: { base: money('100'), reserve: money('10'), total: money('110'), adjustment: money('-15') }
+          }
+        }
+      })
+    )
+  )
+  mount()
+  expect(await screen.findByText('Effective budget')).toBeInTheDocument()
+  expect(screen.getByText('$110.00')).toBeInTheDocument()
+  expect(screen.getByText('-$15.00')).toBeInTheDocument()
+  const structure = screen.getByRole('region', { name: 'Budget composition' })
+  expect(within(structure).getByText('$100.00')).toBeInTheDocument()
+  expect(within(structure).queryByText(/9,007,199/)).not.toBeInTheDocument()
+  expect(screen.getByText(/9,007,199,254,741,000/)).toBeInTheDocument()
+})
+
+it('does not substitute the original allocation for a missing effective budget', async () => {
+  server.use(
+    http.get('*/api/v1/budgets/mine', () =>
+      HttpResponse.json({ success: true, data: { budget: { ...budget, effectiveBudget: null } } })
+    )
+  )
+  mount()
+  expect(await screen.findByText('No budget data matches your department’s cost center.')).toBeInTheDocument()
+  expect(screen.queryByRole('region', { name: 'Budget composition' })).not.toBeInTheDocument()
+})
+
+it('shows a remaining percentage against the effective total with exact activity amounts', async () => {
+  server.use(
+    http.get('*/api/v1/budgets/mine', () =>
+      HttpResponse.json({
+        success: true,
+        data: {
+          budget: {
+            ...budget,
+            total: money('660000000'),
+            effectiveBudget: {
+              base: money('600000000'),
+              reserve: money('60000000'),
+              total: money('660000000'),
+              adjustment: money('0')
+            },
+            spent: money('0'),
+            committed: money('6540000'),
+            pendingSpend: money('3816000'),
+            remainingWithReserve: money('649644000')
+          }
+        }
+      })
+    )
+  )
+  mount()
+  expect(await screen.findByText('98.4%')).toBeInTheDocument()
+  const activity = screen.getByRole('region', { name: 'Budget activity' })
+  expect(within(activity).getByText('$649,644,000.00')).toBeInTheDocument()
+  expect(within(activity).getByText('$6,540,000.00')).toBeInTheDocument()
+  expect(within(activity).getByText('$3,816,000.00')).toBeInTheDocument()
+  expect(screen.queryByText(/Bars are scaled/)).not.toBeInTheDocument()
 })

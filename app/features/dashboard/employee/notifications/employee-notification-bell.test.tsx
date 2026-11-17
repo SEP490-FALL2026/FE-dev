@@ -1,4 +1,5 @@
-﻿import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import type { NotificationListResponseDtoDataItemsItem } from '~/shared/api/generated/model'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { delay, http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
@@ -18,7 +19,7 @@ const outsideLabel = 'Outside'
 let unread = 2
 let readIds = new Set<string>()
 const secondId = 'b010b6b1-39ed-4b87-a950-157c84a50002'
-const notice = (id = requestId, code = 'REQUEST_SUBMITTED') => ({
+const notice = (id = requestId, code = 'REQUEST_SUBMITTED'): NotificationListResponseDtoDataItemsItem => ({
   id,
   code,
   subject: null,
@@ -91,7 +92,7 @@ for (const role of ['employee', 'manager'] as const) {
       const bell = screen.getByRole('button', { name: 'Notifications' })
       fireEvent.click(bell)
       const dialog = await screen.findByRole('dialog', { name: 'Notifications' })
-      expect(await within(dialog).findByText('Request submitted')).toBeInTheDocument()
+      expect(await within(dialog).findByText('Request sent')).toBeInTheDocument()
       expect(within(dialog).getByLabelText('Unread')).toBeInTheDocument()
       expect(markRead).not.toHaveBeenCalled()
       expect(markAllRead).not.toHaveBeenCalled()
@@ -115,21 +116,21 @@ for (const role of ['employee', 'manager'] as const) {
       expect(action).toBeDisabled()
       await waitFor(() => expect(screen.queryByLabelText('Unread')).not.toBeInTheDocument())
       expect(await screen.findByText('1')).toBeInTheDocument()
-      expect(screen.getByText('Request submitted')).toBeInTheDocument()
+      expect(screen.getByText('Request sent')).toBeInTheDocument()
     })
 
     it('marks all notifications once and removes the unread badge after the server confirms', async () => {
       mount(role)
       await screen.findByText('2')
       fireEvent.click(screen.getByRole('button', { name: 'Notifications' }))
-      await screen.findByText('Request submitted')
+      await screen.findByText('Request sent')
       const action = screen.getByRole('button', { name: 'Mark all as read' })
       fireEvent.click(action)
       fireEvent.click(action)
       await waitFor(() => expect(markAllRead).toHaveBeenCalledTimes(1))
       expect(action).toBeDisabled()
       await waitFor(() => expect(screen.queryByText('2')).not.toBeInTheDocument())
-      expect(screen.getByText('Request submitted')).toBeInTheDocument()
+      expect(screen.getByText('Request sent')).toBeInTheDocument()
       expect(screen.queryByLabelText('Unread')).not.toBeInTheDocument()
     })
 
@@ -137,7 +138,7 @@ for (const role of ['employee', 'manager'] as const) {
       unread = 0
       mount(role)
       fireEvent.click(screen.getByRole('button', { name: 'Notifications' }))
-      await screen.findByText('Request submitted')
+      await screen.findByText('Request sent')
       const action = screen.getByRole('button', { name: 'Mark all as read' })
       expect(action).toBeEnabled()
       fireEvent.click(action)
@@ -157,12 +158,12 @@ for (const role of ['employee', 'manager'] as const) {
       )
       mount(role)
       fireEvent.click(screen.getByRole('button', { name: 'Notifications' }))
-      expect(await screen.findByText('Request submitted')).toBeInTheDocument()
+      expect(await screen.findByText('Request sent')).toBeInTheDocument()
       const load = screen.getByRole('button', { name: 'Load more' })
       fireEvent.click(load)
       fireEvent.click(load)
       expect(await screen.findByText('Access granted')).toBeInTheDocument()
-      expect(screen.getByText('Request submitted')).toBeInTheDocument()
+      expect(screen.getByText('Request sent')).toBeInTheDocument()
       expect(pages.mock.calls.map(([number]) => number)).toEqual([1, 2])
       expect(screen.queryByRole('button', { name: 'Load more' })).not.toBeInTheDocument()
     })
@@ -178,10 +179,10 @@ for (const role of ['employee', 'manager'] as const) {
       )
       mount(role)
       fireEvent.click(screen.getByRole('button', { name: 'Notifications' }))
-      await screen.findByText('Request submitted')
+      await screen.findByText('Request sent')
       fireEvent.click(screen.getByRole('button', { name: 'Load more' }))
       expect(await screen.findByRole('alert')).not.toHaveTextContent('private BE detail')
-      expect(screen.getByText('Request submitted')).toBeInTheDocument()
+      expect(screen.getByText('Request sent')).toBeInTheDocument()
       fail = false
       fireEvent.click(screen.getByRole('button', { name: 'Try again' }))
       expect(await screen.findByText('Access granted')).toBeInTheDocument()
@@ -196,7 +197,7 @@ for (const role of ['employee', 'manager'] as const) {
       await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     })
 
-    it('uses a safe translated fallback and opens a related request in the correct workspace', async () => {
+    it('uses a safe translated fallback without guessing a destination for an unknown code', async () => {
       server.use(
         http.get('*/api/v1/notifications', () => HttpResponse.json(page([notice(requestId, 'FUTURE_SECRET_CODE')])))
       )
@@ -204,13 +205,46 @@ for (const role of ['employee', 'manager'] as const) {
       fireEvent.click(screen.getByRole('button', { name: 'Notifications' }))
       expect(await screen.findByText('New work update')).toBeInTheDocument()
       expect(screen.queryByText('FUTURE_SECRET_CODE')).not.toBeInTheDocument()
-      fireEvent.click(screen.getByRole('button', { name: 'View request' }))
+      expect(screen.queryByRole('button', { name: 'View details' })).not.toBeInTheDocument()
+      expect(screen.getByTestId('location')).toHaveTextContent('tab=my-requests')
+    })
+
+    it('opens a known request in the current workspace', async () => {
+      mount(role)
+      fireEvent.click(screen.getByRole('button', { name: 'Notifications' }))
+      fireEvent.click(await screen.findByRole('button', { name: 'View details' }))
       await waitFor(() =>
         expect(screen.getByTestId('location')).toHaveTextContent(
-          `tab=${role === 'employee' ? 'request-detail' : 'request-approval'}&id=${requestId}`
+          'tab=' + (role === 'employee' ? 'request-detail' : 'request-approval') + '&id=' + requestId
         )
       )
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    })
+
+    it('opens the exact policy version and interpolates its parameters', async () => {
+      server.use(
+        http.get('*/api/v1/notifications', () =>
+          HttpResponse.json(
+            page([
+              {
+                ...notice(requestId, 'POLICY_PUBLISHED'),
+                subject: { type: 'POLICY_VERSION', id: requestId },
+                params: { policyCode: 'POL-MF1', versionNumber: 3, requiresReacknowledgement: true }
+              }
+            ])
+          )
+        ),
+        http.get('*/api/v1/policies/POL-MF1', () =>
+          HttpResponse.json({ success: true, data: { title: 'Access policy' } })
+        )
+      )
+      mount(role)
+      fireEvent.click(screen.getByRole('button', { name: 'Notifications' }))
+      expect(await screen.findByText(/Access policy has version 3/)).toBeInTheDocument()
+      fireEvent.click(screen.getByRole('button', { name: 'View details' }))
+      await waitFor(() =>
+        expect(screen.getByTestId('location')).toHaveTextContent('tab=policies&policyCode=POL-MF1&version=3')
+      )
     })
 
     it('keeps an unread item when a write fails and does not retry automatically', async () => {

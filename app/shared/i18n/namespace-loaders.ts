@@ -12,6 +12,7 @@ export const namespaceLoaders: Record<SupportedLanguage, Record<TranslationNames
     itDepartmentSoftware: () =>
       import('./locales/vi/it-department-software').then((module) => module.itDepartmentSoftware),
     requestFlow: () => import('./locales/vi/request-flow').then((module) => module.requestFlow),
+    policy: () => import('./locales/vi/policy').then((module) => module.policy),
     devicePrivacy: () => import('./locales/vi/device-privacy').then((module) => module.devicePrivacy),
     itDepartmentWork: () => import('./locales/vi/it-department-work').then((module) => module.itDepartmentWork),
     itDevices: () => import('./locales/vi/it-devices').then((module) => module.itDevices),
@@ -52,6 +53,7 @@ export const namespaceLoaders: Record<SupportedLanguage, Record<TranslationNames
     itDepartmentSoftware: () =>
       import('./locales/en/it-department-software').then((module) => module.itDepartmentSoftware),
     requestFlow: () => import('./locales/en/request-flow').then((module) => module.requestFlow),
+    policy: () => import('./locales/en/policy').then((module) => module.policy),
     devicePrivacy: () => import('./locales/en/device-privacy').then((module) => module.devicePrivacy),
     itDepartmentWork: () => import('./locales/en/it-department-work').then((module) => module.itDepartmentWork),
     itDevices: () => import('./locales/en/it-devices').then((module) => module.itDevices),

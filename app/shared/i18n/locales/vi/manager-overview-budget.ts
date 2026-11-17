@@ -7,6 +7,8 @@ export const managerOverviewBudget = {
   unavailable: 'Không có dữ liệu ngân sách phù hợp với Cost Center của phòng ban.',
   noBudget: 'Cost Center của phòng ban chưa có ngân sách hiện hành trong năm này.',
   allocated: 'Ngân sách được duyệt',
+  effective: 'Ngân sách hiệu lực',
+  adjustment: 'Điều chỉnh đã duyệt (ròng)',
   structure: 'Cơ cấu ngân sách',
   usage: 'Tình hình sử dụng ngân sách',
   base: 'Ngân sách cơ sở',
@@ -16,6 +18,11 @@ export const managerOverviewBudget = {
   pending: 'Chờ quyết chi',
   remaining: 'Còn lại, gồm dự phòng',
   notAvailable: 'Chưa có dữ liệu',
-  scaleNote: 'Độ dài thanh so với giá trị lớn nhất trong biểu đồ. Giá trị âm được hiển thị bằng số.',
-  incomparable: 'Không thể so sánh độ dài thanh vì dữ liệu tiền tệ không đồng nhất hoặc không hợp lệ.'
+  available: 'Ngân sách còn lại',
+  lessThan: '< {{percent}}',
+  noRatio: 'Chưa có tỷ lệ',
+  overBudget: 'Vượt ngân sách',
+  usageNote: 'Tỷ lệ tính trên ngân sách hiệu lực. Phần còn lại đã trừ đã chi, đã cam kết và chờ quyết chi.',
+  overBudgetNote: 'Tổng đã chi, đã cam kết và chờ quyết chi đã vượt ngân sách hiệu lực. Số âm là phần còn thiếu.',
+  incomparable: 'Chưa thể hiển thị tỷ lệ vì số liệu thiếu, khác đơn vị tiền tệ hoặc chưa khớp tổng ngân sách.'
 } as const

@@ -1,7 +1,7 @@
 import { employeeRequestExtras } from './employee-request-extras'
 import { employeeRequestAssignment } from './employee-request-assignment'
 export const employee = {
-  termLimit: 'Tối đa {{months}} tháng, đến {{date}}',
+  policies: 'Chính sách',
   estimatedBudgetYear: 'Năm ngân sách tạm tính',
   extensionMonths: 'Số tháng gia hạn',
   requestAssignment: employeeRequestAssignment,
@@ -354,18 +354,12 @@ export const employee = {
   noValue: 'Chưa có thông tin',
   selfService: 'Tài khoản đang trong giai đoạn bàn giao. Chỉ mở thông báo, bàn giao và hồ sơ cá nhân.',
   errors: {
-    termLimit: 'Thời hạn vượt giới hạn của gói. Kiểm tra số tháng tối đa rồi xem trước lại.',
     groupMinimum: 'Yêu cầu nhóm cần từ 2 đến 10 người khác nhau.',
     renewalHolder: 'Chỉ người đang giữ quyền sử dụng được gửi yêu cầu gia hạn.',
     requestParty: 'Người gửi hoặc người thụ hưởng chưa đủ điều kiện gửi yêu cầu. Kiểm tra vai trò và phòng ban.',
     accessUnavailable: 'Quyền này không còn phù hợp với thao tác đã chọn. Làm mới danh sách và chọn quyền khác.',
     returnPending: 'Quyền này đã có yêu cầu hoàn trả đang được xử lý.',
     renewalPending: 'Quyền này đang có yêu cầu gia hạn chờ xử lý.',
-    renewalEnd: 'Ngày kết thúc mới phải sau ngày hiện tại và ngày kết thúc đang có.',
-    serviceBaseline: employeeRequestExtras.errors.baseline,
-    servicePlan: employeeRequestExtras.errors.plan,
-    returnSender: employeeRequestExtras.errors.sender,
-    returnChanged: employeeRequestExtras.errors.changed,
     unavailable: 'Không tải được dữ liệu. Vui lòng thử lại.',
     forbidden: 'Bạn không có quyền thao tác trên dữ liệu này.',
     missing: 'Không tìm thấy dữ liệu trong phạm vi được phép.',
@@ -385,19 +379,18 @@ export const employee = {
   eligibility: {
     HEAD_IN_GROUP: 'Trưởng phòng không được là người thụ hưởng trong nhóm này',
     SPENDING_APPROVER: 'Người duyệt chi không được là người thụ hưởng',
-    TERM_REQUIRED: 'Cần nhập ngày kết thúc quyền sử dụng',
-    OPEN_LIMIT_REACHED: 'Người này đã đạt giới hạn yêu cầu đang mở',
-    MANY_PAID_SOFTWARE_REASON_REQUIRED: 'Cần lý do dùng nhiều phần mềm trả phí cho người này',
-    KIND_NOT_MULTI_SEAT: 'Gói này không hỗ trợ nhiều seat',
-    NOT_PAID_SOFTWARE: 'Yêu cầu nhóm chỉ áp dụng cho phần mềm trả phí',
     OUTSIDE_DEPARTMENT: 'Không thuộc phòng ban của bạn',
     NOT_ACTIVE: 'Nhân viên không hoạt động',
     EMAIL_REQUIRED: 'Cần bổ sung email công việc',
-    END_DATE_REQUIRED: 'Cần ngày kết thúc quyền',
-    END_DATE_TOO_EARLY: 'Ngày kết thúc quyền quá sớm',
     HAS_ACCESS: 'Đã có quyền sử dụng',
     HAS_OPEN_REQUEST: 'Đã có yêu cầu đang mở',
-    DUPLICATE_LINE: 'Người thụ hưởng bị chọn trùng'
+    TERM_REQUIRED: 'Người này cần thời gian sử dụng theo số tháng',
+    TERM_LONG_TERM_NOT_ALLOWED: 'Nhà thầu, cộng tác viên hoặc thực tập sinh chỉ được cấp theo số tháng',
+    TERM_CONTRACT_ENDED: 'Hợp đồng của người này đã kết thúc',
+    OPEN_LIMIT_REACHED: 'Người này đã đủ số yêu cầu cấp mới trong tuần',
+    DUPLICATE_LINE: 'Người thụ hưởng bị chọn trùng',
+    KIND_NOT_MULTI_SEAT: 'Gói này không hỗ trợ nhiều seat',
+    NOT_PAID_SOFTWARE: 'Yêu cầu nhóm chỉ áp dụng cho phần mềm trả phí'
   },
   statuses: {
     AWAITING_REQUESTER_REVISION: 'Chờ người gửi chỉnh sửa',

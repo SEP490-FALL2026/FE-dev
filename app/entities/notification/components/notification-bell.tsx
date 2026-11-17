@@ -1,3 +1,4 @@
+import type { NotificationTarget } from '../notification-target'
 import { Bell } from 'lucide-react'
 import { useId, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -8,11 +9,15 @@ import { NotificationInbox } from './notification-inbox'
 export function NotificationBell({
   open,
   onOpenChange,
-  onOpenRequest
+  onOpenRequest,
+  audience,
+  onOpenTarget
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   onOpenRequest: (id: string) => void
+  audience?: 'employee' | 'manager'
+  onOpenTarget?: (target: NotificationTarget) => void
 }) {
   const { t: translate } = useTranslation('common')
   const trigger = useRef<HTMLButtonElement>(null)
@@ -44,6 +49,15 @@ export function NotificationBell({
           <NotificationInbox
             labelId={`${id}-label`}
             unreadCount={count}
+            audience={audience}
+            onOpenTarget={
+              onOpenTarget
+                ? (target) => {
+                    close()
+                    onOpenTarget(target)
+                  }
+                : undefined
+            }
             onClose={() => {
               close()
               trigger.current?.focus()

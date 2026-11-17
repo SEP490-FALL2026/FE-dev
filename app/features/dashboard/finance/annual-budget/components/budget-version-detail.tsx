@@ -23,7 +23,6 @@ import type { BudgetViewProps } from '../budget-view-props'
 import { attachmentStatus } from '../enums/attachment-rules'
 import { canEditVersion, versionState } from '../enums/version-state'
 import { BudgetVersionForm } from './budget-version-form'
-import { BudgetVersionLines } from './budget-version-lines'
 import { BudgetAttachments, attachmentPageSize } from './budget-attachments'
 
 export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & { itemId: string }) {
@@ -168,7 +167,6 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
           <FinanceEmpty />
         )}
       </FinanceQueryState>
-      {version && <BudgetVersionLines version={version} disabled={query.isError || query.isFetching} />}
       {version && (
         <BudgetAttachments
           target='version'

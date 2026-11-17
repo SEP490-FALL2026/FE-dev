@@ -81,7 +81,7 @@ describe('Employee requester catalog', () => {
     reason()
     fireEvent.click(screen.getByRole('button', { name: 'Preview request' }))
     await screen.findByRole('button', { name: 'Submit request' })
-    expect(preview).toHaveBeenCalledWith({ planId })
+    expect(preview).toHaveBeenCalledWith({ planId, termMonths: 6 })
     expect(calls.map((pathname) => pathname.slice(pathname.indexOf('/api/v1/')))).toEqual([
       '/api/v1/requestable-applications',
       `/api/v1/requestable-applications/${planId}`,

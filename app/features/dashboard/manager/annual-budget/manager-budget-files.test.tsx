@@ -10,7 +10,7 @@ import { employeeId, pageResponse, requestId } from '../../../../../test/fixture
 import { proposal } from '../../../../../test/fixtures/manager-api'
 import { ManagerBudgetForm } from './views/manager-budget-form'
 import { ManagerBudgetFiles } from './components/manager-budget-files'
-import { managerReadHandlers } from '../../../../../test/fixtures/manager-integration'
+import { managerReadHandlers, openCycleBudget } from '../../../../../test/fixtures/manager-integration'
 
 const fileId = '99999999-9999-4999-8999-999999999999'
 const uploaded = {
@@ -23,20 +23,6 @@ const uploaded = {
   versionId: null,
   createdAt: new Date().toISOString(),
   expiresAt: '2099-01-01T00:00:00Z'
-}
-const line = {
-  lineType: 'RENEW',
-  priorityRank: 1,
-  zbb: null,
-  overCeiling: null,
-  position: 1,
-  description: 'Software',
-  amount: { amount: '1250.50' },
-  planId: null,
-  seats: null,
-  repeatCycle: 'ANNUAL',
-  quoteValidUntil: null,
-  note: null
 }
 let files: (typeof uploaded)[] = []
 const server = setupServer(
@@ -71,8 +57,7 @@ function mount(children = <ManagerBudgetForm costCenterId={employeeId} costCente
 function fill() {
   for (const [label, value] of Object.entries({
     'Fiscal year': '2027',
-    Description: 'Software',
-    Amount: '1250.50'
+    Amount: '9007199254740993'
   }))
     fireEvent.change(screen.getByLabelText(label), { target: { value } })
 }
@@ -116,7 +101,7 @@ function uploadHandlers(status = 200) {
   )
   return { declare, complete, storage }
 }
-it('uploads raw bytes, completes the upload, and submits only its ID with decimal money intact', async () => {
+it('uploads raw bytes, completes the upload, and submits only its ID with whole VND amounts intact', async () => {
   const handlers = uploadHandlers()
   const submitted = vi.fn()
   server.use(
@@ -149,19 +134,12 @@ it('uploads raw bytes, completes the upload, and submits only its ID with decima
     expect(submitted).toHaveBeenCalledWith({
       year: 2027,
       costCenterId: employeeId,
-      lines: [
-        {
-          description: 'Software',
-          lineType: 'RENEW',
-          priorityRank: 1,
-          amount: { amount: '1250.50' }
-        }
-      ],
+      requestedAmount: { amount: '9007199254740993' },
       attachmentIds: [fileId]
     })
   )
 })
-it('requires explicit selection of recovered uploads and omits unselected attachments', async () => {
+it('requires explicit selection of a recovered upload before submitting', async () => {
   files = [uploaded]
   const submitted = vi.fn()
   server.use(
@@ -172,10 +150,14 @@ it('requires explicit selection of recovered uploads and omits unselected attach
   )
   mount()
   fill()
-  expect(await screen.findByRole('checkbox', { name: /quote.pdf/ })).not.toBeChecked()
+  const checkbox = await screen.findByRole('checkbox', { name: /quote.pdf/ })
+  expect(checkbox).not.toBeChecked()
+  expect(screen.getByRole('button', { name: 'Submit' })).toBeDisabled()
+  fireEvent.click(checkbox)
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Submit' })).toBeEnabled())
   fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
   await waitFor(() => expect(submitted).toHaveBeenCalledOnce())
-  expect(submitted.mock.calls[0][0]).not.toHaveProperty('attachmentIds')
+  expect(submitted.mock.calls[0][0]).toMatchObject({ attachmentIds: [fileId] })
 })
 it('does not complete or select a file when storage rejects the PUT', async () => {
   const handlers = uploadHandlers(403)
@@ -210,9 +192,13 @@ it('includes new uploads in resubmission without reusing attachments of the prev
   const submitted = vi.fn()
   server.use(
     http.get('*/api/v1/budget-proposals/:id', () =>
-      HttpResponse.json({ success: true, data: { proposal: { ...proposal, state: 'RETURNED' } } })
+      HttpResponse.json({
+        success: true,
+        data: {
+          proposal: { ...proposal, state: 'RETURNED', requestedAmount: { amount: '9007199254740993', currency: 'VND' } }
+        }
+      })
     ),
-    http.get('*/api/v1/budget-proposals/:id/lines', () => HttpResponse.json(pageResponse([line]))),
     http.post('*/api/v1/budget-proposals/:id/resubmission', async ({ request }) => {
       submitted(await request.json())
       return HttpResponse.json({ success: true, data: { proposal } })
@@ -220,9 +206,13 @@ it('includes new uploads in resubmission without reusing attachments of the prev
   )
   mount(<ManagerBudgetForm id={requestId} />)
   fireEvent.click(await screen.findByRole('checkbox', { name: /quote.pdf/ }))
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Submit revised proposal' })).toBeEnabled())
   fireEvent.click(screen.getByRole('button', { name: 'Submit revised proposal' }))
   await waitFor(() => expect(submitted).toHaveBeenCalledOnce())
-  expect(submitted.mock.calls[0][0]).toMatchObject({ attachmentIds: [fileId] })
+  expect(submitted.mock.calls[0][0]).toMatchObject({
+    attachmentIds: [fileId],
+    requestedAmount: { amount: '9007199254740993' }
+  })
   expect(submitted.mock.calls[0][0]).not.toHaveProperty('costCenterId')
 })
 it('obtains a fresh download link for each click', async () => {
@@ -247,5 +237,89 @@ it('obtains a fresh download link for each click', async () => {
 })
 it('blocks proposals without a department cost center', async () => {
   mount(<ManagerBudgetForm />)
+  expect(screen.getByRole('button', { name: 'Submit' })).toBeDisabled()
+})
+
+it('limits selection to ten ready attachments while allowing deselection', async () => {
+  files = Array.from({ length: 11 }, (_, index) => ({
+    ...uploaded,
+    id: `99999999-9999-4999-8999-${String(index).padStart(12, '0')}`,
+    fileName: `file-${index + 1}.pdf`
+  }))
+  mount()
+  const choices = await screen.findAllByRole('checkbox')
+  for (const checkbox of choices.slice(0, 10)) fireEvent.click(checkbox)
+  expect(choices[10]).toBeDisabled()
+  expect(choices[0]).toBeEnabled()
+  expect(screen.getByRole('button', { name: 'Upload file' })).toBeDisabled()
+  fireEvent.click(choices[0])
+  expect(choices[10]).toBeEnabled()
+})
+
+it('blocks fractional VND input before making a submission', async () => {
+  files = [uploaded]
+  const submitted = vi.fn()
+  server.use(
+    http.post('*/api/v1/budget-proposals', () => {
+      submitted()
+      return HttpResponse.json({ success: true })
+    })
+  )
+  mount()
+  fill()
+  fireEvent.click(await screen.findByRole('checkbox', { name: /quote.pdf/ }))
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Submit' })).toBeEnabled())
+  fireEvent.change(screen.getByLabelText('Amount'), { target: { value: '1000.50' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Submit' }))
+  expect(screen.getByLabelText('Amount')).toBeInvalid()
+  expect(submitted).not.toHaveBeenCalled()
+})
+
+it.each(['DRAFT', 'LOCKED'])('blocks submission when the cycle is %s', async (status) => {
+  files = [uploaded]
+  server.use(
+    http.get('*/api/v1/budgets/mine', ({ request }) =>
+      HttpResponse.json({
+        success: true,
+        data: {
+          budget: {
+            ...openCycleBudget,
+            year: Number(new URL(request.url).searchParams.get('year')),
+            cycle: { ...openCycleBudget.cycle, status }
+          }
+        }
+      })
+    )
+  )
+  mount()
+  fill()
+  fireEvent.click(await screen.findByRole('checkbox', { name: /quote.pdf/ }))
+  expect(
+    await screen.findByText(
+      'Proposals can only be submitted, withdrawn or resubmitted while the cycle accepts proposals.'
+    )
+  ).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Submit' })).toBeDisabled()
+})
+
+it('refuses an open cycle returned for a different cost center', async () => {
+  files = [uploaded]
+  server.use(
+    http.get('*/api/v1/budgets/mine', () =>
+      HttpResponse.json({
+        success: true,
+        data: {
+          budget: {
+            ...openCycleBudget,
+            costCenter: { id: requestId, code: 'OTHER', name: 'Other department' }
+          }
+        }
+      })
+    )
+  )
+  mount()
+  fill()
+  fireEvent.click(await screen.findByRole('checkbox', { name: /quote.pdf/ }))
+  expect(await screen.findByText('No budget data matches the selected department and year.')).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Submit' })).toBeDisabled()
 })

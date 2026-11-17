@@ -28,7 +28,7 @@ export type EmployeeMenuItem = {
   directTabKey?: EmployeeTabKey
   icon: LucideIcon
   key: string
-  translationKey: 'overview' | 'mySoftware' | 'myRequests' | 'create' | 'privacy' | 'handovers' | 'issues'
+  translationKey: 'overview' | 'mySoftware' | 'myRequests' | 'create' | 'privacy' | 'handovers' | 'issues' | 'policies'
 }
 
 export const employeeMenuItems: readonly EmployeeMenuItem[] = [
@@ -62,6 +62,7 @@ export const employeeMenuItems: readonly EmployeeMenuItem[] = [
     key: 'privacy',
     translationKey: 'privacy'
   },
+  { directTabKey: 'policies', icon: FileText, key: 'policies', translationKey: 'policies' },
   { directTabKey: 'issues', icon: MessageSquare, key: 'issues', translationKey: 'issues' }
 ]
 
@@ -81,6 +82,7 @@ export function getParentEmployeeMenuKey(tabKey: EmployeeTabKey): string {
     tabKey === 'submission-success'
   )
     return 'create-request'
+  if (tabKey === 'policies') return 'policies'
   if (tabKey === 'profile') return ''
   if (tabKey === 'privacy' || tabKey === 'data-export' || tabKey === 'data-usage') return 'privacy'
   return 'overview'

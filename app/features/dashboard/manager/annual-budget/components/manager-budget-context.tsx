@@ -1,50 +1,63 @@
 import { useTranslation } from 'react-i18next'
-import { useBudgetScope } from '../hooks/use-budget-scope'
-import { useBudgetMine } from '~/shared/api/generated/operations/budgets/budget-mine'
 import { useBudgetCycleBaseline } from '~/shared/api/generated/operations/budget-cycles/budget-cycle-baseline'
 import { useWorkspaceFormat } from '~/shared/hooks/use-workspace-format'
 import { ManagerMoney, ManagerQueryState, ManagerSection } from '../../shared/components/manager-api-ui'
+import type { BudgetContextState } from '../hooks/use-budget-context'
+import { isCycleStatus } from '../enums/cycle-status'
 
-export function ManagerBudgetContext({ year, costCenterId }: { year: number; costCenterId?: string }) {
-  const { t } = useTranslation('requestFlow')
-  const scope = useBudgetScope()
-  const departmentId = scope.departmentId
-  const selectedCostCenter = costCenterId ?? scope.costCenterId
-  const query = useBudgetMine(
-    { year, ...(selectedCostCenter ? { costCenterId: selectedCostCenter } : {}) },
-    { query: { enabled: !!costCenterId || (!scope.isPending && !scope.isError && !!departmentId) } }
-  )
-  const budget = !query.isError ? query.data?.data?.budget : null
+/** Cycle of the year (status and deadlines), effective budget and the baseline used to prepare BM-10. */
+export function ManagerBudgetContext({ year, context }: { year: number; context: BudgetContextState }) {
+  const { t: translate } = useTranslation('requestFlow')
+  const { t: manager } = useTranslation('manager')
+  const { query, budget, departmentId } = context
   const baseline = useBudgetCycleBaseline(year, { departmentId }, { query: { enabled: !!departmentId } })
   const { formatDate, formatNumber } = useWorkspaceFormat()
+  const cycle = budget?.cycle
   return (
-    <ManagerSection title={t('ceiling')}>
-      <ManagerQueryState query={query} />
+    <ManagerSection title={translate('budgetCycle')}>
+      <ManagerQueryState query={query} empty={!budget} emptyTitle={manager('budgetWorkspace.unavailable')} />
       {budget && (
-        <dl className='grid gap-4 text-sm sm:grid-cols-3'>
+        <dl className='grid gap-4 text-sm sm:grid-cols-4'>
           <div>
-            <dt className='text-xs text-muted-foreground'>{t('ceiling')}</dt>
+            <dt className='text-xs text-muted-foreground'>{translate('budgetCycle')}</dt>
             <dd>
-              {budget.departmentCeiling ? <ManagerMoney money={budget.departmentCeiling.total} /> : t('notPublished')}
+              {cycle
+                ? isCycleStatus(cycle.status)
+                  ? translate(`cycleStatus.${cycle.status}`)
+                  : translate('unknown')
+                : translate('noCycle')}
             </dd>
           </div>
-          {budget.cycle && (
+          {cycle && (
             <>
               <div>
-                <dt className='text-xs text-muted-foreground'>{t('submissionDue')}</dt>
-                <dd className='font-mono tabular-nums'>{formatDate(budget.cycle.submissionDeadline)}</dd>
+                <dt className='text-xs text-muted-foreground'>{translate('submissionDue')}</dt>
+                <dd className='text-right font-mono tabular-nums'>{formatDate(cycle.submissionDeadline)}</dd>
               </div>
               <div>
-                <dt className='text-xs text-muted-foreground'>{t('approvalDue')}</dt>
-                <dd className='font-mono tabular-nums'>{formatDate(budget.cycle.decisionDeadline)}</dd>
+                <dt className='text-xs text-muted-foreground'>{translate('approvalDue')}</dt>
+                <dd className='text-right font-mono tabular-nums'>{formatDate(cycle.decisionDeadline)}</dd>
               </div>
             </>
           )}
+          {budget.effectiveBudget && (
+            <div>
+              <dt className='text-xs text-muted-foreground'>{translate('effectiveBudget')}</dt>
+              <dd className='text-right font-mono tabular-nums'>
+                <ManagerMoney money={budget.effectiveBudget.total} />
+              </dd>
+            </div>
+          )}
         </dl>
       )}
-      {departmentId && (
+      {budget && !context.cycleOpen && (
+        <p role='status' className='text-sm text-warning-ink'>
+          {translate('cycleClosedHint')}
+        </p>
+      )}
+      {budget && departmentId && (
         <details className='border-t border-border/60 pt-3'>
-          <summary className='cursor-pointer text-sm font-medium'>{t('baseline')}</summary>
+          <summary className='cursor-pointer text-sm font-medium'>{translate('baseline')}</summary>
           <ManagerQueryState query={baseline} />
           {!baseline.isError &&
             baseline.data?.data?.departments.map((department) => (

@@ -1,12 +1,13 @@
 import type { BudgetTablePageResponseDtoDataItemsItem } from '~/shared/api/generated/model/budgets/budgetTablePageResponseDtoDataItemsItem'
 import type { CommitmentListResponseDtoDataItemsItem } from '~/shared/api/generated/model/budget-commitments/commitmentListResponseDtoDataItemsItem'
 import { hasBudget } from '../shared/finance-budget-row'
-import type { VersionResponseDtoDataVersionQuarters } from '~/shared/api/generated/model/budget-versions/versionResponseDtoDataVersionQuarters'
 
 export type OverviewPeriodMode = 'year' | 'quarter' | 'month'
 export const overviewPeriodModes: readonly OverviewPeriodMode[] = ['year', 'quarter', 'month']
 export const quarterKeys = ['q1', 'q2', 'q3', 'q4'] as const
 export type QuarterKey = (typeof quarterKeys)[number]
+/** Planned split of a version by quarter; the budget version contract no longer returns one, so versions count as without a split. */
+export type QuarterSplit = Record<QuarterKey, { amount: string; currency: string }> | null
 
 export interface OverviewPeriod {
   year: number
@@ -147,7 +148,7 @@ export interface QuarterPoint {
 
 /** Planned quarterly split summed across versions; versions without a split are counted separately. */
 export function plannedQuarters(
-  splits: readonly VersionResponseDtoDataVersionQuarters[],
+  splits: readonly QuarterSplit[],
   period: OverviewPeriod
 ): { points: QuarterPoint[]; withoutSplit: number } {
   const selected = new Set(periodMonths(period).map(quarterOfMonth))

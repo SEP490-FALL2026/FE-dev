@@ -16,6 +16,7 @@ import {
 import { managerId, managerRequest } from '../../../../../test/fixtures/manager-api'
 import { managerReadHandlers } from '../../../../../test/fixtures/manager-integration'
 import { ManagerGroupDecisions } from './components/manager-group-decisions'
+import { answerChecklist, checklistBody } from '../../../../../test/fixtures/policy'
 
 const first = {
   employee: { ...person, fullName: 'Alex' },
@@ -58,10 +59,37 @@ function mount() {
   )
 }
 async function confirm() {
+  await answerChecklist()
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Confirm' })).toBeEnabled())
   fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
   fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm' }))
   await waitFor(() => expect(written).toHaveBeenCalledOnce())
 }
+
+it('uses the failed checklist reason when returning the whole group', async () => {
+  mount()
+  await answerChecklist('No')
+  const group = await screen.findByRole('group', { name: 'Decision for the whole group' })
+  expect(within(group).getByRole('radio', { name: 'Approve need' })).toBeDisabled()
+  fireEvent.click(within(group).getByRole('radio', { name: 'Return' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
+  fireEvent.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Confirm' }))
+  await waitFor(() =>
+    expect(written).toHaveBeenCalledWith({
+      lines: [
+        { employeeId, decision: 'RETURN', reason: expect.stringContaining('The need is justified') },
+        { employeeId: planId, decision: 'RETURN', reason: expect.stringContaining('The need is justified') }
+      ],
+      checklist: {
+        ...checklistBody('1.2'),
+        answers: [
+          { itemCode: '1.2-01', answer: 'YES' },
+          { itemCode: '1.2-02', answer: 'NO' }
+        ]
+      }
+    })
+  )
+})
 it('requires an explicit decision and applies one approval to all and only the assigned people', async () => {
   mount()
   const group = await screen.findByRole('group', { name: 'Decision for the whole group' })
@@ -76,7 +104,8 @@ it('requires an explicit decision and applies one approval to all and only the a
     lines: [
       { employeeId, decision: 'APPROVE' },
       { employeeId: planId, decision: 'APPROVE' }
-    ]
+    ],
+    checklist: checklistBody('1.2')
   })
 })
 it('requires one nonempty common reason and omits spend and term confirmation when rejecting everyone', async () => {
@@ -94,7 +123,8 @@ it('requires one nonempty common reason and omits spend and term confirmation wh
     lines: [
       { employeeId, decision: 'REJECT', reason: 'Not needed' },
       { employeeId: planId, decision: 'REJECT', reason: 'Not needed' }
-    ]
+    ],
+    checklist: checklistBody('1.2')
   })
 })
 it('allows mixed decisions and discards an inherited rejection reason on the approved person', async () => {
@@ -110,7 +140,8 @@ it('allows mixed decisions and discards an inherited rejection reason on the app
     lines: [
       { employeeId, decision: 'APPROVE' },
       { employeeId: planId, decision: 'REJECT', reason: 'Existing tool is sufficient' }
-    ]
+    ],
+    checklist: checklistBody('1.2')
   })
 })
 it('does not offer removed term or allocation controls', async () => {
@@ -119,7 +150,23 @@ it('does not offer removed term or allocation controls', async () => {
   expect(screen.queryByLabelText('Outside the annual plan')).not.toBeInTheDocument()
   expect(screen.queryByLabelText('Reason for confirming a term over 12 months')).not.toBeInTheDocument()
   await confirm()
-  expect(Object.keys(written.mock.calls[0][0])).toEqual(['lines'])
+  expect(Object.keys(written.mock.calls[0][0])).toEqual(['lines', 'checklist'])
+})
+it('locks approval when a checklist answer is No but still allows returning to the requester', async () => {
+  mount()
+  await answerChecklist('No')
+  const group = await screen.findByRole('group', { name: 'Decision for the whole group' })
+  expect(within(group).getByRole('radio', { name: 'Approve need' })).toBeDisabled()
+  fireEvent.click(within(group).getByRole('radio', { name: 'Return' }))
+  fireEvent.change(screen.getByLabelText('What needs to be added'), { target: { value: 'Add the project code' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
+  fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm' }))
+  await waitFor(() => expect(written).toHaveBeenCalledOnce())
+  expect(written.mock.calls[0][0].lines).toEqual([
+    { employeeId, decision: 'RETURN', reason: 'Add the project code' },
+    { employeeId: planId, decision: 'RETURN', reason: 'Add the project code' }
+  ])
+  expect(written.mock.calls[0][0].checklist.answers).toContainEqual({ itemCode: '1.2-02', answer: 'NO' })
 })
 it('refuses a partially loaded participant list', async () => {
   server.use(http.get('*/api/v1/access-requests/:id/lines', () => HttpResponse.json(pageResponse(lines, 1, 2))))
@@ -127,4 +174,13 @@ it('refuses a partially loaded participant list', async () => {
   await screen.findByRole('group', { name: 'Decision for the whole group' })
   expect(screen.getByRole('button', { name: 'Confirm' })).toBeDisabled()
   expect(written).not.toHaveBeenCalled()
+})
+it('answers every person question Yes with one click and still allows changing an answer', async () => {
+  mount()
+  fireEvent.click(await screen.findByRole('button', { name: 'Yes to all' }))
+  const question = screen.getByRole('radiogroup', { name: 'The need is justified' })
+  expect(within(question).getByRole('radio', { name: 'Yes' })).toBeChecked()
+  fireEvent.click(within(question).getByRole('radio', { name: 'No' }))
+  const group = screen.getByRole('group', { name: 'Decision for the whole group' })
+  expect(within(group).getByRole('radio', { name: 'Approve need' })).toBeDisabled()
 })

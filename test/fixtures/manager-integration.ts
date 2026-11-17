@@ -14,8 +14,17 @@ import {
   requestId,
   requestPreview
 } from './employee-api'
+import { policyStepHandlers } from './policy'
 import { managerId, managerProfile } from './manager-api'
 
+/** Budget read of a department whose cycle accepts proposals; only the fields the proposal screens read. */
+export const openCycleBudget = {
+  costCenter: { id: employeeId, code: 'ENG', name: 'Engineering' },
+  year: 2027,
+  status: 'NO_ACTIVE_BUDGET',
+  cycle: { status: 'OPEN', submissionDeadline: '2026-12-15', decisionDeadline: '2026-12-31' },
+  effectiveBudget: null
+}
 const unavailable = { state: 'NOT_AVAILABLE', count: null, sourceOperationId: null, reason: 'NO_DATA_SOURCE' } as const
 export const managerDashboard: NonNullable<ManagerDashboardResponseDtoData> = {
   asOf: '2026-11-02',
@@ -99,8 +108,14 @@ export const managerCatalogHandlers = [
   )
 ]
 export const managerReadHandlers = [
+  ...policyStepHandlers,
   http.get('*/api/v1/me', () => HttpResponse.json({ success: true, data: managerProfile })),
-  http.get('*/api/v1/budgets/mine', () => HttpResponse.json({ success: true, data: null })),
+  http.get('*/api/v1/budgets/mine', ({ request }) =>
+    HttpResponse.json({
+      success: true,
+      data: { budget: { ...openCycleBudget, year: Number(new URL(request.url).searchParams.get('year')) } }
+    })
+  ),
   http.get('*/api/v1/budget-cycles/:year/baseline', () =>
     HttpResponse.json({ success: true, data: { departments: [] } })
   ),

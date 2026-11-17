@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { readRequestFields, requestPayload } from './hooks/use-live-request-form'
 
 describe('current request contract', () => {
-  it('never sends removed spending-date or term-confirmation fields', () => {
+  it('sends the term of use and never the removed end-date, many-paid-software or spending-date fields', () => {
     const form = document.createElement('form')
     for (const [name, value] of Object.entries({
       planId: 'plan',
@@ -21,8 +21,7 @@ describe('current request contract', () => {
     expect(requestPayload(readRequestFields(form))).toEqual({
       planId: 'plan',
       businessReason: 'Work',
-      expectedEndDate: '2027-01-31',
-      manyPaidSoftwareReason: 'Work across tools'
+      termMonths: 3
     })
   })
 })

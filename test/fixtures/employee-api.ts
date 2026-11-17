@@ -23,7 +23,10 @@ export const employeeProfile: NonNullable<MeResponseDtoData> = {
     department: { code: 'ENG', name: 'Engineering' },
     jobTitle: 'Engineer'
   },
-  roles: ['EMPLOYEE']
+  roles: ['EMPLOYEE'],
+  pendingPolicyAcknowledgements: [],
+  avatar: null,
+  workPhone: null
 }
 export const plan = { planId, planName: 'Standard', applicationId: planId, applicationName: 'Test Software' }
 export const person = { employeeId, employeeCode: 'EMP-TEST', fullName: 'Test Employee' }
@@ -42,9 +45,8 @@ export const groupCheck: NonNullable<GroupCheckResponseDtoData> = {
   plan: { eligible: true, reason: null },
   tooManyLines: null,
   tooFewLines: null,
-  maxEndDate: '2027-10-31',
-  endDateOutOfRange: false,
-  lines: [{ employeeId, ok: true, reason: null, manyPaidSoftware: null }],
+  termRefusal: null,
+  lines: [{ employeeId, ok: true, reason: null }],
   lineCount: 1,
   hasSpendStep: true,
   pricing,
@@ -57,7 +59,6 @@ export const accessRequest: AccessRequestResponseDtoDataRequest = {
   branch: 'PAID_IN_CATALOG',
   state: 'PENDING',
   routing: { mode: 'VIA_HEAD', oneStepReason: null },
-  flags: { manyPaidSoftware: null },
   plan,
   proposal: null,
   department: { id: employeeId, code: 'ENG', name: 'Engineering' },
@@ -88,26 +89,24 @@ export const accessRequest: AccessRequestResponseDtoDataRequest = {
   },
   needDecision: null,
   withdrawal: null,
-  cancellation: null
+  cancellation: null,
+  cost: null
 }
 export const requestPreview: PreviewResponseDtoDataPreview = {
   limitExemption: null,
-  maxEndDate: '2027-10-31',
-  termRequired: false,
+  termMonths: 6,
+  termRefusal: null,
   annualVendorAmount: null,
   limits: {
     openNewCount: 0,
     openNewMax: 3,
-    paidSoftwareCount: 0,
-    paidSoftwareThreshold: 10,
-    reasonRequired: false,
+    resetsOn: '2026-11-23',
     refusal: null,
     openRequestId: null
   },
   blockedBy: null,
   plan,
   branch: 'PAID_IN_CATALOG',
-  expectedEndDate: null,
   department: { id: employeeId, code: 'ENG', name: 'Engineering' },
   costCenter: null,
   existingAccess: null,
@@ -117,16 +116,19 @@ export const requestPreview: PreviewResponseDtoDataPreview = {
   costEstimate: null,
   spendSubmission: 'ALLOWED',
   chain: [],
-  totalExpectedWorkingDays: 3
+  totalExpectedWorkingDays: 3,
+  cost: null
 }
 export const softwareIssue: NonNullable<SaasIssueResponseDtoData> = {
   id: requestId,
   code: 'ISSUE-TEST',
+  title: 'Cannot sign in',
+  department: { id: employeeId, name: 'Engineering' },
   state: 'WAITING_REPORTER',
   category: 'NO_ACCESS',
   impact: 'UNUSABLE',
   assignmentId,
-  plan,
+  plan: { ...plan, logoUrl: null },
   reporter: person,
   assignedItAdmin: { employeeId, fullName: 'IT Admin', employeeCode: 'IT-TEST' },
   responseDueOn: '2026-11-02',
