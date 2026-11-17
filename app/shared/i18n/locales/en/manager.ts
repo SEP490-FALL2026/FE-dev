@@ -1,13 +1,18 @@
+import { managerGhost } from './manager-ghost-seats'
+import { managerBudgetWorkspace } from './manager-budget-workspace'
 import { managerOverviewBudget } from './manager-overview-budget'
 import { managerRenewals } from './manager-renewals'
 import { managerIntegration } from './manager-integration'
 import { managerRequestForm } from './manager-request-form'
 import { managerBudgetForm } from './manager-budget-form'
 export const manager = {
+  policies: 'Policies',
+  ghostSeatReview: 'Review unused seats',
+  ghost: managerGhost,
+  budgetWorkspace: managerBudgetWorkspace,
   overviewBudget: managerOverviewBudget,
   renewal: managerRenewals,
   renewals: managerRenewals.title,
-  termLimit: 'Maximum term: {{months}} months',
   groupMinimum: 'Select 2 to 10 different people',
   budgetForm: managerBudgetForm,
   requestForm: managerRequestForm,
@@ -199,7 +204,7 @@ export const manager = {
   versionFiles: 'Version documents',
   emptyVersionFiles: 'No attachments for this version',
   currentBudget: 'Current annual budget',
-  budgetHint: 'Prepare plan lines and attach supporting documents for Finance review.',
+  budgetHint: 'Enter the total annual amount in VND and attach the completed BM-10 template for Finance review.',
   budgetMissing: 'No active budget for this year',
   windowFrom: 'Purchase window starts',
   windowTo: 'Purchase window ends',
@@ -320,9 +325,11 @@ export const manager = {
     submittedAt: 'Submitted At',
     requestIdLabel: 'Request ID',
     decisionTitle: 'Approval Decision',
-    decisionSubtitle: 'Choose to approve or reject this request',
-    approveDesc: 'Confirm software need is valid and forward',
-    rejectDesc: 'Reject request or ask for additional clarification',
+    decisionSubtitle: 'Approve, reject, or return it to the requester for more details',
+    returnLabel: 'Return',
+    returnReason: 'What needs to be added',
+    reasonPlaceholderReturn: 'Explain what the requester must add (required)...',
+    confirmReturnText: 'Are you sure you want to RETURN this request to the requester?',
     reasonLabel: 'Decision Note / Reason',
     reasonPlaceholderApprove: 'Enter approval notes (optional)...',
     reasonPlaceholderReject: 'Provide reason for rejecting this request (required)...',
@@ -332,7 +339,13 @@ export const manager = {
     confirmRejectText: 'Are you sure you want to REJECT this software need?'
   },
   errors: {
-    termLimit: 'The term exceeds the plan limit. Check the maximum months and preview again.',
+    ghostChanged: 'This recommendation changed or was paused. Review the latest information before deciding.',
+    ghostNotRevocable: 'This seat cannot be revoked now. Reload the queue.',
+    ghostExemption: 'Choose a valid exemption date after today, no more than 12 months ahead.',
+    ...managerBudgetWorkspace.errors,
+    cycleNotOpen: 'The budget cycle of this year is not open yet.',
+    cycleLocked: 'The budget cycle is locked because the submission deadline has passed.',
+    costCenterRequired: 'You are responsible for more than one Cost Center this year; choose the one to work on.',
     groupMinimum: 'A group request requires 2 to 10 different people.',
     renewalStale: 'This proposal has changed. IT must submit a new proposal before confirmation.',
     renewalAcknowledge: 'Acknowledge cancellation while people are still using this subscription.',

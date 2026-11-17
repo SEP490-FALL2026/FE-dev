@@ -41,3 +41,25 @@ Nhật ký kiểm tra ở `../scratch/super-admin-20261117-*-final.log`; nhật 
 1. `EmployeeDetailResponseDtoData` đang thiếu `contractEndDate` mà guide mô tả, dù create/update đã hỗ trợ. Frontend đọc giá trị qua kiểm tra kiểu tại biên, giữ khả năng hiển thị khi backend trả field; nếu backend không trả thì không thể khôi phục giá trị hiện tại từ API chi tiết. Cần backend bổ sung field vào response và Swagger rồi generate lại.
 2. Super Admin không được gọi `applicationList`. Bộ chọn ứng dụng dùng `departmentSoftwareList` có quyền hợp lệ và phân trang. Ứng dụng chưa được đưa vào danh sách phần mềm phòng ban chưa có nguồn tìm kiếm toàn cục dành cho Super Admin.
 3. Các kiểm thử giao tiếp sử dụng MSW. Chưa xác minh luồng ghi trên backend thật hoặc kiểm thử trình duyệt thủ công; không khẳng định toàn ứng dụng đã sẵn sàng triển khai khi typecheck/build còn lỗi ngoài phạm vi.
+
+## Khôi phục bố cục Nhân sự đã thống nhất
+
+Sau phản hồi của người dùng, đối chiếu lại commit `ccc3ec4` (gom thao tác nghỉ việc và điều chuyển vào hồ sơ) và `d43b3aa` (hoàn thiện phần xem trước tác động). Lượt tích hợp ngày 17/11 đã thêm lại mục Tài khoản riêng trên sidebar; đây là thay đổi không đúng bố cục đã thống nhất và đã được bỏ.
+
+- Sidebar giữ một đầu vào Nhân sự; hồ sơ nhân viên chứa thông tin tài khoản, vai trò và các thao tác nhân sự.
+- Từ Tổng quan, mời tài khoản mở trong Nhân sự; xem người duyệt chi mở bộ lọc vai trò của danh bạ nhân sự.
+- Liên kết tài khoản cũ vẫn hoạt động để tương thích; sidebar đánh dấu mục Nhân sự, không tạo mục tài khoản thứ hai.
+- Nghỉ việc và điều chuyển vẫn bắt đầu từ nhân viên đang mở, xem trước tác động rồi xác nhận cùng payload. Mã trình bày xem trước `event-impact-preview.tsx` không khác phiên bản `d43b3aa`.
+- Thêm kiểm thử tích hợp từ `SuperAdminScreen` cho quản lý tài khoản và quay về hồ sơ, xem trước/xác nhận nghỉ việc và điều chuyển, lời mời tài khoản và bộ lọc vai trò trong cùng khu vực Nhân sự. Các sửa lỗi contract và trang chi tiết mới được giữ lại.
+
+Kiểm chứng sau khôi phục: **29/29 test trong 5 file liên quan qua**, ESLint và Prettier qua. Typecheck vẫn ghi nhận 130 lỗi cũ ngoài phần sửa, không có lỗi trong Super Admin hoặc sidebar vừa chỉnh. Nhật ký tại `../scratch/super-admin-unified-workspace-tests.log` và `../scratch/super-admin-unified-workspace-typecheck.log`.
+
+## Hộp thoại mời tài khoản
+
+Đã tái hiện trên Edge bằng dữ liệu giả: vùng cuộn đặt trên `fieldset` cho phép các thẻ nhân viên vẽ xuyên xuống thanh nút. Chuyển vùng cuộn sang `div` bao ngoài, giữ `fieldset` để vô hiệu hóa các trường khi đang gửi; tiêu đề và thanh nút không co lại, phần thân được cuộn và cắt trong khung.
+
+Danh sách gợi ý hiển thị tối đa 5 nhân viên. API chỉ có tham số tìm kiếm nên giới hạn được áp dụng ở phần hiển thị; không tự thêm query chưa có trong contract. Người dùng vẫn tìm được người ngoài 5 mục đầu theo tên, mã hoặc thư điện tử công việc. Nội dung hướng dẫn Việt/Anh đã đồng bộ với giới hạn này.
+
+Kiểm tra trình duyệt ở 1280×720, 1024×600, 390×600 với tiếng Việt và 1280×720 với tiếng Anh: không tràn khung, không chồng lên thanh nút, vẫn cuộn tới được các lựa chọn vai trò. Kết quả và ảnh nằm tại `../scratch/invite-after-layout.json` và `../scratch/invite-after-*.png`. Đây là kiểm tra giao diện có dữ liệu giả, không gửi lời mời tới backend thật.
+
+Kiểm thử sau sửa: 14/14 test qua; ESLint, Prettier và kiểm tra khoảng trắng qua. Typecheck còn 130 lỗi đã có ở phạm vi khác, không có lỗi trong hộp thoại mời tài khoản, form dùng chung hoặc các bản dịch vừa sửa.

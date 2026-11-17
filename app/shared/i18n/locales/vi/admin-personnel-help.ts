@@ -57,7 +57,7 @@ export const adminPersonnelHelp = {
     verificationReference: 'Nhập số văn bản hoặc tham chiếu xác minh, tối đa 2.000 ký tự.',
     importId: 'Mở lại tệp đã tải lên trong phiên trình duyệt này.',
     acknowledgeDuplicateFile: 'Xác nhận chủ ý nhập lại tệp mà hệ thống đã tiếp nhận trước đó.',
-    file: 'Chỉ nhận CSV hoặc XLSX, tối đa 2 MiB. Tải tệp mẫu để kiểm tra các cột cần có.',
+    file: 'Chọn tệp CSV hoặc XLSX có dung lượng tối đa 2 megabyte.',
     allRows: 'Lọc các dòng theo kết quả kiểm tra ở bản xem trước.'
   },
   details: {

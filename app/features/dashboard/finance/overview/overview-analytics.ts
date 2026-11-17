@@ -1,7 +1,6 @@
 import type { BudgetTablePageResponseDtoDataItemsItem } from '~/shared/api/generated/model/budgets/budgetTablePageResponseDtoDataItemsItem'
 import type { CommitmentListResponseDtoDataItemsItem } from '~/shared/api/generated/model/budget-commitments/commitmentListResponseDtoDataItemsItem'
 import { hasBudget } from '../shared/finance-budget-row'
-import type { VersionResponseDtoDataVersionQuarters } from '~/shared/api/generated/model/budget-versions/versionResponseDtoDataVersionQuarters'
 
 export type OverviewPeriodMode = 'year' | 'quarter' | 'month'
 export const overviewPeriodModes: readonly OverviewPeriodMode[] = ['year', 'quarter', 'month']
@@ -137,34 +136,4 @@ export function sumPeriod(points: readonly MonthPoint[]) {
       amount: 0,
       count: 0
     })
-}
-
-export interface QuarterPoint {
-  quarter: QuarterKey
-  amount: number
-  inPeriod: boolean
-}
-
-/** Planned quarterly split summed across versions; versions without a split are counted separately. */
-export function plannedQuarters(
-  splits: readonly VersionResponseDtoDataVersionQuarters[],
-  period: OverviewPeriod
-): { points: QuarterPoint[]; withoutSplit: number } {
-  const selected = new Set(periodMonths(period).map(quarterOfMonth))
-  const points = quarterKeys.map((quarter, index) => ({
-    quarter,
-    amount: 0,
-    inPeriod: selected.has(index + 1)
-  }))
-  let withoutSplit = 0
-  for (const split of splits) {
-    if (!split) {
-      withoutSplit += 1
-      continue
-    }
-    quarterKeys.forEach((quarter, index) => {
-      points[index].amount += toAmount(split[quarter])
-    })
-  }
-  return { points, withoutSplit }
 }

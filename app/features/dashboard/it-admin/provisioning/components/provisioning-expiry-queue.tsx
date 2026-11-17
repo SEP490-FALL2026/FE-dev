@@ -35,7 +35,7 @@ export function ProvisioningExpiryQueue({ onOpenTask }: { onOpenTask: (id: strin
   const data = query.data?.data
   return (
     <div className='space-y-4'>
-      <div className='grid gap-3 sm:grid-cols-2'>
+      <div className='grid gap-3 sm:grid-cols-2 [&>.it-form-field]:row-span-3 [&>.it-form-field]:grid-rows-subgrid'>
         <ItChoiceSelect
           label={translate('status')}
           value={params.status ?? ''}

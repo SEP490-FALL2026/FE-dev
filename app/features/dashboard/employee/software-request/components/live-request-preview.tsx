@@ -6,7 +6,14 @@ import { EmployeeMoney } from '../../shared/components/employee-money'
 import { Link } from 'react-router'
 import { REQUEST_LIMIT_EXEMPTION } from '~/entities/request/enums/request-limit-exemption'
 
-export function LiveRequestPreview({ preview }: { preview: PreviewResponseDtoDataPreview }) {
+export function LiveRequestPreview({
+  preview,
+  termAsked
+}: {
+  preview: PreviewResponseDtoDataPreview
+  /** The plan asks for a term of use (every kind except K4). */
+  termAsked: boolean
+}) {
   const { t: translate } = useTranslation('employee')
   const { t: flow } = useTranslation('requestFlow')
   const { formatDate } = useDashboardFormat()
@@ -19,12 +26,22 @@ export function LiveRequestPreview({ preview }: { preview: PreviewResponseDtoDat
         <span className='text-sm text-muted-foreground'>{translate('estimatedCost')}</span>
         <EmployeeMoney value={preview.costEstimate?.estimatedCost ?? preview.pricing.amount} />
       </div>
-      <p className='text-sm text-muted-foreground'>{flow('maxEndDate', { date: formatDate(preview.maxEndDate) })}</p>
+      {termAsked && (
+        <p className='text-sm text-muted-foreground'>
+          {flow('termMonths')}:{' '}
+          {preview.termMonths === null ? flow('longTerm') : flow('monthsValue', { count: preview.termMonths })}
+        </p>
+      )}
+      {preview.cost?.termCutAt && (
+        <p role='status' className='text-sm text-warning'>
+          {flow('termCutAt', { date: formatDate(preview.cost.termCutAt) })}
+        </p>
+      )}
       <p className='text-sm text-muted-foreground'>
         {flow('limits', {
           open: preview.limits.openNewCount,
           max: preview.limits.openNewMax,
-          paid: preview.limits.paidSoftwareCount
+          date: formatDate(preview.limits.resetsOn)
         })}
       </p>
       {preview.limitExemption === REQUEST_LIMIT_EXEMPTION.TRANSFER_GRACE && (

@@ -1,15 +1,15 @@
 import { useUsageNavigation } from '../hooks/use-usage-navigation'
 import { UsagePeriod } from '../components/usage-period'
-import { UsageOverview } from '../components/usage-overview'
 import { UsageDetail } from '../components/usage-detail'
 import { useTranslation } from 'react-i18next'
-import { useDepartmentList } from '~/shared/api/generated/operations/departments/department-list'
+import { useItManagedDepartments } from '../../shared/hooks/use-it-managed-departments'
 import { useDepartmentTechnicalMemberList } from '~/shared/api/generated/operations/departments/department-technical-member-list'
 import { useUsageEmployeeSoftwareList } from '~/shared/api/generated/operations/usage-overview/usage-employee-software-list'
 import { ItEmpty, ItQueryState } from '../../shared/components/it-query-state'
 import { ItPagination } from '../../shared/components/it-pagination'
 import { itButtonClass } from '../../shared/components/it-form'
 import { UsageImports } from '../components/usage-imports'
+import { ItDepartmentCards } from '../../shared/components/it-department-cards'
 
 export function ItUsageView() {
   const { t } = useTranslation('itDepartmentWork')
@@ -48,58 +48,45 @@ export function ItUsageView() {
   return (
     <section className='space-y-5'>
       <h1 className='text-2xl font-semibold'>{t('usage.title')}</h1>
-      <button type='button' className={itButtonClass} onClick={() => setImports(true)}>
-        {t('usageImport.history')}
-      </button>
-      <UsagePeriod />
-      <UsageOverview />
-      <Departments onOpen={setDepartment} />
+      <Departments onOpen={setDepartment} onOpenImports={() => setImports(true)} />
     </section>
   )
 }
 
-function Departments({ onOpen }: { onOpen: (item: { id: string; name: string }) => void }) {
+function Departments({
+  onOpen,
+  onOpenImports
+}: {
+  onOpen: (item: { id: string; name: string }) => void
+  onOpenImports: () => void
+}) {
   const { t } = useTranslation('itDepartmentWork')
-  const { page: readPage, update, params } = useUsageNavigation()
+  const { page: readPage, update } = useUsageNavigation()
   const page = readPage('departmentPage')
   const setPage = (value: number) => update({ departmentPage: String(value) })
-  const query = useDepartmentList({
-    status: 'ACTIVE',
-    search: params.get('departmentSearch') || undefined,
-    page,
-    pageSize: 20
-  })
+  const { me, departments: query } = useItManagedDepartments()
+  const items = query.data ?? []
+  const visible = items.slice((page - 1) * 20, page * 20)
   return (
     <section className='space-y-4'>
-      <h2 className='text-lg font-semibold'>{t('usage.chooseDepartment')}</h2>
-      <label className='block max-w-md text-sm'>
-        {t('search')}
-        <input
-          className='mt-2 w-full rounded-md border border-border bg-surface px-3 py-2 text-base md:text-sm'
-          value={params.get('departmentSearch') ?? ''}
-          onChange={(event) => update({ departmentSearch: event.target.value, departmentPage: undefined })}
-        />
-      </label>
-      <ItQueryState query={query}>
-        {query.data?.data?.items.length ? (
-          <div className='divide-y divide-border rounded-lg border border-border bg-surface'>
-            {query.data.data.items.map((item) => (
-              <article key={item.id} className='flex flex-wrap items-center justify-between gap-4 p-4'>
-                <div>
-                  <h3 className='font-medium'>{item.name}</h3>
-                  <p className='text-sm text-muted-foreground'>{item.code}</p>
-                </div>
-                <button type='button' className={itButtonClass} onClick={() => onOpen(item)}>
-                  {t('open')}
-                </button>
-              </article>
-            ))}
-          </div>
-        ) : (
-          <ItEmpty />
-        )}
+      <div className='flex flex-wrap items-center justify-between gap-3'>
+        <h2 className='text-lg font-semibold'>{t('usage.chooseDepartment')}</h2>
+        <button type='button' className={itButtonClass} onClick={onOpenImports}>
+          {t('usageImport.history')}
+        </button>
+      </div>
+      <ItQueryState query={me}>
+        <ItQueryState query={query}>
+          {visible.length ? (
+            <ItDepartmentCards items={visible} onSelect={onOpen} actionLabel={t('open')} />
+          ) : (
+            <ItEmpty />
+          )}
+        </ItQueryState>
       </ItQueryState>
-      <ItPagination page={page} pageSize={20} total={query.data?.data?.pagination.totalItems ?? 0} onChange={setPage} />
+      {(items.length > 20 || page > 1) && (
+        <ItPagination page={page} pageSize={20} total={items.length} onChange={setPage} />
+      )}
     </section>
   )
 }

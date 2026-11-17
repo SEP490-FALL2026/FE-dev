@@ -22,6 +22,9 @@
     opinion: 'Opinion received, date and supporting reference'
   },
   queue: {
+    chooseDepartment: 'Choose a department',
+    waitingCount: '{{count}} waiting',
+    backDepartments: 'Back to departments',
     title: 'Waiting for assessment',
     total: '{{count}} requests',
     users: '{{count}} users',

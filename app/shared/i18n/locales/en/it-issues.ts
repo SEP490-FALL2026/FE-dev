@@ -1,5 +1,7 @@
 export const itIssues = {
   title: 'SaaS issues',
+  chooseDepartment: 'Choose a department',
+  backDepartments: 'Back to departments',
   fieldHints: {
     duplicateId: 'Enter the reference of the existing issue that describes the same incident.',
     vendorTicket: 'Enter the vendor support ticket reference if one was created.',

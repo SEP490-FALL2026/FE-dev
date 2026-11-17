@@ -5,7 +5,7 @@ import type { WorkspaceChoice } from '~/shared/ui/workspace-choice-select'
 import { EmployeeQueryState } from '../../shared/components/employee-api-ui'
 import { EmployeeCatalogApplication } from './employee-catalog-application'
 import { EmployeeCatalogPlans, type CatalogPlan } from './employee-catalog-plans'
-import { CATALOG_SENSITIVITY } from '../enums/catalog-sensitivity'
+import { isCatalogSensitivity } from '../enums/catalog-sensitivity'
 import { EmployeeDepartmentApplication } from './employee-department-application'
 import type { MyDepartmentSoftwareListResponseDtoDataItemsItem } from '~/shared/api/generated/model/department-software-list/myDepartmentSoftwareListResponseDtoDataItemsItem'
 
@@ -111,7 +111,7 @@ export function EmployeeCatalogPicker({
               <div>
                 <dt className='text-xs text-muted-foreground'>{translate('catalog.sensitivity')}</dt>
                 <dd className='mt-1 font-medium'>
-                  {Object.values(CATALOG_SENSITIVITY).includes(details.dataSensitivity)
+                  {isCatalogSensitivity(details.dataSensitivity)
                     ? translate(`catalog.sensitivities.${details.dataSensitivity}`)
                     : translate('unknownStatus')}
                 </dd>

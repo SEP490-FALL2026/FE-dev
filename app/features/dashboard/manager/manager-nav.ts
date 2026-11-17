@@ -13,6 +13,7 @@ import { MANAGER_TAB_KEYS, type ManagerTabKey } from './enums'
 export { MANAGER_TAB_KEYS, type ManagerTabKey }
 
 export type ManagerTranslationKey =
+  | 'policies'
   | 'renewals'
   | 'overview'
   | 'myTeam'
@@ -28,6 +29,8 @@ export type ManagerTranslationKey =
   | 'notices'
   | 'handovers'
 type LiveLabel =
+  | 'policies'
+  | 'ghostSeatReview'
   | 'renewals'
   | 'overview'
   | 'team'
@@ -59,7 +62,9 @@ export const managerNavItems: ManagerNavItem[] = [
   },
   { icon: Files, key: 'weekly-batch', translationKey: 'weeklyBatch', liveLabel: 'batch' },
   { icon: Landmark, key: 'annual-budget', translationKey: 'annualBudget', liveLabel: 'budget' },
-  { icon: RefreshCw, key: 'subscription-renewals', translationKey: 'renewals', liveLabel: 'renewals' }
+  { icon: RefreshCw, key: 'subscription-renewals', translationKey: 'renewals', liveLabel: 'renewals' },
+  { icon: ClipboardList, key: 'ghost-seat-review', translationKey: 'ghostSeatReview', liveLabel: 'ghostSeatReview' },
+  { icon: Files, key: 'policies', translationKey: 'policies', liveLabel: 'policies' }
 ]
 const validTabs = new Set<string>(MANAGER_TAB_KEYS)
 export function isValidManagerTab(value: string | null): value is ManagerTabKey {

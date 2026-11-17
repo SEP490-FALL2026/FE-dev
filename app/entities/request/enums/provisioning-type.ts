@@ -1,0 +1,1 @@
+export { RequestablePlanPageResponseDtoDataItemsItemProvisioningType as PROVISIONING_TYPE } from '~/shared/api/generated/model/requestable-software/requestablePlanPageResponseDtoDataItemsItemProvisioningType'

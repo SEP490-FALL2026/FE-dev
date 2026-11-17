@@ -76,6 +76,7 @@ export function IssueTransitionDialog({
       ) : (
         <ItChoiceSelect
           label={translate('state')}
+          required
           value={to}
           options={states.map((value) => ({ value, label: translate(`states.${value}`) }))}
           onChange={(value) => {

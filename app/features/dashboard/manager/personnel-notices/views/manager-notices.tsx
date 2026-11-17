@@ -186,9 +186,7 @@ function NoticeDetail({ id }: { id: string }) {
                 <Calendar strokeWidth={1.5} className='size-3.5' />
                 {translate('proposedOn')}
               </dt>
-              <dd className='mt-1 font-mono text-xs tabular-nums text-foreground'>
-                {formatDate(notice.proposedOn)}
-              </dd>
+              <dd className='mt-1 font-mono text-xs tabular-nums text-foreground'>{formatDate(notice.proposedOn)}</dd>
             </div>
           </dl>
 

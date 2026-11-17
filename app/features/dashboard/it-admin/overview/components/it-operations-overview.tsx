@@ -18,6 +18,7 @@ import type { ItAdminTabKey } from '../../enums'
 import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { itButtonClass } from '../../shared/components/it-form'
 import { ItDepartmentWork } from './it-department-work'
+import { ItUsageChart } from './it-usage-chart'
 
 const metrics = [
   { key: 'grantTasks', icon: PackageCheck, tab: 'provisioning', params: { scope: 'MINE', queue: 'tasks' } },
@@ -77,6 +78,7 @@ export function ItOperationsOverview({
       <button type='button' className={itButtonClass} onClick={() => setDepartmentsOpen(true)}>
         {departmentText('title')}
       </button>
+      <ItUsageChart />
       <ItQueryState query={query}>
         {data ? (
           <>

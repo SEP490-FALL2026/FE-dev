@@ -75,4 +75,3 @@ export function ManagerVersionFiles({ versionId }: { versionId: string }) {
     </section>
   )
 }
-

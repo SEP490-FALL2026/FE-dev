@@ -25,9 +25,9 @@ function sourceTarget(
     case 'personnelNoticeList':
       return { tab: 'personnel', parameters: { section: 'notices' } }
     case 'accountCandidatesList':
-      return { tab: 'accounts', parameters: { action: 'invite' } }
+      return { tab: 'personnel', parameters: { action: 'invite' } }
     case 'appUserList':
-      return { tab: 'accounts', parameters: { section: 'responsibilities' } }
+      return { tab: 'personnel', parameters: { role: 'SPENDING_APPROVER' } }
     case 'stepCongestionList':
       return { tab: 'operations' }
     default:

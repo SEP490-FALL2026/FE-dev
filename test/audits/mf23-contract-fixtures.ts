@@ -27,6 +27,7 @@ export const auditTask: TaskResponseDtoDataTask = {
   defaultResponsibleEmployeeId: null,
   inGeneralQueue: false,
   dueOn: null,
+  termCutAt: null,
   notBefore: null,
   claimableNow: false,
   createdAt: '2026-11-14T10:00:00Z',

@@ -64,9 +64,7 @@ export function EmployeeAccessReturns({
               label: translate('submittedAt'),
               align: 'right',
               render: (item) => (
-                <span className='font-mono text-xs tabular-nums text-foreground'>
-                  {formatDate(item.requestedOn)}
-                </span>
+                <span className='font-mono text-xs tabular-nums text-foreground'>{formatDate(item.requestedOn)}</span>
               )
             }
           ]}

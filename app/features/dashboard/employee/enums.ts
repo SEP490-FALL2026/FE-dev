@@ -12,6 +12,7 @@ export const EMPLOYEE_TAB_KEYS = [
   'review-request',
   'submission-success',
   'profile',
+  'policies',
   'privacy',
   'data-export',
   'data-usage',

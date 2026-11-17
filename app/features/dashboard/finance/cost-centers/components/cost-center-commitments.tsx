@@ -3,20 +3,20 @@ import { useTranslation } from 'react-i18next'
 import { FinanceEmpty, FinanceQueryState, FinanceSection, FinanceStatus } from '../../shared/components/finance-ui'
 import { FinanceTable } from '../../shared/components/finance-table'
 import { formatMoney } from '../../shared/finance-money'
+import type { CommitmentListResponseDtoDataItemsItem } from '~/shared/api/generated/model/budget-commitments'
 import {
-  getExtendedCommitmentList,
-  getExtendedCommitmentListQueryKey,
-  type ExtendedCommitmentItem
-} from '../../shared/finance-api-extensions'
+  budgetCommitmentList,
+  getBudgetCommitmentListQueryKey
+} from '~/shared/api/generated/operations/budget-commitments/budget-commitment-list'
 
 export function CostCenterCommitments({ costCenterId, year }: { costCenterId: string; year?: number }) {
   const { t: translate, i18n } = useTranslation('financeSettings')
   const { t: translateFinance } = useTranslation('finance')
 
   const query = useQuery({
-    queryKey: [...getExtendedCommitmentListQueryKey({ costCenterId, year })],
+    queryKey: [...getBudgetCommitmentListQueryKey({ costCenterId, year, pageSize: 50 })],
     queryFn: async ({ signal }) => {
-      const result = await getExtendedCommitmentList({ costCenterId, year, pageSize: 50 }, signal)
+      const result = await budgetCommitmentList({ costCenterId, year, pageSize: 50 }, undefined, signal)
       return result.data
     }
   })
@@ -27,7 +27,7 @@ export function CostCenterCommitments({ costCenterId, year }: { costCenterId: st
     <FinanceSection title={translateFinance('costCenterPayments')}>
       <FinanceQueryState query={query}>
         {items.length > 0 ? (
-          <FinanceTable<ExtendedCommitmentItem>
+          <FinanceTable<CommitmentListResponseDtoDataItemsItem>
             items={items}
             rowKey={(item) => item.id}
             columns={[

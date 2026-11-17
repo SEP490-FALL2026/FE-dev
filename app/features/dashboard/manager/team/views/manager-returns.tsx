@@ -6,7 +6,6 @@ import { useDashboardFormat } from '../../../dashboard-ui'
 import { useManagerPage } from '../../shared/hooks/use-manager-page'
 import { ManagerDataTable } from '../../shared/components/manager-data-table'
 import {
-  ManagerField,
   ManagerPagination,
   ManagerQueryState,
   ManagerSection,
@@ -107,7 +106,11 @@ export function ManagerReturns({ onOpen }: { onOpen: (id: string) => void }) {
           {
             key: 'date',
             label: translate('integration.requestedOn'),
-            render: (row) => <span className='font-mono text-xs tabular-nums text-muted-foreground'>{formatDate(row.requestedOn)}</span>
+            render: (row) => (
+              <span className='font-mono text-xs tabular-nums text-muted-foreground'>
+                {formatDate(row.requestedOn)}
+              </span>
+            )
           }
         ]}
       />

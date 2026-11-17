@@ -19,7 +19,7 @@ export function CatalogFunctionalGroups() {
   const [creating, setCreating] = useState(false)
   const query = useFunctionalGroupList({ page, pageSize: 20 })
   return (
-    <section className='space-y-4'>
+    <section className='space-y-4 rounded-lg border border-border bg-surface p-5'>
       <header className='flex flex-wrap items-center justify-between gap-3'>
         <h2 className='text-lg font-semibold [text-wrap:balance]'>{translate('groups.title')}</h2>
         <button type='button' className={itPrimaryClass} onClick={() => setCreating(true)}>
@@ -29,9 +29,9 @@ export function CatalogFunctionalGroups() {
       <p className='text-sm text-muted-foreground'>{translate('groups.hint')}</p>
       <ItQueryState query={query}>
         {query.data?.data?.items.length ? (
-          <div className='divide-y divide-border/50 rounded-lg border border-border/70 bg-surface'>
+          <div className='divide-y divide-border/50 border-t border-border/70'>
             {query.data.data.items.map((group) => (
-              <article key={group.id} className='flex items-center justify-between gap-4 p-4'>
+              <article key={group.id} className='flex items-center justify-between gap-4 py-4'>
                 <h3 className='min-w-0 flex-1 truncate font-medium' title={group.name}>
                   {group.name}
                 </h3>

@@ -12,6 +12,7 @@ import { useDashboardFormat } from '../../../dashboard-ui'
 import type { ApprovalTabKey } from '../../approvals-nav'
 import { isApprovalRelatedKey } from '../../shared/approvals-query-keys'
 import { getApprovalsError } from '../../shared/approvals-errors'
+import { DECISION_STEP, useDecisionChecklist } from '../../shared/hooks/use-decision-checklist'
 import { ApprovalsQueryState } from '../../shared/components/approvals-query-state'
 import {
   ApprovalsButton,
@@ -78,8 +79,10 @@ function BatchLookup({
       }}
     >
       <div className='w-full max-w-md'>
-        <ApprovalsField label={translate('batchId')} hint={translate('batchIdHint')}>
+        <ApprovalsField label={translate('batchId')}>
           <input
+            title={translate('batchIdHint')}
+            aria-label={`${translate('batchId')}. ${translate('batchIdHint')}`}
             className={`${approvalsInputClass} font-mono text-xs tabular-nums md:text-xs`}
             value={batchId}
             placeholder={translate('batchPlaceholder')}
@@ -109,12 +112,13 @@ function BatchWorkspace({
   const submissionLocked = useRef(false)
   const [page, setPage] = useState(1)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
-  const [decision, setDecision] = useState<BatchDecisionBodyDtoDecision>(SPEND_DECISION.APPROVE)
-  const [reason, setReason] = useState('')
+  // A new key gives the decision form back empty once a decision went through.
+  const [formKey, setFormKey] = useState(0)
   const [results, setResults] = useState<BatchDecisionResponseDtoDataResultsItem[] | null>(null)
   const batchQuery = useSpendBatchGet(batchId)
   const itemQuery = useSpendBatchItemList(batchId, { page, pageSize: BATCH_SELECTION_LIMIT })
   const invalidate = () => queryClient.invalidateQueries({ predicate: (query) => isApprovalRelatedKey(query.queryKey) })
+  const checklist = useDecisionChecklist(DECISION_STEP.SPEND)
   const mutation = useSpendBatchDecide({
     mutation: {
       onSettled: () => {
@@ -124,24 +128,29 @@ function BatchWorkspace({
         const returnedResults = response.data?.results
         if (returnedResults) setResults(returnedResults)
         await invalidate()
+        const sentIds = variables.data.requestIds ?? []
         const returnedIds = new Set(returnedResults?.map((result) => result.requestId))
+        // A return names no requests: the server answers for every request of the batch it holds.
+        const wholeBatch = variables.data.decision === SPEND_DECISION.RETURN
         const complete =
           returnedResults &&
-          returnedIds.size === variables.data.requestIds.length &&
+          (wholeBatch ? returnedResults.length === returnedIds.size : returnedIds.size === sentIds.length) &&
           returnedResults.length === returnedIds.size &&
-          variables.data.requestIds.every((requestId) => returnedIds.has(requestId)) &&
+          (wholeBatch || sentIds.every((requestId) => returnedIds.has(requestId))) &&
           returnedResults.every((result) => Object.values(BATCH_RESULT_OUTCOME).includes(result.outcome))
         if (!complete) {
           toast.error(translateCommon('errors.ambiguous'), { id: 'approvals-batch' })
           return
         }
         setSelectedIds([])
-        setReason('')
+        setFormKey((key) => key + 1)
+        checklist.setAll(null)
         if (returnedResults.some((result) => result.outcome === BATCH_RESULT_OUTCOME.SKIPPED)) {
           toast.warning(translate('batchPartial'), { id: 'approvals-batch' })
         } else toast.success(translateCommon('saved'), { id: 'approvals-batch' })
       },
       onError: async (error) => {
+        checklist.handleError(error)
         if (getApprovalsError(error).key !== 'rateLimit') await invalidate()
         await feedback.onError(error)
       }
@@ -157,22 +166,24 @@ function BatchWorkspace({
   const batch = batchQuery.data?.data?.batch
   const openRequest = (requestId: string) => onSelectTab('request', { id: requestId })
 
-  function submit() {
+  function submit(decision: BatchDecisionBodyDtoDecision, reason: string) {
     if (
       submissionLocked.current ||
       disabled ||
-      !eligibleIds.length ||
-      eligibleIds.length > BATCH_SELECTION_LIMIT ||
-      (decision === SPEND_DECISION.REJECT && !reason.trim())
+      (decision !== SPEND_DECISION.RETURN && (!eligibleIds.length || eligibleIds.length > BATCH_SELECTION_LIMIT)) ||
+      (decision !== SPEND_DECISION.APPROVE && !reason.trim())
     )
       return
+    const checklistPayload = checklist.payload()
+    if (!checklistPayload) return
     submissionLocked.current = true
     mutation.mutate({
       id: batchId,
       data: {
         decision,
-        requestIds: eligibleIds,
-        ...(decision === SPEND_DECISION.REJECT ? { reason: reason.trim() } : {})
+        ...(decision === SPEND_DECISION.RETURN ? {} : { requestIds: eligibleIds }),
+        checklist: checklistPayload,
+        ...(decision !== SPEND_DECISION.APPROVE ? { reason: reason.trim() } : {})
       }
     })
   }
@@ -223,13 +234,11 @@ function BatchWorkspace({
                   }}
                 />
                 <SpendBatchDecision
-                  decision={decision}
-                  reason={reason}
+                  key={formKey}
                   selectedCount={eligibleIds.length}
                   pending={mutation.isPending}
                   disabled={disabled}
-                  onDecision={setDecision}
-                  onReason={setReason}
+                  checklist={checklist}
                   onSubmit={submit}
                 />
               </ApprovalsQueryState>

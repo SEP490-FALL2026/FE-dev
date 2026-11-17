@@ -1,15 +1,13 @@
-import { useSearchParams } from 'react-router'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNeedDecisionList } from '~/shared/api/generated/operations/need-decisions/need-decision-list'
-import { useSpendApprovalList } from '~/shared/api/generated/operations/spend-approvals/spend-approval-list'
 import type { ApprovalTabKey } from '../../enums'
-import { ApprovalsButton, ApprovalsPage } from '../../shared/components/approvals-ui'
-import { NeedDecisionList } from '../components/need-decision-list'
+import { ApprovalsPage } from '../../shared/components/approvals-ui'
 import { SpendApprovalList } from '../components/spend-approval-list'
-import { QUEUE_LIST, type QueueList } from '../enums/queue-list'
+import { SpendBatchList } from '../components/spend-batch-list'
+import { SpendQueueAiSummary } from '../components/spend-queue-ai-summary'
 
-/** pageSize=1 keeps the count request cheap; pagination.totalItems is the server total. */
-const countParams = { page: 1, pageSize: 1 } as const
+const VIEWS = ['requests', 'batches'] as const
+type QueueView = (typeof VIEWS)[number]
 
 export function ApprovalQueueView({
   onSelectTab
@@ -17,41 +15,36 @@ export function ApprovalQueueView({
   onSelectTab: (tab: ApprovalTabKey, params?: Record<string, string>) => void
 }) {
   const { t: translate } = useTranslation('approvalsSpend')
-  const [searchParams] = useSearchParams()
-  const activeList: QueueList = searchParams.get('list') === QUEUE_LIST.NEED ? QUEUE_LIST.NEED : QUEUE_LIST.SPEND
-  const spendTotal = useSpendApprovalList(countParams).data?.data?.pagination.totalItems
-  const needTotal = useNeedDecisionList(countParams).data?.data?.pagination.totalItems
-  const lists = [
-    { key: QUEUE_LIST.SPEND, label: translate('listSpend'), total: spendTotal },
-    { key: QUEUE_LIST.NEED, label: translate('listNeed'), total: needTotal }
-  ]
+  const [view, setView] = useState<QueueView>('requests')
   return (
     <ApprovalsPage title={translate('queue')}>
-      <div
-        role='group'
-        aria-label={translate('queue')}
-        className='inline-flex flex-wrap gap-1 rounded-lg border border-border/70 bg-surface-subtle p-1'
-      >
-        {lists.map((list) => (
-          <ApprovalsButton
-            key={list.key}
-            variant='ghost'
-            aria-pressed={activeList === list.key}
-            onClick={() => onSelectTab('queue', list.key === QUEUE_LIST.NEED ? { list: QUEUE_LIST.NEED } : undefined)}
+      <div role='tablist' aria-label={translate('queue')} className='inline-flex rounded-lg bg-surface-subtle p-1'>
+        {VIEWS.map((key) => (
+          <button
+            key={key}
+            type='button'
+            role='tab'
+            aria-selected={view === key}
+            onClick={() => setView(key)}
+            className={`min-h-9 rounded-md px-4 text-sm font-medium transition-colors ${
+              view === key ? 'bg-surface text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+            }`}
           >
-            {list.label}
-            {list.total !== undefined && <span className='font-mono text-xs tabular-nums'>{list.total}</span>}
-          </ApprovalsButton>
+            {translate(`views.${key}`)}
+          </button>
         ))}
       </div>
-      {activeList === QUEUE_LIST.NEED ? (
-        <NeedDecisionList onOpen={(requestId) => onSelectTab('need', { id: requestId })} />
+      {view === 'requests' ? (
+        <>
+          <SpendQueueAiSummary onOpen={(requestId) => onSelectTab('request', { id: requestId })} />
+          <SpendApprovalList
+            onOpen={(requestId, batchId) =>
+              onSelectTab('request', batchId ? { id: requestId, batch: batchId } : { id: requestId })
+            }
+          />
+        </>
       ) : (
-        <SpendApprovalList
-          onOpen={(requestId, batchId) =>
-            onSelectTab('request', batchId ? { id: requestId, batch: batchId } : { id: requestId })
-          }
-        />
+        <SpendBatchList onOpen={(batchId) => onSelectTab('batch', { id: batchId })} />
       )}
     </ApprovalsPage>
   )

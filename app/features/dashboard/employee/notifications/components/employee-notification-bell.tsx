@@ -7,6 +7,13 @@ export function EmployeeNotificationBell() {
   const navigate = useNavigate()
   return (
     <NotificationBell
+      audience='employee'
+      onOpenTarget={(target) => {
+        void navigate({
+          pathname: '/dashboard/employee',
+          search: new URLSearchParams({ tab: target.tab, ...target.params }).toString()
+        })
+      }}
       open={open}
       onOpenChange={setOpen}
       onOpenRequest={(id) => {

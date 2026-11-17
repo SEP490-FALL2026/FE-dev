@@ -1,46 +1,39 @@
 export const finance = {
   budgetCycles: 'Budget cycles',
-  periodClose: 'Period close',
-  periodReport: 'Period report',
+  requestMonitor: 'Request monitor',
+  purchaseInvoices: 'Purchase invoices',
+  invoiceDiscrepancies: 'Invoice discrepancies',
+  outOfProcess: 'Out-of-process spend',
+  periodClose: 'Budget review',
+  seatCharges: 'Cost by seat',
+  budgetAdjustments: 'Budget adjustments',
+  budgetParameters: 'Budget parameters',
   areas: {
     overview: 'Overview',
     budget: 'Cost centers & budgets',
     planning: 'Annual budget planning',
-    spend: 'Catalog & money',
+    spend: 'Spend & invoices',
+    catalog: 'Catalog & vendors',
     close: 'Period close & reports'
   },
   spendBatches: 'Approved spend batches',
   spendBatchesDescription: 'Report on amounts due for employee account provisioning batches across departments.',
-  spendBatchDepartmentsDescription: 'Choose a department to view its submitted spend batches.',
-  spendBatchSearchDepartments: 'Search departments',
-  spendBatchSearchDepartmentsPlaceholder: 'Cost center code or name',
-  spendBatchCostCenter: 'Cost center',
-  spendBatchBackToDepartments: 'Back to departments',
   commitments: 'Commitments',
   commitmentsDescription: 'Manage the spending commitments of each department and release the held remainder.',
   costCenterPayments: 'Payment batches & Commitments',
   held: 'Held commitment',
   heldLabel: 'Approved, not yet spent',
   invoiced: 'Invoiced',
-  invoiceCount: 'Invoices',
-  recordInvoice: 'Record invoice',
-  viewInvoices: 'View invoices',
   releaseRemainder: 'Release remainder',
-  invoiceNumber: 'Invoice number',
   issuedOn: 'Issued on',
   netAmount: 'Net amount',
-  invoiceNote: 'Note',
   deductibleTax: 'Deductible tax (VAT)',
   nonDeductibleTax: 'Non-deductible tax',
-  actualCost: 'Actual cost',
-  matchResult: 'Match result',
   matchResults: {
     MATCHED: 'Fully matched',
     TAX_ONLY: 'Tax/fee discrepancy only',
     PRICE_QUANTITY_EXCEPTION: 'Price / quantity exception'
   },
-  hasDiscrepancy: 'Has discrepancy',
-  discrepancyBadge: 'Discrepancy',
   batchItems: 'Requests in batch',
   itemPosition: 'No.',
   batchOutcome: 'Batch outcome',
@@ -53,16 +46,22 @@ export const finance = {
   submittedAt: 'Submitted at',
   lastInvoiceAt: 'Last invoice: {{time}}',
   overBudgetWarning: '{{count}} departments over budget',
+  spendBatchAllDepartments: 'All departments',
+  leftBatch: 'Left the batch',
+  openRequest: 'Open Request',
   outcomes: {
-    SENT_TO_APPROVER: 'Sent to approver',
-    SENT_TO_FINANCE: 'Sent to Finance',
-    STOPPED: 'Stopped'
+    SENT_TO_APPROVER: 'Sent to the spending approver',
+    AWAITING_RESERVE_CONFIRMATION: 'Waiting for the head to confirm the reserve',
+    STOPPED: "Stopped in the head's queue",
+    SENT_TO_FINANCE: 'Sent to Finance review (old data)'
   },
   stopReasons: {
-    STALE_COST_EVIDENCE: 'Stale cost evidence',
-    CLOSED_OR_EXPIRED_BUDGET_PERIOD: 'Budget period closed or expired',
+    PRICE_EXPIRED: 'The quote has expired',
+    NO_APPROVED_BUDGET: 'The Cost Center has no approved budget for that year',
+    OVER_RESERVE: 'Above even the reserve of the department budget',
     PRICE_MISSING: 'Price missing',
-    RATE_MISSING: 'Exchange rate missing'
+    STALE_COST_EVIDENCE: 'The quote or price has expired',
+    CLOSED_OR_EXPIRED_BUDGET_PERIOD: 'The budget year is closed or over'
   },
   leftReasons: {
     RETURNED_BY_FINANCE: 'Returned by Finance',
@@ -86,21 +85,6 @@ export const finance = {
     AWAITING_IT_CLOSE: 'Awaiting IT close',
     WITHDRAWN: 'Withdrawn',
     CANCELLED: 'Cancelled'
-  },
-  heldStatusOption: 'Approved, not yet spent (HELD)',
-  expensedStatusOption: 'Expensed (EXPENSED)',
-  releasedStatusOption: 'Released (RELEASED)',
-  invoices: {
-    actualCostPreview: 'Actual cost to be counted as spend',
-    deductibleSeparate: 'Deductible tax is shown apart and not counted as spend',
-    matchedToast: 'Invoice matched and recorded successfully.',
-    taxOnlyToast: 'Invoice recorded (tax discrepancy only).',
-    exceptionToast: 'Invoice recorded as expense (exceeded commitment - flagged for discrepancy).',
-    matchedDesc: 'Invoice fully matches the approved commitment.',
-    taxOnlyDesc: 'Invoice includes tax. Tax is separated and recorded as an expense if non-deductible.',
-    exceptionDesc:
-      'Price or amount exceeded approved commitment. Discrepancy case opened, invoice recorded as actual expense.',
-    exceedPreviewNotice: 'Net amount exceeds held commitment. System will flag as a price/quantity exception.'
   },
   loading: 'Loading data…',
   refreshing: 'Updating data…',
@@ -138,6 +122,37 @@ export const finance = {
     },
     system: 'System'
   },
+  commitmentDetail: {
+    title: 'Commitment detail',
+    spent: 'Spent (by invoices)',
+    costCenter: 'Cost Center',
+    year: 'Budget year',
+    state: 'State',
+    unattached: 'Waiting for a budget: it attaches itself when the budget version is approved.',
+    request: 'Request',
+    noRequest: 'No Request',
+    beneficiaries: '{{count}} beneficiaries',
+    openRequest: 'Open Request',
+    discrepancy: 'An invoice of this commitment differs from what was approved.',
+    invoices: 'Invoices spent against this commitment',
+    invoicesHint:
+      'Invoices come from the purchase invoice flow: IT Admin submits, Finance signs. They are not recorded here.',
+    invoiceNumber: 'Invoice number',
+    servicePeriod: 'Service month',
+    label: 'Kind',
+    labels: { NEW_PURCHASE: 'New purchase', PERIOD: 'By period', RENEWAL: 'Renewal' },
+    paymentSource: 'Payment source',
+    paymentSources: { COMPANY_CARD: 'Company card', IT_ADVANCE: 'IT advance' },
+    actualCost: 'Actual cost',
+    matchResult: 'Match',
+    matchResults: {
+      MATCHED: 'Matched',
+      TAX_ONLY: 'Tax only differs',
+      PRICE_QUANTITY_EXCEPTION: 'Price or quantity differs'
+    },
+    unknown: 'Unknown',
+    issuedOn: 'Invoice date'
+  },
   costCenterNames: {
     'CC-BOD': 'Board of Directors',
     'CC-DES': 'Design Department',
@@ -169,7 +184,8 @@ export const finance = {
   budgets: 'Current budgets',
   costCenters: 'Cost centers',
   vendorTax: 'Vendor tax profiles',
-  catalog: 'SaaS catalog',
+  catalog: 'Software catalog',
+  subscriptionRenewals: 'Subscription adjustments',
   analytics: {
     title: 'Budget and commitments',
     view: 'Display',
@@ -206,8 +222,7 @@ export const finance = {
     charts: {
       costCenters: 'Budget by cost center',
       share: 'Budget mix',
-      commitments: 'New commitments by month',
-      quarters: 'Planned budget by quarter'
+      commitments: 'New commitments by month'
     },
     series: {
       total: 'Budget',
@@ -221,17 +236,14 @@ export const finance = {
     columns: {
       costCenter: 'Cost center',
       share: 'Share',
-      month: 'Month',
-      quarter: 'Quarter'
+      month: 'Month'
     },
     other: 'Other',
     empty: {
       budgets: 'No current budget for {{year}}.',
-      commitments: 'No commitments were created in {{year}}.',
-      quarters: 'This year’s budget versions have no quarterly split.'
+      commitments: 'No commitments were created in {{year}}.'
     },
     commitmentNote: 'Grouped by the date each commitment was created.',
-    withoutSplit: '{{count}} versions have no quarterly split and are not in the chart.',
     truncated: 'There is more data than the overview shows; open the detail screen for the full list.'
   },
   status: {
@@ -315,6 +327,22 @@ export const finance = {
     MANUAL: 'Manually recorded'
   },
   errors: {
+    cycleExists: 'This year already has a budget cycle.',
+    cycleYearPast: 'Only the current year or a later year can have a cycle.',
+    cycleDeadlinesInvalid: 'The decision deadline must be on or after the submission deadline.',
+    cycleNotDraft: 'Only a draft cycle can be deleted.',
+    cycleDeadlinePassed:
+      'The submission deadline is in the past. Move the deadline before opening or editing the cycle.',
+    cycleAlreadyOpen: 'The cycle is already open.',
+    cycleLocked: 'The cycle locked after the submission deadline and can no longer be edited or reopened.',
+    cycleReasonRequired:
+      'The cycle is open: moving the submission deadline or changing the annual ceiling or shared-pool reserve needs a reason.',
+    cycleNotFound: 'This year has no budget cycle yet.',
+    baseReasonRequired: 'Changing the base of a version needs a reason.',
+    reserveReasonRequired: 'A reserve different from the organization default needs a reason.',
+    baselineNotAllowed:
+      'This department cannot start a version from the baseline yet (the cycle is not locked or it already has a proposal).',
+    cycleCurrencyMismatch: 'The currency of the version does not match the budget cycle.',
     invoiceDuplicate: 'An invoice with this number already exists for this vendor.',
     invoiceCommitmentReleased: 'The commitment has been fully released and cannot receive invoices.',
     invoiceVendorUnknown: 'Unable to identify the vendor for this request.',
@@ -327,7 +355,8 @@ export const finance = {
     proposalNotOpen: 'The proposal is no longer waiting for Finance. The data has been reloaded.',
     lineIncomplete: 'A plan line is missing its purchase window, service period or repeat cycle.',
     versionInFlight: 'This cost center already has a version being prepared or awaiting a decision for this year.',
-    currentExists: 'This cost center already has a current budget for this year. Use "Create revision" to change it.',
+    currentExists:
+      'This cost center already has a current budget for this year. Changes during the year go through budget adjustments.',
     versionNotCurrent: 'Purchase windows can only be moved on the current version.',
     revisionRequired: 'Changing amounts needs a revision; moving the purchase window only changes timing.',
     commitmentNotHeld: 'The commitment is no longer held. The data has been reloaded.',
@@ -344,12 +373,35 @@ export const finance = {
     planNotFound: 'The selected plan is unavailable. Select another plan.',
     forbidden: 'You no longer have permission to perform this action.',
     ownRequest: 'You cannot process your own request.',
+    versionOverCeiling: 'The version exceeds the annual ceiling of the budget cycle. Lower the amount before sending.',
+    versionAttachmentRequired: 'Attach at least one supporting file before sending the version.',
     ownVersion: 'The budget creator cannot approve this version.',
+    adjustmentCycleNotLocked:
+      'An adjustment can be made from the day after the submission deadline, once the budget cycle is locked.',
+    adjustmentCycleNotOpen: 'The budget cycle of this year is not open yet.',
+    adjustmentLimit: 'The amount is above what this adjustment allows. Lower it and try again.',
+    adjustmentShape: 'The Cost Centers do not fit this kind of adjustment.',
+    periodNotEnded: 'The month has not ended yet.',
+    reviewAlreadySigned: 'This review period is already signed.',
+    reviewPeriodExists: 'This month is already closed. Open the closed period from the list.',
+    reviewSeatMonthsNotReady:
+      'The seat-months of this month are not worked out yet, so it cannot be closed. Try again later.',
+    reviewNoBudgetForYear:
+      'This year has no effective budget to review. Finish the approval of the annual budget first.',
+    adjustmentNoBudget: 'The giving Cost Center has no budget for this year.',
+    adjustmentVersionInFlight:
+      'The receiving Cost Center has a budget version that is not decided yet. Wait for it, then try again.',
+    adjustmentInPreparation: 'The receiving Cost Center has a BM-10 proposal waiting. Wait for it, then try again.',
+    reviewNotFound: 'This review period was not found, or you may not view it.',
     reportingCurrency: 'Use the reporting currency required by this budget.',
     quarters: 'Quarterly allocations must match the budget total.',
     noBudget: 'There is no active budget for this cost center and year.',
     reason: 'Enter a reason for this action.',
     opinion: 'Enter your assessment and recommendation.',
+    costCenterCodeTaken: 'This cost center code is already in use.',
+    costCenterName: 'The name is empty, too long or reserved.',
+    costCenterInUse: 'This cost center still has open Requests or held commitments, so it cannot be retired yet.',
+    costCenterDepartment: 'The department does not exist or is no longer in use.',
     departmentLinked: 'This department already has a cost center.',
     duplicateCode: 'This code is already in use.',
     inactive: 'This cost center is inactive.',

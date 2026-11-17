@@ -45,6 +45,8 @@ export const proposal: ProposalResponseDtoDataProposal = {
   successorOfProposalId: null,
   successorProposalId: null,
   total: pricing.amount,
+  requestedAmount: pricing.amount,
+  note: null,
   submittedBy: { ...person, employeeId: managerId },
   submittedAt: '2026-10-31T03:00:00Z',
   returned: null,

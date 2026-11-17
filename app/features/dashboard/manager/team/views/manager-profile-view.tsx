@@ -1,3 +1,4 @@
+import { MyProfileEditor } from '~/entities/user/components/my-profile-editor'
 import { Building2, KeyRound, ShieldCheck, UserRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
@@ -38,18 +39,6 @@ export function ManagerProfileView() {
             <ManagerSection>
               <div className='flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
                 <div className='flex min-w-0 items-center gap-4'>
-                  <span
-                    aria-hidden='true'
-                    className='grid size-14 shrink-0 place-items-center rounded-xl border border-primary/20 bg-primary-soft text-base font-bold text-primary ring-1 ring-black/10 dark:ring-white/10'
-                  >
-                    {user.employee.fullName
-                      .split(' ')
-                      .filter(Boolean)
-                      .slice(-2)
-                      .map((word) => word[0])
-                      .join('')
-                      .toUpperCase() || 'M'}
-                  </span>
                   <div className='min-w-0'>
                     <div className='flex flex-wrap items-center gap-2'>
                       <h2 className='truncate text-lg font-bold text-foreground' title={user.employee.fullName}>
@@ -69,6 +58,7 @@ export function ManagerProfileView() {
                   <ManagerStatus value={employee?.workState ?? 'WORKING'} />
                 </div>
               </div>
+              <MyProfileEditor />
             </ManagerSection>
 
             {/* Official Personnel Details */}

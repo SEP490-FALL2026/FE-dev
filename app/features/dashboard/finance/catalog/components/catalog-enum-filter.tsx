@@ -7,12 +7,15 @@ export function CatalogEnumFilter<Value extends string>({
   options,
   value,
   onChange,
+  labelPrefix = 'enum',
   className = 'sm:w-48'
 }: {
   label: string
   options: Record<string, Value>
   value: Value | ''
   onChange: (value: Value | '') => void
+  /** Where the option labels live in `financeSettings`; the shared `enum` table by default. */
+  labelPrefix?: string
   className?: string
 }) {
   const { t: translate } = useTranslation('financeSettings')
@@ -27,7 +30,7 @@ export function CatalogEnumFilter<Value extends string>({
           <option value=''>{translate('all')}</option>
           {values.map((option) => (
             <option key={option} value={option}>
-              {translate(`enum.${option}`, { defaultValue: translate('unavailable') })}
+              {translate(`${labelPrefix}.${option}`, { defaultValue: translate('unavailable') })}
             </option>
           ))}
         </FinanceSelect>

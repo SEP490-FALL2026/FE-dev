@@ -19,6 +19,10 @@ import { ManagerReserveConfirmation } from '../components/manager-reserve-confir
 import { Dialog } from '../../../dashboard-ui'
 import { useManagerPage } from '../../shared/hooks/use-manager-page'
 import { useManagerAction } from '../../shared/hooks/use-manager-action'
+import { POLICY_STEP } from '~/entities/policy/policy-steps'
+import { usePolicyChecklist } from '~/entities/policy/hooks/use-policy-checklist'
+import { PolicyChecklist } from '~/entities/policy/components/policy-checklist'
+import { isPolicyVersionChanged } from '~/entities/policy/policy-errors'
 import { isResourceId } from '../../shared/manager-identifiers'
 import {
   ManagerActionState,
@@ -49,13 +53,23 @@ export function ManagerLiveBatch({
   const requiresReason = (item: QueueResponseDtoDataItemsItem) => item.budgetOutcome === BUDGET_OUTCOME.USES_RESERVE
   const currentItems = !query.isError ? (query.data?.data?.items ?? []) : []
   const selectedItems = currentItems.filter((item) => selected.includes(item.requestId))
+  const reserveItems = selectedItems.filter(requiresReason)
+  // Confirming reserve use inside the batch is step 1.6: one checklist covers every confirmation of the batch.
+  const checklist = usePolicyChecklist(POLICY_STEP.RESERVE_CONFIRMATION, confirm && reserveItems.length > 0)
+  const reserveReady = !reserveItems.length || (!!checklist.body && !checklist.hasNo)
   const action = useManagerAction({
     mutationFn: (requestIds: string[]) =>
       spendBatchSubmit({
         requestIds,
-        reserveConfirmations: selectedItems
-          .filter(requiresReason)
-          .map((item) => ({ requestId: item.requestId, reason: reserveReasons[item.requestId]?.trim() ?? '' }))
+        ...(reserveItems.length && checklist.body
+          ? {
+              reserveConfirmations: reserveItems.map((item) => ({
+                requestId: item.requestId,
+                reason: reserveReasons[item.requestId]?.trim() ?? ''
+              })),
+              checklist: checklist.body
+            }
+          : {})
       }),
     invalidate: [getSpendQueueListQueryKey(), ...selected.map((id) => getAccessRequestGetQueryKey(id))],
     onSuccess: (result) => {
@@ -68,6 +82,9 @@ export function ManagerLiveBatch({
           next.set('batchId', id)
           return next
         })
+    },
+    onError: (error) => {
+      if (isPolicyVersionChanged(error)) checklist.reload()
     }
   })
   const batchId = params.get('batchId') ?? ''
@@ -241,7 +258,12 @@ export function ManagerLiveBatch({
               </div>
             </div>
           </div>
-          {selectedItems.filter(requiresReason).map((item) => (
+          {!!reserveItems.length && (
+            <div className='mb-4'>
+              <PolicyChecklist checklist={checklist} disabled={action.blocked} blockingNo />
+            </div>
+          )}
+          {reserveItems.map((item) => (
             <label key={item.requestId} className='mb-4 grid gap-2 text-sm'>
               {item.plan?.applicationName ?? item.softwareName} · {flow('reserveReason')}
               <textarea
@@ -265,6 +287,7 @@ export function ManagerLiveBatch({
               disabled={
                 action.blocked ||
                 query.isFetching ||
+                !reserveReady ||
                 selectedItems.length !== selected.length ||
                 selectedItems.some(
                   (item) =>
@@ -277,6 +300,7 @@ export function ManagerLiveBatch({
                 if (
                   !action.blocked &&
                   !query.isFetching &&
+                  reserveReady &&
                   selectedItems.length === selected.length &&
                   selectedItems.every(
                     (item) =>

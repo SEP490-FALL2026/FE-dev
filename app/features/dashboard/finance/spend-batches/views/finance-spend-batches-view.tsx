@@ -1,31 +1,24 @@
 import { useState } from 'react'
+import type { FinanceTabKey } from '../../enums'
 import { SpendBatchDetail } from '../components/spend-batch-detail'
-import { SpendBatchDepartmentList, type SpendBatchDepartment } from '../components/spend-batch-department-list'
 import { SpendBatchList } from '../components/spend-batch-list'
 
-export function FinanceSpendBatchesView() {
-  const [selectedDepartment, setSelectedDepartment] = useState<SpendBatchDepartment | null>(null)
-  const [selectedBatchId, setSelectedBatchId] = useState<string | null>(null)
+interface Props {
+  itemId?: string
+  onSelectTab?: (tab: FinanceTabKey, extraParams?: Record<string, string>) => void
+}
 
-  if (!selectedDepartment) {
-    return <SpendBatchDepartmentList onOpen={setSelectedDepartment} />
-  }
-
-  if (selectedBatchId) {
+/** Read-only list of every batch the heads submitted, newest first; a batch opens to the Requests it holds. */
+export function FinanceSpendBatchesView({ onSelectTab }: Props) {
+  const [selected, setSelected] = useState<{ id: string; departmentName: string } | null>(null)
+  if (selected)
     return (
       <SpendBatchDetail
-        batchId={selectedBatchId}
-        departmentName={selectedDepartment.name}
-        onClose={() => setSelectedBatchId(null)}
+        batchId={selected.id}
+        departmentName={selected.departmentName}
+        onClose={() => setSelected(null)}
+        onOpenRequest={(requestId) => onSelectTab?.('request-monitor', { id: requestId })}
       />
     )
-  }
-
-  return (
-    <SpendBatchList
-      department={selectedDepartment}
-      onBack={() => setSelectedDepartment(null)}
-      onOpen={setSelectedBatchId}
-    />
-  )
+  return <SpendBatchList onOpen={(id, departmentName) => setSelected({ id, departmentName })} />
 }

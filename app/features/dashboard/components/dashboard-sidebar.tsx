@@ -21,7 +21,7 @@ import { employeeMenuItems, type EmployeeTabKey } from '../employee'
 import { managerNavItems, type ManagerTabKey } from '../manager'
 import { approvalNavItems, type ApprovalTabKey } from '../approvals'
 import { FinanceSidebarNav, type FinanceTabKey } from '../finance'
-import { superAdminNavItems, type SuperAdminTabKey } from '../super-admin'
+import { getParentSuperAdminTab, superAdminNavItems, type SuperAdminTabKey } from '../super-admin'
 
 const fallbackNavigationItems = [
   { icon: Grid2X2, key: 'overview' },
@@ -38,6 +38,8 @@ const fallbackNavigationItems = [
 
 export interface DashboardSidebarProps {
   employeeSelfServiceOnly?: boolean
+  managerSelfService?: boolean
+  managerUpcomingBudget?: boolean
   activeApprovalParent: string
   activeApprovalTab: ApprovalTabKey
   activeEmployeeParent: string
@@ -63,6 +65,8 @@ export interface DashboardSidebarProps {
 
 export function DashboardSidebar({
   employeeSelfServiceOnly = false,
+  managerSelfService = false,
+  managerUpcomingBudget = false,
   activeApprovalParent,
   activeEmployeeParent,
   activeFinanceTab,
@@ -85,7 +89,7 @@ export function DashboardSidebar({
   const { t } = useTranslation('dashboard')
   const { t: tCommon } = useTranslation('common')
   const { t: translateAdmin } = useTranslation(role === 'super-admin' ? 'admin' : 'common')
-  const { t: translateEmployee } = useTranslation(role === 'employee' ? 'employee' : 'common')
+  const { t: translateEmployee } = useTranslation('employee')
   const { t: translateManager } = useTranslation(role === 'manager' ? 'manager' : 'common')
   const { t: translateApprovals } = useTranslation(role === 'spending-approver' ? 'approvals' : 'common')
 
@@ -122,7 +126,7 @@ export function DashboardSidebar({
             <div>
               <p className='font-bold tracking-[-0.02em]'>{tCommon('brand')}</p>
               <p className='mt-0.5 text-[0.65rem] font-semibold tracking-[0.12em] text-muted-foreground uppercase'>
-                {!isSuperAdmin && !isItAdmin && role !== 'finance' && t('demoNotice')}
+                {!isSuperAdmin && !isItAdmin && !isApprover && role !== 'finance' && t('demoNotice')}
               </p>
             </div>
           </div>
@@ -145,12 +149,26 @@ export function DashboardSidebar({
               onSelectTab={onSelectItAdminTab}
               toggleSection={toggleSection}
             />
-          ) : isEmployee ? (
+          ) : isEmployee || managerSelfService ? (
             <ul className='space-y-1.5'>
+              {managerUpcomingBudget && (
+                <li>
+                  <button
+                    type='button'
+                    aria-current={activeManagerParent === 'annual-budget' ? 'page' : undefined}
+                    className='flex min-h-11 w-full items-center gap-3 rounded-xl px-3.5 py-3 text-left text-sm font-semibold text-muted-foreground hover:bg-surface aria-[current=page]:bg-primary aria-[current=page]:text-primary-foreground'
+                    onClick={() => onSelectManagerTab('annual-budget')}
+                  >
+                    {translateManager('budget')}
+                  </button>
+                </li>
+              )}
               {employeeMenuItems
                 .filter((item) => !employeeSelfServiceOnly || ['overview', 'handovers', 'privacy'].includes(item.key))
                 .map((item) => {
-                  const isCurrent = activeEmployeeParent === item.key
+                  const isCurrent =
+                    (!managerSelfService || activeManagerParent !== 'annual-budget') &&
+                    activeEmployeeParent === item.key
                   const Icon = item.icon
 
                   return (
@@ -251,7 +269,7 @@ export function DashboardSidebar({
           ) : isSuperAdmin ? (
             <ul className='space-y-1.5'>
               {superAdminNavItems.map((item) => {
-                const isCurrent = activeSuperAdminTab === item.key
+                const isCurrent = getParentSuperAdminTab(activeSuperAdminTab) === item.key
                 const Icon = item.icon
 
                 return (

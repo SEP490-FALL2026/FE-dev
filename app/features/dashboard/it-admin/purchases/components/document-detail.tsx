@@ -41,25 +41,29 @@ export function DocumentDetail({ id, contractId }: { id: string; contractId?: st
   return (
     <ItQueryState query={query}>
       {document ? (
-        <section className='space-y-4 rounded-lg border border-border/70 bg-surface p-5'>
-          <h2 className='truncate font-semibold' title={document.fileName}>
-            {document.fileName}
-          </h2>
-          <dl className='grid gap-3 text-sm sm:grid-cols-2'>
-            <div>
-              <dt className='text-muted-foreground'>{translate('status')}</dt>
-              <dd>{translate(`values.${document.status}`, { defaultValue: translate('unknown') })}</dd>
-            </div>
-            <div>
-              <dt className='text-muted-foreground'>{translate('size')}</dt>
-              <dd className='text-right font-mono tabular-nums'>
-                {translate('bytes', { size: formatNumber(document.sizeBytes) })}
-              </dd>
-            </div>
-          </dl>
-          {document.contractId && (
-            <p className='break-all font-mono text-xs'>{translate('contractRef', { id: document.contractId })}</p>
-          )}
+        <section className='space-y-5'>
+          <header className='space-y-2 border-b border-border pb-5'>
+            <p className='text-xs font-semibold uppercase tracking-wider text-primary'>{translate('documents')}</p>
+            <h1 className='break-all text-2xl font-semibold tracking-tight' title={document.fileName}>
+              {document.fileName}
+            </h1>
+          </header>
+          <div className='space-y-4 rounded-lg border border-border bg-surface p-5'>
+            <dl className='grid gap-4 text-sm sm:grid-cols-2'>
+              <div>
+                <dt className='text-muted-foreground'>{translate('status')}</dt>
+                <dd className='mt-1 font-medium'>
+                  {translate(`values.${document.status}`, { defaultValue: translate('unknown') })}
+                </dd>
+              </div>
+              <div>
+                <dt className='text-muted-foreground'>{translate('size')}</dt>
+                <dd className='mt-1 font-mono font-medium tabular-nums'>
+                  {translate('bytes', { size: formatNumber(document.sizeBytes) })}
+                </dd>
+              </div>
+            </dl>
+          </div>
           {document.status === DocumentStatus.PENDING_ATTACH && (
             <form
               className='flex flex-wrap items-end gap-3'
@@ -68,18 +72,20 @@ export function DocumentDetail({ id, contractId }: { id: string; contractId?: st
                 if (!attach.isPending) attach.mutate({ id, data: { contractId: target.trim() } })
               }}
             >
-              <div className='min-w-0 flex-1'>
-                <ItField label={translate('contractId')} hint={translate('help.contractId')}>
-                  <input
-                    required
-                    pattern='[0-9a-fA-F-]{36}'
-                    value={target}
-                    onChange={(event) => setTarget(event.target.value)}
-                    placeholder={translate('contractPlaceholder')}
-                    className={itInputClass}
-                  />
-                </ItField>
-              </div>
+              {!contractId && (
+                <div className='min-w-0 flex-1'>
+                  <ItField label={translate('contractId')} hint={translate('help.contractId')}>
+                    <input
+                      required
+                      pattern='[0-9a-fA-F-]{36}'
+                      value={target}
+                      onChange={(event) => setTarget(event.target.value)}
+                      placeholder={translate('contractPlaceholder')}
+                      className={itInputClass}
+                    />
+                  </ItField>
+                </div>
+              )}
               <button
                 type='submit'
                 className={itButtonClass}

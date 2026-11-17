@@ -2,7 +2,6 @@ import { ArrowLeft } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useBudgetProposalGet } from '~/shared/api/generated/operations/budget-proposals/budget-proposal-get'
-import { useBudgetProposalLineList } from '~/shared/api/generated/operations/budget-proposals/budget-proposal-line-list'
 import { useBudgetProposalReturn } from '~/shared/api/generated/operations/budget-proposals/budget-proposal-return'
 import { useBudgetVersionCreate } from '~/shared/api/generated/operations/budget-versions/budget-version-create'
 import { AdminFormDialog as FinanceFormDialog } from '~/shared/ui/form-dialog'
@@ -11,31 +10,25 @@ import {
   FinanceEmpty,
   FinanceField,
   FinancePage,
-  FinancePagination,
   FinanceQueryState,
   FinanceStat,
   FinanceStatGrid,
   FinanceStatus,
   financeInputClass
 } from '../../shared/components/finance-ui'
-import { FinanceTable } from '../../shared/components/finance-table'
 import { useFinanceFeedback } from '../../shared/hooks/use-finance-feedback'
 import { formatMoney } from '../../shared/finance-money'
 import { budgetQueryKeys } from '../budget-query-keys'
 import type { BudgetViewProps } from '../budget-view-props'
 import { proposalState } from '../enums/proposal-state'
 import { BudgetVersionForm } from './budget-version-form'
-import { BudgetPlanLineFacts } from './budget-plan-line-facts'
 import { BudgetAttachments } from './budget-attachments'
 
 export function BudgetProposalDetail({ itemId, onSelectTab }: BudgetViewProps & { itemId: string }) {
   const { t: translate, i18n } = useTranslation('financeBudget')
-  const [page, setPage] = useState(1)
   const [dialog, setDialog] = useState<'return' | 'create'>()
   const [reason, setReason] = useState('')
-  const [linePosition, setLinePosition] = useState<number>()
   const query = useBudgetProposalGet(itemId)
-  const linesQuery = useBudgetProposalLineList(itemId, { page, pageSize: 20 })
   const feedback = useFinanceFeedback(budgetQueryKeys(undefined, itemId), () => setDialog(undefined))
   const returnMutation = useBudgetProposalReturn({ mutation: feedback })
   const createMutation = useBudgetVersionCreate({
@@ -48,13 +41,11 @@ export function BudgetProposalDetail({ itemId, onSelectTab }: BudgetViewProps & 
     }
   })
   const proposal = query.data?.data?.proposal
-  const lines = linesQuery.data?.data
-  const selectedLine = lines?.items.find((line) => line.position === linePosition)
   if (proposal && dialog === 'create')
     return (
       <BudgetVersionForm
         initial={{
-          base: { amount: proposal.total.amount }
+          base: { amount: (proposal.requestedAmount ?? proposal.total).amount }
         }}
         currency={proposal.total.currency}
         pending={createMutation.isPending}
@@ -67,6 +58,7 @@ export function BudgetProposalDetail({ itemId, onSelectTab }: BudgetViewProps & 
               proposalId: itemId,
               base: figures.base,
               reserve: figures.reserve,
+              reservePercent: figures.reservePercent,
               reserveReason: figures.reserveReason
             }
           })
@@ -97,13 +89,75 @@ export function BudgetProposalDetail({ itemId, onSelectTab }: BudgetViewProps & 
               <FinanceStat
                 emphasis
                 label={translate('fields.total')}
-                value={formatMoney(proposal.total, i18n.language)}
+                value={formatMoney(proposal.requestedAmount ?? proposal.total, i18n.language)}
               />
             </FinanceStatGrid>
-            {proposal.returned && (
-              <p className='rounded-lg border border-info/25 bg-info/5 p-4 text-sm break-words [text-wrap:pretty]'>
-                {proposal.returned.reason}
+            {proposal.note && (
+              <p className='rounded-lg border border-border/70 bg-surface-subtle/50 p-4 text-sm break-words [text-wrap:pretty]'>
+                {proposal.note}
               </p>
+            )}
+            <dl className='grid gap-3 rounded-lg border border-border/70 bg-surface-subtle/50 p-4 text-sm sm:grid-cols-2'>
+              {proposal.submittedBy && (
+                <ProposalItem
+                  label={translate('detail.submittedBy')}
+                  value={`${proposal.submittedBy.fullName} (${proposal.submittedBy.employeeCode})`}
+                />
+              )}
+              <ProposalItem
+                label={translate('detail.submittedAt')}
+                value={new Date(proposal.submittedAt).toLocaleString(i18n.language)}
+              />
+              {proposal.returned && (
+                <>
+                  <ProposalItem label={translate('detail.returnReason')} value={proposal.returned.reason} />
+                  {proposal.returned.by && (
+                    <ProposalItem
+                      label={translate('detail.returnedBy')}
+                      value={`${proposal.returned.by.fullName} (${proposal.returned.by.employeeCode})`}
+                    />
+                  )}
+                  <ProposalItem
+                    label={translate('detail.returnedAt')}
+                    value={new Date(proposal.returned.at).toLocaleString(i18n.language)}
+                  />
+                </>
+              )}
+              {proposal.withdrawnAt && (
+                <ProposalItem
+                  label={translate('detail.withdrawnAt')}
+                  value={new Date(proposal.withdrawnAt).toLocaleString(i18n.language)}
+                />
+              )}
+              {proposal.closedAt && (
+                <ProposalItem
+                  label={translate('detail.closedAt')}
+                  value={new Date(proposal.closedAt).toLocaleString(i18n.language)}
+                />
+              )}
+            </dl>
+            {(proposal.previousProposalId || proposal.successorProposalId) && (
+              <div className='flex flex-wrap items-center gap-2 text-sm'>
+                {proposal.previousProposalId && (
+                  <>
+                    <span className='text-muted-foreground'>{translate('detail.resubmissionOf')}</span>
+                    <FinanceButton
+                      variant='ghost'
+                      onClick={() => onSelectTab?.('annual-proposals', { id: proposal.previousProposalId ?? '' })}
+                    >
+                      {translate('detail.openPrevious')}
+                    </FinanceButton>
+                  </>
+                )}
+                {proposal.successorProposalId && (
+                  <FinanceButton
+                    variant='ghost'
+                    onClick={() => onSelectTab?.('annual-proposals', { id: proposal.successorProposalId ?? '' })}
+                  >
+                    {translate('detail.openSuccessor')}
+                  </FinanceButton>
+                )}
+              </div>
             )}
             {proposal.state === proposalState.SUBMITTED && (
               <div className='flex flex-wrap gap-2'>
@@ -113,37 +167,6 @@ export function BudgetProposalDetail({ itemId, onSelectTab }: BudgetViewProps & 
                 <FinanceButton onClick={() => setDialog('return')}>{translate('actions.return')}</FinanceButton>
               </div>
             )}
-            <h3 className='text-base font-semibold tracking-tight'>{translate('lines')}</h3>
-            <FinanceQueryState query={linesQuery}>
-              <FinanceTable
-                items={lines?.items ?? []}
-                rowKey={(line) => String(line.position)}
-                onOpen={(line) => setLinePosition(line.position)}
-                columns={[
-                  {
-                    key: 'position',
-                    label: translate('fields.position'),
-                    numeric: true,
-                    render: (line) => line.position
-                  },
-                  { key: 'description', label: translate('fields.description'), render: (line) => line.description },
-                  {
-                    key: 'amount',
-                    label: translate('fields.amount'),
-                    numeric: true,
-                    render: (line) => formatMoney(line.amount, i18n.language)
-                  },
-                  {
-                    key: 'seats',
-                    label: translate('fields.seats'),
-                    numeric: true,
-                    render: (line) => line.seats ?? translate('none')
-                  }
-                ]}
-              />
-              <FinancePagination pagination={lines?.pagination} onPageChange={setPage} />
-            </FinanceQueryState>
-            {selectedLine && <BudgetPlanLineFacts line={selectedLine} onClose={() => setLinePosition(undefined)} />}
             <BudgetAttachments target='proposal' ownerId={itemId} />
           </>
         ) : (
@@ -178,5 +201,14 @@ export function BudgetProposalDetail({ itemId, onSelectTab }: BudgetViewProps & 
         </FinanceFormDialog>
       )}
     </FinancePage>
+  )
+}
+
+function ProposalItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div className='min-w-0'>
+      <dt className='text-xs font-medium text-muted-foreground'>{label}</dt>
+      <dd className='mt-1 break-words [text-wrap:pretty]'>{value}</dd>
+    </div>
   )
 }

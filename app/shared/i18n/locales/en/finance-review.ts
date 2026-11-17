@@ -1,0 +1,199 @@
+export const financeReview = {
+  year: 'Year',
+  month: 'Month',
+  monthName: 'Month {{month}}',
+  state: 'State',
+  reason: 'Reason',
+  note: 'Note',
+  amount: 'Amount',
+  none: 'None',
+  back: 'Back to list',
+  allStates: 'All states',
+  allCostCenters: 'All Cost Centers',
+  costCenter: 'Cost Center',
+  noCostCenter: 'Not allocated to a Cost Center',
+  yearInvalid: 'Enter a year between 2000 and 2100.',
+  periods: {
+    title: 'Budget review',
+    description:
+      'Close a finished month, read the figures of every Cost Center (a coloured dot marks the ones that need a look) and sign the period.',
+    close: 'Close a month',
+    closeTitle: 'Close a month',
+    closeHint:
+      'Only a finished month can be closed, and only once. Closing works out the seat-months again and takes a snapshot of every Cost Center that has a budget. March, June and September open a quarterly review.',
+    closeSubmit: 'Close month',
+    monthNotEnded: 'This month has not ended yet. It can be closed from the first day of the next month.',
+    period: 'Period',
+    periodLabel: '{{month}}/{{year}}',
+    kind: { MONTH: 'Month', QUARTER: 'Quarter' },
+    state: {
+      SNAPSHOT: 'Snapshot taken',
+      AWAITING_EXPLANATIONS: 'Awaiting explanations',
+      SIGNED: 'Signed'
+    },
+    closedBy: 'Closed by',
+    closedByAt: '{{name}} · {{date}}',
+    signedBy: 'Signed by',
+    notSigned: 'Not signed yet',
+    dueOn: 'Explanations due',
+    spent: 'Company spent',
+    detailTitle: 'Review {{month}}/{{year}}',
+    sign: 'Sign period',
+    signTitle: 'Sign the review period',
+    signHintMonth: 'Signing confirms the snapshot. After that the period no longer changes.',
+    signHintQuarter:
+      'Signing confirms the snapshot. You can sign even when a head has not answered: those lines are recorded as "not explained when signed". After that the period no longer changes.',
+    signSubmit: 'Sign',
+    signNote: 'Note when signed',
+    signed: 'Signed by {{name}} on {{date}}',
+    unexplainedWarning:
+      '{{count}} Cost Center(s) still wait for an explanation. Signing records them as not explained.',
+    unexplainedWarningMore:
+      'At least {{count}} Cost Center(s) still wait for an explanation (more lines are on the next pages). Signing records them as not explained.',
+    sharedPoolUnallocated: 'Shared pool — unallocated',
+    sharedPoolReserve: 'Shared pool reserve',
+    overReserve: 'The shared pool is above its reserve.',
+    annualCeiling: 'Annual ceiling',
+    lines: 'Cost Centers',
+    noLines: 'This period has no line.',
+    changedBanner:
+      'Some invoices arrived after the snapshot. The figures below are the ones taken at closing; "Changed after the snapshot" shows what moved since.',
+    awaitingBanner:
+      'The heads answer the yellow, red and under-budget lines before {{date}}. A late answer is still accepted until you sign.',
+    lightLabel: 'Light {{name}}: {{meaning}}',
+    lightNames: { GREEN: 'green', YELLOW: 'yellow', RED: 'red', UNDER: 'under budget' },
+    lightMeanings: {
+      GREEN: 'none of the cases below',
+      YELLOW: 'the year-end forecast is above the base, or spending runs above 110 % of the calendar',
+      RED: 'the year-end forecast is above base plus reserve',
+      UNDER: 'from June, the year-end forecast is under 70 % of the base'
+    },
+    base: 'Effective base',
+    reserve: 'Reserve',
+    spentCol: 'Spent so far',
+    spentAfterMonth: 'Already booked for later months',
+    committed: 'Held commitments',
+    pendingSpend: 'Awaiting spend approval',
+    remaining: 'Remaining',
+    forecast: 'Year-end forecast',
+    pace: 'Spending pace',
+    paceValue: '{{percent}} % of the calendar',
+    priceIncrease: 'Known price increase',
+    variance: 'Real cost vs commitment price',
+    changedAfterSnapshot: 'Changed after the snapshot',
+    explanation: 'Head’s explanation',
+    cause: 'Cause',
+    persistenceLabel: 'How long it lasts',
+    persistence: { ONE_OFF: 'One-off', ONGOING: 'Ongoing' },
+    action: 'Action',
+    knownNeeds: 'Known needs until year end',
+    explainedBy: 'Written by {{name}} on {{date}}',
+    waitingHead: 'Waiting for the head of the department.',
+    noHeadNote: 'The department had no head when the quarter opened: nobody is asked and signing is not blocked.',
+    unexplainedNote: 'Finance signed before the head answered.',
+    explanationStatus: {
+      NOT_REQUIRED: 'No explanation needed',
+      PENDING: 'Awaiting explanation',
+      EXPLAINED: 'Explained',
+      UNEXPLAINED: 'Not explained when signed',
+      NO_HEAD: 'Department has no head'
+    }
+  },
+  seats: {
+    title: 'Cost by seat',
+    description:
+      'Seat-months of a finished month, one line per seat and department that held it, and the shared pool line of each subscription.',
+    chooseMonth: 'Choose a year and a month to see the seat-months.',
+    empty: 'No seat-month for this month: the month has not ended, or the system has not worked it out yet.',
+    subscription: 'Subscription',
+    allSubscriptions: 'All subscriptions',
+    employee: 'Holder',
+    department: 'Department',
+    days: 'Days held',
+    monthlyPrice: 'Price of a month',
+    appliedToCommitment: 'Taken from commitment',
+    poolTitle: 'Shared pool lines',
+    poolHint:
+      'Paid = allocated to departments + unallocated. The part that fell on departments without a Cost Center is already inside "Allocated to departments".',
+    paid: 'Paid',
+    paidUnknown: 'Seats or price not known',
+    invoiced: 'Invoiced',
+    allocated: 'Allocated to departments',
+    unallocated: 'Unallocated — shared pool',
+    withoutCostCenter: 'Of which without a Cost Center'
+  },
+  adjustments: {
+    title: 'Budget adjustments',
+    description:
+      'Ask the Spending Approver to add, move, return or lower budget during the year. An adjustment can only be made once the cycle of the year is locked.',
+    create: 'New adjustment',
+    createTitle: 'New budget adjustment',
+    createSubmit: 'Send for decision',
+    kind: 'Kind',
+    kinds: {
+      SUPPLEMENT: 'Supplement',
+      TRANSFER: 'Transfer',
+      RETURN: 'Return',
+      CEILING_REDUCTION: 'Annual ceiling reduction'
+    },
+    kindHints: {
+      SUPPLEMENT: 'Adds budget to one Cost Center, taken from the part of the ceiling nobody has yet.',
+      TRANSFER: 'Moves budget from one Cost Center to another.',
+      RETURN: 'Gives budget back from one Cost Center to the part nobody has yet.',
+      CEILING_REDUCTION: 'Leadership takes the money: the annual ceiling goes down. No Cost Center.'
+    },
+    transferReasons: { COST_CENTER_CHANGE: 'The department changed Cost Center during the year' },
+    from: 'From Cost Center',
+    to: 'To Cost Center',
+    transferReason: 'The department changed Cost Center during the year',
+    amountInvalid: 'Enter an amount greater than 0.',
+    unallocatedHint: 'Not yet allocated in {{year}}: {{amount}}',
+    sameCostCenter: 'Choose two different Cost Centers.',
+    createdAt: 'Asked',
+    createdBy: '{{name}} · {{date}}',
+    decision: 'Decision',
+    decisionReason: 'Decision reason',
+    decidedBy: 'Decided by {{name}} on {{date}}',
+    pending: 'Waiting for the Spending Approver',
+    createdVersion: 'A budget version of kind ADJUSTMENT was created for the receiving Cost Center.',
+    states: { PENDING: 'Pending', APPROVED: 'Approved', REJECTED: 'Rejected' },
+    cycleNotLocked: 'An adjustment can be made once the budget cycle is locked, the day after its submission deadline.',
+    cycleNotLockedOn: 'An adjustment can be made from the day after the submission deadline ({{date}}).'
+  },
+  parameters: {
+    items: {
+      BUDGET_RESERVE_DEFAULT_PERCENT: {
+        label: 'Default reserve of the annual budget',
+        description:
+          'The share of the base budget a new version sets aside as its reserve when Finance gives no figure of its own.'
+      },
+      BUDGET_ZBB_KPI3_BELOW_PERCENT: {
+        label: 'Low usage threshold that needs an explanation',
+        description:
+          'A line of a budget proposal needs a short explanation when the usage of the software running today is known and below this share.'
+      },
+      BUDGET_ZBB_PRICE_INCREASE_PERCENT: {
+        label: 'Unit price increase that needs an explanation',
+        description:
+          'A line of a budget proposal needs a short explanation when its unit price is more than this share above today monthly price.'
+      }
+    },
+    title: 'Budget parameters',
+    description: 'Defaults for the budget. A new value applies to what is created from now on.',
+    value: 'Value',
+    default: 'Default',
+    changedAt: 'Changed on',
+    edit: 'Change',
+    editTitle: 'Change {{label}}',
+    save: 'Save value',
+    history: 'History',
+    historyEmpty: 'No change yet.',
+    historyMore: 'Older values exist and are not shown.',
+    range: 'Between {{min}} and {{max}}',
+    rangeInvalid: 'Enter a whole number between {{min}} and {{max}}.',
+    isDefault: 'Default',
+    until: 'until {{date}}',
+    current: 'now',
+    empty: 'No budget parameter is available.'
+  }
+} as const

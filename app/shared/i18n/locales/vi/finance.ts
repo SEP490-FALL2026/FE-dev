@@ -1,46 +1,39 @@
 export const finance = {
   budgetCycles: 'Kỳ lập ngân sách',
-  periodClose: 'Đóng kỳ',
-  periodReport: 'Báo cáo kỳ',
+  requestMonitor: 'Theo dõi yêu cầu',
+  purchaseInvoices: 'Hóa đơn mua',
+  invoiceDiscrepancies: 'Sai lệch hóa đơn',
+  outOfProcess: 'Chi ngoài quy trình',
+  periodClose: 'Rà soát ngân sách',
+  seatCharges: 'Chi phí theo suất',
+  budgetAdjustments: 'Điều chỉnh ngân sách',
+  budgetParameters: 'Tham số ngân sách',
   areas: {
     overview: 'Tổng quan',
     budget: 'Trung tâm chi phí & Ngân sách',
     planning: 'Lập ngân sách năm',
-    spend: 'Danh mục & Tiền tệ',
+    spend: 'Chi tiêu & Hóa đơn',
+    catalog: 'Danh mục & Nhà cung cấp',
     close: 'Đóng kỳ & Báo cáo'
   },
   spendBatches: 'Đã duyệt chi theo đợt',
   spendBatchesDescription: 'Báo cáo số tiền cần thanh toán theo từng đợt yêu cầu cấp phát tài khoản từ các phòng ban.',
-  spendBatchDepartmentsDescription: 'Chọn phòng ban để xem các đợt đã trình duyệt chi.',
-  spendBatchSearchDepartments: 'Tìm phòng ban',
-  spendBatchSearchDepartmentsPlaceholder: 'Mã hoặc tên trung tâm chi phí',
-  spendBatchCostCenter: 'Trung tâm chi phí',
-  spendBatchBackToDepartments: 'Quay lại danh sách phòng ban',
   commitments: 'Cam kết',
   commitmentsDescription: 'Quản lý các khoản cam kết chi tiêu của từng phòng ban và giải phóng phần dư đang giữ.',
   costCenterPayments: 'Các đợt thanh toán & Cam kết chi tiêu',
   held: 'Cam kết đang giữ',
   heldLabel: 'Đã duyệt, chưa chi',
   invoiced: 'Đã ghi hóa đơn',
-  invoiceCount: 'Hóa đơn',
-  recordInvoice: 'Ghi hóa đơn',
-  viewInvoices: 'Xem hóa đơn',
   releaseRemainder: 'Giải phóng phần dư',
-  invoiceNumber: 'Số hóa đơn',
   issuedOn: 'Ngày hóa đơn',
   netAmount: 'Tiền trước thuế',
-  invoiceNote: 'Ghi chú',
   deductibleTax: 'Thuế khấu trừ (VAT)',
   nonDeductibleTax: 'Thuế không khấu trừ',
-  actualCost: 'Chi phí thực chịu',
-  matchResult: 'Kết quả so khớp',
   matchResults: {
     MATCHED: 'Khớp hoàn toàn',
     TAX_ONLY: 'Chỉ lệch thuế/phí',
     PRICE_QUANTITY_EXCEPTION: 'Ngoại lệ giá / số lượng'
   },
-  hasDiscrepancy: 'Có sai lệch',
-  discrepancyBadge: 'Sai lệch giá/SL',
   batchItems: 'Danh sách đơn trong đợt',
   itemPosition: 'STT',
   batchOutcome: 'Kết quả xét đợt',
@@ -53,16 +46,22 @@ export const finance = {
   submittedAt: 'Thời điểm trình',
   lastInvoiceAt: 'Hóa đơn gần nhất: {{time}}',
   overBudgetWarning: '{{count}} phòng ban vượt ngân sách',
+  spendBatchAllDepartments: 'Tất cả phòng',
+  leftBatch: 'Rời lô',
+  openRequest: 'Mở yêu cầu',
   outcomes: {
-    SENT_TO_APPROVER: 'Chuyển Người duyệt chi',
-    SENT_TO_FINANCE: 'Chuyển Finance rà soát',
-    STOPPED: 'Bị dừng'
+    SENT_TO_APPROVER: 'Đã chuyển Người duyệt chi',
+    AWAITING_RESERVE_CONFIRMATION: 'Chờ trưởng phòng xác nhận dùng dự phòng',
+    STOPPED: 'Dừng ở hàng của trưởng phòng',
+    SENT_TO_FINANCE: 'Chuyển Tài chính rà soát (dữ liệu cũ)'
   },
   stopReasons: {
-    STALE_COST_EVIDENCE: 'Bằng chứng giá cũ',
-    CLOSED_OR_EXPIRED_BUDGET_PERIOD: 'Kỳ ngân sách đã đóng/hết hạn',
+    PRICE_EXPIRED: 'Báo giá đã hết hiệu lực',
+    NO_APPROVED_BUDGET: 'Trung tâm chi phí chưa có ngân sách được duyệt cho năm đó',
+    OVER_RESERVE: 'Vượt cả dự phòng của ngân sách phòng',
     PRICE_MISSING: 'Chưa có giá',
-    RATE_MISSING: 'Chưa có tỷ giá'
+    STALE_COST_EVIDENCE: 'Báo giá hoặc giá đã hết hiệu lực',
+    CLOSED_OR_EXPIRED_BUDGET_PERIOD: 'Năm ngân sách đã đóng hoặc hết'
   },
   leftReasons: {
     RETURNED_BY_FINANCE: 'Tài chính trả về',
@@ -86,21 +85,6 @@ export const finance = {
     AWAITING_IT_CLOSE: 'Chờ IT đóng',
     WITHDRAWN: 'Đã rút',
     CANCELLED: 'Đã hủy'
-  },
-  heldStatusOption: 'Đã duyệt, chưa chi (HELD)',
-  expensedStatusOption: 'Đã thành chi phí (EXPENSED)',
-  releasedStatusOption: 'Đã giải phóng (RELEASED)',
-  invoices: {
-    actualCostPreview: 'Chi phí thực chịu dự kiến tính vào thực chi',
-    deductibleSeparate: 'Thuế khấu trừ ghi riêng, không tính thực chi',
-    matchedToast: 'Hóa đơn đã được ghi khớp thành công.',
-    taxOnlyToast: 'Hóa đơn đã ghi thành công (chỉ lệch thuế/phí).',
-    exceptionToast: 'Hóa đơn đã ghi vào thực chi (vượt số đã duyệt - mở hồ sơ sai lệch).',
-    matchedDesc: 'Hóa đơn hoàn toàn khớp với cam kết đã duyệt.',
-    taxOnlyDesc: 'Hóa đơn có thuế phát sinh. Phần thuế được tách riêng, chi phí thực tính theo chi phí thực chịu.',
-    exceptionDesc:
-      'Đơn giá hoặc số tiền vượt số đã duyệt. Hệ thống mở hồ sơ sai lệch, hóa đơn vẫn được tính vào thực chi.',
-    exceedPreviewNotice: 'Số tiền trước thuế vượt phần cam kết còn giữ. Hệ thống sẽ ghi nhận ngoại lệ giá/số lượng.'
   },
   loading: 'Đang tải dữ liệu…',
   refreshing: 'Đang cập nhật dữ liệu…',
@@ -126,8 +110,8 @@ export const finance = {
     by: 'Người giải phóng',
     at: 'Thời điểm giải phóng',
     reasons: {
-      REQUEST_CANCELLED: 'Request bị hủy',
-      REQUEST_WITHDRAWN: 'Request được rút',
+      REQUEST_CANCELLED: 'Yêu cầu bị hủy',
+      REQUEST_WITHDRAWN: 'Yêu cầu được rút',
       GRANT_FAILED: 'Cấp quyền thất bại',
       PARTICIPANT_WITHDRAWN: 'Người tham gia rút',
       REMAINDER: 'Giải phóng phần dư',
@@ -137,6 +121,36 @@ export const finance = {
       TRANSFER_EFFECTIVE: 'Điều chuyển có hiệu lực'
     },
     system: 'Hệ thống'
+  },
+  commitmentDetail: {
+    title: 'Chi tiết khoản cam kết',
+    spent: 'Đã chi (theo hóa đơn)',
+    costCenter: 'Trung tâm chi phí',
+    year: 'Năm ngân sách',
+    state: 'Trạng thái',
+    unattached: 'Chờ ngân sách: tự gắn khi phiên bản ngân sách được duyệt.',
+    request: 'Yêu cầu',
+    noRequest: 'Không có yêu cầu',
+    beneficiaries: '{{count}} người thụ hưởng',
+    openRequest: 'Mở yêu cầu',
+    discrepancy: 'Khoản này có hóa đơn sai lệch với phần đã duyệt.',
+    invoices: 'Hóa đơn đã chi vào khoản này',
+    invoicesHint: 'Hóa đơn đến từ luồng hóa đơn mua: IT Admin nộp, Tài chính ký. Không ghi hóa đơn trực tiếp tại đây.',
+    invoiceNumber: 'Số hóa đơn',
+    servicePeriod: 'Tháng dịch vụ',
+    label: 'Loại',
+    labels: { NEW_PURCHASE: 'Mua mới', PERIOD: 'Theo kỳ', RENEWAL: 'Gia hạn' },
+    paymentSource: 'Nguồn tiền',
+    paymentSources: { COMPANY_CARD: 'Thẻ công ty', IT_ADVANCE: 'IT tạm ứng' },
+    actualCost: 'Chi phí thực',
+    matchResult: 'Đối chiếu',
+    matchResults: {
+      MATCHED: 'Khớp',
+      TAX_ONLY: 'Chỉ lệch thuế',
+      PRICE_QUANTITY_EXCEPTION: 'Lệch giá hoặc số lượng'
+    },
+    unknown: 'Không rõ',
+    issuedOn: 'Ngày hóa đơn'
   },
   costCenterNames: {
     'CC-BOD': 'Ban Giám đốc',
@@ -169,7 +183,8 @@ export const finance = {
   budgets: 'Ngân sách hiện hành',
   costCenters: 'Trung tâm chi phí',
   vendorTax: 'Hồ sơ thuế nhà cung cấp',
-  catalog: 'Danh mục SaaS',
+  catalog: 'Danh mục phần mềm',
+  subscriptionRenewals: 'Điều chỉnh thuê bao',
   analytics: {
     title: 'Ngân sách và cam kết',
     view: 'Kiểu hiển thị',
@@ -206,8 +221,7 @@ export const finance = {
     charts: {
       costCenters: 'Ngân sách theo trung tâm chi phí',
       share: 'Cơ cấu ngân sách',
-      commitments: 'Cam kết mới theo tháng',
-      quarters: 'Kế hoạch ngân sách theo quý'
+      commitments: 'Cam kết mới theo tháng'
     },
     series: {
       total: 'Ngân sách',
@@ -221,17 +235,14 @@ export const finance = {
     columns: {
       costCenter: 'Trung tâm chi phí',
       share: 'Tỷ trọng',
-      month: 'Tháng',
-      quarter: 'Quý'
+      month: 'Tháng'
     },
     other: 'Khác',
     empty: {
       budgets: 'Chưa có ngân sách hiện hành cho năm {{year}}.',
-      commitments: 'Chưa có khoản cam kết nào trong năm {{year}}.',
-      quarters: 'Các phiên bản ngân sách năm này chưa phân bổ theo quý.'
+      commitments: 'Chưa có khoản cam kết nào trong năm {{year}}.'
     },
     commitmentNote: 'Tính theo ngày tạo khoản cam kết.',
-    withoutSplit: '{{count}} phiên bản chưa phân bổ theo quý nên không có trong biểu đồ.',
     truncated: 'Dữ liệu vượt giới hạn hiển thị; mở màn hình chi tiết để xem đầy đủ.'
   },
   status: {
@@ -315,6 +326,19 @@ export const finance = {
     MANUAL: 'Ghi nhận thủ công'
   },
   errors: {
+    cycleExists: 'Năm này đã có kỳ lập ngân sách.',
+    cycleYearPast: 'Chỉ tạo được kỳ của năm hiện tại hoặc các năm sau.',
+    cycleDeadlinesInvalid: 'Hạn duyệt phải sau hoặc bằng hạn nộp.',
+    cycleNotDraft: 'Chỉ xóa được kỳ ở trạng thái Bản nháp.',
+    cycleDeadlinePassed: 'Hạn nộp đã ở quá khứ. Hãy dời hạn nộp trước khi mở kỳ hoặc khi sửa kỳ.',
+    cycleAlreadyOpen: 'Kỳ đã được mở.',
+    cycleLocked: 'Kỳ đã khóa sau hạn nộp, không sửa hoặc mở lại được.',
+    cycleReasonRequired: 'Kỳ đang mở: dời hạn nộp, đổi Trần năm hoặc Dự phòng kho đều phải nhập lý do.',
+    cycleNotFound: 'Năm này chưa có kỳ lập ngân sách.',
+    baseReasonRequired: 'Đổi số cơ sở của phiên bản phải nhập lý do.',
+    reserveReasonRequired: 'Dự phòng khác mức mặc định của tổ chức nên phải nhập lý do.',
+    baselineNotAllowed: 'Chưa lập được phiên bản từ số liệu nền cho phòng này (kỳ chưa khóa hoặc phòng đã có đề xuất).',
+    cycleCurrencyMismatch: 'Tiền tệ của phiên bản không khớp kỳ ngân sách.',
     invoiceDuplicate: 'Số hóa đơn này đã tồn tại cho nhà cung cấp này.',
     invoiceCommitmentReleased: 'Khoản cam kết đã bị giải phóng hết, không thể ghi hóa đơn.',
     invoiceVendorUnknown: 'Không xác định được nhà cung cấp của yêu cầu.',
@@ -326,7 +350,8 @@ export const finance = {
     proposalNotOpen: 'Đề xuất không còn chờ Tài chính xử lý. Dữ liệu đã được tải lại.',
     lineIncomplete: 'Dòng kế hoạch thiếu cửa sổ mua, thời gian dịch vụ hoặc chu kỳ lặp.',
     versionInFlight: 'Trung tâm chi phí đã có một phiên bản đang lập hoặc chờ quyết định cho năm này.',
-    currentExists: 'Trung tâm chi phí đã có ngân sách hiện hành cho năm này. Dùng "Lập bản sửa đổi" để thay đổi.',
+    currentExists:
+      'Trung tâm chi phí đã có ngân sách hiện hành cho năm này. Mọi thay đổi trong năm đi qua điều chỉnh ngân sách.',
     versionNotCurrent: 'Chỉ dời cửa sổ mua trên phiên bản đang hiện hành.',
     revisionRequired: 'Đổi số tiền cần lập bản sửa đổi; dời cửa sổ mua chỉ đổi thời gian.',
     commitmentNotHeld: 'Khoản cam kết không còn được giữ. Dữ liệu đã được tải lại.',
@@ -343,12 +368,34 @@ export const finance = {
     planNotFound: 'Gói đã chọn không khả dụng. Hãy chọn lại gói.',
     forbidden: 'Bạn không còn quyền thực hiện thao tác này.',
     ownRequest: 'Bạn không thể xử lý yêu cầu của chính mình.',
+    versionOverCeiling: 'Phiên bản vượt Trần năm của kỳ ngân sách. Hãy giảm số tiền trước khi gửi.',
+    versionAttachmentRequired: 'Cần đính kèm ít nhất một tệp trước khi gửi phiên bản.',
     ownVersion: 'Người lập ngân sách không thể duyệt phiên bản này.',
+    adjustmentCycleNotLocked: 'Lập được điều chỉnh từ ngày sau hạn nộp, khi kỳ ngân sách đã khóa.',
+    adjustmentCycleNotOpen: 'Kỳ ngân sách của năm này chưa mở.',
+    adjustmentLimit: 'Số tiền vượt mức điều chỉnh này cho phép. Hãy giảm số tiền rồi thử lại.',
+    adjustmentShape: 'Trung tâm chi phí không khớp với loại điều chỉnh này.',
+    periodNotEnded: 'Tháng này chưa kết thúc.',
+    reviewAlreadySigned: 'Kỳ rà soát này đã được ký.',
+    reviewPeriodExists: 'Tháng này đã được chốt rồi. Mở kỳ đã chốt trong danh sách.',
+    reviewSeatMonthsNotReady: 'Chưa tính xong số suất của tháng này nên chưa chốt được. Hãy thử lại sau.',
+    reviewNoBudgetForYear: 'Năm này chưa có ngân sách hiệu lực để rà soát. Hoàn tất duyệt ngân sách năm trước.',
+    adjustmentNoBudget: 'Trung tâm chi phí cho đi chưa có ngân sách của năm này.',
+    adjustmentVersionInFlight:
+      'Trung tâm chi phí nhận đang có phiên bản ngân sách chưa được duyệt. Chờ phiên bản đó được quyết rồi lập lại.',
+    adjustmentInPreparation:
+      'Trung tâm chi phí nhận đang có đề nghị ngân sách của trưởng phòng chờ xử lý. Chờ đề xuất đó xong rồi lập lại.',
+    reviewNotFound: 'Không tìm thấy kỳ rà soát này hoặc bạn không có quyền xem.',
     reportingCurrency: 'Dùng đúng tiền tệ báo cáo của ngân sách.',
     quarters: 'Phân bổ theo quý phải khớp tổng ngân sách.',
     noBudget: 'Chưa có ngân sách hiện hành cho trung tâm chi phí và năm này.',
     reason: 'Nhập lý do cho thao tác.',
     opinion: 'Nhập nhận định và hướng khuyến nghị.',
+    costCenterCodeTaken: 'Mã trung tâm chi phí này đã được dùng.',
+    costCenterName: 'Tên trống, quá dài hoặc là tên dành riêng.',
+    costCenterInUse:
+      'Trung tâm chi phí này còn yêu cầu đang xử lý hoặc khoản cam kết còn giữ nên chưa ngừng dùng được.',
+    costCenterDepartment: 'Phòng ban không tồn tại hoặc không còn được dùng.',
     departmentLinked: 'Phòng ban này đã có trung tâm chi phí.',
     duplicateCode: 'Mã này đã được sử dụng.',
     inactive: 'Trung tâm chi phí đã ngừng hoạt động.',

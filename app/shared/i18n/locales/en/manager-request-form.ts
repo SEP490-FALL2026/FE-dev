@@ -17,6 +17,6 @@ export const managerRequestForm = {
     'Required for contractors, freelancers and interns. The group check confirms each person’s requirements.',
   editEndDates: 'Edit end dates',
   termConfirmation: 'Reason for confirming a term over 12 months',
-  decisionsSummary: '{{approved}} approved, {{rejected}} rejected',
+  decisionsSummary: '{{approved}} approved, {{rejected}} rejected, {{returned}} returned',
   requirementsUnavailable: 'No pending need step assigned to you was found. Reload the queue to check.'
 } as const

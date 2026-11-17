@@ -25,6 +25,7 @@ export function ItChoiceSelect({
     options.find((option) => option.value === value) ?? (remembered?.value === value ? remembered : undefined)
   return (
     <WorkspaceChoiceSelect
+      alignedField
       label={label}
       hint={hint}
       required={required}

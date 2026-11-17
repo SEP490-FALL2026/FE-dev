@@ -5,8 +5,10 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router'
 
 import type { UserRole } from '~/entities/user-role/user-role'
 import { useDocumentTitle } from '~/shared/lib/use-document-title'
+import { useMeGet } from '~/shared/api/generated/operations/me/me-get'
 import { LoadingIndicator } from '~/shared/ui/page-loading'
 import { getAuthState, subscribeAuthSession } from '../auth/auth-session'
+import { PolicyAcknowledgementGate } from '~/entities/policy/components/policy-acknowledgement-gate'
 
 import { DashboardHeader } from './components/dashboard-header'
 import { DashboardSidebar } from './components/dashboard-sidebar'
@@ -53,6 +55,9 @@ export function DashboardPage({ role }: { role: UserRole }) {
   const isManager = role === 'manager'
   const isApprover = role === 'spending-approver'
   const isSuperAdmin = role === 'super-admin'
+  const me = useMeGet({ query: { enabled: isManager || isEmployee, refetchInterval: 12 * 60 * 1000 } })
+  const managerSelfService =
+    isManager && !me.isError && !!me.data?.data && me.data.data.roles.includes('MANAGER') && !me.data.data.managerScope
 
   const [searchParams, setSearchParams] = useSearchParams()
   const location = useLocation()
@@ -63,9 +68,18 @@ export function DashboardPage({ role }: { role: UserRole }) {
   const activeTab: ItAdminTabKey = isItAdmin && isValidItAdminTab(tabParam) ? tabParam : 'overview'
   const activeParent = isItAdmin ? getParentMenuKey(activeTab) : 'overview'
 
+  const personalTab =
+    tabParam === 'personal-request' ? 'create-request' : tabParam === 'request-approval' ? 'request-detail' : tabParam
+  const managerBudget =
+    isManager && (tabParam === 'annual-budget' || location.pathname.startsWith('/dashboard/manager/annual-budget/'))
+  const managerPersonal =
+    managerSelfService && !managerBudget && (personalTab === null || isValidEmployeeTab(personalTab))
+
   // Employee Tabs
-  const activeEmployeeTab: EmployeeTabKey = isEmployee && isValidEmployeeTab(tabParam) ? tabParam : 'overview'
-  const activeEmployeeParent = isEmployee ? getParentEmployeeMenuKey(activeEmployeeTab) : 'overview'
+  const activeEmployeeTab: EmployeeTabKey =
+    (isEmployee || managerPersonal) && isValidEmployeeTab(personalTab) ? personalTab : 'overview'
+  const activeEmployeeParent =
+    isEmployee || managerSelfService ? getParentEmployeeMenuKey(activeEmployeeTab) : 'overview'
 
   // Manager Tabs
   const managerFormPage = isManager && location.pathname.startsWith('/dashboard/manager/annual-budget/')
@@ -96,6 +110,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     licenses: true,
     optimize: true,
+    'software-catalog': true,
     people: true,
     'usage-sources': true
   })
@@ -113,6 +128,8 @@ export function DashboardPage({ role }: { role: UserRole }) {
       Object.entries(extraParams).forEach(([k, v]) => nextParams.set(k, v))
     }
     if (personnelFormPage) void navigate({ pathname: '/dashboard/super-admin', search: nextParams.toString() })
+    else if (managerSelfService && location.pathname !== '/dashboard/manager')
+      void navigate({ pathname: '/dashboard/manager', search: nextParams.toString() })
     else setSearchParams(nextParams)
     setMobileNavigationOpen(false)
   }
@@ -156,6 +173,8 @@ export function DashboardPage({ role }: { role: UserRole }) {
     <div className='flex h-screen overflow-hidden bg-background'>
       <DashboardSidebar
         employeeSelfServiceOnly={false}
+        managerSelfService={managerSelfService}
+        managerUpcomingBudget={managerSelfService && !!me.data?.data?.upcomingUnits.length}
         activeApprovalParent={activeApprovalParent}
         activeApprovalTab={activeApprovalTab}
         activeEmployeeParent={activeEmployeeParent}
@@ -183,7 +202,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
         <DashboardHeader
           activeEmployeeTab={activeEmployeeTab}
           activeManagerTab={activeManagerTab}
-          employeeAvatarUrl={null}
+          employeeAvatarUrl={me.data?.data?.avatar?.url ?? null}
           mobileNavigationOpen={mobileNavigationOpen}
           onOpenProfile={
             isEmployee
@@ -214,41 +233,47 @@ export function DashboardPage({ role }: { role: UserRole }) {
           }
           transition={{ duration: 0.25, ease: 'easeOut' }}
         >
-          {isItAdmin ? (
-            <ItAdminScreen tab={activeTab} itemId={searchParams.get('id') ?? undefined} onSelectTab={handleSelectTab} />
-          ) : isEmployee ? (
-            <EmployeeScreen tab={activeEmployeeTab} onSelectTab={handleSelectEmployeeTab} />
-          ) : isManager ? (
-            <ManagerScreen tab={activeManagerTab} onSelectTab={handleSelectManagerTab} />
-          ) : isApprover ? (
-            <ApprovalScreen
-              displayName={profile.displayName}
-              formatCurrency={formatCurrency}
-              itemId={searchParams.get('id') || undefined}
-              onSelectTab={handleSelectApprovalTab}
-              tab={activeApprovalTab}
-            />
-          ) : isFinance ? (
-            <FinanceScreen
-              formatCurrency={formatCurrency}
-              itemId={searchParams.get('id') || undefined}
-              onSelectTab={handleSelectFinanceTab}
-              tab={activeFinanceTab}
-            />
-          ) : isSuperAdmin ? (
-            <SuperAdminScreen tab={activeSuperAdminTab} onSelectTab={handleSelectSuperAdminTab} />
-          ) : (
-            <Suspense fallback={<LoadingIndicator message={tErrors('loading')} />}>
-              <DefaultDashboardView
-                displayName={profile.displayName}
-                formatCompact={formatCompact}
-                formatCurrency={formatCurrency}
-                formatDate={formatDate}
-                formatMonth={formatMonth}
-                formatNumber={formatNumber}
+          <PolicyAcknowledgementGate>
+            {isItAdmin ? (
+              <ItAdminScreen
+                tab={activeTab}
+                itemId={searchParams.get('id') ?? undefined}
+                onSelectTab={handleSelectTab}
               />
-            </Suspense>
-          )}
+            ) : isEmployee || managerPersonal ? (
+              <EmployeeScreen tab={activeEmployeeTab} onSelectTab={handleSelectEmployeeTab} />
+            ) : isManager ? (
+              <ManagerScreen tab={activeManagerTab} onSelectTab={handleSelectManagerTab} />
+            ) : isApprover ? (
+              <ApprovalScreen
+                displayName={profile.displayName}
+                formatCurrency={formatCurrency}
+                itemId={searchParams.get('id') || undefined}
+                onSelectTab={handleSelectApprovalTab}
+                tab={activeApprovalTab}
+              />
+            ) : isFinance ? (
+              <FinanceScreen
+                formatCurrency={formatCurrency}
+                itemId={searchParams.get('id') || undefined}
+                onSelectTab={handleSelectFinanceTab}
+                tab={activeFinanceTab}
+              />
+            ) : isSuperAdmin ? (
+              <SuperAdminScreen tab={activeSuperAdminTab} onSelectTab={handleSelectSuperAdminTab} />
+            ) : (
+              <Suspense fallback={<LoadingIndicator message={tErrors('loading')} />}>
+                <DefaultDashboardView
+                  displayName={profile.displayName}
+                  formatCompact={formatCompact}
+                  formatCurrency={formatCurrency}
+                  formatDate={formatDate}
+                  formatMonth={formatMonth}
+                  formatNumber={formatNumber}
+                />
+              </Suspense>
+            )}
+          </PolicyAcknowledgementGate>
         </motion.main>
       </div>
     </div>

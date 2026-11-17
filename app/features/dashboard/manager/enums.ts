@@ -18,7 +18,8 @@ export const MANAGER_TAB_KEYS = [
   'access-review',
   'personnel-notices',
   'notifications',
-  'profile'
+  'profile',
+  'policies'
 ] as const
 
 export type ManagerTabKey = (typeof MANAGER_TAB_KEYS)[number]

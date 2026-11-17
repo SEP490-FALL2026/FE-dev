@@ -23,7 +23,6 @@ import type { BudgetViewProps } from '../budget-view-props'
 import { attachmentStatus } from '../enums/attachment-rules'
 import { canEditVersion, versionState } from '../enums/version-state'
 import { BudgetVersionForm } from './budget-version-form'
-import { BudgetVersionLines } from './budget-version-lines'
 import { BudgetAttachments, attachmentPageSize } from './budget-attachments'
 
 export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & { itemId: string }) {
@@ -55,6 +54,7 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
         initial={{
           base: version.base,
           reserve: version.reserve,
+          reservePercent: version.reservePercent,
           reserveReason: version.reserveReason ?? undefined
         }}
         currency={version.total.currency}
@@ -70,6 +70,7 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
                 proposalId: version.proposalId,
                 base: figures.base,
                 reserve: figures.reserve,
+                reservePercent: figures.reservePercent,
                 reserveReason: figures.reserveReason
               }
             })
@@ -111,24 +112,111 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
                 value={formatMoney(version.total, i18n.language)}
               />
             </FinanceStatGrid>
-            {(version.reason || version.decision?.reason) && (
-              <dl className='grid gap-3 rounded-lg border border-border/70 bg-surface-subtle/50 p-4 text-sm sm:grid-cols-2'>
-                {version.reason && (
-                  <div className='min-w-0'>
-                    <dt className='text-xs font-medium text-muted-foreground'>{translate('fields.reason')}</dt>
-                    <dd className='mt-1 break-words [text-wrap:pretty]'>{version.reason}</dd>
-                  </div>
+            {version.carriedOverNextYear && (
+              <FinanceStatGrid>
+                <FinanceStat
+                  label={translate('fields.carriedOver')}
+                  value={formatMoney(version.carriedOverNextYear, i18n.language)}
+                />
+                {version.reservePercent !== null && (
+                  <FinanceStat label={translate('fields.reservePercent')} value={`${version.reservePercent} %`} />
                 )}
-                {version.decision?.reason && (
-                  <div className='min-w-0'>
-                    <dt className='text-xs font-medium text-muted-foreground'>{translate('fields.decision')}</dt>
-                    <dd className='mt-1 break-words [text-wrap:pretty]'>{version.decision.reason}</dd>
-                  </div>
+                {version.belowCarriedOver && (
+                  <FinanceStat
+                    emphasis
+                    label={translate('fields.shortfall')}
+                    value={formatMoney(version.carriedOverShortfall, i18n.language)}
+                  />
+                )}
+              </FinanceStatGrid>
+            )}
+            {version.belowCarriedOver && (
+              <p role='status' className='text-sm text-danger'>
+                {translate('versionFlags.belowCarriedOver')}
+              </p>
+            )}
+            {version.noProposalSubmitted && (
+              <p role='status' className='text-sm text-warning-ink'>
+                {translate('versionFlags.noProposalSubmitted')}
+              </p>
+            )}
+            {version.waitingReason === 'NO_SPENDING_APPROVER' && (
+              <p role='status' className='text-sm text-warning-ink'>
+                {translate('versionNotices.waitingNoApprover')}
+              </p>
+            )}
+            {version.detachedAt && (
+              <p role='status' className='text-sm text-warning-ink'>
+                {translate('versionNotices.detached')}
+              </p>
+            )}
+            {version.neverCurrent && (
+              <p role='status' className='text-sm text-muted-foreground'>
+                {translate('versionNotices.neverCurrent')}
+              </p>
+            )}
+            {version.state === versionState.EXPIRED && !version.neverCurrent && (
+              <p role='status' className='text-sm text-muted-foreground'>
+                {translate('versionNotices.expired')}
+              </p>
+            )}
+            <dl className='grid gap-3 rounded-lg border border-border/70 bg-surface-subtle/50 p-4 text-sm sm:grid-cols-2'>
+              {version.defaultReserve && (
+                <DetailItem
+                  label={translate('detail.defaultReserve')}
+                  value={formatMoney(version.defaultReserve, i18n.language)}
+                />
+              )}
+              {version.baseReason && <DetailItem label={translate('detail.baseReason')} value={version.baseReason} />}
+              {version.reserveReason && (
+                <DetailItem label={translate('detail.reserveReason')} value={version.reserveReason} />
+              )}
+              {version.createdBy && (
+                <DetailItem
+                  label={translate('detail.createdBy')}
+                  value={`${version.createdBy.fullName} (${version.createdBy.employeeCode})`}
+                />
+              )}
+              <DetailItem
+                label={translate('detail.createdAt')}
+                value={new Date(version.createdAt).toLocaleString(i18n.language)}
+              />
+              {version.sentAt && (
+                <DetailItem
+                  label={translate('detail.sentAt')}
+                  value={new Date(version.sentAt).toLocaleString(i18n.language)}
+                />
+              )}
+              {version.expiredAt && (
+                <DetailItem
+                  label={translate('detail.expiredAt')}
+                  value={new Date(version.expiredAt).toLocaleString(i18n.language)}
+                />
+              )}
+            </dl>
+            {version.decision && (
+              <dl className='grid gap-3 rounded-lg border border-border/70 bg-surface-subtle/50 p-4 text-sm sm:grid-cols-2'>
+                <DetailItem
+                  label={translate('detail.decisionResult')}
+                  value={translate(`states.${version.decision.decision}`, { defaultValue: translate('unknown') })}
+                />
+                {version.decision.by && (
+                  <DetailItem
+                    label={translate('detail.decisionBy')}
+                    value={`${version.decision.by.fullName} (${version.decision.by.employeeCode})`}
+                  />
+                )}
+                <DetailItem
+                  label={translate('detail.decisionAt')}
+                  value={new Date(version.decision.at).toLocaleString(i18n.language)}
+                />
+                {version.decision.reason && (
+                  <DetailItem label={translate('fields.decision')} value={version.decision.reason} />
                 )}
               </dl>
             )}
             <div className='flex flex-wrap gap-2 border-t border-border/60 pt-4'>
-              {canEditVersion(version.state) && (
+              {canEditVersion(version.state) && !version.detachedAt && (
                 <>
                   <FinanceButton
                     variant='primary'
@@ -168,12 +256,11 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
           <FinanceEmpty />
         )}
       </FinanceQueryState>
-      {version && <BudgetVersionLines version={version} disabled={query.isError || query.isFetching} />}
       {version && (
         <BudgetAttachments
           target='version'
           ownerId={itemId}
-          editable={canEditVersion(version.state) && !query.isError && !query.isFetching}
+          editable={canEditVersion(version.state) && !version.detachedAt && !query.isError && !query.isFetching}
         />
       )}
       {dialog === 'send' && (
@@ -181,7 +268,12 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
           title={translate('actions.send')}
           pending={sendMutation.isPending}
           submitDisabled={
-            query.isError || query.isFetching || !version || !canEditVersion(version.state) || !hasExplanationFile
+            query.isError ||
+            query.isFetching ||
+            !version ||
+            !canEditVersion(version.state) ||
+            Boolean(version.detachedAt) ||
+            !hasExplanationFile
           }
           onClose={() => setDialog(undefined)}
           submitLabel={translate('actions.confirmSend')}
@@ -194,5 +286,14 @@ export function BudgetVersionDetail({ itemId, onSelectTab }: BudgetViewProps & {
         </FinanceFormDialog>
       )}
     </FinancePage>
+  )
+}
+
+function DetailItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div className='min-w-0'>
+      <dt className='text-xs font-medium text-muted-foreground'>{label}</dt>
+      <dd className='mt-1 break-words [text-wrap:pretty]'>{value}</dd>
+    </div>
   )
 }

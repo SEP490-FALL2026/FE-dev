@@ -55,6 +55,7 @@ export function CatalogLinkPlanPicker({
       </ItField>
       <ItChoiceSelect
         label={translate('catalogLink.application')}
+        required
         value={applicationId}
         options={applicationItems.map((application) => ({ value: application.id, label: application.name }))}
         disabled={disabled || applications.isFetching || applications.isError}
@@ -78,6 +79,7 @@ export function CatalogLinkPlanPicker({
           <ItChoiceSelect
             key={applicationId}
             label={translate('catalogLink.plan')}
+            required
             value={planId}
             options={planItems.map((plan) => ({ value: plan.id, label: plan.name }))}
             disabled={disabled || plans.isFetching || plans.isError}

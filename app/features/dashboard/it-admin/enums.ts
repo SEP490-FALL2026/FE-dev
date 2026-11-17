@@ -4,7 +4,6 @@ export const IT_ADMIN_TAB_KEYS = [
   'shared-stock',
   'purchase-documents',
   'purchase-invoices',
-  'reconciliation',
   'usage-import',
   'device-collectors',
   'license-optimization',

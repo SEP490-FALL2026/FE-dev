@@ -6,7 +6,6 @@ import { useDashboardFormat } from '../../../dashboard-ui'
 import { useManagerPage } from '../../shared/hooks/use-manager-page'
 import { ManagerDataTable } from '../../shared/components/manager-data-table'
 import {
-  ManagerField,
   ManagerPagination,
   ManagerQueryState,
   ManagerSection,

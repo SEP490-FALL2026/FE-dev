@@ -18,7 +18,6 @@ import { ItSharedStockView } from './shared-stock/it-shared-stock-view'
 import { ItUsageView } from './usage/views/it-usage-view'
 import { ItDepartmentSoftwareView } from './dept-catalog/views/it-department-software-view'
 import { ItInvoicesView } from './purchases/views/it-invoices-view'
-import { ItReconciliationView } from './reconciliation/views/it-reconciliation-view'
 
 export function ItAdminScreen({
   tab,
@@ -101,8 +100,6 @@ function ItAdminContent({
       return <ItPurchaseDocumentsView />
     case 'purchase-invoices':
       return <ItInvoicesView />
-    case 'reconciliation':
-      return <ItReconciliationView />
     case 'usage-import':
       return <ItUsageView />
     case 'transfers':

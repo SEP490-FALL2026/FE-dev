@@ -1,6 +1,6 @@
 import type { ApprovalListResponseDtoDataItemsItem } from '~/shared/api/generated/model/spend-approvals/approvalListResponseDtoDataItemsItem'
 import type { VersionPageResponseDtoDataItemsItem } from '~/shared/api/generated/model/budget-versions/versionPageResponseDtoDataItemsItem'
-import { ApprovalListResponseDtoDataItemsItemPrimaryCode as CHECK_CODE } from '~/shared/api/generated/model/spend-approvals/approvalListResponseDtoDataItemsItemPrimaryCode'
+import { ApprovalListResponseDtoDataItemsItemOutcome as CHECK_OUTCOME } from '~/shared/api/generated/model/spend-approvals/approvalListResponseDtoDataItemsItemOutcome'
 import { VersionPageResponseDtoDataItemsItemState as VERSION_STATE } from '~/shared/api/generated/model/budget-versions/versionPageResponseDtoDataItemsItemState'
 import { isDecimal, type Money } from '~/shared/lib/money'
 
@@ -115,24 +115,20 @@ export function amountRows(
   ]
 }
 
-/** Fixed order from clear to blocked, so a code keeps its place whatever the counts are. */
-export const CHECK_CODE_ORDER = [
-  CHECK_CODE.BUDGET_OK,
-  CHECK_CODE.HIGH_VALUE,
-  CHECK_CODE.INSUFFICIENT_BUDGET,
-  CHECK_CODE.NO_ACTIVE_BUDGET,
-  CHECK_CODE.CLOSED_OR_EXPIRED_BUDGET_PERIOD,
-  CHECK_CODE.STALE_COST_EVIDENCE
-] as const
+/** Fixed order from clear to blocked, so an outcome keeps its place whatever the counts are. */
+export const OUTCOME_ORDER = [CHECK_OUTCOME.WITHIN_BASE, CHECK_OUTCOME.USES_RESERVE, CHECK_OUTCOME.BLOCKED] as const
 
-/** Counts each check code; a code the client does not know is kept apart instead of being guessed. */
-export function checkCodeCounts(items: readonly SpendItem[]) {
-  const known: readonly string[] = CHECK_CODE_ORDER
-  const counts = CHECK_CODE_ORDER.map((code) => ({
-    code,
-    count: items.filter((item) => item.primaryCode === code).length
+/**
+ * Counts the three outcomes of the newest budget check (within the base, uses the reserve, blocked).
+ * A step with no outcome yet, or one the client does not know, is kept apart instead of being guessed.
+ */
+export function outcomeCounts(items: readonly SpendItem[]) {
+  const known: readonly string[] = OUTCOME_ORDER
+  const counts = OUTCOME_ORDER.map((outcome) => ({
+    outcome,
+    count: items.filter((item) => item.outcome === outcome).length
   })).filter((entry) => entry.count > 0)
-  const unknown = items.filter((item) => item.primaryCode === null || !known.includes(item.primaryCode)).length
+  const unknown = items.filter((item) => item.outcome === null || !known.includes(item.outcome)).length
   return { counts, unknown }
 }
 

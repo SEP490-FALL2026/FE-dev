@@ -1,8 +1,7 @@
-import { ClipboardCheck, Landmark, UserCheck } from 'lucide-react'
+import { ClipboardCheck, Landmark } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSpendApprovalList } from '~/shared/api/generated/operations/spend-approvals/spend-approval-list'
 import { useBudgetVersionList } from '~/shared/api/generated/operations/budget-versions/budget-version-list'
-import { useNeedDecisionList } from '~/shared/api/generated/operations/need-decisions/need-decision-list'
 import { BudgetVersionListState } from '~/shared/api/generated/model/budget-versions/budgetVersionListState'
 import type { ApprovalTabKey } from '../../approvals-nav'
 import { ApprovalsPage } from '../../shared/components/approvals-ui'
@@ -30,24 +29,16 @@ function toCount(query: {
 export function ApprovalsOverviewView({ onSelectTab }: OverviewProps) {
   const { t: translate } = useTranslation('approvalsNeed')
   const spend = useSpendApprovalList(countParams)
-  const needs = useNeedDecisionList(countParams)
   const budgets = useBudgetVersionList({ ...countParams, state: BudgetVersionListState.SENT })
   return (
     <ApprovalsPage title={translate('title')} description={translate('overview.description')}>
-      <div className='grid gap-4 sm:grid-cols-2 xl:grid-cols-3'>
+      <div className='grid gap-4 sm:grid-cols-2'>
         <ApprovalsWorkCard
           icon={ClipboardCheck}
           title={translate('spendQueue')}
           hint={translate('overview.openSpend')}
           count={toCount(spend)}
           onOpen={() => onSelectTab('queue')}
-        />
-        <ApprovalsWorkCard
-          icon={UserCheck}
-          title={translate('overview.needs')}
-          hint={translate('overview.openNeeds')}
-          count={toCount(needs)}
-          onOpen={() => onSelectTab('queue', { list: 'need' })}
         />
         <ApprovalsWorkCard
           icon={Landmark}

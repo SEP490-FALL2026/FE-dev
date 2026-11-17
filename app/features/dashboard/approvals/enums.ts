@@ -2,9 +2,10 @@ export const APPROVAL_TAB_KEYS = [
   'overview',
   'queue',
   'request',
-  'need',
   'batch',
   'annual-budget',
+  'in-year',
+  'monitor',
   'version-history'
 ] as const
 

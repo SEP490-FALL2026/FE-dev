@@ -1,4 +1,10 @@
 ﻿export const itProvisioning = {
+  directory: {
+    chooseDepartment: 'Choose a department',
+    chooseEmployee: 'Choose an employee to view approved requests.',
+    backDepartments: 'Back to departments',
+    backMembers: 'Back to employees'
+  },
   responsibleEmployeeHint: 'Choose the employee responsible for this service account from the department directory.',
   beneficiaryFilterHint: 'Select an employee to show their approved requests.',
   fieldHints: {
@@ -38,7 +44,15 @@
       RETURNED_TO_HEAD: 'Returned to department head'
     }
   },
-  expiry: 'Expired rights',
+  expiry: 'Subscription deadlines',
+  subscriptionExpiry: {
+    title: 'Subscription expiry',
+    hint: 'Subscriptions assigned to you. The server determines the upcoming and expired periods.',
+    SOON: 'Expiring subscriptions',
+    EXPIRED: 'Expired subscriptions',
+    endDate: 'End date',
+    renewalDate: 'Renewal date'
+  },
   handover: {
     title: 'Data handover',
     details: 'View handover requirements',

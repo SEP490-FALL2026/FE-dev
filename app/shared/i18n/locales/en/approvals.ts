@@ -16,7 +16,9 @@ export const approvals = {
   nav: {
     overview: 'Overview',
     queue: 'Approval queue',
-    annualBudget: 'Annual budget approval'
+    annualBudget: 'Annual budget approval',
+    monitor: 'Spend monitoring',
+    inYear: 'In-year budget'
   },
   status: {
     ESTIMATE: 'Estimated cost',
@@ -27,8 +29,10 @@ export const approvals = {
     PARTIAL: 'Partial control',
     UNCONTROLLABLE: 'Cannot be controlled',
     STOPPED: 'Stopped',
+    AWAITING_RESERVE_CONFIRMATION: 'Waiting for the head to confirm the reserve',
     WAITING_CONTROLLED: 'Waiting under control',
     AWAITING_IT_ASSESSMENT: 'Awaiting IT assessment',
+    AWAITING_REQUESTER_REVISION: 'Awaiting requester revision',
     AWAITING_SPEND_DECISION: 'Awaiting spending decision',
     IT_REJECTED: 'Rejected by IT',
     EXECUTING: 'Being executed',
@@ -110,7 +114,65 @@ export const approvals = {
     RETURN_TO_HEAD: 'Return to department head',
     NEEDS_BUDGET: 'Budget revision needed'
   },
+  glossary: {
+    citation: 'Source: {{policy}}, Rules section, point {{point}}.',
+    policies: {
+      'POL-GEN': 'General rules on software use and data security',
+      'POL-MF1': 'Software access policy',
+      'POL-MF4': 'Annual software budget and in-year review policy'
+    },
+    terms: {
+      K1: {
+        label: 'personal plan',
+        definition: 'a monthly plan bought on the company email of the user, used for 1 to 9 months.'
+      },
+      K2: {
+        label: 'shared stock',
+        definition: 'a Team or Business plan in the shared stock of the company, with an admin console.'
+      },
+      'GH-1': {
+        label: 'duplicate request limit',
+        definition: 'no request for a plan the person already has or already has an open request for.'
+      },
+      'GH-2': {
+        label: 'limit of 10 requests a week',
+        definition: 'at most 10 new access requests per calendar week; withdrawn or rejected requests still count.'
+      },
+      'BM-10': {
+        label: 'budget proposal',
+        definition:
+          'at least one file on the template, a requested amount and an optional note, sent before the deadline.'
+      }
+    }
+  },
+  decline: {
+    reason: 'Reason',
+    placeholder: 'State why you reject or return it',
+    criteria: 'Criteria not met (the ground of the decision)'
+  },
+  checklist: {
+    agreeAll: 'I have read and agree to everything (answers Yes to every checklist question).',
+    title: 'Decision checklist',
+    yes: 'Yes',
+    no: 'No',
+    system: '(checked by the system)',
+    hasNo: 'An answer is No: you can reject or return, but not approve.',
+    incomplete: 'Answer every question to continue.',
+    show: 'Show the decision checklist',
+    hide: 'Hide the checklist',
+    summary: '{{done}} of {{total}} questions answered'
+  },
   errors: {
+    checklistIncomplete: 'The checklist is incomplete. Answer every question.',
+    checklistHasNo: 'An answer is No, so this cannot be approved. Reject or return it instead.',
+    versionChanged: 'The policy checklist was updated. Review the new questions and answer again.',
+    policyNotInForce: 'No policy is in force for this step. Ask the Super Admin to publish it.',
+    overCeiling: 'Approving this version would exceed the annual ceiling.',
+    adjustmentDecided: 'This adjustment was already decided. The list has been reloaded.',
+    adjustmentRecheck:
+      "On today's figures the adjustment no longer holds (amount, base, remaining or forecast floor). Reject it or ask Finance to change it.",
+    adjustmentBlocked:
+      'The adjustment is blocked: the cycle is still open for proposals, or a budget version is in preparation or awaiting a decision.',
     conflictOfInterest: 'You sent the original budget proposal behind this version, so you cannot decide it.',
     lineHoldsAccess: 'Someone in the group already holds a seat of this plan. Reject that person and decide again.',
     groupUsesLines: 'Group requests are decided per person. The data has been reloaded.',

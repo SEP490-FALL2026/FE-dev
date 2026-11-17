@@ -30,9 +30,10 @@ export function EmployeeDirectory({
   const employeeId = searchParams.get('employeeId') ?? ''
   const [params, setParams] = useState<EmployeeListParams>({ page: 1, pageSize: 20 })
   const [resetKey, setResetKey] = useState(0)
-  const [filtersOpen, setFiltersOpen] = useState(false)
+  const initialRole = Object.values(AppUserListRole).find((item) => item === searchParams.get('role')) ?? ''
+  const [filtersOpen, setFiltersOpen] = useState(Boolean(initialRole))
   const filterId = useId()
-  const [role, setRole] = useState<AppUserListRole | ''>('')
+  const [role, setRole] = useState<AppUserListRole | ''>(initialRole)
   const query = useEmployeeDirectory(params, role)
   const filtersActive = !!role || Object.keys(params).some((key) => key !== 'page' && key !== 'pageSize')
   const openProfile = (id: string) => {
@@ -114,7 +115,7 @@ export function EmployeeDirectory({
         </AdminField>
         <EmployeeDepartmentSelect mode='filter' />
         <AdminField label={translate('directory.directRole')}>
-          <select name='role' className={adminInputClass} defaultValue=''>
+          <select name='role' className={adminInputClass} defaultValue={role}>
             <option value=''>{translate('directory.all')}</option>
             {Object.values(AppUserListRole).map((item) => (
               <option key={item} value={item}>

@@ -16,9 +16,18 @@ function emptyTotals(currency: string): BudgetSummaryTotalsItem {
     base: zero(currency),
     reserve: zero(currency),
     total: zero(currency),
+    effectiveBudget: {
+      base: zero(currency),
+      reserve: zero(currency),
+      total: zero(currency),
+      adjustment: zero(currency)
+    },
     committed: zero(currency),
     spent: zero(currency),
+    pendingSpend: zero(currency),
     remaining: zero(currency),
+    remainingBase: zero(currency),
+    remainingWithReserve: zero(currency),
     costCenterCount: 0,
     overBudgetCount: 0
   }
@@ -45,6 +54,16 @@ export function useBudgetSummary(year: number | undefined) {
   return {
     query,
     totals: summary ? (first ?? emptyTotals(currency)) : null,
-    lastInvoiceRecordedAt: summary?.lastInvoiceRecordedAt ?? null
+    lastInvoiceRecordedAt: summary?.lastInvoiceRecordedAt ?? null,
+    company: summary
+      ? {
+          annualCeiling: summary.annualCeiling ?? null,
+          sharedPoolReserve: summary.sharedPoolReserve ?? null,
+          sharedPoolUnallocated: summary.sharedPoolUnallocated ?? null,
+          sharedPoolOverReserve: summary.sharedPoolOverReserve ?? null,
+          seatMonthsWithoutCostCenter: summary.seatMonthsWithoutCostCenter ?? null,
+          companySpent: summary.companySpent ?? null
+        }
+      : null
   }
 }

@@ -2,12 +2,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useGroupRequestCandidateList } from '~/shared/api/generated/operations/group-requests/group-request-candidate-list'
 import { EmployeeChoiceSelect } from '../../shared/components/employee-choice-select'
-import {
-  EmployeePagination,
-  EmployeeQueryState,
-  EmployeeField,
-  employeeInputClass
-} from '../../shared/components/employee-api-ui'
+import { EmployeePagination, EmployeeQueryState } from '../../shared/components/employee-api-ui'
 import type { GroupSelection } from '../hooks/use-live-request-form'
 
 export function LiveGroupMembers({
@@ -22,7 +17,6 @@ export function LiveGroupMembers({
   invalid?: boolean
 }) {
   const { t: translate } = useTranslation('employee')
-  const { t: flow } = useTranslation('requestFlow')
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState('')
   const [search, setSearch] = useState('')
@@ -116,27 +110,6 @@ export function LiveGroupMembers({
               </p>
             )}
           </div>
-          {member.reasonRequired && (
-            <EmployeeField label={flow('manyReason')}>
-              <textarea
-                className={employeeInputClass}
-                maxLength={1000}
-                rows={2}
-                disabled={disabled}
-                required
-                value={member.manyPaidSoftwareReason ?? ''}
-                onChange={(event) =>
-                  onChange(
-                    members.map((item) =>
-                      item.employeeId === member.employeeId
-                        ? { ...item, manyPaidSoftwareReason: event.target.value }
-                        : item
-                    )
-                  )
-                }
-              />
-            </EmployeeField>
-          )}
         </div>
       ))}
     </section>

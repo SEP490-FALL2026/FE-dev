@@ -10,6 +10,7 @@ import { budgetAttachmentDiscard } from '~/shared/api/generated/operations/budge
 import { getManagerError } from '../../shared/hooks/manager-errors'
 import { BUDGET_ATTACHMENT_STATUS, BUDGET_ATTACHMENT_TARGET } from '../enums/attachment-status'
 import { budgetAttachmentErrorCode, completeBudgetUpload, uploadBudgetFile } from './budget-file-upload'
+import { BUDGET_PROPOSAL_FILE_LIMIT, BUDGET_DRAFT_FILE_LIMIT } from '../budget-limits'
 
 export function useBudgetAttachments() {
   const { t: translate } = useTranslation('manager')
@@ -45,7 +46,9 @@ export function useBudgetAttachments() {
     },
     onSuccess: (id, input) => {
       setSelected((previous) =>
-        input.kind === 'discard' ? previous.filter((item) => item !== id) : [...new Set([...previous, id])].slice(0, 20)
+        input.kind === 'discard'
+          ? previous.filter((item) => item !== id)
+          : [...new Set([...previous, id])].slice(0, BUDGET_PROPOSAL_FILE_LIMIT)
       )
       toast.success(translate('saved'), { id: 'budget-file' })
     },
@@ -90,7 +93,11 @@ export function useBudgetAttachments() {
   )
   const run: typeof operation.mutate = (input) => {
     if (lock.current || Date.now() < retryAt || (input.kind === 'upload' && uncertain)) return
-    if (input.kind === 'upload' && (selected.length >= 20 || items.length >= 20)) return
+    if (
+      input.kind === 'upload' &&
+      (selected.length >= BUDGET_PROPOSAL_FILE_LIMIT || items.length >= BUDGET_DRAFT_FILE_LIMIT)
+    )
+      return
     lock.current = true
     operation.mutate(input)
   }

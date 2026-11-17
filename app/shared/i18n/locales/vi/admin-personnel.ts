@@ -118,8 +118,15 @@ export const adminPersonnel = {
   templateLoading: 'Đang tải file mẫu…',
   downloadTemplateError: 'Không thể tải file mẫu. Vui lòng thử lại sau.',
   file: 'Tệp nhân sự',
+  importUploadTitle: 'Chọn danh sách nhân viên',
+  importUploadDescription:
+    'Chọn tệp để hệ thống kiểm tra và hiển thị kết quả xem trước. Dữ liệu chỉ được lưu sau khi bạn xác nhận.',
+  preparingPreview: 'Đang kiểm tra tệp và chuẩn bị bản xem trước…',
+  importTemplateTitle: 'Chuẩn bị tệp dữ liệu',
+  importTemplateDescription: 'Tải mẫu phù hợp và điền thông tin nhân viên theo các cột có sẵn.',
+  recentImportsTitle: 'Tiếp tục lần nhập gần đây',
   importHelp:
-    'Chọn tệp bảng tính định dạng CSV hoặc XLSX, tối đa 2.097.152 byte. Các cột bắt buộc: mã nhân viên (employee_code), họ tên (full_name), loại nhân sự (employment_type) và ngày vào làm (hire_date). Mã phòng (department_code), email công việc (work_email) và chức danh (job_title) là tùy chọn. Để trống mã phòng để tạo nhân viên chưa xếp phòng. Tải tệp chỉ tạo bản xem trước.',
+    'Thông tin bắt buộc gồm mã nhân viên, họ tên, loại nhân sự và ngày vào làm. Mã phòng ban, thư điện tử công việc và chức danh là tùy chọn. Có thể để trống phòng ban nếu nhân viên chưa được phân phòng.',
   resumeImport: 'Đọc lần nhập đã có',
   importIdPlaceholder: 'Nhập mã lần nhập nhân sự đã tạo trước đó',
   refreshPreview: 'Làm mới xem trước',

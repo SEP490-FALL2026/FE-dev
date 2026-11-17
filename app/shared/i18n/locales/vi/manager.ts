@@ -1,13 +1,18 @@
+import { managerGhost } from './manager-ghost-seats'
+import { managerBudgetWorkspace } from './manager-budget-workspace'
 import { managerOverviewBudget } from './manager-overview-budget'
 import { managerRenewals } from './manager-renewals'
 import { managerIntegration } from './manager-integration'
 import { managerRequestForm } from './manager-request-form'
 import { managerBudgetForm } from './manager-budget-form'
 export const manager = {
+  policies: 'Chính sách',
+  ghostSeatReview: 'Rà soát suất không sử dụng',
+  ghost: managerGhost,
+  budgetWorkspace: managerBudgetWorkspace,
   overviewBudget: managerOverviewBudget,
   renewal: managerRenewals,
   renewals: managerRenewals.title,
-  termLimit: 'Thời hạn tối đa: {{months}} tháng',
   groupMinimum: 'Chọn từ 2 đến 10 người khác nhau',
   budgetForm: managerBudgetForm,
   requestForm: managerRequestForm,
@@ -197,7 +202,7 @@ export const manager = {
   versionFiles: 'Tài liệu phiên bản',
   emptyVersionFiles: 'Phiên bản này không có tài liệu đính kèm',
   currentBudget: 'Ngân sách năm hiện hành',
-  budgetHint: 'Lập các dòng kế hoạch và đính kèm tài liệu để Finance thẩm tra.',
+  budgetHint: 'Nhập một số tiền đề nghị cho cả năm bằng VND và đính kèm mẫu BM-10 đã điền để Finance thẩm tra.',
   budgetMissing: 'Năm này chưa có ngân sách hiện hành',
   windowFrom: 'Bắt đầu cửa sổ mua',
   windowTo: 'Kết thúc cửa sổ mua',
@@ -317,9 +322,11 @@ export const manager = {
     submittedAt: 'Thời gian gửi',
     requestIdLabel: 'Mã yêu cầu',
     decisionTitle: 'Quyết định phê duyệt',
-    decisionSubtitle: 'Lựa chọn phê duyệt hoặc từ chối nhu cầu này',
-    approveDesc: 'Xác nhận nhu cầu sử dụng là hợp lệ và chuyển tiếp xử lý',
-    rejectDesc: 'Từ chối cấp phát hoặc yêu cầu làm rõ thêm thông tin',
+    decisionSubtitle: 'Duyệt, từ chối hoặc trả về người gửi để bổ sung',
+    returnLabel: 'Trả về',
+    returnReason: 'Nội dung cần bổ sung',
+    reasonPlaceholderReturn: 'Nêu rõ người gửi cần bổ sung gì (bắt buộc)...',
+    confirmReturnText: 'Bạn có chắc chắn muốn TRẢ VỀ yêu cầu này cho người gửi?',
     reasonLabel: 'Ý kiến / Lý do quyết định',
     reasonPlaceholderApprove: 'Nhập ghi chú hoặc ý kiến phê duyệt (không bắt buộc)...',
     reasonPlaceholderReject: 'Nêu rõ lý do từ chối để nhân viên nắm được thông tin (bắt buộc)...',
@@ -329,7 +336,14 @@ export const manager = {
     confirmRejectText: 'Bạn có chắc chắn muốn TỪ CHỐI nhu cầu phần mềm này?'
   },
   errors: {
-    termLimit: 'Thời hạn vượt giới hạn của gói. Kiểm tra số tháng tối đa rồi xem trước lại.',
+    ghostChanged: 'Khuyến nghị đã thay đổi hoặc bị tạm dừng. Xem thông tin mới nhất trước khi quyết định.',
+    ghostNotRevocable: 'Suất này hiện chưa thể thu hồi. Tải lại hàng đợi.',
+    ghostExemption: 'Chọn ngày miễn trừ hợp lệ sau hôm nay và không quá 12 tháng tới.',
+    ...managerBudgetWorkspace.errors,
+    cycleNotOpen: 'Kỳ ngân sách của năm này chưa được mở.',
+    cycleLocked: 'Kỳ ngân sách đã khóa vì quá hạn nộp.',
+    costCenterRequired:
+      'Bạn phụ trách nhiều hơn một Cost Center trong năm này; vui lòng chọn Cost Center cần làm việc.',
     groupMinimum: 'Yêu cầu nhóm cần từ 2 đến 10 người khác nhau.',
     renewalStale: 'Đề xuất đã thay đổi. IT cần gửi lại đề xuất trước khi xác nhận.',
     renewalAcknowledge: 'Cần xác nhận hủy thuê bao khi vẫn còn người đang sử dụng.',

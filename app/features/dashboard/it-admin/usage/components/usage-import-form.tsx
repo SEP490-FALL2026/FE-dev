@@ -100,11 +100,12 @@ export function ImportForm({ onBack, onUploaded }: { onBack: () => void; onUploa
               </p>
             </div>
           )}
-          <div className='grid gap-4 sm:grid-cols-2'>
+          <div className='grid gap-4 sm:grid-cols-2 [&>.it-form-field]:row-span-3 [&>.it-form-field]:grid-rows-subgrid'>
             <ItField label={t('usageImport.coverageFrom')}>
               <input
                 type='date'
                 className={itInputClass}
+                required={!!coverageTo}
                 value={coverageFrom}
                 onChange={(event) => setCoverageFrom(event.target.value)}
               />
@@ -113,6 +114,7 @@ export function ImportForm({ onBack, onUploaded }: { onBack: () => void; onUploa
               <input
                 type='date'
                 className={itInputClass}
+                required={!!coverageFrom}
                 value={coverageTo}
                 onChange={(event) => setCoverageTo(event.target.value)}
                 aria-invalid={!validCoverage}

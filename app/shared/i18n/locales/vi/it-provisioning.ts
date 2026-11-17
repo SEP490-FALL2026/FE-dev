@@ -1,4 +1,10 @@
 export const itProvisioning = {
+  directory: {
+    chooseDepartment: 'Chọn phòng ban',
+    chooseEmployee: 'Chọn nhân viên để xem yêu cầu đã duyệt.',
+    backDepartments: 'Quay lại phòng ban',
+    backMembers: 'Quay lại nhân viên'
+  },
   responsibleEmployeeHint: 'Chọn nhân viên chịu trách nhiệm cho tài khoản dịch vụ trong danh bạ phòng ban.',
   beneficiaryFilterHint: 'Chọn nhân viên để xem các yêu cầu đã được duyệt của người đó.',
   fieldHints: {
@@ -37,7 +43,15 @@ export const itProvisioning = {
       RETURNED_TO_HEAD: 'Đã trả lại trưởng phòng'
     }
   },
-  expiry: 'Quyền đã hết hạn',
+  expiry: 'Hạn thuê bao',
+  subscriptionExpiry: {
+    title: 'Hạn thuê bao',
+    hint: 'Thuê bao bạn phụ trách. Hệ thống xác định kỳ sắp hết hạn và đã hết hạn.',
+    SOON: 'Thuê bao sắp hết hạn',
+    EXPIRED: 'Thuê bao đã hết hạn',
+    endDate: 'Ngày kết thúc',
+    renewalDate: 'Ngày gia hạn'
+  },
   handover: {
     title: 'Bàn giao dữ liệu',
     details: 'Xem yêu cầu bàn giao',
@@ -208,7 +222,7 @@ export const itProvisioning = {
     CLOSED_FAILED: 'Đã đóng thất bại',
     CANCELLED: 'Đã hủy',
     MANUAL: 'Làm tay',
-    CONNECTOR: 'Connector',
+    CONNECTOR: 'Bộ kết nối',
     GRANT: 'Cấp quyền',
     REVOKE: 'Thu hồi',
     SERVICE_ACCOUNT: 'Tài khoản dịch vụ',
