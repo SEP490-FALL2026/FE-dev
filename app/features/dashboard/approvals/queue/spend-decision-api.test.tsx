@@ -181,6 +181,28 @@ async function choose(value: 'Approve' | 'Reject' | 'Return', index = 0) {
   fireEvent.click(screen.getByRole('option', { name: value }))
 }
 /** Ticks "read and agree to all": it confirms the review and answers every checklist question Yes. */
+/** What BE gets after `failOneCriterion`: the first person criterion Yes, the second No. */
+const oneCriterionFailed = {
+  policyVersionId: expectedChecklist.policyVersionId,
+  answers: [
+    { itemCode: 'P-01', answer: 'YES' },
+    { itemCode: 'P-02', answer: 'NO' }
+  ]
+}
+
+/** The review is confirmed and one criterion is answered No: the ground to reject or return. */
+async function failOneCriterion() {
+  fireEvent.click(
+    await screen.findByRole('checkbox', {
+      name: 'I have reviewed the request, budget check and supporting information.'
+    })
+  )
+  fireEvent.click(await screen.findByRole('button', { name: 'Show the decision checklist' }))
+  fireEvent.click(screen.getAllByRole('radio', { name: 'No' }).at(-1) as HTMLElement)
+  for (const radio of screen.getAllByRole('radio', { name: 'Yes' }).slice(1, -1)) fireEvent.click(radio)
+}
+
+/** Ticks "read and agree to all": it confirms the review and answers every checklist question Yes. */
 async function confirm() {
   await screen.findByText('0 of 2 questions answered')
   fireEvent.click(screen.getByRole('checkbox', { name: /I have read and agree to everything/ }))
@@ -190,10 +212,11 @@ async function confirm() {
 it('requires a rejection reason and sends only the strict rejection payload', async () => {
   mount()
   expect(await screen.findByRole('button', { name: 'Reject' })).toBeDisabled()
-  await confirm()
+  await failOneCriterion()
   fireEvent.click(screen.getByRole('button', { name: 'Reject' }))
   expect(posted).toHaveLength(0)
   const dialog = await screen.findByRole('dialog', { name: 'Reject this request' })
+  expect(within(dialog).getByText('Vendor is verified')).toBeInTheDocument()
   expect(within(dialog).getByText(/Are you sure you want to reject/)).toBeInTheDocument()
   expect(within(dialog).getByRole('button', { name: 'Confirm rejection' })).toBeDisabled()
   fireEvent.change(within(dialog).getByPlaceholderText('State why you reject or return it'), {
@@ -201,13 +224,13 @@ it('requires a rejection reason and sends only the strict rejection payload', as
   })
   fireEvent.click(within(dialog).getByRole('button', { name: 'Confirm rejection' }))
   await waitFor(() => expect(posted).toHaveLength(1))
-  expect(posted[0].body).toEqual({ decision: 'REJECT', reason: 'No business need', checklist: expectedChecklist })
+  expect(posted[0].body).toEqual({ decision: 'REJECT', reason: 'No business need', checklist: oneCriterionFailed })
 })
 
 it('requires a reason to return a request and sends the strict return payload', async () => {
   mount()
   expect(await screen.findByRole('button', { name: 'Return' })).toBeDisabled()
-  await confirm()
+  await failOneCriterion()
   fireEvent.click(screen.getByRole('button', { name: 'Return' }))
   const dialog = await screen.findByRole('dialog', { name: 'Return this request' })
   expect(within(dialog).getByRole('button', { name: 'Confirm return' })).toBeDisabled()
@@ -216,7 +239,7 @@ it('requires a reason to return a request and sends the strict return payload', 
   })
   fireEvent.click(within(dialog).getByRole('button', { name: 'Confirm return' }))
   await waitFor(() => expect(posted).toHaveLength(1))
-  expect(posted[0].body).toEqual({ decision: 'RETURN', reason: 'Pick the team plan', checklist: expectedChecklist })
+  expect(posted[0].body).toEqual({ decision: 'RETURN', reason: 'Pick the team plan', checklist: oneCriterionFailed })
 })
 
 it('blocks insufficient-budget approval without offering removed override fields', async () => {
@@ -247,7 +270,7 @@ it('blocks repeated decisions while the server has not confirmed the write', asy
 it('keeps a failed decision draft and refreshes authoritative data after conflict', async () => {
   failMutation = true
   mount()
-  await confirm()
+  await failOneCriterion()
   fireEvent.click(screen.getByRole('button', { name: 'Reject' }))
   const dialog = await screen.findByRole('dialog', { name: 'Reject this request' })
   fireEvent.change(within(dialog).getByPlaceholderText('State why you reject or return it'), {
@@ -486,4 +509,18 @@ it('ticks every checklist answer for "read and agree to all", and a No in the ch
   expect(screen.getByRole('button', { name: 'Reject' })).toBeEnabled() // a No still allows rejecting or returning
   fireEvent.click(screen.getByRole('checkbox', { name: /I have read and agree to everything/ }))
   expect(screen.getByRole('button', { name: 'Approve' })).toBeEnabled()
+})
+
+it('opens Reject and Return only on a criterion answered No, and Approve only when every answer is Yes', async () => {
+  mount()
+  await confirm()
+  expect(screen.getByRole('button', { name: 'Approve' })).toBeEnabled()
+  expect(screen.getByRole('button', { name: 'Reject' })).toBeDisabled()
+  expect(screen.getByRole('button', { name: 'Return' })).toBeDisabled()
+  expect(screen.getByText(/open only when at least one checklist criterion is answered/)).toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button', { name: 'Show the decision checklist' }))
+  fireEvent.click(screen.getAllByRole('radio', { name: 'No' }).at(-1) as HTMLElement)
+  expect(screen.getByRole('button', { name: 'Approve' })).toBeDisabled()
+  expect(screen.getByRole('button', { name: 'Reject' })).toBeEnabled()
+  expect(screen.getByRole('button', { name: 'Return' })).toBeEnabled()
 })

@@ -11,11 +11,14 @@ export type DeclineKind = 'REJECT' | 'RETURN'
  */
 export function SpendDeclineDialog({
   kind,
+  criteria,
   pending,
   onSubmit,
   onClose
 }: {
   kind: DeclineKind
+  /** The checklist criteria answered No: the ground of the decision. */
+  criteria: string[]
   pending: boolean
   onSubmit: (reason: string) => void
   onClose: () => void
@@ -41,6 +44,16 @@ export function SpendDeclineDialog({
       <p className='text-sm text-muted-foreground [text-wrap:pretty]'>
         {translate(rejecting ? 'declineRejectAsk' : 'declineReturnAsk')}
       </p>
+      {criteria.length > 0 && (
+        <div className='space-y-1.5 rounded-md border border-border/70 bg-surface-subtle p-3 text-sm'>
+          <p className='font-medium'>{translate('declineCriteria')}</p>
+          <ul className='list-disc space-y-1 pl-5 text-muted-foreground'>
+            {criteria.map((text) => (
+              <li key={text}>{text}</li>
+            ))}
+          </ul>
+        </div>
+      )}
       <ApprovalsField label={translate('declineReason')} required>
         <textarea
           required

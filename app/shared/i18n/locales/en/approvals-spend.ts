@@ -139,6 +139,9 @@ export const approvalsSpend = {
   rejectPlaceholder: 'E.g. The team already has an equivalent tool under contract',
   agreeAll: 'I have read and agree to everything (answers Yes to every checklist question).',
   declineReason: 'Reason',
+  declineCriteria: 'Criteria not met (the ground of the decision)',
+  declineNeedsNo:
+    'Reject or Return is open only when at least one checklist criterion is answered "No". Open the checklist and answer "No" on the criterion that is not met.',
   declineRejectTitle: 'Reject this request',
   declineReturnTitle: 'Return this request',
   declineRejectAsk: 'Are you sure you want to reject this request? The requester will receive the reason you enter.',

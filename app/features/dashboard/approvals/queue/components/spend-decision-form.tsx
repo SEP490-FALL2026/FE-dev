@@ -93,7 +93,10 @@ export function SpendDecisionForm({
   // and rejecting or returning needs a reason.
   const answered = canDecide && confirmed && checklist.complete
   const canApprove = answered && !checklist.hasNo
-  const canDecline = answered
+  // Rejecting or returning needs a criterion answered No as its ground; with every answer Yes only the approval is open.
+  // A step with no question for the person has no such ground to wait for.
+  const hasPersonQuestions = checklist.items.some((item) => item.check === 'PERSON')
+  const canDecline = answered && (checklist.hasNo || !hasPersonQuestions)
   const agreeAll = confirmed && checklist.complete && !checklist.hasNo
   const pendingDecision = mutations.single.isPending ? mutations.single.variables?.data.decision : undefined
   const options = [
@@ -285,10 +288,16 @@ export function SpendDecisionForm({
             </div>
           )}
         </div>
+        {!isGroup && answered && !canDecline && (
+          <p role='note' className='text-xs text-muted-foreground'>
+            {translate('declineNeedsNo')}
+          </p>
+        )}
       </form>
       {declining && (
         <SpendDeclineDialog
           kind={declining}
+          criteria={checklist.noItems.map((item) => item.text)}
           pending={mutations.single.isPending}
           onSubmit={(reason) => submitSingle(declining, reason)}
           onClose={() => setDeclining(null)}

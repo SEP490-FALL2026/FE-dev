@@ -138,6 +138,9 @@ export const approvalsSpend = {
   decisionConfirmation: 'Tôi đã xem yêu cầu, kiểm tra ngân sách và thông tin liên quan.',
   agreeAll: 'Tôi đã đọc và đồng ý tất cả (tự chọn "Có" cho mọi câu hỏi của checklist).',
   declineReason: 'Lý do',
+  declineCriteria: 'Tiêu chí chưa đạt (căn cứ của quyết định)',
+  declineNeedsNo:
+    'Từ chối hoặc Trả về chỉ dùng được khi có ít nhất một tiêu chí checklist chọn "Không". Mở checklist và chọn "Không" ở tiêu chí chưa đạt.',
   declineRejectTitle: 'Từ chối Request',
   declineReturnTitle: 'Trả Request về',
   declineRejectAsk: 'Bạn chắc chắn muốn từ chối Request này? Người gửi sẽ nhận được lý do bạn nhập.',
