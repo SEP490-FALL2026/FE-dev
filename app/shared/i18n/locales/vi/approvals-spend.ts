@@ -75,6 +75,36 @@ export const approvalsSpend = {
   sensitivity: 'Độ nhạy cảm dữ liệu',
   equivalent: 'Gói tương đương',
   decision: 'Quyết định',
+  views: { requests: 'Theo yêu cầu', batches: 'Theo đợt' },
+  batches: {
+    from: 'Trình từ ngày',
+    to: 'Trình đến ngày',
+    count: 'Số yêu cầu',
+    state: 'Tình trạng',
+    waiting: 'Còn {{count}} yêu cầu chờ quyết',
+    done: 'Đã quyết xong · {{count}} được duyệt'
+  },
+  ai: {
+    title: 'Tóm tắt bằng AI',
+    readingAid:
+      'Chỉ giúp đọc nhanh hàng chờ, không thay bạn quyết định. Hãy mở từng yêu cầu để xem đủ thông tin trước khi quyết.',
+    ask: 'Tóm tắt {{count}} yêu cầu',
+    again: 'Tóm tắt lại',
+    simulated: 'Giả lập — không phải AI',
+    running: 'Đang tóm tắt, vui lòng đợi…',
+    omitted: 'Còn {{count}} yêu cầu khác không nằm trong bản tóm tắt.',
+    changed: 'Hàng chờ đã thay đổi sau khi tóm tắt. Bấm "Tóm tắt lại" để có bản mới.',
+    noLines: 'Các yêu cầu trong bản tóm tắt đã được quyết hoặc không còn chờ bạn.',
+    disabled: 'Tính năng tóm tắt bằng AI đang tắt.',
+    noSteps: 'Không còn yêu cầu nào chờ bạn quyết.',
+    sourceStale: 'Hàng chờ vừa thay đổi. Bấm lại để tóm tắt theo hàng chờ mới.',
+    unavailable: 'Chưa tóm tắt được lúc này. Bạn vẫn duyệt bình thường trong danh sách bên dưới.',
+    status: {
+      FAILED: 'Chưa tóm tắt được lúc này. Bạn vẫn duyệt bình thường trong danh sách bên dưới.',
+      NO_VALID_OUTPUT: 'Chưa tóm tắt được hàng chờ này.',
+      STALE: 'Bản tóm tắt đã hết hạn lưu. Bấm "Tóm tắt lại" để có bản mới.'
+    }
+  },
   monitor: {
     title: 'Yêu cầu có bước chi',
     description: 'Theo dõi các yêu cầu đã tới bước chi. Việc quyết định thực hiện trong hàng chờ duyệt.',

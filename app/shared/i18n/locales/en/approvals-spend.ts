@@ -76,6 +76,36 @@ export const approvalsSpend = {
   sensitivity: 'Data sensitivity',
   equivalent: 'Equivalent plan',
   decision: 'Decision',
+  views: { requests: 'By request', batches: 'By batch' },
+  batches: {
+    from: 'Sent from',
+    to: 'Sent until',
+    count: 'Requests',
+    state: 'Progress',
+    waiting: '{{count}} still waiting for a decision',
+    done: 'All decided · {{count}} approved'
+  },
+  ai: {
+    title: 'AI summary',
+    readingAid:
+      'Only helps you read the queue quickly; it never decides for you. Open each request to see everything before deciding.',
+    ask: 'Summarise {{count}} requests',
+    again: 'Summarise again',
+    simulated: 'Simulated — not AI',
+    running: 'Summarising, please wait…',
+    omitted: '{{count}} more requests are not in the summary.',
+    changed: 'The queue changed after the summary. Press "Summarise again" for a new one.',
+    noLines: 'The requests in the summary were decided or no longer wait for you.',
+    disabled: 'The AI summary is switched off.',
+    noSteps: 'No request waits for your decision.',
+    sourceStale: 'The queue just changed. Press again to summarise the new queue.',
+    unavailable: 'The summary is not available right now. You can still decide in the list below.',
+    status: {
+      FAILED: 'The summary is not available right now. You can still decide in the list below.',
+      NO_VALID_OUTPUT: 'This queue could not be summarised.',
+      STALE: 'The summary is past its keeping time. Press "Summarise again" for a new one.'
+    }
+  },
   monitor: {
     title: 'Requests with a spend step',
     description: 'Follow requests that reached the spend step. Decisions are made in the approval queue.',

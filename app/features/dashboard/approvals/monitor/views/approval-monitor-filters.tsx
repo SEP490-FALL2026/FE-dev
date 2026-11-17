@@ -62,7 +62,7 @@ export function dayEnd(value: string) {
 }
 
 /** Departments for the filter: the Approver cannot list departments, but the latest cycle's package names them all. */
-function useDepartmentOptions() {
+export function useDepartmentOptions() {
   const cycles = useBudgetCycleList({ page: 1, pageSize: 20 })
   const years = (cycles.data?.data?.items ?? []).map((cycle) => cycle.year).filter(Number.isFinite)
   const year = years.length ? Math.max(...years) : undefined
