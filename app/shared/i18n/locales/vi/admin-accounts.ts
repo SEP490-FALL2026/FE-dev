@@ -14,6 +14,9 @@ export const adminAccounts = {
   },
   releaseDepartureBlock: 'Gỡ chặn truy cập sau hủy nghỉ việc',
   roleHelp: 'Chọn vai trò thay thế vai trò hiện tại. Quyền truy cập mới có hiệu lực từ yêu cầu tiếp theo.',
+  inviteRoleHelp: 'Chọn vai trò ban đầu cho tài khoản được mời.',
+  spendingApproverInviteHelp:
+    'Để bổ nhiệm Người duyệt chi, hãy mời nhân viên với vai trò Nhân viên. Sau khi người đó kích hoạt tài khoản, đổi vai trò thành Người duyệt chi.',
   employeeHelp:
     'Chọn nhân viên chưa có tài khoản. Thư kích hoạt được gửi đến địa chỉ thư điện tử công việc của người này.',
   emailFromPersonnel:
@@ -42,7 +45,8 @@ export const adminAccounts = {
   directRoles: 'Vai trò trực tiếp',
   none: 'Không có',
   unknown: 'Chưa xác định',
-  candidateLimit: 'Hiển thị tối đa 20 nhân viên chưa có tài khoản. Thu hẹp tìm kiếm để tìm người khác.',
+  candidateLimit:
+    'Hiển thị tối đa {{count}} nhân viên chưa có tài khoản. Nhập tên, mã nhân viên hoặc thư điện tử công việc để tìm người khác.',
   selectEmployee: 'Chọn nhân viên trước khi tiếp tục.',
   emailHint: 'Để trống để dùng email công việc của nhân viên.',
   lock: 'Khóa tài khoản',

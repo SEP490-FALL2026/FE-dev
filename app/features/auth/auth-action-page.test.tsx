@@ -44,6 +44,26 @@ describe('auth action pages', () => {
     expect(confirmation).toHaveAttribute('type', 'password')
   })
 
+  it('reveals the new password independently of the confirmation field', () => {
+    window.history.replaceState(null, '', '/activate-account#token=invitation')
+    render(
+      <MemoryRouter>
+        <AppProviders>
+          <AuthActionPage action='activate' />
+        </AppProviders>
+      </MemoryRouter>
+    )
+    const password = screen.getByLabelText('Mật khẩu mới')
+    const confirmation = screen.getByLabelText('Xác nhận mật khẩu mới')
+    fireEvent.change(password, { target: { value: 'Password123!' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Hiện mật khẩu' }))
+    expect(password).toHaveAttribute('type', 'text')
+    expect(password).toHaveValue('Password123!')
+    expect(confirmation).toHaveAttribute('type', 'password')
+    fireEvent.click(screen.getByRole('button', { name: 'Ẩn mật khẩu' }))
+    expect(password).toHaveAttribute('type', 'password')
+  })
+
   it('requests a reset without revealing whether the email exists', async () => {
     const requests: string[] = []
     apiClient.defaults.adapter = async (config) => {

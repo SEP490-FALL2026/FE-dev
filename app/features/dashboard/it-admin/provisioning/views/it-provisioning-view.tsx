@@ -18,8 +18,8 @@ import { ItPagination } from '../../shared/components/it-pagination'
 import { itButtonClass } from '../../shared/components/it-form'
 import { ProvisioningActionDialog } from '../components/provisioning-action-dialog'
 import { taskActions, type TaskAction } from '../task-actions'
-import { ProvisioningExpiryQueue } from '../components/provisioning-expiry-queue'
-import { ProvisioningGrantQueue } from '../components/provisioning-grant-queue'
+import { SubscriptionExpiry } from '../components/subscription-expiry'
+import { ProvisioningDirectory } from '../components/provisioning-directory'
 import { TaskStatus } from '../enums/task-status'
 import { TaskChannel } from '../enums/task-channel'
 import { TaskScope } from '../enums/task-scope'
@@ -27,7 +27,7 @@ import { TaskScope } from '../enums/task-scope'
 export function ItProvisioningView({
   initialTaskId,
   initialScope = TaskScope.MINE,
-  initialQueue = 'tasks',
+  initialQueue = 'grants',
   onSelectTab
 }: {
   initialTaskId?: string
@@ -203,9 +203,6 @@ export function ItProvisioningView({
       ) : (
         <>
           <div className='flex flex-wrap gap-2' role='group' aria-label={translate('queue')}>
-            <button className={itButtonClass} aria-pressed={queue === 'tasks'} onClick={() => setQueue('tasks')}>
-              {translate('tasks')}
-            </button>
             <button className={itButtonClass} aria-pressed={queue === 'grants'} onClick={() => setQueue('grants')}>
               {translate('grants')}
             </button>
@@ -214,10 +211,8 @@ export function ItProvisioningView({
             </button>
           </div>
           {queue === 'expiry' ? (
-            <ProvisioningExpiryQueue onOpenTask={setSelectedTask} />
-          ) : queue === 'grants' ? (
-            <ProvisioningGrantQueue onCreated={setSelectedTask} />
-          ) : (
+            <SubscriptionExpiry />
+          ) : queue === 'grants' ? null : (
             <>
               <div className='grid gap-3 sm:grid-cols-3'>
                 <ItChoiceSelect
@@ -291,6 +286,11 @@ export function ItProvisioningView({
             </>
           )}
         </>
+      )}
+      {queue === 'grants' && (
+        <div hidden={!!selectedTask}>
+          <ProvisioningDirectory onCreated={setSelectedTask} />
+        </div>
       )}
       {task && action && <ProvisioningActionDialog task={task} action={action} onClose={() => setAction(null)} />}
     </section>

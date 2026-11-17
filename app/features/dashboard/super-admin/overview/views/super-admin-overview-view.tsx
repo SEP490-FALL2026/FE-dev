@@ -11,7 +11,6 @@ import { AdminHealthCard } from '../components/admin-health-card'
 import { DepartmentAttention } from '../components/department-attention'
 import { SetupChecklist } from '../components/setup-checklist'
 import { DashboardMetrics } from '../components/dashboard-metrics'
-import { PersonnelMetrics } from '../components/personnel-metrics'
 import '../overview.css'
 
 export function SuperAdminOverviewView({ onSelectTab }: { onSelectTab: SuperAdminSelectTab }) {
@@ -46,20 +45,6 @@ export function SuperAdminOverviewView({ onSelectTab }: { onSelectTab: SuperAdmi
           {translate('overview.redesign.refresh')}
         </button>
       </header>
-      <AdminQueryState query={dashboard}>
-        {dashboard.data?.data ? (
-          <>
-            <DashboardMetrics
-              sections={dashboard.data.data.sections}
-              asOf={dashboard.data.data.asOf}
-              onSelectTab={onSelectTab}
-            />
-            <PersonnelMetrics data={dashboard.data.data} />
-          </>
-        ) : (
-          <p className='text-sm text-muted-foreground'>{translate('overview.metrics.missing')}</p>
-        )}
-      </AdminQueryState>
       <div className='grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]'>
         <AdminQueryState query={checklist}>
           <SetupSummary steps={steps} />
@@ -80,6 +65,17 @@ export function SuperAdminOverviewView({ onSelectTab }: { onSelectTab: SuperAdmi
           <SetupChecklist steps={steps} onSelectTab={onSelectTab} />
         </div>
       )}
+      <AdminQueryState query={dashboard}>
+        {dashboard.data?.data ? (
+          <DashboardMetrics
+            sections={dashboard.data.data.sections}
+            asOf={dashboard.data.data.asOf}
+            onSelectTab={onSelectTab}
+          />
+        ) : (
+          <p className='text-sm text-muted-foreground'>{translate('overview.metrics.missing')}</p>
+        )}
+      </AdminQueryState>
     </div>
   )
 }

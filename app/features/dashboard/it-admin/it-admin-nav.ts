@@ -27,7 +27,6 @@ export type ItAdminSubMenuItem = {
     | 'sharedStock'
     | 'purchaseDocuments'
     | 'purchaseInvoices'
-    | 'reconciliation'
     | 'usageImport'
     | 'deviceCollectors'
     | 'licenseOptimization'
@@ -37,13 +36,15 @@ export type ItAdminSubMenuItem = {
     | 'saasIssues'
     | 'identities'
     | 'renewals'
+    | 'catalogPlans'
+    | 'departmentSoftware'
 }
 export type ItAdminMenuItem = {
   children?: readonly ItAdminSubMenuItem[]
   directTabKey?: ItAdminTabKey
   icon: LucideIcon
   key: string
-  translationKey: 'overview' | 'licenses' | 'usageSources' | 'optimize' | 'deptCatalog' | 'departmentSoftware'
+  translationKey: 'overview' | 'licenses' | 'usageSources' | 'optimize' | 'deptCatalog'
 }
 export const itAdminMenuItems: readonly ItAdminMenuItem[] = [
   { key: 'overview', directTabKey: 'overview', icon: LayoutDashboard, translationKey: 'overview' },
@@ -59,7 +60,6 @@ export const itAdminMenuItems: readonly ItAdminMenuItem[] = [
       { key: 'saas-issues', icon: MessageSquare, translationKey: 'saasIssues' },
       { key: 'purchase-documents', icon: FileText, translationKey: 'purchaseDocuments' },
       { key: 'purchase-invoices', icon: FileText, translationKey: 'purchaseInvoices' },
-      { key: 'reconciliation', icon: FileText, translationKey: 'reconciliation' },
       { key: 'renewals', icon: CalendarClock, translationKey: 'renewals' }
     ]
   },
@@ -81,12 +81,14 @@ export const itAdminMenuItems: readonly ItAdminMenuItem[] = [
       { key: 'shadow-it', icon: ShieldAlert, translationKey: 'shadowIt' }
     ]
   },
-  { key: 'dept-catalog', directTabKey: 'dept-catalog', icon: Layers, translationKey: 'deptCatalog' },
   {
-    key: 'department-software',
-    directTabKey: 'department-software',
+    key: 'software-catalog',
     icon: Layers,
-    translationKey: 'departmentSoftware'
+    translationKey: 'deptCatalog',
+    children: [
+      { key: 'dept-catalog', icon: Layers, translationKey: 'catalogPlans' },
+      { key: 'department-software', icon: Layers, translationKey: 'departmentSoftware' }
+    ]
   }
 ]
 export function getParentMenuKey(tab: ItAdminTabKey): string {

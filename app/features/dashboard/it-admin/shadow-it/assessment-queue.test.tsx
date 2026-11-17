@@ -16,7 +16,17 @@ it('lists server assessment rows, pages on the server and opens an explicit requ
   const pages: string[] = []
   let lookup = ''
   server.use(
+    http.get('*/api/v1/assessment-queue/departments', () =>
+      HttpResponse.json({
+        success: true,
+        data: {
+          items: [{ department: { id: 'd1', name: 'Engineering' }, waiting: 21 }],
+          pagination: { page: 1, pageSize: 20, totalItems: 1, totalPages: 1 }
+        }
+      })
+    ),
     http.get('*/api/v1/assessment-queue', ({ request }) => {
+      expect(new URL(request.url).searchParams.get('departmentId')).toBe('d1')
       const page = new URL(request.url).searchParams.get('page') ?? '1'
       pages.push(page)
       return HttpResponse.json({
@@ -56,6 +66,7 @@ it('lists server assessment rows, pages on the server and opens an explicit requ
       <ItShadowItView />
     </QueryClientProvider>
   )
+  fireEvent.click(await screen.findByRole('button', { name: /Engineering/ }))
   expect(await screen.findByText('New drawing tool')).toBeInTheDocument()
   expect(screen.getByText('View only')).toBeInTheDocument()
   expect(lookup).toBe('')

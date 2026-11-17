@@ -29,14 +29,14 @@ export function ItShadowItView({
   return (
     <div className='space-y-5'>
       <h1 className='text-2xl font-semibold tracking-tight [text-wrap:balance]'>{translate('title')}</h1>
-      {!id && (
+      <div hidden={!!id}>
         <AssessmentQueue
           onOpen={(requestId, canAct) => {
             setQueueAllowsAction(canAct)
             setId(requestId)
           }}
         />
-      )}
+      </div>
       {id && (
         <button type='button' className={itButtonClass} onClick={() => setId('')}>
           {translate('queue.back')}

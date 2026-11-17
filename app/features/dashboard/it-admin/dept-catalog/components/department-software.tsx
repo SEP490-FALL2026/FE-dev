@@ -10,7 +10,7 @@ import { ItQueryState } from '../../shared/components/it-query-state'
 import { ItPagination } from '../../shared/components/it-pagination'
 import { ItFormDialog, itButtonClass, itPrimaryClass } from '../../shared/components/it-form'
 import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
-import { DepartmentSoftwareAdd } from './department-software-add'
+import { DepartmentSoftwareEditor } from './department-software-editor'
 
 export function DepartmentSoftware({
   departmentId,
@@ -36,7 +36,7 @@ export function DepartmentSoftware({
   })
   const mutation = useDepartmentSoftwareListChange({ mutation: feedback })
   const remove = Object.keys(selected)
-  if (adding) return <DepartmentSoftwareAdd departmentId={departmentId} onClose={() => setAdding(false)} />
+  if (adding) return <DepartmentSoftwareEditor departmentId={departmentId} onClose={() => setAdding(false)} />
   return (
     <section className='space-y-5'>
       <button type='button' className={itButtonClass} onClick={onBack}>
@@ -53,7 +53,7 @@ export function DepartmentSoftware({
           onClick={() => setAdding(true)}
           disabled={!canManage || query.isError}
         >
-          {translate('add')}
+          {translate('editSelection')}
         </button>
       </header>
       <p className='max-w-3xl text-sm text-muted-foreground'>{translate('description')}</p>

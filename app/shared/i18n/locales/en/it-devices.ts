@@ -20,6 +20,10 @@ export const itDevices = {
   hostname: 'Hostname',
   os: 'Operating system',
   holderEmployeeId: 'Holder employee ID',
+  filterDepartment: 'Department',
+  filterHolder: 'Device holder',
+  allDepartments: 'All departments',
+  allHolders: 'All employees',
   handedOverOn: 'Handover date',
   holder: 'Change holder',
   retire: 'Retire device',
@@ -152,8 +156,9 @@ export const itDevices = {
   },
   hints: {
     search: 'Find a company machine by its asset code or hostname.',
-    holderFilter:
-      'Choose a department, then a member to filter their current machines. Clear the field to show all holders.',
+    holderFilter: 'Select an employee to filter their assigned devices.',
+    filterDepartment: 'Select a department to find employees; devices are filtered after choosing an employee.',
+    chooseDepartmentFirst: 'Select a department first to see its employees.',
     collectionState: 'Acknowledgement permits collection; it does not confirm the collector is sending data.',
     credentials:
       'Credentials belong to this handover registration. Revoking one prevents that collector from submitting more data.',

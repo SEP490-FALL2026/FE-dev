@@ -29,6 +29,7 @@ export function ItField({
           id?: string
           type?: string
           required?: boolean
+          readOnly?: boolean
           'aria-label'?: string
           placeholder?: string
           'aria-describedby'?: string
@@ -42,10 +43,10 @@ export function ItField({
     (control.type === 'textarea' ||
       (control.type === 'input' && !['date', 'file', 'checkbox', 'radio'].includes(control.props.type ?? 'text')))
   return (
-    <div className='grid min-w-0 gap-1.5 text-sm font-medium'>
+    <div className='it-form-field grid min-w-0 content-start gap-1.5 text-sm font-medium'>
       <label htmlFor={controlId}>
         {label}
-        {control?.props.required && (
+        {control?.props.required && !control.props.readOnly && (
           <span aria-hidden='true' className='ml-1 text-danger'>
             *
           </span>
@@ -72,6 +73,7 @@ export function ItField({
           {error ?? hint}
         </span>
       )}
+      {!hint && !error && <span aria-hidden='true' />}
     </div>
   )
 }

@@ -12,8 +12,12 @@ it('marks only required controls in the field label', () => {
       <ItField label={labels.optional}>
         <input />
       </ItField>
+      <ItField label='Fixed value'>
+        <input required readOnly value='VND' />
+      </ItField>
     </>
   )
   expect(screen.getByText('Required field').parentElement).toHaveTextContent('*')
   expect(screen.getByText('Optional field').parentElement).not.toHaveTextContent('*')
+  expect(screen.getByText('Fixed value').parentElement).not.toHaveTextContent('*')
 })

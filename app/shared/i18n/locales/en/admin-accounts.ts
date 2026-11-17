@@ -14,6 +14,9 @@ export const adminAccounts = {
   },
   releaseDepartureBlock: 'Release access block after cancelled departure',
   roleHelp: 'Choose the role that will replace the current role. New access permissions apply from the next request.',
+  inviteRoleHelp: 'Choose the initial role for the invited account.',
+  spendingApproverInviteHelp:
+    'To appoint a spending approver, invite the person as an employee. Once they activate their account, change their role to spending approver.',
   employeeHelp: 'Choose an employee without an account. The activation invitation goes to their work email address.',
   emailFromPersonnel:
     'The login and invitation address comes from the employee record. Update the record before creating the account to change this address.',
@@ -41,7 +44,8 @@ export const adminAccounts = {
   directRoles: 'Direct roles',
   none: 'None',
   unknown: 'Unknown',
-  candidateLimit: 'Up to 20 employees without an account are shown. Refine your search to find someone else.',
+  candidateLimit:
+    'Up to {{count}} employees without an account are shown. Search by name, employee code or work email to find someone else.',
   selectEmployee: 'Select an employee before continuing.',
   emailHint: 'Leave blank to use the employee’s work email.',
   lock: 'Lock account',

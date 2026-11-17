@@ -56,13 +56,18 @@ it('creates an application with its first plan using the current contract', asyn
   fireEvent.change(screen.getByLabelText('Vendor name'), { target: { value: 'Supplier' } })
   fireEvent.change(screen.getByLabelText('Plan name'), { target: { value: 'Team' } })
   fireEvent.click(screen.getByLabelText('Shared workspace'))
+  fireEvent.click(screen.getByLabelText('Full control'))
   fireEvent.click(screen.getByRole('button', { name: 'Save' }))
   await waitFor(() =>
     expect(request).toHaveBeenCalledWith(
       expect.objectContaining({
         method: 'POST',
         url: expect.stringMatching(/\/api\/v1\/applications$/),
-        data: { name: 'Design suite', vendorName: 'Supplier', plan: { name: 'Team', provisioningType: 'K2' } }
+        data: {
+          name: 'Design suite',
+          vendorName: 'Supplier',
+          plan: { name: 'Team', provisioningType: 'K2', controlLevel: 'FULL', dataLossOnRemoval: false }
+        }
       }),
       undefined
     )

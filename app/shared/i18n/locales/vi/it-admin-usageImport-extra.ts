@@ -26,7 +26,7 @@ export const itAdminUsageImportExtra = {
   extractionNotice: '* Dữ liệu trích xuất tự động được đối chiếu trực tiếp với các trường chỉnh sửa bên cạnh.',
   mappingTitle: 'Dữ liệu trích xuất & Ánh xạ gói',
   readyToReview: 'Sẵn sàng kiểm tra',
-  vendor: 'Nhà cung cấp (Vendor):',
+  vendor: 'Nhà cung cấp:',
   documentIssued: 'Ngày chứng từ:',
   catalogMapping: 'Ánh xạ tới Phần mềm & Gói danh mục:',
   openCatalog: 'Chưa có gói? Mở Danh mục phòng ban',

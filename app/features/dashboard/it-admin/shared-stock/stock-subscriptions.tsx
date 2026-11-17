@@ -9,23 +9,21 @@ import { ItPagination } from '../shared/components/it-pagination'
 import { ItQueryState } from '../shared/components/it-query-state'
 import { itButtonClass, itPrimaryClass } from '../shared/components/it-form'
 import { useDashboardFormat } from '../../dashboard-ui'
+import { StockHolders } from './stock-holders'
+import { StockMetrics } from './stock-metrics'
 
 function StockSeatUsage({ id }: { id: string }) {
   const { t } = useTranslation('itAdmin')
-  const { formatNumber } = useDashboardFormat()
   const query = useSubscriptionSeatUsage(id)
   return (
     <ItQueryState query={query}>
-      <dl className='flex flex-wrap gap-6'>
-        {(['purchased', 'occupied', 'free'] as const).map((key) => (
-          <div key={key}>
-            <dt className='text-xs text-muted-foreground'>{t(`stock.${key}`)}</dt>
-            <dd className='font-mono tabular-nums'>
-              {query.data?.data?.[key] == null ? t('unknown') : formatNumber(query.data.data[key])}
-            </dd>
-          </div>
-        ))}
-      </dl>
+      <StockMetrics
+        items={(['free', 'purchased', 'occupied'] as const).map((key) => ({
+          label: t(`stock.${key}`),
+          value: query.data?.data?.[key] ?? null,
+          highlight: key === 'free'
+        }))}
+      />
     </ItQueryState>
   )
 }
@@ -35,7 +33,7 @@ export function StockSubscriptions({
   onBack,
   onOpenGrants
 }: {
-  plan: PlanPageResponseDtoDataItemsItem
+  plan: Pick<PlanPageResponseDtoDataItemsItem, 'id' | 'name' | 'applicationId' | 'applicationName' | 'provisioningType'>
   onBack: () => void
   onOpenGrants?: () => void
 }) {
@@ -45,6 +43,7 @@ export function StockSubscriptions({
   const [page, setPage] = useState(1)
   const [vault, setVault] = useState<string>()
   const [baseline, setBaseline] = useState(false)
+  const [holders, setHolders] = useState<string>()
   const query = useSubscriptionList({ planId: plan.id, page, pageSize: 20 })
   if (baseline)
     return (
@@ -75,53 +74,67 @@ export function StockSubscriptions({
       </section>
     )
   return (
-    <section className='space-y-5'>
+    <section className='space-y-6'>
       <button type='button' className={itButtonClass} onClick={onBack}>
         {t('stock.back')}
       </button>
-      <header>
-        <p className='text-sm font-medium text-primary'>
-          {t(plan.provisioningType === 'K2' ? 'stock.seats' : 'stock.keys')}
+      <header className='space-y-2 border-b border-border pb-5'>
+        <p className='text-xs font-semibold uppercase tracking-wider text-primary'>
+          {t(
+            plan.provisioningType === 'K2'
+              ? 'stock.seats'
+              : plan.provisioningType === 'K4'
+                ? 'stock.keys'
+                : plan.provisioningType === 'K1'
+                  ? 'stock.personal'
+                  : 'stock.other'
+          )}
         </p>
-        <h1 className='mt-1 text-2xl font-semibold'>{plan.applicationName}</h1>
-        <p className='mt-1 text-muted-foreground'>{plan.name}</p>
+        <h1 className='text-2xl font-semibold tracking-tight'>{plan.applicationName}</h1>
+        <p className='text-base font-medium text-muted-foreground'>{plan.name}</p>
       </header>
-      <div className='flex flex-wrap items-start justify-between gap-4 border-y border-border py-5'>
-        <div className='max-w-2xl space-y-1'>
-          <h2 className='font-semibold'>
-            {t(plan.provisioningType === 'K2' ? 'stock.baseline' : 'stock.keyActionTitle')}
-          </h2>
-          <p className='text-sm text-muted-foreground'>
-            {t(plan.provisioningType === 'K2' ? 'stock.baselineDescription' : 'stock.keyActionDescription')}
-          </p>
+      {(plan.provisioningType === 'K2' || plan.provisioningType === 'K4') && (
+        <div className='flex flex-wrap items-start justify-between gap-4 rounded-lg border border-border bg-surface p-5'>
+          <div className='max-w-2xl space-y-1'>
+            <h2 className='font-semibold'>
+              {t(plan.provisioningType === 'K2' ? 'stock.baseline' : 'stock.keyActionTitle')}
+            </h2>
+            <p className='text-sm text-muted-foreground'>
+              {t(plan.provisioningType === 'K2' ? 'stock.baselineDescription' : 'stock.keyActionDescription')}
+            </p>
+          </div>
+          {plan.provisioningType === 'K2' && (
+            <button type='button' className={itPrimaryClass} onClick={() => setBaseline(true)}>
+              {t('stock.baseline')}
+            </button>
+          )}
         </div>
-        {plan.provisioningType === 'K2' && (
-          <button type='button' className={itPrimaryClass} onClick={() => setBaseline(true)}>
-            {t('stock.baseline')}
-          </button>
-        )}
-      </div>
+      )}
       {plan.provisioningType === 'K2' && onOpenGrants && (
-        <div className='flex flex-wrap items-center justify-between gap-3'>
+        <div className='flex flex-wrap items-center justify-between gap-3 rounded-lg bg-surface-subtle p-4'>
           <p className='max-w-2xl text-sm text-muted-foreground'>{t('stock.purchaseHint')}</p>
           <button type='button' className={itButtonClass} onClick={onOpenGrants}>
             {t('stock.openGrants')}
           </button>
         </div>
       )}
-      <h2 className='font-semibold'>{t('stock.subscriptions')}</h2>
+      <h2 className='border-b border-border pb-3 text-lg font-semibold'>{t('stock.subscriptions')}</h2>
       {plan.provisioningType === 'K4' && <p className='text-sm text-muted-foreground'>{t('stock.keyCapacityHint')}</p>}
       <ItQueryState query={query}>
         {query.data?.data?.items.length ? (
           <div className='space-y-3'>
             {query.data.data.items.map((item) => (
               <article key={item.id} className='space-y-4 rounded-lg border border-border bg-surface p-5'>
-                <div className='flex flex-wrap items-center justify-between gap-3'>
-                  <div>
-                    <p className='font-medium'>{item.planName || plan.name}</p>
+                <div className='flex flex-wrap items-start justify-between gap-4 border-b border-border/70 pb-4'>
+                  <div className='space-y-1'>
+                    <p className='text-base font-semibold'>{item.planName || plan.name}</p>
                     <p className='text-sm text-muted-foreground'>
                       {t('stock.status')}:{' '}
-                      {item.status ? catalogText(`enums.${item.status}`, { defaultValue: t('unknown') }) : t('unknown')}
+                      <span className='font-medium text-foreground'>
+                        {item.status
+                          ? catalogText(`enums.${item.status}`, { defaultValue: t('unknown') })
+                          : t('unknown')}
+                      </span>
                     </p>
                     {item.startDate && item.endDate && (
                       <p className='text-sm text-muted-foreground'>
@@ -129,13 +142,24 @@ export function StockSubscriptions({
                       </p>
                     )}
                   </div>
-                  {plan.provisioningType === 'K4' && (
-                    <button type='button' className={itPrimaryClass} onClick={() => setVault(item.id)}>
-                      {t('stock.openKeys')}
+                  <div className='flex flex-wrap gap-2'>
+                    {plan.provisioningType === 'K4' && (
+                      <button type='button' className={itPrimaryClass} onClick={() => setVault(item.id)}>
+                        {t('stock.openKeys')}
+                      </button>
+                    )}
+                    <button
+                      type='button'
+                      className={itButtonClass}
+                      aria-expanded={holders === item.id}
+                      onClick={() => setHolders((previous) => (previous === item.id ? undefined : item.id))}
+                    >
+                      {t('stock.viewHolders')}
                     </button>
-                  )}
+                  </div>
                 </div>
-                <StockSeatUsage id={item.id} />
+                {plan.provisioningType === 'K2' && <StockSeatUsage id={item.id} />}
+                {holders === item.id && <StockHolders key={item.id} subscriptionId={item.id} />}
               </article>
             ))}
           </div>

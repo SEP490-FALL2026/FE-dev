@@ -7,6 +7,11 @@
   .it-workspace h3 {
     text-wrap: balance;
   }
+  .it-workspace > :is(section, div) > header:has(h1),
+  .it-workspace > :is(section, div) > h1 {
+    border-bottom: 1px solid var(--theme-border);
+    padding-bottom: 1.25rem;
+  }
   .it-eyebrow {
     color: var(--theme-muted-foreground);
     font-size: 0.6875rem;

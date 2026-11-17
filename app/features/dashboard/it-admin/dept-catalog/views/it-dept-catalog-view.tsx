@@ -6,11 +6,14 @@ import { ItPagination } from '../../shared/components/it-pagination'
 import { itButtonClass, itInputClass, itPrimaryClass } from '../../shared/components/it-form'
 import type { ItAdminTabKey } from '../../it-admin-nav'
 import { CatalogApplicationForm } from '../components/catalog-application-form'
-import { CatalogApplicationDetail } from '../components/catalog-application-detail'
 import { CatalogTermWarnings } from '../components/catalog-term-warnings'
 import { CatalogPlanTerms } from '../components/catalog-plan-terms'
 import { CatalogFunctionalGroups } from '../components/catalog-functional-groups'
 import { DepartmentSoftware } from '../components/department-software'
+import { CatalogApplicationCard } from '../components/catalog-application-card'
+import { CatalogPlanSetup, type SetupPlan } from '../components/catalog-plan-setup'
+import { CatalogPurchaseForm } from '../components/catalog-purchase-form'
+import { CatalogApplicationEdit } from '../components/catalog-application-edit'
 export function ItDeptCatalogView({
   initialView = 'applications',
   departmentId,
@@ -31,10 +34,12 @@ export function ItDeptCatalogView({
     return () => window.clearTimeout(timer)
   }, [search])
   const [page, setPage] = useState(1)
-  const [selected, setSelected] = useState<string>()
   const [creating, setCreating] = useState(false)
   const [view, setView] = useState(initialView)
   const [termsPlan, setTermsPlan] = useState<string>()
+  const [addingPlan, setAddingPlan] = useState<{ id: string; kind: string }>()
+  const [editingApplication, setEditingApplication] = useState('')
+  const [setup, setSetup] = useState<{ plan: SetupPlan; kind: string }>()
   const query = useApplicationList(
     { search: debouncedSearch || undefined, page, pageSize: 20 },
     { query: { enabled: view === 'applications' && !termsPlan } }
@@ -49,10 +54,11 @@ export function ItDeptCatalogView({
       />
     )
   if (termsPlan) return <CatalogPlanTerms planId={termsPlan} onBack={() => setTermsPlan(undefined)} />
-  if (selected) return <CatalogApplicationDetail id={selected} onBack={() => setSelected(undefined)} />
+  if (setup)
+    return <CatalogPlanSetup plan={setup.plan} applicationKind={setup.kind} onBack={() => setSetup(undefined)} />
   return (
-    <section className='space-y-5'>
-      <header className='flex flex-wrap items-center justify-between gap-3'>
+    <section className='space-y-6'>
+      <header className='flex flex-wrap items-center justify-between gap-3 border-b border-border pb-5'>
         <h1 className='text-2xl font-semibold tracking-tight [text-wrap:balance]'>{translate('title')}</h1>
         {view === 'applications' && (
           <button className={itPrimaryClass} disabled={query.isError} onClick={() => setCreating(true)}>
@@ -104,25 +110,15 @@ export function ItDeptCatalogView({
             }}
           />
           <ItQueryState query={query}>
-            <div className='grid gap-3'>
+            <div className='grid gap-4'>
               {query.data?.data?.items.map((item) => (
-                <article
+                <CatalogApplicationCard
                   key={item.id}
-                  className='flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-surface p-4'
-                >
-                  <div className='min-w-0 flex-1'>
-                    <h2 className='truncate font-semibold [text-wrap:balance]' title={item.name}>
-                      {item.name}
-                    </h2>
-                    <p className='text-sm text-muted-foreground'>
-                      {translate(`enums.${item.kind}`, { defaultValue: translate('unknown') })} ·{' '}
-                      {translate(`enums.${item.status}`, { defaultValue: translate('unknown') })}
-                    </p>
-                  </div>
-                  <button className={itButtonClass} onClick={() => setSelected(item.id)}>
-                    {translate('details')}
-                  </button>
-                </article>
+                  item={item}
+                  onEdit={() => setEditingApplication(item.id)}
+                  onAddPlan={() => setAddingPlan({ id: item.id, kind: item.kind })}
+                  onSetup={(plan) => setSetup({ plan, kind: item.kind })}
+                />
               ))}
               {query.data?.data?.items.length === 0 && <ItEmpty />}
             </div>
@@ -135,7 +131,35 @@ export function ItDeptCatalogView({
           />
         </>
       )}
-      {creating && <CatalogApplicationForm onClose={() => setCreating(false)} />}
+      {creating && (
+        <CatalogApplicationForm
+          onClose={() => setCreating(false)}
+          onUseExisting={(name) => {
+            setCreating(false)
+            setSearch(name)
+            setPage(1)
+          }}
+          onCreated={(plan) => {
+            setCreating(false)
+            setSetup({ plan, kind: plan.provisioningType === 'K5' ? 'INTERNAL' : 'SAAS' })
+          }}
+        />
+      )}
+      {addingPlan && (
+        <CatalogPurchaseForm
+          mode='plan'
+          applicationId={addingPlan.id}
+          applicationKind={addingPlan.kind}
+          onClose={() => setAddingPlan(undefined)}
+          onPlanCreated={(plan) => {
+            setSetup({ plan, kind: addingPlan.kind })
+            setAddingPlan(undefined)
+          }}
+        />
+      )}
+      {editingApplication && (
+        <CatalogApplicationEdit id={editingApplication} onClose={() => setEditingApplication('')} />
+      )}
     </section>
   )
 }

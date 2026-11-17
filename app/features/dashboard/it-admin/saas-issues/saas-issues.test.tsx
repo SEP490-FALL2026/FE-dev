@@ -12,6 +12,20 @@ afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
 beforeEach(async () => {
   await setAppLanguage('en', false)
+  server.use(
+    http.get('*/api/v1/me', () =>
+      HttpResponse.json({ success: true, data: { roles: ['IT_ADMIN'], employee: { id: 'it1' } } })
+    ),
+    http.get('*/api/v1/departments', () =>
+      HttpResponse.json({
+        success: true,
+        data: {
+          items: [{ id: 'd1', name: 'Design', code: 'D', itAdmin: { employeeId: 'it1', usable: true } }],
+          pagination: { page: 1, pageSize: 100, totalItems: 1, totalPages: 1 }
+        }
+      })
+    )
+  )
 })
 
 it('loads all-scope SaaS issues with server state filtering and pagination', async () => {
@@ -34,13 +48,15 @@ it('loads all-scope SaaS issues with server state filtering and pagination', asy
       <ItSaasIssuesView />
     </QueryClientProvider>
   )
+  fireEvent.click(await screen.findByRole('button', { name: /Design/ }))
   await screen.findByText('No matching records.')
   fireEvent.click(screen.getByRole('combobox', { name: 'State' }))
   fireEvent.click(screen.getByRole('option', { name: 'In progress' }))
   await waitFor(() => expect(calls.at(-1)?.get('state')).toBe('IN_PROGRESS'))
   fireEvent.click(screen.getByRole('button', { name: 'Next' }))
   await waitFor(() => expect(calls.at(-1)?.get('page')).toBe('2'))
-  expect(calls.at(-1)?.get('scope')).toBe('assigned')
+  expect(calls.at(-1)?.get('scope')).toBe('all')
+  expect(calls.at(-1)?.get('departmentId')).toBe('d1')
 })
 
 it('shows a retry state for failed reads instead of demo issues', async () => {
@@ -61,6 +77,7 @@ it('shows a retry state for failed reads instead of demo issues', async () => {
       <ItSaasIssuesView />
     </QueryClientProvider>
   )
+  fireEvent.click(await screen.findByRole('button', { name: /Design/ }))
   fireEvent.click(await screen.findByRole('button', { name: 'Try again' }))
   expect(await screen.findByText('No matching records.')).toBeInTheDocument()
 })

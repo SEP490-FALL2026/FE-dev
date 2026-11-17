@@ -27,7 +27,9 @@ it('reads the dashboard, keeps source-only and unavailable sections uncounted, a
         success: true,
         data: {
           asOf: '2026-11-03',
+          calendar: { from: '2026-11-03', to: '2026-11-17' },
           sections: {
+            departures: { upcoming: section('COUNTED', 1, null) },
             congestion: section('AT_SOURCE', null, 'stepCongestionList'),
             backgroundJobs: section('NOT_AVAILABLE', null, null),
             approverConfiguration: section('AT_SOURCE', null, 'appUserList'),
@@ -50,12 +52,18 @@ it('reads the dashboard, keeps source-only and unavailable sections uncounted, a
     </QueryClientProvider>
   )
   const metrics = await screen.findByRole('region', { name: 'Operational overview' })
+  const configuration = await screen.findByRole('heading', { name: 'Configuration to review' })
+  expect(configuration.compareDocumentPosition(metrics) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  expect(screen.queryByText('Upcoming departures')).not.toBeInTheDocument()
+  expect(screen.queryByRole('region', { name: /personnel and access/i })).not.toBeInTheDocument()
   expect(within(metrics).getByText('4')).toBeInTheDocument()
   expect(within(metrics).getByText('7')).toBeInTheDocument()
   expect(within(metrics).getAllByText('0')).toHaveLength(1)
   expect(within(metrics).getByText('No data source yet')).toBeInTheDocument()
   fireEvent.click(within(metrics).getByRole('button', { name: 'Review personnel notices' }))
   expect(selectTab).toHaveBeenCalledWith('personnel', { section: 'notices' })
+  fireEvent.click(within(metrics).getByRole('button', { name: 'Review account candidates' }))
+  expect(selectTab).toHaveBeenCalledWith('personnel', { action: 'invite' })
   await waitFor(() => expect(screen.getByRole('button', { name: 'Refresh data' })).toBeEnabled())
   fireEvent.click(screen.getByRole('button', { name: 'Refresh data' }))
   await waitFor(() => expect(reads).toBe(2))

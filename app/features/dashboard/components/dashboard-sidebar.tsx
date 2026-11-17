@@ -21,7 +21,7 @@ import { employeeMenuItems, type EmployeeTabKey } from '../employee'
 import { managerNavItems, type ManagerTabKey } from '../manager'
 import { approvalNavItems, type ApprovalTabKey } from '../approvals'
 import { FinanceSidebarNav, type FinanceTabKey } from '../finance'
-import { superAdminNavItems, type SuperAdminTabKey } from '../super-admin'
+import { getParentSuperAdminTab, superAdminNavItems, type SuperAdminTabKey } from '../super-admin'
 
 const fallbackNavigationItems = [
   { icon: Grid2X2, key: 'overview' },
@@ -251,7 +251,7 @@ export function DashboardSidebar({
           ) : isSuperAdmin ? (
             <ul className='space-y-1.5'>
               {superAdminNavItems.map((item) => {
-                const isCurrent = activeSuperAdminTab === item.key
+                const isCurrent = getParentSuperAdminTab(activeSuperAdminTab) === item.key
                 const Icon = item.icon
 
                 return (

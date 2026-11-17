@@ -96,7 +96,7 @@ export function AssessmentFields({
           />
         </ItField>
       </fieldset>
-      <div className='grid gap-4 sm:grid-cols-2'>
+      <div className='grid gap-4 sm:grid-cols-2 [&>.it-form-field]:row-span-3 [&>.it-form-field]:grid-rows-subgrid'>
         {(
           [
             'vendorName',

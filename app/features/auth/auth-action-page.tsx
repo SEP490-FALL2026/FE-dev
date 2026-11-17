@@ -63,6 +63,7 @@ export function AuthActionPage({ action }: { action: AuthAction }) {
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [validationError, setValidationError] = useState<'mismatch' | 'policy' | null>(null)
   const [retrySeconds, setRetrySeconds] = useState(0)
@@ -230,28 +231,46 @@ export function AuthActionPage({ action }: { action: AuthAction }) {
               )}
               {action !== 'forgot' && (
                 <>
-                  <label className='block text-sm font-medium'>
-                    {translate('actions.newPassword')}
-                    <input
-                      autoComplete='new-password'
-                      aria-invalid={invalidPassword || undefined}
-                      aria-describedby={
-                        validationError === 'policy' ? 'auth-password-policy auth-local-error' : 'auth-password-policy'
-                      }
-                      aria-description={
-                        invalidFields.has(action === 'activate' ? 'password' : 'newPassword')
-                          ? translate('actions.validation')
-                          : undefined
-                      }
-                      className='mt-2 h-11 w-full rounded-lg border border-border bg-background px-3.5 text-base outline-none focus:border-primary'
-                      onChange={(event) => setNewPassword(event.target.value)}
-                      minLength={12}
-                      maxLength={128}
-                      required
-                      type='password'
-                      value={newPassword}
-                    />
-                  </label>
+                  <div className='block text-sm font-medium'>
+                    <label htmlFor='new-password'>{translate('actions.newPassword')}</label>
+                    <div className='relative'>
+                      <input
+                        id='new-password'
+                        autoComplete='new-password'
+                        aria-invalid={invalidPassword || undefined}
+                        aria-describedby={
+                          validationError === 'policy'
+                            ? 'auth-password-policy auth-local-error'
+                            : 'auth-password-policy'
+                        }
+                        aria-description={
+                          invalidFields.has(action === 'activate' ? 'password' : 'newPassword')
+                            ? translate('actions.validation')
+                            : undefined
+                        }
+                        className='mt-2 h-11 w-full rounded-lg border border-border bg-background pr-12 pl-3.5 text-base outline-none focus:border-primary'
+                        onChange={(event) => setNewPassword(event.target.value)}
+                        minLength={12}
+                        maxLength={128}
+                        required
+                        type={showPassword ? 'text' : 'password'}
+                        value={newPassword}
+                      />
+                      <button
+                        type='button'
+                        aria-label={translate(showPassword ? 'password.hide' : 'password.show')}
+                        aria-pressed={showPassword}
+                        className='absolute right-1 top-2 grid size-11 place-items-center rounded-md text-muted-foreground hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary'
+                        onClick={() => setShowPassword((value) => !value)}
+                      >
+                        {showPassword ? (
+                          <EyeOff aria-hidden='true' className='size-5' />
+                        ) : (
+                          <Eye aria-hidden='true' className='size-5' />
+                        )}
+                      </button>
+                    </div>
+                  </div>
                   <p id='auth-password-policy' className='text-xs leading-5 text-muted-foreground'>
                     {translate('actions.passwordPolicy')}
                   </p>

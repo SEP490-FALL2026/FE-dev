@@ -22,6 +22,9 @@ export const itNewSoftware = {
     opinion: 'Ý kiến nhận được, ngày và căn cứ liên quan'
   },
   queue: {
+    chooseDepartment: 'Chọn phòng ban',
+    waitingCount: '{{count}} yêu cầu đang chờ',
+    backDepartments: 'Quay lại phòng ban',
     title: 'Chờ thẩm định',
     total: '{{count}} yêu cầu',
     users: '{{count}} người dùng',

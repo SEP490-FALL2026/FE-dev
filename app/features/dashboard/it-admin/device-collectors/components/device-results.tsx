@@ -50,7 +50,7 @@ function Usage({ id, mine }: { id: string; mine: boolean }) {
   const data = query.data?.data
   return (
     <div className='space-y-4'>
-      <div className='grid gap-4 sm:grid-cols-2'>
+      <div className='grid gap-4 sm:grid-cols-2 [&>.it-form-field]:row-span-3 [&>.it-form-field]:grid-rows-subgrid'>
         <ItField label={translate('from')} hint={translate('hints.from')}>
           <input
             type='date'
@@ -212,7 +212,7 @@ function Rejections({ id }: { id: string }) {
           <div className='divide-y divide-border/40'>
             {data.items.map((item) => (
               <article key={item.id} className='space-y-2 py-4 text-sm'>
-                <p>{translate(`reasons.${item.reasonCode}`, { defaultValue: item.reasonCode })}</p>
+                <p>{translate(`reasons.${item.reasonCode}`, { defaultValue: translate('unknown') })}</p>
                 <p className='text-xs text-muted-foreground'>{formatDateTime(item.rejectedAt)}</p>
                 <p className='break-all font-mono text-xs'>{item.endpoint}</p>
               </article>

@@ -93,7 +93,11 @@ export function EmployeePanel({
         ]),
     { name: 'fullName', maxLength: 200, initial: employee?.fullName },
     { name: 'workEmail', type: 'email', maxLength: 254, optional: true, initial: employee?.workEmail ?? '' },
-    { name: 'employmentType', options: employmentTypes, initial: employee?.employmentType },
+    {
+      name: 'employmentType',
+      options: action === 'create' ? employmentTypes.filter((type) => type !== 'INTERN') : employmentTypes,
+      initial: employee?.employmentType
+    },
     { name: 'hireDate', type: 'date', initial: employee?.hireDate },
     { name: 'contractEndDate', type: 'date', optional: true, initial: contractDate ?? '' },
     { name: 'jobTitle', maxLength: 1000, optional: true, initial: employee?.jobTitle ?? '' }

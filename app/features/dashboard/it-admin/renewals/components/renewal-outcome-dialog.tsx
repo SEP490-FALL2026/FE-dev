@@ -77,6 +77,7 @@ export function RenewalOutcomeDialog({
       <p className='text-sm text-muted-foreground'>{translate('outcomeHint')}</p>
       <ItChoiceSelect
         label={translate('outcome')}
+        required
         value={outcome}
         options={Object.values(RenewalOutcome).map((value) => ({ value, label: translate(`values.${value}`) }))}
         onChange={(value) => {
@@ -111,7 +112,7 @@ export function RenewalOutcomeDialog({
         </label>
       )}
       {showPeriod && (
-        <fieldset className='grid gap-4 sm:grid-cols-2'>
+        <fieldset className='grid gap-4 sm:grid-cols-2 [&>.it-form-field]:row-span-3 [&>.it-form-field]:grid-rows-subgrid'>
           <legend className='mb-3 font-semibold'>{translate('nextPeriod')}</legend>
           <ItField label={translate('purchasedQuantity')} hint={translate('fieldHints.purchasedQuantity')}>
             <input
@@ -128,6 +129,7 @@ export function RenewalOutcomeDialog({
           </ItField>
           <ItChoiceSelect
             label={translate('billingCycle')}
+            required
             value={billingCycle}
             options={Object.values(BillingCycle).map((value) => ({ value, label: translate(`values.${value}`) }))}
             onChange={(value) => {
@@ -174,7 +176,7 @@ export function RenewalOutcomeDialog({
               className={itInputClass}
             />
           </ItField>
-          <div className='grid content-center gap-2'>
+          <div className='row-span-3 grid content-center gap-2'>
             {(['autoRenew', 'allowsMidTermReduction'] as const).map((key) => (
               <label key={key} className='flex min-h-11 items-center gap-2 text-sm'>
                 <input type='checkbox' name={key} />

@@ -93,7 +93,10 @@ function TermsFields({
           </button>
         </div>
       )}
-      <div className='grid gap-4 sm:grid-cols-2' onChange={onDirty}>
+      <div
+        className='grid gap-4 sm:grid-cols-2 [&>.it-form-field]:row-span-3 [&>.it-form-field]:grid-rows-subgrid'
+        onChange={onDirty}
+      >
         <ItField label={translate('terms.termsUrl')} hint={translate('terms.help.termsUrl')}>
           <input
             name='termsUrl'

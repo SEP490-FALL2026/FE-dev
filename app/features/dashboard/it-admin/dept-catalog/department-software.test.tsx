@@ -5,8 +5,36 @@ import { expect, it, vi } from 'vitest'
 import { customAxios } from '~/shared/api/mutator/custom-axios'
 import { setAppLanguage } from '~/shared/i18n/i18n'
 import { DepartmentSoftware } from './components/department-software'
+import { ItDepartmentSoftwareView } from './views/it-department-software-view'
 
 vi.mock('~/shared/api/mutator/custom-axios', () => ({ customAxios: vi.fn() }))
+
+it('opens software suggestions for the chosen department', async () => {
+  await setAppLanguage('en', false)
+  vi.mocked(customAxios).mockImplementation(async (config) => {
+    if (config.url?.endsWith('/me')) return { data: { roles: ['IT_ADMIN'], employee: { id: 'it1' } } }
+    if (config.url?.endsWith('/departments'))
+      return {
+        data: {
+          items: [{ id: 'd1', name: 'Design', code: 'D', itAdmin: { employeeId: 'it1', usable: true } }],
+          pagination: { totalPages: 1 }
+        }
+      }
+    if (config.url?.endsWith('/departments/d1'))
+      return { data: { id: 'd1', name: 'Design', itAdmin: { employeeId: 'it1', usable: true } } }
+    return { data: { items: [], pagination: { totalItems: 0 } } }
+  })
+  render(
+    <MemoryRouter>
+      <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+        <ItDepartmentSoftwareView />
+      </QueryClientProvider>
+    </MemoryRouter>
+  )
+  expect(await screen.findByText('Design')).toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button', { name: 'Choose' }))
+  expect(await screen.findByRole('button', { name: /back/i })).toBeInTheDocument()
+})
 
 it('removes only selected entry identifiers without replacing entries on other pages', async () => {
   await setAppLanguage('en', false)

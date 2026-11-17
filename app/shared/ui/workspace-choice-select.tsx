@@ -27,6 +27,7 @@ export function WorkspaceChoiceSelect({
   state,
   footer,
   hint,
+  alignedField = false,
   labels
 }: {
   label: string
@@ -44,6 +45,7 @@ export function WorkspaceChoiceSelect({
   state?: ReactNode
   footer?: ReactNode
   hint?: string
+  alignedField?: boolean
   labels: { selectedCount: (count: number) => string; selectedList: string; remove: (name: string) => string }
 }) {
   const [open, setOpen] = useState(false)
@@ -73,7 +75,9 @@ export function WorkspaceChoiceSelect({
   return (
     <div
       ref={root}
-      className='relative min-w-0 space-y-2'
+      className={
+        alignedField ? 'it-form-field relative grid min-w-0 content-start gap-1.5' : 'relative min-w-0 space-y-2'
+      }
       onBlur={(event) => {
         if (event.relatedTarget && !event.currentTarget.contains(event.relatedTarget)) changeOpen(false)
       }}
@@ -155,6 +159,7 @@ export function WorkspaceChoiceSelect({
           {hint}
         </p>
       )}
+      {alignedField && !hint && <span aria-hidden='true' />}
       {expanded && (
         <div className='absolute inset-x-0 top-full z-20 mt-1 rounded-lg border border-border bg-surface p-3 shadow-lg'>
           {search && (

@@ -1,4 +1,4 @@
-import { AxiosError, AxiosHeaders, type InternalAxiosRequestConfig } from 'axios'
+import { AxiosError, AxiosHeaders, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
 import { onlineManager } from '@tanstack/react-query'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -144,6 +144,73 @@ describe('auth session', () => {
     expect(sessionStorage.getItem('saas-sentry.refresh-token')).toBeNull()
   })
 
+  it('does not clear a newer login when an older refresh is rejected', async () => {
+    sessionStorage.setItem('saas-sentry.refresh-token', 'refresh-old')
+    let rejectOld!: (error: unknown) => void
+    apiClient.defaults.adapter = async (config) => {
+      if (config.url?.endsWith('/auth/refresh'))
+        return new Promise((_, reject) => {
+          rejectOld = reject
+        })
+      return {
+        config,
+        data: config.url?.endsWith('/me') ? me : tokenPair('new'),
+        headers: new AxiosHeaders(),
+        status: 200,
+        statusText: 'OK'
+      }
+    }
+    const oldRefresh = refreshAccessToken()
+    await vi.waitFor(() => expect(rejectOld).toBeDefined())
+    await login('person@example.com', 'secret')
+    rejectOld(
+      new AxiosError('invalid session', 'ERR_BAD_REQUEST', undefined, undefined, {
+        data: { error: { code: 'AUTH.SESSION_INVALID' } },
+        status: 401
+      } as never)
+    )
+    await expect(oldRefresh).rejects.toBeInstanceOf(AxiosError)
+    expect(getAuthState().status).toBe('authenticated')
+    expect(JSON.parse(localStorage.getItem('saas-sentry.auth-tokens') ?? 'null').refreshToken).toBe('refresh-new')
+  })
+
+  it('does not share an old session refresh with a newer login', async () => {
+    sessionStorage.setItem('saas-sentry.refresh-token', 'refresh-old')
+    let resolveOld!: (response: AxiosResponse) => void
+    let oldConfig!: InternalAxiosRequestConfig
+    apiClient.defaults.adapter = async (config) => {
+      if (config.url?.endsWith('/auth/refresh')) {
+        if (JSON.parse(config.data as string).refreshToken === 'refresh-old') {
+          oldConfig = config
+          return new Promise((resolve) => {
+            resolveOld = resolve
+          })
+        }
+        return { config, data: tokenPair('rotated'), headers: new AxiosHeaders(), status: 200, statusText: 'OK' }
+      }
+      return {
+        config,
+        data: config.url?.endsWith('/me') ? me : tokenPair('new'),
+        headers: new AxiosHeaders(),
+        status: 200,
+        statusText: 'OK'
+      }
+    }
+    const oldRefresh = refreshAccessToken()
+    await vi.waitFor(() => expect(resolveOld).toBeDefined())
+    await login('person@example.com', 'secret')
+    const newRefresh = refreshAccessToken()
+    resolveOld({
+      config: oldConfig,
+      data: tokenPair('old'),
+      headers: new AxiosHeaders(),
+      status: 200,
+      statusText: 'OK'
+    })
+    await expect(oldRefresh).resolves.toBeNull()
+    await expect(newRefresh).resolves.toBe('access-rotated')
+  })
+
   it('updates apiRoles permissions when /me is read again after a responsibility change', async () => {
     const client = createQueryClient()
     configureAuthQueryClient(client)
@@ -176,6 +243,49 @@ describe('auth session', () => {
 
     expect(getAuthSession()?.user.roles).toEqual(['EMPLOYEE'])
   })
+
+  it('shows a recoverable state when checking a session takes too long without duplicating refresh', async () => {
+    sessionStorage.setItem('saas-sentry.refresh-token', 'refresh-one')
+    let finishRefresh!: (value: AxiosResponse) => void
+    let refreshConfig!: InternalAxiosRequestConfig
+    const requests: string[] = []
+    apiClient.defaults.adapter = async (config) => {
+      requests.push(config.url ?? '')
+      if (config.url?.endsWith('/auth/refresh')) {
+        refreshConfig = config
+        return new Promise((resolve) => {
+          finishRefresh = resolve
+        })
+      }
+      return { config, data: me, headers: new AxiosHeaders(), status: 200, statusText: 'OK' }
+    }
+    try {
+      const initialization = initializeAuthSession()
+      await vi.waitFor(() => expect(getAuthState().status).toBe('unavailable'), { timeout: 10000, interval: 50 })
+      expect(getAuthState().status).toBe('unavailable')
+      const retry = initializeAuthSession()
+      expect(requests.filter((url) => url.endsWith('/auth/refresh'))).toHaveLength(1)
+      finishRefresh({
+        config: refreshConfig,
+        data: tokenPair('two'),
+        headers: new AxiosHeaders(),
+        status: 200,
+        statusText: 'OK'
+      })
+      await Promise.all([initialization, retry])
+      expect(getAuthState().status).toBe('authenticated')
+    } finally {
+      if (getAuthState().status !== 'authenticated' && finishRefresh) {
+        finishRefresh({
+          config: refreshConfig,
+          data: tokenPair('two'),
+          headers: new AxiosHeaders(),
+          status: 200,
+          statusText: 'OK'
+        })
+      }
+    }
+  }, 15000)
 
   it('stops checking after a profile timeout without retrying, retains the token, and allows recovery', async () => {
     sessionStorage.setItem('saas-sentry.refresh-token', 'refresh-one')

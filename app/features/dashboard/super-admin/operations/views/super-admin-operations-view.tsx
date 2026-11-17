@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useControlledWaitList } from '~/shared/api/generated/operations/controlled-waits/controlled-wait-list'
 import { useStepCongestionList } from '~/shared/api/generated/operations/step-congestion/step-congestion-list'
 import { getStepCongestionIncidentListQueryKey } from '~/shared/api/generated/operations/step-congestion/step-congestion-incident-list'
 import { useStepCongestionIncidentRecord } from '~/shared/api/generated/operations/step-congestion/step-congestion-incident-record'
@@ -40,10 +39,8 @@ export function SuperAdminOperationsView() {
 
 function WorkflowMonitoring() {
   const { t: translate } = useTranslation('admin')
-  const { formatDateTime, formatNumber } = useDashboardFormat()
-  const [waitPage, setWaitPage] = useState(1)
+  const { formatNumber } = useDashboardFormat()
   const [congestionPage, setCongestionPage] = useState(1)
-  const waits = useControlledWaitList({ page: waitPage, pageSize: 20 })
   const congestion = useStepCongestionList({ page: congestionPage, pageSize: 20 })
   const [incident, setIncident] = useState<{ holderEmployeeId: string | null; description: string } | null>(null)
   const [selectedHolder, setSelectedHolder] = useState<string | null | undefined>(undefined)
@@ -54,47 +51,6 @@ function WorkflowMonitoring() {
   return (
     <div className='space-y-6'>
       <h1 className='text-2xl font-semibold tracking-tight [text-wrap:balance]'>{translate('operations.title')}</h1>
-      <section className='space-y-4 rounded-lg border border-border bg-surface p-5'>
-        <h2 className='font-semibold'>{translate('operations.waits')}</h2>
-        <AdminQueryState query={waits}>
-          {!waits.data?.data?.items.length && <AdminEmpty />}
-          <ul className='divide-y divide-border/40'>
-            {waits.data?.data?.items.map((item) => (
-              <li key={item.stepId} className='space-y-2 py-4 text-sm'>
-                <div className='flex flex-wrap justify-between gap-3'>
-                  <p className='truncate font-medium' title={item.department.name}>
-                    {item.department.name}
-                  </p>
-                  <time className='text-right font-mono text-xs tabular-nums' dateTime={item.waitingSince}>
-                    {formatDateTime(item.waitingSince)}
-                  </time>
-                </div>
-                <p>
-                  {translate(`operations.waitReasons.${item.waitingReason}`, { defaultValue: translate('unknown') })}
-                </p>
-                <div className='grid min-w-0 gap-1 text-muted-foreground'>
-                  <p className='flex min-w-0 flex-wrap items-baseline gap-x-2'>
-                    <span>
-                      {translate('operations.requester')}
-                      {': '}
-                    </span>
-                    <span className='truncate' title={item.requester.fullName}>
-                      {item.requester.fullName}
-                    </span>
-                    <span className='font-mono text-xs tabular-nums'>{item.requester.employeeCode}</span>
-                  </p>
-                  <p>{translate(`operations.stepKinds.${item.stepKind}`, { defaultValue: translate('unknown') })}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-          <AdminPagination
-            pagination={waits.data?.data?.pagination}
-            disabled={waits.isFetching}
-            onPageChange={setWaitPage}
-          />
-        </AdminQueryState>
-      </section>
       <section className='space-y-4 rounded-lg border border-border bg-surface p-5'>
         <h2 className='font-semibold'>{translate('operations.congestion')}</h2>
         <AdminQueryState query={congestion}>

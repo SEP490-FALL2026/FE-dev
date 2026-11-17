@@ -1,10 +1,17 @@
 import { expect, it } from 'vitest'
-import { isValidItAdminTab, itAdminMenuItems } from './it-admin-nav'
+import { getParentMenuKey, isValidItAdminTab, itAdminMenuItems } from './it-admin-nav'
 
-it('exposes the backend reconciliation workflow', () => {
-  expect(isValidItAdminTab('reconciliation')).toBe(true)
+it('groups the catalog and department configuration under software catalog', () => {
+  const group = itAdminMenuItems.find((item) => item.key === 'software-catalog')
+  expect(group?.children?.map((child) => child.key)).toEqual(['dept-catalog', 'department-software'])
+  expect(getParentMenuKey('dept-catalog')).toBe('software-catalog')
+  expect(getParentMenuKey('department-software')).toBe('software-catalog')
+})
+
+it('does not expose reconciliation in the IT administrator workspace', () => {
+  expect(isValidItAdminTab('reconciliation')).toBe(false)
   const tabs: string[] = itAdminMenuItems.flatMap((item) => item.children ?? []).map((item) => item.key)
-  expect(tabs).toContain('reconciliation')
+  expect(tabs).not.toContain('reconciliation')
 })
 
 it('makes the shared stock workspace accessible from navigation', () => {

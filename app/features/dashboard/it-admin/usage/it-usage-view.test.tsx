@@ -20,8 +20,17 @@ it('uses the technical roster name and code without exposing unrelated personnel
   await setAppLanguage('en', false)
   const pagination = { totalItems: 1, totalPages: 1, page: 1, pageSize: 20 }
   vi.mocked(customAxios).mockImplementation(async (config) => {
+    if (config.url?.endsWith('/me')) return { data: { roles: ['IT_ADMIN'], employee: { id: 'it1' } } }
     if (config.url?.endsWith('/departments'))
-      return { data: { items: [{ id: 'd1', name: 'Design', code: 'D' }], pagination } }
+      return {
+        data: {
+          items: [
+            { id: 'd1', name: 'Design', code: 'D', itAdmin: { employeeId: 'it1', usable: true } },
+            { id: 'd2', name: 'Outside', code: 'O', itAdmin: { employeeId: 'other', usable: true } }
+          ],
+          pagination
+        }
+      }
     if (config.url?.includes('/technical-members'))
       return {
         data: {
@@ -48,12 +57,20 @@ it('uses the technical roster name and code without exposing unrelated personnel
   })
   render(
     <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
-      <MemoryRouter>
+      <MemoryRouter initialEntries={['/?departmentSearch=missing']}>
         <ItUsageView />
       </MemoryRouter>
     </QueryClientProvider>
   )
-  fireEvent.click(await screen.findByRole('button', { name: 'Open department' }))
+  expect(await screen.findByText('Design')).toBeInTheDocument()
+  expect(screen.queryByText('Outside')).not.toBeInTheDocument()
+  expect(screen.queryByRole('heading', { name: 'Usage by department' })).not.toBeInTheDocument()
+  expect(screen.queryByLabelText('From date')).not.toBeInTheDocument()
+  expect(screen.queryByRole('textbox', { name: 'Find department' })).not.toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Import history' })).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Find department' })).not.toBeInTheDocument()
+  expect(vi.mocked(customAxios).mock.calls.some(([config]) => config.url?.includes('/usage-overview'))).toBe(false)
+  fireEvent.click(screen.getByRole('button', { name: 'Open department' }))
   expect(await screen.findByText('EMP-1')).toBeInTheDocument()
   expect(screen.getByText('Technical Member')).toBeInTheDocument()
   expect(screen.queryByText('private@example.invalid')).not.toBeInTheDocument()
