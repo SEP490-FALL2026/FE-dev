@@ -19,8 +19,6 @@ export const admin = {
     personnel: 'Nhân sự',
     reminders: 'Tham số vận hành',
     policies: 'Thư viện chính sách',
-    settings: 'Cấu hình hệ thống',
-    transfer: 'Điều chuyển phòng ban',
     operations: 'Giám sát quy trình'
   },
   loading: 'Đang tải…',
@@ -132,8 +130,6 @@ export const admin = {
     departments: 'Phòng ban',
     accounts: 'Tài khoản và trách nhiệm',
     personnel: 'Nhân sự',
-    settings: 'Cấu hình vận hành',
-    audit: 'Nhật ký kiểm toán',
     operations: 'Giám sát quy trình',
     steps: {
       ORGANIZATION: 'Tổ chức',

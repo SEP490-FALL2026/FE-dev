@@ -1,10 +1,11 @@
 import type { ApprovalTabKey } from './enums'
 import { ApprovalAnnualBudgetView } from './annual-budget/views/approval-annual-budget-view'
+import { ApprovalMonitorView } from './monitor/views/approval-monitor-view'
+import { ApprovalInYearView } from './in-year/views/approval-in-year-view'
 import { ApprovalVersionHistoryView } from './annual-budget/views/approval-version-history-view'
 import { ApprovalQueueView } from './queue/views/spend-queue-view'
 import { ApprovalRequestView } from './queue/views/spend-request-view'
 import { ApprovalBatchView } from './queue/views/spend-batch-view'
-import { ApprovalNeedView } from './need/views/approval-need-view'
 import { ApprovalsOverviewView } from './overview/views/approvals-overview-view'
 
 interface ApprovalScreenProps {
@@ -25,10 +26,12 @@ export function ApprovalScreen({ itemId, onSelectTab, tab }: ApprovalScreenProps
       return <ApprovalRequestView itemId={itemId} onSelectTab={onSelectTab} />
     case 'batch':
       return <ApprovalBatchView itemId={itemId} onSelectTab={onSelectTab} />
-    case 'need':
-      return <ApprovalNeedView itemId={itemId} onSelectTab={onSelectTab} />
     case 'annual-budget':
       return <ApprovalAnnualBudgetView itemId={itemId} onSelectTab={onSelectTab} />
+    case 'in-year':
+      return <ApprovalInYearView itemId={itemId} onSelectTab={onSelectTab} />
+    case 'monitor':
+      return <ApprovalMonitorView itemId={itemId} onSelectTab={onSelectTab} />
     case 'version-history':
       return <ApprovalVersionHistoryView itemId={itemId} onSelectTab={onSelectTab} />
   }

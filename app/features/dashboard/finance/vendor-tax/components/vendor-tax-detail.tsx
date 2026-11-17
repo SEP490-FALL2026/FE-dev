@@ -82,8 +82,8 @@ export function VendorTaxDetail({ id, name, onClose }: { id: string; name: strin
                       {groupLabel(version.group)}
                     </p>
                     <p className='text-xs text-muted-foreground'>
-                      {translate('declaredBy')}: {version.declaredBy} · {translate('declaredAt')}:{' '}
-                      <span className='tabular-nums'>{version.declaredAt}</span>
+                      {translate('declaredAt')}:{' '}
+                      <span className='tabular-nums'>{new Date(version.declaredAt).toLocaleString()}</span>
                     </p>
                   </header>
                   <FinanceTable items={version.lines} rowKey={taxLineKey} columns={columns} />

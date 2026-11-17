@@ -25,6 +25,9 @@ export const namespaceLoaders: Record<SupportedLanguage, Record<TranslationNames
     approvalsNeed: () => import('./locales/vi/approvals-need').then((module) => module.approvalsNeed),
     finance: () => import('./locales/vi/finance').then((module) => module.finance),
     financeBudget: () => import('./locales/vi/finance-budget').then((module) => module.financeBudget),
+    financeReview: () => import('./locales/vi/finance-review').then((module) => module.financeReview),
+    financePurchases: () => import('./locales/vi/finance-purchases').then((module) => module.financePurchases),
+    financeRequests: () => import('./locales/vi/finance-requests').then((module) => module.financeRequests),
     financeSettings: () => import('./locales/vi/finance-settings').then((module) => module.financeSettings),
     itNewSoftware: () => import('./locales/vi/it-new-software').then((module) => module.itNewSoftware),
     itAdmin: () => import('./locales/vi/it-admin').then((module) => module.itAdmin),
@@ -44,6 +47,8 @@ export const namespaceLoaders: Record<SupportedLanguage, Record<TranslationNames
     errors: () => Promise.resolve(initialResources.vi.errors),
     landing: () => import('./locales/vi/landing').then((module) => module.landing),
     notFound: () => Promise.resolve(initialResources.vi.notFound),
+    policyAcknowledgement: () =>
+      import('./locales/vi/policy-acknowledgement').then((module) => module.policyAcknowledgement),
     theme: () => Promise.resolve(initialResources.vi.theme)
   },
   en: {
@@ -66,6 +71,9 @@ export const namespaceLoaders: Record<SupportedLanguage, Record<TranslationNames
     approvalsNeed: () => import('./locales/en/approvals-need').then((module) => module.approvalsNeed),
     finance: () => import('./locales/en/finance').then((module) => module.finance),
     financeBudget: () => import('./locales/en/finance-budget').then((module) => module.financeBudget),
+    financeReview: () => import('./locales/en/finance-review').then((module) => module.financeReview),
+    financePurchases: () => import('./locales/en/finance-purchases').then((module) => module.financePurchases),
+    financeRequests: () => import('./locales/en/finance-requests').then((module) => module.financeRequests),
     financeSettings: () => import('./locales/en/finance-settings').then((module) => module.financeSettings),
     itNewSoftware: () => import('./locales/en/it-new-software').then((module) => module.itNewSoftware),
     itAdmin: () => import('./locales/en/it-admin').then((module) => module.itAdmin),
@@ -85,6 +93,8 @@ export const namespaceLoaders: Record<SupportedLanguage, Record<TranslationNames
     errors: () => Promise.resolve(initialResources.en.errors),
     landing: () => import('./locales/en/landing').then((module) => module.landing),
     notFound: () => Promise.resolve(initialResources.en.notFound),
+    policyAcknowledgement: () =>
+      import('./locales/en/policy-acknowledgement').then((module) => module.policyAcknowledgement),
     theme: () => Promise.resolve(initialResources.en.theme)
   }
 }

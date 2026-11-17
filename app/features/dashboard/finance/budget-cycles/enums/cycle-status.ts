@@ -1,6 +1,6 @@
 import { CycleResponseDtoDataStatus } from '~/shared/api/generated/model/budget-cycles'
 
-/** Publication state of a budget cycle, as the contract defines it. */
+/** Lifecycle of a budget cycle: a draft, then open for proposals, then locked after the submission deadline. */
 export const CYCLE_STATUS = CycleResponseDtoDataStatus
 export type CycleStatus = (typeof CYCLE_STATUS)[keyof typeof CYCLE_STATUS]
 
@@ -8,12 +8,12 @@ export function isCycleStatus(value: string): value is CycleStatus {
   return (Object.values(CYCLE_STATUS) as string[]).includes(value)
 }
 
-/** The division of the ceiling can be published again only before the first publication or after a change. */
-export function canPublishCycle(status: CycleStatus): boolean {
-  return status !== CYCLE_STATUS.PUBLISHED
+/** Only a draft can be opened (heads are notified) or deleted. */
+export function canOpenCycle(status: CycleStatus): boolean {
+  return status === CYCLE_STATUS.DRAFT
 }
 
-/** The deadlines, priorities and ceiling can be edited only while the cycle is not published. */
+/** Ceiling, shared-pool reserve, deadlines and priorities change until the cycle locks. */
 export function canEditCycle(status: CycleStatus): boolean {
-  return status !== CYCLE_STATUS.PUBLISHED
+  return status !== CYCLE_STATUS.LOCKED
 }

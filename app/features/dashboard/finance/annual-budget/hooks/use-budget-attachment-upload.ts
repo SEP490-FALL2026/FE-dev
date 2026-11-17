@@ -6,6 +6,7 @@ import { useBudgetAttachmentComplete } from '~/shared/api/generated/operations/b
 import { useBudgetAttachmentDiscard } from '~/shared/api/generated/operations/budgets/budget-attachment-discard'
 import { useBudgetVersionAttachmentDeclare } from '~/shared/api/generated/operations/budgets/budget-version-attachment-declare'
 import { PresignedUploadError, uploadToPresignedUrl } from '~/shared/api/presigned-upload'
+import { completeUpload, isUploadPending } from '../../shared/complete-upload'
 import { useFinanceFeedback } from '../../shared/hooks/use-finance-feedback'
 import { attachmentFileProblem } from '../enums/attachment-rules'
 
@@ -50,11 +51,13 @@ export function useBudgetAttachmentUpload(versionId: string, queryKeys: readonly
       if (!declared.data) throw new PresignedUploadError(null)
       declaredId = declared.data.attachment.id
       await uploadToPresignedUrl(declared.data.upload, file)
-      await complete.mutateAsync({ id: declaredId })
+      const attachmentId = declaredId
+      await completeUpload(() => complete.mutateAsync({ id: attachmentId }))
       declaredId = undefined
       await feedback.onSuccess()
     } catch (error) {
-      if (declaredId) await discard.mutateAsync({ id: declaredId }).catch(() => undefined)
+      // A file the storage still has not seen may yet arrive and is left to expire; any other failure discards the declaration.
+      if (declaredId && !isUploadPending(error)) await discard.mutateAsync({ id: declaredId }).catch(() => undefined)
       if (error instanceof PresignedUploadError) {
         await Promise.all(queryKeys.map((queryKey) => queryClient.invalidateQueries({ queryKey })))
         toast.error(translate('errors.attachmentUpload'), { id: 'finance-write' })

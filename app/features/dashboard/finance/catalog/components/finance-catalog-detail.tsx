@@ -5,6 +5,7 @@ import { PlanListProvisioningType } from '../enums/provisioning-type'
 
 import type { ApplicationPageResponseDtoDataItemsItem } from '~/shared/api/generated/model/applications'
 import { usePlanList } from '~/shared/api/generated/operations/plans'
+import { useApplicationGet } from '~/shared/api/generated/operations/applications'
 import {
   FinanceButton,
   FinanceDrawer,
@@ -18,6 +19,7 @@ import {
 import { FinanceTable } from '../../shared/components/finance-table'
 import { FinanceCatalogSubscriptions } from './finance-catalog-subscriptions'
 import { CatalogEnumFilter } from './catalog-enum-filter'
+import { CatalogPlanDetail } from './catalog-plan-detail'
 
 export function FinanceCatalogDetail({
   application,
@@ -30,6 +32,8 @@ export function FinanceCatalogDetail({
   const [page, setPage] = useState(1)
   const [provisioningType, setProvisioningType] = useState<PlanListProvisioningType | ''>('')
   const [plan, setPlan] = useState<{ id: string; name: string } | null>(null)
+  const [openPlan, setOpenPlan] = useState<{ id: string; name: string } | null>(null)
+  const detail = useApplicationGet(application.id).data?.data
   const plans = usePlanList({
     applicationId: application.id,
     provisioningType: provisioningType || undefined,
@@ -51,6 +55,24 @@ export function FinanceCatalogDetail({
             value={<span className='font-sans'>{application.vendor?.name ?? '—'}</span>}
           />
           <FinanceStat label={translate('status')} value={<FinanceStatus value={application.status} />} />
+          {detail && (
+            <>
+              <FinanceStat
+                label={translate('catalogDetail.functionalGroup')}
+                value={<span className='font-sans'>{detail.functionalGroup?.name ?? translate('unavailable')}</span>}
+              />
+              <FinanceStat
+                label={translate('catalogDetail.responsibleItAdmin')}
+                value={
+                  <span className='font-sans'>{detail.responsibleItAdmin?.fullName ?? translate('unavailable')}</span>
+                }
+              />
+              <FinanceStat
+                label={translate('catalogDetail.dataSensitivity')}
+                value={<span className='font-sans'>{enumLabel(detail.dataSensitivity)}</span>}
+              />
+            </>
+          )}
         </FinanceStatGrid>
       </FinanceSection>
       <FinanceSection title={translate('plans')}>
@@ -68,7 +90,7 @@ export function FinanceCatalogDetail({
           <FinanceTable
             items={plans.data?.data?.items ?? []}
             rowKey={(item) => item.id}
-            onOpen={setPlan}
+            onOpen={(item) => setOpenPlan({ id: item.id, name: item.name })}
             columns={[
               { key: 'name', label: translate('plan'), render: (item) => item.name },
               {
@@ -90,6 +112,17 @@ export function FinanceCatalogDetail({
             {translate('clearPlanFilter')}
           </FinanceButton>
         </div>
+      )}
+      {openPlan && (
+        <CatalogPlanDetail
+          planId={openPlan.id}
+          name={openPlan.name}
+          onShowSubscriptions={() => {
+            setPlan(openPlan)
+            setOpenPlan(null)
+          }}
+          onClose={() => setOpenPlan(null)}
+        />
       )}
       <FinanceCatalogSubscriptions key={plan?.id ?? application.id} applicationId={application.id} planId={plan?.id} />
     </FinanceDrawer>

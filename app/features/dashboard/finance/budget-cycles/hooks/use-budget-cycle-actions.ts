@@ -2,33 +2,36 @@ import {
   getBudgetCycleGetQueryKey,
   getBudgetCycleListQueryKey,
   getBudgetCyclePackageQueryKey,
+  useBudgetCycleCreate,
+  useBudgetCycleDelete,
   useBudgetCycleOpen,
-  useBudgetCyclePublish,
-  useBudgetCycleUpdate,
-  useBudgetDepartmentCeilingsSet
+  useBudgetCycleUpdate
 } from '~/shared/api/generated/operations/budget-cycles'
+import { useBudgetVersionCreate } from '~/shared/api/generated/operations/budget-versions/budget-version-create'
 import { useFinanceFeedback } from '../../shared/hooks/use-finance-feedback'
 
-/** Mutations of one budget cycle; each refreshes the list, the cycle and its package after BE confirms. */
-export function useBudgetCycleActions(year: number | undefined, onOpened?: (openedYear: number) => void) {
+/** Mutations of budget cycles; each refreshes the list, the cycle and its package after BE confirms. */
+export function useBudgetCycleActions(year: number | undefined, onCreated?: (createdYear: number) => void) {
   const cycleKeys = [
     getBudgetCycleListQueryKey(),
     ...(year === undefined ? [] : [getBudgetCycleGetQueryKey(year), getBudgetCyclePackageQueryKey(year)])
   ]
-  const openFeedback = useFinanceFeedback([getBudgetCycleListQueryKey()])
+  const listFeedback = useFinanceFeedback([getBudgetCycleListQueryKey()])
   const feedback = useFinanceFeedback(cycleKeys)
   return {
-    open: useBudgetCycleOpen({
+    create: useBudgetCycleCreate({
       mutation: {
         onSuccess: async (response, variables) => {
-          await openFeedback.onSuccess()
-          onOpened?.(response.data?.year ?? variables.data.year)
+          await listFeedback.onSuccess()
+          onCreated?.(response.data?.year ?? variables.data.year)
         },
-        onError: openFeedback.onError
+        onError: listFeedback.onError
       }
     }),
     update: useBudgetCycleUpdate({ mutation: feedback }),
-    setCeilings: useBudgetDepartmentCeilingsSet({ mutation: feedback }),
-    publish: useBudgetCyclePublish({ mutation: feedback })
+    open: useBudgetCycleOpen({ mutation: feedback }),
+    /** First version of a department that sent no proposal, built from the baseline (`source = BASELINE`). */
+    buildFromBaseline: useBudgetVersionCreate({ mutation: feedback }),
+    remove: useBudgetCycleDelete({ mutation: listFeedback })
   }
 }

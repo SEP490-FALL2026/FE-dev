@@ -2,7 +2,6 @@ export const financeBudget = {
   proposals: 'Budget proposals',
   versions: 'Budget versions',
   budgets: 'Current budgets',
-  allYears: 'All years',
   allStates: 'All states',
   back: 'Back to list',
   backToVersion: 'Back to budget version',
@@ -10,7 +9,6 @@ export const financeBudget = {
   none: 'Not provided',
   lines: 'Planned lines',
   history: 'Version history',
-  lineHistory: 'Purchase window history',
   actions: {
     rebuild: 'Rebuild rejected version',
     return: 'Return proposal',
@@ -40,6 +38,10 @@ export const financeBudget = {
     total: 'Total',
     base: 'Base amount',
     reserve: 'Reserve amount',
+    reserveMode: 'Reserve entered as',
+    reservePercent: 'Reserve (% of base)',
+    carriedOver: 'Carried into next year',
+    shortfall: 'Shortfall',
     reserveReason: 'Reason for the reserve amount',
     baseReason: 'Reason for changing the base',
     lineType: 'Line type',
@@ -93,12 +95,6 @@ export const financeBudget = {
   },
   baseReasonHint: 'Give the reason when the base of a created version changes.',
   zbbHint: 'Short ZBB justification: fill all four fields or leave all four empty.',
-  lineTypes: {
-    RENEW: 'Renew',
-    CHANGE: 'Change',
-    NEW: 'New purchase',
-    CANCEL: 'Cancel'
-  },
   flags: {
     zbb: 'ZBB justification',
     overCeiling: 'Over department ceiling'
@@ -111,44 +107,59 @@ export const financeBudget = {
   },
   origins: {
     PROPOSAL: 'From the head proposal',
-    BASELINE_NO_HEAD: 'From baseline (no head)'
+    BASELINE_NO_HEAD: 'From baseline (no head)',
+    BASELINE_NO_PROPOSAL: 'From baseline (the department sent no proposal)',
+    ADJUSTMENT: 'Created by a budget adjustment'
   },
   budgetCycle: {
     title: 'Budget cycles',
-    open: 'Open budget cycle',
-    openTitle: 'Open budget cycle',
-    openSubmit: 'Open cycle',
+    create: 'Create budget cycle',
+    createTitle: 'Create budget cycle',
+    createSubmit: 'Create draft',
+    open: 'Open cycle',
+    delete: 'Delete draft',
+    available: 'Available for departments',
+    draftHint: 'Draft: heads are not notified yet. Open the cycle so departments can submit proposals.',
+    lockedHint: 'The cycle locked after the submission deadline: it can no longer be edited.',
+    unallocated: 'Unallocated',
+    overByWarning:
+      'The versions exceed the amount available to departments by {{amount}}. Lower this department or another.',
+    versionsAdjustmentNote: 'The versions total includes {{amount}} from approved budget adjustments.',
+    versionsOutsideListedNote:
+      'The versions total includes {{amount}} of departments no longer in the list (stopped departments).',
+    versionsInOtherCurrencyNote:
+      '{{count}} version(s) use another currency than the cycle and are left out of the total.',
+    buildFromBaseline: 'Build from baseline',
+    baselineRefusal: {
+      CYCLE_NOT_OPEN: 'The cycle is not open yet',
+      DEPARTMENT_NOT_IN_CYCLE: 'The department is not one of the year departments',
+      BEFORE_DEADLINE: 'Before the deadline: the head can still submit a proposal',
+      HAS_PROPOSAL: 'A proposal exists: build the version from it'
+    },
     detailTitle: 'Budget cycle {{year}}',
     annualCeiling: 'Annual software budget ceiling',
     ceilingHint: 'The figure set by leadership, in the reporting currency.',
     sharedPoolReserve: 'Reserve for shared software',
     sharedPoolHint:
       'A control figure for the cost of software shared across the company (it belongs to no department), not a fund.',
-    allocated: 'Allocated',
-    unallocated: 'Unallocated',
     submissionDeadline: 'Submission deadline',
     decisionDeadline: 'Decision deadline',
     edit: 'Edit cycle',
     editTitle: 'Edit budget cycle {{year}}',
     editSubmit: 'Save changes',
-    ceilingReason: 'Reason for the new ceiling',
-    ceilingReasonHint: 'Required when the annual ceiling changes. The cycle must be published again.',
-    lockedAfterPublish:
-      'The cycle is published: its details and the ceilings of the departments can no longer be changed, and it cannot be published again.',
-    yearPast: 'Only the current year or a later year can be opened.',
+    ceilingReason: 'Reason for the new amount',
+    ceilingReasonHint:
+      'While the cycle is open, moving the submission deadline or changing the annual ceiling or the shared-pool reserve needs a reason.',
+    reserveOverCeiling: 'The shared-pool reserve should not be larger than the annual ceiling.',
+    deadlinePast: 'While the cycle is open, the submission deadline cannot be earlier than today.',
+    openedAt: 'Opened {{time}}',
+    openConfirm: 'Open the cycle for {{year}}? Every department head is notified and can start submitting proposals.',
+    deleteConfirm: 'Delete the draft cycle of {{year}}? This cannot be undone.',
+    yearPast: 'Only the current year or a later year can be created.',
     deadlineOrder: 'The decision deadline must be on or after the submission deadline.',
     deadlines: 'Submit by {{submission}} · Decide by {{decision}}',
     priorities: 'Priorities',
-    publish: 'Publish department ceilings',
-    changedAfterPublish:
-      'The division changed since it was last published. Publish again so heads see the new figures.',
-    ceilingsTitle: 'Divide department ceilings',
-    saveCeilings: 'Save division',
     department: 'Department',
-    ceiling: 'Department ceiling',
-    explanation: 'Explanation',
-    explanationMissing:
-      '{{count}} department(s) have no explanation. Every department needs one before you can publish.',
     baseline: {
       computedAt: 'Computed at {{time}}',
       poolCost: 'Shared pool — unallocated (idle seats)',
@@ -167,10 +178,8 @@ export const financeBudget = {
     },
     baselineTitle: 'Baseline figures',
     packageTitle: 'Department package',
-    available: 'Available to departments',
     proposalsTotal: 'Proposals total',
     versionsTotal: 'Versions total',
-    overBy: 'Over the available amount',
     proposalsOverAvailable: 'Proposals add up to more than the ceiling leaves for departments.',
     proposal: 'Proposal',
     version: 'Version',
@@ -178,9 +187,9 @@ export const financeBudget = {
     noVersion: 'Not created',
     baselineAllowed: 'Can start from baseline',
     status: {
-      NOT_PUBLISHED: 'Not published',
-      PUBLISHED: 'Published',
-      CHANGED_AFTER_PUBLISH: 'Changed after publish'
+      DRAFT: 'Draft',
+      OPEN: 'Open',
+      LOCKED: 'Locked'
     },
     headStatus: {
       title: 'Department head',
@@ -206,15 +215,60 @@ export const financeBudget = {
     ATTACHMENT_ADDED: 'Attachment added',
     ATTACHMENT_REMOVED: 'Attachment removed'
   },
+  template: {
+    download: 'Download BM-10 template',
+    failed: 'Could not download the template.'
+  },
+  reserveMode: {
+    percent: 'Percent of base',
+    amount: 'Amount'
+  },
+  reservePercentHint:
+    'Whole number 0–100. Leave empty for the organisation default ({{percent}} %); any other share needs a reason.',
+  detail: {
+    submittedBy: 'Submitted by',
+    submittedAt: 'Submitted at',
+    returnedBy: 'Returned by',
+    returnedAt: 'Returned at',
+    returnReason: 'Reason for returning',
+    withdrawnAt: 'Withdrawn at',
+    closedAt: 'Closed at (fiscal year ended)',
+    resubmission: 'Resubmission',
+    resubmissionOf: 'Resubmitted after a return (previous proposal)',
+    successorOf: 'This proposal replaces an earlier one',
+    openPrevious: 'Open the previous proposal',
+    openSuccessor: 'Open the resubmitted proposal',
+    createdBy: 'Created by',
+    createdAt: 'Created at',
+    sentAt: 'Sent at',
+    expiredAt: 'Expired at',
+    baseReason: 'Reason the base changed',
+    reserveReason: 'Reason for a non-default reserve',
+    defaultReserve: 'Reserve at the current default',
+    decisionBy: 'Decided by',
+    decisionAt: 'Decided at',
+    decisionResult: 'Latest decision',
+    noDecision: 'No decision yet',
+    sentColumn: 'Sent at',
+    createdColumn: 'Created at'
+  },
+  versionNotices: {
+    waitingNoApprover:
+      'No Spending Approver is available, so the version waits under control. Nobody decides in their place; the Super Admin has been told.',
+    detached:
+      'The source proposal was withdrawn or returned, so this draft detached from it: it can no longer be edited or sent. Wait for a new proposal and build again.',
+    neverCurrent: 'The fiscal year ended before the version was approved, so it never became the current budget.',
+    expired: 'The version expired when the year closed; it stays for comparison only.'
+  },
+  versionFlags: {
+    belowCarriedOver:
+      'Base plus reserve is below what this Cost Center carries into the year. This only warns; it does not block sending or approval.',
+    noProposalSubmitted:
+      'Built from the baseline: the department sent no proposal. The Spending Approver sees this flag.'
+  },
   reserveReasonHint: 'A reserve other than the default needs a reason when the version is sent.',
   yearRange: 'Enter a four-digit year from 2000 to 2200.',
   fieldInvalid: 'Enter a valid value.',
-  revisionReasonHint: 'A revision needs a reason for the Spending Approver.',
-  windowOrder: 'The end date must be on or after the start date.',
-  amountHint: 'Non-negative decimal in {{currency}}.',
-  planHint: 'Optional. Link a plan so the Spending Approver can match it with the catalog.',
-  monthsHint: 'From 1 to 120 months.',
-  percentHint: 'Whole number from 0 to 100.',
   optionalHint: 'Optional.',
   returnHint: 'The department head sees this reason when revising the proposal.',
   placeholders: {
@@ -263,13 +317,8 @@ export const financeBudget = {
   sendHint: 'Send this version to the spending approver for a decision.',
   decimalHint: 'Enter a nonnegative decimal amount in the reporting currency.',
   invalid: 'Review the required fields and decimal amounts.',
-  importHint: 'Upload a budget line table. Maximum size: 2 MiB.',
-  fileTooLarge: 'Choose a file smaller than 2 MiB.',
   importResult: 'Added {{added}} lines; rejected {{rejected}} rows.',
-  importRow: 'Row {{row}}: {{code}}',
-  importRejected: 'This row was rejected. Review its values and try again.',
   system: 'System',
   yes: 'Yes',
-  no: 'No',
-  windowHint: 'Only the purchase window changes. Budget amounts stay the same.'
+  no: 'No'
 }

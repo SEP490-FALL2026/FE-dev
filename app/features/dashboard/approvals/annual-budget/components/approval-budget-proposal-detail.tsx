@@ -16,6 +16,15 @@ import { formatMoney } from '../../shared/approvals-money'
 import type { ApprovalBudgetViewProps } from '../budget-view-props'
 import { ApprovalBudgetAttachments } from './approval-budget-attachments'
 
+function Timestamp({ label, value }: { label: string; value: string }) {
+  return (
+    <div className='min-w-0'>
+      <dt className='text-xs text-muted-foreground'>{label}</dt>
+      <dd className='mt-1 font-mono text-sm tabular-nums'>{value}</dd>
+    </div>
+  )
+}
+
 export function ApprovalBudgetProposalDetail({ itemId, onSelectTab }: ApprovalBudgetViewProps & { itemId: string }) {
   const { t: translate, i18n } = useTranslation('approvalsBudget')
   const { formatDate, formatDateTime } = useDashboardFormat()
@@ -37,7 +46,15 @@ export function ApprovalBudgetProposalDetail({ itemId, onSelectTab }: ApprovalBu
           <div className='space-y-6'>
             <ApprovalsStatus value={proposal.state} />
             <ApprovalsStatGrid>
-              <ApprovalsStat label={translate('total')} value={formatMoney(proposal.total, i18n.language)} emphasis />
+              <ApprovalsStat
+                label={translate('requestedAmount')}
+                value={
+                  proposal.requestedAmount
+                    ? formatMoney(proposal.requestedAmount, i18n.language)
+                    : translate('unavailable')
+                }
+                emphasis
+              />
               <ApprovalsStat label={translate('year')} value={proposal.year} />
               <ApprovalsStat label={translate('submittedAt')} value={formatDate(proposal.submittedAt)} />
             </ApprovalsStatGrid>
@@ -55,23 +72,52 @@ export function ApprovalBudgetProposalDetail({ itemId, onSelectTab }: ApprovalBu
                     {proposal.submittedBy?.fullName ?? translate('unavailable')}
                   </dd>
                 </div>
+                {proposal.withdrawnAt && (
+                  <Timestamp label={translate('withdrawnAt')} value={formatDateTime(proposal.withdrawnAt)} />
+                )}
+                {proposal.succeededAt && (
+                  <Timestamp label={translate('succeededAt')} value={formatDateTime(proposal.succeededAt)} />
+                )}
+                {proposal.closedAt && (
+                  <Timestamp label={translate('closedAt')} value={formatDateTime(proposal.closedAt)} />
+                )}
+                {proposal.note && (
+                  <div className='min-w-0 sm:col-span-2'>
+                    <dt className='text-xs text-muted-foreground'>{translate('note')}</dt>
+                    <dd className='mt-1 text-sm whitespace-pre-wrap [overflow-wrap:anywhere]'>{proposal.note}</dd>
+                  </div>
+                )}
               </dl>
+              {(proposal.previousProposalId || proposal.successorProposalId) && (
+                <div className='mt-3 flex flex-wrap gap-2'>
+                  {proposal.previousProposalId && (
+                    <ApprovalsButton
+                      variant='ghost'
+                      onClick={() => onSelectTab('annual-budget', { id: `proposal:${proposal.previousProposalId}` })}
+                    >
+                      {translate('previousProposal')}
+                    </ApprovalsButton>
+                  )}
+                  {proposal.successorProposalId && (
+                    <ApprovalsButton
+                      variant='ghost'
+                      onClick={() => onSelectTab('annual-budget', { id: `proposal:${proposal.successorProposalId}` })}
+                    >
+                      {translate('successorProposal')}
+                    </ApprovalsButton>
+                  )}
+                </div>
+              )}
             </ApprovalsSection>
             {proposal.returned && (
               <ApprovalsSection title={translate('returnedTitle')}>
                 <div className='space-y-2 rounded-lg border border-border/70 bg-surface p-4'>
                   <p className='text-sm whitespace-pre-wrap [overflow-wrap:anywhere]'>{proposal.returned.reason}</p>
                   <p className='text-right font-mono text-xs text-muted-foreground tabular-nums'>
+                    {proposal.returned.by?.fullName ? `${proposal.returned.by.fullName} · ` : ''}
                     {formatDateTime(proposal.returned.at)}
                   </p>
                 </div>
-              </ApprovalsSection>
-            )}
-            {proposal.note && (
-              <ApprovalsSection title={translate('note')}>
-                <p className='rounded-lg border border-border/70 bg-surface p-4 text-sm whitespace-pre-wrap [overflow-wrap:anywhere]'>
-                  {proposal.note}
-                </p>
               </ApprovalsSection>
             )}
             <ApprovalBudgetAttachments target='proposal' ownerId={itemId} />

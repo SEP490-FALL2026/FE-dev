@@ -6,8 +6,6 @@ export type OverviewPeriodMode = 'year' | 'quarter' | 'month'
 export const overviewPeriodModes: readonly OverviewPeriodMode[] = ['year', 'quarter', 'month']
 export const quarterKeys = ['q1', 'q2', 'q3', 'q4'] as const
 export type QuarterKey = (typeof quarterKeys)[number]
-/** Planned split of a version by quarter; the budget version contract no longer returns one, so versions count as without a split. */
-export type QuarterSplit = Record<QuarterKey, { amount: string; currency: string }> | null
 
 export interface OverviewPeriod {
   year: number
@@ -138,34 +136,4 @@ export function sumPeriod(points: readonly MonthPoint[]) {
       amount: 0,
       count: 0
     })
-}
-
-export interface QuarterPoint {
-  quarter: QuarterKey
-  amount: number
-  inPeriod: boolean
-}
-
-/** Planned quarterly split summed across versions; versions without a split are counted separately. */
-export function plannedQuarters(
-  splits: readonly QuarterSplit[],
-  period: OverviewPeriod
-): { points: QuarterPoint[]; withoutSplit: number } {
-  const selected = new Set(periodMonths(period).map(quarterOfMonth))
-  const points = quarterKeys.map((quarter, index) => ({
-    quarter,
-    amount: 0,
-    inPeriod: selected.has(index + 1)
-  }))
-  let withoutSplit = 0
-  for (const split of splits) {
-    if (!split) {
-      withoutSplit += 1
-      continue
-    }
-    quarterKeys.forEach((quarter, index) => {
-      points[index].amount += toAmount(split[quarter])
-    })
-  }
-  return { points, withoutSplit }
 }

@@ -9,6 +9,9 @@ import { approvalsSpend as enApprovalsSpend } from './locales/en/approvals-spend
 import { approvalsNeed as enApprovalsNeed } from './locales/en/approvals-need'
 import { finance as enFinance } from './locales/en/finance'
 import { financeBudget as enFinanceBudget } from './locales/en/finance-budget'
+import { financeReview as enFinanceReview } from './locales/en/finance-review'
+import { financePurchases as enFinancePurchases } from './locales/en/finance-purchases'
+import { financeRequests as enFinanceRequests } from './locales/en/finance-requests'
 import { financeSettings as enFinanceSettings } from './locales/en/finance-settings'
 import { admin as enAdmin } from './locales/en/admin'
 import { adminAccounts as enAdminAccounts } from './locales/en/admin-accounts'
@@ -19,6 +22,7 @@ import { dashboard as enDashboard } from './locales/en/dashboard'
 import { errors as enErrors } from './locales/en/errors'
 import { landing as enLanding } from './locales/en/landing'
 import { notFound as enNotFound } from './locales/en/not-found'
+import { policyAcknowledgement as enPolicyAcknowledgement } from './locales/en/policy-acknowledgement'
 import { theme as enTheme } from './locales/en/theme'
 import { auth as viAuth } from './locales/vi/auth'
 import { approvals as viApprovals } from './locales/vi/approvals'
@@ -27,6 +31,9 @@ import { approvalsSpend as viApprovalsSpend } from './locales/vi/approvals-spend
 import { approvalsNeed as viApprovalsNeed } from './locales/vi/approvals-need'
 import { finance as viFinance } from './locales/vi/finance'
 import { financeBudget as viFinanceBudget } from './locales/vi/finance-budget'
+import { financeReview as viFinanceReview } from './locales/vi/finance-review'
+import { financePurchases as viFinancePurchases } from './locales/vi/finance-purchases'
+import { financeRequests as viFinanceRequests } from './locales/vi/finance-requests'
 import { financeSettings as viFinanceSettings } from './locales/vi/finance-settings'
 import { admin as viAdmin } from './locales/vi/admin'
 import { adminAccounts as viAdminAccounts } from './locales/vi/admin-accounts'
@@ -37,6 +44,7 @@ import { dashboard as viDashboard } from './locales/vi/dashboard'
 import { errors as viErrors } from './locales/vi/errors'
 import { landing as viLanding } from './locales/vi/landing'
 import { notFound as viNotFound } from './locales/vi/not-found'
+import { policyAcknowledgement as viPolicyAcknowledgement } from './locales/vi/policy-acknowledgement'
 import { theme as viTheme } from './locales/vi/theme'
 import { itAdmin as enItAdmin } from './locales/en/it-admin'
 import { itDepartmentWork as enItDepartmentWork } from './locales/en/it-department-work'
@@ -98,6 +106,9 @@ export const resources = {
     approvalsNeed: enApprovalsNeed,
     finance: enFinance,
     financeBudget: enFinanceBudget,
+    financeReview: enFinanceReview,
+    financePurchases: enFinancePurchases,
+    financeRequests: enFinanceRequests,
     financeSettings: enFinanceSettings,
     itNewSoftware: enItNewSoftware,
     itAdmin: enItAdmin,
@@ -117,6 +128,7 @@ export const resources = {
     errors: enErrors,
     landing: enLanding,
     notFound: enNotFound,
+    policyAcknowledgement: enPolicyAcknowledgement,
     theme: enTheme
   },
   vi: {
@@ -138,6 +150,9 @@ export const resources = {
     approvalsNeed: viApprovalsNeed,
     finance: viFinance,
     financeBudget: viFinanceBudget,
+    financeReview: viFinanceReview,
+    financePurchases: viFinancePurchases,
+    financeRequests: viFinanceRequests,
     financeSettings: viFinanceSettings,
     itNewSoftware: viItNewSoftware,
     itAdmin: viItAdmin,
@@ -157,6 +172,7 @@ export const resources = {
     errors: viErrors,
     landing: viLanding,
     notFound: viNotFound,
+    policyAcknowledgement: viPolicyAcknowledgement,
     theme: viTheme
   }
 } as const

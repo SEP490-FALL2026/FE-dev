@@ -48,7 +48,7 @@ export function ApprovalAnnualBudgetFilters({
           />
         </div>
         <div className='w-full sm:w-48'>
-          <ApprovalsField label={translate('year')} error={yearInvalid ? translate('yearRange') : null}>
+          <ApprovalsField label={translate('year')} floatingError error={yearInvalid ? translate('yearRange') : null}>
             <input
               type='number'
               inputMode='numeric'

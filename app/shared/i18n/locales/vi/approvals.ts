@@ -16,7 +16,9 @@ export const approvals = {
   nav: {
     overview: 'Tổng quan',
     queue: 'Hàng chờ duyệt',
-    annualBudget: 'Duyệt ngân sách năm'
+    annualBudget: 'Duyệt ngân sách năm',
+    monitor: 'Theo dõi yêu cầu có chi',
+    inYear: 'Ngân sách trong năm'
   },
   status: {
     ESTIMATE: 'Chi phí ước tính',
@@ -27,8 +29,10 @@ export const approvals = {
     PARTIAL: 'Kiểm soát một phần',
     UNCONTROLLABLE: 'Không thể kiểm soát',
     STOPPED: 'Đã dừng',
+    AWAITING_RESERVE_CONFIRMATION: 'Chờ trưởng phòng xác nhận dự phòng',
     WAITING_CONTROLLED: 'Chờ có kiểm soát',
     AWAITING_IT_ASSESSMENT: 'Chờ IT thẩm định',
+    AWAITING_REQUESTER_REVISION: 'Chờ người gửi chỉnh sửa',
     AWAITING_SPEND_DECISION: 'Chờ quyết định chi',
     IT_REJECTED: 'IT đã từ chối',
     EXECUTING: 'Đang thực hiện',
@@ -110,7 +114,64 @@ export const approvals = {
     RETURN_TO_HEAD: 'Trả về trưởng phòng',
     NEEDS_BUDGET: 'Cần điều chỉnh ngân sách'
   },
+  glossary: {
+    citation: 'Trích dẫn: {{policy}}, mục Quy định, điểm {{point}}.',
+    policies: {
+      'POL-GEN': 'Quy định chung về sử dụng phần mềm và bảo mật dữ liệu',
+      'POL-MF1': 'Chính sách cấp phát quyền dùng phần mềm',
+      'POL-MF4': 'Chính sách ngân sách phần mềm năm và rà soát trong năm'
+    },
+    terms: {
+      K1: {
+        label: 'gói cá nhân',
+        definition: 'gói tháng đăng ký trên email công ty của chính người dùng, dùng từ 1 đến 9 tháng.'
+      },
+      K2: {
+        label: 'kho dùng chung',
+        definition: 'gói Team hoặc Business trong kho dùng chung của công ty, có trang quản trị.'
+      },
+      'GH-1': {
+        label: 'giới hạn xin trùng gói',
+        definition: 'không xin gói đang có quyền hoặc đang có yêu cầu mở.'
+      },
+      'GH-2': {
+        label: 'giới hạn 10 yêu cầu mỗi tuần',
+        definition: 'tối đa 10 yêu cầu cấp mới mỗi tuần lịch; yêu cầu đã rút hoặc bị từ chối vẫn tính.'
+      },
+      'BM-10': {
+        label: 'đề nghị ngân sách',
+        definition: 'gồm ít nhất một file theo mẫu, một số tiền đề nghị và ghi chú tùy chọn, nộp trước hạn.'
+      }
+    }
+  },
+  decline: {
+    reason: 'Lý do',
+    placeholder: 'Nêu lý do từ chối hoặc trả về',
+    criteria: 'Tiêu chí chưa đạt (căn cứ của quyết định)'
+  },
+  checklist: {
+    agreeAll: 'Tôi đã đọc và đồng ý tất cả (tự chọn "Có" cho mọi câu hỏi của danh sách kiểm tra).',
+    title: 'Danh sách kiểm tra quyết định',
+    yes: 'Có',
+    no: 'Không',
+    system: '(hệ thống tự kiểm)',
+    hasNo: 'Có câu trả lời Không: bạn chỉ có thể từ chối hoặc trả về, không thể duyệt.',
+    incomplete: 'Trả lời đủ mọi câu hỏi để tiếp tục.',
+    show: 'Hiện danh sách kiểm tra quyết định',
+    hide: 'Ẩn danh sách kiểm tra',
+    summary: 'Đã trả lời {{done}}/{{total}} câu hỏi'
+  },
   errors: {
+    checklistIncomplete: 'Danh sách kiểm tra chưa đầy đủ. Hãy trả lời mọi câu hỏi.',
+    checklistHasNo: 'Có câu trả lời Không nên không thể duyệt. Hãy từ chối hoặc trả về.',
+    versionChanged: 'Danh sách kiểm tra chính sách vừa được cập nhật. Xem câu hỏi mới và trả lời lại.',
+    policyNotInForce: 'Chưa có chính sách hiệu lực cho bước này. Hãy báo Super Admin xuất bản.',
+    overCeiling: 'Duyệt phiên bản này sẽ vượt Trần ngân sách năm.',
+    adjustmentDecided: 'Điều chỉnh này đã được quyết định trước đó. Danh sách đã được tải lại.',
+    adjustmentRecheck:
+      'Theo số liệu hôm nay, điều chỉnh không còn thỏa điều kiện (số tiền, ngân sách cơ sở, phần còn lại hoặc mức dự báo). Hãy từ chối hoặc nhờ Tài chính sửa.',
+    adjustmentBlocked:
+      'Điều chỉnh đang bị chặn: kỳ còn nhận đề xuất, hoặc có phiên bản ngân sách đang chuẩn bị hay chờ quyết định.',
     conflictOfInterest: 'Bạn đã gửi đề xuất ngân sách gốc của phiên bản này nên không thể quyết định nó.',
     lineHoldsAccess: 'Có người trong nhóm đã giữ ghế của gói này. Từ chối dòng của người đó rồi quyết lại.',
     groupUsesLines: 'Yêu cầu nhóm phải được quyết theo từng người. Dữ liệu đã được tải lại.',

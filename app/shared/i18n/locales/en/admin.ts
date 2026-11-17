@@ -19,7 +19,6 @@ export const admin = {
     personnel: 'Personnel',
     reminders: 'Operating parameters',
     policies: 'Policy library',
-    transfer: 'Department transfers',
     operations: 'Workflow monitoring'
   },
   loading: 'Loading…',
@@ -127,7 +126,6 @@ export const admin = {
     departments: 'Departments',
     accounts: 'Accounts and responsibilities',
     personnel: 'Personnel',
-    settings: 'Operating settings',
     operations: 'Workflow monitoring',
     steps: {
       ORGANIZATION: 'Organization',

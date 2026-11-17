@@ -45,7 +45,7 @@ export function BudgetProposalDetail({ itemId, onSelectTab }: BudgetViewProps & 
     return (
       <BudgetVersionForm
         initial={{
-          base: { amount: proposal.total.amount }
+          base: { amount: (proposal.requestedAmount ?? proposal.total).amount }
         }}
         currency={proposal.total.currency}
         pending={createMutation.isPending}
@@ -58,6 +58,7 @@ export function BudgetProposalDetail({ itemId, onSelectTab }: BudgetViewProps & 
               proposalId: itemId,
               base: figures.base,
               reserve: figures.reserve,
+              reservePercent: figures.reservePercent,
               reserveReason: figures.reserveReason
             }
           })
@@ -88,13 +89,75 @@ export function BudgetProposalDetail({ itemId, onSelectTab }: BudgetViewProps & 
               <FinanceStat
                 emphasis
                 label={translate('fields.total')}
-                value={formatMoney(proposal.total, i18n.language)}
+                value={formatMoney(proposal.requestedAmount ?? proposal.total, i18n.language)}
               />
             </FinanceStatGrid>
-            {proposal.returned && (
-              <p className='rounded-lg border border-info/25 bg-info/5 p-4 text-sm break-words [text-wrap:pretty]'>
-                {proposal.returned.reason}
+            {proposal.note && (
+              <p className='rounded-lg border border-border/70 bg-surface-subtle/50 p-4 text-sm break-words [text-wrap:pretty]'>
+                {proposal.note}
               </p>
+            )}
+            <dl className='grid gap-3 rounded-lg border border-border/70 bg-surface-subtle/50 p-4 text-sm sm:grid-cols-2'>
+              {proposal.submittedBy && (
+                <ProposalItem
+                  label={translate('detail.submittedBy')}
+                  value={`${proposal.submittedBy.fullName} (${proposal.submittedBy.employeeCode})`}
+                />
+              )}
+              <ProposalItem
+                label={translate('detail.submittedAt')}
+                value={new Date(proposal.submittedAt).toLocaleString(i18n.language)}
+              />
+              {proposal.returned && (
+                <>
+                  <ProposalItem label={translate('detail.returnReason')} value={proposal.returned.reason} />
+                  {proposal.returned.by && (
+                    <ProposalItem
+                      label={translate('detail.returnedBy')}
+                      value={`${proposal.returned.by.fullName} (${proposal.returned.by.employeeCode})`}
+                    />
+                  )}
+                  <ProposalItem
+                    label={translate('detail.returnedAt')}
+                    value={new Date(proposal.returned.at).toLocaleString(i18n.language)}
+                  />
+                </>
+              )}
+              {proposal.withdrawnAt && (
+                <ProposalItem
+                  label={translate('detail.withdrawnAt')}
+                  value={new Date(proposal.withdrawnAt).toLocaleString(i18n.language)}
+                />
+              )}
+              {proposal.closedAt && (
+                <ProposalItem
+                  label={translate('detail.closedAt')}
+                  value={new Date(proposal.closedAt).toLocaleString(i18n.language)}
+                />
+              )}
+            </dl>
+            {(proposal.previousProposalId || proposal.successorProposalId) && (
+              <div className='flex flex-wrap items-center gap-2 text-sm'>
+                {proposal.previousProposalId && (
+                  <>
+                    <span className='text-muted-foreground'>{translate('detail.resubmissionOf')}</span>
+                    <FinanceButton
+                      variant='ghost'
+                      onClick={() => onSelectTab?.('annual-proposals', { id: proposal.previousProposalId ?? '' })}
+                    >
+                      {translate('detail.openPrevious')}
+                    </FinanceButton>
+                  </>
+                )}
+                {proposal.successorProposalId && (
+                  <FinanceButton
+                    variant='ghost'
+                    onClick={() => onSelectTab?.('annual-proposals', { id: proposal.successorProposalId ?? '' })}
+                  >
+                    {translate('detail.openSuccessor')}
+                  </FinanceButton>
+                )}
+              </div>
             )}
             {proposal.state === proposalState.SUBMITTED && (
               <div className='flex flex-wrap gap-2'>
@@ -102,12 +165,6 @@ export function BudgetProposalDetail({ itemId, onSelectTab }: BudgetViewProps & 
                   {translate('actions.create')}
                 </FinanceButton>
                 <FinanceButton onClick={() => setDialog('return')}>{translate('actions.return')}</FinanceButton>
-              </div>
-            )}
-            {proposal.note && (
-              <div className='space-y-1'>
-                <h3 className='text-base font-semibold tracking-tight'>{translate('fields.note')}</h3>
-                <p className='text-sm whitespace-pre-wrap break-words [text-wrap:pretty]'>{proposal.note}</p>
               </div>
             )}
             <BudgetAttachments target='proposal' ownerId={itemId} />
@@ -144,5 +201,14 @@ export function BudgetProposalDetail({ itemId, onSelectTab }: BudgetViewProps & 
         </FinanceFormDialog>
       )}
     </FinancePage>
+  )
+}
+
+function ProposalItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div className='min-w-0'>
+      <dt className='text-xs font-medium text-muted-foreground'>{label}</dt>
+      <dd className='mt-1 break-words [text-wrap:pretty]'>{value}</dd>
+    </div>
   )
 }

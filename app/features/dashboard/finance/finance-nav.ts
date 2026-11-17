@@ -7,13 +7,15 @@ import {
   Landmark,
   Layers,
   LineChart,
-  ReceiptText
+  ReceiptText,
+  RefreshCw,
+  Store
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { FINANCE_TAB_KEYS, type FinanceTabKey } from './enums'
 export { FINANCE_TAB_KEYS, type FinanceTabKey }
 
-export type FinanceAreaKey = 'budget' | 'close' | 'overview' | 'planning' | 'spend'
+export type FinanceAreaKey = 'budget' | 'catalog' | 'close' | 'overview' | 'planning' | 'spend'
 export type FinanceTranslationKey =
   | 'overview'
   | 'costCenters'
@@ -23,10 +25,17 @@ export type FinanceTranslationKey =
   | 'versions'
   | 'spendBatches'
   | 'commitments'
+  | 'requestMonitor'
+  | 'purchaseInvoices'
+  | 'invoiceDiscrepancies'
+  | 'outOfProcess'
   | 'catalog'
   | 'vendorTax'
+  | 'subscriptionRenewals'
   | 'periodClose'
-  | 'periodReport'
+  | 'seatCharges'
+  | 'budgetAdjustments'
+  | 'budgetParameters'
 
 export interface FinanceTab {
   key: FinanceTabKey
@@ -60,7 +69,20 @@ export const financeAreas: readonly FinanceArea[] = [
     icon: ReceiptText,
     tabs: [
       { key: 'spend-batches', icon: Layers, translationKey: 'spendBatches' },
-      { key: 'commitments', icon: ReceiptText, translationKey: 'commitments' }
+      { key: 'commitments', icon: ReceiptText, translationKey: 'commitments' },
+      { key: 'request-monitor', icon: Layers, translationKey: 'requestMonitor' },
+      { key: 'purchase-invoices', icon: FileInput, translationKey: 'purchaseInvoices' },
+      { key: 'invoice-discrepancies', icon: Layers, translationKey: 'invoiceDiscrepancies' },
+      { key: 'out-of-process', icon: FileText, translationKey: 'outOfProcess' }
+    ]
+  },
+  {
+    key: 'catalog',
+    icon: Store,
+    tabs: [
+      { key: 'saas-cost', icon: Store, translationKey: 'catalog' },
+      { key: 'subscription-renewals', icon: RefreshCw, translationKey: 'subscriptionRenewals' },
+      { key: 'vendor-tax', icon: ReceiptText, translationKey: 'vendorTax' }
     ]
   },
   {
@@ -68,7 +90,9 @@ export const financeAreas: readonly FinanceArea[] = [
     icon: FileText,
     tabs: [
       { key: 'period-close', icon: CalendarRange, translationKey: 'periodClose' },
-      { key: 'period-report', icon: FileText, translationKey: 'periodReport' }
+      { key: 'seat-charges', icon: Layers, translationKey: 'seatCharges' },
+      { key: 'budget-adjustments', icon: Landmark, translationKey: 'budgetAdjustments' },
+      { key: 'budget-parameters', icon: FileText, translationKey: 'budgetParameters' }
     ]
   }
 ]
@@ -76,7 +100,12 @@ export const financeAreas: readonly FinanceArea[] = [
 export const areaTabs = (area: FinanceArea) => area.tabs
 export function financeAreaOf(tab: FinanceTabKey): FinanceArea {
   // Detail screens belong to the menu area of the list they open from.
-  const menuTab = tab === 'version-history' ? 'budget-negotiation' : tab === 'commitment-release' ? 'commitments' : tab
+  const menuTab =
+    tab === 'version-history'
+      ? 'budget-negotiation'
+      : tab === 'commitment-release' || tab === 'commitment-detail'
+        ? 'commitments'
+        : tab
   return financeAreas.find((area) => area.tabs.some((item) => item.key === menuTab)) ?? financeAreas[0]
 }
 export function isValidFinanceTab(value: string | null): value is FinanceTabKey {

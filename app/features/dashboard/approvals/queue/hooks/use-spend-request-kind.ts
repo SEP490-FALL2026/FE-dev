@@ -5,7 +5,7 @@ export type SpendRequestKind = 'single' | 'group'
 
 /**
  * Tells a group request from a one-decision request with data the Spending Approver may read.
- * accessRequestGet is not used: the server refuses it to the holder of the spend step.
+ * accessRequestGet is not used here: spendApprovalGet already returns what the decision needs.
  * A named beneficiary means one person. Without one (group or service account), the line list decides:
  * it answers for a group and 404 ACCESS_REQUEST.NOT_FOUND for anything else, since the caller holds the step.
  * The server still checks the decision route (GROUP_NEEDS_LINES), so a wrong guess cannot be saved.

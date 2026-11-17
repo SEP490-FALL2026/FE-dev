@@ -42,17 +42,17 @@ export function StatusDonut({
   const shaded = shadeSegments(segments.filter((segment) => segment.count > 0))
   const total = shaded.reduce((sum, segment) => sum + segment.count, 0)
   const percent = new Intl.NumberFormat(i18n.language, { style: 'percent', maximumFractionDigits: 0 })
-  // The centre shows only the share; the name and the count sit under the ring and follow the pointer.
+  // The centre shows the count; the name sits under the ring with the share, and both follow the pointer.
   const active = shaded.find((segment) => segment.key === highlighted)
   const shownLabel = active ? active.label : totalLabel
   const shownCount = active ? active.count : total
-  const shownShare = active && total > 0 ? active.count / total : 1
+  const shownShare = active && total > 0 ? active.count / total : null
   return (
     <div className='grid items-center gap-4 sm:grid-cols-[minmax(0,10rem)_minmax(0,1fr)]'>
       <div className='min-w-0 space-y-3'>
         <div role='img' aria-label={label} className='relative mx-auto size-40'>
           <div className='pointer-events-none absolute inset-0 grid place-items-center text-center'>
-            <p className='font-mono text-2xl leading-tight font-semibold tabular-nums'>{percent.format(shownShare)}</p>
+            <p className='font-mono text-3xl leading-tight font-semibold tabular-nums'>{shownCount}</p>
           </div>
           <ResponsiveContainer width='100%' height='100%'>
             <PieChart>
@@ -99,7 +99,9 @@ export function StatusDonut({
           <p className='text-xs font-semibold tracking-wider text-muted-foreground uppercase [text-wrap:balance]'>
             {shownLabel}
           </p>
-          <p className='font-mono text-base font-semibold tabular-nums'>{shownCount}</p>
+          <p className='h-6 font-mono text-base font-semibold tabular-nums'>
+            {shownShare === null ? '' : percent.format(shownShare)}
+          </p>
         </div>
       </div>
       <ul className='space-y-1'>

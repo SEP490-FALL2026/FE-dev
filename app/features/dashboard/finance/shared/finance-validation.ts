@@ -36,10 +36,10 @@ export function amountsEqual(left: string, right: string): boolean {
 }
 
 /** Whether the reserve is the default share of the base. */
-export function isDefaultReserve(base: string, reserve: string): boolean {
+export function isDefaultReserve(base: string, reserve: string, percent: number = DEFAULT_RESERVE_PERCENT): boolean {
   if (!decimal.test(base) || !decimal.test(reserve)) return false
   const scale = scaleOf([base, reserve])
-  return scaled(reserve, scale) * 100n === scaled(base, scale) * BigInt(DEFAULT_RESERVE_PERCENT)
+  return scaled(reserve, scale) * 100n === scaled(base, scale) * BigInt(Math.round(percent))
 }
 
 /** Exact sum of decimal strings, written without trailing zeros after the point. */

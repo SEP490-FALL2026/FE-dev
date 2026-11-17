@@ -76,12 +76,20 @@ function UsageChart({ totals, lang }: { totals: BudgetSummaryTotalsItem; lang: s
   const { t: translate } = useTranslation('financeSettings')
   const spent = Math.max(0, Number(totals.spent.amount))
   const held = Math.max(0, Number(totals.committed.amount))
+  const pending = Math.max(0, Number(totals.pendingSpend.amount))
   const remainingValue = Number(totals.remaining.amount)
   const remaining = Math.max(0, remainingValue)
-  const total = Number(totals.total.amount)
+  const total = Number(totals.effectiveBudget.total.amount)
   const parts: Part[] = [
     { key: 'spent', label: translate('kpis.spent'), money: totals.spent, value: spent, color: chartSlot(0) },
     { key: 'held', label: translate('kpis.held'), money: totals.committed, value: held, color: chartSlot(1) },
+    {
+      key: 'pending',
+      label: translate('kpis.pending'),
+      money: totals.pendingSpend,
+      value: pending,
+      color: chartSlot(3)
+    },
     {
       key: 'remaining',
       label: translate('kpis.remaining'),
@@ -91,8 +99,8 @@ function UsageChart({ totals, lang }: { totals: BudgetSummaryTotalsItem; lang: s
       negative: remainingValue < 0
     }
   ]
-  const scale = Math.max(total, spent + held + remaining)
-  const row = { name: 'budget', spent, held, remaining }
+  const scale = Math.max(total, spent + held + pending + remaining)
+  const row = { name: 'budget', spent, held, pending, remaining }
   return (
     <Card title={translate('charts.usage')} hint={translate('charts.usageHint')}>
       {scale > 0 ? (

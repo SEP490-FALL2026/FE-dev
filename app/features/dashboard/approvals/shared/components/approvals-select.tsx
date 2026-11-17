@@ -109,7 +109,7 @@ export function ApprovalsSelect({
         aria-haspopup='listbox'
         aria-activedescendant={expanded ? `${controlId}-option-${safeActiveIndex}` : undefined}
         disabled={disabled || !options.length}
-        className='flex min-h-11 w-full items-center justify-between gap-2 rounded-md border border-border bg-surface px-3 py-2 text-left text-base text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:opacity-50 md:min-h-9 md:text-sm'
+        className='flex min-h-11 w-full items-center justify-between gap-2 rounded-md border border-border bg-surface px-3 py-2 text-left text-base text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:opacity-50 md:min-h-10 md:text-sm'
         onClick={() => (expanded ? setOpen(false) : showOptions())}
         onKeyDown={onKeyDown}
       >

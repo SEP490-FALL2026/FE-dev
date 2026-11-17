@@ -13,12 +13,12 @@ import { useFinanceList } from '../../shared/hooks/use-finance-list'
 import { formatMoney } from '../../shared/finance-money'
 import type { BudgetViewProps } from '../../annual-budget/budget-view-props'
 import { CycleDetail } from '../components/cycle-detail'
-import { CycleOpenDialog } from '../components/cycle-open-dialog'
+import { CycleCreateDialog } from '../components/cycle-create-dialog'
 
 export function FinanceBudgetCyclesView({ itemId, onSelectTab }: BudgetViewProps) {
   const { t: translate, i18n } = useTranslation('financeBudget')
   const { page, pageSize, setPage } = useFinanceList()
-  const [opening, setOpening] = useState(false)
+  const [creating, setCreating] = useState(false)
   const query = useBudgetCycleList({ page, pageSize })
   const result = query.data?.data
   const selectedYear = itemId && /^\d{4}$/.test(itemId) ? Number(itemId) : undefined
@@ -30,8 +30,8 @@ export function FinanceBudgetCyclesView({ itemId, onSelectTab }: BudgetViewProps
     <FinancePage
       title={translate('budgetCycle.title')}
       actions={
-        <FinanceButton variant='primary' onClick={() => setOpening(true)}>
-          {translate('budgetCycle.open')}
+        <FinanceButton variant='primary' onClick={() => setCreating(true)}>
+          {translate('budgetCycle.create')}
         </FinanceButton>
       }
     >
@@ -65,10 +65,10 @@ export function FinanceBudgetCyclesView({ itemId, onSelectTab }: BudgetViewProps
               render: (cycle) => formatMoney(cycle.annualCeiling, i18n.language)
             },
             {
-              key: 'allocated',
-              label: translate('budgetCycle.allocated'),
+              key: 'available',
+              label: translate('budgetCycle.available'),
               numeric: true,
-              render: (cycle) => formatMoney(cycle.allocated, i18n.language)
+              render: (cycle) => formatMoney(cycle.available, i18n.language)
             },
             {
               key: 'submission',
@@ -88,10 +88,10 @@ export function FinanceBudgetCyclesView({ itemId, onSelectTab }: BudgetViewProps
         />
         <FinancePagination pagination={result?.pagination} onPageChange={setPage} />
       </FinanceQueryState>
-      {opening && (
-        <CycleOpenDialog
-          onClose={() => setOpening(false)}
-          onOpened={(year) => onSelectTab?.('budget-cycles', { id: String(year) })}
+      {creating && (
+        <CycleCreateDialog
+          onClose={() => setCreating(false)}
+          onCreated={(year) => onSelectTab?.('budget-cycles', { id: String(year) })}
         />
       )}
     </FinancePage>

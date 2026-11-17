@@ -1,11 +1,9 @@
-import { useQueries, useQuery } from '@tanstack/react-query'
-import type { QuarterSplit } from '../overview-analytics'
+import { useQuery } from '@tanstack/react-query'
 import type { CommitmentListResponseDtoDataItemsItem } from '~/shared/api/generated/model/budget-commitments/commitmentListResponseDtoDataItemsItem'
 import {
   budgetCommitmentList,
   getBudgetCommitmentListQueryKey
 } from '~/shared/api/generated/operations/budget-commitments/budget-commitment-list'
-import { getBudgetVersionGetQueryOptions } from '~/shared/api/generated/operations/budget-versions/budget-version-get'
 import { useBudgetTable } from '~/shared/api/generated/operations/budgets/budget-table'
 
 const pageSize = 100
@@ -30,22 +28,10 @@ export function useOverviewAnalytics(year: number) {
     queryFn: ({ signal }) => loadYearCommitments(year, signal)
   })
   const budgetRows = budgets.data?.data?.items ?? []
-  const versions = useQueries({
-    queries: budgetRows.flatMap((row) => (row.versionId ? [getBudgetVersionGetQueryOptions(row.versionId)] : [])),
-    combine: (results) => ({
-      splits: results.flatMap((result): QuarterSplit[] => (result.data?.data ? [null] : [])),
-      isPending: results.some((result) => result.isPending),
-      isError: results.some((result) => result.isError),
-      isFetching: results.some((result) => result.isFetching),
-      error: results.find((result) => result.isError)?.error ?? null,
-      refetch: () => Promise.all(results.map((result) => result.refetch()))
-    })
-  })
   return {
     budgets,
     budgetRows,
     budgetsTruncated: (budgets.data?.data?.pagination.totalPages ?? 1) > 1,
-    commitments,
-    versions
+    commitments
   }
 }
