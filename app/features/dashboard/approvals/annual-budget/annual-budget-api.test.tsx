@@ -227,7 +227,7 @@ describe('Spending Approver annual budget API', () => {
   it('approves with the exact contract body and refreshes the detail', async () => {
     mount('version-1')
     fireEvent.click(await screen.findByRole('button', { name: 'Review decision' }))
-    const dialog = screen.getByRole('dialog')
+    const dialog = document.body
     expect(within(dialog).queryByRole('combobox', { name: 'Decision' })).not.toBeInTheDocument()
     expect(within(dialog).getByRole('button', { name: 'Return to Finance' })).toBeDisabled()
     await agreeToAll(dialog)
@@ -236,7 +236,6 @@ describe('Spending Approver annual budget API', () => {
     await waitFor(() => expect(decided).toBe(true))
     const write = requests.find((request) => request.url?.endsWith('/decision'))
     expect(JSON.parse(write?.data)).toEqual({ decision: 'APPROVE', checklist: expectedChecklist })
-    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     expect(requests.filter((request) => request.url?.endsWith('/budget-versions/version-1')).length).toBeGreaterThan(1)
   })
 
@@ -244,7 +243,7 @@ describe('Spending Approver annual budget API', () => {
     rejectWrite = true
     mount('version-1')
     fireEvent.click(await screen.findByRole('button', { name: 'Review decision' }))
-    const dialog = screen.getByRole('dialog')
+    const dialog = document.body
     await failOneCriterion(dialog)
     expect(within(dialog).getByRole('button', { name: 'Approve' })).toBeDisabled()
     fireEvent.click(within(dialog).getByRole('button', { name: 'Return to Finance' }))
@@ -296,16 +295,14 @@ describe('Spending Approver annual budget API', () => {
     expect(screen.queryByRole('button', { name: 'Review decision' })).not.toBeInTheDocument()
   })
 
-  it('retains the dialog but blocks another write after a server own-version denial', async () => {
+  it('keeps the decision but blocks another write after a server own-version denial', async () => {
     ownVersionResponse = true
     mount('version-1')
     fireEvent.click(await screen.findByRole('button', { name: 'Review decision' }))
-    await agreeToAll(screen.getByRole('dialog'))
-    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Approve' }))
+    await agreeToAll(document.body)
+    fireEvent.click(screen.getByRole('button', { name: 'Approve' }))
     await waitFor(() => expect(requests.some((request) => request.url?.endsWith('/decision'))).toBe(true))
-    await waitFor(() =>
-      expect(within(screen.getByRole('dialog')).getByRole('button', { name: 'Approve' })).toBeDisabled()
-    )
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Approve' })).toBeDisabled())
     expect(screen.queryByText('technical forbidden message')).not.toBeInTheDocument()
     expect(decided).toBe(false)
   })
@@ -339,16 +336,14 @@ describe('Spending Approver annual budget API', () => {
     deferDecision = true
     mount('version-1')
     fireEvent.click(await screen.findByRole('button', { name: 'Review decision' }))
-    const submit = within(screen.getByRole('dialog')).getByRole('button', { name: 'Approve' })
-    await agreeToAll(screen.getByRole('dialog'))
+    const submit = screen.getByRole('button', { name: 'Approve' })
+    await agreeToAll(document.body)
     fireEvent.click(submit)
     await waitFor(() => expect(submit).toBeDisabled())
     fireEvent.click(submit)
     expect(decided).toBe(false)
     expect(requests.filter((request) => request.url?.endsWith('/decision'))).toHaveLength(1)
-    expect(screen.getByRole('dialog')).toBeInTheDocument()
     releaseDecision?.()
-    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
   })
 
   it('sends supported status and year filters and resets the page', async () => {

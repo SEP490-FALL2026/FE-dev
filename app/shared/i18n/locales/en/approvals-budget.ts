@@ -38,6 +38,7 @@ export const approvalsBudget = {
   confirmDecision: 'Confirm decision',
   approve: 'Approve',
   reject: 'Reject',
+  decisionClosed: 'This version cannot be decided right now.',
   confirmReview: 'I have reviewed the version, the department proposal and the supporting information.',
   returnNeedsNo:
     'Return is open only when at least one checklist criterion is answered "No". Open the checklist and answer "No" on the criterion that is not met.',

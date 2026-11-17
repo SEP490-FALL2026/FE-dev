@@ -39,6 +39,7 @@ export const approvalsBudget = {
   approve: 'Phê duyệt',
   reject: 'Từ chối',
   returnToFinance: 'Trả về Finance',
+  decisionClosed: 'Phiên bản này chưa thể quyết định lúc này.',
   confirmReview: 'Tôi đã xem phiên bản, đề nghị của phòng và thông tin liên quan.',
   returnNeedsNo:
     'Trả về chỉ dùng được khi có ít nhất một tiêu chí checklist chọn "Không". Mở checklist và chọn "Không" ở tiêu chí chưa đạt.',
