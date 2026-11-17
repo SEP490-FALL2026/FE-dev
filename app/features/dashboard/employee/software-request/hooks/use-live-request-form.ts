@@ -66,6 +66,7 @@ export function useLiveRequestForm(
   onCreated: (id: string, returned?: boolean) => void,
   onDraftSaved: () => void
 ) {
+  const [renewalWindow, setRenewalWindow] = useState<{ assignmentId: string; opensOn?: string } | null>(null)
   const [members, setMembers] = useState<GroupSelection[]>([])
   const submitLock = useRef(false)
   const feedback = useEmployeeFeedback([
@@ -176,10 +177,21 @@ export function useLiveRequestForm(
       if (result.draft) onDraftSaved()
       else if (result.id) onCreated(result.id, result.returned)
     },
-    onError: (error) => {
+    onError: (error, variables) => {
+      if (
+        axios.isAxiosError<{ error?: { code?: string; details?: { opensOn?: string } } }>(error) &&
+        error.response?.data.error?.code === 'RENEWAL_REQUEST.WINDOW_NOT_OPEN'
+      ) {
+        setRenewalWindow({
+          assignmentId: variables.fields.assignmentId,
+          opensOn: error.response.data.error.details?.opensOn
+        })
+      }
       if (
         axios.isAxiosError<{ error?: { code?: string } }>(error) &&
-        (error.response?.status === 409 || error.response?.data.error?.code === 'GROUP_REQUEST.LINES_REFUSED')
+        (error.response?.status === 409 ||
+          error.response?.status === 422 ||
+          error.response?.data.error?.code === 'GROUP_REQUEST.LINES_REFUSED')
       )
         preview.reset()
       return feedback.onError(error)
@@ -189,6 +201,7 @@ export function useLiveRequestForm(
     }
   })
   return {
+    renewalWindow,
     members,
     setMembers,
     previewResult,
@@ -197,7 +210,11 @@ export function useLiveRequestForm(
     submit: {
       ...submit,
       mutate: (variables: Parameters<typeof submit.mutate>[0]) => {
-        if (!submitLock.current && !feedback.blocked) {
+        if (
+          !submitLock.current &&
+          !feedback.blocked &&
+          !(mode === 'renewal' && renewalWindow?.assignmentId === variables.fields.assignmentId)
+        ) {
           submitLock.current = true
           submit.mutate(variables)
         }

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { accessRequestPreview } from '~/shared/api/generated/operations/access-requests/access-request-preview'
@@ -23,7 +23,7 @@ import { useDashboardFormat } from '../../../dashboard-ui'
 import { REQUEST_LIMIT_EXEMPTION } from '~/entities/request/enums/request-limit-exemption'
 import { REQUEST_WAITING_REASON } from '~/entities/request/enums/request-waiting-reason'
 import { TermMonthsField } from '~/entities/request/components/term-months-field'
-import { readTermMonths, termMonthsPayload } from '~/entities/request/term-months'
+import { termMonthsPayload } from '~/entities/request/term-months'
 
 export function ManagerPersonalRequest({ onOpen }: { onOpen: (id: string) => void }) {
   const { t } = useTranslation('requestFlow')
@@ -42,6 +42,15 @@ export function ManagerPersonalRequest({ onOpen }: { onOpen: (id: string) => voi
   })
   const checked =
     !preview.isError && preview.data?.fingerprint === fingerprint ? preview.data.response.data?.preview : null
+  const resetPreview = preview.reset
+  const selectPlan = useCallback(
+    (choice: ManagerCatalogPlan | null) => {
+      setPlan(choice)
+      setTermMonths(undefined)
+      resetPreview()
+    },
+    [resetPreview]
+  )
   const action = useManagerAction({
     mutationFn: async () => {
       if (!plan || !checked?.canSubmit) throw new Error('Preview required')
@@ -59,7 +68,8 @@ export function ManagerPersonalRequest({ onOpen }: { onOpen: (id: string) => voi
       getMeSoftwareRightListQueryKey(),
       getManagerDashboardGetQueryKey()
     ],
-    onSuccess: onOpen
+    onSuccess: onOpen,
+    onError: () => preview.reset()
   })
   const busy = action.blocked || preview.isPending
   return (
@@ -67,7 +77,6 @@ export function ManagerPersonalRequest({ onOpen }: { onOpen: (id: string) => voi
       <ManagerFormErrors fields={action.fields}>
         <form
           className='space-y-5'
-          onChange={(event) => setTermMonths(readTermMonths(new FormData(event.currentTarget)))}
           onSubmit={(event) => {
             event.preventDefault()
             if (!busy && reason.trim() && plan?.canSubmit && checked?.canSubmit) action.mutate()
@@ -76,17 +85,21 @@ export function ManagerPersonalRequest({ onOpen }: { onOpen: (id: string) => voi
           <fieldset disabled={busy} className='space-y-4'>
             <ManagerCatalogPicker
               value={plan}
-              onChange={setPlan}
+              onChange={selectPlan}
               disabled={busy}
               invalid={action.fields.includes('planId')}
             />
             <div className='grid items-start gap-4 sm:grid-cols-2'>
               <TermMonthsField
-                key={plan?.provisioningType ?? 'none'}
+                key={plan?.id ?? 'none'}
                 subject={plan?.provisioningType}
                 refusal={checked?.termRefusal}
                 invalid={action.fields.includes('termMonths')}
                 inputClassName={managerInputClass}
+                onChange={(months) => {
+                  setTermMonths(months)
+                  preview.reset()
+                }}
               />
             </div>
             <ManagerField label={manager('reason')}>

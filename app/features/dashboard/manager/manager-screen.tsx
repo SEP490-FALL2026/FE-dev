@@ -46,7 +46,7 @@ export function ManagerScreen({
   const validDepartment = isResourceId(departmentId)
   const form = location.pathname.startsWith('/dashboard/manager/annual-budget/')
   const budgetSection = form || tab === 'annual-budget'
-  const personalSection = tab === 'personal-request' || tab === 'request-approval'
+  const personalSection = tab === 'personal-request' || tab === 'request-approval' || tab === 'profile'
   const needsDepartment =
     form || ['overview', 'my-team', 'team-software', 'employee-detail', 'tool-detail'].includes(tab)
   const department = useDepartmentGet(departmentId, {

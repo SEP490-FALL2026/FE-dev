@@ -1,3 +1,4 @@
+import { PROVISIONING_TYPE } from '~/entities/request/enums/provisioning-type'
 import { useRef, useState } from 'react'
 import { FilePlus2 } from 'lucide-react'
 import { EmployeePageHeader } from '../../shared/components/employee-page-header'
@@ -24,6 +25,7 @@ import { useEmployeeCatalogSelection } from '../hooks/use-employee-catalog-selec
 import type { EmployeeTabKey } from '../../enums'
 import { isEmployeeResourceId } from '../../shared/employee-identifiers'
 import { TermMonthsField } from '~/entities/request/components/term-months-field'
+import { useWorkspaceFormat } from '~/shared/hooks/use-workspace-format'
 import { termRule } from '~/entities/request/term-months'
 
 export function EmployeeLiveCreateView({
@@ -89,6 +91,7 @@ function LiveCreateForm({
 }) {
   const { t: translate } = useTranslation('employee')
   const { t: flow } = useTranslation('requestFlow')
+  const { formatDate } = useWorkspaceFormat()
   const formRef = useRef<HTMLFormElement>(null)
   const [selectedAssignmentId, setAssignmentId] = useState(assignmentId)
   const [renewalLongTerm, setRenewalLongTerm] = useState(false)
@@ -108,13 +111,23 @@ function LiveCreateForm({
     (needsPreview &&
       (!selection.ready || (mode === 'group' && (workflow.members.length < 2 || workflow.members.length > 10)))) ||
     ((mode === 'renewal' || mode === 'return') &&
-      (!selectedAssignment || assignments.query.isFetching || assignments.query.isError))
+      (!selectedAssignment ||
+        assignments.query.isFetching ||
+        assignments.query.isError ||
+        (mode === 'renewal' && workflow.renewalWindow?.assignmentId === selectedAssignmentId)))
   const onReview = () => {
     if (!selectionIncomplete && formRef.current?.reportValidity())
       workflow.preview.mutate(readRequestFields(formRef.current))
   }
   return (
     <EmployeeSection title={translate(mode)}>
+      {mode === 'renewal' && workflow.renewalWindow?.assignmentId === selectedAssignmentId && (
+        <p role='status' className='text-sm text-muted-foreground'>
+          {workflow.renewalWindow.opensOn && Number.isFinite(Date.parse(workflow.renewalWindow.opensOn))
+            ? flow('renewalWindow', { date: formatDate(workflow.renewalWindow.opensOn) })
+            : flow('renewalWindowUnknown')}
+        </p>
+      )}
       {mode === 'return' && <p className='text-sm text-muted-foreground'>{translate('returnHint')}</p>}
       <form
         ref={formRef}
@@ -159,7 +172,10 @@ function LiveCreateForm({
                 <EmployeeAssignmentPicker
                   assignments={assignments}
                   value={selectedAssignmentId}
-                  onChange={setAssignmentId}
+                  onChange={(id) => {
+                    setAssignmentId(id)
+                    setRenewalLongTerm(false)
+                  }}
                   disabled={busy || workflow.feedback.blocked}
                   invalid={workflow.feedback.invalidFields.includes('assignmentId')}
                 />
@@ -172,27 +188,30 @@ function LiveCreateForm({
                       type='number'
                       name='extensionMonths'
                       min={1}
-                      max={12}
+                      max={selectedAssignment?.provisioningType === PROVISIONING_TYPE.K1 ? 9 : 12}
                       step={1}
                       defaultValue={1}
                       disabled={!selectedAssignment || renewalLongTerm}
                     />
                   </EmployeeField>
-                  <label className='flex min-h-11 items-center gap-2 text-sm'>
-                    <input
-                      type='checkbox'
-                      name='longTerm'
-                      checked={renewalLongTerm}
-                      disabled={!selectedAssignment}
-                      onChange={(event) => setRenewalLongTerm(event.target.checked)}
-                    />
-                    {flow('longTerm')}
-                  </label>
+                  {(selectedAssignment?.provisioningType === PROVISIONING_TYPE.K2 ||
+                    selectedAssignment?.provisioningType === PROVISIONING_TYPE.K5) && (
+                    <label className='flex min-h-11 items-center gap-2 text-sm'>
+                      <input
+                        type='checkbox'
+                        name='longTerm'
+                        checked={renewalLongTerm}
+                        disabled={!selectedAssignment}
+                        onChange={(event) => setRenewalLongTerm(event.target.checked)}
+                      />
+                      {flow('longTerm')}
+                    </label>
+                  )}
                 </div>
               )}
               {(needsPreview || mode === 'proposal') && (
                 <TermMonthsField
-                  key={mode === 'proposal' ? mode : (plan?.provisioningType ?? 'none')}
+                  key={mode === 'proposal' ? mode : (plan?.id ?? 'none')}
                   subject={mode === 'proposal' ? 'NEW_SOFTWARE' : plan?.provisioningType}
                   refusal={preview?.preview?.termRefusal ?? preview?.groupCheck?.termRefusal}
                   invalid={workflow.feedback.invalidFields.includes('termMonths')}

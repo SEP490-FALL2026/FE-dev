@@ -72,7 +72,7 @@ export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) 
                   invalid={action.fields.includes('planId')}
                 />
                 <TermMonthsField
-                  key={plan?.provisioningType ?? 'none'}
+                  key={plan?.id ?? 'none'}
                   subject={plan?.provisioningType}
                   invalid={action.fields.includes('termMonths')}
                   inputClassName={managerInputClass}

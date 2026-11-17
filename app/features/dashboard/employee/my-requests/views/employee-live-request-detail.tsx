@@ -1,4 +1,3 @@
-import { ACCESS_REQUEST_ROUTING } from '~/entities/request/enums/access-request-routing'
 import { ACCESS_REQUEST_STATE } from '~/entities/request/enums/access-request-state'
 import { useState } from 'react'
 import {
@@ -257,10 +256,10 @@ export function EmployeeLiveRequestDetail({
                 </div>
 
                 <RequestFlowSummary request={request} />
-                {request.routing.mode === ACCESS_REQUEST_ROUTING.ONE_STEP &&
-                  request.state === ACCESS_REQUEST_STATE.AWAITING_REQUESTER_REVISION &&
+                {request.state === ACCESS_REQUEST_STATE.AWAITING_REQUESTER_REVISION &&
                   request.requester.employeeId === employeeId && (
                     <RequestRevision
+                      request={request}
                       departmentId={request.department.id}
                       id={id}
                       group={request.type === REQUEST_TYPE.GROUP_GRANT}

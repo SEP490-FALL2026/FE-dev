@@ -25,7 +25,7 @@ import { NEED_STEP_STATE, NEED_DECISION, GROUP_LINE_STATE } from '../enums/need-
 import { ManagerDecisionFields, type ManagerDecisionChoice } from './manager-decision-fields'
 import { POLICY_STEP } from '~/entities/policy/policy-steps'
 import { usePolicyChecklist } from '~/entities/policy/hooks/use-policy-checklist'
-import { PolicyChecklist } from '~/entities/policy/components/policy-checklist'
+import { PolicyChecklist, useChecklistNoReason } from '~/entities/policy/components/policy-checklist'
 import { isPolicyVersionChanged } from '~/entities/policy/policy-errors'
 
 export function ManagerGroupDecisions({
@@ -50,12 +50,14 @@ export function ManagerGroupDecisions({
   const complete = query.isSuccess && query.data?.data?.pagination.totalPages === 1
   const [confirmation, setConfirmation] = useState<LineNeedDecisionBodyDto | null>(null)
   const checklist = usePolicyChecklist(POLICY_STEP.NEED_REVIEW, requestPending && pending.length > 0)
+  const noReason = useChecklistNoReason(checklist)
   const [individual, setIndividual] = useState(false)
   const [common, setCommon] = useState<ManagerDecisionChoice>({ decision: '', reason: '' })
   const [choices, setChoices] = useState<Record<string, ManagerDecisionChoice>>({})
   const choiceFor = (personId: string) => (individual ? (choices[personId] ?? { decision: '', reason: '' }) : common)
   const confirmationCurrent =
     !!confirmation &&
+    checklist.matches(confirmation.checklist) &&
     requestPending &&
     complete &&
     !query.isFetching &&
@@ -92,12 +94,13 @@ export function ManagerGroupDecisions({
             for (const line of pending) {
               const choice = choiceFor(line.employee.employeeId)
               const needsReason = choice.decision === NEED_DECISION.REJECT || choice.decision === NEED_DECISION.RETURN
-              if (!choice.decision || (needsReason && !choice.reason.trim())) return
+              const reason = choice.reason.trim() || noReason
+              if (!choice.decision || (needsReason && !reason)) return
               if (choice.decision === NEED_DECISION.APPROVE && checklist.hasNo) return
               decisions.push({
                 employeeId: line.employee.employeeId,
                 decision: choice.decision,
-                ...(needsReason ? { reason: choice.reason.trim() } : {})
+                ...(needsReason ? { reason } : {})
               })
             }
             setConfirmation({ lines: decisions, checklist: checklist.body })
@@ -127,6 +130,7 @@ export function ManagerGroupDecisions({
                     value={common}
                     onChange={setCommon}
                     approveLocked={checklist.hasNo}
+                    fallbackReason={noReason}
                   />
                 )}
               </>
@@ -145,6 +149,7 @@ export function ManagerGroupDecisions({
                     name={`lines.${pending.indexOf(line)}`}
                     value={choiceFor(line.employee.employeeId)}
                     approveLocked={checklist.hasNo}
+                    fallbackReason={noReason}
                     onChange={(value) => setChoices((previous) => ({ ...previous, [line.employee.employeeId]: value }))}
                   />
                 )}

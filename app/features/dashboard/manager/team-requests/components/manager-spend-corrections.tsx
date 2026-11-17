@@ -7,24 +7,23 @@ import {
   getAccessRequestSupplementListQueryKey
 } from '~/shared/api/generated/operations/spend-submission/access-request-supplement-list'
 import { getAccessRequestGetQueryKey } from '~/shared/api/generated/operations/access-requests/access-request-get'
-import { readTermMonths, termMonthsPayload } from '~/entities/request/term-months'
+import { RequestSupplementForm } from '~/entities/request/components/request-supplement-form'
+import type { AccessRequestResponseDtoDataRequest } from '~/shared/api/generated/model/access-requests/accessRequestResponseDtoDataRequest'
+import { REQUEST_TYPE } from '../enums/need-decision'
 import { getSpendQueueListQueryKey } from '~/shared/api/generated/operations/spend-submission/spend-queue-list'
 import { Dialog } from '../../../dashboard-ui'
 import { useManagerAction } from '../../shared/hooks/use-manager-action'
 import { useManagerPage } from '../../shared/hooks/use-manager-page'
-import { parseEmployeeIds, resourceIdPattern } from '../../shared/manager-identifiers'
 import {
   ManagerActionState,
   ManagerButton,
-  ManagerField,
   ManagerFormErrors,
   ManagerPagination,
   ManagerQueryState,
-  ManagerSection,
-  managerInputClass
+  ManagerSection
 } from '../../shared/components/manager-api-ui'
 
-export function ManagerSpendCorrections({ id }: { id: string }) {
+export function ManagerSpendCorrections({ id, request }: { id: string; request: AccessRequestResponseDtoDataRequest }) {
   const { t: translate } = useTranslation('manager')
   const [mode, setMode] = useState(false)
   const paging = useManagerPage('supplementPage')
@@ -45,12 +44,19 @@ export function ManagerSpendCorrections({ id }: { id: string }) {
           </p>
         ))}
       <ManagerPagination pagination={query.data?.data?.pagination} onPage={paging.onPage} busy={query.isFetching} />
-      {mode && <CorrectionDialog id={id} onClose={() => setMode(false)} />}
+      {mode && <CorrectionDialog id={id} request={request} onClose={() => setMode(false)} />}
     </ManagerSection>
   )
 }
-function CorrectionDialog({ id, onClose }: { id: string; onClose: () => void }) {
-  const { t: flow } = useTranslation('requestFlow')
+function CorrectionDialog({
+  id,
+  request,
+  onClose
+}: {
+  id: string
+  request: AccessRequestResponseDtoDataRequest
+  onClose: () => void
+}) {
   const { t: translate } = useTranslation('manager')
   const keys = [
     getAccessRequestGetQueryKey(id),
@@ -73,58 +79,15 @@ function CorrectionDialog({ id, onClose }: { id: string; onClose: () => void }) 
       }}
     >
       <ManagerFormErrors fields={action.fields}>
-        <form
-          className='space-y-4'
-          onSubmit={(event) => {
-            event.preventDefault()
-            if (action.blocked) return
-            const form = new FormData(event.currentTarget)
-            const dropEmployeeIds = parseEmployeeIds(String(form.get('dropEmployeeIds') ?? ''))
-            supplement.mutate({
-              reason: String(form.get('reason')).trim(),
-              ...(dropEmployeeIds.length ? { dropEmployeeIds } : {}),
-              ...termMonthsPayload(readTermMonths(form))
-            })
-          }}
-        >
-          <fieldset disabled={action.blocked} className='space-y-4'>
-            <ManagerField label={`${flow('termMonths')} · ${flow('supplementTermHint')}`}>
-              <input
-                type='number'
-                inputMode='numeric'
-                name='termMonths'
-                min={1}
-                max={12}
-                step={1}
-                className={managerInputClass}
-              />
-            </ManagerField>
-            <ManagerField label={translate('dropEmployees')}>
-              <textarea
-                name='dropEmployeeIds'
-                className={managerInputClass}
-                onChange={(event) =>
-                  event.target.setCustomValidity(
-                    parseEmployeeIds(event.target.value).every((value) =>
-                      new RegExp(`^${resourceIdPattern}$`).test(value)
-                    )
-                      ? ''
-                      : translate('validation')
-                  )
-                }
-              />
-            </ManagerField>
-            <ManagerField label={translate('reason')}>
-              <textarea name='reason' required maxLength={1000} className={managerInputClass} />
-            </ManagerField>
-          </fieldset>
-          <ManagerActionState action={action} />
-          <div className='flex justify-end'>
-            <ManagerButton primary type='submit' busy={action.isPending} disabled={action.blocked}>
-              {action.retrySeconds ? translate('retryAfter', { seconds: action.retrySeconds }) : translate('confirm')}
-            </ManagerButton>
-          </div>
-        </form>
+        <RequestSupplementForm
+          id={id}
+          planId={request.plan?.planId}
+          termMonths={request.termMonths}
+          group={request.type === REQUEST_TYPE.GROUP_GRANT}
+          disabled={action.blocked}
+          onSubmit={(body) => supplement.mutate(body)}
+        />
+        <ManagerActionState action={action} />
       </ManagerFormErrors>
     </Dialog>
   )

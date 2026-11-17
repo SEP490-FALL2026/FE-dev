@@ -1,6 +1,11 @@
 import { requestPersonnel } from './request-personnel'
 export const requestFlow = {
   ...requestPersonnel,
+  resubmitOnlyHint: 'Bạn có thể gửi lại yêu cầu cho người duyệt. Bước này chưa hỗ trợ chỉnh sửa nội dung yêu cầu.',
+  renewalWindow: 'Bạn có thể gửi yêu cầu gia hạn từ ngày {{date}}.',
+  renewalWindowUnknown: 'Chưa đến thời gian gửi gia hạn. Tải lại danh sách phần mềm trước khi thử lại.',
+  renewalNotAllowed: 'Quyền sử dụng này hiện không thể gia hạn. Tải lại danh sách phần mềm để kiểm tra trạng thái.',
+  renewalAlreadyRequested: 'Đã có yêu cầu gia hạn cho quyền sử dụng này.',
   reload: 'Tải lại yêu cầu',
   retryAfter: 'Thử lại sau {{seconds}} giây',
   VIA_HEAD: 'Duyệt nhu cầu và duyệt chi',
@@ -39,7 +44,7 @@ export const requestFlow = {
   indefinite: 'Không có ngày dự kiến kết thúc',
   termMonths: 'Thời gian dùng (tháng)',
   longTerm: 'Dùng lâu dài',
-  termHint: 'Từ 1 đến {{max}} tháng; để trống hoặc chọn Dùng lâu dài nếu không giới hạn.',
+  termHint: 'Nhập từ 1 đến {{max}} tháng, hoặc chọn dùng lâu dài (chỉ dành cho nhân viên chính thức).',
   termHintRequired: 'Bắt buộc, từ 1 đến {{max}} tháng.',
   monthsValue: '{{count}} tháng',
   termRefusal: {

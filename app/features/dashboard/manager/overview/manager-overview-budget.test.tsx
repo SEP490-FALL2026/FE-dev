@@ -150,7 +150,7 @@ it('keeps negative remaining amounts visible', async () => {
   expect(within(chart).getByText(/-\$0\.25/)).toBeInTheDocument()
 })
 
-it('does not compare bar lengths when currencies differ', async () => {
+it('does not draw proportions when currencies differ', async () => {
   server.use(
     http.get('*/api/v1/budgets/mine', () =>
       HttpResponse.json({
@@ -167,7 +167,9 @@ it('does not compare bar lengths when currencies differ', async () => {
   mount()
   const chart = await screen.findByRole('region', { name: 'Budget composition' })
   expect(
-    within(chart).getByText('Bar lengths are unavailable because monetary data is inconsistent or invalid.')
+    within(chart).getByText(
+      'Shares are unavailable because figures are missing, use different currencies or do not match the budget total.'
+    )
   ).toBeInTheDocument()
 })
 
@@ -204,4 +206,37 @@ it('does not substitute the original allocation for a missing effective budget',
   mount()
   expect(await screen.findByText('No budget data matches your department’s cost center.')).toBeInTheDocument()
   expect(screen.queryByRole('region', { name: 'Budget composition' })).not.toBeInTheDocument()
+})
+
+it('shows a remaining percentage against the effective total with exact activity amounts', async () => {
+  server.use(
+    http.get('*/api/v1/budgets/mine', () =>
+      HttpResponse.json({
+        success: true,
+        data: {
+          budget: {
+            ...budget,
+            total: money('660000000'),
+            effectiveBudget: {
+              base: money('600000000'),
+              reserve: money('60000000'),
+              total: money('660000000'),
+              adjustment: money('0')
+            },
+            spent: money('0'),
+            committed: money('6540000'),
+            pendingSpend: money('3816000'),
+            remainingWithReserve: money('649644000')
+          }
+        }
+      })
+    )
+  )
+  mount()
+  expect(await screen.findByText('98.4%')).toBeInTheDocument()
+  const activity = screen.getByRole('region', { name: 'Budget activity' })
+  expect(within(activity).getByText('$649,644,000.00')).toBeInTheDocument()
+  expect(within(activity).getByText('$6,540,000.00')).toBeInTheDocument()
+  expect(within(activity).getByText('$3,816,000.00')).toBeInTheDocument()
+  expect(screen.queryByText(/Bars are scaled/)).not.toBeInTheDocument()
 })

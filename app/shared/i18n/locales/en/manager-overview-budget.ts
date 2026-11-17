@@ -18,6 +18,13 @@ export const managerOverviewBudget = {
   pending: 'Pending spending decision',
   remaining: 'Remaining, including reserve',
   notAvailable: 'Not available',
-  scaleNote: 'Bars are scaled to the largest value in each chart. Negative amounts are shown as numbers.',
-  incomparable: 'Bar lengths are unavailable because monetary data is inconsistent or invalid.'
+  available: 'Budget remaining',
+  lessThan: '< {{percent}}',
+  noRatio: 'Ratio unavailable',
+  overBudget: 'Over budget',
+  usageNote: 'Shares use the effective budget. Remaining funds exclude spent, committed and pending amounts.',
+  overBudgetNote:
+    'Spent, committed and pending amounts exceed the effective budget. A negative balance shows the shortfall.',
+  incomparable:
+    'Shares are unavailable because figures are missing, use different currencies or do not match the budget total.'
 } as const

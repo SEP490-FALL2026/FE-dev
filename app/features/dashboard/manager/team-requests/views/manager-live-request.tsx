@@ -226,10 +226,10 @@ export function ManagerLiveRequest({
       {request && (
         <>
           <RequestFlowSummary request={request} />
-          {request.routing.mode === ACCESS_REQUEST_ROUTING.ONE_STEP &&
-            request.state === ACCESS_REQUEST_STATE.AWAITING_REQUESTER_REVISION &&
+          {request.state === ACCESS_REQUEST_STATE.AWAITING_REQUESTER_REVISION &&
             request.requester.employeeId === employeeId && (
               <RequestRevision
+                request={request}
                 departmentId={request.department.id}
                 id={id}
                 group={request.type === REQUEST_TYPE.GROUP_GRANT}
@@ -238,7 +238,7 @@ export function ManagerLiveRequest({
             )}
           {request.routing.mode === ACCESS_REQUEST_ROUTING.VIA_HEAD &&
             request.state === REQUEST_STATE.AWAITING_SPEND_SUBMISSION &&
-            request.requester.employeeId !== employeeId && <ManagerSpendCorrections id={id} />}
+            request.requester.employeeId !== employeeId && <ManagerSpendCorrections id={id} request={request} />}
         </>
       )}
       {request && (

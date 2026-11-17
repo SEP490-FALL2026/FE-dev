@@ -30,7 +30,7 @@ export function usePolicyChecklist(step: PolicyStep, enabled = true) {
   const complete = !!data && items.every((item) => !!answerOf(item.code, item.check))
   const failedItems = items.filter((item) => answerOf(item.code, item.check) === CHECKLIST_ANSWER.NO)
   const body: PolicyChecklistBody | undefined =
-    data && complete
+    enabled && !query.isFetching && data && complete
       ? {
           policyVersionId: data.policyVersionId,
           answers: items.map((item) => ({ itemCode: item.code, answer: answerOf(item.code, item.check) }))
@@ -51,6 +51,8 @@ export function usePolicyChecklist(step: PolicyStep, enabled = true) {
     hasNo: failedItems.length > 0,
     failedItems,
     body,
+    matches: (submitted: PolicyChecklistBody | undefined) =>
+      !!body && JSON.stringify(submitted) === JSON.stringify(body),
     /** Quick answer: every person question Yes. Each answer can still be changed afterwards. */
     answerAllYes: () => {
       if (!data) return

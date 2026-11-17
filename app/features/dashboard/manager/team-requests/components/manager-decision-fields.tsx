@@ -16,6 +16,7 @@ export function ManagerDecisionFields({
   name,
   value,
   onChange,
+  fallbackReason = '',
   approveLocked = false
 }: {
   label: string
@@ -24,6 +25,7 @@ export function ManagerDecisionFields({
   onChange: (value: ManagerDecisionChoice) => void
   /** A checklist answer is No: only reject or return remain. */
   approveLocked?: boolean
+  fallbackReason?: string
 }) {
   const { t: translate } = useTranslation('manager')
   return (
@@ -59,11 +61,11 @@ export function ManagerDecisionFields({
             className={managerInputClass}
             value={value.reason}
             onChange={(event) => {
-              event.target.setCustomValidity(event.target.value.trim() ? '' : translate('validation'))
               onChange({ ...value, reason: event.target.value })
             }}
             rows={2}
-            required
+            required={!fallbackReason}
+            placeholder={fallbackReason}
             maxLength={1000}
           />
         </ManagerField>

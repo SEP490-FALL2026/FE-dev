@@ -9,21 +9,27 @@ import { getAccessRequestGetQueryKey } from '~/shared/api/generated/operations/a
 import { getAccessRequestEventListQueryKey } from '~/shared/api/generated/operations/access-requests/access-request-event-list'
 import { getMeAccessRequestListQueryKey } from '~/shared/api/generated/operations/me/me-access-request-list'
 import { getDepartmentAccessRequestListQueryKey } from '~/shared/api/generated/operations/access-requests/department-access-request-list'
-import { useAccessRequestLineList } from '~/shared/api/generated/operations/group-requests/access-request-line-list'
 import { requestContractErrorKey } from '../request-contract-errors'
-import { readTermMonths, termMonthsPayload } from '../term-months'
+import { RequestSupplementForm } from './request-supplement-form'
+import type { SupplementBodyDto } from '~/shared/api/generated/model/spend-submission/supplementBodyDto'
+import { ACCESS_REQUEST_ROUTING } from '../enums/access-request-routing'
+
+import type { AccessRequestResponseDtoDataRequest } from '~/shared/api/generated/model/access-requests/accessRequestResponseDtoDataRequest'
+import { SPEND_STAGE } from '../enums/spend-stage'
 
 export function RequestRevision({
   id,
   group,
   departmentId,
-  termMonths
+  termMonths,
+  request
 }: {
   id: string
   group: boolean
   departmentId: string
   /** Current "Thời gian dùng" of the request; a supplement may only shorten it. */
   termMonths?: number | null
+  request?: Pick<AccessRequestResponseDtoDataRequest, 'routing' | 'spend' | 'needDecision' | 'plan'>
 }) {
   const { t } = useTranslation('requestFlow')
   const client = useQueryClient()
@@ -36,22 +42,18 @@ export function RequestRevision({
     return () => window.clearTimeout(timer)
   }, [retrySeconds])
   const locked = useRef(false)
-  const [drop, setDrop] = useState<string[]>([])
-  const [term, setTerm] = useState('')
-  const lines = useAccessRequestLineList(id, { page: 1, pageSize: 100 }, { query: { enabled: group && editing } })
+  const canSupplement =
+    request?.routing.mode === ACCESS_REQUEST_ROUTING.ONE_STEP &&
+    request.spend?.stage === SPEND_STAGE.RETURNED_TO_REQUESTER
   const mutation = useMutation({
     retry: false,
-    mutationFn: async (form?: FormData) => {
-      if (!form) return accessRequestResubmit(id)
-      return accessRequestSupplementAdd(id, {
-        reason: String(form.get('reason')).trim(),
-        ...termMonthsPayload(readTermMonths(form)),
-        ...(drop.length ? { dropEmployeeIds: drop } : {})
-      })
+    mutationFn: async (body?: SupplementBodyDto) => {
+      if (!body) return accessRequestResubmit(id)
+      if (!canSupplement) throw new Error('Supplement not allowed')
+      return accessRequestSupplementAdd(id, body)
     },
     onSuccess: () => {
       setEditing(false)
-      setDrop([])
       toast.success(t('saved'), { id: 'request-revision' })
     },
     onError: (error) => {
@@ -77,13 +79,12 @@ export function RequestRevision({
       locked.current = false
     }
   })
-  const submit = (form?: FormData) => {
+  const submit = (form?: SupplementBodyDto) => {
     if (!locked.current && !uncertain && !retrySeconds) {
       locked.current = true
       mutation.mutate(form)
     }
   }
-  const inputClass = 'min-h-11 w-full rounded-md border border-border bg-background p-3 text-base md:text-sm'
   const buttonClass = 'min-h-11 rounded-md border border-border px-4 py-2 text-sm disabled:opacity-50'
   return (
     <section className='space-y-4 border-t border-border/60 pt-4'>
@@ -103,84 +104,27 @@ export function RequestRevision({
           {t('retryAfter', { seconds: retrySeconds })}
         </p>
       )}
-      {editing && (
-        <form
-          className='space-y-4'
-          onSubmit={(event) => {
-            event.preventDefault()
-            const form = new FormData(event.currentTarget)
-            if (readTermMonths(form) !== undefined || drop.length) submit(form)
-          }}
-        >
-          <fieldset disabled={mutation.isPending || uncertain || !!retrySeconds} className='space-y-4'>
-            <label className='grid gap-2 text-sm'>
-              {t('termMonths')}
-              <input
-                className={inputClass}
-                type='number'
-                inputMode='numeric'
-                name='termMonths'
-                min={1}
-                max={termMonths ? termMonths - 1 : 12}
-                step={1}
-                value={term}
-                onChange={(event) => setTerm(event.target.value)}
-                aria-describedby={`${id}-term-hint`}
-              />
-              <span id={`${id}-term-hint`} className='text-xs text-muted-foreground'>
-                {t('supplementTermHint')}
-              </span>
-            </label>
-            {group && (
-              <div>
-                <p className='text-sm'>{t('dropMembers')}</p>
-                {lines.isError ? (
-                  <button type='button' className={buttonClass} onClick={() => void lines.refetch()}>
-                    {t('retry')}
-                  </button>
-                ) : (
-                  lines.data?.data?.items.map((line) => (
-                    <label key={line.employee.employeeId} className='flex min-h-11 items-center gap-2 text-sm'>
-                      <input
-                        type='checkbox'
-                        checked={drop.includes(line.employee.employeeId)}
-                        onChange={(event) =>
-                          setDrop((old) =>
-                            event.target.checked
-                              ? [...old, line.employee.employeeId]
-                              : old.filter((value) => value !== line.employee.employeeId)
-                          )
-                        }
-                      />
-                      {line.employee.fullName}
-                    </label>
-                  ))
-                )}
-              </div>
-            )}
-            <label className='grid gap-2 text-sm'>
-              {t('supplement')}
-              <textarea className={inputClass} name='reason' required maxLength={1000} rows={3} />
-            </label>
-            <button
-              className={buttonClass}
-              type='submit'
-              aria-busy={mutation.isPending}
-              disabled={!term && !drop.length}
-            >
-              {t('save')}
-            </button>
-          </fieldset>
-        </form>
+      {!canSupplement && <p className='text-sm text-muted-foreground'>{t('resubmitOnlyHint')}</p>}
+      {canSupplement && editing && (
+        <RequestSupplementForm
+          id={id}
+          planId={request?.plan?.planId}
+          termMonths={termMonths}
+          group={group}
+          disabled={mutation.isPending || uncertain || !!retrySeconds}
+          onSubmit={submit}
+        />
       )}
       <div className='flex flex-wrap justify-end gap-3'>
-        <button
-          className={buttonClass}
-          disabled={mutation.isPending || uncertain || !!retrySeconds}
-          onClick={() => setEditing(!editing)}
-        >
-          {t(editing ? 'cancel' : 'revise')}
-        </button>
+        {canSupplement && (
+          <button
+            className={buttonClass}
+            disabled={mutation.isPending || uncertain || !!retrySeconds}
+            onClick={() => setEditing(!editing)}
+          >
+            {t(editing ? 'cancel' : 'revise')}
+          </button>
+        )}
         <button
           className={`${buttonClass} bg-primary text-primary-foreground`}
           aria-busy={mutation.isPending}

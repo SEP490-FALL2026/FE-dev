@@ -1,3 +1,4 @@
+import { PROVISIONING_TYPE } from '~/entities/request/enums/provisioning-type'
 import { useQuery } from '@tanstack/react-query'
 import type { MySoftwarePageResponseDtoDataItemsItem } from '~/shared/api/generated/model/me/mySoftwarePageResponseDtoDataItemsItem'
 import {
@@ -10,7 +11,14 @@ import { REQUEST_ASSIGNMENT_STATUS, REQUEST_ASSIGNMENT_VIEW } from '../enums/req
 export function canSelectRequestAssignment(item: MySoftwarePageResponseDtoDataItemsItem, mode: RequestMode) {
   // This list exposes no pending-request flags. Final eligibility remains a server check.
   const held = item.status === REQUEST_ASSIGNMENT_STATUS.ACTIVE || item.status === REQUEST_ASSIGNMENT_STATUS.EXPIRED
-  return held && (mode === 'return' || (mode === 'renewal' && !!item.expectedEndDate && !item.successorAssignmentId))
+  return (
+    held &&
+    (mode === 'return' ||
+      (mode === 'renewal' &&
+        item.provisioningType !== PROVISIONING_TYPE.K4 &&
+        !!item.expectedEndDate &&
+        !item.successorAssignmentId))
+  )
 }
 export function useRequestAssignments(mode: RequestMode) {
   const query = useQuery({

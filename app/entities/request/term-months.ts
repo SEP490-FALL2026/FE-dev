@@ -1,4 +1,4 @@
-import { RequestablePlanPageResponseDtoDataItemsItemProvisioningType as PROVISIONING_TYPE } from '~/shared/api/generated/model/requestable-software/requestablePlanPageResponseDtoDataItemsItemProvisioningType'
+import { PROVISIONING_TYPE } from './enums/provisioning-type'
 
 /** Plan kinds of the catalog, plus a request for software that is not in the catalog yet. */
 export type TermSubject = (typeof PROVISIONING_TYPE)[keyof typeof PROVISIONING_TYPE] | 'NEW_SOFTWARE'
@@ -18,7 +18,11 @@ export interface TermRule {
 export function termRule(subject: TermSubject | null | undefined): TermRule {
   if (!subject || subject === PROVISIONING_TYPE.K4) return { asked: false, required: false, maxMonths: 0 }
   if (subject === PROVISIONING_TYPE.K1) return { asked: true, required: true, maxMonths: 9 }
-  return { asked: true, required: false, maxMonths: 12 }
+  return {
+    asked: true,
+    required: subject !== PROVISIONING_TYPE.K2 && subject !== PROVISIONING_TYPE.K5 && subject !== 'NEW_SOFTWARE',
+    maxMonths: 12
+  }
 }
 
 /**

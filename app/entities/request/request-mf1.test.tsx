@@ -5,6 +5,7 @@ import { setupServer } from 'msw/node'
 import { afterAll, afterEach, beforeAll, beforeEach, expect, it, vi } from 'vitest'
 import { setAppLanguage } from '~/shared/i18n/i18n'
 import { RequestRevision } from './components/request-revision'
+import { catalogPlanDetails } from '../../../test/fixtures/employee-catalog'
 import { RequestFlowSummary } from './components/request-flow-summary'
 import { accessRequest, employeeId, requestId } from '../../../test/fixtures/employee-api'
 
@@ -16,10 +17,11 @@ beforeEach(async () => {
   await setAppLanguage('en', false)
 })
 
-it('revises a returned request using only the changed date and reason, then allows resubmission', async () => {
+it('revises a returned request using only a shorter term and reason, then allows resubmission', async () => {
   const supplement = vi.fn()
   const resubmit = vi.fn()
   server.use(
+    http.get('*/api/v1/requestable-plans/:id', () => HttpResponse.json({ success: true, data: catalogPlanDetails })),
     http.post('*/api/v1/access-requests/:id/supplements', async ({ request }) => {
       supplement(await request.json())
       return HttpResponse.json({ success: true, data: null })
@@ -31,12 +33,23 @@ it('revises a returned request using only the changed date and reason, then allo
   )
   render(
     <QueryClientProvider client={new QueryClient()}>
-      <RequestRevision id={requestId} departmentId={employeeId} group={false} termMonths={6} />
+      <RequestRevision
+        id={requestId}
+        departmentId={employeeId}
+        group={false}
+        termMonths={6}
+        request={{
+          ...accessRequest,
+          routing: { mode: 'ONE_STEP', oneStepReason: 'REQUESTER_IS_HEAD' },
+          spend: { stage: 'RETURNED_TO_REQUESTER', blockedReasons: [], overBy: null, refusalReason: null },
+          needDecision: null
+        }}
+      />
     </QueryClientProvider>
   )
   fireEvent.click(screen.getByRole('button', { name: 'Revise returned request' }))
   expect(screen.getByRole('button', { name: 'Save changes' })).toBeDisabled()
-  fireEvent.change(screen.getByLabelText(/^Term of use/), { target: { value: '3' } })
+  fireEvent.change(await screen.findByLabelText(/^Term of use/), { target: { value: '3' } })
   fireEvent.change(screen.getByLabelText('Reason for the change'), { target: { value: 'Shorter project' } })
   const save = screen.getByRole('button', { name: 'Save changes' })
   fireEvent.click(save)

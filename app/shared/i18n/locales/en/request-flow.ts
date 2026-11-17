@@ -1,6 +1,12 @@
 import { requestPersonnel } from './request-personnel'
 export const requestFlow = {
   ...requestPersonnel,
+  resubmitOnlyHint:
+    'You can resubmit this request to the reviewer. Changes to its content are not supported at this step.',
+  renewalWindow: 'You can request renewal from {{date}}.',
+  renewalWindowUnknown: 'The renewal window is not open yet. Reload your software before trying again.',
+  renewalNotAllowed: 'This access cannot be renewed now. Reload your software to check its status.',
+  renewalAlreadyRequested: 'This access already has a pending renewal request.',
   reload: 'Reload request',
   retryAfter: 'Try again in {{seconds}} seconds',
   VIA_HEAD: 'Department review and spending approval',
@@ -39,7 +45,7 @@ export const requestFlow = {
   indefinite: 'No expected end date',
   termMonths: 'Term of use (months)',
   longTerm: 'Long-term use',
-  termHint: 'From 1 to {{max}} months; leave empty or choose long-term use for no limit.',
+  termHint: 'Enter 1 to {{max}} months, or select long-term use (permanent employees only).',
   termHintRequired: 'Required, from 1 to {{max}} months.',
   monthsValue: '{{count}} months',
   termRefusal: {

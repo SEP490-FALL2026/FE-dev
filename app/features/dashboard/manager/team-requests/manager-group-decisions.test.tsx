@@ -65,6 +65,31 @@ async function confirm() {
   fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Confirm' }))
   await waitFor(() => expect(written).toHaveBeenCalledOnce())
 }
+
+it('uses the failed checklist reason when returning the whole group', async () => {
+  mount()
+  await answerChecklist('No')
+  const group = await screen.findByRole('group', { name: 'Decision for the whole group' })
+  expect(within(group).getByRole('radio', { name: 'Approve need' })).toBeDisabled()
+  fireEvent.click(within(group).getByRole('radio', { name: 'Return' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
+  fireEvent.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Confirm' }))
+  await waitFor(() =>
+    expect(written).toHaveBeenCalledWith({
+      lines: [
+        { employeeId, decision: 'RETURN', reason: expect.stringContaining('The need is justified') },
+        { employeeId: planId, decision: 'RETURN', reason: expect.stringContaining('The need is justified') }
+      ],
+      checklist: {
+        ...checklistBody('1.2'),
+        answers: [
+          { itemCode: '1.2-01', answer: 'YES' },
+          { itemCode: '1.2-02', answer: 'NO' }
+        ]
+      }
+    })
+  )
+})
 it('requires an explicit decision and applies one approval to all and only the assigned people', async () => {
   mount()
   const group = await screen.findByRole('group', { name: 'Decision for the whole group' })

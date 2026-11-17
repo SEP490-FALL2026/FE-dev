@@ -176,9 +176,9 @@ export function ManagerNeedForm({ id }: { id: string }) {
               <ManagerButton
                 primary
                 busy={action.isPending}
-                disabled={action.blocked}
+                disabled={action.blocked || !checklist.matches(confirmation.checklist)}
                 onClick={() => {
-                  if (!action.blocked) action.mutate(confirmation)
+                  if (!action.blocked && checklist.matches(confirmation.checklist)) action.mutate(confirmation)
                 }}
               >
                 {translate('confirm')}
