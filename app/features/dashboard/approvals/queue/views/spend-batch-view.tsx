@@ -112,8 +112,8 @@ function BatchWorkspace({
   const submissionLocked = useRef(false)
   const [page, setPage] = useState(1)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
-  const [decision, setDecision] = useState<BatchDecisionBodyDtoDecision>(SPEND_DECISION.APPROVE)
-  const [reason, setReason] = useState('')
+  // A new key gives the decision form back empty once a decision went through.
+  const [formKey, setFormKey] = useState(0)
   const [results, setResults] = useState<BatchDecisionResponseDtoDataResultsItem[] | null>(null)
   const batchQuery = useSpendBatchGet(batchId)
   const itemQuery = useSpendBatchItemList(batchId, { page, pageSize: BATCH_SELECTION_LIMIT })
@@ -143,7 +143,8 @@ function BatchWorkspace({
           return
         }
         setSelectedIds([])
-        setReason('')
+        setFormKey((key) => key + 1)
+        checklist.setAll(null)
         if (returnedResults.some((result) => result.outcome === BATCH_RESULT_OUTCOME.SKIPPED)) {
           toast.warning(translate('batchPartial'), { id: 'approvals-batch' })
         } else toast.success(translateCommon('saved'), { id: 'approvals-batch' })
@@ -165,7 +166,7 @@ function BatchWorkspace({
   const batch = batchQuery.data?.data?.batch
   const openRequest = (requestId: string) => onSelectTab('request', { id: requestId })
 
-  function submit() {
+  function submit(decision: BatchDecisionBodyDtoDecision, reason: string) {
     if (
       submissionLocked.current ||
       disabled ||
@@ -233,14 +234,11 @@ function BatchWorkspace({
                   }}
                 />
                 <SpendBatchDecision
-                  decision={decision}
-                  reason={reason}
+                  key={formKey}
                   selectedCount={eligibleIds.length}
                   pending={mutation.isPending}
                   disabled={disabled}
                   checklist={checklist}
-                  onDecision={setDecision}
-                  onReason={setReason}
                   onSubmit={submit}
                 />
               </ApprovalsQueryState>

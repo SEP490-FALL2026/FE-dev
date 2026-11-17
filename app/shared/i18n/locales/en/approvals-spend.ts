@@ -139,6 +139,12 @@ export const approvalsSpend = {
   rejectPlaceholder: 'E.g. The team already has an equivalent tool under contract',
   declineNeedsNo:
     'Reject or Return is open only when at least one checklist criterion is answered "No". Open the checklist and answer "No" on the criterion that is not met.',
+  batchRejectTitle: 'Reject the selected requests',
+  batchReturnTitle: 'Return the whole batch',
+  batchRejectAsk:
+    'Are you sure you want to reject the {{count}} selected requests? The requesters will receive the reason you enter.',
+  batchReturnAsk:
+    'Are you sure you want to return this whole batch to its head? It does not depend on what is selected.',
   declineRejectTitle: 'Reject this request',
   declineReturnTitle: 'Return this request',
   declineRejectAsk: 'Are you sure you want to reject this request? The requester will receive the reason you enter.',

@@ -7,7 +7,7 @@ const mount = (text: string) => render(<PolicyMarkdown text={text} />)
 describe('PolicyMarkdown', () => {
   it('renders bold, italic with underscores or stars, and inline code', () => {
     const { container } = mount('Mọi **quyền qua Request**, _Đối chiếu:_ khớp, *nhấn mạnh* và `change_note`.')
-    expect(container.querySelector('strong')?.textContent).toBe('quyền qua Request')
+    expect(container.querySelector('strong')?.textContent).toBe('quyền qua yêu cầu')
     const italics = [...container.querySelectorAll('em')].map((node) => node.textContent)
     expect(italics).toEqual(['Đối chiếu:', 'nhấn mạnh'])
     expect(container.querySelector('code')?.textContent).toBe('change_note')
@@ -88,7 +88,7 @@ describe('PolicyMarkdown', () => {
       '1. **Mọi quyền qua Request**, không tự cấp. — _Đối chiếu:_ Khớp chuẩn · [NIST AC-2](https://csf.tools/ac-2/)'
     )
     const item = container.querySelector('ol > li')
-    expect(item?.querySelector('strong')?.textContent).toBe('Mọi quyền qua Request')
+    expect(item?.querySelector('strong')?.textContent).toBe('Mọi quyền qua yêu cầu')
     expect(item?.querySelector('em')?.textContent).toBe('Đối chiếu:')
     expect(item?.querySelector('a')?.getAttribute('href')).toBe('https://csf.tools/ac-2/')
     expect(item?.textContent).not.toMatch(/[*_[\]]/)

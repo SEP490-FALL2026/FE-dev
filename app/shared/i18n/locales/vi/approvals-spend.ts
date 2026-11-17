@@ -138,6 +138,10 @@ export const approvalsSpend = {
   decisionConfirmation: 'Tôi đã xem yêu cầu, kiểm tra ngân sách và thông tin liên quan.',
   declineNeedsNo:
     'Từ chối hoặc Trả về chỉ dùng được khi có ít nhất một tiêu chí danh sách kiểm tra chọn "Không". Mở danh sách kiểm tra và chọn "Không" ở tiêu chí chưa đạt.',
+  batchRejectTitle: 'Từ chối các yêu cầu đã chọn',
+  batchReturnTitle: 'Trả cả đợt về',
+  batchRejectAsk: 'Bạn chắc chắn muốn từ chối {{count}} yêu cầu đã chọn? Người gửi sẽ nhận được lý do bạn nhập.',
+  batchReturnAsk: 'Bạn chắc chắn muốn trả cả đợt này về trưởng phòng? Việc này không phụ thuộc phần đã chọn.',
   declineRejectTitle: 'Từ chối yêu cầu',
   declineReturnTitle: 'Trả yêu cầu về',
   declineRejectAsk: 'Bạn chắc chắn muốn từ chối yêu cầu này? Người gửi sẽ nhận được lý do bạn nhập.',

@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { AxiosError, AxiosHeaders, type InternalAxiosRequestConfig } from 'axios'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { toast } from 'sonner'
@@ -7,7 +7,7 @@ import { apiClient } from '~/shared/api/axios-client'
 import { setAppLanguage } from '~/shared/i18n/i18n'
 import { isApprovalRelatedKey } from '../shared/approvals-query-keys'
 import { ApprovalBatchView } from './views/spend-batch-view'
-import { answerChecklistYes, expectedChecklist, policyStepData } from '../shared/checklist-test-utils'
+import { expectedChecklist, policyStepData } from '../shared/checklist-test-utils'
 
 const batchId = '81000000-0000-4000-8000-000000000001'
 const firstRequestId = '81000000-0000-4000-8000-000000000002'
@@ -143,6 +143,30 @@ describe('Spending Approver batch API', () => {
     expect(await screen.findByText('0 requests selected')).toBeInTheDocument()
   })
 
+  const oneCriterionFailed = {
+    policyVersionId: expectedChecklist.policyVersionId,
+    answers: [
+      { itemCode: 'P-01', answer: 'YES' },
+      { itemCode: 'P-02', answer: 'NO' }
+    ]
+  }
+  /** Ticks "read and agree to all": it confirms the review and answers every checklist question Yes. */
+  async function agreeToAll() {
+    await screen.findByText('0 of 2 questions answered')
+    fireEvent.click(screen.getByRole('checkbox', { name: /I have read and agree to everything/ }))
+  }
+  /** The review is confirmed and one criterion answered No: the ground to reject or return. */
+  async function failOneCriterion() {
+    fireEvent.click(
+      await screen.findByRole('checkbox', {
+        name: 'I have reviewed the request, budget check and supporting information.'
+      })
+    )
+    fireEvent.click(await screen.findByRole('button', { name: 'Show the decision checklist' }))
+    fireEvent.click(screen.getAllByRole('radio', { name: 'No' }).at(-1) as HTMLElement)
+    for (const radio of screen.getAllByRole('radio', { name: 'Yes' }).slice(1, -1)) fireEvent.click(radio)
+  }
+
   it('sends a strict decision and reports partial skips without a success toast', async () => {
     const warning = vi.spyOn(toast, 'warning')
     const success = vi.spyOn(toast, 'success')
@@ -150,8 +174,8 @@ describe('Spending Approver batch API', () => {
     await screen.findByText('Batch sender')
     fireEvent.click(screen.getAllByRole('checkbox', { name: 'Select request #1' })[0])
     fireEvent.click(screen.getAllByRole('checkbox', { name: 'Select request #2' })[0])
-    await answerChecklistYes()
-    fireEvent.click(screen.getByRole('button', { name: 'Confirm submission decision' }))
+    await agreeToAll()
+    fireEvent.click(screen.getByRole('button', { name: 'Approve' }))
     await waitFor(() => expect(calls.some((config) => config.method === 'post')).toBe(true))
     expect(JSON.parse(calls.find((config) => config.method === 'post')?.data)).toEqual({
       decision: 'APPROVE',
@@ -161,47 +185,57 @@ describe('Spending Approver batch API', () => {
     expect(await screen.findAllByText('Insufficient budget must be corrected before approval')).not.toHaveLength(0)
     await waitFor(() => expect(warning).toHaveBeenCalledOnce())
     expect(success).not.toHaveBeenCalled()
-    expect(screen.getByRole('button', { name: 'Confirm submission decision' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Approve' })).toBeDisabled()
   })
 
-  it('requires a rejection reason and keeps the draft after an API refusal', async () => {
+  it('opens Reject only on a criterion answered No, asks for the reason in a dialog and keeps it after an API refusal', async () => {
     setup()
     await screen.findByText('Batch sender')
     fireEvent.click(screen.getAllByRole('checkbox', { name: 'Select request #1' })[0])
-    fireEvent.click(screen.getByRole('combobox', { name: 'Decision' }))
-    fireEvent.click(screen.getByRole('option', { name: 'Reject' }))
-    const submit = screen.getByRole('button', { name: 'Confirm submission decision' })
-    expect(submit).toBeDisabled()
-    fireEvent.change(screen.getByLabelText('Reason for rejection'), { target: { value: 'Insufficient business need' } })
-    await answerChecklistYes()
+    await agreeToAll()
+    expect(screen.getByRole('button', { name: 'Reject' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Return' })).toBeDisabled()
+    fireEvent.click(screen.getByRole('checkbox', { name: /I have read and agree to everything/ }))
+    await failOneCriterion()
+    expect(screen.getByRole('button', { name: 'Approve' })).toBeDisabled()
+    fireEvent.click(screen.getByRole('button', { name: 'Reject' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Reject the selected requests' })
+    expect(within(dialog).getByText('Vendor is verified')).toBeInTheDocument()
+    expect(within(dialog).getByRole('button', { name: 'Confirm rejection' })).toBeDisabled()
+    fireEvent.change(within(dialog).getByPlaceholderText('State why you reject or return it'), {
+      target: { value: 'Insufficient business need' }
+    })
     failMutation = true
-    fireEvent.click(submit)
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Confirm rejection' }))
     await waitFor(() => expect(calls.some((config) => config.method === 'post')).toBe(true))
     expect(JSON.parse(calls.find((config) => config.method === 'post')?.data)).toEqual({
       decision: 'REJECT',
       requestIds: [firstRequestId],
       reason: 'Insufficient business need',
-      checklist: expectedChecklist
+      checklist: oneCriterionFailed
     })
-    await waitFor(() => expect(submit).not.toBeDisabled())
-    expect(screen.getByLabelText('Reason for rejection')).toHaveValue('Insufficient business need')
+    await waitFor(() => expect(within(dialog).getByRole('button', { name: 'Confirm rejection' })).not.toBeDisabled())
+    expect(within(dialog).getByPlaceholderText('State why you reject or return it')).toHaveValue(
+      'Insufficient business need'
+    )
   })
 
   it('returns the whole batch to the head with a reason and names no requests', async () => {
     setup()
     await screen.findByText('Batch sender')
-    fireEvent.click(screen.getByRole('combobox', { name: 'Decision' }))
-    fireEvent.click(screen.getByRole('option', { name: 'Return' }))
-    const submit = screen.getByRole('button', { name: 'Confirm submission decision' })
-    expect(submit).toBeDisabled()
-    fireEvent.change(screen.getByLabelText('Reason for returning'), { target: { value: 'Use the team plan' } })
-    await answerChecklistYes()
-    fireEvent.click(submit)
+    await failOneCriterion()
+    fireEvent.click(screen.getByRole('button', { name: 'Return' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Return the whole batch' })
+    expect(within(dialog).getByRole('button', { name: 'Confirm return' })).toBeDisabled()
+    fireEvent.change(within(dialog).getByPlaceholderText('State why you reject or return it'), {
+      target: { value: 'Use the team plan' }
+    })
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Confirm return' }))
     await waitFor(() => expect(calls.some((config) => config.method === 'post')).toBe(true))
     expect(JSON.parse(calls.find((config) => config.method === 'post')?.data)).toEqual({
       decision: 'RETURN',
       reason: 'Use the team plan',
-      checklist: expectedChecklist
+      checklist: oneCriterionFailed
     })
   })
 

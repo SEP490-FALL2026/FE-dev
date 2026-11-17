@@ -1,106 +1,126 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import type { BatchDecisionBodyDtoDecision } from '~/shared/api/generated/model/spend-approvals/batchDecisionBodyDtoDecision'
-import {
-  ApprovalsButton,
-  ApprovalsField,
-  ApprovalsSelect,
-  approvalsInputClass
-} from '../../shared/components/approvals-ui'
+import { ApprovalsButton } from '../../shared/components/approvals-ui'
 import { DecisionChecklistPanel } from '../../shared/components/decision-checklist'
-import type { DecisionChecklist } from '../../shared/hooks/use-decision-checklist'
+import { DecisionDeclineDialog } from '../../shared/components/decision-decline-dialog'
+import { CHECKLIST_ANSWER, type DecisionChecklist } from '../../shared/hooks/use-decision-checklist'
 import { SPEND_DECISION } from '../enums/spend-decision'
 import { BATCH_SELECTION_LIMIT } from '../batch-constraints'
 
+type BatchChoice = typeof SPEND_DECISION.APPROVE | typeof SPEND_DECISION.REJECT | typeof SPEND_DECISION.RETURN
+
+/**
+ * The decision on a batch, laid out like the decision on one request: the checklist starts folded, two boxes confirm
+ * the review and the buttons are the decision. Approve needs every answer Yes; Reject and Return need a criterion
+ * answered No as their ground and ask for the reason in their own dialog. A return takes the whole batch back to its
+ * head, so it needs no selection; the other two decide the selected requests of the page.
+ */
 export function SpendBatchDecision({
-  decision,
-  reason,
   selectedCount,
   pending,
   disabled,
   checklist,
-  onDecision,
-  onReason,
   onSubmit
 }: {
-  decision: BatchDecisionBodyDtoDecision
-  reason: string
   selectedCount: number
   pending: boolean
   disabled: boolean
   checklist: DecisionChecklist
-  onDecision: (decision: BatchDecisionBodyDtoDecision) => void
-  onReason: (reason: string) => void
-  onSubmit: () => void
+  onSubmit: (decision: BatchChoice, reason: string) => void
 }) {
   const { t: translate } = useTranslation('approvalsSpend')
-  const needsReason = decision === SPEND_DECISION.REJECT || decision === SPEND_DECISION.RETURN
-  const approving = decision === SPEND_DECISION.APPROVE
-  const returning = decision === SPEND_DECISION.RETURN
-  // A return takes the whole batch back to the head, so it needs no selection.
-  const valid =
-    (returning || (selectedCount > 0 && selectedCount <= BATCH_SELECTION_LIMIT)) &&
-    (!needsReason || Boolean(reason.trim())) &&
-    checklist.complete &&
-    !(approving && checklist.hasNo)
+  const { t: translateChecklist } = useTranslation('approvals')
+  const [confirmed, setConfirmed] = useState(false)
+  const [declining, setDeclining] = useState<typeof SPEND_DECISION.REJECT | typeof SPEND_DECISION.RETURN | null>(null)
+
+  const open = !disabled && !pending
+  const hasSelection = selectedCount > 0 && selectedCount <= BATCH_SELECTION_LIMIT
+  const answered = open && confirmed && checklist.complete
+  const hasPersonQuestions = checklist.items.some((item) => item.check === 'PERSON')
+  const hasGround = checklist.hasNo || !hasPersonQuestions
+  const canApprove = answered && hasSelection && !checklist.hasNo
+  const canReject = answered && hasSelection && hasGround
+  const canReturn = answered && hasGround
+  const agreeAll = confirmed && checklist.complete && !checklist.hasNo
+
   return (
     <form
       className='space-y-4 rounded-lg border border-border/70 bg-surface p-5 shadow-[0_1px_2px_0_rgba(0,0,0,0.04)]'
-      onSubmit={(event) => {
-        event.preventDefault()
-        if (!pending && !disabled && valid) onSubmit()
-      }}
+      onSubmit={(event) => event.preventDefault()}
     >
       <div className='flex flex-wrap items-start justify-between gap-3'>
         <div className='space-y-1 text-sm text-muted-foreground'>
           <p>{translate('batchHint')}</p>
-          <p>{translate(returning ? 'batchReturnScope' : 'batchPageScope')}</p>
+          <p>{translate('batchPageScope')}</p>
         </div>
-        {!returning && (
-          <p className='font-mono text-sm font-medium tabular-nums'>
-            {translate('selected', { count: selectedCount })}
-          </p>
-        )}
+        <p className='font-mono text-sm font-medium tabular-nums'>{translate('selected', { count: selectedCount })}</p>
       </div>
-      <div className='grid gap-4 sm:grid-cols-2'>
-        <ApprovalsSelect
-          label={translate('decision')}
-          value={decision}
-          options={[
-            { value: SPEND_DECISION.APPROVE, label: translate('approve') },
-            { value: SPEND_DECISION.REJECT, label: translate('reject') },
-            { value: SPEND_DECISION.RETURN, label: translate('return') }
-          ]}
-          onChange={(value) => {
-            if (value === SPEND_DECISION.APPROVE || value === SPEND_DECISION.REJECT || value === SPEND_DECISION.RETURN)
-              onDecision(value)
-          }}
-          disabled={pending || disabled}
-        />
-        {needsReason && (
-          <ApprovalsField
-            label={translate(decision === SPEND_DECISION.RETURN ? 'returnReason' : 'rejectReason')}
-            required
+      <fieldset disabled={!open} className='space-y-4 disabled:opacity-60'>
+        <DecisionChecklistPanel checklist={checklist} disabled={!open} collapsible />
+        <label className='flex min-h-11 items-start gap-3 text-sm'>
+          <input
+            className='mt-0.5 size-4 accent-primary'
+            type='checkbox'
+            checked={confirmed}
+            onChange={(event) => setConfirmed(event.target.checked)}
+          />
+          {translate('decisionConfirmation')}
+        </label>
+        <label className='flex min-h-11 items-start gap-3 text-sm font-medium'>
+          <input
+            className='mt-0.5 size-4 accent-primary'
+            type='checkbox'
+            checked={agreeAll}
+            onChange={(event) => {
+              setConfirmed(event.target.checked)
+              checklist.setAll(event.target.checked ? CHECKLIST_ANSWER.YES : null)
+            }}
+          />
+          {translateChecklist('checklist.agreeAll')}
+        </label>
+      </fieldset>
+      <div className='flex flex-wrap items-center justify-between gap-3 border-t border-border/60 pt-4'>
+        <span className='text-sm font-medium'>{translate('batchConfirm')}</span>
+        <div className='flex flex-wrap justify-end gap-3'>
+          <ApprovalsButton variant='danger' type='button' disabled={!canReject} onClick={() => setDeclining('REJECT')}>
+            {translate('reject')}
+          </ApprovalsButton>
+          <ApprovalsButton
+            variant='secondary'
+            type='button'
+            disabled={!canReturn}
+            onClick={() => setDeclining('RETURN')}
           >
-            <textarea
-              aria-label={translate(decision === SPEND_DECISION.RETURN ? 'returnReason' : 'rejectReason')}
-              required
-              maxLength={1000}
-              rows={3}
-              className={approvalsInputClass}
-              placeholder={translate(decision === SPEND_DECISION.RETURN ? 'returnPlaceholder' : 'rejectPlaceholder')}
-              value={reason}
-              disabled={pending}
-              onChange={(event) => onReason(event.target.value)}
-            />
-          </ApprovalsField>
-        )}
+            {translate('return')}
+          </ApprovalsButton>
+          <ApprovalsButton
+            variant='primary'
+            type='button'
+            pending={pending}
+            disabled={!canApprove}
+            onClick={() => onSubmit(SPEND_DECISION.APPROVE, '')}
+          >
+            {translate('approve')}
+          </ApprovalsButton>
+        </div>
       </div>
-      <DecisionChecklistPanel checklist={checklist} disabled={pending || disabled} />
-      <div className='flex justify-end border-t border-border/60 pt-4'>
-        <ApprovalsButton type='submit' variant='primary' pending={pending} disabled={disabled || !valid}>
-          {translate('batchConfirm')}
-        </ApprovalsButton>
-      </div>
+      {answered && !(canReject || canReturn) && (
+        <p role='note' className='text-xs text-muted-foreground'>
+          {translate('declineNeedsNo')}
+        </p>
+      )}
+      {declining && (
+        <DecisionDeclineDialog
+          title={translate(declining === 'REJECT' ? 'batchRejectTitle' : 'batchReturnTitle')}
+          question={translate(declining === 'REJECT' ? 'batchRejectAsk' : 'batchReturnAsk', { count: selectedCount })}
+          confirmLabel={translate(declining === 'REJECT' ? 'declineRejectConfirm' : 'declineReturnConfirm')}
+          danger={declining === 'REJECT'}
+          criteria={checklist.noItems.map((item) => item.text)}
+          pending={pending}
+          onSubmit={(reason) => onSubmit(declining, reason)}
+          onClose={() => setDeclining(null)}
+        />
+      )}
     </form>
   )
 }

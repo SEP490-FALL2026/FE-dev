@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { localizeTerms } from '~/shared/lib/localize-terms'
 
 /**
  * A small, safe renderer for the markdown BE writes in policy text. It builds React elements (never HTML strings),
@@ -37,7 +38,7 @@ export function renderPolicyInline(text: string, allowLinks = true, keyPrefix = 
   let index = 0
   for (const match of text.matchAll(INLINE)) {
     const start = match.index ?? 0
-    if (start > last) nodes.push(text.slice(last, start))
+    if (start > last) nodes.push(localizeTerms(text.slice(last, start)))
     const key = `${keyPrefix}-${index++}`
     const [whole, code, label, target, bold, underscoreItalic, starItalic] = match
     if (code !== undefined) {
@@ -73,7 +74,7 @@ export function renderPolicyInline(text: string, allowLinks = true, keyPrefix = 
     }
     last = start + whole.length
   }
-  if (last < text.length) nodes.push(text.slice(last))
+  if (last < text.length) nodes.push(localizeTerms(text.slice(last)))
   return nodes
 }
 
