@@ -113,17 +113,6 @@ export function ApprovalMonitorView({
               )
             },
             {
-              key: 'stage',
-              label: translate('monitor.stage'),
-              render: (request) => (request.spend ? translate(`monitor.stages.${request.spend.stage}`) : '—')
-            },
-            {
-              key: 'reserve',
-              label: translate('monitor.reserve'),
-              align: 'center',
-              render: (request) => (request.reserveUsed ? translate('monitor.reserveUsed') : '—')
-            },
-            {
               key: 'submittedAt',
               label: translate('monitor.submittedAt'),
               numeric: true,

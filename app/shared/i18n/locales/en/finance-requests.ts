@@ -21,7 +21,8 @@ export const financeRequests = {
   to: 'Sent until',
   dateRangeInvalid: 'The start date must be on or before the end date.',
   groupLines: '{{count}} people (group request)',
-  longTerm: 'No limit',
+  longTerm: 'Long-term use',
+  oneTime: 'One-time purchase (licence for good)',
   view: {
     label: 'Progress',
     open: 'Open',

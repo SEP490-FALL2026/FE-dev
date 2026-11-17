@@ -21,7 +21,8 @@ export const financeRequests = {
   to: 'Đến ngày',
   dateRangeInvalid: 'Ngày bắt đầu phải trước hoặc bằng ngày kết thúc.',
   groupLines: '{{count}} người (yêu cầu nhóm)',
-  longTerm: 'Không giới hạn',
+  longTerm: 'Dùng lâu dài',
+  oneTime: 'Mua một lần (license vĩnh viễn)',
   view: {
     label: 'Tiến độ',
     open: 'Đang xử lý',

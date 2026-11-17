@@ -72,8 +72,9 @@ describe('Spending Approver request monitoring', () => {
   it('lists open requests with their spend step and never writes', async () => {
     mount()
     expect((await screen.findAllByText('Design tool')).length).toBeGreaterThan(0)
-    expect(screen.getAllByText('Waiting for approval').length).toBeGreaterThan(0)
-    expect(screen.getAllByText('Uses reserve').length).toBeGreaterThan(0)
+    // The spend step and the reserve are read in the detail; the list keeps the state of the request.
+    expect(screen.queryByRole('columnheader', { name: 'Spend step' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('columnheader', { name: 'Reserve' })).not.toBeInTheDocument()
     expect(requests.find((config) => config.url?.endsWith('/access-requests'))?.params).toMatchObject({
       view: 'open',
       page: 1
@@ -145,12 +146,19 @@ describe('Spending Approver request monitoring', () => {
         status: 200,
         statusText: 'OK',
         headers: new AxiosHeaders(),
-        data: { success: true, message: 'OK', data: { request: detail } }
+        data: {
+          success: true,
+          message: 'OK',
+          data: config.url?.endsWith('/budget-check')
+            ? { budgetCheck: { outcome: 'USES_RESERVE' } }
+            : { request: detail }
+        }
       }
     }
     mount({ itemId: id, onSelectTab: vi.fn() })
     expect(await screen.findByText('Design review')).toBeTruthy()
     expect(screen.getByText('Waiting for approval')).toBeTruthy()
+    expect(await screen.findByText('Uses reserve')).toBeTruthy()
     expect(requests.every((config) => config.method === 'get')).toBe(true)
     expect(requests.some((config) => config.url?.endsWith(`/access-requests/${id}`))).toBe(true)
   })

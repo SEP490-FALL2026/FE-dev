@@ -8,6 +8,8 @@ import {
   ApprovalsStatus
 } from '../../shared/components/approvals-ui'
 import { formatMoney } from '../../shared/approvals-money'
+import { useRequestTermText } from '../../shared/hooks/use-request-term-text'
+import { requestTerm } from '~/entities/request/request-term'
 import { SPEND_ROUTING_MODE } from '../enums/spend-routing-mode'
 import { useDashboardFormat } from '../../../dashboard-ui'
 
@@ -33,6 +35,7 @@ function FactList({ facts }: { facts: { label: string; value: string; numeric?: 
 export function SpendRequestFacts({ approval, isGroup }: { approval: SpendApproval; isGroup: boolean }) {
   const { t: translate, i18n } = useTranslation('approvalsSpend')
   const { formatDate, formatDateTime, formatNumber } = useDashboardFormat()
+  const termText = useRequestTermText()
   const {
     request,
     step,
@@ -87,11 +90,7 @@ export function SpendRequestFacts({ approval, isGroup }: { approval: SpendApprov
         />
         <ApprovalsStat
           label={translate('term')}
-          value={
-            request.termMonths === null
-              ? translate('termOpenEnded')
-              : translate('termMonthsCount', { count: request.termMonths })
-          }
+          value={termText(requestTerm(request.termMonths, termCost ? termCost.nextYear !== null : undefined))}
         />
         {annualVendorAmount && (
           <ApprovalsStat

@@ -484,7 +484,7 @@ it('shows the cost by year, the live Cost Center budget, the next-year warning a
   expect(screen.getByText('Cost Center budget 2026')).toBeInTheDocument()
   expect(screen.getByText('Other requests waiting for a spend decision')).toBeInTheDocument()
   expect(screen.getByText(/exceeds the approved budget of 2027/)).toBeInTheDocument()
-  expect(screen.getByText('Long-term / not counted in months')).toBeInTheDocument()
+  expect(screen.getByText('Long-term use')).toBeInTheDocument()
 })
 
 it('keeps the checklist hidden until asked and shows how many questions are answered', async () => {
@@ -523,4 +523,19 @@ it('opens Reject and Return only on a criterion answered No, and Approve only wh
   expect(screen.getByRole('button', { name: 'Approve' })).toBeDisabled()
   expect(screen.getByRole('button', { name: 'Reject' })).toBeEnabled()
   expect(screen.getByRole('button', { name: 'Return' })).toBeEnabled()
+})
+
+it('reads a request without months and without a next-year part as a one-time purchase, not as long-term use', async () => {
+  Object.assign(approval, {
+    termCost: {
+      currentYear: { year: 2026, months: null, amount: { amount: '4800000', currency: 'VND' } },
+      nextYear: null,
+      termCutAt: null,
+      months: null
+    }
+  })
+  approval.request.termMonths = null as unknown as number
+  mount()
+  expect(await screen.findByText('One-time purchase (licence for good)')).toBeInTheDocument()
+  expect(screen.queryByText('Long-term use')).not.toBeInTheDocument()
 })

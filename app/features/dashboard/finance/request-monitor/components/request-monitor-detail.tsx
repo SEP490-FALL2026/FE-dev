@@ -1,5 +1,6 @@
 import { ArrowLeft } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { requestTerm } from '~/entities/request/request-term'
 import { useAccessRequestGet } from '~/shared/api/generated/operations/access-requests/access-request-get'
 import {
   FinanceButton,
@@ -16,6 +17,15 @@ export function RequestMonitorDetail({ id, onBack }: { id: string; onBack: () =>
   const query = useAccessRequestGet(id)
   const data = query.data?.data
   const request = data && 'request' in data ? data.request : undefined
+  const term = requestTerm(request?.termMonths, request?.cost ? request.cost.nextYear !== null : undefined)
+  const termValue =
+    term.kind === 'MONTHS'
+      ? term.months
+      : term.kind === 'OPEN_ENDED'
+        ? translate('longTerm')
+        : term.kind === 'ONE_TIME'
+          ? translate('oneTime')
+          : null
   const row = (label: string, value: string | number | null | undefined) => (
     <div className='min-w-0'>
       <dt className='text-xs font-medium text-muted-foreground'>{label}</dt>
@@ -45,7 +55,7 @@ export function RequestMonitorDetail({ id, onBack }: { id: string; onBack: () =>
                 {row(translate('costCenter'), request.costCenter?.code)}
                 {row(translate('requester'), request.requester.fullName)}
                 {row(translate('beneficiary'), request.beneficiary?.fullName)}
-                {row(translate('termMonths'), request.termMonths ?? translate('longTerm'))}
+                {row(translate('termMonths'), termValue)}
                 {row(translate('budgetYear'), request.budgetYear)}
                 {row(translate('submittedAt'), new Date(request.submittedAt).toLocaleString())}
               </dl>

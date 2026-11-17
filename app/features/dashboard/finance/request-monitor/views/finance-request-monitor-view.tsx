@@ -213,7 +213,7 @@ function RequestList({ onSelectTab }: Pick<Props, 'onSelectTab'>) {
               key: 'term',
               label: translate('termMonths'),
               numeric: true,
-              render: (request) => request.termMonths ?? translate('longTerm')
+              render: (request) => request.termMonths ?? '—'
             },
             {
               key: 'state',

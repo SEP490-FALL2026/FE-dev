@@ -2,8 +2,11 @@ import { isAxiosError } from 'axios'
 import { ArrowLeft } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAccessRequestGet } from '~/shared/api/generated/operations/access-requests/access-request-get'
+import { useBudgetCheckGet } from '~/shared/api/generated/operations/budget-checks/budget-check-get'
 import { useDashboardFormat } from '../../../dashboard-ui'
 import { formatMoney } from '../../shared/approvals-money'
+import { useRequestTermText } from '../../shared/hooks/use-request-term-text'
+import { requestTerm } from '~/entities/request/request-term'
 import { ApprovalsQueryState } from '../../shared/components/approvals-query-state'
 import {
   ApprovalsButton,
@@ -38,7 +41,11 @@ export function ApprovalMonitorDetail({ requestId, onBack }: { requestId?: strin
 function MonitorDetailContent({ requestId }: { requestId: string }) {
   const { t: translate, i18n } = useTranslation('approvalsSpend')
   const { formatDate } = useDashboardFormat()
+  const termText = useRequestTermText()
   const query = useAccessRequestGet(requestId)
+  // The result of the budget check says whether the request is within the base or uses the reserve; a request not yet submitted has none.
+  const budgetCheck = useBudgetCheckGet(requestId, { query: { retry: false } })
+  const checkOutcome = budgetCheck.data?.data?.budgetCheck?.outcome
   const data = query.data?.data
   const request = data && 'request' in data ? data.request : undefined
   const status = isAxiosError(query.error) ? query.error.response?.status : undefined
@@ -60,12 +67,18 @@ function MonitorDetailContent({ requestId }: { requestId: string }) {
               label={translate('monitor.stage')}
               value={request.spend ? translate(`monitor.stages.${request.spend.stage}`) : '—'}
             />
+            <ApprovalsStat
+              label={translate('monitor.budgetCheck')}
+              value={checkOutcome ? <ApprovalsStatus value={checkOutcome} /> : '—'}
+            />
             <ApprovalsStat label={translate('totalPayable')} value={money(request.cost?.currentYear.amount)} emphasis />
             <ApprovalsStat label={translate('budgetYear')} value={request.budgetYear ?? translate('unavailable')} />
             <ApprovalsStat label={translate('monitor.submittedAt')} value={formatDate(request.submittedAt)} />
             <ApprovalsStat
               label={translate('term')}
-              value={request.termMonths === null ? translate('unavailable') : request.termMonths}
+              value={termText(
+                requestTerm(request.termMonths, request.cost ? request.cost.nextYear !== null : undefined)
+              )}
             />
           </ApprovalsStatGrid>
           <ApprovalsSection title={translate('requestInfo')}>
