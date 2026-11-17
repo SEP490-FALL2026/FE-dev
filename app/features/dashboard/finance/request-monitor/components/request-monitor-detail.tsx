@@ -7,34 +7,42 @@ import {
   FinanceEmpty,
   FinancePage,
   FinanceQueryState,
-  FinanceSection
+  FinanceSection,
+  FinanceStat,
+  FinanceStatGrid,
+  FinanceStatus
 } from '../../shared/components/finance-ui'
 import { RequestBudgetCheck } from './request-budget-check'
 
 /** Read-only detail of one Request Finance oversees, with the budget check the spend decision relied on. */
 export function RequestMonitorDetail({ id, onBack }: { id: string; onBack: () => void }) {
-  const { t: translate } = useTranslation('financeRequests')
+  const { t: translate, i18n } = useTranslation('financeRequests')
   const query = useAccessRequestGet(id)
   const data = query.data?.data
   const request = data && 'request' in data ? data.request : undefined
   const term = requestTerm(request?.termMonths, request?.cost ? request.cost.nextYear !== null : undefined)
-  const termValue =
+  const termText =
     term.kind === 'MONTHS'
-      ? term.months
+      ? translate('detail.months', { count: term.months })
       : term.kind === 'OPEN_ENDED'
         ? translate('longTerm')
         : term.kind === 'ONE_TIME'
           ? translate('oneTime')
-          : null
+          : translate('none')
+  const software = request?.plan?.applicationName ?? request?.plan?.planName
   const row = (label: string, value: string | number | null | undefined) => (
     <div className='min-w-0'>
       <dt className='text-xs font-medium text-muted-foreground'>{label}</dt>
-      <dd className='mt-1 break-words'>{value ?? translate('none')}</dd>
+      <dd className='mt-1 text-sm wrap-break-word text-foreground'>{value ?? translate('none')}</dd>
     </div>
   )
   return (
     <FinancePage
-      title={translate('detail.title')}
+      title={
+        software
+          ? `${software}${request?.plan?.planName && request.plan.planName !== software ? ` · ${request.plan.planName}` : ''}`
+          : translate('detail.title')
+      }
       actions={
         <FinanceButton variant='ghost' onClick={onBack}>
           <ArrowLeft aria-hidden className='size-4' strokeWidth={1.5} />
@@ -45,22 +53,47 @@ export function RequestMonitorDetail({ id, onBack }: { id: string; onBack: () =>
       <FinanceQueryState query={query}>
         {request ? (
           <>
-            <FinanceSection title={translate('detail.summary')}>
-              <dl className='grid gap-4 text-sm sm:grid-cols-2 lg:grid-cols-3'>
-                {row(translate('software'), request.plan?.applicationName ?? request.plan?.planName)}
-                {row(translate('plan'), request.plan?.planName)}
-                {row(translate('type.label'), translate(`type.${request.type}`, { defaultValue: request.type }))}
-                {row(translate('stateLabel'), translate(`state.${request.state}`, { defaultValue: request.state }))}
+            <FinanceStatGrid columns={4}>
+              <FinanceStat
+                label={translate('stateLabel')}
+                value={
+                  <FinanceStatus
+                    value={request.state}
+                    label={translate(`state.${request.state}`, { defaultValue: request.state })}
+                  />
+                }
+              />
+              <FinanceStat
+                label={translate('type.label')}
+                value={translate(`type.${request.type}`, { defaultValue: request.type })}
+              />
+              <FinanceStat label={translate('detail.term')} value={termText} />
+              <FinanceStat
+                label={translate('submittedAt')}
+                value={new Date(request.submittedAt).toLocaleDateString(i18n.language)}
+              />
+            </FinanceStatGrid>
+            <FinanceSection title={translate('detail.info')}>
+              <dl className='grid gap-4 rounded-lg border border-border/70 bg-surface p-4 sm:grid-cols-2 lg:grid-cols-3'>
+                {row(translate('requester'), request.requester.fullName)}
+                {row(
+                  translate('beneficiary'),
+                  request.lineCount > 1
+                    ? translate('groupLines', { count: request.lineCount })
+                    : request.beneficiary?.fullName
+                )}
                 {row(translate('department'), request.department.name)}
                 {row(translate('costCenter'), request.costCenter?.code)}
-                {row(translate('requester'), request.requester.fullName)}
-                {row(translate('beneficiary'), request.beneficiary?.fullName)}
-                {row(translate('termMonths'), termValue)}
                 {row(translate('budgetYear'), request.budgetYear)}
-                {row(translate('submittedAt'), new Date(request.submittedAt).toLocaleString())}
               </dl>
-              <p className='mt-4 text-sm break-words'>{request.businessReason}</p>
             </FinanceSection>
+            {request.businessReason && (
+              <FinanceSection title={translate('detail.reason')}>
+                <p className='rounded-lg border border-border/70 bg-surface p-4 text-sm wrap-break-word whitespace-pre-wrap'>
+                  {request.businessReason}
+                </p>
+              </FinanceSection>
+            )}
             <RequestBudgetCheck requestId={id} />
           </>
         ) : (

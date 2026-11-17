@@ -51,7 +51,11 @@ export function RequestBudgetCheck({ requestId }: { requestId: string }) {
                 }
               />
               <FinanceStat label={translate('check.bindingTotal')} value={money(check.bindingTotal)} />
-              <FinanceStat emphasis label={translate('check.overBy')} value={money(check.overBy)} />
+              <FinanceStat
+                emphasis={Boolean(check.overBy)}
+                label={translate('check.overBy')}
+                value={check.overBy ? money(check.overBy) : translate('check.notOver')}
+              />
             </FinanceStatGrid>
             {check.blockedReasons.length > 0 && (
               <ul className='list-inside list-disc text-sm text-danger'>

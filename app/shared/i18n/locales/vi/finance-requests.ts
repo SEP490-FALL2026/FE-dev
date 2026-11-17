@@ -54,7 +54,11 @@ export const financeRequests = {
   },
   detail: {
     title: 'Yêu cầu',
-    summary: 'Tóm tắt'
+    summary: 'Tóm tắt',
+    info: 'Thông tin yêu cầu',
+    reason: 'Lý do của người gửi',
+    term: 'Thời gian dùng',
+    months: '{{count}} tháng'
   },
   check: {
     title: 'Kiểm ngân sách',
@@ -62,7 +66,8 @@ export const financeRequests = {
     notReviewed: 'Yêu cầu chưa được kiểm tra ngân sách (chưa trình lô).',
     outcome: 'Kết quả',
     bindingTotal: 'Số tiền được kiểm',
-    overBy: 'Vượt',
+    overBy: 'Phần vượt',
+    notOver: 'Không vượt',
     nextYear: 'Năm {{year}}: còn {{remaining}}, sau yêu cầu này còn {{after}}.',
     year: 'Năm',
     cost: 'Chi phí',

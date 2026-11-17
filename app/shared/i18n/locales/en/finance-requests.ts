@@ -54,7 +54,11 @@ export const financeRequests = {
   },
   detail: {
     title: 'Request',
-    summary: 'Summary'
+    summary: 'Summary',
+    info: 'Request details',
+    reason: 'Reason of the requester',
+    term: 'Time of use',
+    months: '{{count}} months'
   },
   check: {
     title: 'Budget check',
@@ -63,6 +67,7 @@ export const financeRequests = {
     outcome: 'Outcome',
     bindingTotal: 'Amount checked',
     overBy: 'Over by',
+    notOver: 'Not over',
     nextYear: 'Next year {{year}}: {{remaining}} left, {{after}} after this Request.',
     year: 'Year',
     cost: 'Cost',
