@@ -94,6 +94,12 @@ const errorKeys: Partial<Record<string, FinanceErrorKey>> = {
   HTTP_TOO_MANY_REQUESTS: 'rateLimit'
 }
 
+/** The BE error code of a failed request, or an empty string when there is none. */
+export function getFinanceErrorCode(error: unknown): string {
+  const body = isAxiosError(error) ? (error.response?.data as { error?: { code?: string } } | undefined) : undefined
+  return body?.error?.code ?? ''
+}
+
 export function getFinanceError(error: unknown): { key: FinanceErrorKey; ambiguous: boolean; requestId?: string } {
   const response = isAxiosError(error) ? error.response : undefined
   const body = response?.data as { error?: { code?: string; requestId?: string } } | undefined

@@ -26,6 +26,7 @@ import { FinanceTable } from '../../shared/components/finance-table'
 import { hasBudget } from '../../shared/finance-budget-row'
 import { formatMoney } from '../../shared/finance-money'
 import { CostCenterCreateDialog } from '../components/cost-center-create-dialog'
+import { MissingCostCentersNotice } from '../components/missing-cost-centers-notice'
 import { CostCenterDetail } from '../components/cost-center-detail'
 import { CostCenterCharts } from '../components/cost-center-charts'
 import { CompanyBudgetLines, CostCenterKpis } from '../components/cost-center-kpis'
@@ -90,6 +91,7 @@ export function FinanceCostCentersView({
         </FinanceButton>
       }
     >
+      <MissingCostCentersNotice onAdd={() => setCreating(true)} />
       <FinanceToolbar>
         <FinanceSearch
           label={translate('searchCenters')}

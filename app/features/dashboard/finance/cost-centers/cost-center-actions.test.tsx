@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { AxiosHeaders, type InternalAxiosRequestConfig } from 'axios'
+import { AxiosError, AxiosHeaders, type InternalAxiosRequestConfig } from 'axios'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { apiClient } from '~/shared/api/axios-client'
 import { i18n, setAppLanguage } from '~/shared/i18n/i18n'
@@ -25,6 +25,13 @@ const item = {
 describe('Finance cost center catalogue writes', () => {
   const previousAdapter = apiClient.defaults.adapter
   let requests: InternalAxiosRequestConfig[] = []
+  let createFailsWith: { status: number; code: string } | null = null
+  let departments: {
+    departmentId: string
+    departmentCode: string
+    departmentName: string
+    costCenterId: string | null
+  }[]
   const reply = (config: InternalAxiosRequestConfig, data: unknown, status = 200) => ({
     config,
     status,
@@ -35,6 +42,11 @@ describe('Finance cost center catalogue writes', () => {
 
   beforeEach(async () => {
     requests = []
+    createFailsWith = null
+    departments = [
+      { departmentId: 'dep-9', departmentCode: 'OPS', departmentName: 'Operations', costCenterId: null },
+      { departmentId: 'dep-1', departmentCode: 'ENG', departmentName: 'Engineering', costCenterId: 'cc-1' }
+    ]
     i18n.addResourceBundle('en', 'financeSettings', financeSettings)
     i18n.addResourceBundle('en', 'finance', finance)
     await setAppLanguage('en', false)
@@ -42,12 +54,14 @@ describe('Finance cost center catalogue writes', () => {
       requests.push(config)
       const url = config.url ?? ''
       if (config.method === 'get' && url.includes('/baseline'))
-        return reply(config, {
-          year: new Date().getFullYear(),
-          departments: [
-            { departmentId: 'dep-9', departmentCode: 'OPS', departmentName: 'Operations', costCenterId: null },
-            { departmentId: 'dep-1', departmentCode: 'ENG', departmentName: 'Engineering', costCenterId: 'cc-1' }
-          ]
+        return reply(config, { year: new Date().getFullYear(), departments })
+      if (config.method === 'post' && url.endsWith('/cost-centers') && createFailsWith)
+        throw new AxiosError('failed', 'ERR_BAD_REQUEST', config, null, {
+          status: createFailsWith.status,
+          statusText: 'Error',
+          headers: new AxiosHeaders(),
+          config,
+          data: { success: false, error: { code: createFailsWith.code } }
         })
       return reply(config, item)
     }
@@ -65,13 +79,20 @@ describe('Finance cost center catalogue writes', () => {
   const write = (method: string, suffix: string) =>
     requests.find((request) => request.method === method && request.url?.endsWith(suffix))
 
-  it('adds a UNIT cost center for a department without one, taken from the baseline of the current year', async () => {
+  const pickOperations = async () => {
+    await screen.findByRole('option', { name: 'OPS · Operations' })
+    fireEvent.change(screen.getByLabelText(/^Department/), { target: { value: 'dep-9' } })
+  }
+
+  it('adds a UNIT cost center for a department without one, with a code and a name suggested from it', async () => {
     mount(<CostCenterCreateDialog onClose={() => undefined} />)
     await screen.findByRole('option', { name: 'OPS · Operations' })
     expect(screen.queryByRole('option', { name: 'ENG · Engineering' })).toBeNull()
-    fireEvent.change(screen.getByLabelText(/^Code/), { target: { value: 'CC-OPS' } })
-    fireEvent.change(screen.getByLabelText(/^Name/), { target: { value: 'Operations' } })
-    fireEvent.change(screen.getByLabelText(/^Department/), { target: { value: 'dep-9' } })
+    expect(screen.queryByLabelText(/kind/i)).toBeNull()
+    await pickOperations()
+    expect(screen.getByLabelText(/^Code/)).toHaveValue('CC-OPS')
+    expect(screen.getByLabelText(/^Name/)).toHaveValue('Operations')
+    expect(screen.getByText('The code cannot be changed after creation; only the name can.')).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: 'Add' }))
     await waitFor(() => expect(write('post', '/cost-centers')).toBeDefined())
     expect(JSON.parse(write('post', '/cost-centers')?.data)).toEqual({
@@ -82,11 +103,52 @@ describe('Finance cost center catalogue writes', () => {
     })
   })
 
-  it('refuses a code that does not match the pattern', async () => {
+  it('keeps what Finance typed when the department changes, and writes the code in capitals', async () => {
     mount(<CostCenterCreateDialog onClose={() => undefined} />)
+    await pickOperations()
+    fireEvent.change(screen.getByLabelText(/^Code/), { target: { value: 'ops.core' } })
+    fireEvent.change(screen.getByLabelText(/^Name/), { target: { value: '  Hạ   tầng ' } })
+    expect(screen.getByLabelText(/^Code/)).toHaveValue('OPS.CORE')
+    fireEvent.click(screen.getByRole('button', { name: 'Add' }))
+    await waitFor(() => expect(write('post', '/cost-centers')).toBeDefined())
+    expect(JSON.parse(write('post', '/cost-centers')?.data)).toMatchObject({ code: 'OPS.CORE', name: 'Hạ tầng' })
+  })
+
+  it('refuses a code that does not match the pattern and a name BE keeps for unallocated costs', async () => {
+    mount(<CostCenterCreateDialog onClose={() => undefined} />)
+    await pickOperations()
     fireEvent.change(screen.getByLabelText(/^Code/), { target: { value: '-bad' } })
     expect(screen.getByText(/must start with a letter or digit/)).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Add' })).toBeDisabled()
+    fireEvent.change(screen.getByLabelText(/^Code/), { target: { value: 'CC-OPS' } })
+    fireEvent.change(screen.getByLabelText(/^Name/), { target: { value: 'chưa phân bổ' } })
+    expect(screen.getByText(/kept for the unallocated cost line/)).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Add' })).toBeDisabled()
+  })
+
+  it('shows an empty state instead of the form when every department has a Cost Center', async () => {
+    departments = [
+      { departmentId: 'dep-1', departmentCode: 'ENG', departmentName: 'Engineering', costCenterId: 'cc-1' }
+    ]
+    mount(<CostCenterCreateDialog onClose={() => undefined} />)
+    expect(await screen.findByText(/Every department already has a Cost Center/)).toBeTruthy()
+    expect(screen.queryByLabelText(/^Code/)).toBeNull()
+    expect(screen.getByRole('button', { name: 'Add' })).toBeDisabled()
+  })
+
+  it('shows a taken code at the code field and reloads the departments when one is already linked', async () => {
+    mount(<CostCenterCreateDialog onClose={() => undefined} />)
+    await pickOperations()
+    createFailsWith = { status: 409, code: 'COST_CENTER.CODE_TAKEN' }
+    fireEvent.click(screen.getByRole('button', { name: 'Add' }))
+    expect(await screen.findByText('This code is already used, pick another one.')).toBeTruthy()
+    createFailsWith = { status: 409, code: 'COST_CENTER.DEPARTMENT_ALREADY_LINKED' }
+    const baselineReads = requests.filter((request) => request.url?.includes('/baseline')).length
+    fireEvent.click(screen.getByRole('button', { name: 'Add' }))
+    expect(await screen.findByText(/already has a Cost Center\. The department list was reloaded/)).toBeTruthy()
+    await waitFor(() =>
+      expect(requests.filter((request) => request.url?.includes('/baseline')).length).toBeGreaterThan(baselineReads)
+    )
   })
 
   it('renames with only the name and retires after a confirmation', async () => {
