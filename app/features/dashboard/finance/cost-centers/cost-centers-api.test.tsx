@@ -28,6 +28,21 @@ describe('Finance cost center contract integration', () => {
       const pagination = { page: config.params?.page ?? 1, pageSize: 20, totalItems: 21, totalPages: 2 }
       const money = (amount: string) => ({ amount, currency: 'VND' })
       const single = { page: 1, pageSize: 100, totalItems: 2, totalPages: 1 }
+      if (config.url?.endsWith('/employees'))
+        return {
+          config,
+          status: 200,
+          statusText: 'OK',
+          headers: new AxiosHeaders(),
+          data: {
+            success: true,
+            data: {
+              costCenter: { id: 'cc-1', code: 'ENG' },
+              items: [{ employeeCode: 'E-001', fullName: 'Nguyen Van A', status: 'WORKING' }],
+              pagination: { page: 1, pageSize: 20, totalItems: 1, totalPages: 1 }
+            }
+          }
+        }
       if (config.url?.endsWith('/budgets/summary'))
         return {
           config,
@@ -227,6 +242,9 @@ describe('Finance cost center contract integration', () => {
     expect(within(figures).getByText(financeSettings.budgetUtilization)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: financeSettings.costCenterActions.rename })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: financeSettings.costCenterActions.deactivate })).toBeInTheDocument()
-    expect(requests.some((request) => request.url?.endsWith('/employees'))).toBe(false)
+    // The people charged to the cost center are listed by name only, never by employee code.
+    expect(await screen.findByText('Nguyen Van A')).toBeInTheDocument()
+    expect(screen.queryByText('E-001')).not.toBeInTheDocument()
+    expect(requests.every((request) => !request.url?.endsWith('/employees') || request.method === 'get')).toBe(true)
   })
 })

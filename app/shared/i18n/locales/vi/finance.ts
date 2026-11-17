@@ -12,7 +12,8 @@ export const finance = {
     overview: 'Tổng quan',
     budget: 'Trung tâm chi phí & Ngân sách',
     planning: 'Lập ngân sách năm',
-    spend: 'Danh mục & Tiền tệ',
+    spend: 'Chi tiêu & Hóa đơn',
+    catalog: 'Danh mục & Nhà cung cấp',
     close: 'Đóng kỳ & Báo cáo'
   },
   spendBatches: 'Đã duyệt chi theo đợt',
@@ -182,7 +183,8 @@ export const finance = {
   budgets: 'Ngân sách hiện hành',
   costCenters: 'Trung tâm chi phí',
   vendorTax: 'Hồ sơ thuế nhà cung cấp',
-  catalog: 'Danh mục SaaS',
+  catalog: 'Danh mục phần mềm',
+  subscriptionRenewals: 'Điều chỉnh thuê bao',
   analytics: {
     title: 'Ngân sách và cam kết',
     view: 'Kiểu hiển thị',

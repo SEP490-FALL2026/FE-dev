@@ -19,6 +19,7 @@ import { FinanceReviewPeriodsView } from './in-year-review/views/finance-review-
 import { FinanceSeatChargesView } from './in-year-review/views/finance-seat-charges-view'
 import { FinanceAdjustmentsView } from './in-year-review/views/finance-adjustments-view'
 import { FinanceBudgetParametersView } from './budget-parameters/views/finance-budget-parameters-view'
+import { FinanceSubscriptionRenewalsView } from './subscription-renewals/views/finance-subscription-renewals-view'
 import { FinanceUnavailable } from './shared/components/finance-unavailable'
 
 interface FinanceScreenProps {
@@ -79,6 +80,8 @@ export function FinanceScreen({ itemId, onSelectTab, tab }: FinanceScreenProps) 
       return <FinanceVendorTaxView itemId={itemId} />
     case 'saas-cost':
       return <FinanceCatalogView />
+    case 'subscription-renewals':
+      return <FinanceSubscriptionRenewalsView {...details} />
     default:
       return <FinanceUnavailable onSelectTab={onSelectTab} />
   }

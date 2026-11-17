@@ -7,13 +7,15 @@ import {
   Landmark,
   Layers,
   LineChart,
-  ReceiptText
+  ReceiptText,
+  RefreshCw,
+  Store
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { FINANCE_TAB_KEYS, type FinanceTabKey } from './enums'
 export { FINANCE_TAB_KEYS, type FinanceTabKey }
 
-export type FinanceAreaKey = 'budget' | 'close' | 'overview' | 'planning' | 'spend'
+export type FinanceAreaKey = 'budget' | 'catalog' | 'close' | 'overview' | 'planning' | 'spend'
 export type FinanceTranslationKey =
   | 'overview'
   | 'costCenters'
@@ -29,6 +31,7 @@ export type FinanceTranslationKey =
   | 'outOfProcess'
   | 'catalog'
   | 'vendorTax'
+  | 'subscriptionRenewals'
   | 'periodClose'
   | 'seatCharges'
   | 'budgetAdjustments'
@@ -71,6 +74,15 @@ export const financeAreas: readonly FinanceArea[] = [
       { key: 'purchase-invoices', icon: FileInput, translationKey: 'purchaseInvoices' },
       { key: 'invoice-discrepancies', icon: Layers, translationKey: 'invoiceDiscrepancies' },
       { key: 'out-of-process', icon: FileText, translationKey: 'outOfProcess' }
+    ]
+  },
+  {
+    key: 'catalog',
+    icon: Store,
+    tabs: [
+      { key: 'saas-cost', icon: Store, translationKey: 'catalog' },
+      { key: 'subscription-renewals', icon: RefreshCw, translationKey: 'subscriptionRenewals' },
+      { key: 'vendor-tax', icon: ReceiptText, translationKey: 'vendorTax' }
     ]
   },
   {

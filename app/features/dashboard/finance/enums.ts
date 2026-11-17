@@ -30,7 +30,8 @@ export const FINANCE_TAB_KEYS = [
   'request-monitor',
   'purchase-invoices',
   'invoice-discrepancies',
-  'out-of-process'
+  'out-of-process',
+  'subscription-renewals'
 ] as const
 
 export type FinanceTabKey = (typeof FINANCE_TAB_KEYS)[number]

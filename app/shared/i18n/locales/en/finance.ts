@@ -12,7 +12,8 @@ export const finance = {
     overview: 'Overview',
     budget: 'Cost centers & budgets',
     planning: 'Annual budget planning',
-    spend: 'Catalog & money',
+    spend: 'Spend & invoices',
+    catalog: 'Catalog & vendors',
     close: 'Period close & reports'
   },
   spendBatches: 'Approved spend batches',
@@ -183,7 +184,8 @@ export const finance = {
   budgets: 'Current budgets',
   costCenters: 'Cost centers',
   vendorTax: 'Vendor tax profiles',
-  catalog: 'SaaS catalog',
+  catalog: 'Software catalog',
+  subscriptionRenewals: 'Subscription adjustments',
   analytics: {
     title: 'Budget and commitments',
     view: 'Display',
