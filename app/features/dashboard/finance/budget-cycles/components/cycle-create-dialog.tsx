@@ -64,7 +64,7 @@ export function CycleCreateDialog({ onClose, onCreated }: { onClose: () => void;
       onClose={onClose}
       onSubmit={submit}
     >
-      <div className='grid gap-3 sm:grid-cols-2'>
+      <div className='sm:w-[calc(50%-0.375rem)]'>
         <FinanceField
           label={translate('fields.year')}
           required
@@ -81,10 +81,11 @@ export function CycleCreateDialog({ onClose, onCreated }: { onClose: () => void;
             onChange={(event) => setYear(event.target.value)}
           />
         </FinanceField>
+      </div>
+      <div className='grid gap-3 sm:grid-cols-2'>
         <FinanceField
           label={translate('budgetCycle.annualCeiling')}
           required
-          hint={translate('budgetCycle.ceilingHint')}
           error={ceiling && !ceilingValid ? translate('fieldInvalid') : null}
         >
           <MoneyInput
@@ -99,7 +100,6 @@ export function CycleCreateDialog({ onClose, onCreated }: { onClose: () => void;
         <FinanceField
           label={translate('budgetCycle.sharedPoolReserve')}
           required
-          hint={translate('budgetCycle.sharedPoolHint')}
           error={
             reserve && !reserveValid
               ? translate('fieldInvalid')
@@ -117,6 +117,9 @@ export function CycleCreateDialog({ onClose, onCreated }: { onClose: () => void;
             onValueChange={setReserve}
           />
         </FinanceField>
+        <p className='text-xs text-muted-foreground [text-wrap:pretty] sm:col-span-2'>
+          {translate('budgetCycle.ceilingHint')} {translate('budgetCycle.sharedPoolHint')}
+        </p>
         <FinanceField label={translate('budgetCycle.submissionDeadline')} required>
           <input
             type='date'

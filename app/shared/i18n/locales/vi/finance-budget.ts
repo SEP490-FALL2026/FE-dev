@@ -136,7 +136,7 @@ export const financeBudget = {
     detailTitle: 'Kỳ lập ngân sách {{year}}',
     annualCeiling: 'Trần ngân sách phần mềm năm',
     ceilingHint: 'Số do ban lãnh đạo giao, nhập theo tiền tệ báo cáo.',
-    sharedPoolReserve: 'Dự phòng cho phần mềm dùng chung',
+    sharedPoolReserve: 'Dự phòng kho dùng chung',
     sharedPoolHint:
       'Số kiểm soát cho chi phí phần mềm dùng chung của cả công ty (không thuộc phòng nào), không phải quỹ.',
     submissionDeadline: 'Hạn nộp đề xuất',

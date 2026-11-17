@@ -83,14 +83,15 @@ export function CycleEditDialog({ cycle, onClose }: { cycle: Cycle; onClose: () 
       onClose={onClose}
       onSubmit={submit}
     >
-      <div className='grid gap-3 sm:grid-cols-2'>
+      <div className='sm:w-[calc(50%-0.375rem)]'>
         <FinanceField label={translate('fields.year')}>
           <input readOnly className={`${financeInputClass} font-mono tabular-nums`} value={cycle.year} />
         </FinanceField>
+      </div>
+      <div className='grid gap-3 sm:grid-cols-2'>
         <FinanceField
           label={translate('budgetCycle.annualCeiling')}
           required
-          hint={translate('budgetCycle.ceilingHint')}
           error={ceiling && !ceilingValid ? translate('fieldInvalid') : null}
         >
           <MoneyInput
@@ -105,7 +106,6 @@ export function CycleEditDialog({ cycle, onClose }: { cycle: Cycle; onClose: () 
         <FinanceField
           label={translate('budgetCycle.sharedPoolReserve')}
           required
-          hint={translate('budgetCycle.sharedPoolHint')}
           error={
             reserve && !reserveValid
               ? translate('fieldInvalid')
@@ -123,6 +123,9 @@ export function CycleEditDialog({ cycle, onClose }: { cycle: Cycle; onClose: () 
             onValueChange={setReserve}
           />
         </FinanceField>
+        <p className='text-xs text-muted-foreground [text-wrap:pretty] sm:col-span-2'>
+          {translate('budgetCycle.ceilingHint')} {translate('budgetCycle.sharedPoolHint')}
+        </p>
         <FinanceField
           label={translate('budgetCycle.submissionDeadline')}
           required
