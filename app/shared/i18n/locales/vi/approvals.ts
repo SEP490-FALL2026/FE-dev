@@ -120,7 +120,10 @@ export const approvals = {
     no: 'Không',
     system: '(hệ thống tự kiểm)',
     hasNo: 'Có câu trả lời Không: bạn chỉ có thể từ chối hoặc trả về, không thể duyệt.',
-    incomplete: 'Trả lời đủ mọi câu hỏi để tiếp tục.'
+    incomplete: 'Trả lời đủ mọi câu hỏi để tiếp tục.',
+    show: 'Hiện checklist quyết định',
+    hide: 'Ẩn checklist',
+    summary: 'Đã trả lời {{done}}/{{total}} câu hỏi'
   },
   errors: {
     checklistIncomplete: 'Checklist chưa đầy đủ. Hãy trả lời mọi câu hỏi.',

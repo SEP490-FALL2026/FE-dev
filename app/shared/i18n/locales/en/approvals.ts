@@ -120,7 +120,10 @@ export const approvals = {
     no: 'No',
     system: '(checked by the system)',
     hasNo: 'An answer is No: you can reject or return, but not approve.',
-    incomplete: 'Answer every question to continue.'
+    incomplete: 'Answer every question to continue.',
+    show: 'Show the decision checklist',
+    hide: 'Hide the checklist',
+    summary: '{{done}} of {{total}} questions answered'
   },
   errors: {
     checklistIncomplete: 'The checklist is incomplete. Answer every question.',

@@ -6,7 +6,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { apiClient } from '~/shared/api/axios-client'
 import { setAppLanguage } from '~/shared/i18n/i18n'
 import { ApprovalRequestView } from './views/spend-request-view'
-import { answerChecklistYes, expectedChecklist, policyStepData } from '../shared/checklist-test-utils'
+import { expectedChecklist, policyStepData } from '../shared/checklist-test-utils'
 
 const requestId = '83c00000-0000-4000-8000-000000000001'
 const actor = { employeeId: 'approver', employeeCode: 'AP01', fullName: 'Approver' }
@@ -180,35 +180,33 @@ async function choose(value: 'Approve' | 'Reject' | 'Return', index = 0) {
   fireEvent.click(screen.getAllByRole('combobox', { name: 'Decision' })[index])
   fireEvent.click(screen.getByRole('option', { name: value }))
 }
+/** Ticks "read and agree to all": it confirms the review and answers every checklist question Yes. */
 async function confirm() {
-  fireEvent.click(
-    screen.getByRole('checkbox', { name: 'I have reviewed the request, budget check and supporting information.' })
-  )
-  await answerChecklistYes()
+  await screen.findByText('0 of 2 questions answered')
+  fireEvent.click(screen.getByRole('checkbox', { name: /I have read and agree to everything/ }))
+  await waitFor(() => expect(screen.getByText('2 of 2 questions answered')).toBeInTheDocument())
 }
 
 it('requires a rejection reason and sends only the strict rejection payload', async () => {
   mount()
-  await choose('Reject')
   await confirm()
-  expect(screen.getByRole('button', { name: 'Confirm decision' })).toBeDisabled()
-  fireEvent.change(screen.getByPlaceholderText('E.g. The team already has an equivalent tool under contract'), {
+  expect(screen.getByRole('button', { name: 'Reject' })).toBeDisabled()
+  fireEvent.change(screen.getByPlaceholderText('State why you reject or return it'), {
     target: { value: '  No business need  ' }
   })
-  fireEvent.click(screen.getByRole('button', { name: 'Confirm decision' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Reject' }))
   await waitFor(() => expect(posted).toHaveLength(1))
   expect(posted[0].body).toEqual({ decision: 'REJECT', reason: 'No business need', checklist: expectedChecklist })
 })
 
 it('requires a reason to return a request and sends the strict return payload', async () => {
   mount()
-  await choose('Return')
   await confirm()
-  expect(screen.getByRole('button', { name: 'Confirm decision' })).toBeDisabled()
-  fireEvent.change(screen.getByPlaceholderText('E.g. Choose a cheaper plan and submit again'), {
+  expect(screen.getByRole('button', { name: 'Return' })).toBeDisabled()
+  fireEvent.change(screen.getByPlaceholderText('State why you reject or return it'), {
     target: { value: '  Pick the team plan  ' }
   })
-  fireEvent.click(screen.getByRole('button', { name: 'Confirm decision' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Return' }))
   await waitFor(() => expect(posted).toHaveLength(1))
   expect(posted[0].body).toEqual({ decision: 'RETURN', reason: 'Pick the team plan', checklist: expectedChecklist })
 })
@@ -218,7 +216,7 @@ it('blocks insufficient-budget approval without offering removed override fields
   checkOutcome = 'BLOCKED'
   checkRoute = 'BLOCKED'
   mount()
-  expect(await screen.findByRole('button', { name: 'Confirm decision' })).toBeDisabled()
+  expect(await screen.findByRole('button', { name: 'Approve' })).toBeDisabled()
   expect(screen.queryByRole('checkbox', { name: 'Approve with a budget override' })).not.toBeInTheDocument()
   expect(posted).toHaveLength(0)
 })
@@ -229,9 +227,8 @@ it('blocks repeated decisions while the server has not confirmed the write', asy
     finish = resolve
   })
   mount()
-  await choose('Approve')
   await confirm()
-  const submit = screen.getByRole('button', { name: 'Confirm decision' })
+  const submit = screen.getByRole('button', { name: 'Approve' })
   fireEvent.click(submit)
   fireEvent.click(submit)
   await waitFor(() => expect(posted).toHaveLength(1))
@@ -242,16 +239,13 @@ it('blocks repeated decisions while the server has not confirmed the write', asy
 it('keeps a failed decision draft and refreshes authoritative data after conflict', async () => {
   failMutation = true
   mount()
-  await choose('Reject')
   await confirm()
-  fireEvent.change(screen.getByPlaceholderText('E.g. The team already has an equivalent tool under contract'), {
+  fireEvent.change(screen.getByPlaceholderText('State why you reject or return it'), {
     target: { value: 'Keep this reason' }
   })
-  fireEvent.click(screen.getByRole('button', { name: 'Confirm decision' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Reject' }))
   await waitFor(() => expect(readCount).toBeGreaterThan(1))
-  expect(screen.getByPlaceholderText('E.g. The team already has an equivalent tool under contract')).toHaveValue(
-    'Keep this reason'
-  )
+  expect(screen.getByPlaceholderText('State why you reject or return it')).toHaveValue('Keep this reason')
   expect(screen.queryByText('Internal message')).not.toBeInTheDocument()
 })
 
@@ -342,16 +336,15 @@ it('returns a group to its head as a whole: choosing Return for one person choos
 it('blocks unknown step states and never submits a guessed approval', async () => {
   approval.step.state = 'NEW_SERVER_STATE'
   mount()
-  expect(await screen.findByRole('button', { name: 'Confirm decision' })).toBeDisabled()
+  expect(await screen.findByRole('button', { name: 'Approve' })).toBeDisabled()
   expect(posted).toHaveLength(0)
 })
 
 it('lets the approver decide a request that uses the department reserve', async () => {
   checkOutcome = 'USES_RESERVE'
   mount()
-  await choose('Approve')
   await confirm()
-  fireEvent.click(screen.getByRole('button', { name: 'Confirm decision' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Approve' }))
   await waitFor(() => expect(posted).toHaveLength(1))
   expect(posted[0].body).toEqual({ decision: 'APPROVE', checklist: expectedChecklist })
 })
@@ -360,25 +353,23 @@ it('keeps the decision closed when the recheck blocks the request', async () => 
   checkOutcome = 'BLOCKED'
   checkRoute = 'BLOCKED'
   mount()
-  expect(await screen.findByRole('button', { name: 'Confirm decision' })).toBeDisabled()
+  expect(await screen.findByRole('button', { name: 'Approve' })).toBeDisabled()
   expect(posted).toHaveLength(0)
 })
 
 it('treats a request without beneficiary and without group lines as one decision', async () => {
   approval.request.beneficiary = null
   mount()
-  await choose('Approve')
   await confirm()
-  fireEvent.click(screen.getByRole('button', { name: 'Confirm decision' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Approve' }))
   await waitFor(() => expect(posted).toHaveLength(1))
   expect(posted[0].url).toMatch(/spend-approval$/)
 })
 
 it('refreshes the active request once after a confirmed decision', async () => {
   mount()
-  await choose('Approve')
   await confirm()
-  const submit = screen.getByRole('button', { name: 'Confirm decision' })
+  const submit = screen.getByRole('button', { name: 'Approve' })
   fireEvent.click(submit)
   await waitFor(() => expect(readCount).toBeGreaterThan(1))
   await waitFor(() => expect(submit).not.toHaveAttribute('aria-busy', 'true'))
@@ -400,9 +391,8 @@ it('hides the batch action when the batch id is missing or malformed', () => {
 
 it('never reads accessRequestGet and decides a named-beneficiary request at once', async () => {
   mount()
-  await choose('Approve')
   await confirm()
-  fireEvent.click(screen.getByRole('button', { name: 'Confirm decision' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Approve' }))
   await waitFor(() => expect(posted).toHaveLength(1))
   expect(posted[0].url).toMatch(/spend-approval$/)
   expect(requestGetCalls).toBe(0)
@@ -414,7 +404,7 @@ it('keeps the decision closed and offers a retry when the group check fails for 
   linesFail = true
   mount()
   expect(await screen.findByRole('button', { name: 'Retry' })).toBeInTheDocument()
-  expect(screen.getByRole('button', { name: 'Confirm decision' })).toBeDisabled()
+  expect(screen.getByRole('button', { name: 'Approve' })).toBeDisabled()
   expect(posted).toHaveLength(0)
 })
 
@@ -462,4 +452,28 @@ it('shows the cost by year, the live Cost Center budget, the next-year warning a
   expect(screen.getByText('Other requests waiting for a spend decision')).toBeInTheDocument()
   expect(screen.getByText(/exceeds the approved budget of 2027/)).toBeInTheDocument()
   expect(screen.getByText('Long-term / not counted in months')).toBeInTheDocument()
+})
+
+it('keeps the checklist hidden until asked and shows how many questions are answered', async () => {
+  mount()
+  expect(await screen.findByText('0 of 2 questions answered')).toBeInTheDocument()
+  expect(screen.queryByText('Reviewed the budget')).not.toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button', { name: 'Show the decision checklist' }))
+  expect(screen.getByText('Reviewed the budget')).toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button', { name: 'Hide the checklist' }))
+  expect(screen.queryByText('Reviewed the budget')).not.toBeInTheDocument()
+})
+
+it('ticks every checklist answer for "read and agree to all", and a No in the checklist undoes it and blocks approval', async () => {
+  mount()
+  await confirm()
+  fireEvent.click(screen.getByRole('button', { name: 'Show the decision checklist' }))
+  for (const radio of screen.getAllByRole('radio', { name: 'Yes' })) expect(radio).toBeChecked()
+  expect(screen.getByRole('button', { name: 'Approve' })).toBeEnabled()
+  fireEvent.click(screen.getAllByRole('radio', { name: 'No' }).at(-1) as HTMLElement)
+  expect(screen.getByRole('checkbox', { name: /I have read and agree to everything/ })).not.toBeChecked()
+  expect(screen.getByRole('button', { name: 'Approve' })).toBeDisabled()
+  fireEvent.change(screen.getByPlaceholderText('State why you reject or return it'), { target: { value: 'No' } })
+  fireEvent.click(screen.getByRole('checkbox', { name: /I have read and agree to everything/ }))
+  expect(screen.getByRole('button', { name: 'Approve' })).toBeEnabled()
 })

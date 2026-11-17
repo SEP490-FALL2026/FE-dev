@@ -52,6 +52,12 @@ export function useDecisionChecklist(step: DecisionStep) {
         versionId,
         values: { ...(previous.versionId === versionId ? previous.values : {}), [code]: answer }
       })),
+    /** Answers every question of the person at once (`null` clears them), for the "read and agree to all" box. */
+    setAll: (answer: ChecklistAnswer | null) =>
+      setStored({
+        versionId,
+        values: answer ? Object.fromEntries(personItems.map((item) => [item.code, answer])) : {}
+      }),
     complete,
     hasNo,
     noItems,
