@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useOperatingParameterList } from '~/shared/api/generated/operations/operating-parameters'
 import { FinanceButton, FinancePage, FinanceQueryState } from '../../shared/components/finance-ui'
 import { FinanceTable } from '../../shared/components/finance-table'
-import { pickBudgetParameters, type BudgetParameter } from '../budget-parameters'
+import { parameterText, pickBudgetParameters, type BudgetParameter } from '../budget-parameters'
 import { ParameterEditDialog } from '../components/parameter-edit-dialog'
 
 export function FinanceBudgetParametersView() {
@@ -28,9 +28,10 @@ export function FinanceBudgetParametersView() {
                 label: translate('parameters.title'),
                 render: (parameter) => (
                   <div>
-                    <div className='font-medium'>{parameter.label}</div>
-                    <div className='text-xs text-muted-foreground'>{parameter.description}</div>
-                    <div className='font-mono text-[11px] text-muted-foreground'>{parameter.key}</div>
+                    <div className='font-medium'>{parameterText(translate, parameter, 'label')}</div>
+                    <div className='text-xs text-muted-foreground'>
+                      {parameterText(translate, parameter, 'description')}
+                    </div>
                   </div>
                 )
               },

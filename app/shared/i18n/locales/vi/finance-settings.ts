@@ -7,7 +7,7 @@ export const financeSettings = {
     reserve: 'Dự phòng (phiên bản)',
     reserveCaption: 'Dự phòng các phòng, điều chỉnh không đổi số này',
     pending: 'Chờ duyệt chi',
-    pendingCaption: 'Request đang chờ Người duyệt chi',
+    pendingCaption: 'Yêu cầu đang chờ Người duyệt chi',
     spent: 'Thực chi',
     spentCaption: 'Tất cả trung tâm chi phí',
     held: 'Cam kết đang giữ',
@@ -31,9 +31,9 @@ export const financeSettings = {
     sharedPoolReserve: 'Dự phòng kho dùng chung',
     sharedPoolReserveHint: 'Số kiểm soát của kho dùng chung, không phải ngân sách của phòng nào.',
     sharedPoolUnallocated: 'Chưa phân bổ — kho dùng chung',
-    sharedPoolUnallocatedHint: 'Seat Trống đã trả tiền, so với Dự phòng kho.',
-    noCostCenter: 'Chưa phân bổ Cost Center',
-    noCostCenterHint: 'Seat-tháng của phòng chưa có Cost Center.',
+    sharedPoolUnallocatedHint: 'Suất Trống đã trả tiền, so với Dự phòng kho.',
+    noCostCenter: 'Chưa phân bổ trung tâm chi phí',
+    noCostCenterHint: 'Suất-tháng của phòng chưa có trung tâm chi phí.',
     companySpent: 'Thực chi cả công ty',
     companySpentHint: 'Mọi hóa đơn của năm, gồm cả hóa đơn kho dùng chung.',
     overReserve: 'Dòng kho dùng chung đã vượt Dự phòng kho. Chỉ là cảnh báo.'
@@ -150,7 +150,7 @@ export const financeSettings = {
     pickDepartment: 'Chọn phòng ban',
     noDepartments:
       'Năm {{year}} chưa có kỳ lập ngân sách nên chưa có danh sách phòng. Hãy tạo kỳ lập ngân sách của năm đó trước.',
-    allLinked: 'Mọi phòng đều đã có Cost Center ở năm {{year}}.',
+    allLinked: 'Mọi phòng đều đã có trung tâm chi phí ở năm {{year}}.',
     rename: 'Đổi tên',
     renameTitle: 'Đổi tên {{code}}',
     renameSubmit: 'Lưu tên',
@@ -159,7 +159,7 @@ export const financeSettings = {
     deactivateTitle: 'Ngừng dùng {{code}}',
     deactivateSubmit: 'Ngừng dùng trung tâm chi phí',
     deactivateHint:
-      'Phòng sẽ quay lại trạng thái cấu hình tài chính chưa hoàn tất nên Request có tiền của phòng chưa gửi được cho tới khi thêm trung tâm chi phí mới. Bị từ chối khi còn Request hoặc khoản cam kết đang gắn vào.'
+      'Phòng sẽ quay lại trạng thái cấu hình tài chính chưa hoàn tất nên yêu cầu có tiền của phòng chưa gửi được cho tới khi thêm trung tâm chi phí mới. Bị từ chối khi còn yêu cầu hoặc khoản cam kết đang gắn vào.'
   },
   costCentersDescription: 'Trung tâm chi phí của từng phòng ban cùng ngân sách hiện hành theo năm.',
   vendorTaxDescription: 'Nhóm thuế và dòng thuế của từng nhà cung cấp, dùng để ước tính chi phí sau thuế.',
@@ -233,7 +233,7 @@ export const financeSettings = {
   autoRenew: 'Tự gia hạn',
   daysLeft: 'Còn {{days}} ngày tới {{kind}}',
   daysOverdue: 'Quá {{days}} ngày so với {{kind}}',
-  seats: 'Seat kho dùng chung',
+  seats: 'Suất kho dùng chung',
   seatsSummary: 'Đang gán {{assigned}} / mua {{purchased}}',
   warning: 'Cảnh báo',
   noPrice: 'Chưa ghi nhận giá',

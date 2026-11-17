@@ -81,7 +81,8 @@ export function ApprovalMonitorView({
             {
               key: 'software',
               label: translate('monitor.software'),
-              render: (request) => request.softwareName ?? translate('monitor.noSoftware')
+              render: (request) =>
+                request.plan?.applicationName ?? request.softwareName ?? translate('monitor.noSoftware')
             },
             {
               key: 'type',

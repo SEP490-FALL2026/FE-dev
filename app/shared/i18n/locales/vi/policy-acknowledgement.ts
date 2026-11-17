@@ -9,7 +9,7 @@ export const policyAcknowledgement = {
   changeNote: 'Điểm thay đổi: {{note}}',
   reacknowledge: 'Đã có phiên bản mới. Vui lòng đọc và xác nhận lại.',
   stepsTitle: 'Các bước quyết định do chính sách này điều chỉnh',
-  checklistTitle: 'Checklist',
+  checklistTitle: 'Danh sách kiểm tra',
   check: {
     SYSTEM: 'Hệ thống tự kiểm',
     PERSON: 'Người quyết định trả lời'

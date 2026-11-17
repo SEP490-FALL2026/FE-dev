@@ -297,7 +297,7 @@ export function FinanceStat({
     <div className='min-w-48 flex-1 basis-56 space-y-1 bg-surface p-4'>
       <dt className='text-xs font-medium tracking-wider text-muted-foreground uppercase'>{label}</dt>
       <dd
-        className={`truncate font-mono text-lg font-semibold tabular-nums ${emphasis ? 'text-primary-ink' : 'text-foreground'}`}
+        className={`break-words font-mono text-lg font-semibold tabular-nums ${emphasis ? 'text-primary-ink' : 'text-foreground'}`}
       >
         {value}
       </dd>

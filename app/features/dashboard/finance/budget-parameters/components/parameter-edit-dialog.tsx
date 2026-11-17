@@ -9,7 +9,7 @@ import {
 import { AdminFormDialog } from '~/shared/ui/form-dialog'
 import { FinanceField, FinanceQueryState, financeInputClass } from '../../shared/components/finance-ui'
 import { useFinanceFeedback } from '../../shared/hooks/use-finance-feedback'
-import { intRange, isValidParameterValue, type BudgetParameter } from '../budget-parameters'
+import { intRange, isValidParameterValue, parameterText, type BudgetParameter } from '../budget-parameters'
 
 export function ParameterEditDialog({ parameter, onClose }: { parameter: BudgetParameter; onClose: () => void }) {
   const { t: translate } = useTranslation('financeReview')
@@ -32,14 +32,14 @@ export function ParameterEditDialog({ parameter, onClose }: { parameter: BudgetP
 
   return (
     <AdminFormDialog
-      title={translate('parameters.editTitle', { label: parameter.label })}
+      title={translate('parameters.editTitle', { label: parameterText(translate, parameter, 'label') })}
       pending={set.isPending}
       submitLabel={translate('parameters.save')}
       submitDisabled={!valid}
       onClose={onClose}
       onSubmit={submit}
     >
-      <p className='text-sm text-muted-foreground'>{parameter.description}</p>
+      <p className='text-sm text-muted-foreground'>{parameterText(translate, parameter, 'description')}</p>
       <FinanceField
         label={`${translate('parameters.value')} (${parameter.unitLabel})`}
         required

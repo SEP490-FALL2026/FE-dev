@@ -158,11 +158,11 @@ export const financeBudget = {
     department: 'Phòng',
     baseline: {
       computedAt: 'Tính lúc {{time}}',
-      poolCost: 'Chưa phân bổ — kho dùng chung (seat Trống)',
-      poolIdle: 'Seat Trống',
-      poolSoftware: 'Thuê bao còn seat Trống',
+      poolCost: 'Chưa phân bổ — kho dùng chung (suất Trống)',
+      poolIdle: 'Suất Trống',
+      poolSoftware: 'Thuê bao còn suất Trống',
       unknownCost: 'Có thuê bao chưa có giá dùng được; chi phí của thuê bao đó không nằm trong tổng.',
-      seats: 'Seat',
+      seats: 'Suất',
       estimated: 'Chi phí ước tính cả năm',
       spent: 'Thực chi năm nay',
       software: 'Phần mềm / gói',
@@ -212,7 +212,7 @@ export const financeBudget = {
     ATTACHMENT_REMOVED: 'Gỡ hồ sơ đính kèm'
   },
   template: {
-    download: 'Tải file mẫu BM-10',
+    download: 'Tải file mẫu đề nghị ngân sách',
     failed: 'Không tải được file mẫu.'
   },
   reserveMode: {
@@ -258,7 +258,7 @@ export const financeBudget = {
   },
   versionFlags: {
     belowCarriedOver:
-      'Cơ sở cộng dự phòng thấp hơn phần Cost Center này đang mang sang năm. Chỉ cảnh báo, không chặn gửi hay duyệt.',
+      'Cơ sở cộng dự phòng thấp hơn phần trung tâm chi phí này đang mang sang năm. Chỉ cảnh báo, không chặn gửi hay duyệt.',
     noProposalSubmitted: 'Lập từ số liệu nền vì phòng không nộp đề xuất. Người duyệt chi sẽ thấy cờ này.'
   },
   reserveReasonHint: 'Dự phòng khác mức mặc định nên cần lý do khi gửi duyệt.',

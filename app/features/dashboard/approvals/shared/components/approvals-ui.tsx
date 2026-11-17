@@ -296,7 +296,7 @@ export function ApprovalsStat({
     <div className='min-w-0 space-y-1 border-r border-b border-border/70 bg-surface p-4'>
       <dt className='text-xs font-medium tracking-wider text-muted-foreground uppercase'>{label}</dt>
       <dd
-        className={`truncate font-mono text-lg font-semibold tabular-nums ${emphasis ? 'text-primary-ink' : 'text-foreground'}`}
+        className={`break-words font-mono text-lg font-semibold tabular-nums ${emphasis ? 'text-primary-ink' : 'text-foreground'}`}
       >
         {value}
       </dd>

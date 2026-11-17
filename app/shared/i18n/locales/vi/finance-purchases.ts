@@ -20,16 +20,16 @@ export const financePurchases: Translation<typeof english> = {
     documentInvalid: 'Có tệp chưa sẵn sàng hoặc không phải chứng từ mua.',
     uploadFailed: 'Chưa tải tệp xong. Hãy chọn lại tệp và thử lại.',
     uploadType: 'Chỉ nhận tệp PDF, PNG hoặc JPEG.',
-    oopFinanceOnly: 'Chỉ Finance mới ghi nhận khoản đã chi.',
+    oopFinanceOnly: 'Chỉ Tài chính mới ghi nhận khoản đã chi.',
     oopItAdminOnly: 'Chỉ IT Admin mới đóng ca bằng việc thu hồi tài khoản.',
     oopNotFound: 'Không tìm thấy ca này. Danh sách đã được tải lại.',
     oopNumberTaken: 'Nhà cung cấp này đã có hóa đơn trùng số.',
     oopSpendAlreadyRecorded: 'Khoản chi của ca này đã được ghi nhận rồi.',
     oopDocumentRequired: 'Ghi nhận khoản đã chi cần đính kèm chứng từ thanh toán.',
-    oopRecordFieldsMissing: 'Ghi nhận khoản đã chi cần có số tiền và Cost Center.',
-    oopRecordFieldsNotAllowed: 'Kết quả đã chọn không đi kèm số tiền, Cost Center hoặc chứng từ này.',
+    oopRecordFieldsMissing: 'Ghi nhận khoản đã chi cần có số tiền và trung tâm chi phí.',
+    oopRecordFieldsNotAllowed: 'Kết quả đã chọn không đi kèm số tiền, trung tâm chi phí hoặc chứng từ này.',
     oopNoVendor: 'Phần mềm này chưa có nhà cung cấp nên chưa ghi nhận khoản chi được.',
-    oopCostCenterNotFound: 'Cost Center đã chọn không tồn tại hoặc đã ngừng hoạt động.',
+    oopCostCenterNotFound: 'Trung tâm chi phí đã chọn không tồn tại hoặc đã ngừng hoạt động.',
     oopRevokeNotAllowed: 'Chỉ thu hồi được tài khoản thuộc tài sản của công ty.',
     oopRevokeEvidenceMissing: 'Thu hồi cần xác nhận đã hủy gia hạn/thanh toán và đính kèm chứng từ.',
     oopSpendRecorded: 'Ca đã có khoản chi được ghi nhận nên không thể đóng là báo động giả.',
@@ -86,12 +86,12 @@ export const financePurchases: Translation<typeof english> = {
     monthFilterHint: 'Tháng dịch vụ, không phải ngày ghi trên hóa đơn.',
     spendAmount: 'Thực chi khi ký',
     linkedTo: 'Gắn với',
-    openRequest: 'Mở Request',
-    chargedTo: 'Cost Center chịu',
-    chargedCostCenter: 'Cost Center của phòng giữ quyền',
+    openRequest: 'Mở yêu cầu',
+    chargedTo: 'Trung tâm chi phí chịu',
+    chargedCostCenter: 'Trung tâm chi phí của phòng giữ quyền',
     chargedNone: {
-      REQUEST: 'Chưa phân bổ Cost Center (hóa đơn của quyền cấp thất bại)',
-      SUBSCRIPTION: 'Dòng thuê bao hoặc kho dùng chung, phòng chỉ chịu seat-tháng'
+      REQUEST: 'Chưa phân bổ trung tâm chi phí (hóa đơn của quyền cấp thất bại)',
+      SUBSCRIPTION: 'Dòng thuê bao hoặc kho dùng chung, phòng chỉ chịu suất-tháng'
     },
     booked: 'Ghi vào ngân sách',
     bookedYes: 'Đã ghi thực chi',
@@ -106,11 +106,11 @@ export const financePurchases: Translation<typeof english> = {
     signBody: 'Ghi thực chi {{spend}} vào tháng {{month}} của kỳ. Không hoàn tác được.',
     flagHints: {
       OVER_APPROVED:
-        'Số tiền lớn hơn phần còn lại của khoản cam kết hoặc số seat đã mua. Cờ chỉ để đối chiếu, không chặn ký.',
+        'Số tiền lớn hơn phần còn lại của khoản cam kết hoặc số suất đã mua. Cờ chỉ để đối chiếu, không chặn ký.',
       OUTSIDE_TERM: 'Tháng của kỳ nằm ngoài thời hạn đã duyệt. Thường nên trả lại hóa đơn này.'
     },
     sharedPool: 'Kho dùng chung',
-    linkKinds: { REQUEST: 'Request', SUBSCRIPTION: 'Thuê bao' }
+    linkKinds: { REQUEST: 'Yêu cầu', SUBSCRIPTION: 'Thuê bao' }
   },
   discrepancy: {
     title: 'Sai lệch hóa đơn',
@@ -153,13 +153,13 @@ export const financePurchases: Translation<typeof english> = {
   outOfProcess: {
     title: 'Chi ngoài quy trình',
     description:
-      'Hồ sơ phần mềm được trả tiền hoặc dùng ngoài quy trình. Finance ghi phần đã chi; IT Admin thu hồi quyền.',
+      'Hồ sơ phần mềm được trả tiền hoặc dùng ngoài quy trình. Tài chính ghi phần đã chi; IT Admin thu hồi quyền.',
     state: 'Trạng thái',
     outcome: 'Kết cục',
     application: 'Phần mềm',
     openedAt: 'Mở lúc',
     amount: 'Số đã ghi chi',
-    costCenter: 'Cost Center',
+    costCenter: 'Trung tâm chi phí',
     companyAsset: 'Tài sản công ty',
     yes: 'Có',
     no: 'Không',
@@ -175,8 +175,8 @@ export const financePurchases: Translation<typeof english> = {
     noteField: 'Ghi chú',
     noteHint: 'Bắt buộc. Nêu điều bạn đã xác minh.',
     amountField: 'Số tiền đã chi (VND)',
-    costCenterField: 'Cost Center đã dùng',
-    unallocated: 'Chưa phân bổ Cost Center',
+    costCenterField: 'Trung tâm chi phí đã dùng',
+    unallocated: 'Chưa phân bổ trung tâm chi phí',
     documents: 'Chứng từ thanh toán',
     documentsHint: 'Bằng chứng thanh toán PDF, PNG hoặc JPEG. Bắt buộc khi ghi chi, tối đa 20 tệp.',
     addFile: 'Thêm tệp',
@@ -193,7 +193,7 @@ export const financePurchases: Translation<typeof english> = {
     outcomeHints: {
       FALSE_ALARM: 'Không có gì sai. Không chọn được khi hồ sơ đã ghi tiền.',
       RECORD_SPENT:
-        'Ghi số tiền vào một Cost Center, không qua cam kết. Tài sản công ty vẫn mở cho đến khi IT Admin thu hồi.',
+        'Ghi số tiền vào một trung tâm chi phí, không qua cam kết. Tài sản công ty vẫn mở cho đến khi IT Admin thu hồi.',
       REPORT_ONLY: 'Đóng hồ sơ ở mức báo cáo, không ghi tiền.'
     },
     concludedOn: 'Ngày kết luận',

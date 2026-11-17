@@ -88,7 +88,8 @@ describe('Budget parameters', () => {
         <FinanceBudgetParametersView />
       </QueryClientProvider>
     )
-    expect((await screen.findAllByText('BUDGET_RESERVE_DEFAULT_PERCENT')).length).toBeGreaterThan(0)
+    expect((await screen.findAllByText('Default reserve of the annual budget')).length).toBeGreaterThan(0)
+    expect(screen.queryAllByText('BUDGET_RESERVE_DEFAULT_PERCENT')).toHaveLength(0)
     expect(screen.queryAllByText('SOMETHING_ELSE')).toHaveLength(0)
     fireEvent.click(screen.getAllByRole('button', { name: 'Change' })[0])
     const input = await screen.findByDisplayValue('10')

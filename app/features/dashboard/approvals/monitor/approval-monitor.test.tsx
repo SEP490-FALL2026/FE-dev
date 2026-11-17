@@ -81,6 +81,29 @@ describe('Spending Approver request monitoring', () => {
     expect(requests.every((config) => config.method === 'get')).toBe(true)
   })
 
+  it('names the software of a request for a catalogue plan from its plan, because softwareName is empty there', async () => {
+    const forPlan = {
+      ...request,
+      branch: 'PAID_IN_CATALOG',
+      softwareName: null,
+      plan: { planId: 'p1', planName: 'ChatGPT Plus', applicationId: 'a1', applicationName: 'ChatGPT' }
+    }
+    apiClient.defaults.adapter = async (config) => ({
+      config,
+      status: 200,
+      statusText: 'OK',
+      headers: new AxiosHeaders(),
+      data: {
+        success: true,
+        message: 'OK',
+        data: { items: [forPlan], pagination: { page: 1, pageSize: 20, totalItems: 1, totalPages: 1 } }
+      }
+    })
+    mount()
+    expect((await screen.findAllByText('ChatGPT')).length).toBeGreaterThan(0)
+    expect(screen.queryByText('Not chosen yet')).not.toBeInTheDocument()
+  })
+
   it('switches to ended requests and filters by type', async () => {
     mount()
     await screen.findAllByText('Design tool')

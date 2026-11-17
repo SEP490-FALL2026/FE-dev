@@ -17,7 +17,7 @@ export const approvals = {
     overview: 'Tổng quan',
     queue: 'Hàng chờ duyệt',
     annualBudget: 'Duyệt ngân sách năm',
-    monitor: 'Theo dõi Request có chi',
+    monitor: 'Theo dõi yêu cầu có chi',
     inYear: 'Ngân sách trong năm'
   },
   status: {
@@ -132,11 +132,11 @@ export const approvals = {
       },
       'GH-1': {
         label: 'giới hạn xin trùng gói',
-        definition: 'không xin gói đang có quyền hoặc đang có Request mở.'
+        definition: 'không xin gói đang có quyền hoặc đang có yêu cầu mở.'
       },
       'GH-2': {
-        label: 'giới hạn 10 Request mỗi tuần',
-        definition: 'tối đa 10 Request cấp mới mỗi tuần lịch; Request đã rút hoặc bị từ chối vẫn tính.'
+        label: 'giới hạn 10 yêu cầu mỗi tuần',
+        definition: 'tối đa 10 yêu cầu cấp mới mỗi tuần lịch; yêu cầu đã rút hoặc bị từ chối vẫn tính.'
       },
       'BM-10': {
         label: 'đề nghị ngân sách',
@@ -150,26 +150,26 @@ export const approvals = {
     criteria: 'Tiêu chí chưa đạt (căn cứ của quyết định)'
   },
   checklist: {
-    agreeAll: 'Tôi đã đọc và đồng ý tất cả (tự chọn "Có" cho mọi câu hỏi của checklist).',
-    title: 'Checklist quyết định',
+    agreeAll: 'Tôi đã đọc và đồng ý tất cả (tự chọn "Có" cho mọi câu hỏi của danh sách kiểm tra).',
+    title: 'Danh sách kiểm tra quyết định',
     yes: 'Có',
     no: 'Không',
     system: '(hệ thống tự kiểm)',
     hasNo: 'Có câu trả lời Không: bạn chỉ có thể từ chối hoặc trả về, không thể duyệt.',
     incomplete: 'Trả lời đủ mọi câu hỏi để tiếp tục.',
-    show: 'Hiện checklist quyết định',
-    hide: 'Ẩn checklist',
+    show: 'Hiện danh sách kiểm tra quyết định',
+    hide: 'Ẩn danh sách kiểm tra',
     summary: 'Đã trả lời {{done}}/{{total}} câu hỏi'
   },
   errors: {
-    checklistIncomplete: 'Checklist chưa đầy đủ. Hãy trả lời mọi câu hỏi.',
+    checklistIncomplete: 'Danh sách kiểm tra chưa đầy đủ. Hãy trả lời mọi câu hỏi.',
     checklistHasNo: 'Có câu trả lời Không nên không thể duyệt. Hãy từ chối hoặc trả về.',
-    versionChanged: 'Checklist chính sách vừa được cập nhật. Xem câu hỏi mới và trả lời lại.',
+    versionChanged: 'Danh sách kiểm tra chính sách vừa được cập nhật. Xem câu hỏi mới và trả lời lại.',
     policyNotInForce: 'Chưa có chính sách hiệu lực cho bước này. Hãy báo Super Admin xuất bản.',
     overCeiling: 'Duyệt phiên bản này sẽ vượt Trần ngân sách năm.',
     adjustmentDecided: 'Điều chỉnh này đã được quyết định trước đó. Danh sách đã được tải lại.',
     adjustmentRecheck:
-      'Theo số liệu hôm nay, điều chỉnh không còn thỏa điều kiện (số tiền, ngân sách cơ sở, phần còn lại hoặc mức dự báo). Hãy từ chối hoặc nhờ Finance sửa.',
+      'Theo số liệu hôm nay, điều chỉnh không còn thỏa điều kiện (số tiền, ngân sách cơ sở, phần còn lại hoặc mức dự báo). Hãy từ chối hoặc nhờ Tài chính sửa.',
     adjustmentBlocked:
       'Điều chỉnh đang bị chặn: kỳ còn nhận đề xuất, hoặc có phiên bản ngân sách đang chuẩn bị hay chờ quyết định.',
     conflictOfInterest: 'Bạn đã gửi đề xuất ngân sách gốc của phiên bản này nên không thể quyết định nó.',

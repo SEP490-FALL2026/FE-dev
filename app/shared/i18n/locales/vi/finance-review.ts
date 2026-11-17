@@ -13,18 +13,18 @@ export const financeReview: Shape<typeof en> = {
   none: 'Không có',
   back: 'Về danh sách',
   allStates: 'Mọi trạng thái',
-  allCostCenters: 'Mọi Cost Center',
-  costCenter: 'Cost Center',
-  noCostCenter: 'Chưa phân bổ Cost Center',
+  allCostCenters: 'Mọi trung tâm chi phí',
+  costCenter: 'Trung tâm chi phí',
+  noCostCenter: 'Chưa phân bổ trung tâm chi phí',
   yearInvalid: 'Nhập năm từ 2000 đến 2100.',
   periods: {
     title: 'Rà soát ngân sách',
     description:
-      'Chốt tháng đã kết thúc, đọc số liệu từng Cost Center (chấm màu đánh dấu những Cost Center cần để mắt) và ký kỳ.',
+      'Chốt tháng đã kết thúc, đọc số liệu từng trung tâm chi phí (chấm màu đánh dấu những trung tâm chi phí cần để mắt) và ký kỳ.',
     close: 'Chốt tháng',
     closeTitle: 'Chốt tháng',
     closeHint:
-      'Chỉ chốt được tháng đã kết thúc, và mỗi tháng chốt một lần. Chốt sẽ tính lại seat-tháng rồi chụp số liệu mọi Cost Center có ngân sách. Tháng 3, 6, 9 mở rà soát quý.',
+      'Chỉ chốt được tháng đã kết thúc, và mỗi tháng chốt một lần. Chốt sẽ tính lại suất-tháng rồi chụp số liệu mọi trung tâm chi phí có ngân sách. Tháng 3, 6, 9 mở rà soát quý.',
     closeSubmit: 'Chốt tháng',
     monthNotEnded: 'Tháng này chưa kết thúc. Chốt được từ ngày 1 của tháng sau.',
     period: 'Kỳ',
@@ -46,17 +46,17 @@ export const financeReview: Shape<typeof en> = {
     signTitle: 'Ký kỳ rà soát',
     signHintMonth: 'Ký là xác nhận số liệu đã chụp. Sau khi ký, kỳ không đổi nữa.',
     signHintQuarter:
-      'Ký là xác nhận số liệu đã chụp. Ký được cả khi trưởng phòng chưa trả lời: các dòng đó ghi là "chưa giải trình khi Finance ký". Sau khi ký, kỳ không đổi nữa.',
+      'Ký là xác nhận số liệu đã chụp. Ký được cả khi trưởng phòng chưa trả lời: các dòng đó ghi là "chưa giải trình khi Tài chính ký". Sau khi ký, kỳ không đổi nữa.',
     signSubmit: 'Ký',
     signed: 'Đã ký bởi {{name}} lúc {{date}}',
-    unexplainedWarning: '{{count}} Cost Center còn chờ giải trình. Ký sẽ ghi các dòng đó là chưa giải trình.',
+    unexplainedWarning: '{{count}} trung tâm chi phí còn chờ giải trình. Ký sẽ ghi các dòng đó là chưa giải trình.',
     unexplainedWarningMore:
-      'Ít nhất {{count}} Cost Center còn chờ giải trình (còn dòng ở các trang sau). Ký sẽ ghi các dòng đó là chưa giải trình.',
+      'Ít nhất {{count}} trung tâm chi phí còn chờ giải trình (còn dòng ở các trang sau). Ký sẽ ghi các dòng đó là chưa giải trình.',
     sharedPoolUnallocated: 'Chưa phân bổ — kho dùng chung',
     sharedPoolReserve: 'Dự phòng kho dùng chung',
     overReserve: 'Dòng kho dùng chung vượt dự phòng.',
     annualCeiling: 'Trần năm',
-    lines: 'Cost Center',
+    lines: 'Trung tâm chi phí',
     noLines: 'Kỳ này không có dòng nào.',
     changedBanner:
       'Có hóa đơn tới sau khi chụp. Số bên dưới là số lúc chốt; mục "Thay đổi sau ảnh chụp" cho thấy phần đã nhích từ đó.',
@@ -92,21 +92,21 @@ export const financeReview: Shape<typeof en> = {
     explainedBy: 'Ghi bởi {{name}} lúc {{date}}',
     waitingHead: 'Đang chờ trưởng phòng giải trình.',
     noHeadNote: 'Phòng chưa có trưởng phòng lúc mở quý: không ai bị hỏi và không chặn ký.',
-    unexplainedNote: 'Finance đã ký khi trưởng phòng chưa trả lời.',
+    unexplainedNote: 'Tài chính đã ký khi trưởng phòng chưa trả lời.',
     explanationStatus: {
       NOT_REQUIRED: 'Không cần giải trình',
       PENDING: 'Chờ giải trình',
       EXPLAINED: 'Đã giải trình',
-      UNEXPLAINED: 'Chưa giải trình khi Finance ký',
+      UNEXPLAINED: 'Chưa giải trình khi Tài chính ký',
       NO_HEAD: 'Phòng chưa có trưởng phòng'
     }
   },
   seats: {
-    title: 'Chi phí theo seat',
+    title: 'Chi phí theo suất',
     description:
-      'Seat-tháng của một tháng đã kết thúc, mỗi dòng là một seat và một phòng người giữ, cùng dòng kho dùng chung của từng thuê bao.',
-    chooseMonth: 'Chọn năm và tháng để xem seat-tháng.',
-    empty: 'Tháng này chưa có seat-tháng: tháng chưa kết thúc hoặc hệ thống chưa tính.',
+      'Suất-tháng của một tháng đã kết thúc, mỗi dòng là một suất và một phòng người giữ, cùng dòng kho dùng chung của từng thuê bao.',
+    chooseMonth: 'Chọn năm và tháng để xem suất-tháng.',
+    empty: 'Tháng này chưa có suất-tháng: tháng chưa kết thúc hoặc hệ thống chưa tính.',
     subscription: 'Thuê bao',
     allSubscriptions: 'Mọi thuê bao',
     employee: 'Người giữ',
@@ -116,13 +116,13 @@ export const financeReview: Shape<typeof en> = {
     appliedToCommitment: 'Đã trừ vào cam kết',
     poolTitle: 'Dòng kho dùng chung',
     poolHint:
-      'Đã trả = đã phân cho các phòng + chưa phân bổ. Phần rơi vào phòng chưa có Cost Center đã nằm trong "Đã phân cho các phòng".',
+      'Đã trả = đã phân cho các phòng + chưa phân bổ. Phần rơi vào phòng chưa có trung tâm chi phí đã nằm trong "Đã phân cho các phòng".',
     paid: 'Đã trả',
-    paidUnknown: 'Chưa biết số seat hoặc giá',
+    paidUnknown: 'Chưa biết số suất hoặc giá',
     invoiced: 'Hóa đơn',
     allocated: 'Đã phân cho các phòng',
     unallocated: 'Chưa phân bổ — kho dùng chung',
-    withoutCostCenter: 'Trong đó chưa có Cost Center'
+    withoutCostCenter: 'Trong đó chưa có trung tâm chi phí'
   },
   adjustments: {
     title: 'Điều chỉnh ngân sách',
@@ -139,30 +139,47 @@ export const financeReview: Shape<typeof en> = {
       CEILING_REDUCTION: 'Giảm Trần năm'
     },
     kindHints: {
-      SUPPLEMENT: 'Thêm ngân sách cho một Cost Center, lấy từ phần Trần chưa ai nhận.',
-      TRANSFER: 'Chuyển ngân sách từ Cost Center này sang Cost Center khác.',
-      RETURN: 'Trả ngân sách từ một Cost Center về phần chưa ai nhận.',
-      CEILING_REDUCTION: 'Lãnh đạo lấy tiền: Trần năm giảm. Không chọn Cost Center.'
+      SUPPLEMENT: 'Thêm ngân sách cho một trung tâm chi phí, lấy từ phần Trần chưa ai nhận.',
+      TRANSFER: 'Chuyển ngân sách từ trung tâm chi phí này sang trung tâm chi phí khác.',
+      RETURN: 'Trả ngân sách từ một trung tâm chi phí về phần chưa ai nhận.',
+      CEILING_REDUCTION: 'Lãnh đạo lấy tiền: Trần năm giảm. Không chọn trung tâm chi phí.'
     },
-    transferReasons: { COST_CENTER_CHANGE: 'Phòng đổi Cost Center giữa năm' },
-    from: 'Từ Cost Center',
-    to: 'Đến Cost Center',
-    transferReason: 'Phòng đã đổi Cost Center giữa năm',
+    transferReasons: { COST_CENTER_CHANGE: 'Phòng đổi trung tâm chi phí giữa năm' },
+    from: 'Từ trung tâm chi phí',
+    to: 'Đến trung tâm chi phí',
+    transferReason: 'Phòng đã đổi trung tâm chi phí giữa năm',
     amountInvalid: 'Nhập số tiền lớn hơn 0.',
     unallocatedHint: 'Phần chưa phân bổ của năm {{year}}: {{amount}}',
-    sameCostCenter: 'Chọn hai Cost Center khác nhau.',
+    sameCostCenter: 'Chọn hai trung tâm chi phí khác nhau.',
     createdAt: 'Lập',
     createdBy: '{{name}} · {{date}}',
     decision: 'Quyết định',
     decisionReason: 'Lý do quyết định',
     decidedBy: 'Quyết bởi {{name}} lúc {{date}}',
     pending: 'Chờ Người duyệt chi',
-    createdVersion: 'Đã tạo phiên bản ngân sách loại ADJUSTMENT cho Cost Center nhận.',
+    createdVersion: 'Đã tạo phiên bản ngân sách do điều chỉnh cho trung tâm chi phí nhận.',
     states: { PENDING: 'Chờ quyết', APPROVED: 'Đã duyệt', REJECTED: 'Từ chối' },
     cycleNotLocked: 'Lập được điều chỉnh khi kỳ ngân sách đã khóa, tức từ ngày sau hạn nộp.',
     cycleNotLockedOn: 'Lập được điều chỉnh từ ngày sau hạn nộp ({{date}}).'
   },
   parameters: {
+    items: {
+      BUDGET_RESERVE_DEFAULT_PERCENT: {
+        label: 'Tỷ lệ dự phòng mặc định của ngân sách năm',
+        description:
+          'Tỷ lệ phần trăm của ngân sách cơ sở mà một phiên bản mới giữ làm dự phòng khi Tài chính không nhập số riêng.'
+      },
+      BUDGET_ZBB_KPI3_BELOW_PERCENT: {
+        label: 'Ngưỡng sử dụng thấp cần giải trình',
+        description:
+          'Dòng ngân sách của một đề nghị cần giải trình rút gọn khi mức sử dụng của phần mềm đang chạy đã biết và thấp hơn tỷ lệ này.'
+      },
+      BUDGET_ZBB_PRICE_INCREASE_PERCENT: {
+        label: 'Ngưỡng tăng đơn giá cần giải trình',
+        description:
+          'Dòng ngân sách của một đề nghị cần giải trình rút gọn khi đơn giá cao hơn giá tháng hiện tại quá tỷ lệ này.'
+      }
+    },
     title: 'Tham số ngân sách',
     description: 'Giá trị mặc định của ngân sách. Giá trị mới chỉ áp dụng cho việc tạo từ nay.',
     value: 'Giá trị',

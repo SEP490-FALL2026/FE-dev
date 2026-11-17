@@ -26,3 +26,16 @@ export function isValidParameterValue(raw: string, range: { min: number; max: nu
   const value = Number(raw)
   return value >= range.min && value <= range.max
 }
+
+/**
+ * The label and description of a parameter in the language of the screen. BE writes some of them in one language
+ * and with short codes (ZBB, KPI-3), so the three Finance parameters have their own text; any other parameter
+ * keeps what BE sends.
+ */
+export function parameterText(
+  translate: (key: string, options: { defaultValue: string }) => string,
+  parameter: BudgetParameter,
+  field: 'label' | 'description'
+): string {
+  return translate(`parameters.items.${parameter.key}.${field}`, { defaultValue: parameter[field] })
+}

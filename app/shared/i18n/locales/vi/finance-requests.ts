@@ -4,8 +4,8 @@ export const financeRequests = {
   none: '—',
   yes: 'Có',
   no: 'Không',
-  title: 'Theo dõi Request',
-  description: 'Các Request đã được duyệt chi, tức đã có khoản cam kết (chỉ đọc).',
+  title: 'Theo dõi yêu cầu',
+  description: 'Các yêu cầu đã được duyệt chi, tức đã có khoản cam kết (chỉ đọc).',
   software: 'Phần mềm',
   plan: 'Gói',
   department: 'Phòng ban',
@@ -52,17 +52,17 @@ export const financeRequests = {
     CANCELLED: 'Đã hủy'
   },
   detail: {
-    title: 'Request',
+    title: 'Yêu cầu',
     summary: 'Tóm tắt'
   },
   check: {
     title: 'Kiểm ngân sách',
-    none: 'Request này chưa có kết quả kiểm ngân sách.',
-    notReviewed: 'Request chưa được kiểm tra ngân sách (chưa trình lô).',
+    none: 'Yêu cầu này chưa có kết quả kiểm ngân sách.',
+    notReviewed: 'Yêu cầu chưa được kiểm tra ngân sách (chưa trình lô).',
     outcome: 'Kết quả',
     bindingTotal: 'Số tiền được kiểm',
     overBy: 'Vượt',
-    nextYear: 'Năm {{year}}: còn {{remaining}}, sau Request này còn {{after}}.',
+    nextYear: 'Năm {{year}}: còn {{remaining}}, sau yêu cầu này còn {{after}}.',
     year: 'Năm',
     cost: 'Chi phí',
     effectiveBudget: 'Ngân sách hiệu lực',

@@ -160,6 +160,23 @@ export const financeReview = {
     cycleNotLockedOn: 'An adjustment can be made from the day after the submission deadline ({{date}}).'
   },
   parameters: {
+    items: {
+      BUDGET_RESERVE_DEFAULT_PERCENT: {
+        label: 'Default reserve of the annual budget',
+        description:
+          'The share of the base budget a new version sets aside as its reserve when Finance gives no figure of its own.'
+      },
+      BUDGET_ZBB_KPI3_BELOW_PERCENT: {
+        label: 'Low usage threshold that needs an explanation',
+        description:
+          'A line of a budget proposal needs a short explanation when the usage of the software running today is known and below this share.'
+      },
+      BUDGET_ZBB_PRICE_INCREASE_PERCENT: {
+        label: 'Unit price increase that needs an explanation',
+        description:
+          'A line of a budget proposal needs a short explanation when its unit price is more than this share above today monthly price.'
+      }
+    },
     title: 'Budget parameters',
     description: 'Defaults for the budget. A new value applies to what is created from now on.',
     value: 'Value',
