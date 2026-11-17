@@ -50,7 +50,7 @@ export function ReviewSignDialog({
       <FinanceField label={translate('note')}>
         <textarea
           rows={3}
-          maxLength={1000}
+          maxLength={2000}
           className={`${financeInputClass} max-h-48 min-h-24 resize-y`}
           value={note}
           onChange={(event) => setNote(event.target.value)}

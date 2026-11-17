@@ -44,6 +44,7 @@ export const financeReview = {
     signHintQuarter:
       'Signing confirms the snapshot. You can sign even when a head has not answered: those lines are recorded as "not explained when signed". After that the period no longer changes.',
     signSubmit: 'Sign',
+    signNote: 'Note when signed',
     signed: 'Signed by {{name}} on {{date}}',
     unexplainedWarning:
       '{{count}} Cost Center(s) still wait for an explanation. Signing records them as not explained.',

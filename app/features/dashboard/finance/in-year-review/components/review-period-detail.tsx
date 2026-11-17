@@ -119,7 +119,11 @@ export function ReviewPeriodDetail({ id, onBack }: { id: string; onBack: () => v
                   {translate('periods.changedBanner')}
                 </p>
               )}
-              {period.note && <p className='text-sm text-muted-foreground'>{period.note}</p>}
+              {period.note && (
+                <p className='text-sm text-muted-foreground'>
+                  <span className='font-medium text-foreground'>{translate('periods.signNote')}:</span> {period.note}
+                </p>
+              )}
             </>
           )}
           <FinanceSection title={translate('periods.lines')}>

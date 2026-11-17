@@ -48,6 +48,7 @@ export const financeReview: Shape<typeof en> = {
     signHintQuarter:
       'Ký là xác nhận số liệu đã chụp. Ký được cả khi trưởng phòng chưa trả lời: các dòng đó ghi là "chưa giải trình khi Tài chính ký". Sau khi ký, kỳ không đổi nữa.',
     signSubmit: 'Ký',
+    signNote: 'Ghi chú khi ký',
     signed: 'Đã ký bởi {{name}} lúc {{date}}',
     unexplainedWarning: '{{count}} trung tâm chi phí còn chờ giải trình. Ký sẽ ghi các dòng đó là chưa giải trình.',
     unexplainedWarningMore:
