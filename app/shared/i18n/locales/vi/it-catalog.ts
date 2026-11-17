@@ -1,6 +1,49 @@
 import { itCatalogTerms } from './it-catalog-terms'
 import { itCatalogHelp } from './it-catalog-help'
 export const itCatalog = {
+  setup: {
+    action: 'Thiết lập',
+    commitment: 'Thời hạn cam kết',
+    monthCount: '{{count}} tháng',
+    intro: 'Tiếp tục thiết lập gói. Thuê bao nháp chỉ sẵn sàng cấp phát sau khi hoàn tất thông tin cần thiết.',
+    subscription: 'Thuê bao',
+    subscriptionHint: 'Tạo thuê bao hoặc khoản mua và bổ sung thông tin còn thiếu.',
+    workspace: 'Không gian làm việc của nhà cung cấp',
+    workspaceHint: 'Chọn hai IT Admin đang làm việc và khác nhau. Không nhập mật khẩu.',
+    openWorkspace: 'Thiết lập không gian làm việc',
+    workspaceExists: 'Gói đã có hồ sơ không gian làm việc. Màn này không thay thế hồ sơ hiện có.',
+    primaryOwner: 'Chủ sở hữu chính',
+    secondAdmin: 'Quản trị viên thứ hai',
+    distinctAdmins: 'Chọn hai IT Admin khác nhau.',
+    ownerEmail: 'Email tài khoản công ty sở hữu gói',
+    terms: 'Điều khoản nhà cung cấp',
+    openPlan: 'Thiết lập {{name}}',
+    previous: 'Trước',
+    next: 'Sau'
+  },
+  creation: {
+    applicationSection: 'Phần mềm',
+    groupsUnavailable: 'Không tải được nhóm chức năng. Có thể để trống nhóm.',
+    useExisting: 'Dùng {{name}}',
+    planSection: 'Gói đầu tiên',
+    homepage: 'Trang web',
+    logo: 'Liên kết logo',
+    logoHint: 'Liên kết HTTPS đến logo phần mềm, có thể để trống.',
+    optional: 'Chưa chọn'
+  },
+  planRules: {
+    control: { FULL: 'Kiểm soát toàn bộ', PARTIAL: 'Kiểm soát một phần', UNCONTROLLABLE: 'Không kiểm soát được' },
+    sharing: 'Dùng chung tài khoản',
+    sharingValues: { ALLOWED: 'Cho phép dùng chung', NOT_ALLOWED: 'Không cho phép dùng chung' },
+    adminConsole: 'Có trang quản trị của nhà cung cấp',
+    dataLoss: 'Thu hồi quyền làm mất dữ liệu',
+    note: 'Ghi chú thu hồi'
+  },
+  planMethodsLoading: 'Đang tải các gói…',
+  planMethodsEmpty: 'Chưa có gói phần mềm.',
+  planMethodsError: 'Không tải được cách cấp quyền của các gói.',
+  planMethodsRetry: 'Thử lại',
+  applicationStatus: { APPROVED: 'Đang hoạt động', RETIRED: 'Đã ngừng' },
   applicationPlanHint: 'Nhập tên gói đầu tiên của phần mềm.',
   applicationProvision: 'Cách cấp quyền',
   applicationProvisionHint: 'Chọn cách cấp quyền phù hợp với gói phần mềm.',
@@ -64,11 +107,12 @@ export const itCatalog = {
     note: 'Yêu cầu xuất dữ liệu, bàn giao và thu hồi',
     keys: 'Mỗi dòng nhập một khóa bản quyền'
   },
-  planActions: 'Thao t?c g?i',
+  planActions: 'Thao tác gói',
   remoteChanged:
     'Dữ liệu máy chủ đã thay đổi hoặc chưa làm mới được. Bản nháp vẫn được giữ. Tải dữ liệu mới nhất và bỏ bản nháp trước khi lưu.',
   reloadLatest: 'Bỏ bản nháp và tải lại',
-  fxRecoveryHint: 'Sau khi Finance nhập tỷ giá cho ngày tính giá, hãy kích hoạt lại. Máy chủ sẽ kiểm tra lại tỷ giá.',
+  fxRecoveryHint:
+    'Sau khi bộ phận tài chính nhập tỷ giá cho ngày tính giá, hãy kích hoạt lại. Máy chủ sẽ kiểm tra lại tỷ giá.',
   pricingModel: 'Mô hình tính giá',
   controlLevel: 'Mức kiểm soát',
   title: 'Danh mục phần mềm',
@@ -90,6 +134,8 @@ export const itCatalog = {
   mailbox: 'Hộp thư',
   domains: 'Tên miền (mỗi dòng một tên)',
   unknown: 'Chưa xác định',
+  responsibleItAdmin: 'IT Admin phụ trách',
+  noResponsible: 'Chưa có người phụ trách',
   plans: 'Gói phần mềm',
   subscriptions: 'Thuê bao',
   noPlans: 'Chưa có gói phần mềm',

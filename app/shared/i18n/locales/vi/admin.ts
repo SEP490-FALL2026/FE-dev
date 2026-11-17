@@ -6,13 +6,9 @@ import { parameterContract } from './admin-parameter-contract'
 import { adminFormHelp } from './admin-form-help'
 import { adminOversight } from './admin-oversight'
 import { policyLibrary } from './admin-policy-library'
-import { adminGhostSeats } from './admin-ghost-seats'
 import { operatingDefinitions } from './admin-operating-definitions'
-import { adminAuditView } from './admin-audit-view'
 
 export const admin = {
-  ...adminAuditView,
-  ghostSeats: adminGhostSeats,
   ...adminFormHelp,
   ...adminOversight,
   retryIn: 'Thử lại sau {{count}} giây',
@@ -23,10 +19,8 @@ export const admin = {
     personnel: 'Nhân sự',
     reminders: 'Tham số vận hành',
     policies: 'Thư viện chính sách',
-    'ghost-seats': 'Quyền phần mềm không sử dụng',
     settings: 'Cấu hình hệ thống',
     transfer: 'Điều chuyển phòng ban',
-    'audit-trail': 'Nhật ký kiểm toán',
     operations: 'Giám sát quy trình'
   },
   loading: 'Đang tải…',
@@ -197,24 +191,6 @@ export const admin = {
     olderHistory: 'Phản hồi này chưa bao gồm các thay đổi cũ hơn.',
     changed: 'Thời điểm thay đổi'
   },
-  settings: {
-    reasonPlaceholder: 'Ví dụ: Nghỉ lễ Quốc khánh',
-    currencyPlaceholder: 'Ví dụ: VND',
-    title: 'Cấu hình hệ thống',
-    holidays: 'Ngày nghỉ',
-    date: 'Ngày',
-    reason: 'Lý do',
-    addDate: 'Thêm ngày nghỉ',
-    renameDate: 'Đổi tên ngày nghỉ',
-    removeDate: 'Xóa ngày nghỉ',
-    confirmRemove: 'Xóa ngày này khỏi lịch nghỉ?',
-    currency: 'Tiền tệ báo cáo',
-    currencyReadOnly: 'Tiền tệ báo cáo cố định theo quy định hệ thống (VND).',
-    currencyImpact: 'Tiền tệ sẽ bị khóa khi đã có tỷ giá hoặc giá được quy đổi.',
-    currencySave: 'Đặt tiền tệ báo cáo',
-    from: 'Từ ngày',
-    to: 'Đến ngày'
-  },
   policies: {
     title: 'Thư viện chính sách',
     description: 'Soạn và công bố chính sách vận hành cùng các điều kiện kiểm tra khi phê duyệt.',
@@ -255,32 +231,10 @@ export const admin = {
     acknowledgedAt: 'Thời điểm xác nhận',
     ...policyLibrary
   },
-  audit: {
-    placeholders: {
-      resourceType: 'Nhập loại tài nguyên, ví dụ Department',
-      resourceId: 'Nhập mã tài nguyên cần tìm',
-      actorAppUserId: 'Nhập mã tài khoản thực hiện',
-      action: 'Nhập mã hành động cần tìm'
-    },
-    title: 'Nhật ký kiểm toán',
-    resourceType: 'Loại tài nguyên',
-    resourceId: 'Mã tài nguyên',
-    actor: 'Mã tài khoản thực hiện',
-    action: 'Hành động',
-    from: 'Từ thời điểm',
-    to: 'Đến thời điểm (không bao gồm)',
-    apply: 'Áp dụng bộ lọc',
-    occurred: 'Thời điểm',
-    before: 'Trước thay đổi',
-    after: 'Sau thay đổi',
-    correlation: 'Mã liên kết sự kiện',
-    actorKinds: { USER: 'Người dùng', SYSTEM: 'Hệ thống', OPERATOR: 'Vận hành' }
-  },
   operations: {
     descriptionPlaceholder: 'Mô tả điểm nghẽn, ảnh hưởng và nội dung cần xử lý',
     ...operationPresentation,
     title: 'Giám sát quy trình',
-    waits: 'Đang chờ cấu hình',
     congestion: 'Trách nhiệm bị tắc nghẽn',
     incident: 'Ghi nhận sự cố',
     holder: 'Mã nhân viên giữ bước',
@@ -292,14 +246,6 @@ export const admin = {
     overdueSteps: 'Bước quá hạn',
     reminders: 'Lượt đã nhắc',
     incidentHistory: 'Sự cố đã ghi nhận',
-    waitReasons: {
-      NO_SPENDING_APPROVER: 'Cấu hình Người duyệt chi.',
-      NO_FALLBACK_APPROVER: 'Cấu hình người duyệt dự phòng.',
-      FALLBACK_IS_REQUESTER: 'Người duyệt dự phòng là người yêu cầu. Cần cấu hình người thay thế.',
-      NO_CONFLICT_SUBSTITUTE: 'Cấu hình người thay khi xung đột.',
-      NO_FINANCE_REVIEWER: 'Chỉ định nhân sự tài chính đủ điều kiện.',
-      NO_IT_ADMIN_IN_CHARGE: 'Chỉ định quản trị viên công nghệ thông tin phụ trách phòng.'
-    },
     stepKinds: {
       NEED: 'Duyệt nhu cầu',
       FINANCE_REVIEW: 'Bộ phận tài chính rà soát',

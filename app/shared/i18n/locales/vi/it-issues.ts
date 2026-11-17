@@ -1,5 +1,7 @@
 export const itIssues = {
   title: 'Báo lỗi phần mềm trực tuyến',
+  chooseDepartment: 'Chọn phòng ban',
+  backDepartments: 'Quay lại phòng ban',
   fieldHints: {
     duplicateId: 'Nhập mã báo lỗi đang có cho cùng một sự cố.',
     vendorTicket: 'Nhập mã phiếu hỗ trợ của nhà cung cấp nếu đã tạo.',

@@ -19,6 +19,12 @@ it('uses the scoped dashboard and preserves unavailable and at-source metrics', 
   })
   const unavailable = { state: 'NOT_AVAILABLE', count: null, sourceOperationId: null, reason: 'USAGE_NOT_DELIVERED' }
   server.use(
+    http.get('*/api/v1/usage-overview', () =>
+      HttpResponse.json({
+        success: true,
+        data: { items: [], pagination: { page: 1, pageSize: 20, totalItems: 0, totalPages: 0 } }
+      })
+    ),
     http.get('*/api/v1/dashboards/it-admin', () =>
       HttpResponse.json({
         success: true,

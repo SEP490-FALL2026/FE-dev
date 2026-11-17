@@ -32,8 +32,8 @@ export function useProvisioningDepartments() {
   const departments = useQuery({
     queryKey: [...getDepartmentListQueryKey(), 'provisioning-responsibility', employeeId],
     queryFn: async () => {
-      const items = await allProvisioningPages((page) => departmentList({ page, pageSize: 100 }))
-      return items.filter((item) => item.itAdmin?.employeeId === employeeId && item.itAdmin?.usable)
+      const items = await allProvisioningPages((page) => departmentList({ status: 'ACTIVE', page, pageSize: 100 }))
+      return items.filter((item) => !item.itAdmin?.usable || item.itAdmin.employeeId === employeeId)
     },
     enabled: authorized && !!employeeId
   })

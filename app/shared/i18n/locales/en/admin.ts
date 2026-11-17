@@ -6,13 +6,9 @@ import { parameterContract } from './admin-parameter-contract'
 import { adminFormHelp } from './admin-form-help'
 import { adminOversight } from './admin-oversight'
 import { policyLibrary } from './admin-policy-library'
-import { adminGhostSeats } from './admin-ghost-seats'
 import { operatingDefinitions } from './admin-operating-definitions'
-import { adminAuditView } from './admin-audit-view'
 
 export const admin = {
-  ...adminAuditView,
-  ghostSeats: adminGhostSeats,
   ...adminFormHelp,
   ...adminOversight,
   retryIn: 'Try again in {{count}}s',
@@ -23,10 +19,7 @@ export const admin = {
     personnel: 'Personnel',
     reminders: 'Operating parameters',
     policies: 'Policy library',
-    'ghost-seats': 'Unused software access',
-    settings: 'System settings',
     transfer: 'Department transfers',
-    'audit-trail': 'Audit trail',
     operations: 'Workflow monitoring'
   },
   loading: 'Loading…',
@@ -135,7 +128,6 @@ export const admin = {
     accounts: 'Accounts and responsibilities',
     personnel: 'Personnel',
     settings: 'Operating settings',
-    audit: 'Audit trail',
     operations: 'Workflow monitoring',
     steps: {
       ORGANIZATION: 'Organization',
@@ -193,24 +185,6 @@ export const admin = {
     olderHistory: 'Earlier changes are not included in this response.',
     changed: 'Changed at'
   },
-  settings: {
-    reasonPlaceholder: 'e.g. National holiday',
-    currencyPlaceholder: 'e.g. USD',
-    title: 'System settings',
-    holidays: 'Non-working dates',
-    date: 'Date',
-    reason: 'Reason',
-    addDate: 'Add non-working date',
-    renameDate: 'Rename non-working date',
-    removeDate: 'Remove non-working date',
-    confirmRemove: 'Remove this date from the working calendar?',
-    currency: 'Reporting currency',
-    currencyReadOnly: 'Reporting currency is fixed to VND per system policy.',
-    currencyImpact: 'The currency becomes locked once exchange rates or converted prices exist.',
-    currencySave: 'Set reporting currency',
-    from: 'From date',
-    to: 'To date'
-  },
   policies: {
     title: 'Policy library',
     description: 'Manage and publish operating policies and decision step checklists.',
@@ -251,32 +225,10 @@ export const admin = {
     acknowledgedAt: 'Acknowledged at',
     ...policyLibrary
   },
-  audit: {
-    placeholders: {
-      resourceType: 'Enter a resource type, e.g. Department',
-      resourceId: 'Enter the resource ID to find',
-      actorAppUserId: 'Enter the acting account ID',
-      action: 'Enter the action code to find'
-    },
-    title: 'Audit trail',
-    resourceType: 'Resource type',
-    resourceId: 'Resource ID',
-    actor: 'Actor account ID',
-    action: 'Action',
-    from: 'From time',
-    to: 'To time (exclusive)',
-    apply: 'Apply filters',
-    occurred: 'Occurred at',
-    before: 'Before',
-    after: 'After',
-    correlation: 'Correlation ID',
-    actorKinds: { USER: 'User', SYSTEM: 'System', OPERATOR: 'Operator' }
-  },
   operations: {
     descriptionPlaceholder: 'Describe the blockage, its impact and the action needed',
     ...operationPresentation,
     title: 'Workflow monitoring',
-    waits: 'Waiting for configuration',
     congestion: 'Congested responsibilities',
     incident: 'Record incident',
     holder: 'Holder employee ID',
@@ -288,14 +240,6 @@ export const admin = {
     overdueSteps: 'Overdue steps',
     reminders: 'Reminders sent',
     incidentHistory: 'Recorded incidents',
-    waitReasons: {
-      NO_SPENDING_APPROVER: 'Configure the spending approver.',
-      NO_FALLBACK_APPROVER: 'Configure the fallback approver.',
-      FALLBACK_IS_REQUESTER: 'The fallback approver is the requester. Configure a substitute.',
-      NO_CONFLICT_SUBSTITUTE: 'Configure the conflict substitute.',
-      NO_FINANCE_REVIEWER: 'Assign an eligible Finance reviewer.',
-      NO_IT_ADMIN_IN_CHARGE: 'Assign the department’s information technology administrator.'
-    },
     stepKinds: {
       NEED: 'Needs approval',
       FINANCE_REVIEW: 'Finance review',

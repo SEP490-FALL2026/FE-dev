@@ -58,21 +58,5 @@ export const adminOversight = {
     reackHelp: 'When selected, employees must read and acknowledge this version before continuing.',
     published: 'Published {{date}}',
     warning: 'Publication takes effect immediately. Check all content before publishing.'
-  },
-  upcomingAdmin: {
-    title: 'Personnel and access monitoring',
-    calendar: 'Working-day calendar: {{from}} to {{to}}',
-    upcoming: 'Upcoming departures',
-    awaitingRevocation: 'Departures awaiting revocation',
-    revocationOverdue: 'Departures with overdue revocations',
-    closedThisMonth: 'Departures closed this month',
-    itHandoverPending: 'Technology responsibilities awaiting handover',
-    mailboxLockPending: 'Mailbox closure awaiting completion',
-    inGrace: 'Transfers in access grace period',
-    graceEndingSoon: 'Transfers nearing grace end',
-    revoking: 'Transfers with access being revoked',
-    thisMonth: 'Shared seats returned this month',
-    reusedThisMonth: 'Shared seats reused this month',
-    plansBelowVendorAdminMinimum: 'Plans needing additional vendor administrators'
   }
 }

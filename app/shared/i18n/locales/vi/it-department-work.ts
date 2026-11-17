@@ -1,5 +1,12 @@
 export const itDepartmentWork = {
   usage: {
+    trendTitle: 'Xu hướng sử dụng theo thời gian',
+    trendHint:
+      'Số ngày có hoạt động mỗi tuần trong 30 ngày gần nhất, theo phòng ban. Một ngày được tính khi có ít nhất một người hoạt động.',
+    trendLegend: 'Phòng ban',
+    trendMissing: 'Một số kỳ thiếu hoặc chưa đủ dữ liệu. Khoảng trống không có nghĩa là không sử dụng.',
+    trendTable: 'Xem dữ liệu biểu đồ',
+    trendWeek: 'Tuần bắt đầu',
     from: 'Từ ngày',
     to: 'Đến ngày',
     apply: 'Áp dụng thời gian',

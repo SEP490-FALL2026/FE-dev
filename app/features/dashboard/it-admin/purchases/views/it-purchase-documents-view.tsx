@@ -1,19 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { FileText } from 'lucide-react'
+import { ArrowRight, FileText } from 'lucide-react'
 import { useContractGet } from '~/shared/api/generated/operations/contracts/contract-get'
 import { useContractList } from '~/shared/api/generated/operations/contracts/contract-list'
-import { useDashboardFormat } from '../../../dashboard-ui'
 import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { ItPagination } from '../../shared/components/it-pagination'
 import { itButtonClass, itPrimaryClass } from '../../shared/components/it-form'
 import { ContractCreateDialog } from '../components/contract-create-dialog'
 import { DocumentUploadDialog } from '../components/document-upload-dialog'
 import { DocumentDetail } from '../components/document-detail'
+import { ContractDetailContent } from '../components/contract-detail-content'
 
 export function ItPurchaseDocumentsView() {
   const { t: translate } = useTranslation('itPurchases')
-  const { formatDateTime } = useDashboardFormat()
   const [contractId, setContractId] = useState('')
   const [documentId, setDocumentId] = useState('')
   const [creating, setCreating] = useState(false)
@@ -40,37 +39,53 @@ export function ItPurchaseDocumentsView() {
       )}
       {view === 'lookup' && (
         <>
-          <header className='flex flex-wrap items-center justify-between gap-3'>
-            <h1 className='flex items-center gap-3 text-2xl font-semibold tracking-tight'>
-              <FileText aria-hidden strokeWidth={1.5} className='size-6 text-primary' />
-              {translate('title')}
-            </h1>
+          <header className='flex flex-wrap items-start justify-between gap-4 border-b border-border pb-5'>
+            <div className='space-y-2'>
+              <h1 className='flex items-center gap-3 text-2xl font-semibold tracking-tight'>
+                <FileText aria-hidden strokeWidth={1.5} className='size-6 text-primary' />
+                {translate('title')}
+              </h1>
+              <p className='max-w-3xl text-sm text-muted-foreground'>{translate('contractListHint')}</p>
+            </div>
             <button type='button' className={itPrimaryClass} onClick={() => setCreating(true)}>
               {translate('create')}
             </button>
           </header>
-          <p className='max-w-3xl text-sm text-muted-foreground'>{translate('contractListHint')}</p>
+          <h2 className='text-lg font-semibold'>{translate('listTitle')}</h2>
           <ItQueryState query={contracts}>
             {contracts.data?.data?.items.length ? (
-              <div className='divide-y divide-border rounded-lg border border-border bg-surface'>
+              <div className='grid gap-4 lg:grid-cols-2'>
                 {contracts.data.data.items.map((item) => (
-                  <article key={item.id} className='flex flex-wrap items-center justify-between gap-4 p-4'>
-                    <div>
-                      <h2 className='font-medium'>{item.name}</h2>
-                      <p className='text-sm text-muted-foreground'>
-                        {item.vendor?.name ?? translate('unknown')} ·{' '}
+                  <article
+                    key={item.id}
+                    className='flex min-w-0 flex-col gap-4 rounded-lg border border-border bg-surface p-5'
+                  >
+                    <div className='flex items-start gap-3'>
+                      <span className='grid size-10 shrink-0 place-items-center rounded-md bg-primary-soft text-primary-ink'>
+                        <FileText aria-hidden strokeWidth={1.5} className='size-5' />
+                      </span>
+                      <div className='min-w-0 flex-1'>
+                        <h3 className='break-words font-semibold'>{item.name}</h3>
+                        <p className='mt-1 text-sm text-muted-foreground'>
+                          {item.vendor?.name ?? translate('unknown')}
+                        </p>
+                      </div>
+                    </div>
+                    <div className='border-t border-border pt-4'>
+                      <span className='rounded-md bg-surface-subtle px-2.5 py-1 text-xs font-medium'>
                         {translate(`contractStates.${item.status}`, { defaultValue: translate('unknown') })}
-                      </p>
+                      </span>
                     </div>
                     <button
                       type='button'
-                      className={itButtonClass}
+                      className={`${itButtonClass} self-start`}
                       onClick={() => {
                         setContractId(item.id)
                         setView('contract')
                       }}
                     >
                       {translate('openContract')}
+                      <ArrowRight aria-hidden strokeWidth={1.5} className='size-4' />
                     </button>
                   </article>
                 ))}
@@ -90,47 +105,15 @@ export function ItPurchaseDocumentsView() {
       {view === 'contract' && contractId && (
         <ItQueryState query={query}>
           {contract ? (
-            <section className='space-y-4 rounded-lg border border-border/70 bg-surface p-5'>
-              <h2 className='truncate text-lg font-semibold' title={contract.name}>
-                {contract.name}
-              </h2>
-              <p className='break-all font-mono text-xs'>{translate('contractRef', { id: contract.id })}</p>
-              <p className='text-right font-mono text-xs tabular-nums text-muted-foreground'>
-                {formatDateTime(contract.createdAt)}
-              </p>
-              <p>
-                {contract.vendor?.name ?? translate('unknown')} ·{' '}
-                {translate(`contractStates.${contract.status}`, { defaultValue: translate('unknown') })}
-              </p>
-              <h3 className='font-semibold'>{translate('subscriptions')}</h3>
-              {contract.subscriptions.map((subscription) => (
-                <p key={subscription.subscriptionId}>
-                  {subscription.applicationName} · {subscription.planName}
-                </p>
-              ))}
-              <h3 className='font-semibold'>{translate('documents')}</h3>
-              {contract.documents.map((document) => (
-                <button
-                  type='button'
-                  key={document.id}
-                  className={itButtonClass}
-                  onClick={() => {
-                    setDocumentId(document.id)
-                    setView('document')
-                  }}
-                >
-                  {document.fileName}
-                </button>
-              ))}
-              <button
-                type='button'
-                className={itButtonClass}
-                disabled={query.isFetching}
-                onClick={() => setUploading(true)}
-              >
-                {translate('upload')}
-              </button>
-            </section>
+            <ContractDetailContent
+              contract={contract}
+              uploadingDisabled={query.isFetching}
+              onUpload={() => setUploading(true)}
+              onOpenDocument={(id) => {
+                setDocumentId(id)
+                setView('document')
+              }}
+            />
           ) : (
             <ItEmpty />
           )}

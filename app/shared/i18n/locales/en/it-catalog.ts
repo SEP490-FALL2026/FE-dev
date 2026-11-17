@@ -1,6 +1,50 @@
 import { itCatalogTerms } from './it-catalog-terms'
 import { itCatalogHelp } from './it-catalog-help'
 export const itCatalog = {
+  setup: {
+    action: 'Set up',
+    commitment: 'Commitment period',
+    monthCount: '{{count}} months',
+    intro:
+      'Continue setting up this plan. A draft subscription is not ready for allocation until its required information is completed.',
+    subscription: 'Subscription',
+    subscriptionHint: 'Create a subscription or purchase and complete any missing information.',
+    workspace: 'Vendor workspace',
+    workspaceHint: 'Name two different active IT administrators. Passwords are not stored here.',
+    openWorkspace: 'Set up workspace',
+    workspaceExists: 'A workspace profile already exists. This setup cannot replace it.',
+    primaryOwner: 'Primary owner',
+    secondAdmin: 'Second administrator',
+    distinctAdmins: 'Select two different administrators.',
+    ownerEmail: 'Company owner account email',
+    terms: 'Vendor terms',
+    openPlan: 'Set up {{name}}',
+    previous: 'Previous',
+    next: 'Next'
+  },
+  creation: {
+    applicationSection: 'Application',
+    groupsUnavailable: 'Functional groups could not be loaded. You can leave the group unset.',
+    useExisting: 'Use {{name}}',
+    planSection: 'First plan',
+    homepage: 'Website',
+    logo: 'Logo URL',
+    logoHint: 'Optional HTTPS link to the application logo.',
+    optional: 'Not specified'
+  },
+  planRules: {
+    control: { FULL: 'Full control', PARTIAL: 'Partial control', UNCONTROLLABLE: 'No control' },
+    sharing: 'Account sharing',
+    sharingValues: { ALLOWED: 'Sharing allowed', NOT_ALLOWED: 'Sharing not allowed' },
+    adminConsole: 'Has vendor administration console',
+    dataLoss: 'Data is lost when access is removed',
+    note: 'Revocation note'
+  },
+  planMethodsLoading: 'Loading plans…',
+  planMethodsEmpty: 'No plans available.',
+  planMethodsError: 'Unable to load plan methods.',
+  planMethodsRetry: 'Retry',
+  applicationStatus: { APPROVED: 'Active', RETIRED: 'Retired' },
   applicationPlanHint: 'Enter the name of the first software plan.',
   applicationProvision: 'Provisioning method',
   applicationProvisionHint: 'Choose how access to this plan is provisioned.',
@@ -91,6 +135,8 @@ export const itCatalog = {
   mailbox: 'Mailbox',
   domains: 'Domains (one per line)',
   unknown: 'Unknown',
+  responsibleItAdmin: 'Responsible IT administrator',
+  noResponsible: 'Not assigned',
   plans: 'Plans',
   subscriptions: 'Subscriptions',
   noPlans: 'No plans found',

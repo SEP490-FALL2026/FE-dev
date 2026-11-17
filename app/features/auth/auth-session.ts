@@ -34,8 +34,9 @@ let accessToken: string | null = null
 let refreshTokenInMemory: string | null = null
 let tokenStorageWriteFailed = false
 let expiresAt = 0
-let refreshPromise: Promise<string | null> | null = null
+let refreshFlight: { generation: number; promise: Promise<string | null> } | null = null
 let initializePromise: Promise<void> | null = null
+let initializeNoticeTimer: ReturnType<typeof setTimeout> | null = null
 let logoutPromise: Promise<void> | null = null
 let queryClient: QueryClient | null = null
 let unsubscribeProfileUpdates: (() => void) | undefined
@@ -173,11 +174,11 @@ export function clearAuthSession() {
 }
 
 export function refreshAccessToken(): Promise<string | null> {
-  if (refreshPromise) return refreshPromise
+  if (refreshFlight?.generation === generation) return refreshFlight.promise
   const refreshToken = readRefreshToken()
   if (!refreshToken) return Promise.resolve(null)
   const startedAt = generation
-  refreshPromise = authRefresh({ refreshToken }, { skipAuth: true, skipAuthRefresh: true })
+  const promise = authRefresh({ refreshToken }, { skipAuth: true, skipAuthRefresh: true })
     .then((response) => {
       if (startedAt !== generation) return null
       if (!response.data) throw new Error('AUTH.EMPTY_RESPONSE')
@@ -185,13 +186,19 @@ export function refreshAccessToken(): Promise<string | null> {
       return response.data.accessToken
     })
     .catch((error: unknown) => {
-      if (axios.isAxiosError(error) && error.response?.data?.error?.code === 'AUTH.SESSION_INVALID') clearAuthSession()
+      if (
+        startedAt === generation &&
+        axios.isAxiosError(error) &&
+        error.response?.data?.error?.code === 'AUTH.SESSION_INVALID'
+      )
+        clearAuthSession()
       throw error
     })
     .finally(() => {
-      refreshPromise = null
+      if (refreshFlight?.promise === promise) refreshFlight = null
     })
-  return refreshPromise
+  refreshFlight = { generation: startedAt, promise }
+  return promise
 }
 
 async function loadMe(expectedGeneration: number): Promise<AuthSession> {
@@ -227,7 +234,19 @@ export async function login(email: string, password: string): Promise<AuthSessio
 }
 
 export function initializeAuthSession(): Promise<void> {
-  if (initializePromise) return initializePromise
+  const showChecking = () => {
+    if (initializeNoticeTimer) clearTimeout(initializeNoticeTimer)
+    const startedAt = generation
+    publish({ status: 'checking', session: null })
+    initializeNoticeTimer = setTimeout(() => {
+      initializeNoticeTimer = null
+      if (startedAt === generation && state.status === 'checking') publish({ status: 'unavailable', session: null })
+    }, 8000)
+  }
+  if (initializePromise) {
+    if (state.status === 'unavailable') showChecking()
+    return initializePromise
+  }
   if (state.status === 'authenticated') return Promise.resolve()
   if (!accessToken) {
     const tokens = readStoredTokens()
@@ -241,7 +260,7 @@ export function initializeAuthSession(): Promise<void> {
     publish({ status: 'guest', session: null })
     return Promise.resolve()
   }
-  publish({ status: 'checking', session: null })
+  showChecking()
   initializePromise = (async () => {
     const startedAt = generation
     try {
@@ -255,6 +274,8 @@ export function initializeAuthSession(): Promise<void> {
       else clearAuthSession()
     }
   })().finally(() => {
+    if (initializeNoticeTimer) clearTimeout(initializeNoticeTimer)
+    initializeNoticeTimer = null
     initializePromise = null
   })
   return initializePromise
@@ -263,9 +284,9 @@ export function initializeAuthSession(): Promise<void> {
 export function logout(): Promise<void> {
   if (logoutPromise) return logoutPromise
   logoutPromise = (async () => {
-    if (refreshPromise) {
+    if (refreshFlight?.generation === generation) {
       try {
-        await refreshPromise
+        await refreshFlight.promise
       } catch {
         // Logout still attempts to revoke the token left in this tab.
       }

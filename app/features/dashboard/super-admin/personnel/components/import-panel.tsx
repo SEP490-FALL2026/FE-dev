@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { LoaderCircle } from 'lucide-react'
+import { FileSpreadsheet, LoaderCircle, UploadCloud } from 'lucide-react'
 import type { EmployeeImportRowListOutcome } from '~/shared/api/generated/model/employee-imports'
 import { useEmployeeImportUpload } from '~/shared/api/generated/operations/employee-imports/employee-import-upload'
 import {
@@ -22,7 +22,7 @@ import { AdminField, adminButtonClass, adminInputClass, adminPrimaryClass } from
 import { AdminQueryState } from '../../shared/components/admin-query-state'
 import { AdminPagination } from '../../shared/components/admin-pagination'
 import { usePersonnelMutationFeedback } from '../../shared/hooks/use-personnel-mutation-feedback'
-import { PersonnelForm, value } from '../../shared/components/personnel-form'
+import { PersonnelForm } from '../../shared/components/personnel-form'
 import { PersonnelCard, PersonnelCode, PersonnelList } from '../../shared/components/personnel-list'
 import { importStatuses, previewImport } from '../enums/import-status'
 import { importOutcomes } from '../enums/import-outcome'
@@ -139,89 +139,110 @@ export function ImportPanel() {
         </button>
       ) : (
         <>
-          <p className='text-sm text-muted-foreground'>{translate('importHelp')}</p>
-          <form
-            className='flex flex-wrap items-end gap-3'
-            onSubmit={(event) => {
-              event.preventDefault()
-              if (pending || retrySeconds > 0) return
-              const file = new FormData(event.currentTarget).get('file')
-              if (
-                !(file instanceof File) ||
-                !file.size ||
-                file.size > 2 * 1024 * 1024 ||
-                !/\.(csv|xlsx)$/i.test(file.name)
-              ) {
-                toast.error(translate('invalidFile'), { id: 'admin-import' })
-                return
-              }
-              upload.mutate({ data: { file } })
-            }}
-          >
-            <AdminField label={translate('file')} description={translate('fieldHelp.file')}>
-              <input
-                className={adminInputClass}
-                name='file'
-                type='file'
-                accept='.csv,.xlsx'
-                required
-                disabled={pending}
-              />
-            </AdminField>
-            <button className={adminPrimaryClass} disabled={pending || retrySeconds > 0} aria-busy={upload.isPending}>
-              {upload.isPending && <LoaderCircle aria-hidden className='size-4 animate-spin' strokeWidth={1.5} />}
-              {upload.isPending
-                ? translateAdmin('saving')
-                : retrySeconds > 0
-                  ? translateAdmin('retryIn', { count: retrySeconds })
-                  : translate('upload')}
-            </button>
-            <button
-              type='button'
-              className={adminButtonClass}
-              disabled={pending || downloadingTemplate}
-              aria-busy={downloadingTemplate}
-              onClick={() => void handleDownloadTemplate('xlsx')}
-            >
-              {downloadingTemplate && <LoaderCircle aria-hidden className='size-4 animate-spin' strokeWidth={1.5} />}
-              {translate(downloadingTemplate ? 'templateLoading' : 'downloadTemplate')}
-            </button>
-            <button
-              type='button'
-              className={adminButtonClass}
-              disabled={pending || downloadingTemplate}
-              onClick={() => void handleDownloadTemplate('csv')}
-            >
-              {translate('downloadCsvTemplate')}
-            </button>
-          </form>
-          <form
-            className='flex flex-wrap items-end gap-3'
-            onSubmit={(event) => {
-              event.preventDefault()
-              if (!pending) {
-                setImportId(value(new FormData(event.currentTarget), 'importId'))
-                setPage(1)
-                setOutcome(undefined)
-                intents.current.clear()
-              }
-            }}
-          >
-            <AdminField label={translate('fields.importId')} description={translate('fieldHelp.importId')}>
-              <select className={adminInputClass} name='importId' defaultValue='' required disabled={pending}>
-                <option value=''>{translate('choose')}</option>
-                {recentImports.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {translate('recentImportOption', { file: item.fileName, date: formatDateTime(item.createdAt) })}
-                  </option>
-                ))}
-              </select>
-            </AdminField>
-            <button className={adminButtonClass} disabled={pending}>
-              {translate('resumeImport')}
-            </button>
-          </form>
-          <p className='text-xs text-muted-foreground'>{translate('recentImportsHelp')}</p>
+          <div className='grid gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]'>
+            <div className='space-y-5 rounded-xl border border-border bg-surface p-5 sm:p-6'>
+              <div className='flex items-start gap-3'>
+                <span className='rounded-lg bg-primary-soft p-2.5 text-primary-ink'>
+                  <UploadCloud aria-hidden className='size-5' strokeWidth={1.5} />
+                </span>
+                <div>
+                  <h2 className='font-semibold'>{translate('importUploadTitle')}</h2>
+                  <p className='mt-1 text-sm text-muted-foreground'>{translate('importUploadDescription')}</p>
+                </div>
+              </div>
+              <AdminField label={translate('file')} description={translate('fieldHelp.file')} required>
+                <input
+                  className={`${adminInputClass} h-auto w-full cursor-pointer py-3 file:mr-4 file:rounded-md file:border-0 file:bg-primary-soft file:px-3 file:py-2 file:font-medium file:text-primary-ink`}
+                  name='file'
+                  type='file'
+                  accept='.csv,.xlsx'
+                  required
+                  disabled={pending || retrySeconds > 0}
+                  onChange={(event) => {
+                    const file = event.currentTarget.files?.[0]
+                    event.currentTarget.value = ''
+                    if (!file || pending || retrySeconds > 0) return
+                    if (!file.size || file.size > 2 * 1024 * 1024 || !/\.(csv|xlsx)$/i.test(file.name)) {
+                      toast.error(translate('invalidFile'), { id: 'admin-import' })
+                      return
+                    }
+                    upload.mutate({ data: { file } })
+                  }}
+                />
+              </AdminField>
+              {upload.isPending && (
+                <p role='status' className='flex items-center gap-2 text-sm text-muted-foreground'>
+                  <LoaderCircle aria-hidden className='size-4 animate-spin' strokeWidth={1.5} />
+                  {translate('preparingPreview')}
+                </p>
+              )}
+              {retrySeconds > 0 && (
+                <p role='status' className='text-sm text-muted-foreground'>
+                  {translateAdmin('retryIn', { count: retrySeconds })}
+                </p>
+              )}
+            </div>
+            <div className='space-y-4 rounded-xl border border-border bg-surface p-5 sm:p-6'>
+              <div className='flex items-start gap-3'>
+                <span className='rounded-lg bg-surface-subtle p-2.5 text-muted-foreground'>
+                  <FileSpreadsheet aria-hidden className='size-5' strokeWidth={1.5} />
+                </span>
+                <div>
+                  <h2 className='font-semibold'>{translate('importTemplateTitle')}</h2>
+                  <p className='mt-1 text-sm text-muted-foreground'>{translate('importTemplateDescription')}</p>
+                </div>
+              </div>
+              <p className='text-sm leading-relaxed text-muted-foreground'>{translate('importHelp')}</p>
+              <div className='flex flex-wrap gap-2'>
+                <button
+                  type='button'
+                  className={adminButtonClass}
+                  disabled={pending || downloadingTemplate}
+                  aria-busy={downloadingTemplate}
+                  onClick={() => void handleDownloadTemplate('xlsx')}
+                >
+                  {downloadingTemplate && (
+                    <LoaderCircle aria-hidden className='size-4 animate-spin' strokeWidth={1.5} />
+                  )}
+                  {translate(downloadingTemplate ? 'templateLoading' : 'downloadTemplate')}
+                </button>
+                <button
+                  type='button'
+                  className={adminButtonClass}
+                  disabled={pending || downloadingTemplate}
+                  onClick={() => void handleDownloadTemplate('csv')}
+                >
+                  {translate('downloadCsvTemplate')}
+                </button>
+              </div>
+            </div>
+          </div>
+          {recentImports.length > 0 && (
+            <div className='space-y-3 rounded-xl border border-border bg-surface p-5 sm:p-6'>
+              <h2 className='font-semibold'>{translate('recentImportsTitle')}</h2>
+              <AdminField label={translate('fields.importId')} description={translate('recentImportsHelp')}>
+                <select
+                  className={`${adminInputClass} w-full max-w-xl`}
+                  value=''
+                  disabled={pending}
+                  onChange={(event) => {
+                    if (!event.target.value) return
+                    setImportId(event.target.value)
+                    setPage(1)
+                    setOutcome(undefined)
+                    intents.current.clear()
+                  }}
+                >
+                  <option value=''>{translate('choose')}</option>
+                  {recentImports.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {translate('recentImportOption', { file: item.fileName, date: formatDateTime(item.createdAt) })}
+                    </option>
+                  ))}
+                </select>
+              </AdminField>
+            </div>
+          )}
         </>
       )}
       {importId && (
@@ -257,7 +278,7 @@ export function ImportPanel() {
                     {translate('refreshPreview')}
                   </button>
                   <button
-                    className={adminButtonClass}
+                    className={adminPrimaryClass}
                     disabled={pending || query.isFetching}
                     onClick={() => {
                       setVersion(data.previewVersion)

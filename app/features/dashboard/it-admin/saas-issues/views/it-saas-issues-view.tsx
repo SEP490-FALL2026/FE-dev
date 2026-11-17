@@ -8,41 +8,60 @@ import { ItPagination } from '../../shared/components/it-pagination'
 import { itButtonClass } from '../../shared/components/it-form'
 import { ISSUE_STATE, knownIssueState, type IssueState } from '../enums/issue-state'
 import { IssueDetail } from '../components/issue-detail'
+import { useItManagedDepartments } from '../../shared/hooks/use-it-managed-departments'
+import { ItDepartmentCards } from '../../shared/components/it-department-cards'
 
-export function ItSaasIssuesView({
-  initialIssueId,
-  initialScope = 'assigned'
-}: {
-  initialIssueId?: string
-  initialScope?: 'all' | 'assigned'
-}) {
+export function ItSaasIssuesView({ initialIssueId }: { initialIssueId?: string; initialScope?: 'all' | 'assigned' }) {
   const { t: translate } = useTranslation('itIssues')
   const { formatDateTime } = useDashboardFormat()
-  const [scope, setScope] = useState(initialScope)
+  const [department, setDepartment] = useState<{ id: string; name: string }>()
+  const { me, departments } = useItManagedDepartments()
   const [state, setState] = useState<IssueState | ''>('')
   const [page, setPage] = useState(1)
   const [selectedId, setSelectedId] = useState(initialIssueId)
-  const query = useSaasIssueList({ scope, page, pageSize: 20, ...(state ? { state } : {}) })
+  const query = useSaasIssueList(
+    { scope: 'all', departmentId: department?.id, page, pageSize: 20, ...(state ? { state } : {}) },
+    { query: { enabled: !!department && !selectedId } }
+  )
   const result = query.data?.data
   if (selectedId) return <IssueDetail id={selectedId} onClose={() => setSelectedId(undefined)} />
+  if (!department)
+    return (
+      <section className='space-y-5'>
+        <h1 className='text-2xl font-semibold'>{translate('title')}</h1>
+        <h2 className='text-lg font-semibold'>{translate('chooseDepartment')}</h2>
+        <ItQueryState query={me}>
+          <ItQueryState query={departments}>
+            {departments.data?.length ? (
+              <ItDepartmentCards
+                items={departments.data}
+                onSelect={(item) => {
+                  setDepartment(item)
+                  setPage(1)
+                }}
+              />
+            ) : (
+              <ItEmpty />
+            )}
+          </ItQueryState>
+        </ItQueryState>
+      </section>
+    )
   return (
     <div className='space-y-5'>
+      <button
+        type='button'
+        className={itButtonClass}
+        onClick={() => {
+          setDepartment(undefined)
+          setPage(1)
+        }}
+      >
+        {translate('backDepartments')}
+      </button>
       <h1 className='text-2xl font-semibold tracking-tight [text-wrap:balance]'>{translate('title')}</h1>
+      <p className='text-sm text-muted-foreground'>{department.name}</p>
       <div className='grid gap-3 sm:max-w-2xl sm:grid-cols-2'>
-        <ItChoiceSelect
-          label={translate('scope')}
-          value={scope}
-          options={[
-            { value: 'assigned', label: translate('assigned') },
-            { value: 'all', label: translate('allIssues') }
-          ]}
-          onChange={(value) => {
-            if (value === 'assigned' || value === 'all') {
-              setScope(value)
-              setPage(1)
-            }
-          }}
-        />
         <ItChoiceSelect
           label={translate('state')}
           value={state}

@@ -49,20 +49,25 @@ describe('IT catalog API integration', () => {
     fireEvent.change(screen.getByLabelText('Vendor name'), { target: { value: 'Vendor' } })
     fireEvent.change(screen.getByLabelText('Plan name'), { target: { value: 'Team' } })
     fireEvent.click(screen.getByLabelText('Shared workspace'))
+    fireEvent.click(screen.getByLabelText('Full control'))
     expect(screen.queryByLabelText('Business owner employee ID')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
     await waitFor(() =>
       expect(request).toHaveBeenCalledWith(
         expect.objectContaining({
           method: 'POST',
-          data: { name: 'Draft application', vendorName: 'Vendor', plan: { name: 'Team', provisioningType: 'K2' } }
+          data: {
+            name: 'Draft application',
+            vendorName: 'Vendor',
+            plan: { name: 'Team', provisioningType: 'K2', controlLevel: 'FULL', dataLossOnRemoval: false }
+          }
         }),
         undefined
       )
     )
     expect(screen.getByDisplayValue('Draft application')).toBeInTheDocument()
   })
-  it('scopes plans and subscriptions to the selected application and gates retirement', async () => {
+  it('does not offer a detail page from the catalog list', async () => {
     request.mockImplementation(async (config) => {
       const url = config.url ?? ''
       if (url.endsWith('/applications/app-1'))
@@ -90,23 +95,7 @@ describe('IT catalog API integration', () => {
       }
     })
     mount()
-    fireEvent.click(await screen.findByRole('button', { name: 'Details' }))
-    expect(await screen.findByRole('button', { name: 'Retire application permanently' })).toBeDisabled()
-    await waitFor(() =>
-      expect(request).toHaveBeenCalledWith(
-        expect.objectContaining({
-          url: expect.stringContaining('/plans'),
-          params: { applicationId: 'app-1', page: 1, pageSize: 20 }
-        }),
-        undefined
-      )
-    )
-    expect(request).toHaveBeenCalledWith(
-      expect.objectContaining({
-        url: expect.stringContaining('/subscriptions'),
-        params: { applicationId: 'app-1', page: 1, pageSize: 20 }
-      }),
-      undefined
-    )
+    expect(await screen.findByText('Live application')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Details' })).not.toBeInTheDocument()
   })
 })

@@ -26,6 +26,7 @@ import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedba
 import { BoundaryState } from '../enums/boundary-state'
 import { grantStockDecision } from '../grant-stock'
 import { ItDirectoryLookup } from '../../shared/components/it-directory-lookup'
+import { allProvisioningPages } from '../hooks/use-provisioning-departments'
 
 function GrantDialog({
   request,
@@ -174,54 +175,76 @@ function GrantDialog({
   )
 }
 
-export function ProvisioningGrantQueue({ onCreated }: { onCreated: (id: string) => void }) {
+export function ProvisioningGrantQueue({
+  onCreated,
+  context
+}: {
+  onCreated: (id: string) => void
+  context?: { departmentId: string; employeeId: string }
+}) {
   const { t: translate } = useTranslation('itProvisioning')
   const [page, setPage] = useState(1)
   const [employee, setEmployee] = useState('')
   const [filter, setFilter] = useState('')
   const [state, setState] = useState<GrantQueueListState | undefined>('WAITING')
   const [selected, setSelected] = useState<GrantQueueResponseDtoDataItemsItem | null>(null)
-  const params = { page, pageSize: 20, state, ...(filter ? { beneficiaryEmployeeId: filter } : {}) }
+  const params = {
+    page,
+    pageSize: 20,
+    state: context ? undefined : state,
+    ...((context?.employeeId ?? filter) ? { beneficiaryEmployeeId: context?.employeeId ?? filter } : {})
+  }
   const query = useQuery({
-    queryKey: getGrantQueueListQueryKey(params),
-    queryFn: () => grantQueueList(params)
+    queryKey: [...getGrantQueueListQueryKey(params), context, page],
+    queryFn: async () => {
+      if (!context) return grantQueueList(params)
+      const items = await allProvisioningPages((nextPage) =>
+        grantQueueList({ ...params, page: nextPage, pageSize: 100 })
+      )
+      const scoped = items.filter((item) => item.department?.id === context.departmentId)
+      return { data: { items: scoped.slice((page - 1) * 20, page * 20), pagination: { totalItems: scoped.length } } }
+    }
   })
   const data = query.data?.data
   return (
     <div className='space-y-4'>
-      <form
-        className='flex flex-wrap items-end gap-3'
-        onSubmit={(event) => {
-          event.preventDefault()
-          setFilter(employee.trim())
-          setPage(1)
-        }}
-      >
-        <div className='w-full sm:max-w-sm'>
-          <ItField label={translate('beneficiaryFilter')} hint={translate('beneficiaryFilterHint')}>
-            <ItDirectoryLookup mode='employee' onSelect={setEmployee} />
-          </ItField>
-        </div>
-        <button type='submit' className={itButtonClass}>
-          {translate('applyFilter')}
-        </button>
-      </form>
-      <div className='flex flex-wrap gap-2' role='group' aria-label={translate('executionFilter')}>
-        {([undefined, 'WAITING', 'EXECUTING', 'DONE'] as const).map((value) => (
-          <button
-            key={value ?? 'all'}
-            type='button'
-            className={itButtonClass}
-            aria-pressed={state === value}
-            onClick={() => {
-              setState(value)
-              setPage(1)
-            }}
-          >
-            {translate(value ? `grantStates.${value}` : 'allStatuses')}
+      {!context && (
+        <form
+          className='flex flex-wrap items-end gap-3'
+          onSubmit={(event) => {
+            event.preventDefault()
+            setFilter(employee.trim())
+            setPage(1)
+          }}
+        >
+          <div className='w-full sm:max-w-sm'>
+            <ItField label={translate('beneficiaryFilter')} hint={translate('beneficiaryFilterHint')}>
+              <ItDirectoryLookup mode='employee' onSelect={setEmployee} />
+            </ItField>
+          </div>
+          <button type='submit' className={itButtonClass}>
+            {translate('applyFilter')}
           </button>
-        ))}
-      </div>
+        </form>
+      )}
+      {!context && (
+        <div className='flex flex-wrap gap-2' role='group' aria-label={translate('executionFilter')}>
+          {([undefined, 'WAITING', 'EXECUTING', 'DONE'] as const).map((value) => (
+            <button
+              key={value ?? 'all'}
+              type='button'
+              className={itButtonClass}
+              aria-pressed={state === value}
+              onClick={() => {
+                setState(value)
+                setPage(1)
+              }}
+            >
+              {translate(value ? `grantStates.${value}` : 'allStatuses')}
+            </button>
+          ))}
+        </div>
+      )}
       <ItQueryState query={query}>
         {data?.items.length ? (
           <div className='space-y-3'>

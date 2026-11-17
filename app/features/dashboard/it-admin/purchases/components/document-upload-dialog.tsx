@@ -65,11 +65,6 @@ export function DocumentUploadDialog({
           if (next) setPurpose(next)
         }}
       />
-      {operation.documentId && (
-        <p className='break-all font-mono text-xs tabular-nums'>
-          {translate('documentRef', { id: operation.documentId })}
-        </p>
-      )}
       {operation.upload.isPending && (
         <p role='status' className='text-sm text-muted-foreground'>
           {translate(`stages.${operation.stage}`)}

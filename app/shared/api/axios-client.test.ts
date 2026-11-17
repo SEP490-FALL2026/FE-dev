@@ -114,6 +114,51 @@ describe('Axios API client', () => {
     ])
   })
 
+  it('refreshes and retries a file download when its 401 error is a JSON blob', async () => {
+    let accessToken = 'expired-token'
+    const refreshAccessToken = vi.fn(async () => {
+      accessToken = 'renewed-token'
+      return accessToken
+    })
+    const authAdapter: ApiAuthAdapter = { getAccessToken: () => accessToken, refreshAccessToken }
+    const client = createApiClient(() => authAdapter)
+    const transport = vi.fn<AxiosAdapter>(async (config) => {
+      if (config.headers.get('Authorization') === 'Bearer expired-token') {
+        const error = unauthorized(config)
+        if (error.response)
+          error.response.data = new Blob([JSON.stringify({ error: { code: 'INVALID_ACCESS_TOKEN' } })], {
+            type: 'application/json'
+          })
+        throw error
+      }
+      return { config, data: new Blob(['template']), headers: new AxiosHeaders(), status: 200, statusText: 'OK' }
+    })
+    client.defaults.adapter = transport
+
+    await expect(client.get('/api/import-templates/employees', { responseType: 'blob' })).resolves.toMatchObject({
+      status: 200
+    })
+    expect(refreshAccessToken).toHaveBeenCalledTimes(1)
+    expect(transport).toHaveBeenCalledTimes(2)
+    expect(transport.mock.calls[1][0].headers.get('Authorization')).toBe('Bearer renewed-token')
+  })
+
+  it('does not refresh for an unrelated 401 returned as a JSON blob', async () => {
+    const refreshAccessToken = vi.fn(async () => 'renewed-token')
+    const authAdapter: ApiAuthAdapter = { getAccessToken: () => 'current-token', refreshAccessToken }
+    const client = createApiClient(() => authAdapter)
+    client.defaults.adapter = async (config) => {
+      const error = unauthorized(config)
+      if (error.response)
+        error.response.data = new Blob([JSON.stringify({ error: { code: 'AUTH.OTHER' } })], {
+          type: 'application/json'
+        })
+      throw error
+    }
+    await expect(client.get('/api/file', { responseType: 'blob' })).rejects.toBeInstanceOf(AxiosError)
+    expect(refreshAccessToken).not.toHaveBeenCalled()
+  })
+
   it('reports a failed refresh once and never retries the original request', async () => {
     const onSessionExpired = vi.fn()
     const refreshAccessToken = vi.fn(async () => null)
@@ -157,6 +202,19 @@ describe('Axios API client', () => {
     expect(transport).toHaveBeenCalledTimes(3)
   })
 
+  it('never refreshes a public request even if it receives an access-token 401', async () => {
+    const refreshAccessToken = vi.fn(async () => 'renewed-token')
+    const authAdapter: ApiAuthAdapter = { getAccessToken: () => 'current-token', refreshAccessToken }
+    const client = createApiClient(() => authAdapter)
+    const transport = vi.fn<AxiosAdapter>(async (config) => {
+      throw unauthorized(config)
+    })
+    client.defaults.adapter = transport
+    await expect(client.get('/api/public', { skipAuth: true })).rejects.toBeInstanceOf(AxiosError)
+    expect(refreshAccessToken).not.toHaveBeenCalled()
+    expect(transport).toHaveBeenCalledTimes(1)
+  })
+
   it('does not refresh for an unrelated 401 or an unauthenticated request', async () => {
     const refreshAccessToken = vi.fn(async () => 'new-token')
     const client = createApiClient(() => ({ getAccessToken: () => null, refreshAccessToken }))
@@ -186,5 +244,23 @@ describe('Axios API client', () => {
 
     await expect(client.get('/api/v1/me')).rejects.toBeInstanceOf(AxiosError)
     expect(onSessionExpired).not.toHaveBeenCalled()
+  })
+
+  it('can refresh on the next attempt at the same action after a temporary refresh failure', async () => {
+    let accessToken = 'expired-token'
+    const refreshAccessToken = vi.fn(async () => {
+      if (refreshAccessToken.mock.calls.length === 1) throw new AxiosError('offline', 'ERR_NETWORK')
+      accessToken = 'renewed-token'
+      return accessToken
+    })
+    const authAdapter: ApiAuthAdapter = { getAccessToken: () => accessToken, refreshAccessToken }
+    const client = createApiClient(() => authAdapter)
+    client.defaults.adapter = async (config) => {
+      if (config.headers.get('Authorization') === 'Bearer expired-token') throw unauthorized(config)
+      return { config, data: 'saved', headers: new AxiosHeaders(), status: 200, statusText: 'OK' }
+    }
+    await expect(client.post('/api/action', { name: 'example' })).rejects.toBeInstanceOf(AxiosError)
+    await expect(client.post('/api/action', { name: 'example' })).resolves.toMatchObject({ data: 'saved' })
+    expect(refreshAccessToken).toHaveBeenCalledTimes(2)
   })
 })

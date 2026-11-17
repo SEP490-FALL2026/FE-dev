@@ -57,21 +57,5 @@ export const adminOversight = {
     reackHelp: 'Khi chọn, nhân viên phải đọc và xác nhận phiên bản này trước khi tiếp tục.',
     published: 'Công bố ngày {{date}}',
     warning: 'Thông báo có hiệu lực ngay sau khi công bố. Kiểm tra toàn bộ nội dung trước khi thực hiện.'
-  },
-  upcomingAdmin: {
-    title: 'Theo dõi nhân sự và quyền truy cập',
-    calendar: 'Lịch ngày làm việc: từ {{from}} đến {{to}}',
-    upcoming: 'Sắp nghỉ việc',
-    awaitingRevocation: 'Nghỉ việc đang chờ thu hồi quyền',
-    revocationOverdue: 'Nghỉ việc còn quyền quá hạn thu hồi',
-    closedThisMonth: 'Hồ sơ nghỉ việc đóng trong tháng',
-    itHandoverPending: 'Trách nhiệm công nghệ thông tin chờ bàn giao',
-    mailboxLockPending: 'Chờ khóa hộp thư hoàn toàn',
-    inGrace: 'Điều chuyển đang trong thời gian ân hạn',
-    graceEndingSoon: 'Điều chuyển sắp hết ân hạn',
-    revoking: 'Điều chuyển đang thu hồi quyền cũ',
-    thisMonth: 'Suất dùng chung hoàn trả trong tháng',
-    reusedThisMonth: 'Suất dùng chung tái sử dụng trong tháng',
-    plansBelowVendorAdminMinimum: 'Gói cần bổ sung người quản trị tại nhà cung cấp'
   }
 }

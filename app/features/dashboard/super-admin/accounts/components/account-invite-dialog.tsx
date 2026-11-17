@@ -10,6 +10,8 @@ import { accountWriteKeys } from '../hooks/use-super-admin-accounts'
 import { useAccountWriteGuard } from '../hooks/use-account-write-guard'
 import { useAdminSearch } from '../../shared/hooks/use-admin-search'
 
+const CANDIDATE_LIMIT = 5
+
 export function AccountInviteDialog({ onClose }: { onClose: () => void }) {
   const { t: translate } = useTranslation('adminAccounts')
   const [search, setSearch] = useState('')
@@ -21,6 +23,7 @@ export function AccountInviteDialog({ onClose }: { onClose: () => void }) {
     { ...(debouncedSearch ? { search: debouncedSearch } : {}) },
     { query: { retry: false } }
   )
+  const visibleCandidates = candidates.data?.data?.items.slice(0, CANDIDATE_LIMIT) ?? []
   const feedback = useAdminMutationFeedback(accountWriteKeys(undefined, employeeId), onClose)
   const guard = useAccountWriteGuard()
   const mutation = useAppUserCreate({
@@ -61,7 +64,7 @@ export function AccountInviteDialog({ onClose }: { onClose: () => void }) {
           onChange={(event) => setSearch(event.target.value)}
         />
       </AdminField>
-      <fieldset className='grid gap-2'>
+      <fieldset className='grid min-w-0 gap-2'>
         <legend className='mb-2 text-sm font-medium'>
           {translate('employee')}
           <span aria-hidden className='ml-1 text-danger'>
@@ -71,7 +74,7 @@ export function AccountInviteDialog({ onClose }: { onClose: () => void }) {
         <p className='text-xs text-muted-foreground'>{translate('employeeHelp')}</p>
         <AdminQueryState query={candidates}>
           {!candidates.data?.data?.items.length && <AdminEmpty />}
-          {candidates.data?.data?.items.map((candidate) => (
+          {visibleCandidates.map((candidate) => (
             <label
               key={candidate.id}
               className={`flex min-h-11 cursor-pointer items-center gap-3 rounded-md border p-3 transition-colors ${employeeId === candidate.id ? 'border-primary/40 bg-primary-soft' : 'border-border hover:bg-surface-subtle'}`}
@@ -86,14 +89,14 @@ export function AccountInviteDialog({ onClose }: { onClose: () => void }) {
                   setInvalid(false)
                 }}
               />
-              <span>
+              <span className='min-w-0 [overflow-wrap:anywhere]'>
                 {candidate.employeeCode} · {candidate.fullName}
                 <span className='block text-xs text-muted-foreground'>{candidate.department ?? translate('none')}</span>
               </span>
             </label>
           ))}
         </AdminQueryState>
-        <p className='text-xs text-muted-foreground'>{translate('candidateLimit')}</p>
+        <p className='text-xs text-muted-foreground'>{translate('candidateLimit', { count: CANDIDATE_LIMIT })}</p>
         {invalid && (
           <p role='alert' className='text-sm text-danger'>
             {translate('selectEmployee')}
@@ -103,7 +106,8 @@ export function AccountInviteDialog({ onClose }: { onClose: () => void }) {
       <p className='text-xs text-muted-foreground'>{translate('emailFromPersonnel')}</p>
       <fieldset>
         <legend className='mb-2 text-sm font-medium'>{translate('role')}</legend>
-        <p className='text-xs text-muted-foreground'>{translate('roleHelp')}</p>
+        <p className='text-xs text-muted-foreground'>{translate('inviteRoleHelp')}</p>
+        <p className='mt-2 text-xs leading-relaxed text-muted-foreground'>{translate('spendingApproverInviteHelp')}</p>
         {directRoles
           .filter((value) => value !== 'SPENDING_APPROVER')
           .map((value) => (

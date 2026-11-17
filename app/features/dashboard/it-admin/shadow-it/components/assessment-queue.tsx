@@ -2,19 +2,65 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ClipboardCheck, ArrowUpRight } from 'lucide-react'
 import { useAssessmentQueueList } from '~/shared/api/generated/operations/access-requests/assessment-queue-list'
+import { useAssessmentQueueDepartmentList } from '~/shared/api/generated/operations/access-requests/assessment-queue-department-list'
 import { useDashboardFormat } from '../../../dashboard-ui'
 import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { ItPagination } from '../../shared/components/it-pagination'
 import { itButtonClass } from '../../shared/components/it-form'
+import { ItDepartmentCards } from '../../shared/components/it-department-cards'
 
 export function AssessmentQueue({ onOpen }: { onOpen: (id: string, canAct: boolean) => void }) {
   const { t: translate } = useTranslation('itNewSoftware')
   const { formatDateTime, formatNumber } = useDashboardFormat()
   const [page, setPage] = useState(1)
-  const query = useAssessmentQueueList({ page, pageSize: 20 })
+  const [department, setDepartment] = useState<{ id: string; name: string }>()
+  const departments = useAssessmentQueueDepartmentList({ page, pageSize: 20 }, { query: { enabled: !department } })
+  const query = useAssessmentQueueList(
+    { page, pageSize: 20, departmentId: department?.id },
+    { query: { enabled: !!department } }
+  )
   const data = query.data?.data
+  if (!department)
+    return (
+      <section className='space-y-4'>
+        <h2 className='text-lg font-semibold'>{translate('queue.chooseDepartment')}</h2>
+        <ItQueryState query={departments}>
+          {departments.data?.data?.items.length ? (
+            <ItDepartmentCards
+              items={departments.data.data.items.map((item) => ({ ...item.department, waiting: item.waiting }))}
+              detail={(item) => translate('queue.waitingCount', { count: item.waiting })}
+              onSelect={(item) => {
+                setDepartment(item)
+                setPage(1)
+              }}
+            />
+          ) : (
+            <ItEmpty />
+          )}
+        </ItQueryState>
+        {departments.data?.data && (departments.data.data.pagination.totalItems > 20 || page > 1) && (
+          <ItPagination
+            page={page}
+            total={departments.data.data.pagination.totalItems}
+            pageSize={20}
+            onChange={setPage}
+          />
+        )}
+      </section>
+    )
   return (
     <section className='space-y-4' aria-label={translate('queue.title')}>
+      <button
+        type='button'
+        className={itButtonClass}
+        onClick={() => {
+          setDepartment(undefined)
+          setPage(1)
+        }}
+      >
+        {translate('queue.backDepartments')}
+      </button>
+      <h2 className='text-lg font-semibold'>{department.name}</h2>
       <div className='flex flex-wrap items-center justify-between gap-2'>
         <h2 className='flex items-center gap-2 text-sm font-semibold'>
           <ClipboardCheck aria-hidden strokeWidth={1.5} className='size-4 text-primary' />

@@ -1,5 +1,12 @@
 export const itDepartmentWork = {
   usage: {
+    trendTitle: 'Usage over time',
+    trendHint:
+      'Days with activity each week over the last 30 days, by department. A day counts once if at least one person was active.',
+    trendLegend: 'Departments',
+    trendMissing: 'Some periods have partial or missing coverage. Gaps do not mean zero usage.',
+    trendTable: 'View chart data',
+    trendWeek: 'Week starting',
     from: 'From date',
     to: 'To date',
     apply: 'Apply period',

@@ -27,14 +27,16 @@ it('lets the server derive pricing when creating a license-key plan', async () =
   fireEvent.change(screen.getByLabelText('Plan name'), { target: { value: 'Professional' } })
   fireEvent.click(screen.getByLabelText('License key'))
   expect(screen.queryByText('Pricing model')).not.toBeInTheDocument()
-  fireEvent.click(screen.getByLabelText('Full'))
+  fireEvent.click(screen.getByLabelText('Full control'))
   fireEvent.click(screen.getByRole('button', { name: 'Save' }))
   await waitFor(() => expect(request.mock.calls.some(([config]) => config.method === 'POST')).toBe(true))
   expect(request.mock.calls.find(([config]) => config.method === 'POST')?.[0].data).toEqual({
     applicationId: 'app-one',
     name: 'Professional',
     provisioningType: 'K4',
-    controlLevel: 'FULL'
+    controlLevel: 'FULL',
+    dataLossOnRemoval: false,
+    hasAdminConsole: false
   })
 })
 it('loads plan details and preserves edited draft after update failure', async () => {

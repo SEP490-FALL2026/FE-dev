@@ -29,6 +29,34 @@ function fill(label: string, value: string) {
   fireEvent.change(screen.getByLabelText(label), { target: { value } })
 }
 
+it('does not offer intern when creating an employee', () => {
+  server.use(
+    http.get('*/api/v1/departments', () =>
+      HttpResponse.json({
+        success: true,
+        data: { items: [], pagination: { page: 1, pageSize: 100, totalItems: 0, totalPages: 0 } }
+      })
+    )
+  )
+  mount(<EmployeePanel />, '/dashboard/super-admin/personnel/new')
+  expect(screen.queryByRole('option', { name: 'Intern' })).not.toBeInTheDocument()
+})
+
+it('uploads a selected employee file immediately for preview', async () => {
+  let uploaded = false
+  server.use(
+    http.post('*/api/v1/employee-imports', () => {
+      uploaded = true
+      return HttpResponse.json({ success: true, data: null })
+    })
+  )
+  mount(<ImportPanel />)
+  fireEvent.change(screen.getByLabelText('Employee file'), {
+    target: { files: [new File(['data'], 'employees.csv', { type: 'text/csv' })] }
+  })
+  await waitFor(() => expect(uploaded).toBe(true))
+})
+
 it('edits only the employee in the profile and submits changed values', async () => {
   const id = '11111111-1111-4111-8111-111111111111'
   let received: unknown

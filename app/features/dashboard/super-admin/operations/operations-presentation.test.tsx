@@ -4,7 +4,6 @@ import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
 import { afterAll, afterEach, beforeAll, beforeEach, expect, it } from 'vitest'
 import { setAppLanguage } from '~/shared/i18n/i18n'
-import type { ControlledWaitListResponseDtoDataItemsItem } from '~/shared/api/generated/model/controlled-waits/controlledWaitListResponseDtoDataItemsItem'
 import type { CongestionStepsResponseDtoDataItemsItem } from '~/shared/api/generated/model/step-congestion/congestionStepsResponseDtoDataItemsItem'
 import { SuperAdminOperationsView } from './views/super-admin-operations-view'
 
@@ -13,17 +12,6 @@ const holderId = '22222222-2222-4222-8222-222222222222'
 const stepId = '33333333-3333-4333-8333-333333333333'
 const departmentId = '44444444-4444-4444-8444-444444444444'
 const pagination = { page: 1, pageSize: 20, totalItems: 1, totalPages: 1 }
-const wait: ControlledWaitListResponseDtoDataItemsItem = {
-  requestId,
-  stepId,
-  stepKind: 'SPEND_APPROVAL',
-  waitingReason: 'NO_SPENDING_APPROVER',
-  configurationHint: 'CONFIGURE_SPENDING_APPROVER',
-  waitingSince: '2026-10-25T03:00:00Z',
-  alertedAt: null,
-  requester: { employeeId: holderId, employeeCode: 'EMP-008', fullName: 'Dana Nguyen' },
-  department: { id: departmentId, code: 'ENG', name: 'Engineering' }
-}
 const step: CongestionStepsResponseDtoDataItemsItem = {
   requestId,
   stepId,
@@ -57,9 +45,8 @@ function mountOperations() {
   )
 }
 
-function useOperationsHandlers(waitItem: unknown = wait, stepItem: unknown = step) {
+function useOperationsHandlers(stepItem: unknown = step) {
   server.use(
-    http.get('*/api/v1/controlled-waits', () => envelope([waitItem])),
     http.get('*/api/v1/step-congestion', () =>
       envelope([
         {
@@ -81,37 +68,43 @@ function useOperationsHandlers(waitItem: unknown = wait, stepItem: unknown = ste
   )
 }
 
+it('does not request or show the controlled configuration waiting list', async () => {
+  useOperationsHandlers()
+  let requests = 0
+  server.use(
+    http.get('*/api/v1/controlled-waits', () => {
+      requests += 1
+      return envelope([])
+    })
+  )
+  mountOperations()
+  expect(await screen.findByText('Actions')).toBeInTheDocument()
+  expect(screen.queryByRole('heading', { name: 'Waiting for configuration' })).not.toBeInTheDocument()
+  expect(requests).toBe(0)
+})
+
 it.each([
-  ['en', 'Spending approval', 'Information technology assessment', 'Created', 'Due'],
-  ['vi', 'Duyệt chi', 'Thẩm định công nghệ', 'Ngày tạo', 'Hạn xử lý']
-] as const)(
-  'uses requester and step context without exposing internal IDs in %s',
-  async (language, waitKind, stepKind, created, due) => {
-    await setAppLanguage(language, false)
-    useOperationsHandlers()
-    const { container } = mountOperations()
-    expect(await screen.findByText('EMP-008')).toBeInTheDocument()
-    expect(screen.getAllByText('Dana Nguyen').length).toBeGreaterThan(0)
-    expect(screen.getByText('Engineering')).toBeInTheDocument()
-    expect(screen.getByText(waitKind)).toBeInTheDocument()
-    fireEvent.click(screen.getByText(language === 'vi' ? 'Thao tác' : 'Actions'))
-    fireEvent.click(screen.getByRole('button', { name: language === 'vi' ? 'Chi tiết' : 'Details' }))
-    expect(await screen.findByText(stepKind)).toBeInTheDocument()
-    expect(screen.getByText(created)).toBeInTheDocument()
-    expect(screen.getByText(due)).toBeInTheDocument()
-    for (const id of [requestId, holderId, stepId, departmentId]) expect(container.innerHTML).not.toContain(id)
-    for (const code of ['SPEND_APPROVAL', 'IT_ASSESSMENT', 'NO_SPENDING_APPROVER', 'CONFIGURE_SPENDING_APPROVER'])
-      expect(container.textContent).not.toContain(code)
-  }
-)
+  ['en', 'Information technology assessment', 'Created', 'Due'],
+  ['vi', 'Thẩm định công nghệ', 'Ngày tạo', 'Hạn xử lý']
+] as const)('uses step context without exposing internal IDs in %s', async (language, stepKind, created, due) => {
+  await setAppLanguage(language, false)
+  useOperationsHandlers()
+  const { container } = mountOperations()
+  expect(await screen.findByText('Dana Nguyen')).toBeInTheDocument()
+  fireEvent.click(screen.getByText(language === 'vi' ? 'Thao tác' : 'Actions'))
+  fireEvent.click(screen.getByRole('button', { name: language === 'vi' ? 'Chi tiết' : 'Details' }))
+  expect(await screen.findByText(stepKind)).toBeInTheDocument()
+  expect(screen.getByText(created)).toBeInTheDocument()
+  expect(screen.getByText(due)).toBeInTheDocument()
+  for (const id of [requestId, holderId, stepId, departmentId]) expect(container.innerHTML).not.toContain(id)
+  for (const code of ['SPEND_APPROVAL', 'IT_ASSESSMENT', 'NO_SPENDING_APPROVER', 'CONFIGURE_SPENDING_APPROVER'])
+    expect(container.textContent).not.toContain(code)
+})
 
 it('shows a translated fallback for future operation codes', async () => {
-  useOperationsHandlers(
-    { ...wait, waitingReason: 'FUTURE_WAIT_REASON', stepKind: 'FUTURE_STEP_KIND' },
-    { ...step, stepKind: 'NEW_BACKEND_STEP' }
-  )
+  useOperationsHandlers({ ...step, stepKind: 'NEW_BACKEND_STEP' })
   const { container } = mountOperations()
-  await screen.findByText('Engineering')
+  await screen.findByText('Dana Nguyen')
   fireEvent.click(screen.getByText('Actions'))
   fireEvent.click(screen.getByRole('button', { name: 'Details' }))
   await waitFor(() => expect(screen.getAllByText('Unknown status')).toHaveLength(1))

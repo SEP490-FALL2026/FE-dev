@@ -1,7 +1,16 @@
 import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { useDeviceList } from '~/shared/api/generated/operations/devices/device-list'
+import {
+  departmentList,
+  getDepartmentListQueryKey
+} from '~/shared/api/generated/operations/departments/department-list'
+import {
+  departmentTechnicalMemberList,
+  getDepartmentTechnicalMemberListQueryKey
+} from '~/shared/api/generated/operations/departments/department-technical-member-list'
 import { useCatalogSearch } from '~/shared/hooks/use-catalog-search'
 import { useWorkspaceFormat } from '~/shared/hooks/use-workspace-format'
 import { ItField, itButtonClass, itInputClass, itPrimaryClass } from '../../shared/components/it-form'
@@ -13,7 +22,7 @@ import { DeviceDetail } from '../components/device-detail'
 import { AllowlistView } from '../components/allowlist-view'
 import { MyDevices } from '../components/my-devices'
 import { DeviceSection } from '../enums/device-section'
-import { ItDirectoryLookup } from '../../shared/components/it-directory-lookup'
+import { ItChoiceSelect } from '../../shared/components/it-choice-select'
 
 export function ItDevicesView({ initialId }: { initialId?: string }) {
   const { t: translate } = useTranslation('itDevices')
@@ -60,6 +69,7 @@ function Registry({ initialId, active }: { initialId?: string; active: boolean }
   const { draft, setDraft, search, page, setPage } = useCatalogSearch()
   const [state, setState] = useState<DeviceState>()
   const [holder, setHolder] = useState('')
+  const [department, setDepartment] = useState('')
   const [params, setParams] = useSearchParams()
   const selected = params.get('deviceId') ?? (params.get('deviceList') === 'true' ? undefined : initialId)
   const section = Object.values(DeviceSection).find((value) => value === params.get('deviceSection')) ?? 'detail'
@@ -78,6 +88,40 @@ function Registry({ initialId, active }: { initialId?: string; active: boolean }
       return next
     })
   const [create, setCreate] = useState(false)
+  const departments = useQuery({
+    queryKey: [...getDepartmentListQueryKey({ status: 'ACTIVE' }), 'device-holder-filter'],
+    enabled: active && !selected,
+    queryFn: async ({ signal }) => {
+      const items = []
+      let page = 1
+      let totalPages = 1
+      while (page <= totalPages) {
+        const result = await departmentList({ status: 'ACTIVE', page, pageSize: 100 }, undefined, signal)
+        if (!result.data) throw new Error('Missing department page')
+        items.push(...result.data.items)
+        totalPages = result.data.pagination.totalPages
+        page++
+      }
+      return items
+    }
+  })
+  const members = useQuery({
+    queryKey: [...getDepartmentTechnicalMemberListQueryKey(department), 'device-holder-filter'],
+    enabled: active && !selected && !!department,
+    queryFn: async ({ signal }) => {
+      const items = []
+      let page = 1
+      let totalPages = 1
+      while (page <= totalPages) {
+        const result = await departmentTechnicalMemberList(department, { page, pageSize: 100 }, undefined, signal)
+        if (!result.data) throw new Error('Missing member page')
+        items.push(...result.data.items)
+        totalPages = result.data.pagination.totalPages
+        page++
+      }
+      return items.filter((item) => item.employmentStatus === 'WORKING')
+    }
+  })
   const query = useDeviceList(
     {
       page,
@@ -105,37 +149,45 @@ function Registry({ initialId, active }: { initialId?: string; active: boolean }
     )
   return (
     <div className='space-y-4'>
-      <div className='flex flex-wrap items-end gap-3'>
-        <div className='min-w-48 flex-1'>
-          <ItField label={translate('search')} hint={translate('hints.search')}>
-            <input
-              className={itInputClass}
-              type='search'
-              maxLength={100}
-              value={draft}
-              onChange={(event) => setDraft(event.target.value)}
-            />
-          </ItField>
-        </div>
-        <div className='min-w-48 flex-1'>
-          <ItField label={translate('holderEmployeeId')} hint={translate('hints.holderFilter')}>
-            <input
-              className={itInputClass}
-              value={holder}
-              onChange={(event) => {
-                setHolder(event.target.value)
-                setPage(1)
-              }}
-            />
-          </ItField>
-          <ItDirectoryLookup
-            mode='employee'
-            onSelect={(id) => {
-              setHolder(id)
-              setPage(1)
-            }}
+      <div className='grid gap-4 sm:grid-cols-2 xl:grid-cols-4 [&>.it-form-field]:row-span-3 [&>.it-form-field]:grid-rows-subgrid'>
+        <ItField label={translate('search')} hint={translate('hints.search')}>
+          <input
+            className={itInputClass}
+            type='search'
+            maxLength={100}
+            value={draft}
+            onChange={(event) => setDraft(event.target.value)}
           />
-        </div>
+        </ItField>
+        <ItChoiceSelect
+          label={translate('filterDepartment')}
+          value={department}
+          hint={translate('hints.filterDepartment')}
+          disabled={departments.isPending || departments.isError}
+          options={[
+            { value: '', label: translate('allDepartments') },
+            ...(departments.data ?? []).map((item) => ({ value: item.id, label: item.name }))
+          ]}
+          onChange={(value) => {
+            setDepartment(value)
+            setHolder('')
+            setPage(1)
+          }}
+        />
+        <ItChoiceSelect
+          label={translate('filterHolder')}
+          value={holder}
+          hint={translate(department ? 'hints.holderFilter' : 'hints.chooseDepartmentFirst')}
+          disabled={!department || members.isPending || members.isError}
+          options={[
+            { value: '', label: translate('allHolders') },
+            ...(members.data ?? []).map((item) => ({ value: item.id, label: item.fullName, description: item.code }))
+          ]}
+          onChange={(value) => {
+            setHolder(value)
+            setPage(1)
+          }}
+        />
         <ItField label={translate('state')} hint={translate('hints.collectionState')}>
           <select
             className={itInputClass}
@@ -153,6 +205,10 @@ function Registry({ initialId, active }: { initialId?: string; active: boolean }
             ))}
           </select>
         </ItField>
+      </div>
+      {departments.isError && <ItQueryState query={departments}>{null}</ItQueryState>}
+      {department && members.isError && <ItQueryState query={members}>{null}</ItQueryState>}
+      <div className='flex justify-end'>
         <button type='button' className={itPrimaryClass} onClick={() => setCreate(true)}>
           {translate('create')}
         </button>

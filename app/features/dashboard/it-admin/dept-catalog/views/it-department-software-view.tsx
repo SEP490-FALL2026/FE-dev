@@ -1,11 +1,11 @@
 import { useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { useDepartmentList } from '~/shared/api/generated/operations/departments/department-list'
+import { useItManagedDepartments } from '../../shared/hooks/use-it-managed-departments'
 import { useDepartmentGet } from '~/shared/api/generated/operations/departments/department-get'
 import { useMeGet } from '~/shared/api/generated/operations/me/me-get'
 import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { ItPagination } from '../../shared/components/it-pagination'
-import { itButtonClass } from '../../shared/components/it-form'
+import { ItDepartmentCards } from '../../shared/components/it-department-cards'
 import { DepartmentSoftware } from '../components/department-software'
 
 export function ItDepartmentSoftwareView() {
@@ -14,7 +14,9 @@ export function ItDepartmentSoftwareView() {
   const departmentId = params.get('departmentId') ?? ''
   const me = useMeGet()
   const page = Math.max(1, Number(params.get('page')) || 1)
-  const query = useDepartmentList({ status: 'ACTIVE', page, pageSize: 20 }, { query: { enabled: !departmentId } })
+  const { departments: query } = useItManagedDepartments()
+  const items = query.data ?? []
+  const visible = items.slice((page - 1) * 20, page * 20)
   const department = useDepartmentGet(departmentId, { query: { enabled: !!departmentId } })
   function update(key: string, value: string) {
     setParams((previous) => {
@@ -49,30 +51,27 @@ export function ItDepartmentSoftwareView() {
     <section className='space-y-5'>
       <h1 className='text-2xl font-semibold'>{translate('title')}</h1>
       <p className='max-w-3xl text-sm text-muted-foreground'>{translate('description')}</p>
-      <ItQueryState query={query}>
-        {query.data?.data?.items.length ? (
-          <div className='divide-y divide-border rounded-lg border border-border bg-surface'>
-            {query.data.data.items.map((item) => (
-              <article key={item.id} className='flex items-center justify-between gap-3 p-4'>
-                <h2 className='truncate font-medium' title={item.name}>
-                  {item.name}
-                </h2>
-                <button type='button' className={itButtonClass} onClick={() => update('departmentId', item.id)}>
-                  {translate('select')}
-                </button>
-              </article>
-            ))}
-          </div>
-        ) : (
-          <ItEmpty />
-        )}
+      <ItQueryState query={me}>
+        <ItQueryState query={query}>
+          {visible.length ? (
+            <ItDepartmentCards
+              items={visible}
+              onSelect={(item) => update('departmentId', item.id)}
+              actionLabel={translate('select')}
+            />
+          ) : (
+            <ItEmpty />
+          )}
+        </ItQueryState>
       </ItQueryState>
-      <ItPagination
-        page={page}
-        pageSize={20}
-        total={query.data?.data?.pagination.totalItems ?? 0}
-        onChange={(next) => update('page', String(next))}
-      />
+      {(items.length > 20 || page > 1) && (
+        <ItPagination
+          page={page}
+          pageSize={20}
+          total={items.length}
+          onChange={(next) => update('page', String(next))}
+        />
+      )}
     </section>
   )
 }

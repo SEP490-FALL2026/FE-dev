@@ -96,6 +96,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     licenses: true,
     optimize: true,
+    'software-catalog': true,
     people: true,
     'usage-sources': true
   })

@@ -25,7 +25,8 @@ export const itAdmin = {
   retryIn: 'Try again in {{count}} seconds',
   navigation: {
     purchaseInvoices: 'Purchase invoices',
-    departmentSoftware: 'Department software suggestions',
+    departmentSoftware: 'Configure department software',
+    catalogPlans: 'Software plans',
     sharedStock: 'Shared stock',
     transfers: 'Technical transfers',
     purchaseDocuments: 'Contracts & documents',
@@ -47,6 +48,22 @@ export const itAdmin = {
   },
   title: 'IT operations',
   stock: {
+    catalogHint:
+      'Browse software plans and their shared stock. Availability is shown when the server has an active stock record.',
+    internal: 'Internal software',
+    other: 'Other provisioning',
+    internalNoSubscription: 'Internal software does not use subscriptions.',
+    noActiveStock: 'No active stock is available for this plan.',
+    summaryUnavailable: 'Stock availability could not be loaded. The plan list is still available.',
+    viewHolders: 'View holders',
+    holders: 'Current and scheduled access holders',
+    revoking: 'Revocation in progress',
+    summaryHint:
+      'Plans with active stock assigned to you. Counts reflect the type of access and do not count subscription records.',
+    personal: 'Personal accounts',
+    seatSummary: 'Seats: {{purchased}} purchased · {{assigned}} assigned · {{free}} free',
+    keySummary: 'Keys: {{inStore}} in store · {{assigned}} assigned · {{withdrawn}} withdrawn',
+    holderSummary: '{{count}} account holders',
     title: 'Shared stock',
     eyebrow: 'License management',
     description:
@@ -60,6 +77,11 @@ export const itAdmin = {
     select: 'View subscriptions',
     subscriptions: 'Subscriptions',
     purchased: 'Purchased',
+    assigned: 'Assigned',
+    inStore: 'In stock',
+    keysAvailabilityNote: 'Keys in stock may include keys awaiting assignment.',
+    withdrawn: 'Withdrawn',
+    accountHolders: 'Account holders',
     occupied: 'Occupied',
     free: 'Free',
     openKeys: 'Import and manage keys',
@@ -76,8 +98,7 @@ export const itAdmin = {
     keyActionDescription: 'Choose a subscription below, then enter one or more keys, one per line.',
     vaultTitle: 'Subscription keys',
     vaultHint: 'Keys are masked in the list. Import new keys into this subscription’s stock.',
-    keyCapacityHint:
-      'Free seats below are subscription capacity; usable keys are shown in the key vault and may be fewer.',
+    keyCapacityHint: 'Available keys are checked per subscription and may be fewer than the number in stock.',
     usableKeys: '{{count}} usable keys',
     importKeys: 'Import new keys',
     status: 'Status',
@@ -89,6 +110,15 @@ export const itAdmin = {
   selectedList: 'Selected options',
   removeSelection: 'Remove {{name}}',
   fieldPlaceholder: 'Enter {{field}}',
+  departmentCard: {
+    open: 'View department',
+    view: 'View department {{name}}',
+    head: 'Department head',
+    unassigned: 'Unassigned',
+    members: 'Members',
+    active: 'Active',
+    inactive: 'Inactive'
+  },
   directory: {
     people: 'Browse people',
     departments: 'Browse departments',
