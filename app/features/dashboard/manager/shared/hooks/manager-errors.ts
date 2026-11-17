@@ -1,6 +1,12 @@
 import axios from 'axios'
 
 const errorKeys = {
+  'GHOST_SEAT.NOT_DECIDER': 'forbidden',
+  'GHOST_SEAT.PAUSED': 'ghostChanged',
+  'GHOST_SEAT.NOT_DECIDABLE': 'ghostChanged',
+  'GHOST_SEAT.SEAT_NOT_REVOCABLE': 'ghostNotRevocable',
+  'GHOST_SEAT.EXEMPTION_REQUIRED': 'ghostExemption',
+  'GHOST_SEAT.EXEMPTION_TOO_LONG': 'ghostExemption',
   'BUDGET_REVIEW.NOT_AWAITING_EXPLANATIONS': 'budgetReviewClosed',
   'BUDGET_REVIEW.EXPLANATION_NOT_REQUIRED': 'budgetExplanationNotRequired',
   'BUDGET.NOT_YOUR_COST_CENTER': 'forbidden',

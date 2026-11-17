@@ -1,5 +1,20 @@
 import { requestPersonnel } from './request-personnel'
 export const requestFlow = {
+  proposalForm: {
+    existing: 'Ứng dụng đã có, tôi cần xin thêm gói khác',
+    search: 'Tìm ứng dụng',
+    application: 'Ứng dụng đã có',
+    planName: 'Tên gói cần bổ sung',
+    choose: 'Chọn ứng dụng',
+    loading: 'Đang tải ứng dụng…',
+    empty: 'Không tìm thấy ứng dụng phù hợp',
+    loadError: 'Chưa tải được danh mục.',
+    previous: 'Trang trước',
+    next: 'Trang sau',
+    emptyPlans: 'Chưa có gói sẵn có trong phản hồi. Chọn ứng dụng đã có ở trên để đề xuất gói khác.',
+    open: 'Đề xuất phần mềm hoặc gói khác',
+    back: 'Xin quyền từ danh mục'
+  },
   ...requestPersonnel,
   resubmitOnlyHint: 'Bạn có thể gửi lại yêu cầu cho người duyệt. Bước này chưa hỗ trợ chỉnh sửa nội dung yêu cầu.',
   renewalWindow: 'Bạn có thể gửi yêu cầu gia hạn từ ngày {{date}}.',

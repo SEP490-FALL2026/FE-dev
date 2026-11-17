@@ -1,3 +1,4 @@
+import { MyProfileEditor } from '~/entities/user/components/my-profile-editor'
 import { KeyRound, UserRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
@@ -17,13 +18,7 @@ export function EmployeeLiveProfile() {
           <EmployeeQueryState query={query} empty={!user} />
           {user && (
             <>
-              <div className='flex min-w-0 items-center gap-4 border-b border-border/50 pb-5'>
-                <span
-                  aria-hidden
-                  className='grid size-14 shrink-0 place-items-center rounded-lg border border-primary/20 bg-primary-soft text-primary-ink'
-                >
-                  <UserRound strokeWidth={1.5} className='size-7' />
-                </span>
+              <div className='flex min-w-0 items-center gap-4'>
                 <div className='min-w-0'>
                   <h2 className='truncate text-lg font-semibold' title={user.employee.fullName}>
                     {user.employee.fullName}
@@ -36,6 +31,7 @@ export function EmployeeLiveProfile() {
                   </p>
                 </div>
               </div>
+              <MyProfileEditor />
               <dl className='grid gap-x-6 gap-y-5 sm:grid-cols-2'>
                 {[
                   [translate('name'), user.employee.fullName],

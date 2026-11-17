@@ -1,5 +1,20 @@
 import { requestPersonnel } from './request-personnel'
 export const requestFlow = {
+  proposalForm: {
+    existing: 'The application already exists; I need another plan',
+    search: 'Find an application',
+    application: 'Existing application',
+    planName: 'Name of the plan to add',
+    choose: 'Choose an application',
+    loading: 'Loading applications…',
+    empty: 'No matching applications',
+    loadError: 'Could not load the catalogue.',
+    previous: 'Previous',
+    next: 'Next',
+    emptyPlans: 'No existing plans were returned. Choose the existing application above to request another plan.',
+    open: 'Propose software or another plan',
+    back: 'Request from the catalogue'
+  },
   ...requestPersonnel,
   resubmitOnlyHint:
     'You can resubmit this request to the reviewer. Changes to its content are not supported at this step.',

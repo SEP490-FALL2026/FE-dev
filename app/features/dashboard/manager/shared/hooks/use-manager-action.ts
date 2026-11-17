@@ -12,6 +12,7 @@ export function useManagerAction<Result, Variables = void>(options: {
   mutationFn: (variables: Variables) => Promise<Result>
   invalidate: readonly QueryKey[]
   onSuccess?: (result: Result) => void
+  successMessage?: (result: Result) => string
   /** Runs after the shared error handling, e.g. to reload a policy checklist that changed version. */
   onError?: (error: unknown) => void
 }) {
@@ -42,7 +43,7 @@ export function useManagerAction<Result, Variables = void>(options: {
     onSuccess: async (result) => {
       setFields([])
       await refresh()
-      toast.success(translate('saved'), { id: 'manager-write' })
+      toast.success(options.successMessage?.(result) ?? translate('saved'), { id: 'manager-write' })
       if (active.current) options.onSuccess?.(result)
     },
     onError: async (error) => {

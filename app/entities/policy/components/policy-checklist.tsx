@@ -12,11 +12,13 @@ import { InlineMarkdown } from '~/shared/ui/inline-markdown'
 export function PolicyChecklist({
   checklist,
   disabled,
-  blockingNo = false
+  blockingNo = false,
+  noMessage
 }: {
   checklist: PolicyChecklistState
   disabled?: boolean
   blockingNo?: boolean
+  noMessage?: string
 }) {
   const { t: translate } = useTranslation('policy')
   const id = useId()
@@ -99,7 +101,7 @@ export function PolicyChecklist({
       {!checklist.complete && <p className='text-xs text-muted-foreground'>{translate('checklist.incomplete')}</p>}
       {checklist.hasNo && (
         <p role='status' className='text-sm text-warning-ink'>
-          {translate(blockingNo ? 'checklist.hasNoBlocking' : 'checklist.hasNo')}
+          {noMessage ?? translate(blockingNo ? 'checklist.hasNoBlocking' : 'checklist.hasNo')}
         </p>
       )}
     </fieldset>

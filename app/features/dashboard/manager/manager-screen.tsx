@@ -1,3 +1,6 @@
+import { ManagerGhostSeats } from './ghost-seats/views/manager-ghost-seats'
+import { ManagerGhostSeatDetail } from './ghost-seats/views/manager-ghost-seat-detail'
+import { PolicyLibrary } from '~/entities/policy/components/policy-library'
 import { ManagerSubscriptionRenewals } from './subscription-renewals/views/manager-subscription-renewals'
 import { useTranslation } from 'react-i18next'
 import { Navigate, useLocation, useParams, useSearchParams } from 'react-router'
@@ -46,7 +49,8 @@ export function ManagerScreen({
   const validDepartment = isResourceId(departmentId)
   const form = location.pathname.startsWith('/dashboard/manager/annual-budget/')
   const budgetSection = form || tab === 'annual-budget'
-  const personalSection = tab === 'personal-request' || tab === 'request-approval' || tab === 'profile'
+  const personalSection =
+    tab === 'personal-request' || tab === 'request-approval' || tab === 'profile' || tab === 'policies'
   const needsDepartment =
     form || ['overview', 'my-team', 'team-software', 'employee-detail', 'tool-detail'].includes(tab)
   const department = useDepartmentGet(departmentId, {
@@ -192,6 +196,7 @@ export function ManagerScreen({
         </ManagerButton>
       </div>
     )
+  else if (tab === 'policies') content = <PolicyLibrary />
   else if (tab === 'profile') content = <ManagerProfileView />
   else if (tab === 'team-software')
     content = (
@@ -292,6 +297,14 @@ export function ManagerScreen({
       />
     )
   else if (tab === 'subscription-renewals') content = <ManagerSubscriptionRenewals />
+  else if (tab === 'ghost-seat-review')
+    content = <ManagerGhostSeats onOpen={(id) => onSelectTab('ghost-seat-detail', { id })} />
+  else if (tab === 'ghost-seat-detail')
+    content = isResourceId(id) ? (
+      <ManagerGhostSeatDetail key={id} id={id} onBack={() => onSelectTab('ghost-seat-review')} />
+    ) : (
+      <p>{translate('errors.missing')}</p>
+    )
   else if (tab === 'annual-budget') content = <ManagerLiveBudget />
   else
     content = (

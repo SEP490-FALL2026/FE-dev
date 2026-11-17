@@ -1,4 +1,20 @@
 export const policy = {
+  library: {
+    title: 'Policy library',
+    back: 'All policies',
+    current: 'Current version',
+    historical: 'Historical version · read only',
+    versions: 'Version history',
+    empty: 'No published policies',
+    pending: 'Acknowledgement required',
+    done: 'Acknowledged',
+    notRequired: 'No acknowledgement required',
+    previous: 'Previous versions',
+    next: 'More versions',
+    consent: 'I have read and understood this version of the policy.',
+    retryAfter: 'Try again in {{seconds}}s',
+    uncertain: 'The response was lost. Refresh to check whether your acknowledgement was recorded.'
+  },
   checklist: {
     title: 'Policy checklist',
     version: '{{policy}} · version {{version}}',

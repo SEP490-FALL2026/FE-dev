@@ -1,3 +1,4 @@
+import { managerGhost } from './manager-ghost-seats'
 import { managerBudgetWorkspace } from './manager-budget-workspace'
 import { managerOverviewBudget } from './manager-overview-budget'
 import { managerRenewals } from './manager-renewals'
@@ -5,6 +6,9 @@ import { managerIntegration } from './manager-integration'
 import { managerRequestForm } from './manager-request-form'
 import { managerBudgetForm } from './manager-budget-form'
 export const manager = {
+  policies: 'Policies',
+  ghostSeatReview: 'Review unused seats',
+  ghost: managerGhost,
   budgetWorkspace: managerBudgetWorkspace,
   overviewBudget: managerOverviewBudget,
   renewal: managerRenewals,
@@ -335,6 +339,9 @@ export const manager = {
     confirmRejectText: 'Are you sure you want to REJECT this software need?'
   },
   errors: {
+    ghostChanged: 'This recommendation changed or was paused. Review the latest information before deciding.',
+    ghostNotRevocable: 'This seat cannot be revoked now. Reload the queue.',
+    ghostExemption: 'Choose a valid exemption date after today, no more than 12 months ahead.',
     ...managerBudgetWorkspace.errors,
     cycleNotOpen: 'The budget cycle of this year is not open yet.',
     cycleLocked: 'The budget cycle is locked because the submission deadline has passed.',

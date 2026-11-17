@@ -55,7 +55,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
   const isManager = role === 'manager'
   const isApprover = role === 'spending-approver'
   const isSuperAdmin = role === 'super-admin'
-  const me = useMeGet({ query: { enabled: isManager } })
+  const me = useMeGet({ query: { enabled: isManager || isEmployee, refetchInterval: 12 * 60 * 1000 } })
   const managerSelfService =
     isManager && !me.isError && !!me.data?.data && me.data.data.roles.includes('MANAGER') && !me.data.data.managerScope
 
@@ -201,7 +201,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
         <DashboardHeader
           activeEmployeeTab={activeEmployeeTab}
           activeManagerTab={activeManagerTab}
-          employeeAvatarUrl={null}
+          employeeAvatarUrl={me.data?.data?.avatar?.url ?? null}
           mobileNavigationOpen={mobileNavigationOpen}
           onOpenProfile={
             isEmployee

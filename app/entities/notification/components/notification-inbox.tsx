@@ -1,3 +1,6 @@
+import { notificationTarget } from '../notification-target'
+import { NotificationCopy } from './notification-copy'
+import type { NotificationTarget } from '../notification-target'
 import { Bell, Check, CheckCheck, LoaderCircle, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { formatDateTime } from '~/shared/lib/format-date-time'
@@ -12,12 +15,16 @@ export function NotificationInbox({
   labelId,
   unreadCount,
   onClose,
-  onOpenRequest
+  onOpenRequest,
+  audience,
+  onOpenTarget
 }: {
   labelId: string
   unreadCount?: number
   onClose: () => void
   onOpenRequest: (id: string) => void
+  audience?: 'employee' | 'manager'
+  onOpenTarget?: (target: NotificationTarget) => void
 }) {
   const { t: translate, i18n } = useTranslation('common')
   const { query, notifications, mutation, retrySeconds, markRead } = useNotificationInbox()
@@ -81,9 +88,13 @@ export function NotificationInbox({
         <ul className='divide-y divide-border/60'>
           {notifications.map((notification) => {
             const requestId = notificationRequestId(notification)
+            const target = audience && onOpenTarget ? notificationTarget(notification, audience) : undefined
+            const known = i18n.exists('notifications.messages.' + notification.code, { ns: 'common' })
             const title = translate(
-              `notifications.codes.${notification.code}` as 'notifications.codes.REQUEST_SUBMITTED',
-              { defaultValue: translate('notifications.fallback') }
+              audience
+                ? (`notifications.messages.${notification.code}.title` as 'notifications.messages.REQUEST_SUBMITTED.title')
+                : (`notifications.codes.${notification.code}` as 'notifications.codes.REQUEST_SUBMITTED'),
+              { replace: notification.params, defaultValue: translate('notifications.fallback') }
             )
             return (
               <li key={notification.id}>
@@ -110,11 +121,14 @@ export function NotificationInbox({
                         {formatDateTime(notification.createdAt, i18n.resolvedLanguage)}
                       </time>
                     </div>
-                    <p className='mt-1 break-words text-sm leading-6 text-muted-foreground'>
-                      {requestId
-                        ? translate('notifications.requestReference', { id: requestId })
-                        : translate('notifications.updateHint')}
-                    </p>
+                    {!audience && (
+                      <p className='mt-1 break-words text-sm leading-6 text-muted-foreground'>
+                        {requestId
+                          ? translate('notifications.requestReference', { id: requestId })
+                          : translate('notifications.updateHint')}
+                      </p>
+                    )}
+                    {audience && known && <NotificationCopy notification={notification} />}
                     <NotificationPersonnelContext notification={notification} />
                     <div className='mt-2 flex flex-wrap items-center gap-2'>
                       {!notification.readAt && (
@@ -133,14 +147,25 @@ export function NotificationInbox({
                           {translate('notifications.markRead')}
                         </button>
                       )}
-                      {requestId && (
+                      {audience && known && target && onOpenTarget ? (
                         <button
                           type='button'
                           className={`${buttonClass} text-primary-ink`}
-                          onClick={() => onOpenRequest(requestId)}
+                          onClick={() => onOpenTarget(target)}
                         >
-                          {translate('notifications.openRequest')}
+                          {translate('notifications.openDetails')}
                         </button>
+                      ) : (
+                        !audience &&
+                        requestId && (
+                          <button
+                            type='button'
+                            className={`${buttonClass} text-primary-ink`}
+                            onClick={() => onOpenRequest(requestId)}
+                          >
+                            {translate('notifications.openRequest')}
+                          </button>
+                        )
                       )}
                     </div>
                   </div>

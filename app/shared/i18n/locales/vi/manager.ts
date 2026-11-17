@@ -1,3 +1,4 @@
+import { managerGhost } from './manager-ghost-seats'
 import { managerBudgetWorkspace } from './manager-budget-workspace'
 import { managerOverviewBudget } from './manager-overview-budget'
 import { managerRenewals } from './manager-renewals'
@@ -5,6 +6,9 @@ import { managerIntegration } from './manager-integration'
 import { managerRequestForm } from './manager-request-form'
 import { managerBudgetForm } from './manager-budget-form'
 export const manager = {
+  policies: 'Chính sách',
+  ghostSeatReview: 'Rà soát suất không sử dụng',
+  ghost: managerGhost,
   budgetWorkspace: managerBudgetWorkspace,
   overviewBudget: managerOverviewBudget,
   renewal: managerRenewals,
@@ -332,6 +336,9 @@ export const manager = {
     confirmRejectText: 'Bạn có chắc chắn muốn TỪ CHỐI nhu cầu phần mềm này?'
   },
   errors: {
+    ghostChanged: 'Khuyến nghị đã thay đổi hoặc bị tạm dừng. Xem thông tin mới nhất trước khi quyết định.',
+    ghostNotRevocable: 'Suất này hiện chưa thể thu hồi. Tải lại hàng đợi.',
+    ghostExemption: 'Chọn ngày miễn trừ hợp lệ sau hôm nay và không quá 12 tháng tới.',
     ...managerBudgetWorkspace.errors,
     cycleNotOpen: 'Kỳ ngân sách của năm này chưa được mở.',
     cycleLocked: 'Kỳ ngân sách đã khóa vì quá hạn nộp.',

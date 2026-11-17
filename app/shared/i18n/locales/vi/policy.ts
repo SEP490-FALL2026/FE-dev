@@ -1,4 +1,20 @@
 export const policy = {
+  library: {
+    title: 'Thư viện chính sách',
+    back: 'Tất cả chính sách',
+    current: 'Phiên bản hiện hành',
+    historical: 'Phiên bản cũ · chỉ xem',
+    versions: 'Lịch sử phiên bản',
+    empty: 'Chưa có chính sách được công bố',
+    pending: 'Cần xác nhận đã đọc',
+    done: 'Đã xác nhận',
+    notRequired: 'Không yêu cầu xác nhận',
+    previous: 'Các phiên bản trước',
+    next: 'Xem thêm phiên bản',
+    consent: 'Tôi đã đọc và hiểu phiên bản chính sách này.',
+    retryAfter: 'Thử lại sau {{seconds}} giây',
+    uncertain: 'Mất phản hồi. Tải lại để kiểm tra xác nhận đã được ghi nhận hay chưa.'
+  },
   checklist: {
     title: 'Câu hỏi kiểm tra theo chính sách',
     version: '{{policy}} · phiên bản {{version}}',

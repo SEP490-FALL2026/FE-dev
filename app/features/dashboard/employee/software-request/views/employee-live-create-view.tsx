@@ -25,6 +25,7 @@ import { useEmployeeCatalogSelection } from '../hooks/use-employee-catalog-selec
 import type { EmployeeTabKey } from '../../enums'
 import { isEmployeeResourceId } from '../../shared/employee-identifiers'
 import { TermMonthsField } from '~/entities/request/components/term-months-field'
+import { SoftwareProposalForm } from '~/entities/request/components/software-proposal-form'
 import { useWorkspaceFormat } from '~/shared/hooks/use-workspace-format'
 import { termRule } from '~/entities/request/term-months'
 
@@ -61,15 +62,22 @@ export function EmployeeLiveCreateView({
         ))}
       </nav>
       <div className='grid items-start gap-5 2xl:grid-cols-[minmax(0,1fr)_300px]'>
-        <LiveCreateForm
-          key={`${mode}:${searchParams.get('assignmentId') ?? ''}:${searchParams.get('planId') ?? ''}`}
-          mode={mode}
-          assignmentId={searchParams.get('assignmentId') ?? ''}
-          initialPlanId={
-            isEmployeeResourceId(searchParams.get('planId') ?? '') ? (searchParams.get('planId') ?? '') : ''
-          }
-          onSelectTab={onSelectTab}
-        />
+        {mode === 'proposal' ? (
+          <SoftwareProposalForm
+            onCreated={(id) => onSelectTab('request-detail', { id })}
+            onUsePlan={(planId) => onSelectTab('create-request', { planId })}
+          />
+        ) : (
+          <LiveCreateForm
+            key={`${mode}:${searchParams.get('assignmentId') ?? ''}:${searchParams.get('planId') ?? ''}`}
+            mode={mode}
+            assignmentId={searchParams.get('assignmentId') ?? ''}
+            initialPlanId={
+              isEmployeeResourceId(searchParams.get('planId') ?? '') ? (searchParams.get('planId') ?? '') : ''
+            }
+            onSelectTab={onSelectTab}
+          />
+        )}
         <aside className='hidden min-w-0 2xl:block'>
           <EmployeeRequestGuide needsPreview={mode === 'individual' || mode === 'group'} group={mode === 'group'} />
         </aside>

@@ -1,6 +1,7 @@
 import { employeeRequestExtras } from './employee-request-extras'
 import { employeeRequestAssignment } from './employee-request-assignment'
 export const employee = {
+  policies: 'Chính sách',
   estimatedBudgetYear: 'Năm ngân sách tạm tính',
   extensionMonths: 'Số tháng gia hạn',
   requestAssignment: employeeRequestAssignment,

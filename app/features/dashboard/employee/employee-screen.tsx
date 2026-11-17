@@ -1,3 +1,4 @@
+import { PolicyLibrary } from '~/entities/policy/components/policy-library'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import { useMeGet } from '~/shared/api/generated/operations/me/me-get'
@@ -56,6 +57,7 @@ export function EmployeeScreen({
         onSelectTab={onSelectTab}
       />
     )
+  else if (tab === 'policies') content = <PolicyLibrary />
   else if (tab === 'profile') content = <EmployeeLiveProfile />
   else if (tab === 'privacy' || tab === 'data-export' || tab === 'data-usage') content = <EmployeeLivePrivacy />
   else if (tab === 'my-requests') content = <EmployeeLiveRequestsView onSelectTab={onSelectTab} />

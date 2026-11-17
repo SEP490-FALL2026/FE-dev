@@ -6,6 +6,13 @@ export function ManagerNotificationBell() {
   const [params, setParams] = useSearchParams()
   return (
     <NotificationBell
+      audience='manager'
+      onOpenTarget={(target) => {
+        void navigate({
+          pathname: '/dashboard/manager',
+          search: new URLSearchParams({ tab: target.tab, ...target.params }).toString()
+        })
+      }}
       open={params.get('notifications') === 'open'}
       onOpenChange={(open) => {
         setParams(
