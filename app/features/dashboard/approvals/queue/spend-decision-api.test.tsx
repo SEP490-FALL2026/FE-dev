@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import { MemoryRouter } from 'react-router'
@@ -189,24 +189,32 @@ async function confirm() {
 
 it('requires a rejection reason and sends only the strict rejection payload', async () => {
   mount()
+  expect(await screen.findByRole('button', { name: 'Reject' })).toBeDisabled()
   await confirm()
-  expect(screen.getByRole('button', { name: 'Reject' })).toBeDisabled()
-  fireEvent.change(screen.getByPlaceholderText('State why you reject or return it'), {
+  fireEvent.click(screen.getByRole('button', { name: 'Reject' }))
+  expect(posted).toHaveLength(0)
+  const dialog = await screen.findByRole('dialog', { name: 'Reject this request' })
+  expect(within(dialog).getByText(/Are you sure you want to reject/)).toBeInTheDocument()
+  expect(within(dialog).getByRole('button', { name: 'Confirm rejection' })).toBeDisabled()
+  fireEvent.change(within(dialog).getByPlaceholderText('State why you reject or return it'), {
     target: { value: '  No business need  ' }
   })
-  fireEvent.click(screen.getByRole('button', { name: 'Reject' }))
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Confirm rejection' }))
   await waitFor(() => expect(posted).toHaveLength(1))
   expect(posted[0].body).toEqual({ decision: 'REJECT', reason: 'No business need', checklist: expectedChecklist })
 })
 
 it('requires a reason to return a request and sends the strict return payload', async () => {
   mount()
+  expect(await screen.findByRole('button', { name: 'Return' })).toBeDisabled()
   await confirm()
-  expect(screen.getByRole('button', { name: 'Return' })).toBeDisabled()
-  fireEvent.change(screen.getByPlaceholderText('State why you reject or return it'), {
+  fireEvent.click(screen.getByRole('button', { name: 'Return' }))
+  const dialog = await screen.findByRole('dialog', { name: 'Return this request' })
+  expect(within(dialog).getByRole('button', { name: 'Confirm return' })).toBeDisabled()
+  fireEvent.change(within(dialog).getByPlaceholderText('State why you reject or return it'), {
     target: { value: '  Pick the team plan  ' }
   })
-  fireEvent.click(screen.getByRole('button', { name: 'Return' }))
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Confirm return' }))
   await waitFor(() => expect(posted).toHaveLength(1))
   expect(posted[0].body).toEqual({ decision: 'RETURN', reason: 'Pick the team plan', checklist: expectedChecklist })
 })
@@ -240,10 +248,12 @@ it('keeps a failed decision draft and refreshes authoritative data after conflic
   failMutation = true
   mount()
   await confirm()
-  fireEvent.change(screen.getByPlaceholderText('State why you reject or return it'), {
+  fireEvent.click(screen.getByRole('button', { name: 'Reject' }))
+  const dialog = await screen.findByRole('dialog', { name: 'Reject this request' })
+  fireEvent.change(within(dialog).getByPlaceholderText('State why you reject or return it'), {
     target: { value: 'Keep this reason' }
   })
-  fireEvent.click(screen.getByRole('button', { name: 'Reject' }))
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Confirm rejection' }))
   await waitFor(() => expect(readCount).toBeGreaterThan(1))
   expect(screen.getByPlaceholderText('State why you reject or return it')).toHaveValue('Keep this reason')
   expect(screen.queryByText('Internal message')).not.toBeInTheDocument()
@@ -473,7 +483,7 @@ it('ticks every checklist answer for "read and agree to all", and a No in the ch
   fireEvent.click(screen.getAllByRole('radio', { name: 'No' }).at(-1) as HTMLElement)
   expect(screen.getByRole('checkbox', { name: /I have read and agree to everything/ })).not.toBeChecked()
   expect(screen.getByRole('button', { name: 'Approve' })).toBeDisabled()
-  fireEvent.change(screen.getByPlaceholderText('State why you reject or return it'), { target: { value: 'No' } })
+  expect(screen.getByRole('button', { name: 'Reject' })).toBeEnabled() // a No still allows rejecting or returning
   fireEvent.click(screen.getByRole('checkbox', { name: /I have read and agree to everything/ }))
   expect(screen.getByRole('button', { name: 'Approve' })).toBeEnabled()
 })

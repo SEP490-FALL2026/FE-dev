@@ -19,6 +19,7 @@ import type { useSpendYears } from '../hooks/use-spend-years'
 import { SPEND_DECISION } from '../enums/spend-decision'
 import { SPEND_STEP_STATE } from '../enums/spend-step-state'
 import { BENEFICIARY_STATE } from '../enums/beneficiary-state'
+import { SpendDeclineDialog, type DeclineKind } from './spend-decline-dialog'
 import type { SpendApproval } from './spend-request-facts'
 
 type Year = ReturnType<typeof useSpendYears>['years'][number]
@@ -41,7 +42,7 @@ export function SpendDecisionForm({
   const beneficiaries = useSpendBeneficiaries(approval.requestId, isGroup, approval.request.lineCount)
   const mutations = useSpendDecision()
   const checklist = useDecisionChecklist(DECISION_STEP.SPEND)
-  const [reason, setReason] = useState('')
+  const [declining, setDeclining] = useState<DeclineKind | null>(null)
   const [confirmed, setConfirmed] = useState(false)
   const [lineDrafts, setLineDrafts] = useState<Record<string, { decision: string; reason: string }>>({})
   const confirmedLines = beneficiaries.lines.filter((line) => line.state === BENEFICIARY_STATE.NEED_CONFIRMED)
@@ -92,7 +93,7 @@ export function SpendDecisionForm({
   // and rejecting or returning needs a reason.
   const answered = canDecide && confirmed && checklist.complete
   const canApprove = answered && !checklist.hasNo
-  const canDecline = answered && Boolean(reason.trim())
+  const canDecline = answered
   const agreeAll = confirmed && checklist.complete && !checklist.hasNo
   const pendingDecision = mutations.single.isPending ? mutations.single.variables?.data.decision : undefined
   const options = [
@@ -102,7 +103,8 @@ export function SpendDecisionForm({
     { value: SPEND_DECISION.RETURN, label: translate('return') }
   ]
   const submitSingle = (
-    decision: typeof SPEND_DECISION.APPROVE | typeof SPEND_DECISION.REJECT | typeof SPEND_DECISION.RETURN
+    decision: typeof SPEND_DECISION.APPROVE | typeof SPEND_DECISION.REJECT | typeof SPEND_DECISION.RETURN,
+    reason = ''
   ) => {
     const checklistPayload = checklist.payload()
     const allowed = decision === SPEND_DECISION.APPROVE ? canApprove : canDecline
@@ -119,6 +121,7 @@ export function SpendDecisionForm({
         onSettled: () => {
           submissionLocked.current = false
         },
+        onSuccess: () => setDeclining(null),
         onError: checklist.handleError
       }
     )
@@ -222,18 +225,7 @@ export function SpendDecisionForm({
                 </div>
               ))}
             </div>
-          ) : (
-            <ApprovalsField label={translate('declineReason')} hint={translate('declineReasonHint')}>
-              <textarea
-                rows={2}
-                className={approvalsInputClass}
-                value={reason}
-                onChange={(event) => setReason(event.target.value)}
-                placeholder={translate('declinePlaceholder')}
-                maxLength={1000}
-              />
-            </ApprovalsField>
-          )}
+          ) : null}
           <DecisionChecklistPanel checklist={checklist} disabled={!canDecide} collapsible />
           <label className='flex min-h-11 items-start gap-3 text-sm'>
             <input
@@ -269,8 +261,7 @@ export function SpendDecisionForm({
                 variant='danger'
                 type='button'
                 disabled={!canDecline || mutations.isPending}
-                pending={pendingDecision === SPEND_DECISION.REJECT}
-                onClick={() => submitSingle(SPEND_DECISION.REJECT)}
+                onClick={() => setDeclining('REJECT')}
               >
                 {translate('reject')}
               </ApprovalsButton>
@@ -278,8 +269,7 @@ export function SpendDecisionForm({
                 variant='secondary'
                 type='button'
                 disabled={!canDecline || mutations.isPending}
-                pending={pendingDecision === SPEND_DECISION.RETURN}
-                onClick={() => submitSingle(SPEND_DECISION.RETURN)}
+                onClick={() => setDeclining('RETURN')}
               >
                 {translate('return')}
               </ApprovalsButton>
@@ -296,6 +286,14 @@ export function SpendDecisionForm({
           )}
         </div>
       </form>
+      {declining && (
+        <SpendDeclineDialog
+          kind={declining}
+          pending={mutations.single.isPending}
+          onSubmit={(reason) => submitSingle(declining, reason)}
+          onClose={() => setDeclining(null)}
+        />
+      )}
     </ApprovalsSection>
   )
 }
