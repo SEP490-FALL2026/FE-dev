@@ -103,27 +103,31 @@ describe('Finance cost center catalogue writes', () => {
     })
   })
 
-  it('keeps what Finance typed when the department changes, and writes the code in capitals', async () => {
+  it('locks the code and the name taken from the department, and follows a change of department', async () => {
+    departments = [
+      { departmentId: 'dep-9', departmentCode: 'OPS', departmentName: 'Operations', costCenterId: null },
+      { departmentId: 'dep-7', departmentCode: 'p-fin', departmentName: 'Finance', costCenterId: null }
+    ]
     mount(<CostCenterCreateDialog onClose={() => undefined} />)
-    await pickOperations()
-    fireEvent.change(screen.getByLabelText(/^Code/), { target: { value: 'ops.core' } })
-    fireEvent.change(screen.getByLabelText(/^Name/), { target: { value: '  Hạ   tầng ' } })
-    expect(screen.getByLabelText(/^Code/)).toHaveValue('OPS.CORE')
-    fireEvent.click(screen.getByRole('button', { name: 'Add' }))
-    await waitFor(() => expect(write('post', '/cost-centers')).toBeDefined())
-    expect(JSON.parse(write('post', '/cost-centers')?.data)).toMatchObject({ code: 'OPS.CORE', name: 'Hạ tầng' })
+    await screen.findByRole('option', { name: 'OPS · Operations' })
+    fireEvent.change(screen.getByLabelText(/^Department/), { target: { value: 'dep-9' } })
+    expect(screen.getByLabelText(/^Code/)).toHaveAttribute('readonly')
+    expect(screen.getByLabelText(/^Name/)).toHaveAttribute('readonly')
+    fireEvent.change(screen.getByLabelText(/^Department/), { target: { value: 'dep-7' } })
+    expect(screen.getByLabelText(/^Code/)).toHaveValue('CC-P-FIN')
+    expect(screen.getByLabelText(/^Name/)).toHaveValue('Finance')
   })
 
-  it('refuses a code that does not match the pattern and a name BE keeps for unallocated costs', async () => {
+  it('opens the name when the department name is one BE keeps for unallocated costs', async () => {
+    departments = [{ departmentId: 'dep-9', departmentCode: 'OPS', departmentName: 'Chưa phân bổ', costCenterId: null }]
     mount(<CostCenterCreateDialog onClose={() => undefined} />)
-    await pickOperations()
-    fireEvent.change(screen.getByLabelText(/^Code/), { target: { value: '-bad' } })
-    expect(screen.getByText(/must start with a letter or digit/)).toBeTruthy()
-    expect(screen.getByRole('button', { name: 'Add' })).toBeDisabled()
-    fireEvent.change(screen.getByLabelText(/^Code/), { target: { value: 'CC-OPS' } })
-    fireEvent.change(screen.getByLabelText(/^Name/), { target: { value: 'chưa phân bổ' } })
+    await screen.findByRole('option', { name: 'OPS · Chưa phân bổ' })
+    fireEvent.change(screen.getByLabelText(/^Department/), { target: { value: 'dep-9' } })
     expect(screen.getByText(/kept for the unallocated cost line/)).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Add' })).toBeDisabled()
+    expect(screen.getByLabelText(/^Name/)).not.toHaveAttribute('readonly')
+    fireEvent.change(screen.getByLabelText(/^Name/), { target: { value: 'Operations' } })
+    expect(screen.getByRole('button', { name: 'Add' })).toBeEnabled()
   })
 
   it('shows an empty state instead of the form when every department has a Cost Center', async () => {
@@ -142,6 +146,7 @@ describe('Finance cost center catalogue writes', () => {
     createFailsWith = { status: 409, code: 'COST_CENTER.CODE_TAKEN' }
     fireEvent.click(screen.getByRole('button', { name: 'Add' }))
     expect(await screen.findByText('This code is already used, pick another one.')).toBeTruthy()
+    expect(screen.getByLabelText(/^Code/)).not.toHaveAttribute('readonly')
     createFailsWith = { status: 409, code: 'COST_CENTER.DEPARTMENT_ALREADY_LINKED' }
     const baselineReads = requests.filter((request) => request.url?.includes('/baseline')).length
     fireEvent.click(screen.getByRole('button', { name: 'Add' }))

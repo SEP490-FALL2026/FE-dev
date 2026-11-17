@@ -28,7 +28,7 @@ const serverMessages: Partial<Record<string, { field: Field; message: ServerMess
   'COST_CENTER.DEPARTMENT_ALREADY_LINKED': { field: 'department', message: 'departmentLinked' }
 }
 
-/** A Cost Center is always of kind UNIT, so the kind is not asked. It becomes the current one of its department. */
+/** A Cost Center is always of kind UNIT, so the kind is not asked. Its code and name come from the department. */
 export function CostCenterCreateDialog({ onClose }: { onClose: () => void }) {
   const { t: translate } = useTranslation('financeSettings')
   const queryClient = useQueryClient()
@@ -36,8 +36,6 @@ export function CostCenterCreateDialog({ onClose }: { onClose: () => void }) {
   const [departmentId, setDepartmentId] = useState('')
   const [code, setCode] = useState('')
   const [name, setName] = useState('')
-  const [codeEdited, setCodeEdited] = useState(false)
-  const [nameEdited, setNameEdited] = useState(false)
   const [serverError, setServerError] = useState<{ field: Field; message: ServerMessage } | null>(null)
 
   const feedback = useFinanceFeedback([getCostCenterListQueryKey(), getBudgetCycleBaselineQueryKey(year)], onClose)
@@ -59,34 +57,39 @@ export function CostCenterCreateDialog({ onClose }: { onClose: () => void }) {
 
   const codeValue = code.trim()
   const nameValue = normalizeCostCenterName(name)
+  const nameReserved = Boolean(nameValue) && isReservedCostCenterName(nameValue)
   const codeError =
     codeValue && (!COST_CENTER_CODE_PATTERN.test(codeValue) || codeValue.length > COST_CENTER_CODE_MAX)
       ? translate('costCenterActions.codeInvalid')
       : serverError?.field === 'code'
         ? translate(`costCenterActions.${serverError.message}`)
         : null
-  const nameError =
-    nameValue && isReservedCostCenterName(nameValue)
-      ? translate('costCenterActions.nameReserved')
-      : serverError?.field === 'name'
-        ? translate(`costCenterActions.${serverError.message}`)
-        : null
+  const nameError = nameReserved
+    ? translate('costCenterActions.nameReserved')
+    : serverError?.field === 'name'
+      ? translate(`costCenterActions.${serverError.message}`)
+      : null
   const valid =
     Boolean(departmentId) &&
     codeValue.length >= 1 &&
     COST_CENTER_CODE_PATTERN.test(codeValue) &&
     nameValue.length >= 1 &&
     nameValue.length <= COST_CENTER_NAME_MAX &&
-    !isReservedCostCenterName(nameValue)
+    !nameReserved
   const nothingToPick = !isPending && departments.length === 0
+  // Code and name come from the department and are locked: the name is renamed later in the detail. A field opens
+  // only when BE or the reserved names refuse its value, so Finance is never stuck.
+  const codeLocked = serverError?.field !== 'code'
+  const nameLocked = serverError?.field !== 'name' && !nameReserved
+  const lockedClass = 'cursor-default bg-surface-subtle text-muted-foreground'
 
   const chooseDepartment = (id: string) => {
     setDepartmentId(id)
     setServerError(null)
     const department = departments.find((item) => item.departmentId === id)
     if (!department) return
-    if (!codeEdited) setCode(suggestCostCenterCode(department.departmentCode))
-    if (!nameEdited) setName(department.departmentName)
+    setCode(suggestCostCenterCode(department.departmentCode))
+    setName(department.departmentName)
   }
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
@@ -141,27 +144,26 @@ export function CostCenterCreateDialog({ onClose }: { onClose: () => void }) {
             >
               <input
                 required
+                readOnly={codeLocked}
                 maxLength={COST_CENTER_CODE_MAX}
-                className={`${financeInputClass} font-mono uppercase`}
+                className={`${financeInputClass} font-mono uppercase ${codeLocked ? lockedClass : ''}`}
                 value={code}
-                onChange={(event) => {
-                  setCode(event.target.value.toUpperCase())
-                  setCodeEdited(true)
-                  if (serverError?.field === 'code') setServerError(null)
-                }}
+                onChange={(event) => setCode(event.target.value.toUpperCase())}
               />
             </FinanceField>
-            <FinanceField label={translate('costCenterActions.name')} required error={nameError}>
+            <FinanceField
+              label={translate('costCenterActions.name')}
+              required
+              hint={translate('costCenterActions.nameHint')}
+              error={nameError}
+            >
               <input
                 required
+                readOnly={nameLocked}
                 maxLength={COST_CENTER_NAME_MAX}
-                className={financeInputClass}
+                className={`${financeInputClass} ${nameLocked ? lockedClass : ''}`}
                 value={name}
-                onChange={(event) => {
-                  setName(event.target.value)
-                  setNameEdited(true)
-                  if (serverError?.field === 'name') setServerError(null)
-                }}
+                onChange={(event) => setName(event.target.value)}
               />
             </FinanceField>
           </div>
