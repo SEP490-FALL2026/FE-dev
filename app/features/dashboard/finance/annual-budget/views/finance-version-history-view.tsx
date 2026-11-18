@@ -10,6 +10,7 @@ export function FinanceVersionHistoryView({ itemId, onSelectTab }: BudgetViewPro
   return (
     <FinancePage
       title={translate('history')}
+      description={translate('screen.historyDescription')}
       actions={
         <FinanceButton
           variant='ghost'

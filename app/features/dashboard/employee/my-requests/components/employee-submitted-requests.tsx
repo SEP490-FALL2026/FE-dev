@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
-import { Boxes } from 'lucide-react'
+import { Boxes, Send } from 'lucide-react'
 import { useMeAccessRequestList } from '~/shared/api/generated/operations/me/me-access-request-list'
 import { useDashboardFormat } from '../../../dashboard-ui'
 import { EmployeeDataTable } from '../../shared/components/employee-data-table'
@@ -10,9 +10,10 @@ import {
   EmployeePagination,
   EmployeeQueryState,
   EmployeeSection,
-  EmployeeStatus,
-  employeeInputClass
+  EmployeeStatus
 } from '../../shared/components/employee-api-ui'
+import { EmployeeSegmented, EmployeeToolbar } from '../../shared/components/employee-layout'
+import { EmployeeSelect } from '../../shared/components/employee-select'
 import { useEmployeePage } from '../../shared/hooks/use-employee-page'
 import { REQUEST_LIST_STATE } from '../enums/request-list-state'
 import { REQUEST_LIST_TYPE } from '../enums/request-list-type'
@@ -28,10 +29,11 @@ export function EmployeeSubmittedRequests({ onOpen }: { onOpen: (id: string) => 
   const state = Object.values(REQUEST_LIST_STATE).find((value) => value === params.get('requestState'))
   const type = Object.values(REQUEST_LIST_TYPE).find((value) => value === params.get('requestType'))
   const view = Object.values(REQUEST_LIST_VIEW).find((value) => value === params.get('requestView'))
+  const involvement =
+    Object.values(MeAccessRequestListInvolvement).find((value) => value === params.get('involvement')) ??
+    MeAccessRequestListInvolvement.ALL
   const requestsQuery = useMeAccessRequestList({
-    involvement:
-      Object.values(MeAccessRequestListInvolvement).find((value) => value === params.get('involvement')) ??
-      MeAccessRequestListInvolvement.ALL,
+    involvement,
     page: paging.page,
     pageSize: paging.pageSize,
     ...(state ? { state } : {}),
@@ -52,6 +54,7 @@ export function EmployeeSubmittedRequests({ onOpen }: { onOpen: (id: string) => 
   return (
     <EmployeeSection
       title={translate('requestList.title')}
+      icon={Send}
       action={
         requestsPage && (
           <span className='font-mono text-xs text-muted-foreground tabular-nums'>
@@ -60,82 +63,67 @@ export function EmployeeSubmittedRequests({ onOpen }: { onOpen: (id: string) => 
         )
       }
     >
-      <nav className='flex flex-wrap gap-2' aria-label={flow('involvement')}>
-        {Object.values(MeAccessRequestListInvolvement).map((value) => (
-          <button
-            key={value}
-            type='button'
-            className='min-h-11 rounded-md border border-border px-3 text-sm aria-pressed:bg-primary-soft aria-pressed:text-primary-ink'
-            aria-pressed={(params.get('involvement') ?? 'ALL') === value}
-            onClick={() => updateFilter('involvement', value)}
-          >
-            {flow(value)}
-          </button>
-        ))}
-      </nav>
-      <div
-        role='group'
-        aria-label={translate('requestList.filters')}
-        className='grid items-start gap-3 sm:grid-cols-2 xl:grid-cols-[repeat(3,minmax(0,1fr))_auto]'
-      >
-        <EmployeeField label={translate('requestList.view')}>
-          <select
-            className={employeeInputClass}
-            value={view ?? ''}
-            onChange={(event) => updateFilter('requestView', event.target.value)}
-          >
-            <option value=''>{translate('requestList.all')}</option>
-            {Object.values(REQUEST_LIST_VIEW).map((value) => (
-              <option key={value} value={value}>
-                {translate(`requestList.views.${value}`)}
-              </option>
-            ))}
-          </select>
-        </EmployeeField>
-        <EmployeeField label={translate('requestList.state')}>
-          <select
-            className={employeeInputClass}
-            value={state ?? ''}
-            onChange={(event) => updateFilter('requestState', event.target.value)}
-          >
-            <option value=''>{translate('requestList.allStates')}</option>
-            {Object.values(REQUEST_LIST_STATE).map((value) => (
-              <option key={value} value={value}>
-                {translate(`statuses.${value}`)}
-              </option>
-            ))}
-          </select>
-        </EmployeeField>
-        <EmployeeField label={translate('requestList.type')}>
-          <select
-            className={employeeInputClass}
-            value={type ?? ''}
-            onChange={(event) => updateFilter('requestType', event.target.value)}
-          >
-            <option value=''>{translate('requestList.allTypes')}</option>
-            {Object.values(REQUEST_LIST_TYPE).map((value) => (
-              <option key={value} value={value}>
-                {translate(`statuses.${value}`)}
-              </option>
-            ))}
-          </select>
-        </EmployeeField>
-        {filtered && (
-          <div className='sm:pt-7'>
-            <EmployeeButton
-              onClick={() =>
-                setParams((previous) => {
-                  const next = new URLSearchParams(previous)
-                  for (const key of ['requestState', 'requestType', 'requestView', 'page']) next.delete(key)
-                  return next
-                })
-              }
-            >
-              {translate('requestList.clear')}
-            </EmployeeButton>
-          </div>
-        )}
-      </div>
+      <EmployeeToolbar label={translate('requestList.filters')}>
+        <EmployeeSegmented
+          label={flow('involvement')}
+          value={involvement}
+          options={Object.values(MeAccessRequestListInvolvement).map((value) => ({ value, label: flow(value) }))}
+          onChange={(value) => updateFilter('involvement', value)}
+        />
+        <div className='grid items-start gap-3 sm:grid-cols-2 xl:grid-cols-[repeat(3,minmax(0,1fr))_auto]'>
+          <EmployeeField label={translate('requestList.view')}>
+            <EmployeeSelect
+              value={view ?? ''}
+              placeholder={translate('ui.placeholders.requestView')}
+              onChange={(value) => updateFilter('requestView', value)}
+              options={[
+                { value: '', label: translate('requestList.all') },
+                ...Object.values(REQUEST_LIST_VIEW).map((value) => ({
+                  value,
+                  label: translate(`requestList.views.${value}`)
+                }))
+              ]}
+            />
+          </EmployeeField>
+          <EmployeeField label={translate('requestList.state')}>
+            <EmployeeSelect
+              value={state ?? ''}
+              placeholder={translate('ui.placeholders.requestState')}
+              onChange={(value) => updateFilter('requestState', value)}
+              options={[
+                { value: '', label: translate('requestList.allStates') },
+                ...Object.values(REQUEST_LIST_STATE).map((value) => ({ value, label: translate(`statuses.${value}`) }))
+              ]}
+            />
+          </EmployeeField>
+          <EmployeeField label={translate('requestList.type')}>
+            <EmployeeSelect
+              value={type ?? ''}
+              placeholder={translate('ui.placeholders.requestType')}
+              onChange={(value) => updateFilter('requestType', value)}
+              options={[
+                { value: '', label: translate('requestList.allTypes') },
+                ...Object.values(REQUEST_LIST_TYPE).map((value) => ({ value, label: translate(`statuses.${value}`) }))
+              ]}
+            />
+          </EmployeeField>
+          {filtered && (
+            <div className='sm:pt-7'>
+              <EmployeeButton
+                onClick={() =>
+                  setParams((previous) => {
+                    const next = new URLSearchParams(previous)
+                    for (const key of ['requestState', 'requestType', 'requestView', 'page']) next.delete(key)
+                    return next
+                  })
+                }
+              >
+                {translate('requestList.clear')}
+              </EmployeeButton>
+            </div>
+          )}
+        </div>
+      </EmployeeToolbar>
       {!!items.length && <EmployeeQueryState query={requestsQuery} />}
       <EmployeeDataTable
         label={translate('requestList.title')}

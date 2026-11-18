@@ -5,7 +5,6 @@ import { personnelNoticeSend } from '~/shared/api/generated/operations/personnel
 import { getPersonnelNoticeListQueryKey } from '~/shared/api/generated/operations/personnel-notices/personnel-notice-list'
 import { Dialog } from '../../../dashboard-ui'
 import { useManagerAction } from '../../shared/hooks/use-manager-action'
-import { resourceIdPattern } from '../../shared/manager-identifiers'
 import { useMeGet } from '~/shared/api/generated/operations/me/me-get'
 import { useDepartmentMemberSearch } from '../../team/hooks/use-department-search'
 import {
@@ -15,6 +14,7 @@ import {
   ManagerFormErrors,
   managerInputClass
 } from '../../shared/components/manager-api-ui'
+import { ManagerFormSelect, ManagerSelect, enumOptions } from '../../shared/components/manager-select'
 import { NOTICE_KIND } from '../enums/notice-status'
 
 export function ManagerNoticeForm({ onClose, onCreated }: { onClose: () => void; onCreated: (id: string) => void }) {
@@ -46,59 +46,62 @@ export function ManagerNoticeForm({ onClose, onCreated }: { onClose: () => void;
             event.preventDefault()
             if (action.blocked) return
             const form = new FormData(event.currentTarget)
-            const targetDepartmentId = String(form.get('targetDepartmentId') ?? '').trim()
             const note = String(form.get('note') ?? '').trim()
             action.mutate({
               employeeId: String(form.get('employeeId')).trim(),
               kind,
               proposedOn: String(form.get('proposedOn')),
-              ...(targetDepartmentId ? { targetDepartmentId } : {}),
               ...(note ? { note } : {})
             })
           }}
         >
           <fieldset disabled={action.blocked} className='space-y-4'>
             <ManagerField label={translate('employee')}>
-              <select name='employeeId' required defaultValue='' className={managerInputClass}>
-                <option value='' disabled>
-                  {translate(members.isPending ? 'loading' : 'chooseEmployee')}
-                </option>
-                {(!members.isError ? (members.data ?? []) : []).map((member) => (
-                  <option key={member.employeeId} value={member.employeeId}>
-                    {member.fullName} · {member.employeeCode}
-                  </option>
-                ))}
-              </select>
+              <ManagerFormSelect
+                name='employeeId'
+                required
+                placeholder={translate('ui.placeholders.noticeEmployee')}
+                loading={members.isPending && !!departmentId}
+                emptyText={members.isError ? translate('ui.loadFailed') : translate('noSearchResults')}
+                options={(!members.isError ? (members.data ?? []) : []).map((member) => ({
+                  value: member.employeeId,
+                  label: member.fullName,
+                  description: member.employeeCode
+                }))}
+              />
             </ManagerField>
             <div className='grid gap-4 sm:grid-cols-2'>
               <ManagerField label={translate('kind')}>
-                <select
+                <ManagerSelect
                   name='kind'
-                  className={managerInputClass}
+                  required
                   value={kind}
-                  onChange={(event) => {
-                    const choice = Object.values(NOTICE_KIND).find((value) => value === event.target.value)
+                  placeholder={translate('ui.placeholders.noticeKind')}
+                  options={enumOptions(Object.values(NOTICE_KIND), (choice) => translate(`statuses.${choice}`))}
+                  onChange={(next) => {
+                    const choice = Object.values(NOTICE_KIND).find((value) => value === next)
                     if (choice) setKind(choice)
                   }}
-                >
-                  {Object.values(NOTICE_KIND).map((choice) => (
-                    <option key={choice} value={choice}>
-                      {translate(`statuses.${choice}`)}
-                    </option>
-                  ))}
-                </select>
+                />
               </ManagerField>
               <ManagerField label={translate('proposedOn')}>
-                <input name='proposedOn' required type='date' className={managerInputClass} />
+                <input
+                  name='proposedOn'
+                  required
+                  type='date'
+                  placeholder={translate('ui.placeholders.date')}
+                  className={managerInputClass}
+                />
               </ManagerField>
             </div>
-            {(kind === NOTICE_KIND.DEPARTMENT_TRANSFER_IN || kind === NOTICE_KIND.DEPARTMENT_TRANSFER_OUT) && (
-              <ManagerField label={translate('targetDepartment')}>
-                <input name='targetDepartmentId' required pattern={resourceIdPattern} className={managerInputClass} />
-              </ManagerField>
-            )}
             <ManagerField label={translate('note')}>
-              <textarea name='note' maxLength={500} className={managerInputClass} />
+              <textarea
+                name='note'
+                maxLength={500}
+                rows={3}
+                placeholder={translate('ui.placeholders.noticeNote')}
+                className={managerInputClass}
+              />
             </ManagerField>
           </fieldset>
           <ManagerActionState action={action} />

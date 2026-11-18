@@ -1,12 +1,16 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useRequestableApplicationList } from '~/shared/api/generated/operations/requestable-software/requestable-application-list'
+import { useDebouncedValue } from '~/shared/lib/use-debounced-value'
 import type { WorkspaceChoice } from '~/shared/ui/workspace-choice-select'
-import { ManagerChoiceSelect } from './manager-choice-select'
-import { ManagerField, ManagerPagination, ManagerQueryState, managerInputClass } from './manager-api-ui'
+import { ManagerField } from './manager-api-ui'
+import { ManagerSelect, enumOptions } from './manager-select'
 import { CATALOG_KIND } from '../enums/catalog-kind'
-import { useCatalogSearch } from '~/shared/hooks/use-catalog-search'
 
+const PAGE_SIZE = 20
+const MAX_PAGE_SIZE = 100
+
+/** Requestable application picker: server search by name/vendor, optional kind filter, "load more" grows the page. */
 export function ManagerCatalogApplication({
   value,
   onChange,
@@ -17,81 +21,61 @@ export function ManagerCatalogApplication({
   disabled: boolean
 }) {
   const { t: translate } = useTranslation('employee')
+  const { t: manager } = useTranslation('manager')
   const [kind, setKind] = useState<'' | (typeof CATALOG_KIND)[keyof typeof CATALOG_KIND]>('')
-  const search = useCatalogSearch()
+  const [search, setSearch] = useState('')
+  const [pageSize, setPageSize] = useState(PAGE_SIZE)
+  const debounced = useDebouncedValue(search, 300)
   const query = useRequestableApplicationList(
-    { page: search.page, pageSize: 20, ...(search.search ? { search: search.search } : {}), ...(kind ? { kind } : {}) },
-    { query: { enabled: search.open && !disabled } }
+    { page: 1, pageSize, ...(debounced ? { search: debounced } : {}), ...(kind ? { kind } : {}) },
+    { query: { enabled: !disabled } }
   )
-  const current = search.current && !query.isError
+  const items = !query.isError ? (query.data?.data?.items ?? []) : []
+  const pagination = !query.isError ? query.data?.data?.pagination : undefined
   return (
-    <ManagerChoiceSelect
-      label={translate('catalog.application')}
-      placeholder={translate('catalog.chooseApplication')}
-      disabled={disabled}
-      selected={value ? [value] : []}
-      onChange={(choices) => {
-        if (choices[0]) onChange(choices[0])
-      }}
-      onOpenChange={search.setOpen}
-      options={
-        current
-          ? (query.data?.data?.items ?? []).map((application) => ({
-              value: application.id,
-              label: application.name,
-              description:
-                application.vendorName ??
-                translate(`catalog.kinds.${application.kind}`, { defaultValue: translate('unknownStatus') })
-            }))
-          : []
-      }
-      search={{
-        label: translate('catalog.searchApplications'),
-        placeholder: translate('catalog.searchApplicationsHint'),
-        value: search.draft,
-        onChange: search.setDraft
-      }}
-      state={
-        <>
-          <ManagerField label={translate('catalog.kind')}>
-            <select
-              className={managerInputClass}
-              value={kind}
-              onChange={(event) => {
-                setKind(Object.values(CATALOG_KIND).find((option) => option === event.target.value) ?? '')
-                search.setPage(1)
-              }}
-            >
-              <option value=''>{translate('catalog.allKinds')}</option>
-              {Object.values(CATALOG_KIND).map((option) => (
-                <option key={option} value={option}>
-                  {translate(`catalog.kinds.${option}`)}
-                </option>
-              ))}
-            </select>
-          </ManagerField>
-          {search.current ? (
-            <ManagerQueryState
-              query={query}
-              empty={!query.data?.data?.items.length}
-              emptyTitle={translate('catalog.noApplications')}
-            />
-          ) : (
-            <p role='status' className='py-4 text-sm text-muted-foreground'>
-              {translate('loading')}
-            </p>
-          )}
-        </>
-      }
-      footer={
-        current && (
-          <ManagerPagination
-            pagination={query.data?.data?.pagination}
-            onPage={search.setPage}
-            busy={query.isFetching}
-          />
-        )
-      }
-    />
+    <div className='grid min-w-0 gap-x-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,12rem)]'>
+      <ManagerField label={translate('catalog.application')}>
+        <ManagerSelect
+          value={value?.value ?? ''}
+          selectedLabel={value?.label}
+          required
+          disabled={disabled}
+          placeholder={manager('ui.placeholders.application')}
+          loading={query.isFetching}
+          emptyText={query.isError ? manager('ui.loadFailed') : translate('catalog.noApplications')}
+          onSearchChange={(next) => {
+            setSearch(next)
+            setPageSize(PAGE_SIZE)
+          }}
+          hasMore={!!pagination && pagination.totalPages > 1 && pageSize < MAX_PAGE_SIZE}
+          onLoadMore={() => setPageSize((size) => Math.min(size + PAGE_SIZE, MAX_PAGE_SIZE))}
+          options={items.map((application) => ({
+            value: application.id,
+            label: application.name,
+            description:
+              application.vendorName ??
+              translate(`catalog.kinds.${application.kind}`, { defaultValue: translate('unknownStatus') })
+          }))}
+          onChange={(next, option) => {
+            if (next && option) onChange({ value: option.value, label: option.label, description: option.description })
+          }}
+        />
+      </ManagerField>
+      <ManagerField label={translate('catalog.kind')}>
+        <ManagerSelect
+          value={kind}
+          disabled={disabled}
+          placeholder={manager('ui.placeholders.kind')}
+          options={[
+            { value: '', label: translate('catalog.allKinds') },
+            ...enumOptions(Object.values(CATALOG_KIND), (option) => translate(`catalog.kinds.${option}`))
+          ]}
+          onChange={(next) => {
+            setKind(Object.values(CATALOG_KIND).find((option) => option === next) ?? '')
+            setPageSize(PAGE_SIZE)
+          }}
+        />
+      </ManagerField>
+    </div>
   )
 }

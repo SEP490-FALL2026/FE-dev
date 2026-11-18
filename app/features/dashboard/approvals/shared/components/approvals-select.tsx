@@ -1,148 +1,81 @@
-import { ChevronDown } from 'lucide-react'
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
+import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
+import { SearchableSelect, type SearchableOption } from '~/shared/ui/searchable-select'
 
+interface ApprovalsSelectControlProps {
+  value: string
+  options: readonly SearchableOption[]
+  onChange: (value: string) => void
+  /** Says what to pick; the role default reads "Chọn <label>, gõ để tìm". */
+  placeholder?: string
+  disabled?: boolean
+  id?: string
+  'aria-label'?: string
+  /** The figure the caller is filtering by, used in the default placeholder. */
+  subject?: string
+}
+
+/**
+ * The role's bare select control: a searchable combobox (click opens the list, typing filters it). Every select of the
+ * Spending Approver goes through here or through `ApprovalsSelect`, so all of them search the same way.
+ */
+export function ApprovalsNativeSelect({
+  value,
+  options,
+  onChange,
+  placeholder,
+  disabled = false,
+  id,
+  subject,
+  'aria-label': ariaLabel
+}: ApprovalsSelectControlProps) {
+  const { t: translate, i18n } = useTranslation('approvals')
+  const fallbackSubject = (subject ?? ariaLabel ?? '').toLocaleLowerCase(i18n.language)
+  return (
+    <SearchableSelect
+      id={id}
+      value={value}
+      options={options}
+      disabled={disabled}
+      aria-label={ariaLabel}
+      placeholder={placeholder ?? translate('select.placeholder', { subject: fallbackSubject })}
+      emptyText={translate('select.empty')}
+      onChange={(next) => onChange(next)}
+    />
+  )
+}
+
+/** Labelled searchable select used by the filter bars and decision forms of the role. */
 export function ApprovalsSelect({
   label,
   value,
   options,
   onChange,
+  placeholder,
   disabled = false
 }: {
   label: string
   value: string
-  options: { value: string; label: string }[]
+  options: readonly SearchableOption[]
   onChange: (value: string) => void
+  placeholder?: string
   disabled?: boolean
 }) {
-  const { t: translate } = useTranslation('approvals')
-  const controlId = useId()
-  const containerRef = useRef<HTMLDivElement>(null)
-  const triggerRef = useRef<HTMLButtonElement>(null)
-  const [open, setOpen] = useState(false)
-  const [activeIndex, setActiveIndex] = useState(0)
-  const selectedIndex = options.findIndex((option) => option.value === value)
-  const safeActiveIndex = Math.min(activeIndex, options.length - 1)
-  const expanded = open && !disabled && options.length > 0
-
-  useEffect(() => {
-    if (!expanded) return
-    function onOutsidePointer(event: PointerEvent) {
-      if (event.target instanceof Node && !containerRef.current?.contains(event.target)) setOpen(false)
-    }
-    document.addEventListener('pointerdown', onOutsidePointer)
-    return () => document.removeEventListener('pointerdown', onOutsidePointer)
-  }, [expanded])
-
-  useEffect(() => {
-    if (!expanded) return
-    document.getElementById(`${controlId}-option-${safeActiveIndex}`)?.scrollIntoView?.({ block: 'nearest' })
-  }, [expanded, controlId, safeActiveIndex])
-
-  function showOptions() {
-    setActiveIndex(Math.max(0, selectedIndex))
-    setOpen(true)
-  }
-
-  function choose(index: number) {
-    const option = options[index]
-    if (!option) return
-    onChange(option.value)
-    setOpen(false)
-    triggerRef.current?.focus()
-  }
-
-  function onKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
-    if (disabled || !options.length) return
-    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-      event.preventDefault()
-      if (!expanded) showOptions()
-      else setActiveIndex((safeActiveIndex + (event.key === 'ArrowDown' ? 1 : -1) + options.length) % options.length)
-    } else if (event.key === 'Home' || event.key === 'End') {
-      event.preventDefault()
-      setOpen(true)
-      setActiveIndex(event.key === 'Home' ? 0 : options.length - 1)
-    } else if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault()
-      if (expanded) choose(safeActiveIndex)
-      else showOptions()
-    } else if (event.key === 'Escape' && expanded) {
-      event.preventDefault()
-      event.stopPropagation()
-      setOpen(false)
-    } else if (event.key === 'Tab') setOpen(false)
-    else if (event.key.length === 1 && !event.ctrlKey && !event.altKey && !event.metaKey) {
-      const nextIndex = options.findIndex(
-        (option, index) =>
-          index > safeActiveIndex && option.label.toLocaleLowerCase().startsWith(event.key.toLocaleLowerCase())
-      )
-      const matchIndex =
-        nextIndex >= 0
-          ? nextIndex
-          : options.findIndex((option) => option.label.toLocaleLowerCase().startsWith(event.key.toLocaleLowerCase()))
-      if (matchIndex >= 0) {
-        event.preventDefault()
-        setOpen(true)
-        setActiveIndex(matchIndex)
-      }
-    }
-  }
-
+  const id = useId()
   return (
-    <div
-      ref={containerRef}
-      className='relative min-w-0 space-y-1.5'
-      onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false)
-      }}
-    >
-      <span id={`${controlId}-label`} className='block text-sm font-medium'>
+    <div className='min-w-0 space-y-1.5'>
+      <label htmlFor={id} className='block text-sm font-medium'>
         {label}
-      </span>
-      <button
-        ref={triggerRef}
-        type='button'
-        role='combobox'
-        aria-labelledby={`${controlId}-label`}
-        aria-controls={`${controlId}-listbox`}
-        aria-expanded={expanded}
-        aria-haspopup='listbox'
-        aria-activedescendant={expanded ? `${controlId}-option-${safeActiveIndex}` : undefined}
-        disabled={disabled || !options.length}
-        className='flex min-h-11 w-full items-center justify-between gap-2 rounded-md border border-border bg-surface px-3 py-2 text-left text-base text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:opacity-50 md:min-h-10 md:text-sm'
-        onClick={() => (expanded ? setOpen(false) : showOptions())}
-        onKeyDown={onKeyDown}
-      >
-        <span className='truncate' title={options[selectedIndex]?.label}>
-          {options[selectedIndex]?.label ?? translate('unknown')}
-        </span>
-        <ChevronDown aria-hidden className='size-4 shrink-0 text-muted-foreground' strokeWidth={1.5} />
-      </button>
-      {expanded && (
-        <ul
-          id={`${controlId}-listbox`}
-          role='listbox'
-          aria-labelledby={`${controlId}-label`}
-          className='absolute z-50 mt-1 max-h-64 w-full overflow-y-auto rounded-md border border-border bg-surface p-1 shadow-sm'
-        >
-          {options.map((option, index) => (
-            <li
-              key={option.value}
-              id={`${controlId}-option-${index}`}
-              role='option'
-              aria-selected={option.value === value}
-              className={`flex min-h-11 cursor-pointer items-center rounded-sm px-3 py-2 text-base md:min-h-9 md:text-sm ${index === safeActiveIndex ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-surface-subtle'}`}
-              onPointerMove={() => setActiveIndex(index)}
-              onMouseDown={(event) => event.preventDefault()}
-              onClick={() => choose(index)}
-            >
-              <span className='truncate' title={option.label}>
-                {option.label}
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
+      </label>
+      <ApprovalsNativeSelect
+        id={id}
+        value={value}
+        options={options}
+        onChange={onChange}
+        placeholder={placeholder}
+        disabled={disabled}
+        subject={label}
+      />
     </div>
   )
 }

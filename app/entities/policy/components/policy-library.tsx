@@ -1,12 +1,15 @@
 import { POLICY_ACKNOWLEDGEMENT } from '../enums/policy-acknowledgement'
+import { ScrollText } from 'lucide-react'
 import { useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { usePolicyList } from '~/shared/api/generated/operations/policies/policy-list'
 import { usePolicyVersionList } from '~/shared/api/generated/operations/policies/policy-version-list'
+import { SearchableSelect } from '~/shared/ui/searchable-select'
+import { WorkspacePageHeader } from '~/shared/ui/workspace-page-header'
 import { PolicyReader } from './policy-reader'
 
-export function PolicyLibrary() {
+export function PolicyLibrary({ eyebrow }: { eyebrow?: string } = {}) {
   const { t } = useTranslation('policy')
   const [params, setParams] = useSearchParams()
   const list = usePolicyList({ page: 1, pageSize: 20 })
@@ -25,7 +28,14 @@ export function PolicyLibrary() {
   }
   return (
     <div className='space-y-5'>
-      <h1 className='text-2xl font-semibold'>{t('library.title')}</h1>
+      <div className='page-banner'>
+        <WorkspacePageHeader
+          eyebrow={eyebrow ?? t('library.eyebrow')}
+          title={t('library.title')}
+          description={t('library.description')}
+          icon={ScrollText}
+        />
+      </div>
       {code ? (
         <>
           <button
@@ -89,6 +99,9 @@ export function PolicyLibrary() {
   )
 }
 
+/** Option value for the current version (the URL has no `version` param). */
+const CURRENT_VERSION = 'current'
+
 function PolicyVersions({
   code,
   version,
@@ -107,22 +120,25 @@ function PolicyVersions({
       <label className='text-sm' htmlFor='policy-version'>
         {t('library.versions')}
       </label>
-      <select
+      <SearchableSelect
         id='policy-version'
-        className='min-h-11 rounded-md border border-border bg-surface px-3 text-base md:text-sm'
-        value={version ?? ''}
-        onChange={(event) => onSelect(event.target.value ? Number(event.target.value) : undefined)}
-      >
-        <option value=''>{t('library.current')}</option>
-        {version && !data?.items.some((item) => item.versionNumber === version) && (
-          <option value={version}>{t('gate.version', { version })}</option>
-        )}
-        {data?.items.map((item) => (
-          <option key={item.versionNumber} value={item.versionNumber}>
-            {t('gate.version', { version: item.versionNumber })}
-          </option>
-        ))}
-      </select>
+        className='w-56 max-w-full'
+        value={version ? String(version) : CURRENT_VERSION}
+        placeholder={t('library.current')}
+        loading={query.isFetching}
+        options={[
+          { value: CURRENT_VERSION, label: t('library.current') },
+          ...(version && !data?.items.some((item) => item.versionNumber === version)
+            ? [{ value: String(version), label: t('gate.version', { version }) }]
+            : []),
+          ...(data?.items ?? []).map((item) => ({
+            value: String(item.versionNumber),
+            label: t('gate.version', { version: item.versionNumber }),
+            description: item.changeNote ?? undefined
+          }))
+        ]}
+        onChange={(value) => onSelect(value && value !== CURRENT_VERSION ? Number(value) : undefined)}
+      />
       {query.isError && (
         <button type='button' className='min-h-11 px-3 text-sm' onClick={() => void query.refetch()}>
           {t('gate.retry')}

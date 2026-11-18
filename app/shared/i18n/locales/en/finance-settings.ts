@@ -147,7 +147,7 @@ export const financeSettings = {
     codeInvalid: 'Letters, digits, dot, dash or underscore; it must start with a letter or digit.',
     name: 'Name',
     department: 'Department',
-    pickDepartment: 'Select a department',
+    pickDepartment: 'Select a department, type to search',
     noDepartments:
       'No budget cycle exists for {{year}}, so the department list is not available. Create a budget cycle for that year first.',
     allLinked: 'Every department already has a Cost Center for {{year}}.',
@@ -249,7 +249,7 @@ export const financeSettings = {
   renewals: {
     title: 'Subscription adjustments',
     description:
-      'What IT Admin recorded at the adjustment point of each shared-pool subscription (renew, reduce, increase or cancel) and the deadlines that passed without an outcome. Finance reads only.',
+      'What IT Admin recorded at the adjustment point of each shared-pool subscription (renew, reduce, increase or cancel). Finance reads only.',
     back: 'Back to list',
     cases: 'Recorded adjustments',
     software: 'Software',
@@ -335,15 +335,6 @@ export const financeSettings = {
       recorded: 'This period already has a recorded outcome.',
       none: 'This subscription has no adjustment point. Only active term subscriptions of the shared pool have one, and the server needs a version that supports it.',
       incomplete: 'Dates are missing on the subscription, so the adjustment point cannot be worked out.'
-    },
-    events: {
-      title: 'Deadlines that passed',
-      hint: 'The renewal date passed without an outcome while seats were still held: the subscription renewed by itself or was marked expired.',
-      kind: 'Event',
-      allKinds: 'All events',
-      kinds: { AUTO_RENEWAL_INCIDENT: 'Unintended auto-renewal', EXPIRY_MARKED: 'Marked expired' },
-      milestoneDate: 'Milestone date',
-      recordedOn: 'Recorded on'
     }
   },
   catalogDetail: {

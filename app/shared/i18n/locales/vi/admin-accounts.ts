@@ -112,5 +112,22 @@ export const adminAccounts = {
     SENT: 'Đã gửi',
     FAILED: 'Gửi thất bại',
     CANCELLED: 'Đã hủy'
+  },
+  ui: {
+    eyebrow: 'Tài khoản và trách nhiệm',
+    allStatuses: 'Mọi trạng thái tài khoản',
+    allActivation: 'Mọi trạng thái kích hoạt',
+    allRoles: 'Mọi vai trò',
+    allEmployment: 'Mọi tình trạng làm việc',
+    accountCount: '{{count}} tài khoản',
+    noAccountsTitle: 'Chưa có tài khoản phù hợp',
+    noAccountsHint: 'Thử đổi bộ lọc hoặc xóa từ khóa tìm kiếm để xem thêm tài khoản.',
+    pickRole: 'Chọn vai trò mới, gõ để tìm',
+    pickCandidate: 'Chọn nhân viên, gõ để tìm',
+    noCandidates: 'Không có nhân viên phù hợp để mời',
+    pickDepartment: 'Chọn phòng ban, gõ để tìm',
+    pickApplication: 'Chọn ứng dụng cần bàn giao, gõ để tìm',
+    noApplications: 'Phòng ban này chưa có ứng dụng nào',
+    pickItAdmin: 'Chọn quản trị viên công nghệ thông tin, gõ để tìm'
   }
 }

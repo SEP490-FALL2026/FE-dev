@@ -1,4 +1,6 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
+import { Boxes } from 'lucide-react'
+import { ItPageHeader } from '../shared/components/it-page-header'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { ArrowRight, Package } from 'lucide-react'
@@ -39,13 +41,14 @@ export function ItSharedStockView({ onOpenGrants }: { onOpenGrants?: () => void 
     return <StockSubscriptions plan={selected} onBack={() => setSelected(undefined)} onOpenGrants={onOpenGrants} />
   return (
     <section className='space-y-6'>
-      <header className='space-y-2 border-b border-border pb-6'>
-        <p className='text-xs font-semibold uppercase tracking-wider text-primary'>{t('stock.eyebrow')}</p>
-        <h1 className='text-2xl font-semibold tracking-tight'>{t('stock.title')}</h1>
-        <p className='max-w-3xl text-sm text-muted-foreground'>{t('stock.catalogHint')}</p>
-      </header>
+      <ItPageHeader
+        icon={Boxes}
+        eyebrow={t('stock.eyebrow')}
+        title={t('stock.title')}
+        subtitle={t('stock.catalogHint')}
+      />
       <div className='space-y-1'>
-        <h2 className='text-lg font-semibold'>{t('stock.choosePlan')}</h2>
+        <h2 className='section-accent text-lg font-semibold tracking-tight'>{t('stock.choosePlan')}</h2>
         <p className='text-sm text-muted-foreground'>{t('stock.choosePlanHint')}</p>
       </div>
       {stock.isError && (

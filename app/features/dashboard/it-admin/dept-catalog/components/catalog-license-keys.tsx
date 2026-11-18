@@ -223,7 +223,7 @@ export function CatalogKeyVault({ subscriptionId }: { subscriptionId: string }) 
           if (!invalid && !imported.isPending && !retrySeconds) imported.mutate()
         }}
       >
-        <h2 className='text-lg font-semibold'>{common('stock.importKeys')}</h2>
+        <h2 className='section-accent text-lg font-semibold tracking-tight'>{common('stock.importKeys')}</h2>
         <ItField label={translate('keys.lines')} hint={translate('keys.limit')}>
           <textarea
             required

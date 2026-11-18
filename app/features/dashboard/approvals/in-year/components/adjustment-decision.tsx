@@ -68,7 +68,7 @@ export function AdjustmentDecisionDialog({
         })
       }}
     >
-      <dl className='grid gap-2 text-sm sm:grid-cols-2'>
+      <dl className='soft-panel grid gap-3 p-4 text-sm sm:grid-cols-2'>
         <div>
           <dt className='text-muted-foreground'>{translate('inYear.kind')}</dt>
           <dd className='font-medium'>{translate(`inYear.kinds.${adjustment.kind}`)}</dd>
@@ -132,6 +132,7 @@ export function AdjustmentDecisionDialog({
           maxLength={1000}
           className={approvalsInputClass}
           value={reason}
+          placeholder={translate('layout.decisionReasonPlaceholder')}
           disabled={mutation.isPending}
           onChange={(event) => setReason(event.target.value)}
         />

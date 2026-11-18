@@ -19,6 +19,7 @@ export function ReconciliationActionDialog({
   onSuccess: () => void
 }) {
   const { t: translate } = useTranslation('itReconciliation')
+  const { t: translatePlaceholder } = useTranslation('itPlaceholders')
   const [note, setNote] = useState('')
   const [asset, setAsset] = useState<boolean>()
   const [renewalCancelled, setRenewalCancelled] = useState(false)
@@ -75,6 +76,7 @@ export function ReconciliationActionDialog({
     >
       <ItField label={translate('note')} hint={translate('noteHint')}>
         <textarea
+          placeholder={translatePlaceholder('note')}
           required
           maxLength={1000}
           value={note}

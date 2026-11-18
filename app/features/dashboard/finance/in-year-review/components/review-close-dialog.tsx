@@ -54,7 +54,9 @@ export function ReviewCloseDialog({
       onClose={onClose}
       onSubmit={submit}
     >
-      <p className='text-sm text-muted-foreground'>{translate('periods.closeHint')}</p>
+      <p className='soft-panel px-4 py-3 text-sm leading-relaxed text-muted-foreground [text-wrap:pretty]'>
+        {translate('periods.closeHint')}
+      </p>
       <div className='grid gap-3 sm:grid-cols-2'>
         <FinanceField label={translate('year')} required error={yearValid ? null : translate('yearInvalid')}>
           <input
@@ -63,6 +65,7 @@ export function ReviewCloseDialog({
             min={MIN_YEAR}
             max={MAX_YEAR}
             aria-invalid={!yearValid}
+            placeholder={translate('ui.yearPlaceholder', { year: new Date().getFullYear() })}
             className={`${financeInputClass} font-mono tabular-nums`}
             value={year}
             onChange={(event) => setYear(event.target.value)}
@@ -73,7 +76,13 @@ export function ReviewCloseDialog({
           required
           error={yearValid && !ended ? translate('periods.monthNotEnded') : null}
         >
-          <FinanceSelect value={month} onChange={(event) => setMonth(event.target.value)}>
+          <FinanceSelect
+            value={month}
+            required
+            invalid={yearValid && !ended}
+            placeholder={translate('ui.monthPlaceholder')}
+            onChange={(event) => setMonth(event.target.value)}
+          >
             {months.map((value) => (
               <option key={value} value={value} disabled={yearValid && !monthHasEnded(yearNumber, value, new Date())}>
                 {translate('monthName', { month: value })}

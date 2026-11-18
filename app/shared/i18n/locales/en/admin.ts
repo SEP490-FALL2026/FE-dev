@@ -244,5 +244,38 @@ export const admin = {
       SPEND_APPROVAL: 'Spending approval',
       IT_ASSESSMENT: 'Information technology assessment'
     }
+  },
+  ui: {
+    pickGroupBy: 'Choose how to group results',
+    allSources: 'All sources',
+    noReportRows: 'No data to show yet',
+    noReportRowsHint: 'Data will appear when activity matches the filters.',
+    allDeadlineKinds: 'All deadline types',
+    operationsEyebrow: 'Operations monitoring',
+    operationsHint: {
+      workflow: 'Track waiting and overdue steps and congested responsibilities.',
+      sla: 'Compare handling time against commitments by group.',
+      auditFlags: 'Control flags that need review.',
+      deadlines: 'Upcoming and overdue deadlines.'
+    },
+    congestionHint: 'People currently holding the most steps awaiting action.',
+    noCongestionTitle: 'No congestion',
+    noCongestionHint: 'No responsibilities are congested right now.',
+    pickCheckType: 'Choose a checklist item type',
+    pickReack: 'Choose whether re-acknowledgement is required',
+    policiesEyebrow: 'Policy library',
+    policyLibrary: 'Policy list',
+    policyCount: '{{count}} policies',
+    noPoliciesTitle: 'No policies yet',
+    parametersEyebrow: 'Operating parameters',
+    noParametersTitle: 'No parameters yet',
+    parameterCount: '{{count}} parameters',
+    placeholders: {
+      sectionHeading: 'Example: Scope of application',
+      sectionBody: 'Example: This policy applies to every employee using company software',
+      stepTitle: 'Example: Send the request to the department head',
+      checklistText: 'Example: I have read and understood the software usage rules',
+      policyTitle: 'Example: General operating policy, supplementary version'
+    }
   }
 } as const

@@ -6,6 +6,7 @@ import { EmployeeLookup } from './employee-lookup'
 import { DepartmentLookup } from './department-lookup'
 import { EmployeeDepartmentSelect } from './employee-department-select'
 import { NoticeEventLookup, type NoticeEventSource } from './notice-event-lookup'
+import { AdminSelect } from './admin-select'
 
 export interface PersonnelField {
   name: string
@@ -154,23 +155,20 @@ export function PersonnelForm({
                 ) : field.name === 'eventId' && field.eventSource && field.employeeId ? (
                   <NoticeEventLookup source={field.eventSource} employeeId={field.employeeId} />
                 ) : field.options ? (
-                  <select
+                  <AdminSelect
                     name={field.name}
-                    aria-invalid={!!errors[field.name] || undefined}
+                    invalid={!!errors[field.name]}
                     required={!field.optional}
                     defaultValue={field.initial ?? ''}
-                    className={adminInputClass}
-                    onChange={
-                      field.name === 'employmentType' ? (event) => setEmploymentType(event.target.value) : undefined
-                    }
-                  >
-                    <option value=''>{translate('choose')}</option>
-                    {field.options.map((option) => (
-                      <option key={option} value={option}>
-                        {translate(`codes.${option}`, { defaultValue: translate('unknown') })}
-                      </option>
-                    ))}
-                  </select>
+                    options={field.options.map((option) => ({
+                      value: option,
+                      label: translate(`codes.${option}`, { defaultValue: translate('unknown') })
+                    }))}
+                    placeholder={translate('ui.pickOption', {
+                      field: translate(`fields.${field.name}`, { defaultValue: translate('unknown') }).toLowerCase()
+                    })}
+                    onChange={field.name === 'employmentType' ? (next) => setEmploymentType(next) : undefined}
+                  />
                 ) : (
                   <input
                     name={field.name}

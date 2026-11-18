@@ -10,6 +10,9 @@
   reasonHint: 'Explain the reason for refusal to the requester.',
   alternativeHint: 'Describe an alternative if available.',
   title: 'Software requests outside the catalog',
+  eyebrow: 'New software assessment',
+  subtitle: 'Open a request from the queue to classify it, record the quote and add the software to the catalog.',
+  sections: { proposal: 'Requester proposal', assessment: 'Assessment result' },
   placeholders: {
     vendorName: 'e.g. Miro',
     plannedPlanName: 'e.g. Business',
@@ -85,6 +88,7 @@
   requestId: 'Request ID',
   lookup: 'Open assessment',
   refresh: 'Refresh',
+  clearEquivalent: 'Remove equivalent plan',
   status: 'Status',
   unfilled: 'Not recorded',
   save: 'Save assessment',
@@ -126,7 +130,7 @@
     grantRevokeMethod: 'Grant and revoke method',
     controlRiskNote: 'Control risk evidence',
     proposedBusinessOwnerEmployeeId: 'Proposed business owner employee ID',
-    equivalentPlanId: 'Equivalent catalog plan ID'
+    equivalentPlanId: 'Equivalent catalog plan'
   },
   values: {
     K1: 'Individual account',

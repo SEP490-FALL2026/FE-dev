@@ -29,7 +29,7 @@ export function ApprovalAnnualBudgetHistory({ itemId }: { itemId: string }) {
           : value
   return (
     <div role='region' aria-label={translate('history')}>
-      <ApprovalsSection title={translate('history')}>
+      <ApprovalsSection title={translate('layout.historyEntries')}>
         <ApprovalsQueryState query={query}>
           <ApprovalsTable
             items={query.data?.data?.items ?? []}

@@ -1,6 +1,9 @@
 import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
-import { useLocation, useSearchParams } from 'react-router'
+import { useLocation, useNavigate, useSearchParams } from 'react-router'
+import { MailPlus, UserPlus, UsersRound } from 'lucide-react'
+import { adminButtonClass, adminPrimaryClass } from '../../shared/components/admin-form'
+import { AdminPageHeader, AdminSegmented } from '../../shared/components/admin-page-header'
 import { EmployeePanel } from '../components/employee-panel'
 import { ImportPanel } from '../components/import-panel'
 import { LeavePanel } from '../components/leave-panel'
@@ -22,6 +25,8 @@ export function SuperAdminPersonnelView({
   renderAccountDetail?: (id: string, onClose: () => void) => ReactNode
 }) {
   const { t: translate } = useTranslation('adminPersonnel')
+  const { t: translateAccounts } = useTranslation('adminAccounts')
+  const navigate = useNavigate()
   const formPage = useLocation().pathname.startsWith('/dashboard/super-admin/personnel/')
   const [searchParams, setSearchParams] = useSearchParams()
   const requestedPanel = searchParams.get('section')
@@ -33,49 +38,55 @@ export function SuperAdminPersonnelView({
       ? requestedPanel
       : 'employees'
   const Selected = panels[tab]
+  const showDirectoryActions = !formPage && tab === 'employees' && !searchParams.get('employeeId')
+  const selectSection = (key: keyof typeof panels) =>
+    setSearchParams((previous) => {
+      const next = new URLSearchParams(previous)
+      next.set('tab', 'personnel')
+      next.set('section', key)
+      if (key !== 'employees') next.delete('employeeId')
+      for (const field of ['importId', 'noticeId', 'offboardingId', 'longLeaveId', 'transferId', 'personnelView'])
+        next.delete(field)
+      return next
+    })
   return (
-    <div className='space-y-5'>
-      <h1 className='text-2xl font-semibold'>{translate('title')}</h1>
-      {!formPage && (
-        <nav
-          aria-label={translate('title')}
-          className='flex gap-1 overflow-x-auto whitespace-nowrap border-b border-border pb-3'
-        >
-          {(Object.keys(panels) as (keyof typeof panels)[]).map((key) => (
-            <button
-              key={key}
-              type='button'
-              aria-pressed={tab === key}
-              className={`min-h-11 shrink-0 rounded-md px-4 py-2 text-sm font-medium ${tab === key ? 'bg-primary-soft text-primary-ink' : 'text-muted-foreground hover:bg-surface-subtle hover:text-foreground'}`}
-              onClick={() =>
-                setSearchParams((previous) => {
-                  const next = new URLSearchParams(previous)
-                  next.set('tab', 'personnel')
-                  next.set('section', key)
-                  if (key !== 'employees') next.delete('employeeId')
-                  for (const field of [
-                    'importId',
-                    'noticeId',
-                    'offboardingId',
-                    'longLeaveId',
-                    'transferId',
-                    'personnelView'
-                  ])
-                    next.delete(field)
-                  return next
-                })
-              }
-            >
-              {translate(key)}
-            </button>
-          ))}
-        </nav>
-      )}
-      {formPage || tab === 'employees' ? (
-        <EmployeePanel onInviteAccount={onInviteAccount} renderAccountDetail={renderAccountDetail} />
-      ) : (
-        <Selected />
-      )}
+    <div className='space-y-6'>
+      <AdminPageHeader
+        icon={UsersRound}
+        eyebrow={translate('ui.eyebrow')}
+        title={translate('title')}
+        subtitle={formPage ? undefined : translate(`ui.sectionHint.${tab}`)}
+        actions={
+          showDirectoryActions && (
+            <>
+              {onInviteAccount && (
+                <button type='button' className={adminButtonClass} onClick={onInviteAccount}>
+                  <MailPlus aria-hidden strokeWidth={1.5} className='size-4' />
+                  {translateAccounts('invite')}
+                </button>
+              )}
+              <button
+                type='button'
+                className={adminPrimaryClass}
+                onClick={() => void navigate('/dashboard/super-admin/personnel/new')}
+              >
+                <UserPlus aria-hidden strokeWidth={1.5} className='size-4' />
+                {translate('createEmployee')}
+              </button>
+            </>
+          )
+        }
+      >
+        {!formPage && (
+          <AdminSegmented
+            label={translate('title')}
+            value={tab}
+            onChange={selectSection}
+            items={(Object.keys(panels) as (keyof typeof panels)[]).map((key) => ({ key, label: translate(key) }))}
+          />
+        )}
+      </AdminPageHeader>
+      {formPage || tab === 'employees' ? <EmployeePanel renderAccountDetail={renderAccountDetail} /> : <Selected />}
     </div>
   )
 }

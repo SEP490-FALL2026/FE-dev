@@ -60,7 +60,7 @@ function DepartmentMembers({ id }: { id: string }) {
   const query = useDepartmentTechnicalMemberList(id, { page, pageSize: 20 })
   return (
     <section className='space-y-4'>
-      <h2 className='text-lg font-semibold'>{translate('members')}</h2>
+      <h2 className='section-accent text-lg font-semibold tracking-tight'>{translate('members')}</h2>
       <ItQueryState query={query}>
         {query.data?.data?.items.length ? (
           <div className='divide-y divide-border/50 rounded-lg border border-border/70 bg-surface'>
@@ -115,7 +115,7 @@ function DepartmentTools({ id }: { id: string }) {
   const query = useDepartmentToolsInUse(id, { page, pageSize: 20 })
   return (
     <section className='space-y-4'>
-      <h2 className='text-lg font-semibold'>{translate('tools')}</h2>
+      <h2 className='section-accent text-lg font-semibold tracking-tight'>{translate('tools')}</h2>
       <ItQueryState query={query}>
         {query.data?.data?.items.length ? (
           <div className='divide-y divide-border/50 rounded-lg border border-border/70 bg-surface'>

@@ -22,6 +22,7 @@ export function CredentialList({
   backLabel?: string
 }) {
   const { t: translate } = useTranslation('itDevices')
+  const { t: translatePlaceholder } = useTranslation('itPlaceholders')
   const { formatDateTime } = useWorkspaceFormat()
   const [page, setPage] = useState(1)
   const [selected, setSelected] = useState<string>()
@@ -52,6 +53,7 @@ export function CredentialList({
       >
         <ItField label={translate('reason')} hint={translate('hints.reason')}>
           <input
+            placeholder={translatePlaceholder('reason')}
             className={itInputClass}
             required
             maxLength={1000}

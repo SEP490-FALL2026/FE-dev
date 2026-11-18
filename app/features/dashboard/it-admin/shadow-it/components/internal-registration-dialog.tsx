@@ -16,6 +16,7 @@ export function InternalRegistrationDialog({
   onClose: () => void
 }) {
   const { t: translate } = useTranslation('itNewSoftware')
+  const { t: translatePlaceholder } = useTranslation('itPlaceholders')
   const [name, setName] = useState(item.proposal.softwareName)
   const [sensitivity, setSensitivity] = useState<'LOW' | 'MEDIUM' | 'HIGH'>(item.dataSensitivity ?? 'LOW')
   const [quote, setQuote] = useState<AssessmentPatchDto['quote']>()
@@ -62,6 +63,7 @@ export function InternalRegistrationDialog({
       <p className='text-sm text-muted-foreground'>{translate('internalRegistrationHint')}</p>
       <ItField label={translate('softwareName')} hint={translate('fieldHints.softwareName')}>
         <input
+          placeholder={translatePlaceholder('appName')}
           required
           maxLength={200}
           className={itInputClass}

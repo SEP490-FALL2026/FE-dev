@@ -11,6 +11,7 @@ import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedba
 
 export function CatalogWorkspaceSetup({ planId, onClose }: { planId: string; onClose: () => void }) {
   const { t: translate } = useTranslation('itCatalog')
+  const { t: translatePlaceholder } = useTranslation('itPlaceholders')
   const [owner, setOwner] = useState('')
   const [admin, setAdmin] = useState('')
   const [page, setPage] = useState(1)
@@ -108,7 +109,13 @@ export function CatalogWorkspaceSetup({ planId, onClose }: { planId: string; onC
             <p className='text-sm text-danger'>{translate('setup.distinctAdmins')}</p>
           )}
           <ItField label={translate('setup.ownerEmail')}>
-            <input name='email' type='email' maxLength={320} className={itInputClass} />
+            <input
+              placeholder={translatePlaceholder('workspaceEmail')}
+              name='email'
+              type='email'
+              maxLength={320}
+              className={itInputClass}
+            />
           </ItField>
         </ItFormDialog>
       )}

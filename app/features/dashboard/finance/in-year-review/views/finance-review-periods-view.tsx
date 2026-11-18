@@ -4,10 +4,12 @@ import { useBudgetReviewPeriodList } from '~/shared/api/generated/operations/bud
 import type { FinanceTabKey } from '../../enums'
 import {
   FinanceButton,
+  FinanceEmpty,
   FinanceField,
   FinancePage,
   FinancePagination,
   FinanceQueryState,
+  FinanceSection,
   FinanceStatus,
   FinanceToolbar,
   financeInputClass
@@ -57,7 +59,7 @@ export function FinanceReviewPeriodsView({
               inputMode='numeric'
               min={2000}
               max={2100}
-              placeholder={String(new Date().getFullYear())}
+              placeholder={translate('ui.yearPlaceholder', { year: new Date().getFullYear() })}
               aria-invalid={(year !== '' && !validYear(year)) || undefined}
               className={`${financeInputClass} font-mono tabular-nums`}
               value={year}
@@ -66,68 +68,85 @@ export function FinanceReviewPeriodsView({
           </FinanceField>
         </div>
       </FinanceToolbar>
-      <FinanceQueryState query={query}>
-        <FinanceTable
-          items={result?.items ?? []}
-          rowKey={(period) => period.id}
-          onOpen={(period) => onSelectTab?.('period-close', { id: period.id })}
-          columns={[
-            {
-              key: 'period',
-              label: translate('periods.period'),
-              render: (period) => (
-                <span>
-                  {translate('periods.periodLabel', { month: period.month, year: period.year })} ·{' '}
-                  {translate(`periods.kind.${period.kind}`)}
-                </span>
-              )
-            },
-            {
-              key: 'state',
-              label: translate('state'),
-              render: (period) => (
-                <FinanceStatus value={period.state} label={translate(`periods.state.${period.state}`)} />
-              )
-            },
-            {
-              key: 'spent',
-              label: translate('periods.spent'),
-              numeric: true,
-              render: (period) => (period.company ? formatMoney(period.company.spent, i18n.language) : '—')
-            },
-            {
-              key: 'closedBy',
-              label: translate('periods.closedBy'),
-              render: (period) =>
-                period.closedBy
-                  ? translate('periods.closedByAt', {
-                      name: period.closedBy.fullName,
-                      date: period.closedAt.slice(0, 10)
-                    })
-                  : period.closedAt.slice(0, 10)
-            },
-            {
-              key: 'signedBy',
-              label: translate('periods.signedBy'),
-              render: (period) =>
-                period.signedBy && period.signedAt
-                  ? translate('periods.closedByAt', {
-                      name: period.signedBy.fullName,
-                      date: period.signedAt.slice(0, 10)
-                    })
-                  : translate('periods.notSigned')
-            },
-            {
-              key: 'dueOn',
-              label: translate('periods.dueOn'),
-              numeric: true,
-              align: 'center',
-              render: (period) => period.explanationsDueOn ?? '—'
-            }
-          ]}
-        />
-        <FinancePagination pagination={result?.pagination} onPageChange={setPage} />
-      </FinanceQueryState>
+      <FinanceSection
+        title={translate('ui.periodList')}
+        actions={
+          result?.pagination ? (
+            <span className='text-sm text-muted-foreground tabular-nums'>
+              {translate('ui.resultCount', { count: result.pagination.totalItems })}
+            </span>
+          ) : undefined
+        }
+      >
+        <FinanceQueryState query={query}>
+          {result && result.items.length === 0 ? (
+            <FinanceEmpty message={translate('ui.noPeriods')} />
+          ) : (
+            <FinanceTable
+              items={result?.items ?? []}
+              rowKey={(period) => period.id}
+              onOpen={(period) => onSelectTab?.('period-close', { id: period.id })}
+              columns={[
+                {
+                  key: 'period',
+                  label: translate('periods.period'),
+                  render: (period) => (
+                    <div className='min-w-0'>
+                      <div className='font-mono font-medium text-foreground tabular-nums'>
+                        {translate('periods.periodLabel', { month: period.month, year: period.year })}
+                      </div>
+                      <div className='text-xs text-muted-foreground'>{translate(`periods.kind.${period.kind}`)}</div>
+                    </div>
+                  )
+                },
+                {
+                  key: 'state',
+                  label: translate('state'),
+                  render: (period) => (
+                    <FinanceStatus value={period.state} label={translate(`periods.state.${period.state}`)} />
+                  )
+                },
+                {
+                  key: 'spent',
+                  label: translate('periods.spent'),
+                  numeric: true,
+                  render: (period) => (period.company ? formatMoney(period.company.spent, i18n.language) : '—')
+                },
+                {
+                  key: 'closedBy',
+                  label: translate('periods.closedBy'),
+                  render: (period) =>
+                    period.closedBy
+                      ? translate('periods.closedByAt', {
+                          name: period.closedBy.fullName,
+                          date: period.closedAt.slice(0, 10)
+                        })
+                      : period.closedAt.slice(0, 10)
+                },
+                {
+                  key: 'signedBy',
+                  label: translate('periods.signedBy'),
+                  render: (period) =>
+                    period.signedBy && period.signedAt
+                      ? translate('periods.closedByAt', {
+                          name: period.signedBy.fullName,
+                          date: period.signedAt.slice(0, 10)
+                        })
+                      : translate('periods.notSigned')
+                },
+                {
+                  key: 'dueOn',
+                  label: translate('periods.dueOn'),
+                  numeric: true,
+                  align: 'center',
+                  render: (period) => period.explanationsDueOn ?? '—'
+                }
+              ]}
+            />
+          )}
+          <FinancePagination pagination={result?.pagination} onPageChange={setPage} />
+        </FinanceQueryState>
+      </FinanceSection>
       {closing && (
         <ReviewCloseDialog
           onClose={() => setClosing(false)}

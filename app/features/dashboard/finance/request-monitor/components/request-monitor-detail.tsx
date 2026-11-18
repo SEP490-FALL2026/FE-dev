@@ -50,7 +50,7 @@ export function RequestMonitorDetail({ id, onBack }: { id: string; onBack: () =>
         </FinanceButton>
       }
     >
-      <FinanceQueryState query={query}>
+      <FinanceQueryState query={query} skeleton='detail'>
         {request ? (
           <>
             <FinanceStatGrid columns={4}>
@@ -74,7 +74,7 @@ export function RequestMonitorDetail({ id, onBack }: { id: string; onBack: () =>
               />
             </FinanceStatGrid>
             <FinanceSection title={translate('detail.info')}>
-              <dl className='grid gap-4 rounded-lg border border-border/70 bg-surface p-4 sm:grid-cols-2 lg:grid-cols-3'>
+              <dl className='grid gap-4 rounded-xl border border-border/70 bg-surface p-4 shadow-[0_1px_2px_0_rgba(0,0,0,0.04)] sm:grid-cols-2 sm:p-5 lg:grid-cols-3'>
                 {row(translate('requester'), request.requester.fullName)}
                 {row(
                   translate('beneficiary'),
@@ -89,7 +89,7 @@ export function RequestMonitorDetail({ id, onBack }: { id: string; onBack: () =>
             </FinanceSection>
             {request.businessReason && (
               <FinanceSection title={translate('detail.reason')}>
-                <p className='rounded-lg border border-border/70 bg-surface p-4 text-sm wrap-break-word whitespace-pre-wrap'>
+                <p className='rounded-xl border border-border/70 bg-surface p-4 text-sm leading-relaxed wrap-break-word whitespace-pre-wrap shadow-[0_1px_2px_0_rgba(0,0,0,0.04)] sm:p-5'>
                   {request.businessReason}
                 </p>
               </FinanceSection>

@@ -174,7 +174,7 @@ export function InvoiceEntry({
             <dl className='grid gap-3 text-sm sm:grid-cols-2'>
               <div>
                 <dt className='text-muted-foreground'>{translate('chargedCostCenter')}</dt>
-                <dd className='break-all font-mono'>{preview.chargedCostCenter?.id ?? translate('unallocated')}</dd>
+                <dd>{translate(preview.chargedCostCenter ? 'allocated' : 'unallocated')}</dd>
               </div>
               <div>
                 <dt className='text-muted-foreground'>{translate('commitmentRemaining')}</dt>

@@ -9,9 +9,9 @@ import {
   ManagerPagination,
   ManagerQueryState,
   ManagerSection,
-  ManagerStatus,
-  managerInputClass
+  ManagerStatus
 } from '../../shared/components/manager-api-ui'
+import { ManagerSelect, enumOptions } from '../../shared/components/manager-select'
 import { NEED_QUEUE_TYPE } from '../enums/need-queue-type'
 
 export function ManagerNeedQueue({ onOpen }: { onOpen: (id: string) => void }) {
@@ -25,7 +25,7 @@ export function ManagerNeedQueue({ onOpen }: { onOpen: (id: string) => void }) {
   const data = !query.isError ? query.data?.data : null
   return (
     <ManagerSection title={translate('needQueue')}>
-      <div className='flex flex-wrap items-center justify-between gap-4 rounded-xl border border-border/60 bg-surface-subtle/50 p-3.5'>
+      <div className='soft-panel flex flex-wrap items-center justify-between gap-4 p-3.5'>
         <div className='flex items-center gap-2'>
           <span
             aria-hidden='true'
@@ -36,29 +36,26 @@ export function ManagerNeedQueue({ onOpen }: { onOpen: (id: string) => void }) {
           <span className='text-xs font-semibold text-foreground'>{translate('integration.requestType')}</span>
         </div>
         <div className='w-full sm:w-64'>
-          <select
+          <ManagerSelect
             aria-label={translate('integration.requestType')}
-            className={managerInputClass}
             value={type ?? ''}
-            onChange={(event) =>
+            placeholder={translate('ui.placeholders.requestType')}
+            options={[
+              { value: '', label: translate('all') },
+              ...enumOptions(Object.values(NEED_QUEUE_TYPE), (value) =>
+                employeeTranslate(`statuses.${value}`, { defaultValue: translate('unknownStatus') })
+              )
+            ]}
+            onChange={(value) =>
               setParams((previous) => {
                 const next = new URLSearchParams(previous)
-                if (event.target.value) next.set('needType', event.target.value)
+                if (value) next.set('needType', value)
                 else next.delete('needType')
                 next.set('needPage', '1')
                 return next
               })
             }
-          >
-            <option value=''>{translate('all')}</option>
-            {Object.values(NEED_QUEUE_TYPE).map((value) => (
-              <option key={value} value={value}>
-                {employeeTranslate(`statuses.${value}`, {
-                  defaultValue: translate('unknownStatus')
-                })}
-              </option>
-            ))}
-          </select>
+          />
         </div>
       </div>
       <ManagerDataTable

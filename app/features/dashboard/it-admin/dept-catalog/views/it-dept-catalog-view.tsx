@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
+import { LibraryBig } from 'lucide-react'
+import { ItPageHeader, ItSegmented } from '../../shared/components/it-page-header'
 import { useTranslation } from 'react-i18next'
 import { useApplicationList } from '~/shared/api/generated/operations/applications/application-list'
 import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { ItPagination } from '../../shared/components/it-pagination'
-import { itButtonClass, itInputClass, itPrimaryClass } from '../../shared/components/it-form'
+import { itInputClass, itPrimaryClass } from '../../shared/components/it-form'
 import type { ItAdminTabKey } from '../../it-admin-nav'
 import { CatalogApplicationForm } from '../components/catalog-application-form'
 import { CatalogTermWarnings } from '../components/catalog-term-warnings'
@@ -58,40 +60,28 @@ export function ItDeptCatalogView({
     return <CatalogPlanSetup plan={setup.plan} applicationKind={setup.kind} onBack={() => setSetup(undefined)} />
   return (
     <section className='space-y-6'>
-      <header className='flex flex-wrap items-center justify-between gap-3 border-b border-border pb-5'>
-        <h1 className='text-2xl font-semibold tracking-tight [text-wrap:balance]'>{translate('title')}</h1>
-        {view === 'applications' && (
-          <button className={itPrimaryClass} disabled={query.isError} onClick={() => setCreating(true)}>
-            {translate('add')}
-          </button>
-        )}
-      </header>
-      <div className='flex flex-wrap gap-2' role='group' aria-label={translate('title')}>
-        <button
-          type='button'
-          className={itButtonClass}
-          aria-pressed={view === 'groups'}
-          onClick={() => setView('groups')}
-        >
-          {translate('groups.title')}
-        </button>
-        <button
-          type='button'
-          className={itButtonClass}
-          aria-pressed={view === 'applications'}
-          onClick={() => setView('applications')}
-        >
-          {translate('title')}
-        </button>
-        <button
-          type='button'
-          className={itButtonClass}
-          aria-pressed={view === 'terms'}
-          onClick={() => setView('terms')}
-        >
-          {translate('terms.warnings')}
-        </button>
-      </div>
+      <ItPageHeader
+        icon={LibraryBig}
+        title={translate('title')}
+        actions={
+          view === 'applications' && (
+            <button className={itPrimaryClass} disabled={query.isError} onClick={() => setCreating(true)}>
+              {translate('add')}
+            </button>
+          )
+        }
+      >
+        <ItSegmented
+          label={translate('title')}
+          value={view}
+          items={[
+            { key: 'groups' as const, label: translate('groups.title') },
+            { key: 'applications' as const, label: translate('title') },
+            { key: 'terms' as const, label: translate('terms.warnings') }
+          ]}
+          onChange={setView}
+        />
+      </ItPageHeader>
       {view === 'groups' ? (
         <CatalogFunctionalGroups />
       ) : view === 'terms' ? (

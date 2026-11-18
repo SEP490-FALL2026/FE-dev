@@ -1,5 +1,5 @@
 import { ArrowLeft } from 'lucide-react'
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   useBudgetCycleBaseline,
@@ -17,12 +17,22 @@ import {
   FinanceStatus
 } from '../../shared/components/finance-ui'
 import { formatMoney } from '../../shared/finance-money'
+import { formatDay } from '../../shared/finance-date'
 import { CYCLE_STATUS, canEditCycle, canOpenCycle, isCycleStatus } from '../enums/cycle-status'
 import { useBudgetCycleActions } from '../hooks/use-budget-cycle-actions'
 import { AdminFormDialog } from '~/shared/ui/form-dialog'
 import { CycleBaseline } from './cycle-baseline'
 import { CycleEditDialog } from './cycle-edit-dialog'
 import { CyclePackageSummary } from './cycle-package-summary'
+
+function CycleFact({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className='min-w-0 space-y-1'>
+      <dt className='text-xs font-medium text-muted-foreground'>{label}</dt>
+      <dd className='min-w-0'>{children}</dd>
+    </div>
+  )
+}
 
 export function CycleDetail({ year, onBack }: { year: number; onBack: () => void }) {
   const { t: translate, i18n } = useTranslation('financeBudget')
@@ -38,6 +48,7 @@ export function CycleDetail({ year, onBack }: { year: number; onBack: () => void
   const editable = Boolean(cycle && isCycleStatus(cycle.status) && canEditCycle(cycle.status))
   const [editing, setEditing] = useState(false)
   const [confirming, setConfirming] = useState<'open' | 'delete'>()
+  const day = (value: string) => <span className='font-mono tabular-nums'>{formatDay(value, i18n.language)}</span>
 
   return (
     <FinanceDetailPage>
@@ -65,65 +76,65 @@ export function CycleDetail({ year, onBack }: { year: number; onBack: () => void
           </>
         }
       >
-        <FinanceQueryState query={cycleQuery}>
-          {cycle && (
-            <>
-              <FinanceStatGrid columns={3}>
-                <FinanceStat
-                  label={translate('budgetCycle.annualCeiling')}
-                  value={formatMoney(cycle.annualCeiling, i18n.language)}
-                  emphasis
-                />
-                <FinanceStat
-                  label={translate('budgetCycle.sharedPoolReserve')}
-                  value={
-                    cycle.sharedPoolReserve ? formatMoney(cycle.sharedPoolReserve, i18n.language) : translate('none')
-                  }
-                />
-                <FinanceStat
-                  label={translate('budgetCycle.available')}
-                  value={formatMoney(cycle.available, i18n.language)}
-                />
-              </FinanceStatGrid>
-              <div className='flex flex-wrap items-center gap-3 text-sm text-muted-foreground'>
-                <FinanceStatus
-                  value={cycle.status}
-                  label={translate(`budgetCycle.status.${cycle.status}`, { defaultValue: translate('unknown') })}
-                />
-                <span>
-                  {translate('budgetCycle.deadlines', {
-                    submission: cycle.submissionDeadline,
-                    decision: cycle.decisionDeadline
-                  })}
-                </span>
-              </div>
-              {cycle.openedAt && (
-                <p className='text-sm text-muted-foreground'>
-                  {translate('budgetCycle.openedAt', { time: new Date(cycle.openedAt).toLocaleString(i18n.language) })}
-                </p>
-              )}
-              {cycle.priorities && (
-                <div className='rounded-lg border border-border/70 bg-surface-subtle/50 p-4 text-sm'>
-                  <div className='text-xs font-medium text-muted-foreground'>{translate('budgetCycle.priorities')}</div>
-                  <p className='mt-1 break-words whitespace-pre-line [text-wrap:pretty]'>{cycle.priorities}</p>
-                </div>
-              )}
-              {cycle.status === CYCLE_STATUS.DRAFT && (
-                <p role='status' className='text-sm text-muted-foreground'>
-                  {translate('budgetCycle.draftHint')}
-                </p>
-              )}
-              {cycle.status === CYCLE_STATUS.LOCKED && (
-                <p role='status' className='text-sm text-muted-foreground'>
-                  {translate('budgetCycle.lockedHint')}
-                </p>
-              )}
-            </>
-          )}
-        </FinanceQueryState>
+        <FinanceSection title={translate('screen.cycleInfo')}>
+          <FinanceQueryState query={cycleQuery} skeleton='detail'>
+            {cycle && (
+              <>
+                <FinanceStatGrid columns={3}>
+                  <FinanceStat
+                    label={translate('budgetCycle.annualCeiling')}
+                    value={formatMoney(cycle.annualCeiling, i18n.language)}
+                    emphasis
+                  />
+                  <FinanceStat
+                    label={translate('budgetCycle.sharedPoolReserve')}
+                    value={
+                      cycle.sharedPoolReserve ? formatMoney(cycle.sharedPoolReserve, i18n.language) : translate('none')
+                    }
+                  />
+                  <FinanceStat
+                    label={translate('budgetCycle.available')}
+                    value={formatMoney(cycle.available, i18n.language)}
+                  />
+                </FinanceStatGrid>
+                <dl className='soft-panel grid gap-4 p-4 text-sm sm:grid-cols-2 lg:grid-cols-4'>
+                  <CycleFact label={translate('fields.state')}>
+                    <FinanceStatus
+                      value={cycle.status}
+                      label={translate(`budgetCycle.status.${cycle.status}`, { defaultValue: translate('unknown') })}
+                    />
+                  </CycleFact>
+                  <CycleFact label={translate('screen.submissionShort')}>{day(cycle.submissionDeadline)}</CycleFact>
+                  <CycleFact label={translate('screen.decisionShort')}>{day(cycle.decisionDeadline)}</CycleFact>
+                  {cycle.openedAt && (
+                    <CycleFact label={translate('screen.openedAtLabel')}>{day(cycle.openedAt)}</CycleFact>
+                  )}
+                </dl>
+                {cycle.priorities && (
+                  <div className='rounded-xl border border-border/70 bg-surface p-4 text-sm'>
+                    <div className='text-xs font-medium text-muted-foreground'>
+                      {translate('budgetCycle.priorities')}
+                    </div>
+                    <p className='mt-1 break-words whitespace-pre-line [text-wrap:pretty]'>{cycle.priorities}</p>
+                  </div>
+                )}
+                {cycle.status === CYCLE_STATUS.DRAFT && (
+                  <p role='status' className='text-sm text-muted-foreground [text-wrap:pretty]'>
+                    {translate('budgetCycle.draftHint')}
+                  </p>
+                )}
+                {cycle.status === CYCLE_STATUS.LOCKED && (
+                  <p role='status' className='text-sm text-muted-foreground [text-wrap:pretty]'>
+                    {translate('budgetCycle.lockedHint')}
+                  </p>
+                )}
+              </>
+            )}
+          </FinanceQueryState>
+        </FinanceSection>
 
         <FinanceSection title={translate('budgetCycle.packageTitle')}>
-          <FinanceQueryState query={packageQuery}>
+          <FinanceQueryState query={packageQuery} skeleton='detail'>
             {budgetPackage && (
               <CyclePackageSummary
                 budgetPackage={budgetPackage}
@@ -166,7 +177,7 @@ export function CycleDetail({ year, onBack }: { year: number; onBack: () => void
         {editing && cycle && editable && <CycleEditDialog cycle={cycle} onClose={() => setEditing(false)} />}
 
         <FinanceSection title={translate('budgetCycle.baselineTitle')}>
-          <FinanceQueryState query={baselineQuery}>
+          <FinanceQueryState query={baselineQuery} skeleton='detail'>
             {baseline && <CycleBaseline baseline={baseline} />}
           </FinanceQueryState>
         </FinanceSection>

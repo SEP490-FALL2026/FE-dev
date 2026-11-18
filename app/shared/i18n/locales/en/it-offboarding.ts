@@ -1,6 +1,7 @@
 ﻿export const itOffboarding = {
   unknown: 'Not available',
   title: 'Offboarding cases',
+  subtitle: 'Lock the company account, revoke software rights and close the mailbox for leavers on time.',
   revocationDue: 'Revocation due',
   rightsWithoutCompletedTask: 'Rights not yet revoked',
   revocationOverdue:

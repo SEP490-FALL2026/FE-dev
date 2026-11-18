@@ -6,7 +6,7 @@ import {
   getDepartmentListQueryKey
 } from '~/shared/api/generated/operations/departments/department-list'
 import { useDepartmentGet } from '~/shared/api/generated/operations/departments/department-get'
-import { adminInputClass } from './admin-form'
+import { AdminSelect } from './admin-select'
 import { AdminQueryState } from './admin-query-state'
 
 export function DepartmentLookup({
@@ -45,31 +45,32 @@ export function DepartmentLookup({
   })
   const initialData = initialDepartment.data?.data
   const items = query.data ?? []
+  const options = items.map((department) => ({
+    value: department.id,
+    label: department.name,
+    description: department.code
+  }))
   return (
     <div className='grid gap-2'>
-      <select
+      <AdminSelect
         aria-label={translate(name === 'toDepartmentId' ? 'fields.toDepartmentId' : 'fields.departmentId')}
-        className={adminInputClass}
         name={name}
         required={required}
         value={selected}
-        onChange={(event) => setSelected(event.target.value)}
-        aria-busy={query.isFetching}
-        aria-describedby={descriptionId}
-      >
-        <option value=''>{translate(required ? 'choose' : 'noSelection')}</option>
-        {initial && selected === initial && !items.some((item) => item.id === initial) && (
-          <option value={initial}>
-            {initialLabel ||
-              (initialData ? `${initialData.code} · ${initialData.name}` : translate('currentSelection'))}
-          </option>
-        )}
-        {items.map((department) => (
-          <option key={department.id} value={department.id}>
-            {department.code} · {department.name}
-          </option>
-        ))}
-      </select>
+        onChange={setSelected}
+        options={options}
+        loading={query.isFetching}
+        clearable={!required}
+        descriptionId={descriptionId}
+        selectedLabel={
+          selected && selected === initial
+            ? initialLabel ||
+              (initialData ? `${initialData.name} · ${initialData.code}` : translate('currentSelection'))
+            : undefined
+        }
+        placeholder={translate('ui.pickDepartment')}
+        emptyText={translate('ui.noDepartmentMatch')}
+      />
       {(query.isPending || query.isError) && <AdminQueryState query={query}>{null}</AdminQueryState>}
       {initialDepartment.isError && selected === initial && !initialLabel && (
         <AdminQueryState query={initialDepartment}>{null}</AdminQueryState>

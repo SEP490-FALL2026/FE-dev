@@ -18,7 +18,7 @@ export function RenewalSeatRanking({ id }: { id: string }) {
   const data = query.data?.data
   return (
     <section className='space-y-3'>
-      <h2 className='text-lg font-semibold'>{translate('ranking')}</h2>
+      <h2 className='section-accent text-lg font-semibold tracking-tight'>{translate('ranking')}</h2>
       <p className='text-sm text-muted-foreground'>{translate('rankingHint')}</p>
       <label className='flex min-h-11 items-center gap-2 text-sm'>
         <input

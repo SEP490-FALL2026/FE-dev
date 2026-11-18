@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next'
 import type { RequestStatus } from './manager-requests-demo'
 
 const tones: Record<RequestStatus, string> = {
-  pending: 'border-brand-200 bg-brand-100/60 text-brand-600',
-  inProgress: 'border-amber-200 bg-amber-50 text-amber-700',
+  pending: 'border-primary/20 bg-primary-soft text-primary-ink',
+  inProgress: 'border-warning/30 bg-warning/10 text-warning-ink',
   approved: 'border-success/20 bg-success/10 text-success',
   rejected: 'border-danger/20 bg-danger/10 text-danger',
   overdue: 'border-danger/20 bg-danger/10 text-danger'

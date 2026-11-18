@@ -54,7 +54,7 @@ export function DashboardMetrics({
           {translate('overview.metrics.asOf', { date: formatDate(asOf) })}
         </p>
       </div>
-      <div className='grid gap-3 sm:grid-cols-2 xl:grid-cols-4'>
+      <div className='kpi-tone-grid grid gap-3 sm:grid-cols-2 xl:grid-cols-4'>
         {metrics.map(({ key, icon: Icon }) => {
           const section = sections[key]
           if (!section) return null
@@ -71,7 +71,9 @@ export function DashboardMetrics({
                 <h3 className='text-sm font-medium leading-relaxed text-muted-foreground first-letter:uppercase'>
                   {name}
                 </h3>
-                <Icon aria-hidden strokeWidth={1.5} className='mt-0.5 size-4 shrink-0 text-primary-ink' />
+                <span className='kpi-chip grid size-9 shrink-0 place-items-center rounded-lg'>
+                  <Icon aria-hidden strokeWidth={1.5} className='size-4' />
+                </span>
               </div>
               <p
                 className={`mt-4 ${counted ? 'text-right font-mono text-3xl font-semibold tabular-nums' : 'text-sm font-medium text-muted-foreground'}`}

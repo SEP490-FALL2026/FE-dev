@@ -1,11 +1,13 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { ArrowLeft, ShieldQuestion } from 'lucide-react'
+import { ItPageHeader, ItSectionTitle } from '../../shared/components/it-page-header'
 import { AssessmentQueue } from '../components/assessment-queue'
 import { useAccessRequestAssessmentGet } from '~/shared/api/generated/operations/access-requests/access-request-assessment-get'
 import { useMeGet } from '~/shared/api/generated/operations/me/me-get'
 import { useAccessRequestGet } from '~/shared/api/generated/operations/access-requests/access-request-get'
 import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
-import { itButtonClass, itPrimaryClass, itInputClass, ItField } from '../../shared/components/it-form'
+import { itButtonClass, itPrimaryClass } from '../../shared/components/it-form'
 import { AssessmentDialog } from '../components/assessment-dialog'
 import { CatalogLinkSection } from '../components/catalog-link-section'
 import { InternalRegistrationDialog } from '../components/internal-registration-dialog'
@@ -23,12 +25,24 @@ export function ItShadowItView({
   initialRequestId?: string
 }) {
   const { t: translate } = useTranslation('itNewSoftware')
-  const [draftId, setDraftId] = useState(initialRequestId ?? '')
   const [id, setId] = useState(initialRequestId ?? '')
   const [queueAllowsAction, setQueueAllowsAction] = useState<boolean | undefined>()
   return (
     <div className='space-y-5'>
-      <h1 className='text-2xl font-semibold tracking-tight [text-wrap:balance]'>{translate('title')}</h1>
+      <ItPageHeader
+        icon={ShieldQuestion}
+        eyebrow={translate('eyebrow')}
+        title={translate('title')}
+        subtitle={translate('subtitle')}
+        actions={
+          id && (
+            <button type='button' className={itButtonClass} onClick={() => setId('')}>
+              <ArrowLeft aria-hidden strokeWidth={1.5} className='size-4' />
+              {translate('queue.back')}
+            </button>
+          )
+        }
+      />
       <div hidden={!!id}>
         <AssessmentQueue
           onOpen={(requestId, canAct) => {
@@ -37,35 +51,6 @@ export function ItShadowItView({
           }}
         />
       </div>
-      {id && (
-        <button type='button' className={itButtonClass} onClick={() => setId('')}>
-          {translate('queue.back')}
-        </button>
-      )}
-      <form
-        className='flex flex-wrap items-end gap-3'
-        onSubmit={(event) => {
-          event.preventDefault()
-          setQueueAllowsAction(undefined)
-          setId(draftId.trim())
-        }}
-      >
-        <div className='min-w-0 flex-1'>
-          <ItField label={translate('requestId')} hint={translate('fieldHints.requestId')}>
-            <input
-              required
-              pattern='[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
-              className={itInputClass}
-              placeholder={translate('requestIdPlaceholder')}
-              value={draftId}
-              onChange={(event) => setDraftId(event.target.value)}
-            />
-          </ItField>
-        </div>
-        <button className={itButtonClass} type='submit' disabled={!draftId.trim()}>
-          {translate('lookup')}
-        </button>
-      </form>
       {id && <AssessmentDetail key={id} id={id} queueAllowsAction={queueAllowsAction} onSelectTab={onSelectTab} />}
     </div>
   )
@@ -111,30 +96,33 @@ function AssessmentDetail({
     <ItQueryState query={query}>
       {item ? (
         <div className='space-y-4'>
-          <div className='flex flex-wrap items-center justify-between gap-3'>
-            <h2
-              className='min-w-0 max-w-full truncate text-xl font-semibold [text-wrap:balance]'
-              title={item.proposal.softwareName}
-            >
-              {item.proposal.softwareName}
-            </h2>
+          <div className='soft-panel flex flex-wrap items-center justify-between gap-3 p-4'>
+            <div className='min-w-0'>
+              <h2
+                className='min-w-0 max-w-full truncate text-xl font-semibold [text-wrap:balance]'
+                title={item.proposal.softwareName}
+              >
+                {item.proposal.softwareName}
+              </h2>
+              <p className='text-sm text-muted-foreground'>
+                {translate(`values.${item.status}`, { defaultValue: translate('unknown') })}
+              </p>
+            </div>
             <button className={itButtonClass} onClick={() => void query.refetch()}>
               {translate('refresh')}
             </button>
           </div>
-          <dl className='grid gap-4 rounded-lg border border-border bg-surface p-4 sm:grid-cols-2'>
+          <ItSectionTitle title={translate('sections.proposal')} />
+          <dl className='grid gap-4 rounded-xl border border-border/70 bg-surface p-5 shadow-sm sm:grid-cols-2'>
             {(['purpose', 'dataDescription', 'homepageUrl', 'expectedUsers'] as const).map((key) => (
               <div key={key}>
                 <dt className='text-sm text-muted-foreground'>{translate(`proposal.${key}`)}</dt>
                 <dd className='break-words text-sm'>{item.proposal[key]}</dd>
               </div>
             ))}
-            <div>
-              <dt className='text-sm text-muted-foreground'>{translate('status')}</dt>
-              <dd>{translate(`values.${item.status}`, { defaultValue: translate('unknown') })}</dd>
-            </div>
           </dl>
-          <dl className='grid gap-4 rounded-lg border border-border bg-surface p-4 sm:grid-cols-2'>
+          <ItSectionTitle title={translate('sections.assessment')} />
+          <dl className='grid gap-4 rounded-xl border border-border/70 bg-surface p-5 shadow-sm sm:grid-cols-2'>
             {(
               [
                 'classification',
@@ -166,7 +154,7 @@ function AssessmentDetail({
           )}
           {item.rejection && <p className='rounded-lg border border-border p-4 text-sm'>{item.rejection.reason}</p>}
           <CatalogLinkSection item={item} authorized={authorized} />
-          <div className='flex flex-wrap gap-2'>
+          <div className='flex flex-wrap justify-end gap-2 border-t border-border/50 pt-4'>
             {item.classification === AssessmentClassification.INTERNAL && (
               <button className={itButtonClass} disabled={!editable} onClick={() => setInternalOpen(true)}>
                 {translate('registerInternal')}

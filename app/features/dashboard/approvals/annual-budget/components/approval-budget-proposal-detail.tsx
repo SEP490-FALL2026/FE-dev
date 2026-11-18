@@ -1,4 +1,4 @@
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, FileStack } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useDashboardFormat } from '../../../dashboard-ui'
 import { useBudgetProposalGet } from '~/shared/api/generated/operations/budget-proposals/budget-proposal-get'
@@ -32,6 +32,8 @@ export function ApprovalBudgetProposalDetail({ itemId, onSelectTab }: ApprovalBu
   const proposal = query.data?.data?.proposal
   return (
     <ApprovalsPage
+      icon={FileStack}
+      eyebrow={translate('proposalTitle')}
       title={proposal ? proposal.costCenter.name : translate('proposalTitle')}
       description={translate('readOnly')}
       actions={
@@ -44,8 +46,8 @@ export function ApprovalBudgetProposalDetail({ itemId, onSelectTab }: ApprovalBu
       <ApprovalsQueryState query={query}>
         {proposal ? (
           <div className='space-y-6'>
-            <ApprovalsStatus value={proposal.state} />
             <ApprovalsStatGrid>
+              <ApprovalsStat label={translate('state')} value={<ApprovalsStatus value={proposal.state} />} />
               <ApprovalsStat
                 label={translate('requestedAmount')}
                 value={
@@ -59,7 +61,7 @@ export function ApprovalBudgetProposalDetail({ itemId, onSelectTab }: ApprovalBu
               <ApprovalsStat label={translate('submittedAt')} value={formatDate(proposal.submittedAt)} />
             </ApprovalsStatGrid>
             <ApprovalsSection title={translate('proposalInfo')}>
-              <dl className='grid gap-4 rounded-lg border border-border/70 bg-surface p-4 sm:grid-cols-2'>
+              <dl className='grid gap-4 rounded-xl border border-border/70 bg-surface p-5 shadow-[0_1px_2px_0_rgba(0,0,0,0.04)] sm:grid-cols-2'>
                 <div className='min-w-0'>
                   <dt className='text-xs text-muted-foreground'>{translate('center')}</dt>
                   <dd className='mt-1 truncate font-mono text-sm tabular-nums' title={proposal.costCenter.code}>
@@ -111,7 +113,7 @@ export function ApprovalBudgetProposalDetail({ itemId, onSelectTab }: ApprovalBu
             </ApprovalsSection>
             {proposal.returned && (
               <ApprovalsSection title={translate('returnedTitle')}>
-                <div className='space-y-2 rounded-lg border border-border/70 bg-surface p-4'>
+                <div className='space-y-2 rounded-xl border border-warning/30 bg-warning/5 p-4'>
                   <p className='text-sm whitespace-pre-wrap [overflow-wrap:anywhere]'>{proposal.returned.reason}</p>
                   <p className='text-right font-mono text-xs text-muted-foreground tabular-nums'>
                     {proposal.returned.by?.fullName ? `${proposal.returned.by.fullName} · ` : ''}

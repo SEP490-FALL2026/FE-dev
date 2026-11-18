@@ -287,5 +287,13 @@ export const approvalsBudget = {
       NO_HEAD: 'Phòng chưa có trưởng phòng'
     },
     deadlineKinds: { AUTO_RENEWAL_INCIDENT: 'Tự gia hạn khi chưa quyết', EXPIRY_MARKED: 'Đã đánh dấu hết hạn' }
+  },
+  layout: {
+    yearPlaceholder: 'Chọn năm ngân sách, gõ để tìm',
+    versionsDescription: 'Phiên bản Tài chính lập cho từng Cost Center. Mở phiên bản đã gửi duyệt để quyết định.',
+    versionsEmpty: 'Không có phiên bản ngân sách khớp bộ lọc',
+    historyEntries: 'Các thay đổi đã ghi nhận',
+    decisionReasonPlaceholder: 'Ví dụ: Cost Center nhận đã đủ ngân sách đến hết quý, chưa cần chuyển thêm',
+    linesEmpty: 'Kỳ này chưa có dòng Cost Center nào'
   }
 } as const

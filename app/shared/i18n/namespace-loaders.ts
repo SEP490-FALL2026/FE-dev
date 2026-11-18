@@ -7,6 +7,7 @@ import type { SupportedLanguage, TranslationNamespace } from './resources'
 export const namespaceLoaders: Record<SupportedLanguage, Record<TranslationNamespace, () => Promise<ResourceKey>>> = {
   vi: {
     itReconciliation: () => import('./locales/vi/it-reconciliation').then((module) => module.itReconciliation),
+    itPlaceholders: () => import('./locales/vi/it-placeholders').then((module) => module.itPlaceholders),
     itOptimization: () => import('./locales/vi/it-optimization').then((module) => module.itOptimization),
     itInvoices: () => import('./locales/vi/it-invoices').then((module) => module.itInvoices),
     itDepartmentSoftware: () =>
@@ -53,6 +54,7 @@ export const namespaceLoaders: Record<SupportedLanguage, Record<TranslationNames
   },
   en: {
     itReconciliation: () => import('./locales/en/it-reconciliation').then((module) => module.itReconciliation),
+    itPlaceholders: () => import('./locales/en/it-placeholders').then((module) => module.itPlaceholders),
     itOptimization: () => import('./locales/en/it-optimization').then((module) => module.itOptimization),
     itInvoices: () => import('./locales/en/it-invoices').then((module) => module.itInvoices),
     itDepartmentSoftware: () =>

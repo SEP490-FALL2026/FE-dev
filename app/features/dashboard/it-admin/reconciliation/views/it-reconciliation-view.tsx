@@ -1,5 +1,7 @@
 import { useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
+import { Scale } from 'lucide-react'
+import { ItPageHeader } from '../../shared/components/it-page-header'
 import { useInvoiceDiscrepancyList } from '~/shared/api/generated/operations/invoice-discrepancies/invoice-discrepancy-list'
 import { useVendorAccountDiscrepancyList } from '~/shared/api/generated/operations/vendor-account-discrepancies/vendor-account-discrepancy-list'
 import { useOutOfProcessCaseList } from '~/shared/api/generated/operations/out-of-process-cases/out-of-process-case-list'
@@ -10,7 +12,8 @@ import { OutOfProcessCaseListState } from '~/shared/api/generated/model/out-of-p
 import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { ItPagination } from '../../shared/components/it-pagination'
 import { ItChoiceSelect } from '../../shared/components/it-choice-select'
-import { ItField, itInputClass, itButtonClass } from '../../shared/components/it-form'
+import { itButtonClass } from '../../shared/components/it-form'
+import { ReconciliationApplicationFilter } from '../components/reconciliation-application-filter'
 import { useDashboardFormat } from '../../../dashboard-ui'
 import { ReconciliationRecordDetail } from '../components/reconciliation-record-detail'
 import type { ReconciliationQueue } from '../types'
@@ -87,10 +90,7 @@ export function ItReconciliationView() {
     queue === 'vendor' ? Object.values(VendorAccountDiscrepancyListState) : Object.values(InvoiceDiscrepancyListState)
   return (
     <section className='space-y-5'>
-      <header>
-        <h1 className='text-2xl font-semibold tracking-tight [text-wrap:balance]'>{translate('title')}</h1>
-        <p className='mt-2 text-sm text-muted-foreground'>{translate('hint')}</p>
-      </header>
+      <ItPageHeader icon={Scale} title={translate('title')} subtitle={translate('hint')} />
       <div role='group' aria-label={translate('title')} className='flex flex-wrap gap-2'>
         {(['invoices', 'vendor', 'outside'] as const).map((value) => (
           <button
@@ -106,7 +106,7 @@ export function ItReconciliationView() {
         ))}
       </div>
       {queue === 'invoices' && <p className='text-sm text-muted-foreground'>{translate('invoiceReadOnly')}</p>}
-      <div className='grid items-end gap-4 sm:grid-cols-2 xl:grid-cols-4'>
+      <div className='soft-panel grid gap-4 sm:grid-cols-2 xl:grid-cols-4'>
         <ItChoiceSelect
           label={translate('filter')}
           value={state}
@@ -130,30 +130,10 @@ export function ItReconciliationView() {
               ]}
               onChange={(value) => update({ source: value || undefined, page: '1' })}
             />
-            <form
-              className='flex items-end gap-2 sm:col-span-2'
-              onSubmit={(event) => {
-                event.preventDefault()
-                update({
-                  applicationId:
-                    String(new FormData(event.currentTarget).get('applicationId') ?? '').trim() || undefined,
-                  page: '1'
-                })
-              }}
-            >
-              <ItField label={translate('applicationId')} hint={translate('applicationHint')}>
-                <input
-                  key={applicationId}
-                  name='applicationId'
-                  defaultValue={applicationId ?? ''}
-                  className={itInputClass}
-                  pattern='[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
-                />
-              </ItField>
-              <button type='submit' className={itButtonClass}>
-                {translate('apply')}
-              </button>
-            </form>
+            <ReconciliationApplicationFilter
+              value={applicationId ?? ''}
+              onChange={(value) => update({ applicationId: value || undefined, page: '1' })}
+            />
           </>
         )}
       </div>

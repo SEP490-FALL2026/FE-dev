@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { MOCK_TEAM_MEMBERS, MOCK_TEAM_SOFTWARE } from '../../manager-data'
+import { ManagerSelect } from '../../shared/components/manager-select'
 import type { ManagerTabKey } from '../../manager-nav'
 import type { ManagerPreviewRequestInput } from '../../manager-preview-request'
 
@@ -176,18 +177,17 @@ export function ManagerCreateEmployeeRequestView({
               <label className='block text-xs font-bold text-foreground' htmlFor='manager-request-member'>
                 {t('manager.createRequest.labelEmployee')}
               </label>
-              <select
+              <ManagerSelect
                 id='manager-request-member'
-                className='h-10 w-full rounded-xl border border-border bg-background px-3 text-xs text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
-                onChange={(e) => setSelectedMemberId(e.target.value)}
+                onChange={(value) => setSelectedMemberId(value)}
+                options={MOCK_TEAM_MEMBERS.map((m) => ({
+                  value: m.id,
+                  label: `${m.name} (${m.code})`,
+                  description: m.jobTitle
+                }))}
+                placeholder={t('manager.createRequest.placeholderEmployee')}
                 value={selectedMemberId}
-              >
-                {MOCK_TEAM_MEMBERS.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.name} ({m.code}) - {m.jobTitle}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
           )}
 
@@ -196,18 +196,17 @@ export function ManagerCreateEmployeeRequestView({
             <label className='block text-xs font-bold text-foreground' htmlFor='manager-request-software'>
               {t('manager.createRequest.labelSoftware')}
             </label>
-            <select
+            <ManagerSelect
               id='manager-request-software'
-              className='h-10 w-full rounded-xl border border-border bg-background px-3 text-xs text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
-              onChange={(e) => setSelectedSoftwareId(e.target.value)}
+              onChange={(value) => setSelectedSoftwareId(value)}
+              options={MOCK_TEAM_SOFTWARE.map((s) => ({
+                value: s.id,
+                label: `${s.name} (${s.plan})`,
+                description: s.category
+              }))}
+              placeholder={t('manager.createRequest.placeholderSoftware')}
               value={selectedSoftwareId}
-            >
-              {MOCK_TEAM_SOFTWARE.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name} ({s.plan}) - {s.category}
-                </option>
-              ))}
-            </select>
+            />
           </div>
 
           <div className='space-y-2'>
@@ -217,6 +216,7 @@ export function ManagerCreateEmployeeRequestView({
             <input
               className='h-10 w-full rounded-xl border border-border bg-background px-3 text-xs text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
               id='manager-request-plan'
+              placeholder={t('manager.createRequest.placeholderPlan')}
               onChange={(event) => setDesiredPlan(event.target.value)}
               required
               type='text'

@@ -14,7 +14,9 @@ import { getOffboardingCaseRightListQueryKey } from '~/shared/api/generated/oper
 import { getOffboardingCaseChangeListQueryKey } from '~/shared/api/generated/operations/offboarding-cases/offboarding-case-change-list'
 import { AdminQueryState } from '../../shared/components/admin-query-state'
 import { AdminPagination } from '../../shared/components/admin-pagination'
-import { AdminField, adminButtonClass, adminInputClass } from '../../shared/components/admin-form'
+import { AdminField, adminButtonClass } from '../../shared/components/admin-form'
+import { AdminSelect } from '../../shared/components/admin-select'
+import { AdminSectionTitle } from '../../shared/components/admin-page-header'
 import { usePersonnelMutationFeedback } from '../../shared/hooks/use-personnel-mutation-feedback'
 import { useDashboardFormat } from '../../../dashboard-ui'
 import { PersonnelForm, value, readSuccessor, successorFields } from '../../shared/components/personnel-form'
@@ -72,20 +74,27 @@ export function OffboardingPanel() {
         />
       ) : (
         <>
-          <div className='max-w-xs'>
-            <AdminField label={translate('offboardingFilter')}>
-              <select
-                className={adminInputClass}
-                value={state}
-                onChange={(event) => {
-                  setState(event.target.value === 'LEFT' ? 'LEFT' : 'HANDING_OVER')
-                  setPage(1)
-                }}
-              >
-                <option value='HANDING_OVER'>{translate('codes.HANDING_OVER')}</option>
-                <option value='LEFT'>{translate('codes.LEFT')}</option>
-              </select>
-            </AdminField>
+          <div className='soft-panel flex flex-wrap items-end justify-between gap-4 p-4'>
+            <AdminSectionTitle
+              title={translate('ui.offboardingTitle')}
+              hint={data ? translate('ui.recordCount', { count: data.pagination.totalItems }) : undefined}
+            />
+            <div className='w-full sm:w-72'>
+              <AdminField label={translate('offboardingFilter')} description=''>
+                <AdminSelect
+                  value={state}
+                  onChange={(next) => {
+                    setState(next === 'LEFT' ? 'LEFT' : 'HANDING_OVER')
+                    setPage(1)
+                  }}
+                  options={(['HANDING_OVER', 'LEFT'] as const).map((code) => ({
+                    value: code,
+                    label: translate(`codes.${code}`)
+                  }))}
+                  placeholder={translate('ui.pickOffboardingState')}
+                />
+              </AdminField>
+            </div>
           </div>
           <AdminQueryState query={query}>
             <PersonnelList empty={!data?.items.length}>

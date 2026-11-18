@@ -1,6 +1,7 @@
 ﻿import { useTranslation } from 'react-i18next'
 import type { DraftWriteBodyDtoContent } from '~/shared/api/generated/model/policies'
 import { AdminField, adminButtonClass, adminInputClass } from '../../shared/components/admin-form'
+import { AdminSelect } from '../../shared/components/admin-select'
 import { usePolicyPresentation } from '../hooks/use-policy-presentation'
 
 type Props = {
@@ -21,10 +22,10 @@ export function PolicyContentEditor({ content, original, onChange }: Props) {
   return (
     <div className='space-y-8'>
       <section className='space-y-4'>
-        <h2 className='text-lg font-semibold'>{t('policies.sections')}</h2>
+        <h2 className='section-accent text-lg font-semibold'>{t('policies.sections')}</h2>
         {!content.sections.length && <p className='text-sm text-muted-foreground'>{t('policies.emptySections')}</p>}
         {content.sections.map((section, index) => (
-          <section key={index} className='space-y-4 rounded-lg border border-border p-4'>
+          <section key={index} className='space-y-4 rounded-xl border border-border/80 bg-surface p-4 sm:p-5'>
             <AdminField
               required
               label={t('policies.sectionHeading', { number: index + 1 })}
@@ -34,6 +35,7 @@ export function PolicyContentEditor({ content, original, onChange }: Props) {
                 required
                 maxLength={200}
                 className={adminInputClass}
+                placeholder={t('ui.placeholders.sectionHeading')}
                 value={section.heading}
                 onChange={(event) => updateSection(index, { heading: event.target.value })}
               />
@@ -48,6 +50,7 @@ export function PolicyContentEditor({ content, original, onChange }: Props) {
                 rows={5}
                 maxLength={20000}
                 className={adminInputClass}
+                placeholder={t('ui.placeholders.sectionBody')}
                 value={section.body}
                 onChange={(event) => updateSection(index, { body: event.target.value })}
               />
@@ -75,13 +78,14 @@ export function PolicyContentEditor({ content, original, onChange }: Props) {
           <h2 className='text-lg font-semibold'>{t('policies.steps')}</h2>
           <p className='text-sm text-muted-foreground'>{t('policies.fixedStepsHelp')}</p>
           {content.steps.map((step, index) => (
-            <section key={step.code} className='space-y-4 rounded-lg border border-border p-4'>
+            <section key={step.code} className='space-y-4 rounded-xl border border-border/80 bg-surface p-4 sm:p-5'>
               <h3 className='font-semibold'>{stepName(step.code)}</h3>
               <AdminField required label={t('policies.stepTitle')} description={t('policies.stepTitleHelp')}>
                 <input
                   required
                   maxLength={300}
                   className={adminInputClass}
+                  placeholder={t('ui.placeholders.stepTitle')}
                   value={step.title}
                   onChange={(event) => updateStep(index, { title: event.target.value })}
                 />
@@ -98,6 +102,7 @@ export function PolicyContentEditor({ content, original, onChange }: Props) {
                       rows={2}
                       maxLength={1000}
                       className={adminInputClass}
+                      placeholder={t('ui.placeholders.checklistText')}
                       value={item.text}
                       onChange={(event) =>
                         updateStep(index, {
@@ -109,27 +114,26 @@ export function PolicyContentEditor({ content, original, onChange }: Props) {
                     />
                   </AdminField>
                   <AdminField required label={t('policies.checkType')} description={t('policies.checkTypeHelp')}>
-                    <select
+                    <AdminSelect
                       required
-                      className={adminInputClass}
                       value={item.check}
-                      onChange={(event) =>
+                      onChange={(next) =>
                         updateStep(index, {
                           checklist: step.checklist.map((entry, i) =>
-                            i === itemIndex
-                              ? { ...entry, check: event.target.value === 'SYSTEM' ? 'SYSTEM' : 'PERSON' }
-                              : entry
+                            i === itemIndex ? { ...entry, check: next === 'SYSTEM' ? 'SYSTEM' : 'PERSON' } : entry
                           )
                         })
                       }
-                    >
-                      <option value='PERSON'>{t('policies.personCheck')}</option>
-                      {original.steps
-                        .find((entry) => entry.code === step.code)
-                        ?.checklist.some((entry) => entry.code === item.code && entry.check === 'SYSTEM') && (
-                        <option value='SYSTEM'>{t('policies.systemCheck')}</option>
-                      )}
-                    </select>
+                      options={[
+                        { value: 'PERSON', label: t('policies.personCheck') },
+                        ...(original.steps
+                          .find((entry) => entry.code === step.code)
+                          ?.checklist.some((entry) => entry.code === item.code && entry.check === 'SYSTEM')
+                          ? [{ value: 'SYSTEM', label: t('policies.systemCheck') }]
+                          : [])
+                      ]}
+                      placeholder={t('ui.pickCheckType')}
+                    />
                   </AdminField>
                   <button
                     type='button'

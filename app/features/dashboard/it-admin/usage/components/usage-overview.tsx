@@ -30,7 +30,7 @@ export function UsageOverview() {
   const items = query.data?.data?.items ?? []
   return (
     <section className='space-y-4'>
-      <h2 className='text-lg font-semibold'>{t('usage.overview')}</h2>
+      <h2 className='section-accent text-lg font-semibold tracking-tight'>{t('usage.overview')}</h2>
       <p className='text-sm text-muted-foreground'>{t('usage.overviewHint')}</p>
       <ItChoiceSelect
         label={t('usage.sources')}

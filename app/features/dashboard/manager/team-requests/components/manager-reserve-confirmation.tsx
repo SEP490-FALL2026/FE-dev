@@ -21,6 +21,7 @@ import {
 
 export function ManagerReserveConfirmation({ id, onClose }: { id: string; onClose: () => void }) {
   const { t: flow } = useTranslation('requestFlow')
+  const { t: translate } = useTranslation('manager')
   const me = useMeGet()
   const checklist = usePolicyChecklist(POLICY_STEP.RESERVE_CONFIRMATION)
   const action = useManagerAction({
@@ -61,6 +62,7 @@ export function ManagerReserveConfirmation({ id, onClose }: { id: string; onClos
             <textarea
               className={managerInputClass}
               name='reason'
+              placeholder={translate('ui.placeholders.reserveReason')}
               required
               maxLength={500}
               rows={3}

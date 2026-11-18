@@ -1,4 +1,6 @@
 import { ItChoiceSelect } from '../../shared/components/it-choice-select'
+import { KeyRound } from 'lucide-react'
+import { ItPageHeader } from '../../shared/components/it-page-header'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -73,23 +75,24 @@ export function ItProvisioningView({
     )
   return (
     <section className='space-y-5'>
-      <header className='flex flex-wrap items-center justify-between gap-3'>
-        <div>
-          <h1 className='text-2xl font-semibold tracking-tight [text-wrap:balance]'>{translate('title')}</h1>
-          <p className='mt-1 text-sm text-muted-foreground'>{translate('description')}</p>
-        </div>
-        {selectedTask && (
-          <button
-            className={itButtonClass}
-            onClick={() => {
-              setSelectedTask('')
-              setAction(null)
-            }}
-          >
-            {translate('back')}
-          </button>
-        )}
-      </header>
+      <ItPageHeader
+        icon={KeyRound}
+        title={translate('title')}
+        subtitle={translate('description')}
+        actions={
+          selectedTask && (
+            <button
+              className={itButtonClass}
+              onClick={() => {
+                setSelectedTask('')
+                setAction(null)
+              }}
+            >
+              {translate('back')}
+            </button>
+          )
+        }
+      />
       {selectedTask ? (
         <ItQueryState query={detail}>
           {task ? (

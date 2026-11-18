@@ -1,10 +1,12 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRequestablePlanList } from '~/shared/api/generated/operations/requestable-software/requestable-plan-list'
+import { getRequestablePlanListQueryOptions } from '~/shared/api/generated/operations/requestable-software/requestable-plan-list'
 import type { RequestablePlanPageResponseDtoDataItemsItem } from '~/shared/api/generated/model/requestable-software/requestablePlanPageResponseDtoDataItemsItem'
-import { EmployeeChoiceSelect } from '../../shared/components/employee-choice-select'
-import { EmployeePagination, EmployeeQueryState } from '../../shared/components/employee-api-ui'
-import { useCatalogSearch } from '../hooks/use-catalog-search'
+import { useDebouncedValue } from '~/shared/lib/use-debounced-value'
+import { EmployeeField, EmployeeQueryState } from '../../shared/components/employee-api-ui'
+import { EmployeeSelect } from '../../shared/components/employee-select'
 import { CATALOG_PRICE_STATUS } from '../enums/catalog-price-status'
+import { usePagedOptions } from '../hooks/use-paged-options'
 
 export type CatalogPlan = RequestablePlanPageResponseDtoDataItemsItem
 
@@ -24,54 +26,39 @@ export function EmployeeCatalogPlans({
   allowDraft?: boolean
 }) {
   const { t: translate } = useTranslation('employee')
-  const search = useCatalogSearch()
-  const query = useRequestablePlanList(
-    { applicationId, page: search.page, pageSize: 20, ...(search.search ? { search: search.search } : {}) },
-    { query: { enabled: search.open && !disabled && !!applicationId } }
+  const [draft, setDraft] = useState('')
+  const search = useDebouncedValue(draft, 300)
+  const plans = usePagedOptions(`${applicationId}:${search}`, (page) =>
+    getRequestablePlanListQueryOptions(
+      { applicationId, page, pageSize: 20, ...(search ? { search } : {}) },
+      { query: { enabled: !disabled && !!applicationId } }
+    )
   )
-  const items = search.current && !query.isError ? (query.data?.data?.items ?? []) : []
-  const label = (plan: CatalogPlan) =>
+  const priceLabel = (plan: CatalogPlan) =>
     Object.values(CATALOG_PRICE_STATUS).includes(plan.price.status)
       ? translate(`catalog.prices.${plan.price.status}`)
       : translate('unknownStatus')
   return (
-    <div className='space-y-2'>
-      <EmployeeChoiceSelect
-        label={translate('plan')}
-        placeholder={translate('groupPicker.choosePlan')}
-        selected={value ? [{ value: value.id, label: value.name, description: label(value) }] : []}
-        onChange={(choices) => onChange(items.find((plan) => plan.id === choices[0]?.value) ?? null)}
-        options={items.map((plan) => ({ value: plan.id, label: plan.name, description: label(plan) }))}
-        onOpenChange={search.setOpen}
-        disabled={disabled || !applicationId}
-        invalid={invalid}
-        hint={translate('catalog.planHint')}
-        search={{
-          label: translate('groupPicker.searchPlans'),
-          placeholder: translate('groupPicker.searchPlansPlaceholder'),
-          value: search.draft,
-          onChange: search.setDraft
-        }}
-        state={
-          search.current ? (
-            <EmployeeQueryState query={query} empty={!items.length} emptyTitle={translate('catalog.noPlans')} />
-          ) : (
-            <p role='status' className='py-4 text-sm text-muted-foreground'>
-              {translate('loading')}
-            </p>
-          )
-        }
-        footer={
-          search.current &&
-          !query.isError && (
-            <EmployeePagination
-              pagination={query.data?.data?.pagination}
-              onPage={search.setPage}
-              busy={query.isFetching}
-            />
-          )
-        }
-      />
+    <div className='min-w-0 space-y-2'>
+      <EmployeeField label={translate('plan')}>
+        <EmployeeSelect
+          required
+          value={value?.id ?? ''}
+          selectedLabel={value?.name}
+          placeholder={translate(applicationId ? 'ui.placeholders.plan' : 'ui.placeholders.planFirst')}
+          disabled={disabled || !applicationId}
+          invalid={invalid}
+          loading={plans.loading}
+          onSearchChange={setDraft}
+          hasMore={plans.hasMore}
+          onLoadMore={plans.loadMore}
+          emptyText={translate('catalog.noPlans')}
+          options={plans.items.map((plan) => ({ value: plan.id, label: plan.name, description: priceLabel(plan) }))}
+          onChange={(planId) => onChange(plans.items.find((plan) => plan.id === planId) ?? null)}
+        />
+      </EmployeeField>
+      <p className='text-xs leading-relaxed text-muted-foreground'>{translate('catalog.planHint')}</p>
+      {plans.query?.isError && <EmployeeQueryState query={plans.query} />}
       {value && !value.canSubmit && (
         <p className='text-sm leading-relaxed text-warning-ink'>
           {translate(allowDraft ? 'catalog.draftOnly' : 'requestExtras.serviceAccount.blocked')}

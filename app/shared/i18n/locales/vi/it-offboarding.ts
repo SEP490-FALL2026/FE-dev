@@ -1,6 +1,7 @@
 export const itOffboarding = {
   unknown: 'Không có thông tin',
   title: 'Hồ sơ nghỉ việc',
+  subtitle: 'Chặn tài khoản công ty, thu hồi quyền phần mềm và khóa hộp thư cho người nghỉ việc đúng hạn.',
   revocationDue: 'Hạn thu hồi',
   rightsWithoutCompletedTask: 'Quyền chưa thu hồi xong',
   revocationOverdue:

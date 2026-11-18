@@ -77,6 +77,7 @@ export function CycleCreateDialog({ onClose, onCreated }: { onClose: () => void;
             max={MAX_YEAR}
             aria-invalid={!yearValid}
             className={`${financeInputClass} font-mono tabular-nums`}
+            placeholder={translate('screen.yearPlaceholder')}
             value={year}
             onChange={(event) => setYear(event.target.value)}
           />
@@ -147,6 +148,7 @@ export function CycleCreateDialog({ onClose, onCreated }: { onClose: () => void;
           rows={3}
           maxLength={2000}
           className={`${financeInputClass} max-h-48 min-h-24 resize-y`}
+          placeholder={translate('screen.prioritiesPlaceholder')}
           value={priorities}
           onChange={(event) => setPriorities(event.target.value)}
         />

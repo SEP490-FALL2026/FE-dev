@@ -164,6 +164,7 @@ export function CycleEditDialog({ cycle, onClose }: { cycle: Cycle; onClose: () 
             rows={2}
             maxLength={1000}
             className={`${financeInputClass} max-h-40 min-h-20 resize-y`}
+            placeholder={translate('screen.ceilingReasonPlaceholder')}
             value={reason}
             onChange={(event) => setReason(event.target.value)}
           />
@@ -174,6 +175,7 @@ export function CycleEditDialog({ cycle, onClose }: { cycle: Cycle; onClose: () 
           rows={3}
           maxLength={2000}
           className={`${financeInputClass} max-h-48 min-h-24 resize-y`}
+          placeholder={translate('screen.prioritiesPlaceholder')}
           value={priorities}
           onChange={(event) => setPriorities(event.target.value)}
         />

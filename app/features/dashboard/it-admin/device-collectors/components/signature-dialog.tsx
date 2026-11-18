@@ -23,8 +23,9 @@ export function SignatureDialog({
 }) {
   const { t: translate } = useTranslation('itDevices')
   const notice = useMonitoringNoticeCurrentGet()
-  const [version, setVersion] = useState<string>()
-  const noticeVersionId = version ?? notice.data?.data?.id ?? ''
+  const noticeVersionId = notice.data?.data?.id ?? ''
+  // 404 MONITORING_NOTICE.NOT_PUBLISHED is a business state (no notice yet), not a failure.
+  const noticeMissing = notice.isError && getItError(notice.error).code === 'MONITORING_NOTICE.NOT_PUBLISHED'
   const [documentId, setDocumentId] = useState('')
   const [file, setFile] = useState<File>()
   const [uncertain, setUncertain] = useState(false)
@@ -108,31 +109,19 @@ export function SignatureDialog({
         if (valid) mutation.mutate()
       }}
     >
-      <ItQueryState query={notice}>
-        {notice.data?.data && (
-          <p className='break-all text-sm text-muted-foreground'>
-            {translate('notice')}: {notice.data.data.id}
-          </p>
-        )}
-      </ItQueryState>
-      <ItField label={translate('noticeVersionId')} hint={translate('hints.noticeVersionId')}>
-        <input
-          className={itInputClass}
-          required
-          pattern='[0-9a-fA-F-]{36}'
-          value={noticeVersionId}
-          onChange={(event) => setVersion(event.target.value)}
-        />
-      </ItField>
-      <ItField label={translate('documentId')} hint={translate('hints.documentId')}>
-        <input
-          className={itInputClass}
-          disabled={!!file}
-          pattern='[0-9a-fA-F-]{36}'
-          value={documentId}
-          onChange={(event) => setDocumentId(event.target.value)}
-        />
-      </ItField>
+      {noticeMissing ? (
+        <p role='status' className='soft-panel p-4 text-sm text-muted-foreground'>
+          {translate('noticeNotPublished')}
+        </p>
+      ) : (
+        <ItQueryState query={notice}>
+          {notice.data?.data && (
+            <p className='break-all text-sm text-muted-foreground'>
+              {translate('notice')}: {translate('versionNumber')} {notice.data.data.versionNumber}
+            </p>
+          )}
+        </ItQueryState>
+      )}
       <ItField label={translate('file')} hint={translate('hints.file')}>
         <input
           className={itInputClass}

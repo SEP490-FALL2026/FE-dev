@@ -139,7 +139,7 @@ export function ManagerLiveBatch({
                   <div className='flex min-w-0 items-center gap-3'>
                     <input
                       type='checkbox'
-                      aria-label={item.plan?.applicationName ?? item.softwareName ?? item.requestId}
+                      aria-label={item.plan?.applicationName ?? item.softwareName ?? translate('application')}
                       checked={selected.includes(item.requestId)}
                       disabled={
                         !item.readyToSubmit ||
@@ -269,6 +269,7 @@ export function ManagerLiveBatch({
               <textarea
                 className='min-h-20 rounded-md border border-border bg-background p-3 text-base md:text-sm'
                 maxLength={500}
+                placeholder={translate('ui.placeholders.reserveReason')}
                 value={reserveReasons[item.requestId] ?? ''}
                 disabled={action.blocked}
                 onChange={(event) =>

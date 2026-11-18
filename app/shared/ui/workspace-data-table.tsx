@@ -76,7 +76,7 @@ export function WorkspaceDataTable<T>({
                 ) : (
                   <button
                     type='button'
-                    className='inline-flex min-h-11 items-center gap-1.5 rounded-md px-3 text-sm font-medium text-primary-ink transition-colors hover:bg-primary-soft'
+                    className='inline-flex min-h-11 items-center gap-1.5 rounded-md px-2.5 text-sm font-medium whitespace-nowrap text-primary-ink transition-colors hover:bg-primary-soft'
                     onClick={() => onOpen?.(item)}
                   >
                     {actionLabel}

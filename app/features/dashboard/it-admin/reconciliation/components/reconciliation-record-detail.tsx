@@ -45,8 +45,6 @@ export function ReconciliationRecordDetail({
             {(
               [
                 ['identity', record.item.identity],
-                ['employeeId', record.item.employeeId],
-                ['vendorId', record.item.vendorId],
                 ['source', translate(`sources.${record.item.source}`)],
                 ['internalValue', record.item.internalValue],
                 ['vendorValue', record.item.vendorValue],

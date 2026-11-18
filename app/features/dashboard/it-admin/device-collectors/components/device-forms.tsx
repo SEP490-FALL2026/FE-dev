@@ -10,6 +10,7 @@ import { useDeviceFeedback } from '../hooks/use-device-feedback'
 
 export function DeviceCreateDialog({ onClose }: { onClose: () => void }) {
   const { t: translate } = useTranslation('itDevices')
+  const { t: translatePlaceholder } = useTranslation('itPlaceholders')
   const [draft, setDraft] = useState({ assetCode: '', hostname: '', os: '', holderEmployeeId: '', handedOverOn: '' })
   const feedback = useDeviceFeedback(undefined, undefined, onClose)
   const mutation = useMutation({
@@ -24,26 +25,35 @@ export function DeviceCreateDialog({ onClose }: { onClose: () => void }) {
       onClose={onClose}
       pending={mutation.isPending}
       submitLabel={translate('create')}
+      submitDisabled={!draft.holderEmployeeId}
       onSubmit={(event) => {
         event.preventDefault()
+        if (!draft.holderEmployeeId) return
         const { handedOverOn, ...body } = draft
         mutation.mutate({ ...body, ...(handedOverOn ? { handedOverOn } : {}) })
       }}
     >
-      {(['assetCode', 'hostname', 'os', 'holderEmployeeId', 'handedOverOn'] as const).map((field) => (
+      {(['assetCode', 'hostname', 'os', 'handedOverOn'] as const).map((field) => (
         <ItField key={field} label={translate(field)} hint={translate(`hints.${field}`)}>
           <input
+            placeholder={translatePlaceholder(`device.${field}`)}
             className={itInputClass}
             value={draft[field]}
             required={field !== 'handedOverOn'}
             type={field === 'handedOverOn' ? 'date' : 'text'}
             maxLength={field === 'assetCode' || field === 'os' ? 60 : field === 'hostname' ? 63 : undefined}
-            pattern={field === 'holderEmployeeId' ? '[0-9a-fA-F-]{36}' : undefined}
             onChange={(event) => setDraft({ ...draft, [field]: event.target.value })}
           />
         </ItField>
       ))}
-      <ItDirectoryLookup mode='employee' onSelect={(holderEmployeeId) => setDraft({ ...draft, holderEmployeeId })} />
+      <ItDirectoryLookup
+        mode='employee'
+        required
+        label={translate('holderEmployeeId')}
+        hint={translate('hints.holderEmployeeId')}
+        value={draft.holderEmployeeId}
+        onSelect={(holderEmployeeId) => setDraft((current) => ({ ...current, holderEmployeeId }))}
+      />
     </ItFormDialog>
   )
 }
@@ -58,6 +68,7 @@ export function DeviceActionDialog({
   onClose: () => void
 }) {
   const { t: translate } = useTranslation('itDevices')
+  const { t: translatePlaceholder } = useTranslation('itPlaceholders')
   const [value, setValue] = useState('')
   const feedback = useDeviceFeedback(device.id, device.registrationId, onClose)
   const mutation = useMutation({
@@ -75,26 +86,34 @@ export function DeviceActionDialog({
       pending={mutation.isPending}
       danger={action === 'retire'}
       submitLabel={translate(action)}
+      submitDisabled={action === 'holder' && !value}
       onSubmit={(event) => {
         event.preventDefault()
-        mutation.mutate()
+        if (value) mutation.mutate()
       }}
     >
       <p className='text-sm text-muted-foreground'>{translate(`hints.${action}`)}</p>
-      <ItField
-        label={translate(action === 'holder' ? 'holderEmployeeId' : 'reason')}
-        hint={translate(action === 'holder' ? 'hints.holderEmployeeId' : 'hints.reason')}
-      >
-        <input
-          className={itInputClass}
+      {action === 'holder' ? (
+        <ItDirectoryLookup
+          mode='employee'
           required
-          maxLength={action === 'retire' ? 1000 : undefined}
-          pattern={action === 'holder' ? '[0-9a-fA-F-]{36}' : undefined}
+          label={translate('holderEmployeeId')}
+          hint={translate('hints.holderEmployeeId')}
           value={value}
-          onChange={(event) => setValue(event.target.value)}
+          onSelect={setValue}
         />
-      </ItField>
-      {action === 'holder' && <ItDirectoryLookup mode='employee' onSelect={setValue} />}
+      ) : (
+        <ItField label={translate('reason')} hint={translate('hints.reason')}>
+          <input
+            placeholder={translatePlaceholder('reason')}
+            className={itInputClass}
+            required
+            maxLength={1000}
+            value={value}
+            onChange={(event) => setValue(event.target.value)}
+          />
+        </ItField>
+      )}
     </ItFormDialog>
   )
 }

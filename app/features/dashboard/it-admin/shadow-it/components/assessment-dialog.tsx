@@ -26,6 +26,7 @@ export function AssessmentDialog({
 }) {
   const { t: translate } = useTranslation('itNewSoftware')
   const { t: translateError } = useTranslation('itAdmin')
+  const { t: translatePlaceholder } = useTranslation('itPlaceholders')
   const [draft, setDraft] = useState<AssessmentPatchDto>({})
   const [reason, setReason] = useState('')
   const [alternative, setAlternative] = useState('')
@@ -176,6 +177,7 @@ export function AssessmentDialog({
           </fieldset>
           <ItField label={translate('reason')} hint={translate('reasonHint')}>
             <textarea
+              placeholder={translatePlaceholder('reason')}
               className={itInputClass}
               required
               maxLength={1000}
@@ -185,6 +187,7 @@ export function AssessmentDialog({
           </ItField>
           <ItField label={translate('alternative')} hint={translate('alternativeHint')}>
             <textarea
+              placeholder={translatePlaceholder('alternative')}
               className={itInputClass}
               maxLength={1000}
               value={alternative}

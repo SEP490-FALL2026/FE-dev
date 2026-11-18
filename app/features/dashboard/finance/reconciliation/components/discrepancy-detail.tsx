@@ -15,6 +15,7 @@ import {
   FinanceField,
   FinancePage,
   FinanceQueryState,
+  FinanceSection,
   FinanceSelect,
   FinanceStatus,
   financeInputClass
@@ -38,6 +39,7 @@ export function DiscrepancyDetail({
   const item = query.data?.data
   const [closing, setClosing] = useState(false)
   const unknown = translate('discrepancy.unknown')
+  const dateTime = (value: string) => new Date(value).toLocaleString(i18n.language)
   return (
     <FinanceDetailPage>
       <FinancePage
@@ -60,7 +62,7 @@ export function DiscrepancyDetail({
           </>
         }
       >
-        <FinanceQueryState query={query}>
+        <FinanceQueryState query={query} skeleton='detail'>
           {item && (
             <>
               <div className='flex flex-wrap items-center gap-3'>
@@ -70,75 +72,79 @@ export function DiscrepancyDetail({
                   <span className='text-xs text-muted-foreground'>{translate('discrepancy.suspectedNote')}</span>
                 )}
               </div>
-              <div className='overflow-x-auto rounded-lg border border-border/70'>
-                <table className='w-full text-sm'>
-                  <thead className='bg-surface-subtle text-xs tracking-wider text-muted-foreground uppercase'>
-                    <tr>
-                      <th scope='col' className='px-3 py-2 text-left' />
-                      <th scope='col' className='px-3 py-2 text-right'>
-                        {translate('discrepancy.onInvoice')}
-                      </th>
-                      <th scope='col' className='px-3 py-2 text-right'>
-                        {translate(
-                          item.purchaseInvoice.linkKind === 'REQUEST'
-                            ? 'discrepancy.expectedRequest'
-                            : 'discrepancy.expectedSubscription'
-                        )}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className='divide-y divide-border/40'>
-                    <tr className={item.mismatches.includes('QUANTITY') ? 'bg-warning/10' : undefined}>
-                      <th scope='row' className='px-3 py-2 text-left font-medium'>
-                        {translate('discrepancy.quantityRow')}
-                      </th>
-                      <td className='px-3 py-2 text-right font-mono tabular-nums'>{item.quantity.invoice}</td>
-                      <td className='px-3 py-2 text-right font-mono tabular-nums'>
-                        {item.quantity.expected ?? unknown}
-                      </td>
-                    </tr>
-                    <tr className={item.mismatches.includes('UNIT_PRICE') ? 'bg-warning/10' : undefined}>
-                      <th scope='row' className='px-3 py-2 text-left font-medium'>
-                        {translate('discrepancy.unitPriceRow')}
-                      </th>
-                      <td className='px-3 py-2 text-right font-mono tabular-nums'>
-                        {formatMoney(item.unitPrice.invoice, i18n.language)}
-                      </td>
-                      <td className='px-3 py-2 text-right font-mono tabular-nums'>
-                        {item.unitPrice.expected ? formatMoney(item.unitPrice.expected, i18n.language) : unknown}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <p className='text-xs text-muted-foreground'>{translate('discrepancy.vndNote')}</p>
-              <dl className='grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2'>
-                <Row
-                  label={translate('discrepancy.mismatches')}
-                  value={item.mismatches
-                    .map((mismatch) => translate(`discrepancy.mismatchNames.${mismatch}`))
-                    .join(', ')}
-                />
-                <Row
-                  label={translate('invoice.netAmount')}
-                  value={formatMoney(item.purchaseInvoice.netAmount, i18n.language)}
-                />
-                <Row label={translate('invoice.servicePeriodMonth')} value={item.purchaseInvoice.servicePeriodMonth} />
-                <Row label={translate('discrepancy.openedAt')} value={new Date(item.openedAt).toLocaleString()} />
-                {item.closure && (
-                  <>
-                    <Row label={translate('reason')} value={item.closure.reason} />
-                    <Row
-                      label={translate('discrepancy.differenceAmount')}
-                      value={formatMoney(item.closure.differenceAmount, i18n.language)}
-                    />
-                    <Row
-                      label={translate('discrepancy.closedAt')}
-                      value={new Date(item.closure.closedAt).toLocaleString()}
-                    />
-                  </>
-                )}
-              </dl>
+              <FinanceSection title={translate('ui.comparison')}>
+                <div className='overflow-x-auto rounded-xl border border-border/70 bg-surface shadow-[0_1px_2px_0_rgba(0,0,0,0.04)]'>
+                  <table className='w-full text-sm'>
+                    <thead className='border-b border-border/70 bg-surface-subtle/60 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase'>
+                      <tr>
+                        <th scope='col' className='px-3 py-2 text-left' />
+                        <th scope='col' className='px-3 py-2 text-right'>
+                          {translate('discrepancy.onInvoice')}
+                        </th>
+                        <th scope='col' className='px-3 py-2 text-right'>
+                          {translate(
+                            item.purchaseInvoice.linkKind === 'REQUEST'
+                              ? 'discrepancy.expectedRequest'
+                              : 'discrepancy.expectedSubscription'
+                          )}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className='divide-y divide-border/40'>
+                      <tr className={item.mismatches.includes('QUANTITY') ? 'bg-warning/10' : undefined}>
+                        <th scope='row' className='px-3 py-2 text-left font-medium'>
+                          {translate('discrepancy.quantityRow')}
+                        </th>
+                        <td className='px-3 py-2 text-right font-mono tabular-nums'>{item.quantity.invoice}</td>
+                        <td className='px-3 py-2 text-right font-mono tabular-nums'>
+                          {item.quantity.expected ?? unknown}
+                        </td>
+                      </tr>
+                      <tr className={item.mismatches.includes('UNIT_PRICE') ? 'bg-warning/10' : undefined}>
+                        <th scope='row' className='px-3 py-2 text-left font-medium'>
+                          {translate('discrepancy.unitPriceRow')}
+                        </th>
+                        <td className='px-3 py-2 text-right font-mono tabular-nums'>
+                          {formatMoney(item.unitPrice.invoice, i18n.language)}
+                        </td>
+                        <td className='px-3 py-2 text-right font-mono tabular-nums'>
+                          {item.unitPrice.expected ? formatMoney(item.unitPrice.expected, i18n.language) : unknown}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p className='text-xs text-muted-foreground'>{translate('discrepancy.vndNote')}</p>
+              </FinanceSection>
+              <FinanceSection title={translate('ui.caseInfo')}>
+                <dl className='grid gap-x-8 gap-y-3 rounded-xl border border-border/70 bg-surface p-4 text-sm sm:grid-cols-2 sm:p-5'>
+                  <Row
+                    label={translate('discrepancy.mismatches')}
+                    value={item.mismatches
+                      .map((mismatch) => translate(`discrepancy.mismatchNames.${mismatch}`))
+                      .join(', ')}
+                  />
+                  <Row
+                    label={translate('invoice.netAmount')}
+                    value={formatMoney(item.purchaseInvoice.netAmount, i18n.language)}
+                  />
+                  <Row
+                    label={translate('invoice.servicePeriodMonth')}
+                    value={item.purchaseInvoice.servicePeriodMonth}
+                  />
+                  <Row label={translate('discrepancy.openedAt')} value={dateTime(item.openedAt)} />
+                  {item.closure && (
+                    <>
+                      <Row label={translate('reason')} value={item.closure.reason} />
+                      <Row
+                        label={translate('discrepancy.differenceAmount')}
+                        value={formatMoney(item.closure.differenceAmount, i18n.language)}
+                      />
+                      <Row label={translate('discrepancy.closedAt')} value={dateTime(item.closure.closedAt)} />
+                    </>
+                  )}
+                </dl>
+              </FinanceSection>
             </>
           )}
         </FinanceQueryState>
@@ -150,9 +156,9 @@ export function DiscrepancyDetail({
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className='flex justify-between gap-4 border-b border-border/40 pb-2'>
-      <dt className='text-muted-foreground'>{label}</dt>
-      <dd className='text-right font-medium'>{value}</dd>
+    <div className='flex min-w-0 justify-between gap-4 border-b border-border/40 pb-2'>
+      <dt className='shrink-0 text-muted-foreground'>{label}</dt>
+      <dd className='min-w-0 text-right font-medium break-words'>{value}</dd>
     </div>
   )
 }
@@ -190,6 +196,7 @@ function CloseDialog({ id, onClose }: { id: string; onClose: () => void }) {
         hint={translate(`discrepancy.outcomeHints.${outcome}`)}
       >
         <FinanceSelect
+          placeholder={translate('ui.outcomePlaceholder')}
           value={outcome}
           onChange={(event) =>
             setOutcome(
@@ -213,6 +220,7 @@ function CloseDialog({ id, onClose }: { id: string; onClose: () => void }) {
       >
         <MoneyInput
           maxLength={40}
+          placeholder={translate('ui.differencePlaceholder')}
           aria-invalid={Boolean(difference) && !differenceValid}
           className={`${financeInputClass} font-mono tabular-nums`}
           value={difference}
@@ -224,6 +232,7 @@ function CloseDialog({ id, onClose }: { id: string; onClose: () => void }) {
           required
           rows={3}
           maxLength={1000}
+          placeholder={translate('ui.discrepancyReasonPlaceholder')}
           className={`${financeInputClass} max-h-48 min-h-24 resize-y`}
           value={reason}
           onChange={(event) => setReason(event.target.value)}

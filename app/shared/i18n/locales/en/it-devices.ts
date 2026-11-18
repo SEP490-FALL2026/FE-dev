@@ -19,7 +19,7 @@ export const itDevices = {
   assetCode: 'Asset code',
   hostname: 'Hostname',
   os: 'Operating system',
-  holderEmployeeId: 'Holder employee ID',
+  holderEmployeeId: 'Device holder',
   filterDepartment: 'Department',
   filterHolder: 'Device holder',
   allDepartments: 'All departments',
@@ -69,9 +69,11 @@ export const itDevices = {
   endpoint: 'Endpoint',
   rejectedAt: 'Rejected',
   publish: 'Publish allowlist version',
-  applicationId: 'Catalog application ID',
+  applicationId: 'Catalog application',
   enabled: 'Include this tool',
   versionNumber: 'Version',
+  noticeNotPublished:
+    'No monitoring notice has been published yet, so a signature record cannot be added. Ask a Super Admin to publish one first.',
   publishedAt: 'Published',
   acknowledge: 'Acknowledge monitoring notice',
   acknowledgement: 'Acknowledgement',
@@ -167,7 +169,7 @@ export const itDevices = {
     hostname: 'Enter the machine hostname, up to 63 characters.',
     os: 'Enter the installed operating system, for example its product name and version.',
     holderEmployeeId:
-      'Select an employee from the department directory or enter their employee UUID. The backend checks eligibility.',
+      'Pick a department, then pick the employee receiving the device from the directory. The system checks eligibility.',
     handedOverOn: 'Optional. Defaults to today; cannot be in the future or before the employee was hired.',
     holder:
       'Changing the holder ends the current registration and revokes its collector credentials. The new holder must sign and acknowledge a notice.',
@@ -182,8 +184,7 @@ export const itDevices = {
     file: 'Select the signed BM-06 file, up to 1 GB. Uploading records the signature for the selected notice version.',
     allowlist:
       'Publishing replaces the complete AI tool mapping. Unchecked tools are removed; leaving all tools unchecked removes them all.',
-    applicationId:
-      'Enter the UUID of the catalog application represented by this tool. Each application may appear only once.',
+    applicationId: 'Select the catalog application this tool represents. Each application may appear only once.',
     from: 'Show daily usage on or after this date.',
     to: 'Show daily usage on or before this date.',
     acknowledge: 'Only the holder can acknowledge their own open registration after a signed notice is recorded.'

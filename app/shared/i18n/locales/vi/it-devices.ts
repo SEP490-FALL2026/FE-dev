@@ -69,9 +69,11 @@ export const itDevices = {
   endpoint: 'Điểm nhận',
   rejectedAt: 'Thời điểm từ chối',
   publish: 'Phát hành danh sách mới',
-  applicationId: 'Mã ứng dụng trong danh mục',
+  applicationId: 'Ứng dụng trong danh mục',
   enabled: 'Cho phép công cụ này',
   versionNumber: 'Phiên bản',
+  noticeNotPublished:
+    'Chưa có thông báo giám sát nào được công bố nên chưa ghi được biên bản ký. Nhờ Super Admin công bố thông báo trước.',
   publishedAt: 'Ngày phát hành',
   acknowledge: 'Xác nhận thông báo theo dõi',
   acknowledgement: 'Xác nhận',
@@ -176,7 +178,7 @@ export const itDevices = {
     noticeVersionId: 'Chọn đúng mã phiên bản thông báo người giữ đã ký. Mặc định là thông báo hiện hành.',
     file: 'Chọn bản BM-06 đã ký, tối đa 1 GB. Tải lên sẽ lưu bản ký cho phiên bản thông báo đã chọn.',
     allowlist: 'Phát hành thay thế toàn bộ ánh xạ công cụ AI. Công cụ bỏ chọn sẽ bị gỡ; bỏ chọn tất cả sẽ gỡ toàn bộ.',
-    applicationId: 'Nhập mã ứng dụng trong danh mục mà công cụ đại diện. Mỗi ứng dụng chỉ xuất hiện một lần.',
+    applicationId: 'Chọn ứng dụng trong danh mục mà công cụ đại diện. Mỗi ứng dụng chỉ xuất hiện một lần.',
     from: 'Hiển thị dữ liệu sử dụng từ ngày này trở đi.',
     to: 'Hiển thị dữ liệu sử dụng đến hết ngày này.',
     acknowledge: 'Chỉ người giữ được xác nhận đăng ký đang mở của mình sau khi đã lưu bản ký.'

@@ -13,7 +13,7 @@ export function FinanceSidebarNav({
   const { t: translate } = useTranslation('finance')
   const [expanded, setExpanded] = useState<Partial<Record<FinanceAreaKey, boolean>>>({})
   const currentArea = financeAreaOf(activeTab).key
-  const activeClass = 'bg-primary text-primary-foreground shadow-[0_10px_25px_var(--theme-primary-soft)]'
+  const activeClass = 'bg-primary-soft text-primary-ink'
   const idleClass =
     'text-muted-foreground hover:bg-surface-subtle hover:text-foreground active:bg-primary-soft active:text-primary-ink'
   const buttonClass =

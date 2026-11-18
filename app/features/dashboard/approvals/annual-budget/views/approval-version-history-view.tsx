@@ -1,4 +1,4 @@
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, History } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useBudgetVersionGet } from '~/shared/api/generated/operations/budget-versions/budget-version-get'
 import { ApprovalsButton, ApprovalsEmpty, ApprovalsPage } from '../../shared/components/approvals-ui'
@@ -12,6 +12,8 @@ export function ApprovalVersionHistoryView({ itemId, onSelectTab }: ApprovalBudg
   const version = query.data?.data?.version
   return (
     <ApprovalsPage
+      icon={History}
+      eyebrow={translate('versionTitle')}
       title={translate('history')}
       description={
         version

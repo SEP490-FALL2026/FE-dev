@@ -32,7 +32,9 @@ export function ItDepartmentCards<T extends Department>({
   const { t } = useTranslation('itAdmin')
   const { formatNumber } = useDashboardFormat()
   return (
-    <div className='grid max-w-7xl items-stretch gap-5 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4'>
+    <div
+      className={`grid max-w-7xl items-stretch gap-5 md:grid-cols-2 ${items.length % 3 === 0 || items.length % 2 !== 0 ? 'xl:grid-cols-3' : ''}`}
+    >
       {items.map((item, index) => {
         const tone = cardTones[index % cardTones.length]
         const extra = detail?.(item)

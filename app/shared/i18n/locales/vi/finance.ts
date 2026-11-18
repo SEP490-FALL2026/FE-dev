@@ -8,6 +8,9 @@ export const finance = {
   seatCharges: 'Chi phí theo suất',
   budgetAdjustments: 'Điều chỉnh ngân sách',
   budgetParameters: 'Tham số ngân sách',
+  ui: {
+    selectPlaceholder: 'Chọn một giá trị (gõ để tìm)'
+  },
   areas: {
     overview: 'Tổng quan',
     budget: 'Trung tâm chi phí & Ngân sách',

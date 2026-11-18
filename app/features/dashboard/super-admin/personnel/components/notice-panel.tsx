@@ -18,6 +18,7 @@ import { getOffboardingCaseListQueryKey } from '~/shared/api/generated/operation
 import { AdminQueryState } from '../../shared/components/admin-query-state'
 import { AdminPagination } from '../../shared/components/admin-pagination'
 import { AdminFormDialog, adminButtonClass } from '../../shared/components/admin-form'
+import { AdminSectionTitle } from '../../shared/components/admin-page-header'
 import { usePersonnelMutationFeedback } from '../../shared/hooks/use-personnel-mutation-feedback'
 import { useDashboardFormat } from '../../../dashboard-ui'
 import { PersonnelCard, PersonnelCode, PersonnelList } from '../../shared/components/personnel-list'
@@ -63,9 +64,9 @@ export function NoticePanel() {
   const canHandle = notice?.status === noticePending && noticeKinds.includes(notice.kind)
   return (
     <section className='space-y-5'>
-      <p className='text-sm text-muted-foreground'>{translate('noticeHelp')}</p>
       {!selectedId && (
         <>
+          <AdminSectionTitle title={translate('ui.noticesTitle')} hint={translate('noticeHelp')} />
           <AdminQueryState query={query}>
             <PersonnelList empty={!data?.items.length}>
               {data?.items.map((item) => (
@@ -106,7 +107,7 @@ export function NoticePanel() {
           <AdminQueryState query={detail}>
             {notice && (
               <div className='space-y-3'>
-                <h3 className='font-semibold'>{notice.employee.fullName}</h3>
+                <h3 className='section-accent font-semibold'>{notice.employee.fullName}</h3>
                 <p className='font-mono'>{notice.code}</p>
                 <PersonnelCode code={notice.kind} values={noticeKinds} plain />
                 <PersonnelCode code={notice.status} values={noticeStatuses} />

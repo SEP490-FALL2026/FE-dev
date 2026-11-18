@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { MoreHorizontal } from 'lucide-react'
+import { FilePen, MoreHorizontal } from 'lucide-react'
 import { EmployeeDataTable } from '../../shared/components/employee-data-table'
 import { useTranslation } from 'react-i18next'
 import {
@@ -60,7 +60,7 @@ export function EmployeeDraftRequests({
   const actionDraft = action ? query.data?.data?.items.find((draft) => draft.id === action.id) : undefined
   return (
     <>
-      <EmployeeSection title={translate('drafts')}>
+      <EmployeeSection title={translate('drafts')} description={translate('ui.lists.draftsHint')} icon={FilePen}>
         <EmployeeQueryState
           query={query}
           empty={!query.data?.data?.items.length}

@@ -1,3 +1,4 @@
+import { Eye } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AccessRequestListView } from '~/shared/api/generated/model/access-requests'
@@ -18,6 +19,7 @@ import {
 import {
   ApprovalsPage,
   ApprovalsPagination,
+  ApprovalsSection,
   ApprovalsSelect,
   ApprovalsStatus
 } from '../../shared/components/approvals-ui'
@@ -50,79 +52,81 @@ export function ApprovalMonitorView({
   })
   if (itemId !== undefined) return <ApprovalMonitorDetail requestId={itemId} onBack={() => onSelectTab?.('monitor')} />
   return (
-    <ApprovalsPage title={translate('monitor.title')} description={translate('monitor.description')}>
-      <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
-        <ApprovalsSelect
-          label={translate('monitor.view')}
-          value={view}
-          options={Object.values(AccessRequestListView).map((value) => ({
-            value,
-            label: translate(`monitor.views.${value}`)
-          }))}
-          onChange={(value) => {
-            setView(parseView(value) ?? AccessRequestListView.open)
-            setPage(1)
-          }}
-        />
-      </div>
+    <ApprovalsPage icon={Eye} title={translate('monitor.title')} description={translate('monitor.description')}>
       <ApprovalMonitorFilters
         filters={filters}
         onChange={(next) => {
           setFilters(next)
           setPage(1)
         }}
+        leading={
+          <ApprovalsSelect
+            label={translate('monitor.view')}
+            value={view}
+            options={Object.values(AccessRequestListView).map((value) => ({
+              value,
+              label: translate(`monitor.views.${value}`)
+            }))}
+            onChange={(value) => {
+              setView(parseView(value) ?? AccessRequestListView.open)
+              setPage(1)
+            }}
+          />
+        }
       />
-      <ApprovalsQueryState query={query}>
-        <ApprovalsTable
-          items={query.data?.data?.items ?? []}
-          rowKey={(request) => request.id}
-          onOpen={onSelectTab ? (request) => onSelectTab('monitor', { id: request.id }) : undefined}
-          columns={[
-            {
-              key: 'software',
-              label: translate('monitor.software'),
-              render: (request) =>
-                request.plan?.applicationName ?? request.softwareName ?? translate('monitor.noSoftware')
-            },
-            {
-              key: 'type',
-              label: translate('monitor.type'),
-              render: (request) => translate(`monitor.types.${request.type}`)
-            },
-            {
-              key: 'requester',
-              label: translate('monitor.requester'),
-              render: (request) => (
-                <span title={request.requester.employeeCode}>
-                  {request.requester.fullName} · {request.department.name}
-                </span>
-              )
-            },
-            {
-              key: 'state',
-              label: translate('monitor.state'),
-              render: (request) => (
-                <div className='flex flex-wrap items-center gap-1'>
-                  <ApprovalsStatus value={request.state} />
-                  {request.routing.mode === 'ONE_STEP' && (
-                    <span className='inline-flex items-center rounded-md bg-surface-subtle px-2 py-0.5 text-xs font-medium whitespace-nowrap text-muted-foreground ring-1 ring-border/70 ring-inset'>
-                      {translate('routingOneStep')}
-                    </span>
-                  )}
-                </div>
-              )
-            },
-            {
-              key: 'submittedAt',
-              label: translate('monitor.submittedAt'),
-              numeric: true,
-              align: 'center',
-              render: (request) => formatDate(request.submittedAt)
-            }
-          ]}
-        />
-        <ApprovalsPagination pagination={query.data?.data?.pagination} onPageChange={setPage} />
-      </ApprovalsQueryState>
+      <ApprovalsSection title={translate('layout.monitorListTitle')}>
+        <ApprovalsQueryState query={query}>
+          <ApprovalsTable
+            items={query.data?.data?.items ?? []}
+            rowKey={(request) => request.id}
+            onOpen={onSelectTab ? (request) => onSelectTab('monitor', { id: request.id }) : undefined}
+            columns={[
+              {
+                key: 'software',
+                label: translate('monitor.software'),
+                render: (request) =>
+                  request.plan?.applicationName ?? request.softwareName ?? translate('monitor.noSoftware')
+              },
+              {
+                key: 'type',
+                label: translate('monitor.type'),
+                render: (request) => translate(`monitor.types.${request.type}`)
+              },
+              {
+                key: 'requester',
+                label: translate('monitor.requester'),
+                render: (request) => (
+                  <span title={request.requester.employeeCode}>
+                    {request.requester.fullName} · {request.department.name}
+                  </span>
+                )
+              },
+              {
+                key: 'state',
+                label: translate('monitor.state'),
+                render: (request) => (
+                  <div className='flex flex-wrap items-center gap-1'>
+                    <ApprovalsStatus value={request.state} />
+                    {request.routing.mode === 'ONE_STEP' && (
+                      <span className='inline-flex items-center rounded-md bg-surface-subtle px-2 py-0.5 text-xs font-medium whitespace-nowrap text-muted-foreground ring-1 ring-border/70 ring-inset'>
+                        {translate('routingOneStep')}
+                      </span>
+                    )}
+                  </div>
+                )
+              },
+              {
+                key: 'submittedAt',
+                label: translate('monitor.submittedAt'),
+                numeric: true,
+                align: 'center',
+                render: (request) => formatDate(request.submittedAt)
+              }
+            ]}
+          />
+          <ApprovalsPagination pagination={query.data?.data?.pagination} onPageChange={setPage} />
+        </ApprovalsQueryState>
+      </ApprovalsSection>
     </ApprovalsPage>
   )
 }

@@ -26,7 +26,7 @@ export const itPurchases = {
   back: 'Quay lại',
   help: {
     name: 'Dùng tên thỏa thuận trên hợp đồng đã ký để dễ nhận diện về sau.',
-    contractId: 'Dán mã tham chiếu được lưu khi tạo hợp đồng. Tệp đính kèm sẽ thuộc hợp đồng đó.',
+    contractId: 'Chọn hợp đồng đã lưu. Tệp đính kèm sẽ thuộc hợp đồng đó.',
     documentId: 'Dán mã chứng từ đã lưu để kiểm tra trạng thái tải lên, hợp đồng đính kèm và liên kết tải xuống.',
     purpose: 'Chọn nội dung mà tệp đính kèm ghi nhận. Thao tác không phê duyệt mua sắm hoặc ghi nhận thanh toán.'
   },
@@ -35,7 +35,8 @@ export const itPurchases = {
   create: 'Tạo hợp đồng',
   name: 'Tên hợp đồng',
   namePlaceholder: 'Ví dụ: Hợp đồng không gian làm việc theo năm',
-  contractId: 'Mã hợp đồng',
+  contractId: 'Hợp đồng',
+  contractSearch: 'Tìm hợp đồng theo tên hoặc số',
   documentId: 'Mã chứng từ',
   contractPlaceholder: 'Nhập mã định danh hợp đồng đã lưu',
   documentPlaceholder: 'Nhập mã định danh chứng từ đã lưu',

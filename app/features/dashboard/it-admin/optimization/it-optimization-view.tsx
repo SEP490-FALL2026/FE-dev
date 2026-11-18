@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { Ghost } from 'lucide-react'
+import { ItPageHeader } from '../shared/components/it-page-header'
 import { useSearchParams } from 'react-router'
 import { ItChoiceSelect } from '../shared/components/it-choice-select'
 import { OptimizationEscalation } from './components/optimization-escalation'
@@ -22,6 +24,7 @@ import { useItMutationFeedback } from '../shared/hooks/use-it-mutation-feedback'
 
 export function ItOptimizationView() {
   const { t } = useTranslation('itOptimization')
+  const { t: translatePlaceholder } = useTranslation('itPlaceholders')
   const [params, setParams] = useSearchParams()
   const update = (key: string, value: string) =>
     setParams((previous) => {
@@ -78,15 +81,19 @@ export function ItOptimizationView() {
   if (selectedId)
     return (
       <section className='space-y-5'>
-        <button type='button' className={itButtonClass} onClick={() => setSelectedId('')}>
-          {t('optimization.back')}
-        </button>
         <ItQueryState query={detail}>
           {selected && (
             <>
-              <h1 className='text-2xl font-semibold'>
-                {selected.application.applicationName} · {selected.plan.planName}
-              </h1>
+              <ItPageHeader
+                icon={Ghost}
+                eyebrow={t('optimization.title')}
+                title={`${selected.application.applicationName} · ${selected.plan.planName}`}
+                actions={
+                  <button type='button' className={itButtonClass} onClick={() => setSelectedId('')}>
+                    {t('optimization.back')}
+                  </button>
+                }
+              />
               <dl className='grid gap-4 rounded-lg border border-border bg-surface p-5 sm:grid-cols-2'>
                 <div>
                   <dt className='text-sm text-muted-foreground'>{t('optimization.holder')}</dt>
@@ -149,6 +156,7 @@ export function ItOptimizationView() {
             <p className='text-sm text-muted-foreground'>{t('optimization.returnHint')}</p>
             <ItField label={t('reason')} hint={t('optimization.reasonHint')}>
               <textarea
+                placeholder={translatePlaceholder('reason')}
                 className={itInputClass}
                 value={reason}
                 minLength={3}
@@ -163,11 +171,8 @@ export function ItOptimizationView() {
     )
   return (
     <section className='space-y-5'>
-      <header>
-        <h1 className='text-2xl font-semibold'>{t('optimization.title')}</h1>
-        <p className='text-sm text-muted-foreground'>{t('optimization.description')}</p>
-      </header>
-      <div className='flex flex-wrap gap-3'>
+      <ItPageHeader icon={Ghost} title={t('optimization.title')} subtitle={t('optimization.description')} />
+      <div className='soft-panel grid gap-4 p-4 sm:grid-cols-2'>
         <ItChoiceSelect
           label={t('status')}
           value={state ?? ''}
@@ -207,7 +212,7 @@ export function ItOptimizationView() {
         />
         <button
           type='button'
-          className={itButtonClass}
+          className={`${itButtonClass} sm:col-span-2 sm:justify-self-end`}
           disabled={!Object.keys(selectedIds).length}
           onClick={() => setEscalating(true)}
         >

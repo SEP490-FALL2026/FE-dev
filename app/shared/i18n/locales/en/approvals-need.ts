@@ -33,7 +33,7 @@ export const approvalsNeed = {
     columns: { costCenter: 'Cost Center', count: 'Items', amount: 'Amount' }
   },
   overview: {
-    description: 'Work assigned to you, counted by the server.',
+    description: 'Spending and budget decisions waiting for you.',
     countUnavailable: 'Count unavailable',
     openSpend: 'Open spend queue',
     openBudgets: 'Open annual budgets'

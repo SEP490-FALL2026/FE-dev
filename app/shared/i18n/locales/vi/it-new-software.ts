@@ -10,6 +10,9 @@ export const itNewSoftware = {
   reasonHint: 'Mô tả lý do từ chối để người gửi hiểu quyết định.',
   alternativeHint: 'Ghi phương án thay thế nếu có.',
   title: 'Yêu cầu phần mềm ngoài danh mục',
+  eyebrow: 'Thẩm định phần mềm mới',
+  subtitle: 'Mở một yêu cầu trong hàng đợi để phân loại, ghi báo giá và đưa phần mềm vào danh mục.',
+  sections: { proposal: 'Đề xuất của người gửi', assessment: 'Kết quả thẩm định' },
   placeholders: {
     vendorName: 'Ví dụ: Miro',
     plannedPlanName: 'Ví dụ: Business',
@@ -84,6 +87,7 @@ export const itNewSoftware = {
   requestId: 'ID yêu cầu',
   lookup: 'Mở thẩm định',
   refresh: 'Tải lại',
+  clearEquivalent: 'Bỏ gói tương đương',
   status: 'Trạng thái',
   unfilled: 'Chưa ghi nhận',
   save: 'Lưu thẩm định',
@@ -123,7 +127,7 @@ export const itNewSoftware = {
     grantRevokeMethod: 'Cách cấp và thu hồi',
     controlRiskNote: 'Bằng chứng rủi ro kiểm soát',
     proposedBusinessOwnerEmployeeId: 'ID nhân viên phụ trách nghiệp vụ đề xuất',
-    equivalentPlanId: 'ID gói tương đương trong danh mục'
+    equivalentPlanId: 'Gói tương đương trong danh mục'
   },
   values: {
     K1: 'Tài khoản cá nhân',

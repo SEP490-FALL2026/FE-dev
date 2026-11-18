@@ -1,5 +1,7 @@
 export const policy = {
   library: {
+    eyebrow: 'Tuân thủ',
+    description: 'Các chính sách đang có hiệu lực và lịch sử phiên bản bạn đã xác nhận.',
     title: 'Thư viện chính sách',
     back: 'Tất cả chính sách',
     current: 'Phiên bản hiện hành',

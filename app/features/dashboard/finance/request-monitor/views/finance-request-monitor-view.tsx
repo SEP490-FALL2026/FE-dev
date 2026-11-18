@@ -3,10 +3,12 @@ import { useTranslation } from 'react-i18next'
 import { AccessRequestListType, AccessRequestListView } from '~/shared/api/generated/model/access-requests'
 import { useAccessRequestList } from '~/shared/api/generated/operations/access-requests'
 import {
+  FinanceEmpty,
   FinanceField,
   FinancePage,
   FinancePagination,
   FinanceQueryState,
+  FinanceSection,
   FinanceSelect,
   FinanceStatus,
   FinanceToolbar,
@@ -41,7 +43,7 @@ export function FinanceRequestMonitorView({ itemId, onSelectTab }: Props) {
 }
 
 function RequestList({ onSelectTab }: Pick<Props, 'onSelectTab'>) {
-  const { t: translate } = useTranslation('financeRequests')
+  const { t: translate, i18n } = useTranslation('financeRequests')
   const { page, pageSize, setPage } = useFinanceList()
   const [view, setView] = useState<AccessRequestListView | ''>('')
   const [type, setType] = useState<AccessRequestListType | ''>('')
@@ -125,6 +127,7 @@ function RequestList({ onSelectTab }: Pick<Props, 'onSelectTab'>) {
         <div className='sm:w-56'>
           <FinanceField label={translate('department')}>
             <FinanceSelect
+              placeholder={translate('ui.departmentPlaceholder')}
               value={departmentId}
               onChange={(event) => {
                 setDepartmentId(event.target.value)
@@ -144,6 +147,7 @@ function RequestList({ onSelectTab }: Pick<Props, 'onSelectTab'>) {
           <FinanceField label={translate('from')}>
             <input
               type='date'
+              placeholder={translate('ui.fromPlaceholder')}
               className={financeInputClass}
               value={from}
               onChange={(event) => {
@@ -163,6 +167,7 @@ function RequestList({ onSelectTab }: Pick<Props, 'onSelectTab'>) {
               type='date'
               aria-invalid={rangeInvalid}
               min={from || undefined}
+              placeholder={translate('ui.toPlaceholder')}
               className={financeInputClass}
               value={to}
               onChange={(event) => {
@@ -173,73 +178,91 @@ function RequestList({ onSelectTab }: Pick<Props, 'onSelectTab'>) {
           </FinanceField>
         </div>
       </FinanceToolbar>
-      <FinanceQueryState query={query}>
-        <FinanceTable
-          items={result?.items ?? []}
-          rowKey={(request) => request.id}
-          onOpen={(request) => onSelectTab?.('request-monitor', { id: request.id })}
-          columns={[
-            {
-              key: 'software',
-              label: translate('software'),
-              render: (request) => (
-                <div className='min-w-0'>
-                  <div className='truncate font-medium text-foreground'>
-                    {request.softwareName ?? request.plan?.applicationName ?? translate('none')}
-                  </div>
-                  <div className='text-xs text-muted-foreground'>{translate(`type.${request.type}`)}</div>
-                </div>
-              )
-            },
-            {
-              key: 'department',
-              label: translate('department'),
-              render: (request) => request.department.name
-            },
-            {
-              key: 'requester',
-              label: translate('requester'),
-              render: (request) => request.requester.fullName
-            },
-            {
-              key: 'beneficiary',
-              label: translate('beneficiary'),
-              render: (request) =>
-                request.lineCount > 1
-                  ? translate('groupLines', { count: request.lineCount })
-                  : (request.beneficiary?.fullName ?? translate('none'))
-            },
-            {
-              key: 'term',
-              label: translate('termMonths'),
-              numeric: true,
-              render: (request) => request.termMonths ?? '—'
-            },
-            {
-              key: 'state',
-              label: translate('stateLabel'),
-              render: (request) => (
-                <FinanceStatus
-                  value={request.state}
-                  label={translate(`state.${request.state}`, { defaultValue: request.state })}
-                />
-              )
-            },
-            {
-              key: 'reserve',
-              label: translate('reserveUsed'),
-              render: (request) => (request.reserveUsed ? translate('yes') : translate('no'))
-            },
-            {
-              key: 'submittedAt',
-              label: translate('submittedAt'),
-              numeric: true,
-              render: (request) => new Date(request.submittedAt).toLocaleDateString()
-            }
-          ]}
-        />
-        <FinancePagination pagination={result?.pagination} onPageChange={setPage} />
-      </FinanceQueryState>
+      <FinanceSection
+        title={translate('ui.listSection')}
+        actions={
+          result && (
+            <span className='text-sm text-muted-foreground tabular-nums'>
+              {translate('ui.resultCount', { count: result.pagination.totalItems })}
+            </span>
+          )
+        }
+      >
+        <FinanceQueryState query={query}>
+          {result && result.items.length === 0 ? (
+            <FinanceEmpty message={translate('ui.empty')} />
+          ) : (
+            <FinanceTable
+              items={result?.items ?? []}
+              rowKey={(request) => request.id}
+              onOpen={(request) => onSelectTab?.('request-monitor', { id: request.id })}
+              columns={[
+                {
+                  key: 'software',
+                  label: translate('software'),
+                  render: (request) => (
+                    <div className='min-w-0'>
+                      <div
+                        className='truncate font-medium text-foreground'
+                        title={request.softwareName ?? request.plan?.applicationName ?? undefined}
+                      >
+                        {request.softwareName ?? request.plan?.applicationName ?? translate('none')}
+                      </div>
+                      <div className='text-xs text-muted-foreground'>{translate(`type.${request.type}`)}</div>
+                    </div>
+                  )
+                },
+                {
+                  key: 'department',
+                  label: translate('department'),
+                  render: (request) => request.department.name
+                },
+                {
+                  key: 'requester',
+                  label: translate('requester'),
+                  render: (request) => request.requester.fullName
+                },
+                {
+                  key: 'beneficiary',
+                  label: translate('beneficiary'),
+                  render: (request) =>
+                    request.lineCount > 1
+                      ? translate('groupLines', { count: request.lineCount })
+                      : (request.beneficiary?.fullName ?? translate('none'))
+                },
+                {
+                  key: 'term',
+                  label: translate('termMonths'),
+                  numeric: true,
+                  render: (request) => request.termMonths ?? '—'
+                },
+                {
+                  key: 'state',
+                  label: translate('stateLabel'),
+                  render: (request) => (
+                    <FinanceStatus
+                      value={request.state}
+                      label={translate(`state.${request.state}`, { defaultValue: request.state })}
+                    />
+                  )
+                },
+                {
+                  key: 'reserve',
+                  label: translate('reserveUsed'),
+                  render: (request) => (request.reserveUsed ? translate('yes') : translate('no'))
+                },
+                {
+                  key: 'submittedAt',
+                  label: translate('submittedAt'),
+                  numeric: true,
+                  render: (request) => new Date(request.submittedAt).toLocaleDateString(i18n.language)
+                }
+              ]}
+            />
+          )}
+          <FinancePagination pagination={result?.pagination} onPageChange={setPage} />
+        </FinanceQueryState>
+      </FinanceSection>
     </FinancePage>
   )
 }

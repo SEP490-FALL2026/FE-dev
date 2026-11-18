@@ -9,9 +9,9 @@ import {
   ManagerPagination,
   ManagerQueryState,
   ManagerSection,
-  ManagerStatus,
-  managerInputClass
+  ManagerStatus
 } from '../../shared/components/manager-api-ui'
+import { ManagerSelect, enumOptions } from '../../shared/components/manager-select'
 import { RETURN_STATE } from '../enums/return-state'
 
 export function ManagerReturns({ onOpen }: { onOpen: (id: string) => void }) {
@@ -24,7 +24,7 @@ export function ManagerReturns({ onOpen }: { onOpen: (id: string) => void }) {
   const data = !query.isError ? query.data?.data : null
   return (
     <ManagerSection>
-      <div className='flex flex-wrap items-center justify-between gap-4 rounded-xl border border-border/60 bg-surface-subtle/50 p-3.5'>
+      <div className='soft-panel flex flex-wrap items-center justify-between gap-4 p-3.5'>
         <div className='flex items-center gap-2'>
           <span
             aria-hidden='true'
@@ -35,27 +35,26 @@ export function ManagerReturns({ onOpen }: { onOpen: (id: string) => void }) {
           <span className='text-xs font-semibold text-foreground'>{translate('status')}</span>
         </div>
         <div className='w-full sm:w-64'>
-          <select
+          <ManagerSelect
             aria-label={translate('status')}
-            className={managerInputClass}
             value={state ?? ''}
-            onChange={(event) =>
+            placeholder={translate('ui.statePlaceholder')}
+            options={[
+              { value: '', label: translate('all') },
+              ...enumOptions(Object.values(RETURN_STATE), (value) =>
+                translate(`statuses.${value}` as 'statuses.COMPLETED')
+              )
+            ]}
+            onChange={(value) =>
               setParams((previous) => {
                 const next = new URLSearchParams(previous)
-                if (event.target.value) next.set('returnState', event.target.value)
+                if (value) next.set('returnState', value)
                 else next.delete('returnState')
                 next.set('returnPage', '1')
                 return next
               })
             }
-          >
-            <option value=''>{translate('all')}</option>
-            {Object.values(RETURN_STATE).map((value) => (
-              <option key={value} value={value}>
-                {translate(`statuses.${value}` as 'statuses.COMPLETED')}
-              </option>
-            ))}
-          </select>
+          />
         </div>
       </div>
       <ManagerDataTable

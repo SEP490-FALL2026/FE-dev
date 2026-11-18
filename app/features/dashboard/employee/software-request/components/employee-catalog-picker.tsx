@@ -3,7 +3,10 @@ import { useTranslation } from 'react-i18next'
 import { useRequestableApplicationGet } from '~/shared/api/generated/operations/requestable-software/requestable-application-get'
 import type { WorkspaceChoice } from '~/shared/ui/workspace-choice-select'
 import { EmployeeQueryState } from '../../shared/components/employee-api-ui'
-import { EmployeeCatalogApplication } from './employee-catalog-application'
+import { EmployeeCatalogApplication, type CatalogKindFilter } from './employee-catalog-application'
+import { EmployeeSegmented } from '../../shared/components/employee-layout'
+import { EmployeeSelect } from '../../shared/components/employee-select'
+import { CATALOG_KIND } from '../enums/catalog-kind'
 import { EmployeeCatalogPlans, type CatalogPlan } from './employee-catalog-plans'
 import { isCatalogSensitivity } from '../enums/catalog-sensitivity'
 import { EmployeeDepartmentApplication } from './employee-department-application'
@@ -29,6 +32,7 @@ export function EmployeeCatalogPicker({
   const { t: translate } = useTranslation('employee')
   const { t: flow } = useTranslation('requestFlow')
   const [scope, setScope] = useState<'department' | 'all'>(initialPlanId ? 'all' : 'department')
+  const [kind, setKind] = useState<CatalogKindFilter>('')
   const [chosenApplication, setApplication] = useState<WorkspaceChoice | null>(null)
   const [departmentEntry, setDepartmentEntry] = useState<MyDepartmentSoftwareListResponseDtoDataItemsItem | null>(null)
   const application =
@@ -36,20 +40,36 @@ export function EmployeeCatalogPicker({
   const query = useRequestableApplicationGet(application?.value ?? '', { query: { enabled: !!application } })
   const details = !query.isError ? query.data?.data : null
   return (
-    <section aria-label={translate('catalog.selection')} className='space-y-4 border-b border-border/60 pb-5'>
-      <div className='flex flex-wrap items-center gap-2' role='group' aria-label={flow('departmentSoftware.scope')}>
-        {(['department', 'all'] as const).map((option) => (
-          <button
-            key={option}
-            type='button'
-            disabled={disabled}
-            aria-pressed={scope === option}
-            onClick={() => setScope(option)}
-            className='min-h-11 rounded-md px-3 text-sm font-medium transition-colors hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-primary aria-pressed:bg-primary-soft aria-pressed:text-primary-ink disabled:opacity-50'
-          >
-            {flow(`departmentSoftware.${option}`)}
-          </button>
-        ))}
+    <section aria-label={translate('catalog.selection')} className='space-y-4'>
+      <div className='flex flex-wrap items-center justify-between gap-3'>
+        <EmployeeSegmented
+          label={flow('departmentSoftware.scope')}
+          value={scope}
+          disabled={disabled}
+          options={(['department', 'all'] as const).map((option) => ({
+            value: option,
+            label: flow(`departmentSoftware.${option}`)
+          }))}
+          onChange={setScope}
+        />
+        {scope === 'all' && (
+          <div className='w-full sm:w-72'>
+            <EmployeeSelect
+              aria-label={translate('catalog.kind')}
+              value={kind}
+              placeholder={translate('ui.placeholders.kind')}
+              disabled={disabled}
+              options={[
+                { value: '', label: translate('catalog.allKinds') },
+                ...Object.values(CATALOG_KIND).map((option) => ({
+                  value: option,
+                  label: translate(`catalog.kinds.${option}`)
+                }))
+              ]}
+              onChange={(value) => setKind(Object.values(CATALOG_KIND).find((option) => option === value) ?? '')}
+            />
+          </div>
+        )}
       </div>
       {scope === 'department' && (
         <p className='max-w-prose text-sm text-muted-foreground'>{flow('departmentSoftware.hint')}</p>
@@ -71,6 +91,7 @@ export function EmployeeCatalogPicker({
           <EmployeeCatalogApplication
             value={application}
             disabled={disabled}
+            kind={kind}
             onChange={(choice) => {
               if (choice.value === application?.value) return
               setDepartmentEntry(null)
@@ -95,7 +116,7 @@ export function EmployeeCatalogPicker({
         <>
           <EmployeeQueryState query={query} empty={!details} emptyTitle={translate('catalog.noDetails')} />
           {details && (
-            <dl className='grid gap-4 rounded-md bg-surface-subtle/70 p-4 text-sm sm:grid-cols-3'>
+            <dl className='soft-panel grid gap-4 p-4 text-sm sm:grid-cols-3'>
               <div>
                 <dt className='text-xs text-muted-foreground'>{translate('catalog.vendor')}</dt>
                 <dd className='mt-1 truncate font-medium' title={details.vendorName ?? undefined}>

@@ -9,7 +9,6 @@ import { useSubscriptionCreate } from '~/shared/api/generated/operations/subscri
 import { getSubscriptionListQueryKey } from '~/shared/api/generated/operations/subscriptions/subscription-list'
 import { ItField, ItFormDialog, itInputClass } from '../../shared/components/it-form'
 import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
-import { uuidPattern } from './catalog-application-form'
 import { ItDirectoryLookup } from '../../shared/components/it-directory-lookup'
 import { usePlanGet } from '~/shared/api/generated/operations/plans/plan-get'
 import { CatalogPlanRules, readPlanRules } from './catalog-plan-rules'
@@ -32,6 +31,7 @@ export function CatalogPurchaseForm({
   onSubscriptionCreated?: (id: string) => void
 }) {
   const { t: translate } = useTranslation('itCatalog')
+  const { t: translatePlaceholder } = useTranslation('itPlaceholders')
   const [selectedType, setSelectedType] = useState('')
   const [selectedSubscriptionKind, setSelectedSubscriptionKind] = useState('')
   const [departmentId, setDepartmentId] = useState('')
@@ -161,18 +161,14 @@ export function CatalogPurchaseForm({
       ) : (
         <>
           {!sharedPool && (
-            <ItField label={translate('department')} hint={translate('help.department')}>
-              <input
-                placeholder={translate('placeholders.departmentId')}
-                name='department'
-                pattern={uuidPattern}
-                value={departmentId}
-                onChange={(event) => setDepartmentId(event.target.value)}
-                className={itInputClass}
-              />
-            </ItField>
+            <ItDirectoryLookup
+              mode='department'
+              label={translate('department')}
+              hint={translate('help.department')}
+              value={departmentId}
+              onSelect={setDepartmentId}
+            />
           )}
-          {!sharedPool && <ItDirectoryLookup mode='department' onSelect={setDepartmentId} />}
           <fieldset>
             <legend>
               {translate('subscriptionKind')}{' '}
@@ -209,7 +205,14 @@ export function CatalogPurchaseForm({
           </ItField>
           <div className='grid gap-4 sm:grid-cols-2 [&>.it-form-field]:row-span-3 [&>.it-form-field]:grid-rows-subgrid'>
             <ItField label={translate('unitAmount')} hint={translate('help.unitAmount')}>
-              <input name='amount' inputMode='numeric' pattern='[0-9]{1,16}' maxLength={16} className={itInputClass} />
+              <input
+                placeholder={translatePlaceholder('amountVnd')}
+                name='amount'
+                inputMode='numeric'
+                pattern='[0-9]{1,16}'
+                maxLength={16}
+                className={itInputClass}
+              />
             </ItField>
             <ItField label={translate('startDate')}>
               <input name='startDate' type='date' className={itInputClass} />

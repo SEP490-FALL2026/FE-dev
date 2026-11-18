@@ -276,5 +276,20 @@ export const approvalsSpend = {
     NOT_CHECKABLE: 'Budget cannot be checked',
     RECHECKED_RETURNED_TO_HEAD: 'Returned to the department head after recheck',
     RECHECKED_RETURNED_TO_REQUESTER: 'Returned to the requester after recheck'
+  },
+  layout: {
+    queueDescription: 'Items waiting for your spend decision, by request or by the batch a department head sent.',
+    requestsTitle: 'Requests waiting for a spend decision',
+    batchesTitle: 'Batches sent by department heads',
+    batchesDescription: 'Open a batch to see every request in it and decide for the whole batch.',
+    queueEmpty: 'No request is waiting for your spend decision',
+    queueEmptyHint:
+      'New requests appear here when a department head sends a batch or a one-step request reaches the spend step.',
+    noMatch: 'No request matches the filter',
+    noMatchHint: 'The filter only looks at the current page. Clear it or move to another page to see more.',
+    filtersTitle: 'Filters',
+    monitorListTitle: 'Requests',
+    notReadableHint:
+      'This request has not reached the spend step or you cannot read it. Go back to the list to pick another one.'
   }
 }

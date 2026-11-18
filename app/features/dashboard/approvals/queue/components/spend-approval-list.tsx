@@ -63,10 +63,11 @@ export function SpendApprovalList({ onOpen }: { onOpen: (requestId: string, batc
           onChange={setSearch}
         />
       </ApprovalsToolbar>
-      <p className='text-xs text-muted-foreground'>{translate('pageScope')}</p>
       <ApprovalsQueryState query={query}>
         <ApprovalsTable
           items={filtered}
+          emptyMessage={translate(term ? 'layout.noMatch' : 'layout.queueEmpty')}
+          emptyDescription={translate(term ? 'layout.noMatchHint' : 'layout.queueEmptyHint')}
           rowKey={(item) => item.stepId}
           onOpen={(item) => onOpen(item.requestId, item.batchId)}
           columns={[
@@ -76,7 +77,7 @@ export function SpendApprovalList({ onOpen }: { onOpen: (requestId: string, batc
               render: (item) => (
                 <div className='space-y-1'>
                   <PrimaryWithDetail
-                    primary={item.plan?.applicationName ?? item.softwareName ?? item.requestId}
+                    primary={item.plan?.applicationName ?? item.softwareName ?? translate('software')}
                     detail={item.plan?.planName}
                   />
                   <div className='flex flex-wrap gap-1'>

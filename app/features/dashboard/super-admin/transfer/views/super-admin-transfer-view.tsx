@@ -14,6 +14,8 @@ import { useDepartmentTransferCancel } from '~/shared/api/generated/operations/d
 import { AdminQueryState } from '../../shared/components/admin-query-state'
 import { AdminPagination } from '../../shared/components/admin-pagination'
 import { adminButtonClass } from '../../shared/components/admin-form'
+import { AdminSectionTitle } from '../../shared/components/admin-page-header'
+import { ArrowLeft } from 'lucide-react'
 import { usePersonnelMutationFeedback } from '../../shared/hooks/use-personnel-mutation-feedback'
 import { PersonnelForm, readSuccessor, successorFields, value } from '../../shared/components/personnel-form'
 import { PersonnelCard, PersonnelCode, PersonnelList } from '../../shared/components/personnel-list'
@@ -59,13 +61,11 @@ export function SuperAdminTransferView({ employeeId, onClose }: { employeeId: st
         />
       ) : (
         <>
-          <header className='flex flex-wrap items-center justify-between gap-3'>
-            <h1 className='text-2xl font-semibold'>{translate('transferHistory')}</h1>
-            <button type='button' className={adminButtonClass} onClick={onClose}>
-              {translate('backToProfile')}
-            </button>
-          </header>
-          <p className='text-sm text-muted-foreground'>{translate('eventHelp')}</p>
+          <button type='button' className={adminButtonClass} onClick={onClose}>
+            <ArrowLeft aria-hidden strokeWidth={1.5} className='size-4' />
+            {translate('backToProfile')}
+          </button>
+          <AdminSectionTitle title={translate('transferHistory')} hint={translate('eventHelp')} />
           <AdminQueryState query={query}>
             <PersonnelList empty={!data?.items.length}>
               {data?.items.map((item) => (

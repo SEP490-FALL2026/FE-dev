@@ -1,15 +1,18 @@
-import { ArrowRight, Landmark, LayoutDashboard, UsersRound } from 'lucide-react'
+import { Building2, Hash, LayoutDashboard, UsersRound, Wallet } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { useId } from 'react'
 import { useDepartmentGet } from '~/shared/api/generated/operations/departments/department-get'
 import type { ManagerTabKey } from '../../enums'
-import { ManagerQueryState, ManagerSection, ManagerStatus } from '../../shared/components/manager-api-ui'
 import { ManagerPageHeader } from '../../shared/components/manager-page-header'
 import { ManagerOverviewBudget } from '../components/manager-overview-budget'
 import { ManagerOverviewWork } from '../components/manager-overview-work'
 import { ManagerDashboardSummary } from '../components/manager-dashboard-summary'
 
 type SelectTab = (tab: ManagerTabKey, params?: Record<string, string>) => void
+
+/*
+ * The header already greets the manager by name, so the hero band carries the department facts instead. Navigation
+ * shortcuts that only repeated sidebar entries (annual budget, department personnel) were removed.
+ */
 export function ManagerLiveOverview({
   departmentId,
   name,
@@ -20,95 +23,83 @@ export function ManagerLiveOverview({
   onSelectTab: SelectTab
 }) {
   const { t: translate } = useTranslation('manager')
-  const actionId = useId()
   return (
     <div className='space-y-6'>
       <ManagerPageHeader title={translate('overview')} icon={LayoutDashboard} />
-      <section className='manager-overview-hero rounded-lg px-5 py-6 sm:px-7 sm:py-7'>
-        <div className='min-w-0'>
-          <h2 className='text-xl font-semibold tracking-tight [text-wrap:balance] sm:text-2xl'>
-            {translate('greeting', { name })}
-          </h2>
-          <p className='mt-3 max-w-xl text-sm leading-relaxed opacity-75'>{translate('overviewHint')}</p>
-        </div>
+      <section className='manager-overview-hero rounded-xl px-5 py-6 sm:px-7 sm:py-7'>
+        {departmentId ? <DepartmentHero id={departmentId} /> : <HeroTitle title={name} />}
       </section>
       <ManagerDashboardSummary onSelectTab={onSelectTab} />
       <ManagerOverviewBudget />
       <ManagerOverviewWork onSelectTab={onSelectTab} />
-      <div className='grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(280px,0.8fr)]'>
-        <ManagerSection title={translate('quickActions')}>
-          <div className='divide-y divide-border/50'>
-            {(
-              [
-                { key: 'budget', title: 'quickBudget', hint: 'quickBudgetHint', icon: Landmark, tab: 'annual-budget' },
-                { key: 'team', title: 'quickPersonnel', hint: 'quickPersonnelHint', icon: UsersRound, tab: 'my-team' }
-              ] as const
-            ).map((item) => (
-              <button
-                key={item.key}
-                type='button'
-                aria-label={translate(item.title)}
-                aria-describedby={`${actionId}-${item.key}`}
-                className='group flex w-full items-start gap-3 rounded-md px-2 py-4 text-left transition-colors hover:bg-surface-subtle'
-                onClick={() => onSelectTab(item.tab)}
-              >
-                <item.icon aria-hidden strokeWidth={1.5} className='mt-0.5 size-5 shrink-0 text-primary-ink' />
-                <span className='min-w-0 flex-1'>
-                  <span className='block text-sm font-medium'>{translate(item.title)}</span>
-                  <span
-                    id={`${actionId}-${item.key}`}
-                    className='mt-1.5 block text-sm leading-relaxed text-muted-foreground'
-                  >
-                    {translate(item.hint)}
-                  </span>
-                </span>
-                <ArrowRight
-                  aria-hidden
-                  strokeWidth={1.5}
-                  className='mt-0.5 size-4 shrink-0 text-muted-foreground group-hover:text-primary-ink'
-                />
-              </button>
-            ))}
-          </div>
-        </ManagerSection>
-        <div className='space-y-4'>{departmentId && <DepartmentOverview id={departmentId} />}</div>
-      </div>
     </div>
   )
 }
-function DepartmentOverview({ id }: { id: string }) {
+
+function HeroTitle({ title, kicker }: { title: string; kicker?: string }) {
+  const { t: translate } = useTranslation('manager')
+  return (
+    <div className='min-w-0 max-w-2xl'>
+      {kicker && (
+        <p className='mb-2 flex items-center gap-2 text-xs font-medium tracking-widest uppercase opacity-75'>
+          <Building2 aria-hidden strokeWidth={1.5} className='size-4' />
+          {kicker}
+        </p>
+      )}
+      <h2 className='text-xl font-semibold tracking-tight [overflow-wrap:anywhere] text-balance sm:text-2xl'>
+        {title}
+      </h2>
+      <p className='mt-3 text-sm leading-relaxed text-pretty opacity-75'>{translate('overviewHint')}</p>
+    </div>
+  )
+}
+
+function DepartmentHero({ id }: { id: string }) {
   const { t: translate } = useTranslation('manager')
   const query = useDepartmentGet(id)
-  const department = !query.isError ? query.data?.data : null
+  const department = query.isError ? null : query.data?.data
+  const facts = department
+    ? [
+        { key: 'members', icon: UsersRound, label: translate('team'), value: String(department.memberCount) },
+        { key: 'code', icon: Hash, label: translate('code'), value: department.code },
+        {
+          key: 'costCenter',
+          icon: Wallet,
+          label: translate('costCenter'),
+          value: department.costCenter?.name ?? translate('notReported')
+        }
+      ]
+    : []
   return (
-    <ManagerSection title={translate('departmentSummary')}>
-      <ManagerQueryState query={query} empty={!department} />
-      {department && (
-        <>
-          <div className='flex flex-wrap items-center justify-between gap-3'>
-            <h2 className='min-w-0 truncate font-semibold' title={department.name}>
-              {department.name}
-            </h2>
-            <ManagerStatus value={department.status} />
-          </div>
-          <dl className='divide-y divide-border/50 text-sm'>
-            <div className='flex items-center justify-between gap-4 py-3'>
-              <dt className='text-muted-foreground'>{translate('team')}</dt>
-              <dd className='text-right font-mono text-xl font-semibold tabular-nums'>{department.memberCount}</dd>
-            </div>
-            <div className='flex items-center justify-between gap-4 py-3'>
-              <dt className='text-muted-foreground'>{translate('code')}</dt>
-              <dd className='text-right font-mono'>{department.code}</dd>
-            </div>
-            <div className='flex items-start justify-between gap-4 pt-3'>
-              <dt className='text-muted-foreground'>{translate('costCenter')}</dt>
-              <dd className='min-w-0 max-w-48 truncate text-right' title={department.costCenter?.name}>
-                {department.costCenter?.name ?? translate('notReported')}
-              </dd>
-            </div>
-          </dl>
-        </>
+    <div className='flex flex-wrap items-end justify-between gap-5'>
+      {query.isPending ? (
+        <div role='status' aria-label={translate('departmentSummary')} className='w-full max-w-md space-y-3'>
+          <span className='block h-7 w-2/3 animate-pulse rounded-md bg-white/20' />
+          <span className='block h-4 w-full animate-pulse rounded-md bg-white/15' />
+        </div>
+      ) : (
+        <HeroTitle kicker={translate('departmentSummary')} title={department?.name ?? translate('notReported')} />
       )}
-    </ManagerSection>
+      {facts.length > 0 && (
+        <dl className='grid w-full grid-cols-1 gap-2.5 sm:w-auto sm:grid-cols-3'>
+          {facts.map(({ key, icon: Icon, label, value }) => (
+            <div key={key} className='hero-stat flex min-w-0 items-center gap-3 rounded-lg px-3.5 py-2.5 sm:min-w-36'>
+              <span className='grid size-9 shrink-0 place-items-center rounded-md bg-white/15'>
+                <Icon aria-hidden strokeWidth={1.5} className='size-4.5' />
+              </span>
+              <div className='min-w-0'>
+                <dt className='text-xs opacity-80'>{label}</dt>
+                <dd
+                  className='max-w-40 truncate font-mono text-base leading-tight font-semibold tabular-nums'
+                  title={value}
+                >
+                  {value}
+                </dd>
+              </div>
+            </div>
+          ))}
+        </dl>
+      )}
+    </div>
   )
 }

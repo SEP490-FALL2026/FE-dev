@@ -84,6 +84,45 @@ export const dashboard = {
     closeMenu: 'Close menu',
     openMenu: 'Open menu'
   },
+  shell: {
+    greetingAfternoon: 'Good afternoon',
+    greetingEvening: 'Good evening',
+    greetingMorning: 'Good morning',
+    greetingNamed: '{{greeting}}, {{name}}',
+    menu: 'Main menu',
+    mascot: {
+      label: 'Sentry, the license-keeping bird. Press for a tip',
+      hello: 'I am Sentry, the little bird keeping an eye on your software licenses.',
+      goodbye: 'Have a smooth working day.',
+      tips: {
+        employee: {
+          first: 'Need new software? Open Create request to send a proposal.',
+          second: 'End dates for each tool are listed under Usage rights.'
+        },
+        manager: {
+          first: 'Employee needs waiting for you are under Review needs.',
+          second: 'Reviewing unused seats helps your department cut costs.'
+        },
+        'it-admin': {
+          first: 'Pending grant and revoke work is under Provisioning tasks.',
+          second: 'Import usage data regularly to spot idle seats.'
+        },
+        finance: {
+          first: 'Check commitments and purchase invoices before the budget review.',
+          second: 'Resolve invoice discrepancies early so figures stay aligned.'
+        },
+        'spending-approver': {
+          first: 'Spending that needs your decision is in the approval queue.',
+          second: 'Department annual budget proposals are under Annual budget review.'
+        },
+        'super-admin': {
+          first: 'Check Departments and Personnel before inviting new accounts.',
+          second: 'Process monitoring shows which step is blocked.'
+        }
+      }
+    },
+    workspace: 'Role'
+  },
   navigation: {
     alerts: 'Alerts',
     costs: 'Costs',
@@ -688,6 +727,7 @@ export const dashboard = {
       back: 'Back',
       step1: 'Renewal Details',
       fieldSoftware: 'Software License',
+      fieldSoftwarePlaceholder: 'Select the license to renew, type to search',
       fieldDuration: 'Extension Duration',
       duration1Month: '1 Month',
       duration3Months: '3 Months',
@@ -1085,6 +1125,9 @@ export const dashboard = {
       costPerSeatLabel: 'Cost per license/month',
       backToTeam: 'Back to team members',
       subtitle: 'Proactively request software for team members for project needs',
+      placeholderPlan: 'Example: Business plan for the design team',
+      placeholderEmployee: 'Pick an employee, type to search',
+      placeholderSoftware: 'Pick a software product, type to search',
       labelEmployee: 'Select Employee',
       deptLabel: 'Department',
       costCenterLabel: 'Cost Center',

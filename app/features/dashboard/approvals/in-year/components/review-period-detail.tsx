@@ -1,10 +1,11 @@
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, ClipboardList } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useBudgetReviewPeriodGet } from '~/shared/api/generated/operations/budget-review-periods/budget-review-period-get'
 import { useDashboardFormat } from '../../../dashboard-ui'
 import {
   ApprovalsButton,
+  ApprovalsEmpty,
   ApprovalsPage,
   ApprovalsPagination,
   ApprovalsSection,
@@ -40,6 +41,8 @@ export function ReviewPeriodDetail({ itemId, onSelectTab }: ApprovalBudgetViewPr
 
   return (
     <ApprovalsPage
+      icon={ClipboardList}
+      eyebrow={translate('inYear.periods')}
       title={
         period
           ? translate('inYear.periodTitle', { month: period.month, year: period.year })
@@ -109,15 +112,13 @@ export function ReviewPeriodDetail({ itemId, onSelectTab }: ApprovalBudgetViewPr
           </ApprovalsSection>
         )}
 
-        <ApprovalsSection title={translate('inYear.linesTitle')}>
-          <p role='note' className='text-sm text-muted-foreground'>
-            {translate('inYear.linesNote')}
-          </p>
+        <ApprovalsSection title={translate('inYear.linesTitle')} description={translate('inYear.linesNote')}>
           {hasLateChanges && (
             <p role='status' className='text-sm text-warning-ink'>
               {translate('inYear.changedAfterSnapshotNote')}
             </p>
           )}
+          {lines.length === 0 && <ApprovalsEmpty message={translate('layout.linesEmpty')} />}
           <ul className='space-y-4'>
             {lines.map((line) => (
               <ReviewLineCard key={line.id} line={line} />

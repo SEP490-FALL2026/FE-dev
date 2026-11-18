@@ -10,9 +10,9 @@ import {
   ManagerMoney,
   ManagerPagination,
   ManagerQueryState,
-  ManagerSection,
-  managerInputClass
+  ManagerSection
 } from '../../shared/components/manager-api-ui'
+import { ManagerSelect } from '../../shared/components/manager-select'
 import { useManagerPage } from '../../shared/hooks/use-manager-page'
 
 export function ManagerSeatMonthCharges({ year, costCenterId }: { year: number; costCenterId: string }) {
@@ -30,27 +30,26 @@ export function ManagerSeatMonthCharges({ year, costCenterId }: { year: number; 
   const selected = items.find((item) => item.id === selectedId)
   return (
     <ManagerSection title={t('budgetWorkspace.views.charges')} description={t('budgetWorkspace.chargeHint')}>
-      <div className='max-w-48'>
+      <div className='soft-panel max-w-sm px-4 pt-3'>
         <ManagerField label={t('budgetWorkspace.month')}>
-          <select
-            className={managerInputClass}
-            value={month}
-            onChange={(event) => {
+          <ManagerSelect
+            value={String(month)}
+            placeholder={t('ui.placeholders.month')}
+            options={Array.from({ length: 12 }, (_, index) => index + 1).map((value) => ({
+              value: String(value),
+              label: t('budgetWorkspace.monthYear', { month: formatNumber(value), year })
+            }))}
+            onChange={(value) => {
+              if (!value) return
               setSelectedId(null)
               setParams((previous) => {
                 const next = new URLSearchParams(previous)
-                next.set('month', event.target.value)
+                next.set('month', value)
                 next.delete('chargePage')
                 return next
               })
             }}
-          >
-            {Array.from({ length: 12 }, (_, index) => index + 1).map((value) => (
-              <option key={value} value={value}>
-                {formatNumber(value)}
-              </option>
-            ))}
-          </select>
+          />
         </ManagerField>
       </div>
       <ManagerQueryState query={query} empty={!items.length} />
@@ -105,10 +104,6 @@ export function ManagerSeatMonthCharges({ year, costCenterId }: { year: number; 
             <div>
               <dt className='text-muted-foreground'>{t('costCenter')}</dt>
               <dd className='mt-1 break-words'>{selected.costCenter?.name}</dd>
-            </div>
-            <div>
-              <dt className='text-muted-foreground'>{t('budgetWorkspace.subscriptionId')}</dt>
-              <dd className='mt-1 break-all text-right font-mono tabular-nums'>{selected.subscriptionId}</dd>
             </div>
             <div>
               <dt className='text-muted-foreground'>{t('budgetWorkspace.month')}</dt>

@@ -2,9 +2,12 @@ import { ArrowRight, FileText } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAccessRequestDraftList } from '~/shared/api/generated/operations/access-requests/access-request-draft-list'
 import { useDashboardFormat } from '../../../dashboard-ui'
-import { EmployeeQueryState } from '../../shared/components/employee-api-ui'
 import type { EmployeeTabKey } from '../../enums'
 
+/**
+ * Saved-draft total, shown as a compact link inside the overview hero. The total comes from the draft list
+ * pagination of the BE; it is kept apart from the four dashboard metrics as before, but no longer as an orphan card.
+ */
 export function EmployeeOverviewWork({
   selfServiceOnly,
   onSelectTab
@@ -16,47 +19,36 @@ export function EmployeeOverviewWork({
   const { formatNumber } = useDashboardFormat()
   const drafts = useAccessRequestDraftList({ page: 1, pageSize: 1 }, { query: { enabled: !selfServiceOnly } })
   if (selfServiceOnly) return null
-  const cards = [{ key: 'drafts', label: 'savedDrafts', query: drafts, icon: FileText, tab: 'my-requests' }] as const
+  const total = drafts.data?.data?.pagination.totalItems
   return (
-    <div className='space-y-5'>
-      <section className='grid gap-4 sm:grid-cols-2' aria-label={translate('redesign.tasks')}>
-        {cards.map(({ key, label, query, icon: Icon, tab }) => (
-          <article
-            key={key}
-            aria-label={translate(`redesign.${label}`)}
-            className='min-w-0 rounded-lg border border-border/60 bg-surface p-4 shadow-sm sm:p-5'
-          >
-            <div className='flex items-start justify-between gap-3'>
-              <p className='text-sm text-muted-foreground'>{translate(`redesign.${label}`)}</p>
-              <Icon aria-hidden strokeWidth={1.5} className='size-5 shrink-0 text-primary-ink' />
-            </div>
-            <div className='mt-5 flex min-h-9 justify-end'>
-              {query.isPending ? (
-                <span
-                  role='status'
-                  aria-label={translate('loading')}
-                  className='h-9 w-20 animate-pulse rounded-md bg-surface-subtle'
-                />
-              ) : query.isError || !query.data?.data ? (
-                <p className='self-center text-sm text-muted-foreground'>{translate('noValue')}</p>
-              ) : (
-                <p className='font-mono text-3xl font-semibold tracking-tight tabular-nums'>
-                  {formatNumber(query.data.data.pagination.totalItems)}
-                </p>
-              )}
-            </div>
-            {!query.isPending && <EmployeeQueryState query={query} />}
-            <button
-              type='button'
-              className='mt-3 flex min-h-11 w-full items-center justify-between border-t border-border/50 pt-3 text-sm text-primary-ink hover:underline'
-              onClick={() => onSelectTab(tab)}
-            >
-              {translate('open')}
-              <ArrowRight aria-hidden strokeWidth={1.5} className='size-4' />
-            </button>
-          </article>
-        ))}
-      </section>
-    </div>
+    <button
+      type='button'
+      aria-label={translate('redesign.savedDrafts')}
+      className='hero-stat group flex min-h-11 min-w-44 items-center gap-3 rounded-lg px-3.5 py-2.5 text-left transition-colors'
+      onClick={() => onSelectTab('my-requests')}
+    >
+      <span className='grid size-9 shrink-0 place-items-center rounded-md bg-white/15'>
+        <FileText aria-hidden strokeWidth={1.5} className='size-4.5' />
+      </span>
+      <span className='min-w-0 flex-1'>
+        <span className='block text-xs opacity-80'>{translate('redesign.savedDrafts')}</span>
+        {drafts.isPending ? (
+          <span
+            role='status'
+            aria-label={translate('loading')}
+            className='mt-1 block h-5 w-10 animate-pulse rounded bg-white/25'
+          />
+        ) : (
+          <span className='block font-mono text-lg leading-tight font-semibold'>
+            {total === undefined ? translate('noValue') : formatNumber(total)}
+          </span>
+        )}
+      </span>
+      <ArrowRight
+        aria-hidden
+        strokeWidth={1.5}
+        className='size-4 shrink-0 opacity-70 transition-transform group-hover:translate-x-0.5'
+      />
+    </button>
   )
 }

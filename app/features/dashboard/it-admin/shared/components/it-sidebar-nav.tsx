@@ -28,7 +28,7 @@ export function ItSidebarNav({
               <button
                 type='button'
                 aria-current={activeTab === directTab ? 'page' : undefined}
-                className={`flex min-h-11 w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-medium transition-colors ${activeTab === directTab ? 'bg-primary-soft text-primary' : 'text-muted-foreground hover:bg-surface'}`}
+                className={`flex min-h-11 w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm font-medium transition-colors ${activeTab === directTab ? 'bg-primary-soft text-primary' : 'text-muted-foreground hover:bg-surface-subtle hover:text-foreground'}`}
                 onClick={() => onSelectTab(directTab)}
               >
                 <Icon aria-hidden strokeWidth={1.5} className='size-4 shrink-0' />
@@ -43,7 +43,7 @@ export function ItSidebarNav({
               type='button'
               aria-expanded={expanded}
               onClick={() => toggleSection(item.key)}
-              className={`flex min-h-11 w-full items-center justify-between gap-3 rounded-md px-3 py-2 text-left text-sm font-medium transition-colors ${activeParent === item.key ? 'bg-primary-soft/50 text-primary' : 'text-muted-foreground hover:bg-surface'}`}
+              className={`flex min-h-11 w-full items-center justify-between gap-3 rounded-md px-3 py-2 text-left text-sm font-medium transition-colors ${activeParent === item.key ? 'bg-primary-soft/50 text-primary' : 'text-muted-foreground hover:bg-surface-subtle hover:text-foreground'}`}
             >
               <span className='flex min-w-0 items-center gap-3'>
                 <Icon aria-hidden strokeWidth={1.5} className='size-4 shrink-0' />
@@ -67,7 +67,7 @@ export function ItSidebarNav({
                         type='button'
                         aria-current={activeTab === child.key ? 'page' : undefined}
                         onClick={() => onSelectTab(child.key)}
-                        className={`flex min-h-11 w-full items-center gap-2 rounded-md px-3 py-2 text-left text-xs font-medium transition-colors ${activeTab === child.key ? 'bg-primary-soft text-primary' : 'text-muted-foreground hover:bg-surface'}`}
+                        className={`flex min-h-11 w-full items-center gap-2 rounded-md px-3 py-2 text-left text-xs font-medium transition-colors ${activeTab === child.key ? 'bg-primary-soft text-primary' : 'text-muted-foreground hover:bg-surface-subtle hover:text-foreground'}`}
                       >
                         <ChildIcon aria-hidden strokeWidth={1.5} className='size-4 shrink-0' />
                         <span className='truncate' title={translate(`navigation.${child.translationKey}`)}>

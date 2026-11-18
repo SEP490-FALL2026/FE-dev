@@ -1,38 +1,69 @@
-import { useState } from 'react'
+import { useId, useState, type KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useStepCongestionList } from '~/shared/api/generated/operations/step-congestion/step-congestion-list'
 import { getStepCongestionIncidentListQueryKey } from '~/shared/api/generated/operations/step-congestion/step-congestion-incident-list'
 import { useStepCongestionIncidentRecord } from '~/shared/api/generated/operations/step-congestion/step-congestion-incident-record'
-import { AdminEmpty, AdminQueryState } from '../../shared/components/admin-query-state'
+import { AdminQueryState } from '../../shared/components/admin-query-state'
+import { AdminPageHeader, AdminSectionTitle } from '../../shared/components/admin-page-header'
+import { WorkspaceEmptyState } from '~/shared/ui/workspace-empty-state'
+import { Activity, CircleCheck } from 'lucide-react'
 import { AdminPagination } from '../../shared/components/admin-pagination'
 import { AdminField, AdminFormDialog, adminButtonClass, adminInputClass } from '../../shared/components/admin-form'
 import { useAdminMutationFeedback } from '../../shared/hooks/use-admin-mutation-feedback'
 import { useDashboardFormat } from '../../../dashboard-ui'
 import { CongestionDetails } from '../components/congestion-details'
-import { OperationsReports, type OperationsReport } from '../components/operations-reports'
+import { OperationsReports } from '../components/operations-reports'
+
+const MONITORING_VIEWS = ['workflow', 'sla', 'auditFlags', 'deadlines'] as const
+type MonitoringView = (typeof MONITORING_VIEWS)[number]
 
 export function SuperAdminOperationsView() {
   const { t: translate } = useTranslation('admin')
-  const [report, setReport] = useState<'workflow' | OperationsReport>('workflow')
+  const [report, setReport] = useState<MonitoringView>('workflow')
+  const panelId = useId()
+  const moveFocus = (event: KeyboardEvent<HTMLDivElement>) => {
+    const step = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0
+    if (!step) return
+    event.preventDefault()
+    const next =
+      MONITORING_VIEWS[(MONITORING_VIEWS.indexOf(report) + step + MONITORING_VIEWS.length) % MONITORING_VIEWS.length]
+    setReport(next)
+    event.currentTarget.querySelector<HTMLButtonElement>(`[data-view='${next}']`)?.focus()
+  }
   return (
-    <div className='space-y-5'>
-      <AdminField label={translate('oversight.choose')}>
-        <select
-          className={adminInputClass}
-          value={report}
-          onChange={(event) => {
-            const next = event.target.value
-            if (next === 'workflow' || next === 'sla' || next === 'auditFlags' || next === 'deadlines') setReport(next)
-          }}
+    <div className='space-y-6'>
+      <AdminPageHeader
+        icon={Activity}
+        eyebrow={translate('ui.operationsEyebrow')}
+        title={translate('operations.title')}
+        subtitle={translate(`ui.operationsHint.${report}`)}
+      >
+        <div
+          aria-label={translate('oversight.choose')}
+          className='flex w-full gap-1 overflow-x-auto rounded-lg border border-border/70 bg-surface/80 p-1 sm:w-fit'
+          onKeyDown={moveFocus}
+          role='tablist'
         >
-          {(['workflow', 'sla', 'auditFlags', 'deadlines'] as const).map((value) => (
-            <option key={value} value={value}>
+          {MONITORING_VIEWS.map((value) => (
+            <button
+              aria-controls={panelId}
+              aria-selected={report === value}
+              className='min-h-10 shrink-0 rounded-md px-4 text-sm font-medium whitespace-nowrap text-muted-foreground transition-colors duration-150 hover:bg-surface-subtle hover:text-foreground aria-selected:bg-primary-soft aria-selected:text-primary-ink'
+              data-view={value}
+              key={value}
+              onClick={() => setReport(value)}
+              role='tab'
+              tabIndex={report === value ? 0 : -1}
+              type='button'
+            >
               {translate(`oversight.${value}`)}
-            </option>
+            </button>
           ))}
-        </select>
-      </AdminField>
-      {report === 'workflow' ? <WorkflowMonitoring /> : <OperationsReports key={report} report={report} />}
+        </div>
+      </AdminPageHeader>
+      <div id={panelId} role='tabpanel'>
+        {report === 'workflow' ? <WorkflowMonitoring /> : <OperationsReports key={report} report={report} />}
+      </div>
     </div>
   )
 }
@@ -50,11 +81,16 @@ function WorkflowMonitoring() {
     return <CongestionDetails holderEmployeeId={selectedHolder} onClose={() => setSelectedHolder(undefined)} />
   return (
     <div className='space-y-6'>
-      <h1 className='text-2xl font-semibold tracking-tight [text-wrap:balance]'>{translate('operations.title')}</h1>
-      <section className='space-y-4 rounded-lg border border-border bg-surface p-5'>
-        <h2 className='font-semibold'>{translate('operations.congestion')}</h2>
+      <section className='space-y-4 rounded-xl border border-border/80 bg-surface p-5 shadow-[0_1px_2px_rgb(0_0_0/4%),0_12px_28px_-24px_rgb(35_39_65/40%)] sm:p-6'>
+        <AdminSectionTitle title={translate('operations.congestion')} hint={translate('ui.congestionHint')} />
         <AdminQueryState query={congestion}>
-          {!congestion.data?.data?.items.length && <AdminEmpty />}
+          {!congestion.data?.data?.items.length && (
+            <WorkspaceEmptyState
+              icon={CircleCheck}
+              title={translate('ui.noCongestionTitle')}
+              description={translate('ui.noCongestionHint')}
+            />
+          )}
           <ul className='divide-y divide-border/40'>
             {congestion.data?.data?.items.map((item) => (
               <li

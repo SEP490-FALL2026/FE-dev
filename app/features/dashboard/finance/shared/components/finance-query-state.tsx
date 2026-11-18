@@ -4,14 +4,19 @@ import { useTranslation } from 'react-i18next'
 import { getMeGetQueryOptions } from '~/shared/api/generated/operations/me/me-get'
 import { getFinanceError } from '../finance-errors'
 import { recordFinanceRetry, useFinanceRetry } from '../hooks/use-finance-retry'
-import { FinanceSkeleton } from './finance-skeleton'
+import { FinanceSkeleton, type FinanceSkeletonShape } from './finance-skeleton'
 
 export function FinanceQueryState({
   query,
-  children
+  children,
+  skeleton = 'table',
+  skeletonRows
 }: {
   query: { isPending: boolean; isError: boolean; isFetching?: boolean; error: unknown; refetch: () => unknown }
   children: ReactNode
+  /** Shape of the loading placeholder; match the content it stands in for. */
+  skeleton?: FinanceSkeletonShape
+  skeletonRows?: number
 }) {
   const { t: translate } = useTranslation('finance')
   const queryClient = useQueryClient()
@@ -23,11 +28,11 @@ export function FinanceQueryState({
       void queryClient.fetchQuery({ ...getMeGetQueryOptions(), staleTime: 0, retry: false }).catch(() => undefined)
     }
   }, [query.isError, query.error, queryClient])
-  if (query.isPending) return <FinanceSkeleton label={translate('loading')} />
+  if (query.isPending) return <FinanceSkeleton label={translate('loading')} shape={skeleton} rows={skeletonRows} />
   if (query.isError) {
     const failure = getFinanceError(query.error)
     return (
-      <div role='alert' className='space-y-3 rounded-lg border border-danger/25 bg-danger/5 p-6'>
+      <div role='alert' className='space-y-3 rounded-xl border border-danger/25 bg-danger/5 p-6'>
         <p className='text-sm'>{translate(`errors.${failure.key}`)}</p>
         {failure.requestId && (
           <p className='font-mono text-xs text-muted-foreground'>
@@ -48,9 +53,12 @@ export function FinanceQueryState({
     )
   }
   return (
-    <div aria-busy={query.isFetching || undefined} className='space-y-4'>
+    <div
+      aria-busy={query.isFetching || undefined}
+      className={`space-y-4 transition-opacity duration-150 ${query.isFetching ? 'opacity-70' : ''}`}
+    >
       {query.isFetching && (
-        <p role='status' className='text-xs text-muted-foreground'>
+        <p role='status' className='sr-only'>
           {translate('refreshing')}
         </p>
       )}

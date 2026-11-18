@@ -1,11 +1,13 @@
 import { employeeRequestExtras } from './employee-request-extras'
 import { employeeRequestAssignment } from './employee-request-assignment'
+import { employeeUi } from './employee-ui'
 export const employee = {
   policies: 'Chính sách',
   estimatedBudgetYear: 'Năm ngân sách tạm tính',
   extensionMonths: 'Số tháng gia hạn',
   requestAssignment: employeeRequestAssignment,
   requestExtras: employeeRequestExtras,
+  ui: employeeUi,
   workspace: 'Không gian nhân viên',
   dashboardSummary: {
     title: 'Tổng quan công việc của bạn',
@@ -240,7 +242,7 @@ export const employee = {
     emptyEnded: 'Chưa có quyền phần mềm đã kết thúc',
     emptyHint: 'Các quyền phần mềm được cấp cho tài khoản của bạn sẽ xuất hiện tại đây.',
     statuses: {
-      AWAITING_REQUESTER_REVISION: 'Ch? ng??i g?i ch?nh s?a',
+      AWAITING_REQUESTER_REVISION: 'Chờ người gửi chỉnh sửa',
       UPCOMING: 'Sắp có hiệu lực',
       PROVISIONING: 'Đang cấp phát',
       ACTIVE: 'Đang sử dụng',

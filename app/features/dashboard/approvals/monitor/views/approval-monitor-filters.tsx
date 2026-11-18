@@ -1,3 +1,5 @@
+import { SlidersHorizontal } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AccessRequestHistoryPageResponseDtoDataItemsItemState as RequestState } from '~/shared/api/generated/model/access-requests'
 import { AccessRequestListType } from '~/shared/api/generated/model/access-requests'
@@ -75,10 +77,13 @@ export function useDepartmentOptions() {
 
 export function ApprovalMonitorFilters({
   filters,
-  onChange
+  onChange,
+  leading
 }: {
   filters: MonitorFilters
   onChange: (next: MonitorFilters) => void
+  /** A control shown first in the panel, e.g. the open/ended view of the list. */
+  leading?: ReactNode
 }) {
   const { t: translate } = useTranslation('approvalsSpend')
   const departments = useDepartmentOptions()
@@ -86,8 +91,24 @@ export function ApprovalMonitorFilters({
     filters.stateGroup || filters.type || filters.from || filters.to || filters.departmentId || filters.flag
   )
   return (
-    <div className='space-y-4'>
-      <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+    <div className='soft-panel space-y-4 p-3 sm:p-4'>
+      <div className='flex min-h-8 flex-wrap items-center justify-between gap-3'>
+        <p className='flex items-center gap-2 text-sm font-semibold'>
+          <SlidersHorizontal aria-hidden className='size-4 text-primary-ink' strokeWidth={1.5} />
+          {translate('layout.filtersTitle')}
+        </p>
+        {active && (
+          <button
+            type='button'
+            className='min-h-8 cursor-pointer rounded-md px-2 text-sm font-medium text-primary-ink transition-colors hover:bg-primary-soft/60'
+            onClick={() => onChange(emptyMonitorFilters)}
+          >
+            {translate('monitor.clearFilters')}
+          </button>
+        )}
+      </div>
+      <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
+        {leading}
         <ApprovalsSelect
           label={translate('monitor.states')}
           value={filters.stateGroup}
@@ -143,15 +164,6 @@ export function ApprovalMonitorFilters({
           />
         </ApprovalsField>
       </div>
-      {active && (
-        <button
-          type='button'
-          className='cursor-pointer text-sm font-medium text-primary underline-offset-2 hover:underline'
-          onClick={() => onChange(emptyMonitorFilters)}
-        >
-          {translate('monitor.clearFilters')}
-        </button>
-      )}
     </div>
   )
 }

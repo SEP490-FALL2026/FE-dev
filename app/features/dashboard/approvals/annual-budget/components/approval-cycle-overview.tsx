@@ -1,4 +1,4 @@
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, CalendarRange } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useBudgetCycleBaseline } from '~/shared/api/generated/operations/budget-cycles/budget-cycle-baseline'
@@ -32,10 +32,7 @@ export function ApprovalCycleList({ onOpen }: { onOpen: (year: number) => void }
   const [page, setPage] = useState(1)
   const query = useBudgetCycleList({ page, pageSize: 20 })
   return (
-    <>
-      <p role='note' className='text-sm text-muted-foreground'>
-        {translate('cycles.note')}
-      </p>
+    <ApprovalsSection title={translate('cycles.tab')} description={translate('cycles.note')}>
       <ApprovalsQueryState query={query}>
         <ApprovalsTable
           items={query.data?.data?.items ?? []}
@@ -74,7 +71,7 @@ export function ApprovalCycleList({ onOpen }: { onOpen: (year: number) => void }
         />
         <ApprovalsPagination pagination={query.data?.data?.pagination} onPageChange={setPage} />
       </ApprovalsQueryState>
-    </>
+    </ApprovalsSection>
   )
 }
 
@@ -84,6 +81,8 @@ export function ApprovalCycleDetail({ itemId, onSelectTab }: ApprovalBudgetViewP
   const year = FOUR_DIGITS.test(raw) ? Number(raw) : undefined
   return (
     <ApprovalsPage
+      icon={CalendarRange}
+      eyebrow={translate('title')}
       title={translate('cycles.detailTitle', { year: raw })}
       actions={
         <ApprovalsButton variant='ghost' onClick={() => onSelectTab('annual-budget')}>

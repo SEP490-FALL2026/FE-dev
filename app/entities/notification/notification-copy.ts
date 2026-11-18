@@ -1,3 +1,5 @@
+const internalIdPattern = /^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i
+
 /** Compile the catalogue's optional clauses and parameter values without exposing missing placeholders. */
 export function notificationBodyTemplate(code: string, raw: string, params: Record<string, unknown>) {
   raw = raw.replace(/\{reasons:list\}/g, '{{reasons}}')
@@ -32,6 +34,15 @@ export function notificationBodyTemplate(code: string, raw: string, params: Reco
   if (/^[A-Z_]+:\s/.test(raw)) return ''
   // Explanatory instructions in the documentation are not notification copy.
   raw = raw.split(/ \((?:When|Khi|câu|phần) /)[0].split(/ (?:When|Khi) [a-zA-Z]/)[0]
+  // Internal identifiers are never shown: "request {{requestId}}" reads as "request", other
+  // optional clauses holding an identifier are dropped, and a required one hides the body.
+  const internalKeys = new Set(
+    Object.entries(params)
+      .filter(([, value]) => typeof value === 'string' && internalIdPattern.test(value))
+      .map(([key]) => key)
+  )
+  if (internalKeys.has('requestId')) raw = raw.replace(/((?:request|yêu cầu)) \{\{requestId\}\}/gi, '$1')
+  params = Object.fromEntries(Object.entries(params).filter(([key]) => !internalKeys.has(key)))
   raw = raw
     .replace(/\[(.*?)\]/g, (_match, clause: string) => {
       const keys = [...clause.matchAll(/\{\{(\w+)\}\}/g)].map((match) => match[1])

@@ -19,6 +19,7 @@ import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { itButtonClass } from '../../shared/components/it-form'
 import { ItDepartmentWork } from './it-department-work'
 import { ItUsageChart } from './it-usage-chart'
+import '~/shared/ui/workspace.css'
 
 const metrics = [
   { key: 'grantTasks', icon: PackageCheck, tab: 'provisioning', params: { scope: 'MINE', queue: 'tasks' } },
@@ -50,7 +51,7 @@ export function ItOperationsOverview({
   if (departmentsOpen) return <ItDepartmentWork onBack={() => setDepartmentsOpen(false)} />
   return (
     <section ref={pageRef} tabIndex={-1} className='space-y-6 outline-none'>
-      <header className='flex flex-wrap items-start justify-between gap-4'>
+      <header className='workspace-overview-hero workspace-hero-header flex flex-wrap items-start justify-between gap-4 rounded-xl px-5 py-6 sm:px-7 sm:py-7'>
         <div>
           <p className='it-eyebrow'>{translate('overview.workspace')}</p>
           <h1 className='mt-1 text-2xl font-semibold tracking-tight [text-wrap:balance]'>{translate('title')}</h1>

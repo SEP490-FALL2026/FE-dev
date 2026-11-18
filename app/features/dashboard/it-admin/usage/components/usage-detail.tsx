@@ -55,7 +55,7 @@ export function UsageDetail({
                 </div>
               </dl>
             )}
-            <h2 className='text-lg font-semibold'>{t('usage.sources')}</h2>
+            <h2 className='section-accent text-lg font-semibold tracking-tight'>{t('usage.sources')}</h2>
             {data.vendorSources.map((source) => (
               <article key={source.sourceId} className='space-y-3 rounded-lg border border-border bg-surface p-5'>
                 <h3 className='font-medium'>{source.name}</h3>

@@ -1,25 +1,44 @@
 import { useState } from 'react'
-import { UsersRound, UserRound } from 'lucide-react'
+import { UserPlus, UsersRound, UserRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useDepartmentMemberList } from '~/shared/api/generated/operations/departments'
 import { useDashboardFormat } from '../../../dashboard-ui'
-import { AdminQueryState, AdminEmpty } from '../../shared/components/admin-query-state'
+import { AdminQueryState } from '../../shared/components/admin-query-state'
+import { WorkspaceEmptyState } from '~/shared/ui/workspace-empty-state'
 import { AdminPagination } from '../../shared/components/admin-pagination'
 import { MemberStatus } from '../enums/member-status'
 import { MemberWorkState } from '../enums/member-work-state'
 import { DepartmentSection } from './department-section'
+import { adminButtonClass } from '../../shared/components/admin-form'
 
-export function DepartmentMembersPanel({ id }: { id: string }) {
+export function DepartmentMembersPanel({ id, onAddEmployee }: { id: string; onAddEmployee?: () => void }) {
   const { t: translate } = useTranslation('adminOrganization')
   const { formatDate } = useDashboardFormat()
   const [page, setPage] = useState(1)
   const members = useDepartmentMemberList(id, { page, pageSize: 20 })
   return (
-    <DepartmentSection title={translate('members')} icon={UsersRound}>
+    <DepartmentSection
+      title={translate('members')}
+      icon={UsersRound}
+      action={
+        onAddEmployee && (
+          <button type='button' className={adminButtonClass} onClick={onAddEmployee}>
+            <UserPlus aria-hidden className='size-4' strokeWidth={1.5} />
+            {translate('addEmployee')}
+          </button>
+        )
+      }
+    >
       <p className='mb-4 max-w-3xl text-sm leading-relaxed text-muted-foreground'>{translate('membersHelp')}</p>
       <AdminQueryState query={members}>
-        {!members.data?.data?.items.length && <AdminEmpty />}
+        {!members.data?.data?.items.length && (
+          <WorkspaceEmptyState
+            icon={UsersRound}
+            title={translate('ui.noMembersTitle')}
+            description={translate('ui.noMembersHint')}
+          />
+        )}
         <div className='divide-y divide-border/70'>
           {members.data?.data?.items.map((member) => (
             <article

@@ -61,7 +61,7 @@ export function ManagerLiveEmployeeDetail({ departmentId, id, onBack, onSelectTa
 
   return (
     <div className='space-y-6'>
-      <div className='flex items-center gap-3'>
+      <div className='page-banner manager-page-banner flex items-center gap-3'>
         <button
           type='button'
           onClick={onBack}
@@ -129,7 +129,7 @@ export function ManagerLiveEmployeeDetail({ departmentId, id, onBack, onSelectTa
 
           {/* Official Personnel Details */}
           <ManagerSection>
-            <h3 className='border-b border-border/50 pb-3 text-sm font-bold text-foreground'>
+            <h3 className='section-accent border-b border-border/50 pb-3 text-sm font-bold text-foreground'>
               {translate('employeeDetail.official')}
             </h3>
             <dl className='mt-4 grid gap-x-6 gap-y-4 sm:grid-cols-2'>
@@ -187,7 +187,7 @@ export function ManagerLiveEmployeeDetail({ departmentId, id, onBack, onSelectTa
 
           {/* Department Placement History */}
           <ManagerSection>
-            <h3 className='border-b border-border/50 pb-3 text-sm font-bold text-foreground'>
+            <h3 className='section-accent border-b border-border/50 pb-3 text-sm font-bold text-foreground'>
               {translate('employeeDetail.history')}
             </h3>
             <ul className='mt-4 divide-y divide-border/50 text-sm'>
@@ -218,7 +218,9 @@ export function ManagerLiveEmployeeDetail({ departmentId, id, onBack, onSelectTa
           {/* Assigned Tools / Software */}
           <ManagerSection>
             <div className='flex items-center justify-between border-b border-border/50 pb-3'>
-              <h3 className='text-sm font-bold text-foreground'>{translate('employeeDetail.toolsTitle')}</h3>
+              <h3 className='section-accent text-sm font-bold text-foreground'>
+                {translate('employeeDetail.toolsTitle')}
+              </h3>
               <span className='font-mono text-xs text-muted-foreground tabular-nums'>
                 {deptMember?.heldSoftwareCount ?? 0}
               </span>

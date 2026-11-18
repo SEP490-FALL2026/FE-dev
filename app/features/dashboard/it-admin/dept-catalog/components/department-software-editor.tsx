@@ -15,6 +15,7 @@ import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedba
 
 export function DepartmentSoftwareEditor({ departmentId, onClose }: { departmentId: string; onClose: () => void }) {
   const { t } = useTranslation('itDepartmentSoftware')
+  const { t: translatePlaceholder } = useTranslation('itPlaceholders')
   const { draft, setDraft, search, page, setPage } = useCatalogSearch()
   const [changes, setChanges] = useState<Record<string, { checked: boolean; applicationId: string }>>({})
   const existing = useQuery({
@@ -71,6 +72,7 @@ export function DepartmentSoftwareEditor({ departmentId, onClose }: { department
       <p className='text-sm text-muted-foreground'>{t('editSelectionHint')}</p>
       <ItField label={t('search')} hint={t('searchHint')}>
         <input
+          placeholder={translatePlaceholder('searchApp')}
           type='search'
           className={itInputClass}
           value={draft}

@@ -8,6 +8,7 @@ import { employeeRequestPlanOptions } from '../employee-request-plan-options'
 import { EmployeeRequestStepper } from '../components/employee-request-stepper'
 import { EmployeeTeamRequestFields } from '../components/employee-team-request-fields'
 import { parseTeamMemberIds } from '../employee-team-request-draft'
+import { EmployeeSelect } from '~/features/dashboard/employee/shared/components/employee-select'
 
 interface EmployeeRequestSoftwareDetailsViewProps {
   onSelectTab: (tab: EmployeeTabKey, params?: Record<string, string>) => void
@@ -149,21 +150,13 @@ export function EmployeeRequestSoftwareDetailsView({
           <label className='mb-1.5 block text-sm font-semibold text-foreground' htmlFor='employee-request-plan'>
             {t('employee.requestNewSoftware.fieldPlan')}
           </label>
-          <select
-            className='h-11 w-full rounded-xl border border-border bg-background px-3 text-base text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action sm:text-sm'
+          <EmployeeSelect
             id='employee-request-plan'
-            onChange={(event) => setPlan(event.target.value)}
+            onChange={(value) => setPlan(value)}
+            options={employeeRequestPlanOptions.map((option) => ({ label: t(option.labelKey), value: option.value }))}
+            placeholder={t('employee.requestNewSoftware.selectPlan')}
             value={plan}
-          >
-            <option disabled value=''>
-              {t('employee.requestNewSoftware.selectPlan')}
-            </option>
-            {employeeRequestPlanOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {t(option.labelKey)}
-              </option>
-            ))}
-          </select>
+          />
         </div>
 
         <fieldset>

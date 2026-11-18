@@ -196,7 +196,7 @@ export function ManagerScreen({
         </ManagerButton>
       </div>
     )
-  else if (tab === 'policies') content = <PolicyLibrary />
+  else if (tab === 'policies') content = <PolicyLibrary eyebrow={translate('workspace')} />
   else if (tab === 'profile') content = <ManagerProfileView />
   else if (tab === 'team-software')
     content = (

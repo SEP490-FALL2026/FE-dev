@@ -4,6 +4,14 @@ export const financeRequests = {
   none: '—',
   yes: 'Yes',
   no: 'No',
+  ui: {
+    listSection: 'Requests with approved spend',
+    resultCount: '{{count}} results',
+    fromPlaceholder: 'Choose a start date, for example 11/01/2026',
+    toPlaceholder: 'Choose an end date, for example 11/30/2026',
+    departmentPlaceholder: 'Choose a department (type a name to search)',
+    empty: 'No request with approved spend matches these filters.'
+  },
   title: 'Request monitor',
   description: 'Requests whose spend was approved, so a commitment was made (read only).',
   software: 'Software',

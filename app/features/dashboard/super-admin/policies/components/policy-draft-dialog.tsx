@@ -105,8 +105,10 @@ function DraftEditor({ code, draft, onClose }: { code: string; draft: Draft; onC
       >
         {t('policies.back')}
       </button>
-      <header className='space-y-2'>
-        <h1 className='text-2xl font-semibold'>{policyName(code, draft.title)}</h1>
+      <header className='page-banner space-y-2'>
+        <h1 className='text-2xl leading-tight font-semibold tracking-tight [text-wrap:balance]'>
+          {policyName(code, draft.title)}
+        </h1>
         <p className='text-sm text-muted-foreground'>{t('policies.draftHelp')}</p>
         <p className='text-xs text-muted-foreground'>
           {t('policies.updatedAt')}: {formatDate(draft.updatedAt)}
@@ -120,11 +122,15 @@ function DraftEditor({ code, draft, onClose }: { code: string; draft: Draft; onC
         }}
         className='space-y-6'
       >
-        <fieldset disabled={pending} className='space-y-6 rounded-lg border border-border bg-surface p-5'>
+        <fieldset
+          disabled={pending}
+          className='space-y-6 rounded-xl border border-border/80 bg-surface p-5 shadow-[0_1px_2px_rgb(0_0_0/4%),0_12px_28px_-24px_rgb(35_39_65/40%)]'
+        >
           <AdminField required label={t('policies.titleLabel')} description={t('policies.titleHelp')}>
             <input
               required
               maxLength={300}
+              placeholder={t('ui.placeholders.policyTitle')}
               className={adminInputClass}
               value={form.title}
               onChange={(event) => setForm((previous) => ({ ...previous, title: event.target.value }))}

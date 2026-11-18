@@ -13,6 +13,7 @@ import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { ItPagination } from '../../shared/components/it-pagination'
 import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
 import { AiTool } from '../enums/ai-tool'
+import { AllowlistApplicationSelect } from './allowlist-application-select'
 
 export function AllowlistView() {
   const { t: translate } = useTranslation('itDevices')
@@ -92,6 +93,7 @@ function AllowlistDialog({
   onClose: () => void
 }) {
   const { t: translate } = useTranslation('itDevices')
+  const { t: translatePlaceholder } = useTranslation('itPlaceholders')
   const [reason, setReason] = useState('')
   const [mapping, setMapping] = useState(() =>
     Object.values(AiTool).map((tool) => ({
@@ -130,6 +132,7 @@ function AllowlistDialog({
       <p className='text-sm text-muted-foreground'>{translate('hints.allowlist')}</p>
       <ItField label={translate('reason')} hint={translate('hints.reason')}>
         <input
+          placeholder={translatePlaceholder('reason')}
           className={itInputClass}
           required
           maxLength={1000}
@@ -154,21 +157,15 @@ function AllowlistDialog({
             {translate(`values.${item.tool}`)}
           </label>
           {item.enabled && (
-            <ItField label={translate('applicationId')} hint={translate('hints.applicationId')}>
-              <input
-                className={itInputClass}
-                required
-                pattern='[0-9a-fA-F-]{36}'
-                value={item.applicationId}
-                onChange={(event) =>
-                  setMapping(
-                    mapping.map((entry, entryIndex) =>
-                      entryIndex === index ? { ...entry, applicationId: event.target.value } : entry
-                    )
-                  )
-                }
-              />
-            </ItField>
+            <AllowlistApplicationSelect
+              value={item.applicationId}
+              initial={entries.find((entry) => entry.key === item.tool)?.application}
+              onChange={(applicationId) =>
+                setMapping((current) =>
+                  current.map((entry, entryIndex) => (entryIndex === index ? { ...entry, applicationId } : entry))
+                )
+              }
+            />
           )}
         </section>
       ))}

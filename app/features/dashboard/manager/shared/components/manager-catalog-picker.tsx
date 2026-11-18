@@ -44,7 +44,7 @@ export function ManagerCatalogPicker({
   }, [plan, details, application?.value, onChange])
   return (
     <section aria-label={translate('catalog.selection')} className='space-y-4'>
-      <div className='grid items-start gap-5 sm:grid-cols-2'>
+      <div className='grid items-start gap-x-5 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'>
         <ManagerCatalogApplication
           value={application}
           disabled={disabled}
@@ -73,7 +73,7 @@ export function ManagerCatalogPicker({
         <ManagerQueryState query={applicationQuery} empty={!details} emptyTitle={translate('catalog.noDetails')} />
       )}
       {details && (
-        <dl className='grid gap-4 rounded-md bg-surface-subtle p-4 text-sm sm:grid-cols-3'>
+        <dl className='soft-panel grid gap-4 p-4 text-sm sm:grid-cols-3'>
           <div>
             <dt className='text-xs text-muted-foreground'>{translate('catalog.vendor')}</dt>
             <dd className='mt-1 truncate' title={details.vendorName ?? undefined}>

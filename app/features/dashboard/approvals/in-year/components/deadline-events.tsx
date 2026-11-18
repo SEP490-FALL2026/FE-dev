@@ -3,7 +3,12 @@ import { useTranslation } from 'react-i18next'
 import { SubscriptionDeadlineEventListKind } from '~/shared/api/generated/model/subscription-renewals/subscriptionDeadlineEventListKind'
 import { useSubscriptionDeadlineEventList } from '~/shared/api/generated/operations/subscription-renewals/subscription-deadline-event-list'
 import { useDashboardFormat } from '../../../dashboard-ui'
-import { ApprovalsPagination, ApprovalsSelect } from '../../shared/components/approvals-ui'
+import {
+  ApprovalsPagination,
+  ApprovalsSection,
+  ApprovalsSelect,
+  ApprovalsToolbar
+} from '../../shared/components/approvals-ui'
 import { ApprovalsQueryState } from '../../shared/components/approvals-query-state'
 import { ApprovalsTable } from '../../shared/components/approvals-table'
 
@@ -15,27 +20,26 @@ export function DeadlineEvents() {
   const [kind, setKind] = useState<SubscriptionDeadlineEventListKind | ''>('')
   const query = useSubscriptionDeadlineEventList({ ...(kind ? { kind } : {}), page, pageSize: 20 })
   return (
-    <>
-      <div className='max-w-xs'>
-        <ApprovalsSelect
-          label={translate('inYear.kind')}
-          value={kind}
-          options={[
-            { value: '', label: translate('inYear.allKinds') },
-            ...Object.values(SubscriptionDeadlineEventListKind).map((value) => ({
-              value,
-              label: translate(`inYear.deadlineKinds.${value}`)
-            }))
-          ]}
-          onChange={(selected) => {
-            setKind(Object.values(SubscriptionDeadlineEventListKind).find((value) => value === selected) ?? '')
-            setPage(1)
-          }}
-        />
-      </div>
-      <p role='note' className='text-sm text-muted-foreground'>
-        {translate('inYear.deadlinesNote')}
-      </p>
+    <ApprovalsSection title={translate('inYear.deadlines')} description={translate('inYear.deadlinesNote')}>
+      <ApprovalsToolbar>
+        <div className='w-full sm:w-72'>
+          <ApprovalsSelect
+            label={translate('inYear.kind')}
+            value={kind}
+            options={[
+              { value: '', label: translate('inYear.allKinds') },
+              ...Object.values(SubscriptionDeadlineEventListKind).map((value) => ({
+                value,
+                label: translate(`inYear.deadlineKinds.${value}`)
+              }))
+            ]}
+            onChange={(selected) => {
+              setKind(Object.values(SubscriptionDeadlineEventListKind).find((value) => value === selected) ?? '')
+              setPage(1)
+            }}
+          />
+        </div>
+      </ApprovalsToolbar>
       <ApprovalsQueryState query={query}>
         <ApprovalsTable
           items={query.data?.data?.items ?? []}
@@ -75,6 +79,6 @@ export function DeadlineEvents() {
         />
         <ApprovalsPagination pagination={query.data?.data?.pagination} onPageChange={setPage} />
       </ApprovalsQueryState>
-    </>
+    </ApprovalsSection>
   )
 }

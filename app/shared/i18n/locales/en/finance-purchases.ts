@@ -8,6 +8,33 @@ export const financePurchases = {
   note: 'Note',
   reason: 'Reason',
   cancel: 'Cancel',
+  ui: {
+    resultCount: '{{count}} results',
+    queueSection: 'Submitted invoices',
+    missingSection: 'Periods past the invoice deadline',
+    awaitingCount: '{{count}} to sign',
+    monthPlaceholder: 'For example: 2026-11',
+    returnReasonPlaceholder:
+      'For example: the May 2027 invoice is outside the approved 6-month term, please cancel the renewal',
+    invoiceInfo: 'Invoice details',
+    amounts: 'Amounts',
+    reviewNotes: 'Check before signing',
+    caseSection: 'Discrepancy case',
+    comparison: 'Compared with what was approved',
+    caseInfo: 'Case details',
+    differencePlaceholder: 'Enter the difference in VND, for example 250000',
+    discrepancyReasonPlaceholder:
+      'For example: the vendor raised the price from this period, confirmed by the vendor by email',
+    casesSection: 'Cases to handle',
+    amountPlaceholder: 'Enter the amount spent in VND, for example 1185000',
+    costCenterPlaceholder: 'Choose the cost center that bears the spend (type a name or code to search)',
+    costCenterEmpty: 'No matching cost center',
+    notePlaceholder: 'For example: the employee bought a personal plan, checked on the vendor admin page',
+    outcomePlaceholder: 'Choose how the case closes (type to search)',
+    statePlaceholder: 'Choose a state (type to search)',
+    labelPlaceholder: 'Choose an invoice type (type to search)',
+    discrepancyEmpty: 'No discrepancy cases in this state.'
+  },
   errors: {
     sameDecider: 'You submitted this invoice yourself, so another person must sign it.',
     notSubmitted: 'The invoice is no longer waiting for a decision. The list has been reloaded.',

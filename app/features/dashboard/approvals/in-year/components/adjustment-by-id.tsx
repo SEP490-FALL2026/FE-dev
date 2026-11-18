@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { Scale } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { AdjustmentListResponseDtoDataItemsItem } from '~/shared/api/generated/model/budget-adjustments/adjustmentListResponseDtoDataItemsItem'
 import {
@@ -40,13 +41,13 @@ export function AdjustmentById({ id, onBack }: { id: string; onBack: () => void 
   })
   const adjustment = query.data
   return (
-    <ApprovalsPage title={translate('inYear.adjustmentTitle')}>
+    <ApprovalsPage icon={Scale} eyebrow={translate('inYear.adjustments')} title={translate('inYear.adjustmentTitle')}>
       <ApprovalsQueryState query={query}>
         {adjustment ? (
           adjustment.state === adjustmentState.PENDING ? (
             <AdjustmentDecisionDialog adjustment={adjustment} onClose={onBack} />
           ) : (
-            <div role='status' className='space-y-3 text-sm'>
+            <div role='status' className='space-y-3 rounded-xl border border-border/70 bg-surface p-5 text-sm'>
               <p>
                 {translate('inYear.adjustmentAlreadyDecided', {
                   state: translate(`inYear.states.${adjustment.state}`)
@@ -58,7 +59,7 @@ export function AdjustmentById({ id, onBack }: { id: string; onBack: () => void 
             </div>
           )
         ) : (
-          <div role='status' className='space-y-3 text-sm'>
+          <div role='status' className='space-y-3 rounded-xl border border-border/70 bg-surface p-5 text-sm'>
             <p>{translate('inYear.adjustmentNotFound')}</p>
             <ApprovalsButton variant='ghost' onClick={onBack}>
               {translate('inYear.backToAdjustments')}

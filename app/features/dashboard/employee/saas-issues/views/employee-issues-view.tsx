@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { Boxes, MessageSquare, Plus } from 'lucide-react'
+import { Boxes, ListChecks, MessageSquare, Plus } from 'lucide-react'
 import { EmployeePageHeader } from '../../shared/components/employee-page-header'
 import { EmployeeDataTable } from '../../shared/components/employee-data-table'
 import { useSaasIssueList } from '~/shared/api/generated/operations/saas-issues/saas-issue-list'
@@ -27,6 +27,7 @@ export function EmployeeIssuesView({
     <div className='space-y-6'>
       <EmployeePageHeader
         title={translate('issues')}
+        description={translate('ui.issues.hint')}
         icon={MessageSquare}
         actions={
           <EmployeeButton primary onClick={() => onSelectTab('report-issue')}>
@@ -35,7 +36,17 @@ export function EmployeeIssuesView({
           </EmployeeButton>
         }
       />
-      <EmployeeSection>
+      <EmployeeSection
+        title={translate('ui.lists.issuesTitle')}
+        icon={ListChecks}
+        action={
+          query.data?.data && (
+            <span className='font-mono text-xs text-muted-foreground tabular-nums'>
+              {translate('ui.lists.issuesTotal', { count: query.data.data.pagination.totalItems })}
+            </span>
+          )
+        }
+      >
         <EmployeeQueryState
           query={query}
           empty={!query.data?.data?.items.length}

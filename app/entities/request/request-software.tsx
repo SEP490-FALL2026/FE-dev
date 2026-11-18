@@ -5,7 +5,7 @@ import { FigmaMark } from '~/entities/software/figma-mark'
 
 const brands = {
   Figma: { icon: PanelsTopLeft, color: 'text-violet-600' },
-  GitHub: { icon: Code2, color: 'text-neutral-900' },
+  GitHub: { icon: Code2, color: 'text-foreground' },
   Jira: { icon: Diamond, color: 'text-blue-600' },
   Slack: { icon: Hash, color: 'text-pink-600' },
   'AWS Console': { icon: Cloud, color: 'text-amber-600' },
@@ -19,7 +19,7 @@ export function RequestSoftware({ request, large = false }: { request: TeamReque
       <span
         className={
           large
-            ? 'flex size-16 shrink-0 items-center justify-center rounded-2xl border border-neutral-200 bg-brand-bg'
+            ? 'flex size-16 shrink-0 items-center justify-center rounded-2xl border border-border bg-surface-subtle'
             : ''
         }
       >
@@ -29,13 +29,13 @@ export function RequestSoftware({ request, large = false }: { request: TeamReque
           <Icon
             size={large ? 36 : 21}
             aria-hidden='true'
-            className={`shrink-0 ${brand?.color ?? 'text-neutral-500'}`}
+            className={`shrink-0 ${brand?.color ?? 'text-muted-foreground'}`}
           />
         )}
       </span>
       <div>
         <p className={large ? 'text-xl font-bold' : 'font-medium'}>{request.software}</p>
-        <p className='mt-0.5 text-xs text-neutral-500'>{request.plan}</p>
+        <p className='mt-0.5 text-xs text-muted-foreground'>{request.plan}</p>
       </div>
     </div>
   )

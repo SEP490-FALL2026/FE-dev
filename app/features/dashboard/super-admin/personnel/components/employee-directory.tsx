@@ -1,12 +1,15 @@
 import { useId, useState, type ReactNode } from 'react'
-import { ListFilter, Search } from 'lucide-react'
+import { ListFilter, Search, UsersRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import type { EmployeeListParams } from '~/shared/api/generated/model/employees'
 import { AppUserListRole } from '~/shared/api/generated/model/app-users/appUserListRole'
 import { WorkspaceDataTable } from '~/shared/ui/workspace-data-table'
 import { AdminField, adminInputClass, adminButtonClass } from '../../shared/components/admin-form'
-import { AdminEmpty, AdminQueryState } from '../../shared/components/admin-query-state'
+import { AdminSelect } from '../../shared/components/admin-select'
+import { AdminSectionTitle } from '../../shared/components/admin-page-header'
+import { AdminQueryState } from '../../shared/components/admin-query-state'
+import { WorkspaceEmptyState } from '~/shared/ui/workspace-empty-state'
 import { AdminPagination } from '../../shared/components/admin-pagination'
 import { EmployeeDepartmentSelect } from '../../shared/components/employee-department-select'
 import { value } from '../../shared/components/personnel-form'
@@ -56,7 +59,10 @@ export function EmployeeDirectory({
   return (
     <section className='space-y-4'>
       <header className='flex flex-wrap items-center justify-between gap-3'>
-        <h2 className='text-xl font-semibold tracking-tight text-foreground'>{translate('directory.title')}</h2>
+        <AdminSectionTitle
+          title={translate('directory.title')}
+          hint={query.pagination ? translate('ui.directoryCount', { count: query.pagination.totalItems }) : undefined}
+        />
         <button
           type='button'
           className={adminButtonClass}
@@ -79,11 +85,7 @@ export function EmployeeDirectory({
         key={resetKey}
         id={filterId}
         hidden={!filtersOpen}
-        className={
-          filtersOpen
-            ? 'grid items-end gap-3 rounded-lg border border-border bg-surface p-4 sm:grid-cols-2 xl:grid-cols-3'
-            : 'hidden'
-        }
+        className={filtersOpen ? 'soft-panel grid gap-4 p-4 sm:grid-cols-2 sm:p-5 xl:grid-cols-3' : 'hidden'}
         onSubmit={(event) => {
           event.preventDefault()
           const values = new FormData(event.currentTarget)
@@ -115,48 +117,58 @@ export function EmployeeDirectory({
         </AdminField>
         <EmployeeDepartmentSelect mode='filter' />
         <AdminField label={translate('directory.directRole')}>
-          <select name='role' className={adminInputClass} defaultValue={role}>
-            <option value=''>{translate('directory.all')}</option>
-            {Object.values(AppUserListRole).map((item) => (
-              <option key={item} value={item}>
-                {translateAccounts(`roles.${item}`)}
-              </option>
-            ))}
-          </select>
+          <AdminSelect
+            name='role'
+            clearable
+            defaultValue={role}
+            options={Object.values(AppUserListRole).map((item) => ({
+              value: item,
+              label: translateAccounts(`roles.${item}`)
+            }))}
+            placeholder={translate('ui.allRoles')}
+          />
         </AdminField>
         <AdminField label={translate('directory.placement')}>
-          <select name='unplaced' className={adminInputClass} defaultValue=''>
-            <option value=''>{translate('directory.all')}</option>
-            <option value='true'>{translate('directory.unplaced')}</option>
-            <option value='false'>{translate('directory.placed')}</option>
-          </select>
+          <AdminSelect
+            name='unplaced'
+            clearable
+            defaultValue={''}
+            options={[
+              { value: 'true', label: translate('directory.unplaced') },
+              { value: 'false', label: translate('directory.placed') }
+            ]}
+            placeholder={translate('ui.allPlacements')}
+          />
         </AdminField>
         <AdminField label={translate('directory.workState')}>
-          <select name='workState' className={adminInputClass} defaultValue=''>
-            <option value=''>{translate('directory.all')}</option>
-            {employeeWorkStates.map((state) => (
-              <option key={state} value={state}>
-                {translate(`codes.${state}`)}
-              </option>
-            ))}
-          </select>
+          <AdminSelect
+            name='workState'
+            clearable
+            defaultValue={''}
+            options={employeeWorkStates.map((state) => ({ value: state, label: translate(`codes.${state}`) }))}
+            placeholder={translate('ui.allWorkStates')}
+          />
         </AdminField>
         <AdminField label={translate('directory.employmentType')}>
-          <select name='employmentType' className={adminInputClass} defaultValue=''>
-            <option value=''>{translate('directory.all')}</option>
-            {employmentTypes.map((type) => (
-              <option key={type} value={type}>
-                {translate(`codes.${type}`)}
-              </option>
-            ))}
-          </select>
+          <AdminSelect
+            name='employmentType'
+            clearable
+            defaultValue={''}
+            options={employmentTypes.map((type) => ({ value: type, label: translate(`codes.${type}`) }))}
+            placeholder={translate('ui.allEmploymentTypes')}
+          />
         </AdminField>
         <AdminField label={translate('directory.account')}>
-          <select name='hasAccount' className={adminInputClass} defaultValue=''>
-            <option value=''>{translate('directory.all')}</option>
-            <option value='true'>{translate('directory.hasAccount')}</option>
-            <option value='false'>{translate('directory.noAccount')}</option>
-          </select>
+          <AdminSelect
+            name='hasAccount'
+            clearable
+            defaultValue={''}
+            options={[
+              { value: 'true', label: translate('directory.hasAccount') },
+              { value: 'false', label: translate('directory.noAccount') }
+            ]}
+            placeholder={translate('ui.allAccounts')}
+          />
         </AdminField>
         <div className='flex flex-wrap gap-2 sm:col-span-2 xl:col-span-3'>
           <button className={adminButtonClass} aria-busy={query.isFetching}>
@@ -178,7 +190,7 @@ export function EmployeeDirectory({
         </div>
       </form>
       <AdminQueryState query={query}>
-        <div className='overflow-hidden rounded-lg border border-border bg-surface'>
+        <div className='overflow-hidden rounded-xl border border-border/80 bg-surface shadow-[0_1px_2px_rgb(0_0_0/4%),0_12px_28px_-24px_rgb(35_39_65/40%)]'>
           <WorkspaceDataTable
             items={query.items}
             rowKey={(employee) => employee.id}
@@ -186,7 +198,13 @@ export function EmployeeDirectory({
             actionLabel={translate('directory.viewDetails')}
             actionHeader={translateAdmin('actions')}
             onOpen={(employee) => openProfile(employee.id)}
-            emptyState={<AdminEmpty />}
+            emptyState={
+              <WorkspaceEmptyState
+                icon={UsersRound}
+                title={translate(filtersActive ? 'ui.noMatchTitle' : 'ui.noEmployeesTitle')}
+                description={translate(filtersActive ? 'ui.noMatchHint' : 'ui.noEmployeesHint')}
+              />
+            }
             columns={[
               {
                 key: 'employee',

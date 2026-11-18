@@ -1,4 +1,6 @@
 import { useUsageNavigation } from '../hooks/use-usage-navigation'
+import { Activity } from 'lucide-react'
+import { ItPageHeader } from '../../shared/components/it-page-header'
 import { UsagePeriod } from '../components/usage-period'
 import { UsageDetail } from '../components/usage-detail'
 import { useTranslation } from 'react-i18next'
@@ -47,7 +49,7 @@ export function ItUsageView() {
     return <Members department={department} onBack={() => setDepartment(undefined)} onOpen={setEmployee} />
   return (
     <section className='space-y-5'>
-      <h1 className='text-2xl font-semibold'>{t('usage.title')}</h1>
+      <ItPageHeader icon={Activity} title={t('usage.title')} />
       <Departments onOpen={setDepartment} onOpenImports={() => setImports(true)} />
     </section>
   )
@@ -70,7 +72,7 @@ function Departments({
   return (
     <section className='space-y-4'>
       <div className='flex flex-wrap items-center justify-between gap-3'>
-        <h2 className='text-lg font-semibold'>{t('usage.chooseDepartment')}</h2>
+        <h2 className='section-accent text-lg font-semibold tracking-tight'>{t('usage.chooseDepartment')}</h2>
         <button type='button' className={itButtonClass} onClick={onOpenImports}>
           {t('usageImport.history')}
         </button>
@@ -110,10 +112,12 @@ function Members({
       <button type='button' className={itButtonClass} onClick={onBack}>
         {t('back')}
       </button>
-      <header>
-        <h1 className='text-2xl font-semibold'>{department.name}</h1>
-        <p className='text-sm text-muted-foreground'>{t('usage.chooseMember')}</p>
-      </header>
+      <ItPageHeader
+        icon={Activity}
+        eyebrow={t('usage.title')}
+        title={department.name}
+        subtitle={t('usage.chooseMember')}
+      />
       <ItQueryState query={query}>
         {query.data?.data?.items.length ? (
           <div className='divide-y divide-border rounded-lg border border-border bg-surface'>
@@ -164,11 +168,9 @@ function Software({
       <button type='button' className={itButtonClass} onClick={onBack}>
         {t('back')}
       </button>
-      <header>
-        <h1 className='text-2xl font-semibold'>{t('usage.chooseSoftware')}</h1>
+      <ItPageHeader icon={Activity} eyebrow={employee.code} title={t('usage.chooseSoftware')}>
         <UsagePeriod />
-        <p className='text-sm text-muted-foreground'>{employee.code}</p>
-      </header>
+      </ItPageHeader>
       <ItQueryState query={query}>
         {query.data?.data?.items.length ? (
           <div className='divide-y divide-border rounded-lg border border-border bg-surface'>

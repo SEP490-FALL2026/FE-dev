@@ -52,7 +52,7 @@ export function ReviewLineCard({ line, dueOn }: { line: Line; dueOn: string | nu
 
   return (
     <article
-      className={`space-y-4 rounded-lg border border-l-4 border-border/70 bg-surface p-4 shadow-[0_1px_2px_0_rgba(0,0,0,0.04)] ${lightTone[line.light].edge}`}
+      className={`space-y-4 rounded-xl border border-l-4 border-border/70 bg-surface p-4 shadow-[0_1px_2px_0_rgba(0,0,0,0.04)] ${lightTone[line.light].edge}`}
     >
       <header className='flex flex-wrap items-center justify-between gap-2'>
         <div className='flex min-w-0 items-center gap-2'>

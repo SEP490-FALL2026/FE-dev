@@ -284,5 +284,14 @@ export const approvalsBudget = {
       NO_HEAD: 'No department head'
     },
     deadlineKinds: { AUTO_RENEWAL_INCIDENT: 'Auto-renewed without a decision', EXPIRY_MARKED: 'Expiry marked' }
+  },
+  layout: {
+    yearPlaceholder: 'Choose a budget year, type to search',
+    versionsDescription:
+      'Versions Finance built for each Cost Center. Open a version sent for approval to decide on it.',
+    versionsEmpty: 'No budget version matches the filters',
+    historyEntries: 'Recorded changes',
+    decisionReasonPlaceholder: 'For example: the receiving Cost Center has enough budget until the end of the quarter',
+    linesEmpty: 'This period has no Cost Center lines yet'
   }
 } as const

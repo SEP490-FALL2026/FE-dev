@@ -271,5 +271,19 @@ export const approvalsSpend = {
     NOT_CHECKABLE: 'Chưa thể kiểm tra ngân sách',
     RECHECKED_RETURNED_TO_HEAD: 'Đã trả về trưởng phòng sau kiểm tra lại',
     RECHECKED_RETURNED_TO_REQUESTER: 'Đã trả về người yêu cầu sau kiểm tra lại'
+  },
+  layout: {
+    queueDescription: 'Hồ sơ đang chờ bạn quyết định chi, xem theo từng yêu cầu hoặc theo đợt trưởng phòng đã gửi.',
+    requestsTitle: 'Yêu cầu chờ quyết định chi',
+    batchesTitle: 'Đợt trưởng phòng đã gửi',
+    batchesDescription: 'Mở một đợt để xem mọi yêu cầu trong đợt và quyết định cho cả đợt.',
+    queueEmpty: 'Chưa có yêu cầu nào chờ bạn quyết định chi',
+    queueEmptyHint: 'Yêu cầu mới sẽ xuất hiện tại đây khi trưởng phòng gửi đợt hoặc yêu cầu một bước tới bước chi.',
+    noMatch: 'Không có yêu cầu khớp với nội dung lọc',
+    noMatchHint: 'Bộ lọc chỉ xét trang đang xem. Xóa nội dung lọc hoặc chuyển trang để xem thêm.',
+    filtersTitle: 'Bộ lọc',
+    monitorListTitle: 'Danh sách yêu cầu',
+    notReadableHint:
+      'Yêu cầu này chưa tới bước chi hoặc bạn không có quyền xem. Quay lại danh sách để chọn yêu cầu khác.'
   }
 }

@@ -1,5 +1,6 @@
 export const itInvoices = {
   title: 'Purchase invoices',
+  subtitle: 'Submit an invoice after each purchase and follow returned invoices and periods without one.',
   vnd: 'Vietnamese dong',
   history: 'Submitted invoices',
   missing: 'Periods missing invoices',
@@ -10,7 +11,8 @@ export const itInvoices = {
   previewTitle: 'Review invoice',
   periodPosition: 'Period {{index}} of {{total}}',
   ongoing: 'ongoing use',
-  chargedCostCenter: 'Charged cost centre reference',
+  chargedCostCenter: 'Charged cost centre',
+  allocated: 'Allocated to a cost centre',
   commitmentRemaining: 'Remaining committed amount',
   unallocated: 'Not allocated to a cost centre',
   previewHint: 'Check the period, matching result and warnings before submitting to Finance.',

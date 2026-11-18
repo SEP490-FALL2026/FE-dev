@@ -4,6 +4,14 @@ export const financeRequests = {
   none: '—',
   yes: 'Có',
   no: 'Không',
+  ui: {
+    listSection: 'Yêu cầu đã duyệt chi',
+    resultCount: '{{count}} kết quả',
+    fromPlaceholder: 'Chọn ngày bắt đầu, ví dụ 01/11/2026',
+    toPlaceholder: 'Chọn ngày kết thúc, ví dụ 30/11/2026',
+    departmentPlaceholder: 'Chọn phòng ban (gõ tên để tìm)',
+    empty: 'Chưa có yêu cầu đã duyệt chi khớp bộ lọc này.'
+  },
   title: 'Theo dõi yêu cầu',
   description: 'Các yêu cầu đã được duyệt chi, tức đã có khoản cam kết (chỉ đọc).',
   software: 'Phần mềm',

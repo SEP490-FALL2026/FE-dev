@@ -13,11 +13,11 @@ export function EmployeeCatalogPlanDetails({
   const { details, plan, query } = selection
   if (!plan) return null
   return (
-    <section aria-label={translate('requestExtras.plan.title')} className='space-y-3 border-b border-border/60 pb-5'>
+    <section aria-label={translate('requestExtras.plan.title')} className='space-y-3'>
       <EmployeeQueryState query={query} empty={!details} emptyTitle={translate('catalog.noDetails')} />
       {details && (
         <>
-          <dl className='grid gap-4 text-sm sm:grid-cols-2'>
+          <dl className='soft-panel grid gap-4 p-4 text-sm sm:grid-cols-2'>
             <div>
               <dt className='text-xs text-muted-foreground'>{translate('requestExtras.plan.sharing')}</dt>
               <dd className='mt-1'>

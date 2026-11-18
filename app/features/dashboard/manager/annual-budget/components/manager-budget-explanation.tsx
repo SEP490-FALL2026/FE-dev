@@ -13,6 +13,7 @@ import {
   ManagerFormErrors,
   managerInputClass
 } from '../../shared/components/manager-api-ui'
+import { ManagerFormSelect, enumOptions } from '../../shared/components/manager-select'
 import { EXPLANATION_PERSISTENCE } from '../enums/explanation-persistence'
 import { budgetAmountPattern } from '../budget-limits'
 
@@ -78,6 +79,7 @@ export function ManagerBudgetExplanation({
                 <textarea
                   className={managerInputClass}
                   name='cause'
+                  placeholder={t('ui.placeholders.cause')}
                   required
                   maxLength={2000}
                   rows={3}
@@ -86,22 +88,21 @@ export function ManagerBudgetExplanation({
               </ManagerField>
             </div>
             <ManagerField label={t('budgetWorkspace.persistenceLabel')}>
-              <select
+              <ManagerFormSelect
                 name='persistence'
-                className={managerInputClass}
+                required
+                placeholder={t('ui.placeholders.persistence')}
                 defaultValue={previous?.persistence ?? EXPLANATION_PERSISTENCE.ONE_OFF}
-              >
-                {Object.values(EXPLANATION_PERSISTENCE).map((value) => (
-                  <option key={value} value={value}>
-                    {t(`budgetWorkspace.persistence.${value}`)}
-                  </option>
-                ))}
-              </select>
+                options={enumOptions(Object.values(EXPLANATION_PERSISTENCE), (value) =>
+                  t(`budgetWorkspace.persistence.${value}`)
+                )}
+              />
             </ManagerField>
             <ManagerField label={t('budgetWorkspace.knownAmount')}>
               <input
                 className={managerInputClass}
                 name='knownNeedsToYearEnd.amount.amount'
+                placeholder={t('ui.placeholders.knownAmount')}
                 inputMode='numeric'
                 pattern={budgetAmountPattern}
                 maxLength={16}
@@ -114,6 +115,7 @@ export function ManagerBudgetExplanation({
                 <textarea
                   className={managerInputClass}
                   name='action'
+                  placeholder={t('ui.placeholders.action')}
                   required
                   maxLength={2000}
                   rows={3}
@@ -126,6 +128,7 @@ export function ManagerBudgetExplanation({
                 <textarea
                   className={managerInputClass}
                   name='knownNeedsToYearEnd.note'
+                  placeholder={t('ui.placeholders.knownNote')}
                   required
                   maxLength={1000}
                   rows={3}

@@ -1,4 +1,6 @@
 import { useSearchParams } from 'react-router'
+import { ListChecks } from 'lucide-react'
+import { ItPageHeader } from '../../shared/components/it-page-header'
 import { useTranslation } from 'react-i18next'
 import { useItManagedDepartments } from '../../shared/hooks/use-it-managed-departments'
 import { useDepartmentGet } from '~/shared/api/generated/operations/departments/department-get'
@@ -49,8 +51,7 @@ export function ItDepartmentSoftwareView() {
     )
   return (
     <section className='space-y-5'>
-      <h1 className='text-2xl font-semibold'>{translate('title')}</h1>
-      <p className='max-w-3xl text-sm text-muted-foreground'>{translate('description')}</p>
+      <ItPageHeader icon={ListChecks} title={translate('title')} subtitle={translate('description')} />
       <ItQueryState query={me}>
         <ItQueryState query={query}>
           {visible.length ? (

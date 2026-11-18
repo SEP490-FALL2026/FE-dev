@@ -26,8 +26,7 @@ export const itPurchases = {
   back: 'Back',
   help: {
     name: 'Use the agreement name shown in the signed contract so it can be identified later.',
-    contractId:
-      'Paste the contract reference saved when the contract was created. The attachment will belong to that contract.',
+    contractId: 'Select a saved contract. The attachment will belong to that contract.',
     documentId: 'Paste a saved document reference to check its upload status, attachment and download link.',
     purpose: 'Choose what this attachment records. This does not approve a purchase or record a payment.'
   },
@@ -37,7 +36,8 @@ export const itPurchases = {
   create: 'Create contract',
   name: 'Contract name',
   namePlaceholder: 'e.g. Workspace annual agreement',
-  contractId: 'Contract ID',
+  contractId: 'Contract',
+  contractSearch: 'Search contracts by name or number',
   documentId: 'Document ID',
   contractPlaceholder: 'Enter the saved contract UUID',
   documentPlaceholder: 'Enter the saved document UUID',

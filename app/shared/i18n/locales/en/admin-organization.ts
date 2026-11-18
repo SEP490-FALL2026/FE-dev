@@ -78,5 +78,22 @@ export const adminOrganization = {
   ongoing: 'Ongoing',
   membersHelp: 'Membership is read from the personnel record. Record a personnel event to change departments.',
   hasEmail: 'Work email recorded',
-  noEmail: 'No work email'
+  noEmail: 'No work email',
+  ui: {
+    eyebrow: 'Organization structure',
+    listCount: '{{count}} departments',
+    noMatchTitle: 'No matching departments',
+    noMatchHint: 'Change the keyword or filters to see more departments.',
+    emptyTitle: 'No departments yet',
+    emptyHint: 'Created departments will appear here.',
+    pickUnplacedEmployee: 'Choose an unplaced employee, type a name or code to search',
+    noUnplacedEmployees: 'No employees without a department remain',
+    pickHeadChange: 'Choose the new department head, type to search',
+    pickHead: 'Choose a department head, type a name or code to search',
+    noHeadCandidates: 'No employees available as department head',
+    pickItAdmin: 'Choose an IT administrator, type to search',
+    noItAdminMatch: 'No matching administrator found',
+    noMembersTitle: 'This department has no members',
+    noMembersHint: 'Add employees to the department and they will appear in this list.'
+  }
 }

@@ -147,7 +147,7 @@ export const financeSettings = {
     codeInvalid: 'Chỉ gồm chữ, số, dấu chấm, gạch ngang hoặc gạch dưới và phải bắt đầu bằng chữ hoặc số.',
     name: 'Tên',
     department: 'Phòng ban',
-    pickDepartment: 'Chọn phòng ban',
+    pickDepartment: 'Chọn phòng ban, gõ để tìm',
     noDepartments:
       'Năm {{year}} chưa có kỳ lập ngân sách nên chưa có danh sách phòng. Hãy tạo kỳ lập ngân sách của năm đó trước.',
     allLinked: 'Mọi phòng đều đã có trung tâm chi phí ở năm {{year}}.',
@@ -249,7 +249,7 @@ export const financeSettings = {
   renewals: {
     title: 'Điều chỉnh thuê bao',
     description:
-      'Kết quả IT Admin đã ghi khi tới điểm điều chỉnh của từng thuê bao kho dùng chung (gia hạn, giảm, tăng hoặc hủy) và các mốc hạn đã qua mà chưa ghi kết quả. Tài chính chỉ xem.',
+      'Kết quả IT Admin đã ghi khi tới điểm điều chỉnh của từng thuê bao kho dùng chung (gia hạn, giảm, tăng hoặc hủy). Tài chính chỉ xem.',
     back: 'Về danh sách',
     cases: 'Các lần ghi kết quả',
     software: 'Phần mềm',
@@ -330,15 +330,6 @@ export const financeSettings = {
       recorded: 'Kỳ này đã có kết quả được ghi.',
       none: 'Thuê bao này chưa có điểm điều chỉnh. Chỉ thuê bao kho dùng chung có thời hạn đang hoạt động mới có, và máy chủ cần bản hỗ trợ việc này.',
       incomplete: 'Thiếu ngày trên thuê bao nên chưa tính được điểm điều chỉnh.'
-    },
-    events: {
-      title: 'Mốc hạn đã qua',
-      hint: 'Quá ngày gia hạn mà chưa ghi kết quả trong khi vẫn còn người giữ suất: thuê bao tự gia hạn ngoài ý muốn hoặc bị đánh dấu hết hạn.',
-      kind: 'Sự kiện',
-      allKinds: 'Mọi sự kiện',
-      kinds: { AUTO_RENEWAL_INCIDENT: 'Tự gia hạn ngoài ý muốn', EXPIRY_MARKED: 'Đánh dấu hết hạn' },
-      milestoneDate: 'Ngày mốc',
-      recordedOn: 'Ngày ghi nhận'
     }
   },
   catalogDetail: {

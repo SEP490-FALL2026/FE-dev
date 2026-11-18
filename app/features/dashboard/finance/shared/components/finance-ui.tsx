@@ -1,11 +1,14 @@
-import { ChevronDown, ChevronLeft, ChevronRight, Inbox, LoaderCircle, Search } from 'lucide-react'
-import { useId, type ButtonHTMLAttributes, type ReactNode, type SelectHTMLAttributes } from 'react'
+import { ChevronLeft, ChevronRight, Inbox, LoaderCircle, Search } from 'lucide-react'
+import { useId, type ButtonHTMLAttributes, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
+import '~/shared/ui/workspace.css'
 import { useFinanceRetry } from '../hooks/use-finance-retry'
 
 export { FinanceQueryState } from './finance-query-state'
 export { FinanceDetailPage, FinanceDrawer } from './finance-drawer'
 export { FinanceSkeleton } from './finance-skeleton'
+export { FinancePage } from './finance-page'
+export { FinanceSelect, type FinanceSelectChangeEvent, type FinanceSelectProps } from './finance-select'
 
 export const financeInputClass =
   'min-h-11 w-full rounded-md border border-border bg-background px-3 py-2 text-base text-foreground shadow-[0_1px_2px_0_rgba(0,0,0,0.04)] outline-none transition-colors duration-150 placeholder:text-muted-foreground/80 hover:border-primary/40 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 disabled:cursor-not-allowed disabled:bg-surface-subtle disabled:opacity-60 aria-[invalid=true]:border-danger aria-[invalid=true]:ring-danger/15 md:min-h-10 md:text-sm'
@@ -25,33 +28,6 @@ export const financeButtonVariants = {
 } as const
 
 export type FinanceButtonVariant = keyof typeof financeButtonVariants
-
-export function FinancePage({
-  title,
-  description,
-  children,
-  actions
-}: {
-  title: string
-  description?: string
-  children: ReactNode
-  actions?: ReactNode
-}) {
-  return (
-    <div className='space-y-6 [&_button:enabled]:cursor-pointer [&_select:enabled]:cursor-pointer [&_summary]:cursor-pointer'>
-      <header className='flex flex-wrap items-end justify-between gap-4 border-b border-border/60 pb-5'>
-        <div className='min-w-0 space-y-1'>
-          <h1 className='text-2xl leading-tight font-semibold tracking-tight text-foreground [text-wrap:balance]'>
-            {title}
-          </h1>
-          {description && <p className='max-w-2xl text-sm text-muted-foreground [text-wrap:pretty]'>{description}</p>}
-        </div>
-        {actions && <div className='flex flex-wrap items-center gap-2'>{actions}</div>}
-      </header>
-      {children}
-    </div>
-  )
-}
 
 export function FinanceButton({
   children,
@@ -123,31 +99,9 @@ export function FinanceField({
   )
 }
 
-/** Native select with the same height, border states and chevron as the finance inputs. */
-export function FinanceSelect({
-  className = '',
-  children,
-  ...props
-}: SelectHTMLAttributes<HTMLSelectElement> & { children: ReactNode }) {
-  return (
-    <div className='relative min-w-0'>
-      <select {...props} className={`${financeInputClass} cursor-pointer appearance-none pr-9 ${className}`}>
-        {children}
-      </select>
-      <ChevronDown
-        aria-hidden
-        strokeWidth={1.5}
-        className='pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-muted-foreground'
-      />
-    </div>
-  )
-}
-
 export function FinanceToolbar({ children }: { children: ReactNode }) {
   return (
-    <div className='flex flex-col gap-3 rounded-lg border border-border/70 bg-surface p-3 shadow-[0_1px_2px_0_rgba(0,0,0,0.04)] sm:flex-row sm:flex-wrap sm:items-end'>
-      {children}
-    </div>
+    <div className='soft-panel flex flex-col gap-3 p-3 sm:flex-row sm:flex-wrap sm:items-end sm:p-4'>{children}</div>
   )
 }
 
@@ -194,12 +148,14 @@ export function FinanceEmpty({ message }: { message?: string }) {
   return (
     <div
       role='status'
-      className='flex flex-col items-center gap-3 rounded-lg border border-dashed border-border bg-surface px-6 py-10 text-center'
+      className='flex flex-col items-center gap-3 rounded-xl border border-border/70 bg-surface px-6 py-10 text-center shadow-[0_1px_2px_0_rgba(0,0,0,0.04)]'
     >
-      <span className='grid size-10 place-items-center rounded-lg bg-surface-subtle text-muted-foreground'>
-        <Inbox aria-hidden className='size-5' strokeWidth={1.5} />
+      <span className='kpi-chip grid size-12 place-items-center rounded-xl'>
+        <Inbox aria-hidden className='size-6' strokeWidth={1.5} />
       </span>
-      <p className='text-sm text-muted-foreground'>{message ?? translate('empty')}</p>
+      <p className='max-w-md text-sm leading-relaxed text-muted-foreground [text-wrap:pretty]'>
+        {message ?? translate('empty')}
+      </p>
     </div>
   )
 }
@@ -275,7 +231,8 @@ export function FinanceStatus({ value, label: customLabel }: { value?: string | 
     customLabel ?? (value ? translate(`status.${value}`, { defaultValue: translate('unknown') }) : translate('unknown'))
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-medium whitespace-nowrap ring-1 ring-inset ${toneClasses[financeStatusTone(value)]}`}
+      title={label}
+      className={`inline-flex max-w-full items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-medium whitespace-nowrap ring-1 ring-inset ${toneClasses[financeStatusTone(value)]}`}
     >
       <span aria-hidden className='size-1.5 rounded-full bg-current' />
       {label}
@@ -308,7 +265,7 @@ export function FinanceStat({
 export function FinanceStatGrid({ children, columns = 3 }: { children: ReactNode; columns?: 3 | 4 }) {
   return (
     <dl
-      className={`flex flex-wrap gap-px overflow-hidden rounded-lg border border-border/70 bg-border/70 ${columns === 4 ? '[&>div]:basis-60' : '[&>div]:basis-72'}`}
+      className={`flex flex-wrap gap-px overflow-hidden rounded-xl border border-border/70 bg-border/70 shadow-[0_1px_2px_0_rgba(0,0,0,0.04)] ${columns === 4 ? '[&>div]:basis-60' : '[&>div]:basis-72'}`}
     >
       {children}
     </dl>
@@ -328,7 +285,7 @@ export function FinanceSection({
   return (
     <section aria-labelledby={headingId} className='space-y-3'>
       <div className='flex flex-wrap items-center justify-between gap-3'>
-        <h2 id={headingId} className='text-base font-semibold tracking-tight [text-wrap:balance]'>
+        <h2 id={headingId} className='section-accent text-base font-semibold tracking-tight [text-wrap:balance]'>
           {title}
         </h2>
         {actions && <div className='flex flex-wrap gap-2'>{actions}</div>}

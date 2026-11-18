@@ -19,7 +19,7 @@ export function MemberAvatar({ member, large = false }: { member: TeamMember; la
   ) : (
     <span
       aria-hidden='true'
-      className={`flex shrink-0 items-center justify-center rounded-full bg-brand-100 font-semibold text-brand-600 ${large ? 'size-24 text-2xl' : 'size-8 text-xs'}`}
+      className={`flex shrink-0 items-center justify-center rounded-full bg-primary-soft font-semibold text-primary-ink ${large ? 'size-24 text-2xl' : 'size-8 text-xs'}`}
     >
       {member.initials}
     </span>

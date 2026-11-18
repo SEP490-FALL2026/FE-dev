@@ -83,12 +83,15 @@ import { itOptimization as enItOptimization } from './locales/en/it-optimization
 import { itOptimization as viItOptimization } from './locales/vi/it-optimization'
 import { itReconciliation as enItReconciliation } from './locales/en/it-reconciliation'
 import { itReconciliation as viItReconciliation } from './locales/vi/it-reconciliation'
+import { itPlaceholders as enItPlaceholders } from './locales/en/it-placeholders'
+import { itPlaceholders as viItPlaceholders } from './locales/vi/it-placeholders'
 
 export { defaultNS } from './resource-config'
 
 export const resources = {
   en: {
     itReconciliation: enItReconciliation,
+    itPlaceholders: enItPlaceholders,
     itOptimization: enItOptimization,
     itInvoices: enItInvoices,
     itDepartmentSoftware: enItDepartmentSoftware,
@@ -133,6 +136,7 @@ export const resources = {
   },
   vi: {
     itReconciliation: viItReconciliation,
+    itPlaceholders: viItPlaceholders,
     itOptimization: viItOptimization,
     itInvoices: viItInvoices,
     itDepartmentSoftware: viItDepartmentSoftware,

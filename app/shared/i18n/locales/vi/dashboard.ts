@@ -84,6 +84,45 @@ export const dashboard = {
     closeMenu: 'Đóng menu',
     openMenu: 'Mở menu'
   },
+  shell: {
+    greetingAfternoon: 'Chào buổi chiều',
+    greetingEvening: 'Chào buổi tối',
+    greetingMorning: 'Chào buổi sáng',
+    greetingNamed: '{{greeting}}, {{name}}',
+    menu: 'Menu chính',
+    mascot: {
+      label: 'Sentry, chim canh bản quyền. Nhấn để nghe gợi ý',
+      hello: 'Mình là Sentry, chú chim canh chừng bản quyền phần mềm cùng bạn.',
+      goodbye: 'Chúc bạn một ngày làm việc suôn sẻ.',
+      tips: {
+        employee: {
+          first: 'Cần phần mềm mới? Mở Tạo yêu cầu để gửi đề xuất.',
+          second: 'Hạn dùng của từng phần mềm nằm trong mục Quyền sử dụng.'
+        },
+        manager: {
+          first: 'Nhu cầu của nhân viên đang chờ bạn ở mục Duyệt nhu cầu.',
+          second: 'Rà soát suất không sử dụng giúp phòng tiết kiệm chi phí.'
+        },
+        'it-admin': {
+          first: 'Việc cấp phát và thu hồi đang chờ nằm ở mục Tác vụ cấp phát / thu hồi.',
+          second: 'Nhập dữ liệu sử dụng định kỳ để phát hiện suất bỏ trống.'
+        },
+        finance: {
+          first: 'Kiểm tra cam kết và hóa đơn mua trước khi rà soát ngân sách.',
+          second: 'Sai lệch hóa đơn nên được xử lý sớm để số liệu khớp.'
+        },
+        'spending-approver': {
+          first: 'Các khoản chi cần quyết định nằm ở Hàng chờ duyệt.',
+          second: 'Đề xuất ngân sách năm của các phòng nằm ở mục Duyệt ngân sách năm.'
+        },
+        'super-admin': {
+          first: 'Kiểm tra Phòng ban và Nhân sự trước khi mời tài khoản mới.',
+          second: 'Giám sát quy trình cho biết bước nào đang bị tắc.'
+        }
+      }
+    },
+    workspace: 'Vai trò'
+  },
   navigation: {
     alerts: 'Cảnh báo',
     costs: 'Chi phí',
@@ -691,6 +730,7 @@ export const dashboard = {
       back: 'Quay lại',
       step1: 'Thông tin gia hạn',
       fieldSoftware: 'Bản quyền cần gia hạn',
+      fieldSoftwarePlaceholder: 'Chọn bản quyền cần gia hạn, gõ để tìm',
       fieldDuration: 'Thời gian gia hạn mong muốn',
       duration1Month: '1 Tháng',
       duration3Months: '3 Tháng',
@@ -707,6 +747,7 @@ export const dashboard = {
       back: 'Quay lại',
       step1: 'Chọn bản quyền trả',
       fieldSoftware: 'Phần mềm cần trả',
+      fieldSoftwarePlaceholder: 'Chọn phần mềm cần trả, gõ để tìm',
       fieldReason: 'Lý do hoàn trả',
       additionalNotes: 'Ghi chú bổ sung',
       optionLabel: '{{name}} ({{plan}}) - Bản quyền: {{key}}',
@@ -1089,6 +1130,9 @@ export const dashboard = {
       costPerSeatLabel: 'Chi phí mỗi bản quyền/tháng',
       backToTeam: 'Quay lại danh sách nhân viên',
       subtitle: 'Chủ động yêu cầu phần mềm cho thành viên trong nhóm phục vụ dự án',
+      placeholderPlan: 'Ví dụ: Gói Business cho nhóm thiết kế',
+      placeholderEmployee: 'Chọn nhân viên, gõ để tìm',
+      placeholderSoftware: 'Chọn phần mềm, gõ để tìm',
       labelEmployee: 'Chọn nhân viên được cấp',
       deptLabel: 'Phòng ban',
       costCenterLabel: 'Trung tâm chi phí',

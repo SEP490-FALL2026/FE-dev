@@ -8,7 +8,9 @@ import {
 import { useItAdminList } from '~/shared/api/generated/operations/it-admins/it-admin-list'
 import { useApplicationResponsibilityTransfer } from '~/shared/api/generated/operations/applications/application-responsibility-transfer'
 import { getSuperAdminDashboardGetQueryKey } from '~/shared/api/generated/operations/dashboards/super-admin-dashboard-get'
-import { AdminField, AdminFormDialog, adminInputClass } from '../../shared/components/admin-form'
+import { AdminField, AdminFormDialog } from '../../shared/components/admin-form'
+import { AdminSelect } from '../../shared/components/admin-select'
+import { useDebouncedValue } from '~/shared/lib/use-debounced-value'
 import { AdminQueryState } from '../../shared/components/admin-query-state'
 import { AdminPagination } from '../../shared/components/admin-pagination'
 import { useAdminMutationFeedback } from '../../shared/hooks/use-admin-mutation-feedback'
@@ -21,7 +23,14 @@ export function ResponsibilityTransfer({ onClose }: { onClose: () => void }) {
   const [adminPage, setAdminPage] = useState(1)
   const [application, setApplication] = useState<{ id: string; name: string } | null>(null)
   const [target, setTarget] = useState<{ id: string; name: string } | null>(null)
-  const departments = useDepartmentList({ page: departmentPage, pageSize: 20 })
+  const [departmentSearch, setDepartmentSearch] = useState('')
+  const [departmentLabel, setDepartmentLabel] = useState('')
+  const debouncedDepartmentSearch = useDebouncedValue(departmentSearch, 300)
+  const departments = useDepartmentList({
+    page: departmentPage,
+    pageSize: 20,
+    ...(debouncedDepartmentSearch ? { search: debouncedDepartmentSearch } : {})
+  })
   const software = useDepartmentSoftwareList(
     departmentId,
     { page: softwarePage, pageSize: 20 },
@@ -64,23 +73,28 @@ export function ResponsibilityTransfer({ onClose }: { onClose: () => void }) {
           required
           description={translate('applicationHandover.departmentHelp')}
         >
-          <select
+          <AdminSelect
             required
-            className={adminInputClass}
             value={departmentId}
-            onChange={(event) => {
-              setDepartmentId(event.target.value)
+            onChange={(next, option) => {
+              setDepartmentId(next)
+              setDepartmentLabel(option?.label ?? '')
               setApplication(null)
               setSoftwarePage(1)
             }}
-          >
-            <option value=''>{translate('all')}</option>
-            {departments.data?.data?.items.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.name}
-              </option>
-            ))}
-          </select>
+            onSearchChange={(text) => {
+              setDepartmentSearch(text)
+              setDepartmentPage(1)
+            }}
+            selectedLabel={departmentLabel}
+            loading={departments.isFetching}
+            options={(departments.data?.data?.items ?? []).map((item) => ({
+              value: item.id,
+              label: item.name,
+              description: item.code
+            }))}
+            placeholder={translate('ui.pickDepartment')}
+          />
         </AdminField>
         <AdminPagination
           pagination={departments.data?.data?.pagination}
@@ -99,22 +113,16 @@ export function ResponsibilityTransfer({ onClose }: { onClose: () => void }) {
             required
             description={translate('applicationHandover.applicationHelp')}
           >
-            <select
+            <AdminSelect
               required
-              className={adminInputClass}
               value={application?.id ?? ''}
-              onChange={(event) => setApplication(apps.find((item) => item.id === event.target.value) ?? null)}
-            >
-              <option value=''>{translate('all')}</option>
-              {application && !apps.some((item) => item.id === application.id) && (
-                <option value={application.id}>{application.name}</option>
-              )}
-              {apps.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
+              onChange={(_, option) => setApplication(option ? { id: option.value, name: option.label } : null)}
+              selectedLabel={application?.name}
+              loading={software.isFetching}
+              options={apps.map((item) => ({ value: item.id, label: item.name }))}
+              placeholder={translate('ui.pickApplication')}
+              emptyText={translate('ui.noApplications')}
+            />
           </AdminField>
           <AdminPagination
             pagination={software.data?.data?.pagination}
@@ -129,25 +137,15 @@ export function ResponsibilityTransfer({ onClose }: { onClose: () => void }) {
           required
           description={translate('applicationHandover.targetHelp')}
         >
-          <select
+          <AdminSelect
             required
-            className={adminInputClass}
             value={target?.id ?? ''}
-            onChange={(event) => {
-              const item = admins.data?.data?.items.find((item) => item.employeeId === event.target.value)
-              setTarget(item ? { id: item.employeeId, name: item.fullName } : null)
-            }}
-          >
-            <option value=''>{translate('all')}</option>
-            {target && !admins.data?.data?.items.some((item) => item.employeeId === target.id) && (
-              <option value={target.id}>{target.name}</option>
-            )}
-            {admins.data?.data?.items.map((item) => (
-              <option key={item.employeeId} value={item.employeeId}>
-                {item.fullName}
-              </option>
-            ))}
-          </select>
+            onChange={(_, option) => setTarget(option ? { id: option.value, name: option.label } : null)}
+            selectedLabel={target?.name}
+            loading={admins.isFetching}
+            options={(admins.data?.data?.items ?? []).map((item) => ({ value: item.employeeId, label: item.fullName }))}
+            placeholder={translate('ui.pickItAdmin')}
+          />
         </AdminField>
         <AdminPagination
           pagination={admins.data?.data?.pagination}

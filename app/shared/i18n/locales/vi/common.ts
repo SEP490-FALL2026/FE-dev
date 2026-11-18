@@ -17,6 +17,13 @@ export const common = {
     phoneInvalid: 'Nhập số điện thoại công việc hợp lệ gồm 8–15 chữ số.',
     save: 'Lưu số điện thoại'
   },
+  searchSelect: {
+    empty: 'Không tìm thấy kết quả phù hợp',
+    loading: 'Đang tải danh sách…',
+    clear: 'Xóa lựa chọn',
+    toggle: 'Mở hoặc đóng danh sách',
+    loadMore: 'Tải thêm'
+  },
   brand: 'SaaS-Sentry',
   notifications: {
     messages: notificationMessages,

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { Boxes } from 'lucide-react'
+import { Boxes, Undo2 } from 'lucide-react'
 import {
   EmployeePagination,
   EmployeeQueryState,
@@ -23,7 +23,7 @@ export function EmployeeAccessReturns({
   const returns = useReturnRequestList({ page: returnsPage.page, pageSize: returnsPage.pageSize })
 
   return (
-    <EmployeeSection title={translate('returns')}>
+    <EmployeeSection title={translate('returns')} description={translate('ui.lists.returnsHint')} icon={Undo2}>
       <EmployeeQueryState
         query={returns}
         empty={!returns.data?.data?.items.length}

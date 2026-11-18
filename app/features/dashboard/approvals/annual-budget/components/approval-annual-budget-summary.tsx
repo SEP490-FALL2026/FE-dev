@@ -108,7 +108,7 @@ export function ApprovalAnnualBudgetSummary({ version }: { version: VersionRespo
       </ApprovalsStatGrid>
       {version.proposalId && <ProposalComparison proposalId={version.proposalId} base={version.base} />}
       <ApprovalsSection title={translate('versionInfo')}>
-        <dl className='grid gap-4 rounded-lg border border-border/70 bg-surface p-4 sm:grid-cols-2 lg:grid-cols-4'>
+        <dl className='grid gap-4 rounded-xl border border-border/70 bg-surface p-5 shadow-[0_1px_2px_0_rgba(0,0,0,0.04)] sm:grid-cols-2 lg:grid-cols-4'>
           <Fact label={translate('year')} value={String(version.year)} numeric />
           <Fact label={translate('number')} value={String(version.number)} numeric />
           <Fact label={translate('kindLabel')} value={translate(`origin.${version.origin}`, { defaultValue: none })} />
@@ -132,7 +132,7 @@ export function ApprovalAnnualBudgetSummary({ version }: { version: VersionRespo
       </ApprovalsSection>
       {version.decision && (
         <ApprovalsSection title={translate('recordedDecision')}>
-          <dl className='grid gap-4 rounded-lg border border-border/70 bg-surface p-4 sm:grid-cols-3'>
+          <dl className='grid gap-4 rounded-xl border border-border/70 bg-surface p-5 shadow-[0_1px_2px_0_rgba(0,0,0,0.04)] sm:grid-cols-3'>
             <div className='min-w-0'>
               <dt className='text-xs text-muted-foreground'>{translate('decision')}</dt>
               <dd className='mt-1'>

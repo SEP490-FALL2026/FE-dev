@@ -37,12 +37,12 @@ function DetailPagePanel({ title, children, onClose, pending = false, backLabel 
   }, [])
   return (
     <section aria-labelledby={titleId} className='space-y-6'>
-      <header className='space-y-3 border-b border-border/60 pb-5'>
+      <header className='page-banner space-y-2'>
         <button
           type='button'
           disabled={pending}
           onClick={onClose}
-          className='-ml-2 inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-md px-2 text-sm font-medium text-muted-foreground transition-colors duration-150 hover:bg-surface-subtle hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-none active:bg-primary-soft active:text-primary-ink disabled:cursor-not-allowed disabled:opacity-50 md:min-h-9'
+          className='relative -ml-2 inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-md px-2 text-sm font-medium text-muted-foreground transition-colors duration-150 hover:bg-surface-subtle hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-none active:bg-primary-soft active:text-primary-ink disabled:cursor-not-allowed disabled:opacity-50 md:min-h-9'
         >
           <ArrowLeft aria-hidden className='size-4' strokeWidth={1.5} />
           {backLabel ?? translate('backToList')}
@@ -51,13 +51,13 @@ function DetailPagePanel({ title, children, onClose, pending = false, backLabel 
           ref={heading}
           id={titleId}
           tabIndex={-1}
-          className='text-2xl leading-tight font-semibold tracking-tight break-words outline-none [text-wrap:balance]'
+          className='relative text-2xl leading-tight font-semibold tracking-tight break-words text-foreground outline-none [text-wrap:balance]'
         >
           {title}
         </h1>
       </header>
       <DetailPageContext.Provider value={false}>
-        <div className='space-y-6 rounded-lg border border-border/70 bg-surface p-5 shadow-[0_1px_2px_0_rgba(0,0,0,0.04)] sm:p-6'>
+        <div className='space-y-6 rounded-xl border border-border/70 bg-surface p-5 shadow-[0_1px_3px_0_rgba(0,0,0,0.05),0_1px_2px_-1px_rgba(0,0,0,0.05)] sm:p-6'>
           {children}
         </div>
       </DetailPageContext.Provider>
@@ -113,7 +113,7 @@ function DrawerPanel({ title, children, onClose, pending = false }: DrawerProps)
         onKeyDown={onKeyDown}
         className='max-h-[92dvh] w-full overflow-y-auto rounded-t-lg border border-border bg-surface pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-xl outline-none md:max-h-screen md:w-[640px] md:rounded-none'
       >
-        <header className='sticky top-0 z-10 mb-5 flex items-start justify-between gap-4 border-b border-border/60 bg-surface/95 px-5 py-4 backdrop-blur-md'>
+        <header className='sticky top-0 z-10 mb-5 flex items-start justify-between gap-4 border-b border-border/60 bg-[color-mix(in_oklab,var(--theme-primary-soft)_35%,var(--theme-surface))] px-5 py-4'>
           <h2 id={titleId} className='text-lg font-semibold tracking-tight [text-wrap:balance]'>
             {title}
           </h2>

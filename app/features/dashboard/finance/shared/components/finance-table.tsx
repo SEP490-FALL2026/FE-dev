@@ -26,7 +26,20 @@ function cellClass(column: { numeric?: boolean; actions?: boolean; align?: 'cent
   if (column.actions) {
     return 'sticky right-0 bg-surface text-right whitespace-nowrap transition-colors duration-150 group-hover:bg-surface-subtle'
   }
-  return column.numeric ? 'text-right font-mono tabular-nums' : 'text-left'
+  return column.numeric ? 'text-right font-mono tabular-nums whitespace-nowrap' : 'text-left'
+}
+
+/** Long text wraps over two lines and is cut at 12rem wide; the full text stays reachable as a tooltip. */
+function CellContent({ numeric, children }: { numeric?: boolean; children: ReactNode }) {
+  if (numeric) return <div>{children}</div>
+  return (
+    <div
+      className='line-clamp-2 max-w-48 [overflow-wrap:anywhere]'
+      title={typeof children === 'string' ? children : undefined}
+    >
+      {children}
+    </div>
+  )
 }
 
 const openButtonFocus = 'focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-none'
@@ -50,7 +63,7 @@ export function FinanceTable<Item>({
         {items.map((item) => (
           <article
             key={rowKey(item)}
-            className='space-y-3 rounded-lg border border-border/70 bg-surface p-4 shadow-[0_1px_2px_0_rgba(0,0,0,0.04)]'
+            className='space-y-3 rounded-xl border border-border/70 bg-surface p-4 shadow-[0_1px_2px_0_rgba(0,0,0,0.04)]'
           >
             <dl className='space-y-2'>
               {columns.map((column) => (
@@ -75,7 +88,7 @@ export function FinanceTable<Item>({
           </article>
         ))}
       </div>
-      <div className='hidden overflow-x-auto rounded-lg border border-border/70 bg-surface shadow-[0_1px_2px_0_rgba(0,0,0,0.04)] md:block'>
+      <div className='hidden overflow-x-auto rounded-xl border border-border/70 bg-surface shadow-[0_1px_3px_0_rgba(0,0,0,0.05),0_1px_2px_-1px_rgba(0,0,0,0.05)] md:block'>
         <table className='w-full text-sm'>
           <thead className='border-b border-border/70 bg-surface-subtle/60'>
             <tr>
@@ -83,7 +96,7 @@ export function FinanceTable<Item>({
                 <th
                   key={column.key}
                   scope='col'
-                  className={`px-4 py-2.5 text-[11px] font-semibold tracking-wider whitespace-nowrap text-muted-foreground uppercase ${alignClass(column)} ${column.width ?? ''}`}
+                  className={`px-3 py-2.5 align-bottom text-[11px] leading-snug font-semibold tracking-wider text-muted-foreground uppercase ${alignClass(column)} ${column.width ?? ''}`}
                 >
                   {column.label}
                 </th>
@@ -103,11 +116,11 @@ export function FinanceTable<Item>({
                 onClick={onOpen ? () => onOpen(item) : undefined}
               >
                 {columns.map((column) => (
-                  <td key={column.key} className={`px-4 py-3 align-middle ${cellClass(column)}`}>
+                  <td key={column.key} className={`px-3 py-3 align-middle ${cellClass(column)}`}>
                     {column.actions ? (
                       column.render(item)
                     ) : (
-                      <div className={column.numeric ? '' : 'max-w-64 truncate'}>{column.render(item)}</div>
+                      <CellContent numeric={column.numeric}>{column.render(item)}</CellContent>
                     )}
                   </td>
                 ))}

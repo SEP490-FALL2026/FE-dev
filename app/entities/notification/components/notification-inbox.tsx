@@ -123,9 +123,7 @@ export function NotificationInbox({
                     </div>
                     {!audience && (
                       <p className='mt-1 break-words text-sm leading-6 text-muted-foreground'>
-                        {requestId
-                          ? translate('notifications.requestReference', { id: requestId })
-                          : translate('notifications.updateHint')}
+                        {translate('notifications.updateHint')}
                       </p>
                     )}
                     {audience && known && <NotificationCopy notification={notification} />}
