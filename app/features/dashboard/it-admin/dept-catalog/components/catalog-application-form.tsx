@@ -31,6 +31,7 @@ export function CatalogApplicationForm({
   onUseExisting?: (name: string) => void
 }) {
   const { t } = useTranslation('itCatalog')
+  const { t: translatePlaceholder } = useTranslation('itPlaceholders')
   const [provisioning, setProvisioning] = useState('')
   const [groupId, setGroupId] = useState('')
   const [sensitivity, setSensitivity] = useState('')
@@ -124,11 +125,19 @@ export function CatalogApplicationForm({
       }}
     >
       <ItField label={t('name')} hint={t('help.name')}>
-        <input name='name' required maxLength={1000} defaultValue={application?.name} className={itInputClass} />
+        <input
+          placeholder={translatePlaceholder('appName')}
+          name='name'
+          required
+          maxLength={1000}
+          defaultValue={application?.name}
+          className={itInputClass}
+        />
       </ItField>
       {application && (
         <ItField label={t('creation.logo')} hint={t('creation.logoHint')}>
           <input
+            placeholder={translatePlaceholder('logoUrl')}
             name='logoUrl'
             type='url'
             pattern='https://\S+'
@@ -145,18 +154,37 @@ export function CatalogApplicationForm({
               {t('creation.useExisting', { name: duplicateName })}
             </button>
           )}
-          <h2 className='text-lg font-semibold'>{t('creation.applicationSection')}</h2>
+          <h2 className='section-accent text-lg font-semibold tracking-tight'>{t('creation.applicationSection')}</h2>
           {provisioning !== 'K5' && (
             <ItField label={t('vendor')} hint={t('help.vendor')}>
-              <input name='vendor' required={!!provisioning} maxLength={1000} className={itInputClass} />
+              <input
+                placeholder={translatePlaceholder('vendor')}
+                name='vendor'
+                required={!!provisioning}
+                maxLength={1000}
+                className={itInputClass}
+              />
             </ItField>
           )}
           <div className='grid gap-4 sm:grid-cols-2 [&>.it-form-field]:row-span-3 [&>.it-form-field]:grid-rows-subgrid'>
             <ItField label={t('creation.homepage')}>
-              <input name='homepageUrl' type='url' maxLength={1000} className={itInputClass} />
+              <input
+                placeholder={translatePlaceholder('homepageUrl')}
+                name='homepageUrl'
+                type='url'
+                maxLength={1000}
+                className={itInputClass}
+              />
             </ItField>
             <ItField label={t('creation.logo')} hint={t('creation.logoHint')}>
-              <input name='logoUrl' type='url' pattern='https://\S+' maxLength={500} className={itInputClass} />
+              <input
+                placeholder={translatePlaceholder('logoUrl')}
+                name='logoUrl'
+                type='url'
+                pattern='https://\S+'
+                maxLength={500}
+                className={itInputClass}
+              />
             </ItField>
             <ItChoiceSelect
               label={t('groups.field')}
@@ -201,9 +229,15 @@ export function CatalogApplicationForm({
               placeholder={t('placeholders.domains')}
             />
           </ItField>
-          <h2 className='text-lg font-semibold'>{t('creation.planSection')}</h2>
+          <h2 className='section-accent text-lg font-semibold tracking-tight'>{t('creation.planSection')}</h2>
           <ItField label={t('planName')} hint={t('applicationPlanHint')}>
-            <input name='planName' required maxLength={1000} className={itInputClass} />
+            <input
+              placeholder={translatePlaceholder('planName')}
+              name='planName'
+              required
+              maxLength={1000}
+              className={itInputClass}
+            />
           </ItField>
           <fieldset className='space-y-2'>
             <legend>

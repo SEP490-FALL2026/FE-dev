@@ -84,5 +84,22 @@ export const adminOrganization = {
   ongoing: 'Đang hiệu lực',
   membersHelp: 'Thành viên được đọc từ hồ sơ nhân sự. Ghi nhận sự kiện nhân sự để thay đổi phòng ban.',
   hasEmail: 'Đã có email công việc',
-  noEmail: 'Chưa có email công việc'
+  noEmail: 'Chưa có email công việc',
+  ui: {
+    eyebrow: 'Cơ cấu tổ chức',
+    listCount: '{{count}} phòng ban',
+    noMatchTitle: 'Không có phòng ban phù hợp',
+    noMatchHint: 'Thử đổi từ khóa hoặc bộ lọc để xem thêm phòng ban.',
+    emptyTitle: 'Chưa có phòng ban nào',
+    emptyHint: 'Phòng ban được tạo sẽ xuất hiện tại đây.',
+    pickUnplacedEmployee: 'Chọn nhân viên chưa có phòng, gõ tên hoặc mã để tìm',
+    noUnplacedEmployees: 'Không còn nhân viên nào chưa có phòng ban',
+    pickHeadChange: 'Chọn trưởng phòng mới, gõ để tìm',
+    pickHead: 'Chọn trưởng phòng, gõ tên hoặc mã để tìm',
+    noHeadCandidates: 'Không có nhân viên phù hợp làm trưởng phòng',
+    pickItAdmin: 'Chọn quản trị viên công nghệ thông tin, gõ để tìm',
+    noItAdminMatch: 'Không tìm thấy quản trị viên phù hợp',
+    noMembersTitle: 'Phòng chưa có thành viên',
+    noMembersHint: 'Thêm nhân viên vào phòng để họ xuất hiện trong danh sách này.'
+  }
 }

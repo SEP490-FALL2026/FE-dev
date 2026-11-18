@@ -271,6 +271,42 @@ export const financeBudget = {
   fieldInvalid: 'Enter a valid value.',
   optionalHint: 'Optional.',
   returnHint: 'The department head sees this reason when revising the proposal.',
+  screen: {
+    cyclesDescription:
+      'Each fiscal year has one cycle: set the annual ceiling, the shared-pool reserve and two deadlines, then open it for department heads to submit proposals.',
+    proposalsDescription:
+      'BM-10 proposals department heads send for each cost center. Open one to build a version, or return it while the cycle is open.',
+    versionsDescription:
+      'Full-year budget versions Finance builds for each cost center and sends to the spending approver for a decision.',
+    historyDescription: 'Changes to the figures, files and state of the version, newest first.',
+    cycleList: 'Budget cycles',
+    proposalList: 'Proposals',
+    versionList: 'Versions',
+    statePlaceholder: 'Choose a state (type to search)',
+    reserveModePlaceholder: 'Choose how to enter the reserve',
+    yearPlaceholder: 'For example: 2027',
+    prioritiesPlaceholder: 'For example: Renew security tools first, cut rarely used subscriptions',
+    ceilingReasonPlaceholder: 'For example: The board raised the ceiling after the Q1 plan review',
+    baseReasonPlaceholder: 'For example: Lowered to the seats actually used after the Q3 review',
+    percentPlaceholder: 'For example: {{percent}} (the default)',
+    cycleInfo: 'Cycle details',
+    cycleNotes: 'Deadlines and priorities',
+    submissionShort: 'Submission deadline',
+    openedAtLabel: 'Opened on',
+    decisionShort: 'Decision deadline',
+    proposalSummary: 'Proposal summary',
+    timeline: 'Sender and timeline',
+    related: 'Related proposals',
+    nextStep: 'Next step',
+    nextStepHint: 'Build a version from the amount the head requested, or return it for the head to complete.',
+    returnLocked:
+      'The budget cycle of this year is no longer open, so the proposal cannot be returned. Build a version from it if the figure needs changing.',
+    versionFigures: 'Version figures',
+    notices: 'Notes',
+    versionNotes: 'Reasons and author',
+    decision: 'Spending approver decision',
+    actions: 'Actions'
+  },
   placeholders: {
     yearFilter: 'All years',
     description: 'e.g. Figma Professional renewal for Design',

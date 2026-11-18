@@ -1,9 +1,10 @@
 import { useState } from 'react'
+import { useInfiniteQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { useAppUserList } from '~/shared/api/generated/operations/app-users/app-user-list'
-import { AdminField, adminInputClass } from '../../shared/components/admin-form'
-import { AdminEmpty, AdminQueryState } from '../../shared/components/admin-query-state'
-import { AdminPagination } from '../../shared/components/admin-pagination'
+import { appUserList, getAppUserListQueryKey } from '~/shared/api/generated/operations/app-users/app-user-list'
+import { AdminField } from '../../shared/components/admin-form'
+import { AdminQueryState } from '../../shared/components/admin-query-state'
+import { AdminSelect, type SearchableOption } from '../../shared/components/admin-select'
 
 export function DepartmentHeadPicker({
   departmentId,
@@ -15,63 +16,64 @@ export function DepartmentHeadPicker({
   errorId?: string
 }) {
   const { t: translate } = useTranslation('adminOrganization')
-  const [page, setPage] = useState(1)
-  const [selected, setSelected] = useState<{ id: string; label: string } | null>(null)
-  const query = useAppUserList(
-    {
-      role: 'MANAGER',
-      departmentId,
-      memberOn: effectiveFrom,
-      status: 'ACTIVE',
-      activationState: 'ACTIVATED',
-      page,
-      pageSize: 20
-    },
-    { query: { enabled: Boolean(effectiveFrom), retry: false } }
-  )
-  const candidates =
-    query.data?.data?.items.filter(
-      (account) =>
+  const [selected, setSelected] = useState<SearchableOption | null>(null)
+  const params = {
+    role: 'MANAGER' as const,
+    departmentId,
+    memberOn: effectiveFrom,
+    status: 'ACTIVE' as const,
+    activationState: 'ACTIVATED' as const,
+    pageSize: 20
+  }
+  const query = useInfiniteQuery({
+    queryKey: [...getAppUserListQueryKey(params), 'department-head-picker'],
+    enabled: Boolean(effectiveFrom),
+    retry: false,
+    initialPageParam: 1,
+    queryFn: ({ pageParam, signal }) => appUserList({ ...params, page: pageParam }, undefined, signal),
+    getNextPageParam: (last, pages) =>
+      pages.length < (last.data?.pagination.totalPages ?? 0) ? pages.length + 1 : undefined
+  })
+  const options: SearchableOption[] =
+    query.data?.pages.flatMap((page) =>
+      (page.data?.items ?? []).flatMap((account) =>
         account.employee &&
         account.roles.includes('MANAGER') &&
         !account.roles.includes('SPENDING_APPROVER') &&
         !account.roles.includes('SUPER_ADMIN')
+          ? [
+              {
+                value: account.employee.id,
+                label: account.employee.fullName,
+                description: account.employee.employeeCode
+              }
+            ]
+          : []
+      )
     ) ?? []
   return (
     <div className='space-y-3'>
-      <AdminField label={translate('editor.chooseHead')}>
-        <select
+      <AdminField label={translate('editor.chooseHead')} description={translate('editor.managerHelp')}>
+        <AdminSelect
           required
           name='employeeId'
-          className={adminInputClass}
-          value={selected?.id ?? ''}
-          aria-busy={query.isFetching}
-          aria-invalid={Boolean(errorId)}
+          value={selected?.value ?? ''}
+          invalid={Boolean(errorId)}
           aria-describedby={errorId}
-          onChange={(event) => {
-            const employee = candidates.find((account) => account.employee?.id === event.target.value)?.employee
-            setSelected(employee ? { id: employee.id, label: `${employee.employeeCode} — ${employee.fullName}` } : null)
-          }}
-        >
-          <option value=''>{translate('editor.chooseHeadPlaceholder')}</option>
-          {selected && !candidates.some((account) => account.employee?.id === selected.id) && (
-            <option value={selected.id}>{selected.label}</option>
-          )}
-          {candidates.map(
-            (account) =>
-              account.employee && (
-                <option key={account.id} value={account.employee.id}>
-                  {`${account.employee.employeeCode} — ${account.employee.fullName}`}
-                </option>
-              )
-          )}
-        </select>
+          onChange={(_, option) => setSelected(option)}
+          options={options}
+          selectedLabel={selected?.label}
+          loading={query.isFetching}
+          hasMore={query.hasNextPage}
+          onLoadMore={() => void query.fetchNextPage()}
+          disabled={!effectiveFrom}
+          placeholder={translate('ui.pickHead')}
+          emptyText={translate('ui.noHeadCandidates')}
+        />
       </AdminField>
-      <p className='text-xs text-muted-foreground'>{translate('editor.managerHelp')}</p>
-      <AdminQueryState query={query}>
-        {!candidates.length && <AdminEmpty />}
-        <AdminPagination pagination={query.data?.data?.pagination} onPageChange={setPage} disabled={query.isFetching} />
-      </AdminQueryState>
+      {(query.isError || (query.isPending && Boolean(effectiveFrom))) && (
+        <AdminQueryState query={query}>{null}</AdminQueryState>
+      )}
     </div>
   )
 }

@@ -12,6 +12,7 @@ import { PolicyAcknowledgementGate } from '~/entities/policy/components/policy-a
 
 import { DashboardHeader } from './components/dashboard-header'
 import { DashboardSidebar } from './components/dashboard-sidebar'
+import './components/dashboard-shell.css'
 
 // Role views
 import { getParentMenuKey, isValidItAdminTab, type ItAdminTabKey, ItAdminScreen } from './it-admin'
@@ -170,7 +171,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
   useDocumentTitle(t('documentTitle'))
 
   return (
-    <div className='flex h-screen overflow-hidden bg-background'>
+    <div className='dashboard-shell flex h-screen overflow-hidden'>
       <DashboardSidebar
         employeeSelfServiceOnly={false}
         managerSelfService={managerSelfService}
@@ -198,7 +199,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
         toggleSection={toggleSection}
       />
 
-      <div className='flex h-full min-w-0 flex-1 flex-col lg:pl-72'>
+      <div className='flex h-full min-w-0 flex-1 flex-col lg:pl-[19.5rem]'>
         <DashboardHeader
           activeEmployeeTab={activeEmployeeTab}
           activeManagerTab={activeManagerTab}
@@ -218,7 +219,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
 
         <motion.main
           animate={{ opacity: 1, y: 0 }}
-          className={`mx-auto min-h-0 w-full max-w-[100rem] flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 ${isManager ? 'manager-workspace' : ''}`}
+          className={`dashboard-main mx-auto min-h-0 w-full max-w-[100rem] flex-1 overflow-y-auto p-4 sm:p-6 lg:px-8 lg:pt-4 lg:pb-8 ${isManager ? 'manager-workspace' : ''}`}
           initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
           key={
             isItAdmin

@@ -1,4 +1,4 @@
-import { ArrowLeft, Layers } from 'lucide-react'
+import { ArrowLeft, FileCheck2, Layers } from 'lucide-react'
 import { useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { useSpendApprovalGet } from '~/shared/api/generated/operations/spend-approvals/spend-approval-get'
@@ -30,6 +30,8 @@ export function ApprovalRequestView({
   const hasBatch = UUID_PATTERN.test(batchId)
   return (
     <ApprovalsPage
+      icon={FileCheck2}
+      eyebrow={translate('queue')}
       title={translate('detail')}
       actions={
         <>
@@ -56,6 +58,7 @@ export function ApprovalRequestView({
 }
 
 function SpendRequestContent({ requestId }: { requestId: string }) {
+  const { t: translate } = useTranslation('approvalsSpend')
   const approvalQuery = useSpendApprovalGet(requestId)
   const approval = approvalQuery.data?.data?.spendApproval
   const requestKind = useSpendRequestKind(requestId, approval ? approval.request.beneficiary !== null : undefined)
@@ -82,10 +85,10 @@ function SpendRequestContent({ requestId }: { requestId: string }) {
       {approval ? (
         <div className='space-y-6'>
           <h2
-            className='truncate text-xl font-semibold'
-            title={approval.request.plan?.applicationName ?? approval.request.softwareName ?? requestId}
+            className='section-accent truncate text-xl font-semibold tracking-tight'
+            title={approval.request.plan?.applicationName ?? approval.request.softwareName ?? translate('software')}
           >
-            {approval.request.plan?.applicationName ?? approval.request.softwareName ?? requestId}
+            {approval.request.plan?.applicationName ?? approval.request.softwareName ?? translate('software')}
           </h2>
           <SpendRequestFacts approval={approval} isGroup={isGroup} />
           {requestKind.failure && <ApprovalsQueryState query={requestKind.failure}>{null}</ApprovalsQueryState>}

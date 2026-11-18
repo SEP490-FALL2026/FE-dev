@@ -1,8 +1,9 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { appUserList, getAppUserListQueryKey } from '~/shared/api/generated/operations/app-users/app-user-list'
-import { AdminField, adminInputClass } from '../../shared/components/admin-form'
+import { AdminField } from '../../shared/components/admin-form'
+import { AdminSelect } from '../../shared/components/admin-select'
 import { AdminQueryState } from '../../shared/components/admin-query-state'
 
 export function DepartmentItAdminSelect({
@@ -45,32 +46,27 @@ export function DepartmentItAdminSelect({
     () => onReadyChange(query.isSuccess && !query.isFetching),
     [onReadyChange, query.isSuccess, query.isFetching]
   )
-  const candidates = query.data ?? []
+  const options = (query.data ?? []).flatMap((account) =>
+    account.employee
+      ? [{ value: account.employee.id, label: account.employee.fullName, description: account.employee.employeeCode }]
+      : []
+  )
   return (
     <div className='grid gap-2'>
       <AdminField label={translate('itAdminId')}>
-        <select
+        <AdminSelect
           name='itAdminEmployeeId'
-          className={adminInputClass}
           value={selected}
-          onChange={(event) => setSelected(event.target.value)}
-          aria-invalid={invalid || undefined}
+          onChange={setSelected}
+          invalid={invalid}
           aria-describedby={descriptionId}
-          aria-busy={query.isFetching}
-        >
-          <option value=''>{translate('unassigned')}</option>
-          {initialId && !candidates.some((account) => account.employee?.id === initialId) && (
-            <option value={initialId}>{initialLabel}</option>
-          )}
-          {candidates.map(
-            (account) =>
-              account.employee && (
-                <option key={account.id} value={account.employee.id}>
-                  {account.employee.employeeCode} — {account.employee.fullName}
-                </option>
-              )
-          )}
-        </select>
+          options={options}
+          loading={query.isFetching}
+          clearable
+          selectedLabel={selected && selected === initialId ? initialLabel : undefined}
+          placeholder={translate('ui.pickItAdmin')}
+          emptyText={translate('ui.noItAdminMatch')}
+        />
       </AdminField>
       {(query.isPending || query.isError) && <AdminQueryState query={query}>{null}</AdminQueryState>}
     </div>

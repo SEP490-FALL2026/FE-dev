@@ -5,7 +5,11 @@ import { useAccessRequestAuditFlagList } from '~/shared/api/generated/operations
 import { useSubscriptionDeadlineEventList } from '~/shared/api/generated/operations/subscription-renewals/subscription-deadline-event-list'
 import type { RevocationSlaGetParams, SubscriptionDeadlineEventListKind } from '~/shared/api/generated/model'
 import { AdminField, adminInputClass } from '../../shared/components/admin-form'
-import { AdminEmpty, AdminQueryState } from '../../shared/components/admin-query-state'
+import { AdminQueryState } from '../../shared/components/admin-query-state'
+import { AdminSelect } from '../../shared/components/admin-select'
+import { AdminSectionTitle } from '../../shared/components/admin-page-header'
+import { WorkspaceEmptyState } from '~/shared/ui/workspace-empty-state'
+import { Inbox } from 'lucide-react'
 import { AdminPagination } from '../../shared/components/admin-pagination'
 import { useDashboardFormat } from '../../../dashboard-ui'
 
@@ -39,7 +43,7 @@ function useReportDates() {
 function DateFilters({ dates }: { dates: ReturnType<typeof useReportDates> }) {
   const { t: translate } = useTranslation('admin')
   return (
-    <div className='grid gap-4 sm:grid-cols-2'>
+    <>
       <AdminField label={translate('oversight.from')} description={translate('oversight.dateHelp')}>
         <input
           type='date'
@@ -58,7 +62,7 @@ function DateFilters({ dates }: { dates: ReturnType<typeof useReportDates> }) {
           onChange={(event) => dates.setTo(event.target.value)}
         />
       </AdminField>
-    </div>
+    </>
   )
 }
 
@@ -72,55 +76,64 @@ function RevocationReport() {
   const { formatNumber } = useDashboardFormat()
   return (
     <section className='space-y-4'>
-      <h2 className='text-xl font-semibold'>{translate('oversight.sla')}</h2>
-      <p className='text-sm text-muted-foreground'>{translate('oversight.reportHelp')}</p>
-      <DateFilters dates={dates} />
-      <div className='grid gap-4 sm:grid-cols-2'>
+      <AdminSectionTitle title={translate('oversight.sla')} hint={translate('oversight.reportHelp')} />
+      <div className='soft-panel grid gap-4 p-4 sm:grid-cols-2 xl:grid-cols-4'>
+        <DateFilters dates={dates} />
         <AdminField label={translate('oversight.groupBy')}>
-          <select
-            className={adminInputClass}
+          <AdminSelect
             value={groupBy}
-            onChange={(event) => {
-              setGroupBy(event.target.value === 'department' ? 'department' : 'itAdmin')
+            onChange={(next) => {
+              setGroupBy(next === 'department' ? 'department' : 'itAdmin')
               dates.setPage(1)
             }}
-          >
-            <option value='itAdmin'>{translate('oversight.itAdmin')}</option>
-            <option value='department'>{translate('oversight.department')}</option>
-          </select>
+            options={[
+              { value: 'itAdmin', label: translate('oversight.itAdmin') },
+              { value: 'department', label: translate('oversight.department') }
+            ]}
+            placeholder={translate('ui.pickGroupBy')}
+          />
         </AdminField>
         <AdminField label={translate('oversight.source')}>
-          <select
-            className={adminInputClass}
+          <AdminSelect
             value={source ?? ''}
-            onChange={(event) => {
-              const next = event.target.value
+            clearable
+            onChange={(next) => {
               setSource(next === 'OFFBOARDING' || next === 'TRANSFER' ? next : undefined)
               dates.setPage(1)
             }}
-          >
-            <option value=''>{translate('oversight.all')}</option>
-            <option value='OFFBOARDING'>{translate('oversight.OFFBOARDING')}</option>
-            <option value='TRANSFER'>{translate('oversight.TRANSFER')}</option>
-          </select>
+            options={(['OFFBOARDING', 'TRANSFER'] as const).map((value) => ({
+              value,
+              label: translate(`oversight.${value}`)
+            }))}
+            placeholder={translate('ui.allSources')}
+          />
         </AdminField>
       </div>
       <AdminQueryState query={query}>
         {data && (
           <>
-            <dl className='grid gap-3 sm:grid-cols-3'>
+            <dl className='kpi-tone-grid grid gap-3 sm:grid-cols-3'>
               {(['completed', 'onTime', 'overdueOpen'] as const).map((key) => (
-                <div key={key} className='rounded-lg border border-border bg-surface p-4'>
+                <div
+                  key={key}
+                  className='rounded-xl border border-border/80 bg-surface p-4 shadow-[0_1px_2px_rgb(0_0_0/4%)]'
+                >
                   <dt className='text-sm text-muted-foreground'>{translate(`oversight.${key}`)}</dt>
                   <dd className='mt-2 text-right font-mono text-2xl tabular-nums'>{formatNumber(data[key])}</dd>
                 </div>
               ))}
             </dl>
-            {!data.rows.length && <AdminEmpty />}
+            {!data.rows.length && (
+              <WorkspaceEmptyState
+                icon={Inbox}
+                title={translate('ui.noReportRows')}
+                description={translate('ui.noReportRowsHint')}
+              />
+            )}
             {data.rows.map((row, index) => (
               <article
                 key={row.key.id ?? index}
-                className='grid gap-3 rounded-lg border border-border bg-surface p-4 sm:grid-cols-4'
+                className='grid gap-3 rounded-xl border border-border/80 bg-surface p-4 shadow-[0_1px_2px_rgb(0_0_0/4%)] sm:grid-cols-4'
               >
                 <h3 className='font-medium'>{row.key.name ?? translate('none')}</h3>
                 {(['completed', 'onTime', 'overdueOpen'] as const).map((key) => (
@@ -146,13 +159,23 @@ function RequestAuditReport() {
   const { formatDateTime } = useDashboardFormat()
   return (
     <section className='space-y-4'>
-      <h2 className='text-xl font-semibold'>{translate('oversight.auditFlags')}</h2>
-      <p className='text-sm text-muted-foreground'>{translate('oversight.auditHelp')}</p>
-      <DateFilters dates={dates} />
+      <AdminSectionTitle title={translate('oversight.auditFlags')} hint={translate('oversight.auditHelp')} />
+      <div className='soft-panel grid gap-4 p-4 sm:grid-cols-2'>
+        <DateFilters dates={dates} />
+      </div>
       <AdminQueryState query={query}>
-        {!query.data?.data?.items.length && <AdminEmpty />}
+        {!query.data?.data?.items.length && (
+          <WorkspaceEmptyState
+            icon={Inbox}
+            title={translate('ui.noReportRows')}
+            description={translate('ui.noReportRowsHint')}
+          />
+        )}
         {query.data?.data?.items.map((item) => (
-          <article key={item.requestId} className='space-y-2 rounded-lg border border-border bg-surface p-4'>
+          <article
+            key={item.requestId}
+            className='space-y-2 rounded-xl border border-border/80 bg-surface p-4 shadow-[0_1px_2px_rgb(0_0_0/4%)] transition-colors duration-150 hover:border-primary/30'
+          >
             <h3 className='font-semibold'>
               {item.application.name} · {item.plan.name}
             </h3>
@@ -188,30 +211,38 @@ function DeadlineReport() {
   const { formatDate, formatDateTime } = useDashboardFormat()
   return (
     <section className='space-y-4'>
-      <h2 className='text-xl font-semibold'>{translate('oversight.deadlines')}</h2>
-      <DateFilters dates={dates} />
-      <AdminField label={translate('oversight.kind')}>
-        <select
-          className={adminInputClass}
-          value={kind ?? ''}
-          onChange={(event) => {
-            const next = event.target.value
-            setKind(next === 'AUTO_RENEWAL_INCIDENT' || next === 'EXPIRY_MARKED' ? next : undefined)
-            dates.setPage(1)
-          }}
-        >
-          <option value=''>{translate('all')}</option>
-          {(['AUTO_RENEWAL_INCIDENT', 'EXPIRY_MARKED'] as const).map((value) => (
-            <option key={value} value={value}>
-              {translate(`oversight.${value}`)}
-            </option>
-          ))}
-        </select>
-      </AdminField>
+      <AdminSectionTitle title={translate('oversight.deadlines')} />
+      <div className='soft-panel grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3'>
+        <DateFilters dates={dates} />
+        <AdminField label={translate('oversight.kind')}>
+          <AdminSelect
+            value={kind ?? ''}
+            clearable
+            onChange={(next) => {
+              setKind(next === 'AUTO_RENEWAL_INCIDENT' || next === 'EXPIRY_MARKED' ? next : undefined)
+              dates.setPage(1)
+            }}
+            options={(['AUTO_RENEWAL_INCIDENT', 'EXPIRY_MARKED'] as const).map((value) => ({
+              value,
+              label: translate(`oversight.${value}`)
+            }))}
+            placeholder={translate('ui.allDeadlineKinds')}
+          />
+        </AdminField>
+      </div>
       <AdminQueryState query={query}>
-        {!query.data?.data?.items.length && <AdminEmpty />}
+        {!query.data?.data?.items.length && (
+          <WorkspaceEmptyState
+            icon={Inbox}
+            title={translate('ui.noReportRows')}
+            description={translate('ui.noReportRowsHint')}
+          />
+        )}
         {query.data?.data?.items.map((item) => (
-          <article key={item.id} className='space-y-2 rounded-lg border border-border bg-surface p-4'>
+          <article
+            key={item.id}
+            className='space-y-2 rounded-xl border border-border/80 bg-surface p-4 shadow-[0_1px_2px_rgb(0_0_0/4%)] transition-colors duration-150 hover:border-primary/30'
+          >
             <h3 className='font-semibold'>
               {item.subscription.applicationName} · {item.subscription.planName}
             </h3>

@@ -7,6 +7,7 @@ import { useAppUserResendInvitation } from '~/shared/api/generated/operations/ap
 import { useAppUserAvatarDelete } from '~/shared/api/generated/operations/profile/app-user-avatar-delete'
 import type { AccountDetailResponseDtoData } from '~/shared/api/generated/model'
 import { AdminField, AdminFormDialog, adminInputClass } from '../../shared/components/admin-form'
+import { AdminSelect } from '../../shared/components/admin-select'
 import { useAdminMutationFeedback } from '../../shared/hooks/use-admin-mutation-feedback'
 import { hasKnownAccountState } from '../enums/account-status'
 import { directRoles, type DirectRole } from '../enums/direct-role'
@@ -99,22 +100,17 @@ export function AccountActionDialog({
       {action === 'grant' && (
         <>
           <AdminField label={translate('role')} required description={translate('roleHelp')}>
-            <select
+            <AdminSelect
               required
-              className={adminInputClass}
               value={role}
-              onChange={(event) => {
-                const next = directRoles.find((value) => value === event.target.value)
-                if (next) setRole(next)
+              onChange={(next) => {
+                const role = directRoles.find((value) => value === next)
+                if (role) setRole(role)
               }}
-            >
-              {!allowedRoles.length && <option value=''>{translate('none')}</option>}
-              {allowedRoles.map((value) => (
-                <option value={value} key={value}>
-                  {translate(`roles.${value}`)}
-                </option>
-              ))}
-            </select>
+              options={allowedRoles.map((value) => ({ value, label: translate(`roles.${value}`) }))}
+              placeholder={translate('ui.pickRole')}
+              emptyText={translate('none')}
+            />
           </AdminField>
           <p className='text-xs text-muted-foreground'>{translate('singleRoleHint')}</p>
         </>

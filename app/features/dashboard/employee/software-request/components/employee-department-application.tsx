@@ -1,11 +1,12 @@
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useMeDepartmentSoftwareList } from '~/shared/api/generated/operations/department-software-list/me-department-software-list'
+import { getMeDepartmentSoftwareListQueryOptions } from '~/shared/api/generated/operations/department-software-list/me-department-software-list'
 import type { MyDepartmentSoftwareListResponseDtoDataItemsItem } from '~/shared/api/generated/model/department-software-list/myDepartmentSoftwareListResponseDtoDataItemsItem'
 import type { WorkspaceChoice } from '~/shared/ui/workspace-choice-select'
-import { EmployeeChoiceSelect } from '../../shared/components/employee-choice-select'
-import { EmployeePagination, EmployeeQueryState } from '../../shared/components/employee-api-ui'
+import { EmployeeField, EmployeeQueryState } from '../../shared/components/employee-api-ui'
+import { EmployeeSelect } from '../../shared/components/employee-select'
+import { usePagedOptions } from '../hooks/use-paged-options'
 
+/** Department software list (guidance only): the operation has no search, so loaded pages are filtered locally. */
 export function EmployeeDepartmentApplication({
   value,
   selectedEntry,
@@ -19,48 +20,37 @@ export function EmployeeDepartmentApplication({
 }) {
   const { t } = useTranslation('employee')
   const { t: flow } = useTranslation('requestFlow')
-  const [open, setOpen] = useState(false)
-  const [page, setPage] = useState(1)
-  const query = useMeDepartmentSoftwareList({ page, pageSize: 20 }, { query: { enabled: open && !disabled } })
-  const data = !query.isError ? query.data?.data : null
+  const entries = usePagedOptions('department', (page) =>
+    getMeDepartmentSoftwareListQueryOptions({ page, pageSize: 20 }, { query: { enabled: !disabled } })
+  )
+  const unplaced = entries.query?.data?.data?.departmentId === null
+  const selectedValue =
+    selectedEntry && selectedEntry.applicationId === value?.value ? selectedEntry.entryId : (value?.value ?? '')
   return (
-    <EmployeeChoiceSelect
-      label={t('catalog.application')}
-      placeholder={flow('departmentSoftware.choose')}
-      selected={
-        selectedEntry && selectedEntry.applicationId === value?.value
-          ? [
-              {
-                value: selectedEntry.entryId,
-                label: selectedEntry.applicationName,
-                description: selectedEntry.planName ?? undefined
-              }
-            ]
-          : value
-            ? [value]
-            : []
-      }
-      options={(data?.items ?? []).map((entry) => ({
-        value: entry.entryId,
-        label: entry.applicationName,
-        description: [entry.planName, entry.note].filter(Boolean).join(' · ')
-      }))}
-      disabled={disabled}
-      onOpenChange={setOpen}
-      onChange={(choices) => {
-        const entry = data?.items.find((item) => item.entryId === choices[0]?.value)
-        if (entry) {
-          onSelect(entry)
-        }
-      }}
-      state={
-        <EmployeeQueryState
-          query={query}
-          empty={!data?.items.length}
-          emptyTitle={flow(data?.departmentId === null ? 'departmentSoftware.unplaced' : 'departmentSoftware.empty')}
+    <div className='min-w-0'>
+      <EmployeeField label={t('catalog.application')}>
+        <EmployeeSelect
+          required
+          value={selectedValue}
+          selectedLabel={selectedEntry?.applicationName ?? value?.label}
+          placeholder={t('ui.placeholders.departmentApplication')}
+          disabled={disabled}
+          loading={entries.loading}
+          hasMore={entries.hasMore}
+          onLoadMore={entries.loadMore}
+          emptyText={flow(unplaced ? 'departmentSoftware.unplaced' : 'departmentSoftware.empty')}
+          options={entries.items.map((entry) => ({
+            value: entry.entryId,
+            label: entry.applicationName,
+            description: [entry.planName, entry.note].filter(Boolean).join(' · ') || undefined
+          }))}
+          onChange={(entryId) => {
+            const entry = entries.items.find((item) => item.entryId === entryId)
+            if (entry) onSelect(entry)
+          }}
         />
-      }
-      footer={<EmployeePagination pagination={data?.pagination} busy={query.isFetching} onPage={setPage} />}
-    />
+      </EmployeeField>
+      {entries.query?.isError && <EmployeeQueryState query={entries.query} />}
+    </div>
   )
 }

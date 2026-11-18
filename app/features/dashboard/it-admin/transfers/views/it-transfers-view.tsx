@@ -8,6 +8,7 @@ import { useDashboardFormat } from '../../../dashboard-ui'
 import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { ItPagination } from '../../shared/components/it-pagination'
 import { itButtonClass } from '../../shared/components/it-form'
+import { ItPageHeader, ItSectionTitle } from '../../shared/components/it-page-header'
 import { TransferFilters } from '../components/transfer-filters'
 import { TransferStatus } from '../enums/transfer-status'
 import { TransferDetail } from '../components/transfer-detail'
@@ -63,17 +64,21 @@ export function ItTransfersView({ initialId }: { initialId?: string }) {
   if (selected) return <TransferDetail key={selected} id={selected} onBack={() => select()} />
   return (
     <section className='space-y-5'>
-      <header>
-        <h1 className='flex items-center gap-3 text-2xl font-semibold tracking-tight'>
-          <ArrowRightLeft aria-hidden strokeWidth={1.5} className='size-6 text-primary' />
-          {translate('title')}
-        </h1>
-        <p className='mt-2 max-w-3xl text-sm text-muted-foreground'>{translate('hint')}</p>
-      </header>
+      <ItPageHeader icon={ArrowRightLeft} title={translate('title')} subtitle={translate('hint')} />
       <TransferFilters key={JSON.stringify(params)} params={params} onApply={updateParams} />
+      <ItSectionTitle
+        title={translate('listTitle')}
+        action={
+          data && (
+            <span className='text-sm text-muted-foreground'>
+              {translate('listCount', { count: data.pagination.totalItems })}
+            </span>
+          )
+        }
+      />
       <ItQueryState query={query}>
         {data?.items.length ? (
-          <div className='divide-y divide-border/50 rounded-lg border border-border/70 bg-surface'>
+          <div className='divide-y divide-border/50 overflow-hidden rounded-xl border border-border/70 bg-surface shadow-sm'>
             {data.items.map((item) => (
               <article key={item.id} className='grid gap-4 p-5 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:items-center'>
                 <div className='min-w-0'>

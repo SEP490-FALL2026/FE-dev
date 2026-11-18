@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { LoaderCircle } from 'lucide-react'
+import { Inbox, LoaderCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { getItError } from '../hooks/it-errors'
 import { itButtonClass } from './it-form'
@@ -39,8 +39,14 @@ export function ItQueryState({
 export function ItEmpty() {
   const { t: translate } = useTranslation('itAdmin')
   return (
-    <p role='status' className='p-6 text-sm text-muted-foreground'>
+    <div
+      role='status'
+      className='col-span-full flex flex-col items-center gap-3 rounded-lg border border-dashed border-border bg-surface/60 px-6 py-10 text-center text-sm text-muted-foreground'
+    >
+      <span className='grid size-12 place-items-center rounded-xl bg-primary-soft text-primary-ink'>
+        <Inbox aria-hidden strokeWidth={1.5} className='size-6' />
+      </span>
       {translate('empty')}
-    </p>
+    </div>
   )
 }

@@ -12,10 +12,12 @@ export function AdminField(props: ComponentProps<typeof BaseAdminField>) {
     ? props.children
     : null
   const type = control?.props.type
+  // Pickers (AdminSelect and the role lookups) are components; their placeholder already says what to pick.
+  const picker = !!control && typeof control.type !== 'string'
   const kind =
     control?.props.readOnly || control?.props.disabled
       ? 'readOnly'
-      : control?.type === 'select'
+      : picker || control?.type === 'select'
         ? 'select'
         : type === 'date' || type === 'datetime-local'
           ? 'date'
@@ -27,6 +29,8 @@ export function AdminField(props: ComponentProps<typeof BaseAdminField>) {
                 ? 'checkbox'
                 : 'text'
   const description =
-    props.description ?? control?.props.placeholder ?? translate(`formHelp.${kind}`, { field: props.label })
+    props.description ??
+    (picker ? undefined : control?.props.placeholder) ??
+    translate(`formHelp.${kind}`, { field: props.label })
   return <BaseAdminField {...props} description={description} />
 }

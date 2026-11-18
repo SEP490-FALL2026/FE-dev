@@ -21,7 +21,9 @@ export function CatalogFunctionalGroups() {
   return (
     <section className='space-y-4 rounded-lg border border-border bg-surface p-5'>
       <header className='flex flex-wrap items-center justify-between gap-3'>
-        <h2 className='text-lg font-semibold [text-wrap:balance]'>{translate('groups.title')}</h2>
+        <h2 className='section-accent text-lg font-semibold tracking-tight [text-wrap:balance]'>
+          {translate('groups.title')}
+        </h2>
         <button type='button' className={itPrimaryClass} onClick={() => setCreating(true)}>
           {translate('groups.create')}
         </button>
@@ -53,6 +55,7 @@ export function CatalogFunctionalGroups() {
 
 function GroupCreateDialog({ onClose }: { onClose: () => void }) {
   const { t: translate } = useTranslation('itCatalog')
+  const { t: translatePlaceholder } = useTranslation('itPlaceholders')
   const [name, setName] = useState('')
   const [uncertain, setUncertain] = useState(false)
   const feedback = useItMutationFeedback([getFunctionalGroupListQueryKey()], onClose)
@@ -78,6 +81,7 @@ function GroupCreateDialog({ onClose }: { onClose: () => void }) {
     >
       <ItField label={translate('groups.name')} hint={translate('groups.nameHint')}>
         <input
+          placeholder={translatePlaceholder('groupName')}
           required
           maxLength={1000}
           className={itInputClass}

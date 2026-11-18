@@ -2,6 +2,12 @@ export const approvals = {
   loading: 'Loading data…',
   refreshing: 'Refreshing data…',
   empty: 'No matching records.',
+  emptyHint: 'Try other filters, or come back once new items reach you.',
+  pageEyebrow: 'Spending approver',
+  select: {
+    placeholder: 'Choose {{subject}}, type to search',
+    empty: 'No option matches what you typed.'
+  },
   saved: 'Changes saved.',
   retry: 'Retry',
   retryAfter: 'Retry in {{seconds}} seconds',

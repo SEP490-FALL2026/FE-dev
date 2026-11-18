@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { employeeList, getEmployeeListQueryKey } from '~/shared/api/generated/operations/employees/employee-list'
 import { appUserList, getAppUserListQueryKey } from '~/shared/api/generated/operations/app-users/app-user-list'
 import { AdminQueryState } from './admin-query-state'
-import { adminInputClass } from './admin-form'
+import { AdminSelect } from './admin-select'
 
 export function EmployeeLookup({
   name,
@@ -73,29 +73,24 @@ export function EmployeeLookup({
     }
   })
   const items = query.data ?? []
+  const options = items.map((item) => ({ value: item.id, label: item.fullName, description: item.employeeCode }))
   return (
     <div className='grid gap-2'>
-      <select
+      <AdminSelect
         aria-label={translate(name === 'successorEmployeeId' ? 'fields.successorEmployeeId' : 'fields.employeeId')}
         name={name}
-        aria-invalid={invalid || undefined}
-        aria-describedby={descriptionId}
-        aria-busy={query.isFetching}
+        invalid={invalid}
+        descriptionId={descriptionId}
         required={required}
         value={selected}
-        onChange={(event) => setSelected(event.target.value)}
-        className={adminInputClass}
-      >
-        <option value=''>{translate(required ? 'choose' : 'noSelection')}</option>
-        {initial && selected === initial && !items.some((item) => item.id === initial) && (
-          <option value={initial}>{initialLabel || translate('currentSelection')}</option>
-        )}
-        {items.map((item) => (
-          <option key={item.id} value={item.id}>
-            {translate('employeeOption', { code: item.employeeCode, name: item.fullName })}
-          </option>
-        ))}
-      </select>
+        onChange={setSelected}
+        options={options}
+        loading={query.isFetching}
+        clearable={!required}
+        selectedLabel={selected && selected === initial ? initialLabel || translate('currentSelection') : undefined}
+        placeholder={translate(required ? 'ui.pickEmployee' : 'ui.pickEmployeeOptional')}
+        emptyText={translate('ui.noEmployeeMatch')}
+      />
       {(query.isPending || query.isError) && <AdminQueryState query={query}>{null}</AdminQueryState>}
     </div>
   )

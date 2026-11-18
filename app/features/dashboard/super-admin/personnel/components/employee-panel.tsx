@@ -7,7 +7,7 @@ import { useEmployeeUpdateOfficialFields } from '~/shared/api/generated/operatio
 import { getEmployeeListQueryKey } from '~/shared/api/generated/operations/employees/employee-list'
 import { getEmployeeGetQueryKey, useEmployeeGet } from '~/shared/api/generated/operations/employees/employee-get'
 import { getAccountCandidatesListQueryKey } from '~/shared/api/generated/operations/app-users/account-candidates-list'
-import { adminButtonClass, adminPrimaryClass } from '../../shared/components/admin-form'
+import { adminButtonClass } from '../../shared/components/admin-form'
 import { usePersonnelMutationFeedback } from '../../shared/hooks/use-personnel-mutation-feedback'
 import { PersonnelForm, value, type PersonnelField } from '../../shared/components/personnel-form'
 import { employmentTypes } from '../enums/employment-type'
@@ -17,11 +17,9 @@ import { readEmployeeContractDate } from '../employee-contract-date'
 import { readEmployeeFieldErrors } from '../employee-field-errors'
 
 export function EmployeePanel({
-  onInviteAccount,
   renderAccountDetail
-}: { onInviteAccount?: () => void; renderAccountDetail?: (id: string, onClose: () => void) => ReactNode } = {}) {
+}: { renderAccountDetail?: (id: string, onClose: () => void) => ReactNode } = {}) {
   const { t: translate } = useTranslation('adminPersonnel')
-  const { t: translateAccounts } = useTranslation('adminAccounts')
   const [searchParams] = useSearchParams()
   const employeeId = searchParams.get('employeeId') ?? ''
   const location = useLocation()
@@ -106,21 +104,6 @@ export function EmployeePanel({
     <section className='space-y-5'>
       {!action && (
         <>
-          {!employeeId && (
-            <div className='flex flex-wrap gap-3'>
-              <button
-                className={adminPrimaryClass}
-                onClick={() => void navigate('/dashboard/super-admin/personnel/new')}
-              >
-                {translate('createEmployee')}
-              </button>
-              {onInviteAccount && (
-                <button type='button' className={adminButtonClass} onClick={onInviteAccount}>
-                  {translateAccounts('invite')}
-                </button>
-              )}
-            </div>
-          )}
           <EmployeeDirectory
             renderAccountDetail={renderAccountDetail}
             onCorrect={(id) =>

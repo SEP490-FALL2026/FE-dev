@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { getBudgetCycleBaselineQueryKey } from '~/shared/api/generated/operations/budget-cycles'
 import { getCostCenterListQueryKey, useCostCenterCreate } from '~/shared/api/generated/operations/cost-centers'
 import { AdminFormDialog } from '~/shared/ui/form-dialog'
+import { FinanceSelect } from '../../shared/components/finance-select'
 import { FinanceField, financeInputClass } from '../../shared/components/finance-ui'
 import { getFinanceErrorCode } from '../../shared/finance-errors'
 import { useFinanceFeedback } from '../../shared/hooks/use-finance-feedback'
@@ -121,19 +122,16 @@ export function CostCenterCreateDialog({ onClose }: { onClose: () => void }) {
             required
             error={serverError?.field === 'department' ? translate(`costCenterActions.${serverError.message}`) : null}
           >
-            <select
+            <FinanceSelect
               required
-              className={financeInputClass}
               value={departmentId}
-              onChange={(event) => chooseDepartment(event.target.value)}
-            >
-              <option value=''>{translate('costCenterActions.pickDepartment')}</option>
-              {departments.map((department) => (
-                <option key={department.departmentId} value={department.departmentId}>
-                  {department.departmentCode} · {department.departmentName}
-                </option>
-              ))}
-            </select>
+              placeholder={translate('costCenterActions.pickDepartment')}
+              options={departments.map((department) => ({
+                value: department.departmentId,
+                label: `${department.departmentCode} · ${department.departmentName}`
+              }))}
+              onValueChange={chooseDepartment}
+            />
           </FinanceField>
           <div className='grid gap-3 sm:grid-cols-2'>
             <FinanceField

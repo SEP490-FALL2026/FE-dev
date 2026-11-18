@@ -19,7 +19,7 @@
   cursor: not-allowed;
 }
 .manager-workspace button.bg-primary {
-  color: var(--theme-foreground);
+  color: var(--theme-primary-foreground);
 }
 .manager-workspace .text-success {
   color: var(--theme-success-ink);
@@ -31,9 +31,15 @@
   color: var(--theme-danger-ink);
 }
 .manager-overview-hero {
-  color: var(--theme-background);
-  background: color-mix(in oklab, var(--theme-foreground) 94%, var(--theme-primary));
-  box-shadow: 0 8px 24px color-mix(in oklab, var(--theme-foreground) 10%, transparent);
+  color: #ffffff;
+  background: linear-gradient(120deg, var(--theme-hero) 0%, var(--theme-hero-deep) 100%);
+  box-shadow: 0 12px 32px color-mix(in oklab, var(--theme-hero) 24%, transparent);
+}
+/* Accents inside the indigo band: peach progress and mint success stay legible on the brand colour. */
+:root:not([data-theme='dark']) .manager-overview-hero {
+  --theme-primary: #ffb487;
+  --theme-primary-soft: rgb(255 255 255 / 16%);
+  --theme-success: #7be0b0;
 }
 [data-theme='dark'] .manager-overview-hero {
   color: var(--theme-foreground);

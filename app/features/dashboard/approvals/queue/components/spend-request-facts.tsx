@@ -107,7 +107,7 @@ export function SpendRequestFacts({ approval, isGroup }: { approval: SpendApprov
       </ApprovalsStatGrid>
       {termCost && (
         <ApprovalsSection title={translate('termCostTitle')}>
-          <dl className='grid gap-px overflow-hidden rounded-lg border border-border/70 bg-border/70 sm:grid-cols-2 lg:grid-cols-3'>
+          <dl className='grid gap-px overflow-hidden rounded-lg border border-border/70 bg-border/70 sm:grid-cols-2 sm:max-lg:[&>*:last-child:nth-child(odd)]:col-span-2 lg:grid-cols-3 lg:[&>*:last-child:nth-child(3n+1)]:col-span-3 lg:[&>*:last-child:nth-child(3n+2)]:col-span-2'>
             <ApprovalsStat
               label={translate('termCurrentYear', { year: termCost.currentYear.year })}
               value={formatMoney(termCost.currentYear.amount, i18n.language)}
@@ -154,7 +154,7 @@ export function SpendRequestFacts({ approval, isGroup }: { approval: SpendApprov
               {translate('snapshotNone')}
             </p>
           ) : (
-            <dl className='grid gap-px overflow-hidden rounded-lg border border-border/70 bg-border/70 sm:grid-cols-2 lg:grid-cols-4'>
+            <dl className='grid gap-px overflow-hidden rounded-lg border border-border/70 bg-border/70 sm:grid-cols-2 lg:grid-cols-3'>
               {(
                 [
                   ['baseAmount', budgetSnapshot.base],

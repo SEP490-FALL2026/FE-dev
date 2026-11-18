@@ -1,3 +1,4 @@
+import { BellRing } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useDashboardFormat } from '../../../dashboard-ui'
 import { EmployeePagination, EmployeeQueryState, EmployeeSection } from '../../shared/components/employee-api-ui'
@@ -19,7 +20,7 @@ export function EmployeeExpiryReminders({
     pageSize: remindersPage.pageSize
   })
   return (
-    <EmployeeSection title={translate('expiry')}>
+    <EmployeeSection title={translate('expiry')} description={translate('ui.lists.expiryHint')} icon={BellRing}>
       <EmployeeQueryState
         query={reminders}
         empty={!reminders.data?.data?.items.length}

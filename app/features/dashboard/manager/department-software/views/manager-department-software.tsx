@@ -9,9 +9,9 @@ import {
   ManagerButton,
   ManagerPagination,
   ManagerQueryState,
-  ManagerSection,
-  managerInputClass
+  ManagerSection
 } from '../../shared/components/manager-api-ui'
+import { ManagerSelect, enumOptions } from '../../shared/components/manager-select'
 import { ManagerDataTable } from '../../shared/components/manager-data-table'
 import { ManagerSoftwareProposalForm } from '../components/manager-software-proposal-form'
 import { PROPOSAL_STATE, proposalStateLabels } from '../enums/proposal-status'
@@ -24,6 +24,7 @@ export function ManagerDepartmentSoftware({
   proposals?: boolean
 }) {
   const { t } = useTranslation('requestFlow')
+  const { t: translate } = useTranslation('manager')
   const { formatDate } = useWorkspaceFormat()
   const [params, setParams] = useSearchParams()
   const [creating, setCreating] = useState(false)
@@ -57,26 +58,28 @@ export function ManagerDepartmentSoftware({
       >
         {proposals ? (
           <>
-            <label className='grid max-w-xs gap-2 text-sm font-medium'>
-              {t('departmentSoftware.state')}
-              <select
-                className={managerInputClass}
-                value={state ?? ''}
-                onChange={(event) => {
-                  const next = new URLSearchParams(params)
-                  next.set('softwareProposalState', event.target.value)
-                  next.delete('proposalPage')
-                  setParams(next)
-                }}
-              >
-                <option value=''>{t('departmentSoftware.allStates')}</option>
-                {Object.values(PROPOSAL_STATE).map((value) => (
-                  <option key={value} value={value}>
-                    {t(`departmentSoftware.${proposalStateLabels[value]}`)}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <div className='soft-panel flex flex-wrap items-end gap-3 p-3 sm:p-4'>
+              <label className='grid w-full max-w-xs gap-2 text-sm font-medium'>
+                {t('departmentSoftware.state')}
+                <ManagerSelect
+                  value={state ?? ''}
+                  placeholder={translate('ui.statePlaceholder')}
+                  options={[
+                    { value: '', label: t('departmentSoftware.allStates') },
+                    ...enumOptions(Object.values(PROPOSAL_STATE), (value) =>
+                      t(`departmentSoftware.${proposalStateLabels[value]}`)
+                    )
+                  ]}
+                  onChange={(value) => {
+                    const next = new URLSearchParams(params)
+                    if (value) next.set('softwareProposalState', value)
+                    else next.delete('softwareProposalState')
+                    next.delete('proposalPage')
+                    setParams(next)
+                  }}
+                />
+              </label>
+            </div>
             <ManagerQueryState
               query={proposalList}
               empty={!proposed?.items.length}

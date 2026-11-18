@@ -86,8 +86,8 @@ export function EmployeeDetail({
         ) : (
           <>
             <div className='space-y-5'>
-              <header className='flex min-w-0 flex-wrap items-center gap-4 rounded-lg border border-primary/20 bg-primary-soft p-5 sm:p-6'>
-                <span className='grid size-12 shrink-0 place-items-center rounded-lg bg-surface text-primary-ink'>
+              <header className='page-banner flex min-w-0 flex-wrap items-center gap-4'>
+                <span className='grid size-12 shrink-0 place-items-center rounded-xl bg-surface text-primary shadow-sm ring-1 ring-primary/15'>
                   <UserRound aria-hidden className='size-6' strokeWidth={1.5} />
                 </span>
                 <div className='min-w-0 flex-1'>
@@ -106,7 +106,7 @@ export function EmployeeDetail({
               <div className='grid min-w-0 items-start gap-5 lg:grid-cols-2'>
                 <section
                   aria-labelledby={`${sectionId}-official`}
-                  className='min-w-0 space-y-5 rounded-lg border border-border bg-surface p-5'
+                  className='min-w-0 space-y-5 rounded-xl border border-border/80 bg-surface p-5 shadow-[0_1px_2px_rgb(0_0_0/4%),0_12px_28px_-24px_rgb(35_39_65/40%)]'
                 >
                   <h3
                     id={`${sectionId}-official`}
@@ -171,7 +171,7 @@ export function EmployeeDetail({
                 </section>
                 <section
                   aria-labelledby={`${sectionId}-account`}
-                  className='min-w-0 space-y-5 rounded-lg border border-border bg-surface p-5'
+                  className='min-w-0 space-y-5 rounded-xl border border-border/80 bg-surface p-5 shadow-[0_1px_2px_rgb(0_0_0/4%),0_12px_28px_-24px_rgb(35_39_65/40%)]'
                 >
                   <h3
                     id={`${sectionId}-account`}
@@ -318,8 +318,8 @@ export function EmployeeDetail({
                   )}
                 </section>
               </div>
-              <section className='space-y-3 rounded-lg border border-border bg-surface p-5'>
-                <h3 className='text-base font-semibold'>{translate('employeeEvents')}</h3>
+              <section className='space-y-3 rounded-xl border border-border/80 bg-surface p-5 shadow-[0_1px_2px_rgb(0_0_0/4%),0_12px_28px_-24px_rgb(35_39_65/40%)]'>
+                <h3 className='section-accent text-base font-semibold'>{translate('employeeEvents')}</h3>
                 <div className='flex flex-wrap gap-2'>
                   <button
                     type='button'
@@ -352,7 +352,7 @@ export function EmployeeDetail({
               </section>
               <section
                 aria-labelledby={`${sectionId}-history`}
-                className='min-w-0 space-y-4 rounded-lg border border-border bg-surface p-5'
+                className='min-w-0 space-y-4 rounded-xl border border-border/80 bg-surface p-5 shadow-[0_1px_2px_rgb(0_0_0/4%),0_12px_28px_-24px_rgb(35_39_65/40%)]'
               >
                 <h3
                   id={`${sectionId}-history`}

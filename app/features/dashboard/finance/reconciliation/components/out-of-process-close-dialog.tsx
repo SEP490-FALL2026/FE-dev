@@ -10,9 +10,11 @@ import {
   useOutOfProcessCaseClose
 } from '~/shared/api/generated/operations/out-of-process-cases'
 import { AdminFormDialog } from '~/shared/ui/form-dialog'
+import { useDebouncedValue } from '~/shared/lib/use-debounced-value'
 import { MoneyInput } from '~/shared/ui/money-input'
 import { FinanceButton, FinanceField, FinanceSelect, financeInputClass } from '../../shared/components/finance-ui'
 import { isDecimal } from '../../shared/finance-money'
+import { useCostCenterLabel } from '../../shared/hooks/use-cost-center-label'
 import { usePurchasesFeedback } from '../../purchase-invoices/hooks/use-purchases-feedback'
 import {
   PURCHASE_DOCUMENT_LIMIT,
@@ -40,9 +42,22 @@ export function OutOfProcessCloseDialog({
   const [note, setNote] = useState('')
   const [amount, setAmount] = useState('')
   const [costCenterId, setCostCenterId] = useState('UNALLOCATED')
+  const [costCenterLabel, setCostCenterLabel] = useState('')
+  const [costCenterSearch, setCostCenterSearch] = useState('')
+  const search = useDebouncedValue(costCenterSearch, 300)
+  const nameOf = useCostCenterLabel()
   const [documents, setDocuments] = useState<UploadedDocument[]>([])
   const fileInput = useRef<HTMLInputElement>(null)
-  const costCenters = useCostCenterList({ pageSize: 100, status: 'ACTIVE' })
+  const costCenters = useCostCenterList({ pageSize: 100, status: 'ACTIVE', ...(search ? { search } : {}) })
+  // "Chưa phân bổ" stays first while nothing is typed; typed text searches the active Cost Centers on the server.
+  const costCenterOptions = [
+    ...(search ? [] : [{ value: 'UNALLOCATED', label: translate('outOfProcess.unallocated') }]),
+    ...(costCenters.data?.data?.items ?? []).map((costCenter) => ({
+      value: costCenter.id,
+      label: nameOf(costCenter),
+      description: costCenter.code
+    }))
+  ]
   const upload = usePurchaseDocumentUpload()
   const feedback = usePurchasesFeedback([getOutOfProcessCaseListQueryKey()], onClose)
   const close = useOutOfProcessCaseClose({ mutation: feedback })
@@ -85,6 +100,7 @@ export function OutOfProcessCloseDialog({
         hint={translate(`outOfProcess.outcomeHints.${outcome}`)}
       >
         <FinanceSelect
+          placeholder={translate('ui.outcomePlaceholder')}
           value={outcome}
           onChange={(event) =>
             setOutcome(FINANCE_OUTCOMES.find((value) => value === event.target.value) ?? 'REPORT_ONLY')
@@ -119,6 +135,7 @@ export function OutOfProcessCloseDialog({
           >
             <MoneyInput
               maxLength={40}
+              placeholder={translate('ui.amountPlaceholder')}
               aria-invalid={Boolean(amount) && !amountValid}
               className={`${financeInputClass} font-mono tabular-nums`}
               value={amount}
@@ -126,14 +143,22 @@ export function OutOfProcessCloseDialog({
             />
           </FinanceField>
           <FinanceField required label={translate('outOfProcess.costCenterField')}>
-            <FinanceSelect value={costCenterId} onChange={(event) => setCostCenterId(event.target.value)}>
-              <option value='UNALLOCATED'>{translate('outOfProcess.unallocated')}</option>
-              {costCenters.data?.data?.items.map((costCenter) => (
-                <option key={costCenter.id} value={costCenter.id}>
-                  {costCenter.code} · {costCenter.name}
-                </option>
-              ))}
-            </FinanceSelect>
+            <FinanceSelect
+              required
+              value={costCenterId}
+              options={costCenterOptions}
+              placeholder={translate('ui.costCenterPlaceholder')}
+              emptyText={translate('ui.costCenterEmpty')}
+              loading={costCenters.isFetching}
+              onSearchChange={setCostCenterSearch}
+              selectedLabel={costCenterId === 'UNALLOCATED' ? translate('outOfProcess.unallocated') : costCenterLabel}
+              onValueChange={(value, option) => {
+                // Clearing is not offered: the spend always goes to a Cost Center or stays unallocated.
+                if (!value) return
+                setCostCenterId(value)
+                setCostCenterLabel(option?.label ?? '')
+              }}
+            />
           </FinanceField>
           <div className='space-y-2'>
             <p className='text-sm font-medium'>{translate('outOfProcess.documents')}</p>
@@ -177,6 +202,7 @@ export function OutOfProcessCloseDialog({
           required
           rows={3}
           maxLength={1000}
+          placeholder={translate('ui.notePlaceholder')}
           className={`${financeInputClass} max-h-48 min-h-24 resize-y`}
           value={note}
           onChange={(event) => setNote(event.target.value)}

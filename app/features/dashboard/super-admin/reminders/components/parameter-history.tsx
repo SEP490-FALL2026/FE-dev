@@ -18,9 +18,9 @@ export function ParameterHistory({
   const presentation = useParameterPresentation()
   const { formatDateTime } = useDashboardFormat()
   return (
-    <section className='space-y-3 rounded-lg border border-border bg-surface p-5'>
+    <section className='space-y-3 rounded-xl border border-border/80 bg-surface p-5 shadow-[0_1px_2px_rgb(0_0_0/4%),0_12px_28px_-24px_rgb(35_39_65/40%)] sm:p-6'>
       <div className='flex items-center justify-between gap-3'>
-        <h2 className='font-semibold'>
+        <h2 className='section-accent font-semibold'>
           {translate('parameters.historyTitle', { name: presentation.name(parameter.key, parameter.label) })}
         </h2>
         <button type='button' className={adminButtonClass} onClick={onClose}>

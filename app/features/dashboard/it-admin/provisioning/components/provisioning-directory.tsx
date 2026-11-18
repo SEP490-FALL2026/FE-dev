@@ -21,7 +21,7 @@ export function ProvisioningDirectory({ onCreated }: { onCreated: (id: string) =
         </button>
         <header>
           <p className='text-sm text-muted-foreground'>{department.name}</p>
-          <h2 className='text-lg font-semibold'>{employee.fullName}</h2>
+          <h2 className='section-accent text-lg font-semibold tracking-tight'>{employee.fullName}</h2>
         </header>
         <ProvisioningGrantQueue
           key={`${department.id}-${employee.id}`}
@@ -37,7 +37,7 @@ export function ProvisioningDirectory({ onCreated }: { onCreated: (id: string) =
           {t('directory.backDepartments')}
         </button>
         <header>
-          <h2 className='text-lg font-semibold'>{department.name}</h2>
+          <h2 className='section-accent text-lg font-semibold tracking-tight'>{department.name}</h2>
           <p className='text-sm text-muted-foreground'>{t('directory.chooseEmployee')}</p>
         </header>
         <ItQueryState query={members}>
@@ -63,7 +63,7 @@ export function ProvisioningDirectory({ onCreated }: { onCreated: (id: string) =
     )
   return (
     <section className='space-y-4'>
-      <h2 className='text-lg font-semibold'>{t('directory.chooseDepartment')}</h2>
+      <h2 className='section-accent text-lg font-semibold tracking-tight'>{t('directory.chooseDepartment')}</h2>
       <ItQueryState query={departments}>
         {departments.data?.length ? (
           <ItDepartmentCards items={departments.data} onSelect={setDepartment} />

@@ -30,6 +30,21 @@ export default defineConfig(({ command, mode, isPreview }) => {
     css: {
       devSourcemap: true
     },
+    build: {
+      rolldownOptions: {
+        output: {
+          // three.js is loaded lazily by the landing 3D hero; split core, renderer and addons so each chunk stays under the
+          // 500 kB budget enforced by scripts/check-client-bundles.mjs.
+          codeSplitting: {
+            groups: [
+              { name: 'three-addons', priority: 10, test: /node_modules[\\/].*three[\\/]examples[\\/]/ },
+              { name: 'three-core', priority: 30, test: /node_modules[\\/].*three[\\/]build[\\/]three\.core/ },
+              { name: 'three-renderer', priority: 20, test: /node_modules[\\/].*three[\\/]build[\\/]/ }
+            ]
+          }
+        }
+      }
+    },
     optimizeDeps: {
       include: [
         '@tanstack/react-query',

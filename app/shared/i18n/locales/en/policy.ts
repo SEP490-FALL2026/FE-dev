@@ -1,5 +1,7 @@
 export const policy = {
   library: {
+    eyebrow: 'Compliance',
+    description: 'Policies currently in force and the version history you have acknowledged.',
     title: 'Policy library',
     back: 'All policies',
     current: 'Current version',

@@ -106,5 +106,22 @@ export const adminAccounts = {
     CONFLICT_SUBSTITUTE: 'Conflict substitute',
     FALLBACK_APPROVER: 'Fallback approver'
   },
-  deliveryStatuses: { PENDING: 'Pending', SENDING: 'Sending', SENT: 'Sent', FAILED: 'Failed', CANCELLED: 'Cancelled' }
+  deliveryStatuses: { PENDING: 'Pending', SENDING: 'Sending', SENT: 'Sent', FAILED: 'Failed', CANCELLED: 'Cancelled' },
+  ui: {
+    eyebrow: 'Accounts and responsibilities',
+    allStatuses: 'All account statuses',
+    allActivation: 'All activation states',
+    allRoles: 'All roles',
+    allEmployment: 'All employment states',
+    accountCount: '{{count}} accounts',
+    noAccountsTitle: 'No matching accounts',
+    noAccountsHint: 'Change the filters or clear the search to see more accounts.',
+    pickRole: 'Choose a new role, type to search',
+    pickCandidate: 'Choose an employee, type to search',
+    noCandidates: 'No employees available to invite',
+    pickDepartment: 'Choose a department, type to search',
+    pickApplication: 'Choose the application to hand over, type to search',
+    noApplications: 'This department has no applications yet',
+    pickItAdmin: 'Choose an IT administrator, type to search'
+  }
 }

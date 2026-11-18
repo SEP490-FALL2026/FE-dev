@@ -62,7 +62,37 @@ export function ManagerButton({
     </button>
   )
 }
-export { WorkspaceSection as ManagerSection } from '~/shared/ui/workspace-section'
+/** White rounded panel with a soft shadow and an accented section title (reference: lavender course dashboard). */
+export function ManagerSection({
+  title,
+  children,
+  action,
+  description
+}: {
+  title?: string
+  children: ReactNode
+  action?: ReactNode
+  description?: string
+}) {
+  return (
+    <section className='manager-panel min-w-0 rounded-2xl border border-border/60 bg-surface'>
+      {title && (
+        <div className='flex flex-wrap items-center justify-between gap-3 px-4 pt-5 pb-1 sm:px-6'>
+          <div className='min-w-0'>
+            <h2 className='section-accent text-base font-semibold [text-wrap:balance]'>{title}</h2>
+            {description && (
+              <p className='mt-1.5 max-w-3xl pl-3 text-sm leading-relaxed text-muted-foreground [text-wrap:pretty]'>
+                {description}
+              </p>
+            )}
+          </div>
+          {action}
+        </div>
+      )}
+      <div className='space-y-4 p-4 sm:px-6 sm:pb-6'>{children}</div>
+    </section>
+  )
+}
 export function ManagerQueryState({
   query,
   empty,

@@ -24,7 +24,12 @@ function isReviewNotFound(error: unknown): boolean {
 export function RequestBudgetCheck({ requestId }: { requestId: string }) {
   const { t: translate, i18n } = useTranslation('financeRequests')
   const checkQuery = useBudgetCheckGet(requestId)
-  const yearsQuery = useBudgetCheckYearList(requestId, { page: 1, pageSize: 20 })
+  // The years only exist once the check is readable; asking first would repeat the same 404 SPEND.REVIEW_NOT_FOUND.
+  const yearsQuery = useBudgetCheckYearList(
+    requestId,
+    { page: 1, pageSize: 20 },
+    { query: { enabled: checkQuery.isSuccess } }
+  )
   const check = checkQuery.data?.data?.budgetCheck
   const notReviewed = isReviewNotFound(checkQuery.error)
   const money = (value: { amount: string; currency: string } | null | undefined) =>
@@ -37,7 +42,7 @@ export function RequestBudgetCheck({ requestId }: { requestId: string }) {
     )
   return (
     <FinanceSection title={translate('check.title')}>
-      <FinanceQueryState query={checkQuery}>
+      <FinanceQueryState query={checkQuery} skeleton='detail'>
         {check ? (
           <div className='space-y-4'>
             <FinanceStatGrid>
@@ -58,7 +63,7 @@ export function RequestBudgetCheck({ requestId }: { requestId: string }) {
               />
             </FinanceStatGrid>
             {check.blockedReasons.length > 0 && (
-              <ul className='list-inside list-disc text-sm text-danger'>
+              <ul className='list-inside list-disc space-y-1 rounded-xl border border-danger/25 bg-danger/5 p-4 text-sm text-danger-ink'>
                 {check.blockedReasons.map((reason) => (
                   <li key={reason}>{translate(`check.reasons.${reason}`, { defaultValue: reason })}</li>
                 ))}
@@ -78,41 +83,43 @@ export function RequestBudgetCheck({ requestId }: { requestId: string }) {
           <FinanceEmpty message={translate('check.none')} />
         )}
       </FinanceQueryState>
-      <FinanceQueryState query={yearsQuery}>
-        <FinanceTable
-          items={yearsQuery.data?.data?.items ?? []}
-          rowKey={(item) => String(item.year)}
-          columns={[
-            {
-              key: 'year',
-              label: translate('check.year'),
-              numeric: true,
-              align: 'center',
-              render: (item) => item.year
-            },
-            { key: 'cost', label: translate('check.cost'), numeric: true, render: (item) => money(item.cost) },
-            {
-              key: 'budget',
-              label: translate('check.effectiveBudget'),
-              numeric: true,
-              render: (item) => money(item.effectiveBudget?.total)
-            },
-            { key: 'held', label: translate('check.held'), numeric: true, render: (item) => money(item.held) },
-            {
-              key: 'remaining',
-              label: translate('check.remaining'),
-              numeric: true,
-              render: (item) => money(item.remaining)
-            },
-            {
-              key: 'code',
-              label: translate('check.code'),
-              render: (item) =>
-                item.code ? translate(`check.codes.${item.code}`, { defaultValue: item.code }) : translate('none')
-            }
-          ]}
-        />
-      </FinanceQueryState>
+      {checkQuery.isSuccess && (
+        <FinanceQueryState query={yearsQuery}>
+          <FinanceTable
+            items={yearsQuery.data?.data?.items ?? []}
+            rowKey={(item) => String(item.year)}
+            columns={[
+              {
+                key: 'year',
+                label: translate('check.year'),
+                numeric: true,
+                align: 'center',
+                render: (item) => item.year
+              },
+              { key: 'cost', label: translate('check.cost'), numeric: true, render: (item) => money(item.cost) },
+              {
+                key: 'budget',
+                label: translate('check.effectiveBudget'),
+                numeric: true,
+                render: (item) => money(item.effectiveBudget?.total)
+              },
+              { key: 'held', label: translate('check.held'), numeric: true, render: (item) => money(item.held) },
+              {
+                key: 'remaining',
+                label: translate('check.remaining'),
+                numeric: true,
+                render: (item) => money(item.remaining)
+              },
+              {
+                key: 'code',
+                label: translate('check.code'),
+                render: (item) =>
+                  item.code ? translate(`check.codes.${item.code}`, { defaultValue: item.code }) : translate('none')
+              }
+            ]}
+          />
+        </FinanceQueryState>
+      )}
     </FinanceSection>
   )
 }

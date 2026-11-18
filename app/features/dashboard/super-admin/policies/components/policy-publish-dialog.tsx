@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { usePolicyDraftPublish } from '~/shared/api/generated/operations/policies/policy-draft-publish'
 import type { PublishBodyDtoApplicableRolesItem } from '~/shared/api/generated/model/policies'
 import { AdminField, AdminFormDialog, adminInputClass } from '../../shared/components/admin-form'
+import { AdminSelect } from '../../shared/components/admin-select'
 import { useAdminMutationFeedback } from '../../shared/hooks/use-admin-mutation-feedback'
 import { policyWriteKeys } from '../hooks/policy-cache'
 import { usePolicyPresentation } from '../hooks/use-policy-presentation'
@@ -91,10 +92,16 @@ export function PolicyPublishDialog({
         </div>
       </fieldset>
       <AdminField required label={t('policies.reackLabel')} description={t('policies.reackHelp')}>
-        <select required className={adminInputClass} value={reack} onChange={(event) => setReack(event.target.value)}>
-          <option value='yes'>{t('policies.reackYes')}</option>
-          <option value='no'>{t('policies.reackNo')}</option>
-        </select>
+        <AdminSelect
+          required
+          value={reack}
+          onChange={setReack}
+          options={[
+            { value: 'yes', label: t('policies.reackYes') },
+            { value: 'no', label: t('policies.reackNo') }
+          ]}
+          placeholder={t('ui.pickReack')}
+        />
       </AdminField>
     </AdminFormDialog>
   )

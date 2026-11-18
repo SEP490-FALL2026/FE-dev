@@ -23,7 +23,7 @@ export function AssessmentQueue({ onOpen }: { onOpen: (id: string, canAct: boole
   if (!department)
     return (
       <section className='space-y-4'>
-        <h2 className='text-lg font-semibold'>{translate('queue.chooseDepartment')}</h2>
+        <h2 className='section-accent text-lg font-semibold tracking-tight'>{translate('queue.chooseDepartment')}</h2>
         <ItQueryState query={departments}>
           {departments.data?.data?.items.length ? (
             <ItDepartmentCards
@@ -60,7 +60,7 @@ export function AssessmentQueue({ onOpen }: { onOpen: (id: string, canAct: boole
       >
         {translate('queue.backDepartments')}
       </button>
-      <h2 className='text-lg font-semibold'>{department.name}</h2>
+      <h2 className='section-accent text-lg font-semibold tracking-tight'>{department.name}</h2>
       <div className='flex flex-wrap items-center justify-between gap-2'>
         <h2 className='flex items-center gap-2 text-sm font-semibold'>
           <ClipboardCheck aria-hidden strokeWidth={1.5} className='size-4 text-primary' />

@@ -7,7 +7,10 @@ import {
 } from '~/shared/api/generated/operations/operating-parameters/operating-parameter-list'
 import { getOperatingParameterHistoryQueryKey } from '~/shared/api/generated/operations/operating-parameters/operating-parameter-history'
 import { useOperatingParameterSet } from '~/shared/api/generated/operations/operating-parameters/operating-parameter-set'
-import { AdminEmpty, AdminQueryState } from '../../shared/components/admin-query-state'
+import { AdminQueryState } from '../../shared/components/admin-query-state'
+import { AdminPageHeader, AdminSectionTitle } from '../../shared/components/admin-page-header'
+import { WorkspaceEmptyState } from '~/shared/ui/workspace-empty-state'
+import { SlidersHorizontal } from 'lucide-react'
 import { AdminFormDialog } from '../../shared/components/admin-form'
 import { useAdminMutationFeedback } from '../../shared/hooks/use-admin-mutation-feedback'
 import { ParameterHistory } from '../components/parameter-history'
@@ -38,16 +41,20 @@ export function SuperAdminRemindersView() {
   if (historyParameter)
     return <ParameterHistory parameter={historyParameter} onClose={() => setHistoryParameter(null)} />
   return (
-    <div className='space-y-5'>
-      <h1 className='text-2xl font-semibold tracking-tight [text-wrap:balance]'>{translate('parameters.title')}</h1>
-      <p className='text-sm text-muted-foreground'>{translate('parameters.futureOnly')}</p>
+    <div className='space-y-6'>
+      <AdminPageHeader
+        icon={SlidersHorizontal}
+        eyebrow={translate('ui.parametersEyebrow')}
+        title={translate('parameters.title')}
+        subtitle={translate('parameters.futureOnly')}
+      />
       <AdminQueryState query={query}>
-        {!items.length && <AdminEmpty />}
-        <div className='space-y-5'>
+        {!items.length && <WorkspaceEmptyState icon={SlidersHorizontal} title={translate('ui.noParametersTitle')} />}
+        <div className='space-y-6'>
           {Array.from(groups, ([group, parameters]) => (
             <section key={group} className='space-y-3'>
-              <h2 className='text-sm font-semibold text-muted-foreground'>{group}</h2>
-              <div className='divide-y divide-border/40 rounded-lg border border-border bg-surface'>
+              <AdminSectionTitle title={group} hint={translate('ui.parameterCount', { count: parameters.length })} />
+              <div className='divide-y divide-border/50 overflow-hidden rounded-xl border border-border/80 bg-surface shadow-[0_1px_2px_rgb(0_0_0/4%),0_12px_28px_-24px_rgb(35_39_65/40%)]'>
                 {parameters.map((parameter) => (
                   <ParameterRow
                     key={parameter.key}

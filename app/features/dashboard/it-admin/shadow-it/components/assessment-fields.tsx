@@ -1,8 +1,10 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { AssessmentPatchDto } from '~/shared/api/generated/model/access-requests/assessmentPatchDto'
 import type { AssessmentResponseDtoDataAssessment } from '~/shared/api/generated/model/access-requests/assessmentResponseDtoDataAssessment'
-import { ItField, itInputClass } from '../../shared/components/it-form'
+import { ItField, itButtonClass, itInputClass } from '../../shared/components/it-form'
 import { AssessmentQuote } from './assessment-quote'
+import { CatalogLinkPlanPicker } from './catalog-link-plan-picker'
 import { AssessmentClassification } from '../enums/assessment-classification'
 
 export function AssessmentFields({
@@ -15,6 +17,7 @@ export function AssessmentFields({
   onChange: (draft: AssessmentPatchDto) => void
 }) {
   const { t: translate } = useTranslation('itNewSoftware')
+  const [equivalentApplicationId, setEquivalentApplicationId] = useState('')
   function set<K extends keyof AssessmentPatchDto>(key: K, value: AssessmentPatchDto[K]) {
     onChange({ ...draft, [key]: value })
   }
@@ -104,8 +107,7 @@ export function AssessmentFields({
             'termsSummary',
             'memberUsageMethod',
             'grantRevokeMethod',
-            'controlRiskNote',
-            'equivalentPlanId'
+            'controlRiskNote'
           ] as const
         ).map((key) => (
           <ItField key={key} label={translate(`fields.${key}`)}>
@@ -114,24 +116,37 @@ export function AssessmentFields({
               className={itInputClass}
               maxLength={key === 'termsSummary' ? 2000 : key === 'vendorName' || key === 'plannedPlanName' ? 200 : 1000}
               value={
-                (draft[key] !== undefined
-                  ? draft[key]
-                  : key === 'vendorName'
-                    ? item.vendor.name
-                    : key === 'equivalentPlanId'
-                      ? item.equivalentTool?.planId
-                      : item[key]) ?? ''
+                (draft[key] !== undefined ? draft[key] : key === 'vendorName' ? item.vendor.name : item[key]) ?? ''
               }
-              onChange={(event) =>
-                set(
-                  key,
-                  event.target.value || (['controlRiskNote', 'equivalentPlanId'].includes(key) ? null : undefined)
-                )
-              }
+              onChange={(event) => set(key, event.target.value || (key === 'controlRiskNote' ? null : undefined))}
             />
           </ItField>
         ))}
       </div>
+      <fieldset className='space-y-2'>
+        <legend className='text-sm font-medium'>{translate('fields.equivalentPlanId')}</legend>
+        {draft.equivalentPlanId === undefined && item.equivalentTool && (
+          <div className='flex flex-wrap items-center gap-3 text-sm'>
+            <span className='min-w-0 truncate' title={item.equivalentTool.planName}>
+              {item.equivalentTool.applicationName} · {item.equivalentTool.planName}
+            </span>
+            <button type='button' className={itButtonClass} onClick={() => set('equivalentPlanId', null)}>
+              {translate('clearEquivalent')}
+            </button>
+          </div>
+        )}
+        <CatalogLinkPlanPicker
+          optional
+          disabled={false}
+          applicationId={equivalentApplicationId}
+          planId={draft.equivalentPlanId ?? ''}
+          onApplicationChange={(id) => {
+            setEquivalentApplicationId(id)
+            if (draft.equivalentPlanId) set('equivalentPlanId', null)
+          }}
+          onPlanChange={(id) => set('equivalentPlanId', id || null)}
+        />
+      </fieldset>
       <AssessmentQuote
         quote={
           draft.quote === undefined && item.quote

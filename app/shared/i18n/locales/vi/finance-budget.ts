@@ -266,6 +266,42 @@ export const financeBudget = {
   fieldInvalid: 'Giá trị chưa hợp lệ.',
   optionalHint: 'Không bắt buộc.',
   returnHint: 'Trưởng phòng sẽ thấy lý do này khi chỉnh sửa đề xuất.',
+  screen: {
+    cyclesDescription:
+      'Mỗi năm tài chính có một kỳ: đặt Trần năm, Dự phòng kho dùng chung và hai hạn, rồi mở cho trưởng phòng nộp đề xuất.',
+    proposalsDescription:
+      'Đề xuất BM-10 trưởng phòng gửi cho từng trung tâm chi phí. Mở một đề xuất để lập phiên bản hoặc trả về khi kỳ còn mở.',
+    versionsDescription:
+      'Phiên bản ngân sách cả năm Tài chính lập cho từng trung tâm chi phí và gửi Người duyệt chi quyết.',
+    historyDescription: 'Các thay đổi số liệu, tệp và trạng thái của phiên bản, mới nhất trước.',
+    cycleList: 'Các kỳ ngân sách',
+    proposalList: 'Danh sách đề xuất',
+    versionList: 'Danh sách phiên bản',
+    statePlaceholder: 'Chọn trạng thái (gõ để tìm)',
+    reserveModePlaceholder: 'Chọn cách nhập dự phòng',
+    yearPlaceholder: 'Ví dụ: 2027',
+    prioritiesPlaceholder: 'Ví dụ: Ưu tiên gia hạn công cụ bảo mật, cắt thuê bao ít dùng',
+    ceilingReasonPlaceholder: 'Ví dụ: Ban giám đốc nâng Trần năm sau khi điều chỉnh kế hoạch quý 1',
+    baseReasonPlaceholder: 'Ví dụ: Giảm theo số suất thực dùng sau rà soát quý 3',
+    percentPlaceholder: 'Ví dụ: {{percent}} (mức mặc định)',
+    cycleInfo: 'Thông tin kỳ',
+    cycleNotes: 'Mốc và định hướng',
+    submissionShort: 'Hạn nộp',
+    openedAtLabel: 'Ngày mở kỳ',
+    decisionShort: 'Hạn quyết',
+    proposalSummary: 'Tóm tắt đề xuất',
+    timeline: 'Người gửi và mốc thời gian',
+    related: 'Đề xuất liên quan',
+    nextStep: 'Bước tiếp theo',
+    nextStepHint: 'Lập phiên bản từ số trưởng phòng đề nghị, hoặc trả về để trưởng phòng bổ sung.',
+    returnLocked:
+      'Kỳ ngân sách của năm này không còn mở nên không trả về được. Lập phiên bản từ đề xuất nếu cần điều chỉnh số.',
+    versionFigures: 'Số liệu phiên bản',
+    notices: 'Lưu ý',
+    versionNotes: 'Lý do và người lập',
+    decision: 'Quyết định của Người duyệt chi',
+    actions: 'Thao tác'
+  },
   placeholders: {
     yearFilter: 'Tất cả các năm',
     description: 'Ví dụ: Gia hạn Figma Professional cho nhóm Thiết kế',

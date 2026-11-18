@@ -9,7 +9,7 @@ import { useDashboardFormat } from '../../../dashboard-ui'
 import { ItEmpty, ItQueryState } from '../../shared/components/it-query-state'
 import { buildDepartmentUsageSeries } from './it-usage-chart-data'
 
-const colors = ['#ea580c', '#2563eb', '#059669', '#9333ea', '#db2777', '#0891b2', '#a16207', '#4f46e5']
+const colors = [1, 2, 3, 4, 5, 6].map((slot) => `var(--theme-chart-${slot})`)
 const params = { granularity: 'WEEK', groupBy: 'DEPARTMENT', pageSize: 100 } as const
 
 export function ItUsageChart() {
@@ -36,7 +36,7 @@ export function ItUsageChart() {
   return (
     <section className='space-y-4 rounded-xl border border-border bg-surface p-5 sm:p-6'>
       <header className='space-y-1'>
-        <h2 className='text-lg font-semibold'>{t('usage.trendTitle')}</h2>
+        <h2 className='section-accent text-lg font-semibold tracking-tight'>{t('usage.trendTitle')}</h2>
         <p className='text-sm text-muted-foreground'>{t('usage.trendHint')}</p>
       </header>
       <ItQueryState query={query}>

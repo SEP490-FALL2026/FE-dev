@@ -81,7 +81,7 @@ export function SetupSummary({ steps }: { steps: SetupStep[] }) {
           )}
         </div>
       </section>
-      <dl className='grid grid-cols-1 gap-3 sm:grid-cols-3'>
+      <dl className='kpi-tone-grid grid grid-cols-1 gap-3 sm:grid-cols-3'>
         {[
           {
             key: 'activeDepartments',
@@ -105,11 +105,12 @@ export function SetupSummary({ steps }: { steps: SetupStep[] }) {
           <div key={key} className='admin-overview-surface rounded-lg p-4 sm:p-5'>
             <div className='flex min-h-10 items-start justify-between gap-3'>
               <dt className='max-w-40 text-sm leading-snug text-muted-foreground'>{label}</dt>
-              <Icon
-                aria-hidden
-                strokeWidth={1.5}
-                className={`size-5 shrink-0 ${key === 'attention' && value ? 'text-warning-ink' : 'text-primary-ink'}`}
-              />
+              <span
+                className='kpi-chip grid size-10 shrink-0 place-items-center rounded-lg'
+                data-tone={key === 'attention' && value ? 'warning' : undefined}
+              >
+                <Icon aria-hidden strokeWidth={1.5} className='size-5' />
+              </span>
             </div>
             <dd
               className={`mt-4 text-right font-mono text-3xl font-semibold tracking-tight tabular-nums ${key === 'attention' && value ? 'text-warning-ink' : 'text-foreground'}`}

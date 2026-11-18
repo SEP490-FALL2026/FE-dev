@@ -94,7 +94,9 @@ export function CatalogApplicationDetail({ id, onBack }: { id: string; onBack: (
       </ItQueryState>
       <section className='space-y-3'>
         <header className='flex flex-wrap justify-between gap-3'>
-          <h2 className='text-lg font-semibold [text-wrap:balance]'>{translate('plans')}</h2>
+          <h2 className='section-accent text-lg font-semibold tracking-tight [text-wrap:balance]'>
+            {translate('plans')}
+          </h2>
           <button
             className={itButtonClass}
             disabled={application.data?.data?.status !== CatalogApplicationStatus.APPROVED}
@@ -165,7 +167,9 @@ export function CatalogApplicationDetail({ id, onBack }: { id: string; onBack: (
         />
       </section>
       <section className='space-y-3'>
-        <h2 className='text-lg font-semibold [text-wrap:balance]'>{translate('subscriptions')}</h2>
+        <h2 className='section-accent text-lg font-semibold tracking-tight [text-wrap:balance]'>
+          {translate('subscriptions')}
+        </h2>
         <ItQueryState query={subscriptions}>
           {subscriptions.data?.data?.items.map((subscription) => (
             <article className='space-y-3 rounded-lg border border-border p-4' key={subscription.id}>

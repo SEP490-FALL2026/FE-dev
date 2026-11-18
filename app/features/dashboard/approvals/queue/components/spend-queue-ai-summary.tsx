@@ -44,10 +44,8 @@ export function SpendQueueAiSummary({ onOpen }: { onOpen: (requestId: string) =>
   })
 
   if (source.isPending) return null
-  if (source.isError) {
-    if (errorCode(source.error) !== 'AI.DISABLED') return null
-    return <p className='text-xs text-muted-foreground'>{translate('ai.disabled')}</p>
-  }
+  // reference/ai-assist.md: 403 AI.DISABLED or AI.NO_ASSIGNED_STEPS means "hide the feature, do not retry".
+  if (source.isError) return null
   const revision = source.data?.data
   if (!revision?.queueRevision || !revision.stepCount) return null
 
@@ -76,14 +74,13 @@ export function SpendQueueAiSummary({ onOpen }: { onOpen: (requestId: string) =>
   const simulated = Boolean(result && (result as { simulated?: boolean }).simulated)
 
   return (
-    <section
-      aria-label={translate('ai.title')}
-      className='space-y-3 rounded-lg border border-border/70 bg-surface p-4 shadow-[0_1px_2px_0_rgba(0,0,0,0.04)]'
-    >
+    <section aria-label={translate('ai.title')} className='soft-panel space-y-3 p-4 sm:p-5'>
       <div className='flex flex-wrap items-start justify-between gap-3'>
         <div className='min-w-0 space-y-1'>
           <h2 className='flex items-center gap-2 text-sm font-semibold'>
-            <Sparkles aria-hidden className='size-4 text-primary' strokeWidth={1.5} />
+            <span className='kpi-chip grid size-7 place-items-center rounded-md'>
+              <Sparkles aria-hidden className='size-4' strokeWidth={1.5} />
+            </span>
             {translate('ai.title')}
             {simulated && (
               <span className='rounded-md bg-surface-subtle px-2 py-0.5 text-xs font-medium text-muted-foreground ring-1 ring-border ring-inset'>
@@ -125,7 +122,7 @@ export function SpendQueueAiSummary({ onOpen }: { onOpen: (requestId: string) =>
           {result.lines.length === 0 ? (
             <p className='text-sm text-muted-foreground'>{translate('ai.noLines')}</p>
           ) : (
-            <ul className='divide-y divide-border/60 rounded-md border border-border/60'>
+            <ul className='divide-y divide-border/60 rounded-lg border border-border/60 bg-surface'>
               {result.lines.map((line) => (
                 <li key={line.stepId} className='flex flex-wrap items-start justify-between gap-3 p-3 text-sm'>
                   <p className='min-w-0 flex-1 break-words whitespace-pre-wrap'>{line.summary}</p>

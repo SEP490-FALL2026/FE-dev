@@ -30,7 +30,8 @@ function KpiCard({
   caption,
   icon: Icon,
   tone,
-  badge
+  badge,
+  wide
 }: {
   label: string
   value: ReactNode
@@ -38,9 +39,13 @@ function KpiCard({
   icon: LucideIcon
   tone: keyof typeof tones
   badge?: ReactNode
+  /** Spans the whole row so the remaining six cards fill a 3 x 2 grid. */
+  wide?: boolean
 }) {
   return (
-    <div className='flex min-w-0 flex-col gap-3 rounded-lg border border-border/70 bg-surface p-4 shadow-[0_1px_2px_0_rgba(0,0,0,0.04)] transition-all'>
+    <div
+      className={`flex min-w-0 flex-col gap-3 rounded-lg border border-border/70 bg-surface p-4 shadow-[0_1px_2px_0_rgba(0,0,0,0.04)] transition-all ${wide ? 'sm:col-span-2 lg:col-span-3' : ''}`}
+    >
       <div className='flex items-start justify-between gap-3'>
         <dt className='truncate text-xs font-semibold uppercase tracking-wider text-muted-foreground'>{label}</dt>
         <span aria-hidden className={`grid size-9 shrink-0 place-items-center rounded-lg ${tones[tone]}`}>
@@ -58,6 +63,15 @@ function KpiCard({
       </div>
     </div>
   )
+}
+
+/** Five cards fill a 3 + 2 layout on a 6-column grid so no card is left alone in a row. */
+function rowSpan(index: number, total: number) {
+  if (total % 3 === 0) return 'lg:col-span-2'
+  const lastRow = total - (total % 3 === 2 ? 2 : 1)
+  if (index < lastRow) return 'lg:col-span-2'
+  const alone = total % 2 === 1 && index === total - 1 ? 'sm:col-span-2 ' : ''
+  return alone + (total % 3 === 2 ? 'lg:col-span-3' : 'lg:col-span-6')
 }
 
 export function CostCenterKpis({
@@ -93,6 +107,7 @@ export function CostCenterKpis({
         })}
         icon={Wallet}
         tone='budget'
+        wide
       />
       <KpiCard
         label={translate('kpis.base')}
@@ -212,9 +227,12 @@ export function CompanyBudgetLines({ company }: { company: CompanyBudgetFigures 
   return (
     <section aria-label={translate('company.title')} className='space-y-2'>
       <h3 className='text-sm font-semibold'>{translate('company.title')}</h3>
-      <dl className='grid gap-3 sm:grid-cols-2 lg:grid-cols-3'>
-        {rows.map((row) => (
-          <div key={row.key} className='min-w-0 space-y-1 rounded-lg border border-border/70 bg-surface p-4'>
+      <dl className='grid gap-3 sm:grid-cols-2 lg:grid-cols-6'>
+        {rows.map((row, index) => (
+          <div
+            key={row.key}
+            className={`min-w-0 space-y-1 rounded-lg border border-border/70 bg-surface p-4 ${rowSpan(index, rows.length)}`}
+          >
             <dt className='text-xs font-medium text-muted-foreground'>{row.label}</dt>
             <dd className='truncate font-mono text-base font-semibold tabular-nums'>{row.value}</dd>
             {row.hint && <dd className='text-xs text-muted-foreground [text-wrap:pretty]'>{row.hint}</dd>}

@@ -7,7 +7,7 @@ import { LanguageSwitch } from '~/shared/ui/language-switch'
 import { BrandMark } from '~/shared/ui/brand-mark'
 import { ThemeSwitch } from '~/shared/ui/theme-switch'
 
-import { LandingVisual } from './landing-visual'
+import { LandingScene3d } from './landing-scene-3d'
 
 const lifecycleKeys = ['purchased', 'assigned', 'used', 'needed'] as const
 
@@ -26,10 +26,6 @@ export function HomePage() {
       <div
         aria-hidden='true'
         className='pointer-events-none absolute right-[-11rem] bottom-[-15rem] size-[38rem] rounded-[57%_43%_36%_64%/49%_62%_38%_51%] bg-primary-soft opacity-55 blur-3xl'
-      />
-      <div
-        aria-hidden='true'
-        className='pointer-events-none absolute top-[18%] left-[5%] size-24 rotate-12 rounded-[2rem] border border-primary/15 bg-surface/45 backdrop-blur-xl'
       />
 
       <header className='relative z-50 flex w-full flex-wrap items-center justify-between gap-4 border-b border-border/55 bg-background/70 px-5 py-5 backdrop-blur-xl'>
@@ -111,7 +107,7 @@ export function HomePage() {
             </div>
           </motion.div>
 
-          <LandingVisual />
+          <LandingScene3d />
         </section>
       </main>
     </div>

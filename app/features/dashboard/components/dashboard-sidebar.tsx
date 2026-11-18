@@ -10,7 +10,13 @@ import {
   FileChartColumn,
   BellRing,
   Sparkles,
-  Settings
+  Settings,
+  ShieldCheck,
+  Server,
+  Wallet,
+  BadgeCheck,
+  UserRound,
+  type LucideIcon
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
@@ -35,6 +41,15 @@ const fallbackNavigationItems = [
   { icon: Sparkles, key: 'optimize' },
   { icon: Settings, key: 'settings' }
 ] as const
+
+const roleIcons: Record<UserRole, LucideIcon> = {
+  employee: UserRound,
+  finance: Wallet,
+  'it-admin': Server,
+  manager: UsersRound,
+  'spending-approver': BadgeCheck,
+  'super-admin': ShieldCheck
+}
 
 export interface DashboardSidebarProps {
   employeeSelfServiceOnly?: boolean
@@ -88,6 +103,8 @@ export function DashboardSidebar({
 }: DashboardSidebarProps) {
   const { t } = useTranslation('dashboard')
   const { t: tCommon } = useTranslation('common')
+  const { t: translateAuth } = useTranslation('auth')
+  const RoleIcon = roleIcons[role]
   const { t: translateAdmin } = useTranslation(role === 'super-admin' ? 'admin' : 'common')
   const { t: translateEmployee } = useTranslation('employee')
   const { t: translateManager } = useTranslation(role === 'manager' ? 'manager' : 'common')
@@ -112,27 +129,22 @@ export function DashboardSidebar({
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-border bg-sidebar transition-transform duration-200 lg:translate-x-0 ${
+        className={`dashboard-sidebar fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-sidebar transition-transform duration-200 lg:translate-x-0 ${
           mobileNavigationOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         id='dashboard-sidebar'
       >
-        <div className='flex h-20 items-center justify-between border-b border-border px-5'>
+        <div className='flex h-20 items-center justify-between px-5'>
           <div className='flex items-center gap-3'>
             <span className='relative grid size-11 place-items-center overflow-hidden rounded-2xl bg-primary text-primary-foreground shadow-[0_10px_28px_var(--theme-primary-soft)]'>
               <span aria-hidden='true' className='absolute -top-2 -right-2 size-5 rounded-full bg-white/20' />
               <BrandMark className='size-6' />
             </span>
-            <div>
-              <p className='font-bold tracking-[-0.02em]'>{tCommon('brand')}</p>
-              <p className='mt-0.5 text-[0.65rem] font-semibold tracking-[0.12em] text-muted-foreground uppercase'>
-                {!isSuperAdmin && !isItAdmin && !isApprover && role !== 'finance' && t('demoNotice')}
-              </p>
-            </div>
+            <p className='font-bold tracking-[-0.02em]'>{tCommon('brand')}</p>
           </div>
           <button
             aria-label={t('mobile.closeMenu')}
-            className='grid size-9 place-items-center rounded-lg text-muted-foreground hover:bg-surface lg:hidden'
+            className='grid size-9 place-items-center rounded-lg text-muted-foreground hover:bg-surface-subtle lg:hidden'
             onClick={onCloseMobileNavigation}
             type='button'
           >
@@ -140,7 +152,10 @@ export function DashboardSidebar({
           </button>
         </div>
 
-        <nav aria-label={t('navigation.label')} className='flex-1 overflow-y-auto px-4 py-5'>
+        <p className='px-6 pt-1 pb-2 text-[11px] font-semibold tracking-widest text-muted-foreground/80 uppercase'>
+          {t('shell.menu')}
+        </p>
+        <nav aria-label={t('navigation.label')} className='flex-1 overflow-y-auto px-4 pb-5'>
           {isItAdmin ? (
             <ItSidebarNav
               activeTab={activeTab}
@@ -156,7 +171,7 @@ export function DashboardSidebar({
                   <button
                     type='button'
                     aria-current={activeManagerParent === 'annual-budget' ? 'page' : undefined}
-                    className='flex min-h-11 w-full items-center gap-3 rounded-xl px-3.5 py-3 text-left text-sm font-semibold text-muted-foreground hover:bg-surface aria-[current=page]:bg-primary aria-[current=page]:text-primary-foreground'
+                    className='flex min-h-11 w-full items-center gap-3 rounded-lg px-3.5 py-2.5 text-left text-sm font-semibold text-muted-foreground hover:bg-surface-subtle aria-[current=page]:bg-primary-soft aria-[current=page]:text-primary-ink'
                     onClick={() => onSelectManagerTab('annual-budget')}
                   >
                     {translateManager('budget')}
@@ -175,10 +190,10 @@ export function DashboardSidebar({
                     <li key={item.key}>
                       <button
                         aria-current={isCurrent ? 'page' : undefined}
-                        className={`flex w-full items-center justify-between rounded-xl px-3.5 py-3 text-left text-sm font-semibold transition ${
+                        className={`flex w-full items-center justify-between rounded-lg px-3.5 py-2.5 text-left text-sm font-semibold transition ${
                           isCurrent
-                            ? 'bg-primary text-primary-foreground shadow-[0_10px_25px_var(--theme-primary-soft)]'
-                            : 'text-muted-foreground hover:bg-surface hover:text-foreground'
+                            ? 'bg-primary-soft text-primary-ink'
+                            : 'text-muted-foreground hover:bg-surface-subtle hover:text-foreground'
                         }`}
                         onClick={() => onSelectEmployeeTab(item.directTabKey!)}
                         type='button'
@@ -190,7 +205,7 @@ export function DashboardSidebar({
                         {item.badge !== undefined && (
                           <span
                             className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[0.65rem] font-bold ${
-                              isCurrent ? 'bg-white/20 text-white' : 'bg-surface-subtle text-muted-foreground'
+                              isCurrent ? 'bg-primary/10 text-primary-ink' : 'bg-surface-subtle text-muted-foreground'
                             }`}
                           >
                             {item.badge}
@@ -211,10 +226,10 @@ export function DashboardSidebar({
                   <li key={item.key}>
                     <button
                       aria-current={isCurrent ? 'page' : undefined}
-                      className={`flex w-full items-center justify-between rounded-xl px-3.5 py-3 text-left text-sm font-semibold transition ${
+                      className={`flex w-full items-center justify-between rounded-lg px-3.5 py-2.5 text-left text-sm font-semibold transition ${
                         isCurrent
-                          ? 'bg-primary text-primary-foreground shadow-[0_10px_25px_var(--theme-primary-soft)]'
-                          : 'text-muted-foreground hover:bg-surface hover:text-foreground'
+                          ? 'bg-primary-soft text-primary-ink'
+                          : 'text-muted-foreground hover:bg-surface-subtle hover:text-foreground'
                       }`}
                       onClick={() => onSelectManagerTab(item.key)}
                       type='button'
@@ -238,10 +253,10 @@ export function DashboardSidebar({
                   <li key={item.key}>
                     <button
                       aria-current={isCurrent ? 'page' : undefined}
-                      className={`flex w-full items-center justify-between rounded-xl px-3.5 py-3 text-left text-sm font-semibold transition ${
+                      className={`flex w-full items-center justify-between rounded-lg px-3.5 py-2.5 text-left text-sm font-semibold transition ${
                         isCurrent
-                          ? 'bg-primary text-primary-foreground shadow-[0_10px_25px_var(--theme-primary-soft)]'
-                          : 'text-muted-foreground hover:bg-surface hover:text-foreground'
+                          ? 'bg-primary-soft text-primary-ink'
+                          : 'text-muted-foreground hover:bg-surface-subtle hover:text-foreground'
                       }`}
                       onClick={() => onSelectApprovalTab(item.key)}
                       type='button'
@@ -253,7 +268,7 @@ export function DashboardSidebar({
                       {item.badge !== undefined && (
                         <span
                           className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[0.65rem] font-bold ${
-                            isCurrent ? 'bg-white/20 text-white' : 'bg-surface-subtle text-muted-foreground'
+                            isCurrent ? 'bg-primary/10 text-primary-ink' : 'bg-surface-subtle text-muted-foreground'
                           }`}
                         >
                           {item.badge}
@@ -276,10 +291,10 @@ export function DashboardSidebar({
                   <li key={item.key}>
                     <button
                       aria-current={isCurrent ? 'page' : undefined}
-                      className={`flex w-full items-center justify-between rounded-xl px-3.5 py-3 text-left text-sm font-semibold transition ${
+                      className={`flex w-full items-center justify-between rounded-lg px-3.5 py-2.5 text-left text-sm font-semibold transition ${
                         isCurrent
-                          ? 'bg-primary text-primary-foreground shadow-[0_10px_25px_var(--theme-primary-soft)]'
-                          : 'text-muted-foreground hover:bg-surface hover:text-foreground'
+                          ? 'bg-primary-soft text-primary-ink'
+                          : 'text-muted-foreground hover:bg-surface-subtle hover:text-foreground'
                       }`}
                       onClick={() => onSelectSuperAdminTab(item.key)}
                       type='button'
@@ -291,7 +306,7 @@ export function DashboardSidebar({
                       {item.badge !== undefined && (
                         <span
                           className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[0.65rem] font-bold ${
-                            isCurrent ? 'bg-white/20 text-white' : 'bg-surface-subtle text-muted-foreground'
+                            isCurrent ? 'bg-primary/10 text-primary-ink' : 'bg-surface-subtle text-muted-foreground'
                           }`}
                         >
                           {item.badge}
@@ -311,10 +326,10 @@ export function DashboardSidebar({
                   <li key={key}>
                     <button
                       aria-current={isCurrent ? 'page' : undefined}
-                      className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-3 text-left text-sm font-semibold transition ${
+                      className={`flex w-full items-center gap-3 rounded-lg px-3.5 py-2.5 text-left text-sm font-semibold transition ${
                         isCurrent
-                          ? 'bg-primary text-primary-foreground shadow-[0_10px_25px_var(--theme-primary-soft)]'
-                          : 'text-muted-foreground hover:bg-surface hover:text-foreground'
+                          ? 'bg-primary-soft text-primary-ink'
+                          : 'text-muted-foreground hover:bg-surface-subtle hover:text-foreground'
                       }`}
                       type='button'
                     >
@@ -329,13 +344,25 @@ export function DashboardSidebar({
         </nav>
 
         <div className='p-4'>
-          <div className='rounded-xl border border-border bg-surface px-3 py-2'>
+          <div className='dashboard-role-card flex items-center gap-3 rounded-xl p-3'>
+            <span className='grid size-10 shrink-0 place-items-center rounded-lg bg-white/15'>
+              <RoleIcon aria-hidden='true' className='size-[1.125rem]' strokeWidth={1.5} />
+            </span>
+            <div className='min-w-0 flex-1'>
+              <p className='truncate text-[11px] font-semibold tracking-wider uppercase opacity-75'>
+                {t('shell.workspace')}
+              </p>
+              <p className='truncate text-sm font-semibold' title={translateAuth(`roles.${role}.label`)}>
+                {translateAuth(`roles.${role}.label`)}
+              </p>
+            </div>
             <Link
-              className='flex h-10 w-full items-center gap-2 rounded-lg px-3 text-sm font-semibold text-muted-foreground transition hover:bg-primary-soft hover:text-primary'
+              aria-label={t('logout')}
+              className='dashboard-role-card-action grid size-10 shrink-0 place-items-center rounded-lg'
+              title={t('logout')}
               to='/logout'
             >
-              <LogOut aria-hidden='true' className='size-4' />
-              {t('logout')}
+              <LogOut aria-hidden='true' className='size-[1.125rem]' strokeWidth={1.5} />
             </Link>
           </div>
         </div>

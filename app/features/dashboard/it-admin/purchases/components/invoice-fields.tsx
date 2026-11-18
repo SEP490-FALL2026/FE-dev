@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { useCurrencyList } from '~/shared/api/generated/operations/currencies/currency-list'
 import { ItField, itInputClass } from '../../shared/components/it-form'
+import { ItChoiceSelect } from '../../shared/components/it-choice-select'
 
 export type InvoiceDraft = {
   number: string
@@ -24,6 +25,7 @@ export function InvoiceFields({
   disabled: boolean
 }) {
   const { t: translate } = useTranslation('itInvoices')
+  const { t: translatePlaceholder } = useTranslation('itPlaceholders')
   const currencies = useCurrencyList()
   return (
     <div className='grid gap-4 sm:grid-cols-2 [&>.it-form-field]:row-span-3 [&>.it-form-field]:grid-rows-subgrid'>
@@ -44,6 +46,7 @@ export function InvoiceFields({
         return (
           <ItField key={key} label={translate(key)} hint={translate(`hints.${key}`)}>
             <input
+              placeholder={translatePlaceholder(`invoice.${key}`)}
               className={itInputClass}
               type={type}
               required={required}
@@ -65,39 +68,33 @@ export function InvoiceFields({
           </ItField>
         )
       })}
-      <ItField label={translate('currency')} hint={translate('hints.currency')}>
-        <select
-          required
-          className={itInputClass}
-          value={draft.currency}
-          disabled={disabled}
-          onChange={(event) => onChange('currency', event.target.value)}
-        >
-          <option value='VND'>{translate('vnd')}</option>
-          {currencies.data?.data?.items
+      <ItChoiceSelect
+        label={translate('currency')}
+        hint={translate('hints.currency')}
+        required
+        value={draft.currency}
+        disabled={disabled}
+        loading={currencies.isFetching}
+        onChange={(value) => onChange('currency', value)}
+        options={[
+          { value: 'VND', label: translate('vnd') },
+          ...(currencies.data?.data?.items ?? [])
             .filter((item) => item.code !== 'VND')
-            .map((item) => (
-              <option key={item.code} value={item.code}>
-                {item.code}
-              </option>
-            ))}
-        </select>
-      </ItField>
-      <ItField label={translate('paymentSource')} hint={translate('hints.paymentSource')}>
-        <select
-          required
-          className={itInputClass}
-          value={draft.paymentSource}
-          disabled={disabled}
-          onChange={(event) => onChange('paymentSource', event.target.value)}
-        >
-          {(['COMPANY_CARD', 'IT_ADVANCE'] as const).map((value) => (
-            <option key={value} value={value}>
-              {translate(`sources.${value}`)}
-            </option>
-          ))}
-        </select>
-      </ItField>
+            .map((item) => ({ value: item.code, label: item.code }))
+        ]}
+      />
+      <ItChoiceSelect
+        label={translate('paymentSource')}
+        hint={translate('hints.paymentSource')}
+        required
+        value={draft.paymentSource}
+        disabled={disabled}
+        onChange={(value) => onChange('paymentSource', value)}
+        options={(['COMPANY_CARD', 'IT_ADVANCE'] as const).map((value) => ({
+          value,
+          label: translate(`sources.${value}`)
+        }))}
+      />
     </div>
   )
 }

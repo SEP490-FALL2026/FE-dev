@@ -6,7 +6,7 @@ export function GhostSeatLogo({ seat, large = false }: { seat: GhostSeat; large?
   return (
     <span
       aria-hidden='true'
-      className={`flex shrink-0 items-center justify-center rounded-xl border border-neutral-200 bg-brand-bg text-brand-600 ${large ? 'size-14' : 'size-8'}`}
+      className={`flex shrink-0 items-center justify-center rounded-xl border border-border bg-surface-subtle text-primary ${large ? 'size-14' : 'size-8'}`}
     >
       {seat.id === 'figma' ? (
         <FigmaMark />

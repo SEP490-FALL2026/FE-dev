@@ -19,6 +19,7 @@ export function OptimizationEscalation({
   onBack: () => void
 }) {
   const { t } = useTranslation('itOptimization')
+  const { t: translatePlaceholder } = useTranslation('itPlaceholders')
   const policy = usePolicyStepGet('POL-USAGE', '5.3')
   const [answers, setAnswers] = useState<Record<string, 'YES' | 'NO'>>({})
   const [note, setNote] = useState('')
@@ -126,6 +127,7 @@ export function OptimizationEscalation({
               ))}
               <ItField label={t('note')} hint={t('noteHint')}>
                 <textarea
+                  placeholder={translatePlaceholder('note')}
                   className={itInputClass}
                   value={note}
                   maxLength={500}

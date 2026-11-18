@@ -1,4 +1,4 @@
-import { ArrowUpRight } from 'lucide-react'
+import { ArrowUpRight, BadgeCheck, Boxes, ClipboardCheck, Landmark, Send, UserX, Wallet } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useManagerDashboardGet } from '~/shared/api/generated/operations/dashboards/manager-dashboard-get'
 import { useDashboardFormat } from '../../../dashboard-ui'
@@ -7,13 +7,13 @@ import { ManagerQueryState, ManagerSection } from '../../shared/components/manag
 import { DASHBOARD_STATE } from '../enums/dashboard-state'
 
 const cards = [
-  { key: 'needApprovals', tab: 'team-requests' },
-  { key: 'departmentSoftware', tab: 'team-software' },
-  { key: 'spendQueue', tab: 'weekly-batch' },
-  { key: 'budgetProposals', tab: 'annual-budget' },
-  { key: 'approvedBudgetLines', tab: 'annual-budget' },
-  { key: 'ghostSeats' },
-  { key: 'spending' }
+  { key: 'needApprovals', tab: 'team-requests', icon: ClipboardCheck },
+  { key: 'departmentSoftware', tab: 'team-software', icon: Boxes },
+  { key: 'spendQueue', tab: 'weekly-batch', icon: Send },
+  { key: 'budgetProposals', tab: 'annual-budget', icon: Landmark },
+  { key: 'approvedBudgetLines', tab: 'annual-budget', icon: BadgeCheck },
+  { key: 'ghostSeats', icon: UserX },
+  { key: 'spending', icon: Wallet }
 ] as const
 export function ManagerDashboardSummary({
   onSelectTab
@@ -37,7 +37,7 @@ export function ManagerDashboardSummary({
     >
       <ManagerQueryState query={query} empty={!data} />
       {data && (
-        <div className='grid gap-3 sm:grid-cols-2 xl:grid-cols-4'>
+        <div className='kpi-tone-grid grid gap-3 sm:grid-cols-2 xl:grid-cols-4'>
           {cards.map((card) => {
             const section = data.sections[card.key]
             const counted =
@@ -47,8 +47,11 @@ export function ManagerDashboardSummary({
               section.count >= 0
             const content = (
               <>
-                <span className='block text-sm text-muted-foreground'>
-                  {translate(`integration.metrics.${card.key}`)}
+                <span className='flex items-start justify-between gap-3'>
+                  <span className='text-sm text-muted-foreground'>{translate(`integration.metrics.${card.key}`)}</span>
+                  <span className='kpi-chip grid size-9 shrink-0 place-items-center rounded-lg'>
+                    <card.icon aria-hidden strokeWidth={1.5} className='size-4' />
+                  </span>
                 </span>
                 <span className='mt-4 flex items-end justify-between gap-3'>
                   <span

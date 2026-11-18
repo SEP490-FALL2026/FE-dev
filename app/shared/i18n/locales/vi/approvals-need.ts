@@ -33,7 +33,7 @@ export const approvalsNeed = {
     columns: { costCenter: 'Trung tâm chi phí', count: 'Số mục', amount: 'Số tiền' }
   },
   overview: {
-    description: 'Công việc được giao cho bạn, số liệu lấy từ hệ thống.',
+    description: 'Các khoản chi và ngân sách đang chờ bạn quyết định.',
     countUnavailable: 'Chưa tải được số liệu',
     openSpend: 'Mở hàng đợi duyệt chi',
     openBudgets: 'Mở ngân sách năm'

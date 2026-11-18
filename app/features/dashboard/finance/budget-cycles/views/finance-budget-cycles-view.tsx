@@ -6,11 +6,13 @@ import {
   FinancePage,
   FinancePagination,
   FinanceQueryState,
+  FinanceSection,
   FinanceStatus
 } from '../../shared/components/finance-ui'
 import { FinanceTable } from '../../shared/components/finance-table'
 import { useFinanceList } from '../../shared/hooks/use-finance-list'
 import { formatMoney } from '../../shared/finance-money'
+import { formatDay } from '../../shared/finance-date'
 import type { BudgetViewProps } from '../../annual-budget/budget-view-props'
 import { CycleDetail } from '../components/cycle-detail'
 import { CycleCreateDialog } from '../components/cycle-create-dialog'
@@ -29,65 +31,68 @@ export function FinanceBudgetCyclesView({ itemId, onSelectTab }: BudgetViewProps
   return (
     <FinancePage
       title={translate('budgetCycle.title')}
+      description={translate('screen.cyclesDescription')}
       actions={
         <FinanceButton variant='primary' onClick={() => setCreating(true)}>
           {translate('budgetCycle.create')}
         </FinanceButton>
       }
     >
-      <FinanceQueryState query={query}>
-        <FinanceTable
-          items={result?.items ?? []}
-          rowKey={(cycle) => String(cycle.year)}
-          onOpen={(cycle) => onSelectTab?.('budget-cycles', { id: String(cycle.year) })}
-          columns={[
-            {
-              key: 'year',
-              label: translate('fields.year'),
-              numeric: true,
-              align: 'center',
-              render: (cycle) => cycle.year
-            },
-            {
-              key: 'status',
-              label: translate('fields.state'),
-              render: (cycle) => (
-                <FinanceStatus
-                  value={cycle.status}
-                  label={translate(`budgetCycle.status.${cycle.status}`, { defaultValue: translate('unknown') })}
-                />
-              )
-            },
-            {
-              key: 'ceiling',
-              label: translate('budgetCycle.annualCeiling'),
-              numeric: true,
-              render: (cycle) => formatMoney(cycle.annualCeiling, i18n.language)
-            },
-            {
-              key: 'available',
-              label: translate('budgetCycle.available'),
-              numeric: true,
-              render: (cycle) => formatMoney(cycle.available, i18n.language)
-            },
-            {
-              key: 'submission',
-              label: translate('budgetCycle.submissionDeadline'),
-              numeric: true,
-              align: 'center',
-              render: (cycle) => cycle.submissionDeadline
-            },
-            {
-              key: 'decision',
-              label: translate('budgetCycle.decisionDeadline'),
-              numeric: true,
-              align: 'center',
-              render: (cycle) => cycle.decisionDeadline
-            }
-          ]}
-        />
-        <FinancePagination pagination={result?.pagination} onPageChange={setPage} />
-      </FinanceQueryState>
+      <FinanceSection title={translate('screen.cycleList')}>
+        <FinanceQueryState query={query}>
+          <FinanceTable
+            items={result?.items ?? []}
+            rowKey={(cycle) => String(cycle.year)}
+            onOpen={(cycle) => onSelectTab?.('budget-cycles', { id: String(cycle.year) })}
+            columns={[
+              {
+                key: 'year',
+                label: translate('fields.year'),
+                numeric: true,
+                align: 'center',
+                render: (cycle) => cycle.year
+              },
+              {
+                key: 'status',
+                label: translate('fields.state'),
+                render: (cycle) => (
+                  <FinanceStatus
+                    value={cycle.status}
+                    label={translate(`budgetCycle.status.${cycle.status}`, { defaultValue: translate('unknown') })}
+                  />
+                )
+              },
+              {
+                key: 'ceiling',
+                label: translate('budgetCycle.annualCeiling'),
+                numeric: true,
+                render: (cycle) => formatMoney(cycle.annualCeiling, i18n.language)
+              },
+              {
+                key: 'available',
+                label: translate('budgetCycle.available'),
+                numeric: true,
+                render: (cycle) => formatMoney(cycle.available, i18n.language)
+              },
+              {
+                key: 'submission',
+                label: translate('budgetCycle.submissionDeadline'),
+                numeric: true,
+                align: 'center',
+                render: (cycle) => formatDay(cycle.submissionDeadline, i18n.language)
+              },
+              {
+                key: 'decision',
+                label: translate('budgetCycle.decisionDeadline'),
+                numeric: true,
+                align: 'center',
+                render: (cycle) => formatDay(cycle.decisionDeadline, i18n.language)
+              }
+            ]}
+          />
+          <FinancePagination pagination={result?.pagination} onPageChange={setPage} />
+        </FinanceQueryState>
+      </FinanceSection>
       {creating && (
         <CycleCreateDialog
           onClose={() => setCreating(false)}

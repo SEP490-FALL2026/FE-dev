@@ -1,11 +1,14 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router'
-import { Search } from 'lucide-react'
+import { Building2, Plus, Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useDepartmentList } from '~/shared/api/generated/operations/departments'
 import { AdminQueryState, AdminEmpty } from '../../shared/components/admin-query-state'
 import { AdminPagination } from '../../shared/components/admin-pagination'
-import { adminButtonClass, adminInputClass, adminPrimaryClass } from '../../shared/components/admin-form'
+import { AdminField, adminButtonClass, adminInputClass, adminPrimaryClass } from '../../shared/components/admin-form'
+import { AdminSelect } from '../../shared/components/admin-select'
+import { AdminPageHeader, AdminSectionTitle } from '../../shared/components/admin-page-header'
+import { WorkspaceEmptyState } from '~/shared/ui/workspace-empty-state'
 import { DepartmentStatus } from '../enums/department-status'
 import { DepartmentCard } from '../components/department-card'
 import { DepartmentForm } from '../components/department-form'
@@ -67,19 +70,24 @@ export function SuperAdminDepartmentsView(_props: { onSelectTab?: (tab: SuperAdm
         </AdminQueryState>
       </div>
     )
+  const items = query.data?.data?.items ?? []
+  const total = query.data?.data?.pagination.totalItems
   return (
     <div className='grid gap-6'>
-      <header className='flex flex-wrap items-start justify-between gap-4'>
-        <div>
-          <h1 className='text-2xl font-semibold'>{translate('title')}</h1>
-          <p className='mt-2 text-sm text-muted-foreground'>{translate('subtitle')}</p>
-        </div>
-        <button className={adminPrimaryClass} type='button' onClick={() => setCreate(true)}>
-          {translate('createDepartment')}
-        </button>
-      </header>
-      <div className='grid gap-3 sm:grid-cols-[minmax(0,1fr)_14rem]'>
-        <label className='grid gap-2 text-sm'>
+      <AdminPageHeader
+        icon={Building2}
+        eyebrow={translate('ui.eyebrow')}
+        title={translate('title')}
+        subtitle={translate('subtitle')}
+        actions={
+          <button className={adminPrimaryClass} type='button' onClick={() => setCreate(true)}>
+            <Plus aria-hidden strokeWidth={1.5} className='size-4' />
+            {translate('createDepartment')}
+          </button>
+        }
+      />
+      <div className='soft-panel grid gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_16rem] sm:items-end'>
+        <label className='grid gap-1.5 text-sm font-medium'>
           {translate('search')}
           <span className='relative block'>
             <Search
@@ -99,43 +107,49 @@ export function SuperAdminDepartmentsView(_props: { onSelectTab?: (tab: SuperAdm
             />
           </span>
         </label>
-        <label className='grid gap-2 text-sm'>
-          {translate('status')}
-          <select
-            className={adminInputClass}
+        <AdminField label={translate('status')} description=''>
+          <AdminSelect
             value={status}
-            onChange={(event) => {
-              const value = event.target.value
-              updateParameters({ status: value, page: null })
-            }}
-          >
-            <option value=''>{translate('allStatuses')}</option>
-            {Object.values(DepartmentStatus).map((value) => (
-              <option key={value} value={value}>
-                {translate(`departmentStatus.${value}`)}
-              </option>
-            ))}
-          </select>
-        </label>
+            clearable
+            onChange={(value) => updateParameters({ status: value, page: null })}
+            options={Object.values(DepartmentStatus).map((value) => ({
+              value,
+              label: translate(`departmentStatus.${value}`)
+            }))}
+            placeholder={translate('allStatuses')}
+          />
+        </AdminField>
       </div>
-      <AdminQueryState query={query}>
-        {!query.data?.data?.items.length && <AdminEmpty />}
-        <div className='grid items-stretch gap-5 md:grid-cols-2 xl:grid-cols-3'>
-          {query.data?.data?.items.map((department, position) => (
-            <DepartmentCard
-              key={department.id}
-              department={department}
-              position={(page - 1) * 20 + position}
-              onOpen={() => updateParameters({ departmentId: department.id })}
-            />
-          ))}
-        </div>
-        <AdminPagination
-          pagination={query.data?.data?.pagination}
-          onPageChange={(nextPage) => updateParameters({ page: String(nextPage) })}
-          disabled={query.isFetching}
+      <section className='grid gap-4'>
+        <AdminSectionTitle
+          title={translate('departments')}
+          hint={total !== undefined ? translate('ui.listCount', { count: total }) : undefined}
         />
-      </AdminQueryState>
+        <AdminQueryState query={query}>
+          {!items.length && (
+            <WorkspaceEmptyState
+              icon={Building2}
+              title={translate(search || status ? 'ui.noMatchTitle' : 'ui.emptyTitle')}
+              description={translate(search || status ? 'ui.noMatchHint' : 'ui.emptyHint')}
+            />
+          )}
+          <div className='grid items-stretch gap-5 md:grid-cols-2 xl:grid-cols-3'>
+            {items.map((department, position) => (
+              <DepartmentCard
+                key={department.id}
+                department={department}
+                position={(page - 1) * 20 + position}
+                onOpen={() => updateParameters({ departmentId: department.id })}
+              />
+            ))}
+          </div>
+          <AdminPagination
+            pagination={query.data?.data?.pagination}
+            onPageChange={(nextPage) => updateParameters({ page: String(nextPage) })}
+            disabled={query.isFetching}
+          />
+        </AdminQueryState>
+      </section>
       {create && <DepartmentForm onClose={() => setCreate(false)} />}
     </div>
   )

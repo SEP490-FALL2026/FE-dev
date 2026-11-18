@@ -1,5 +1,7 @@
 import { useState } from 'react'
-import { ArrowLeft, Bug } from 'lucide-react'
+import { ArrowLeft, Bug, MessageSquareWarning } from 'lucide-react'
+import { EmployeeFormStep } from '../../shared/components/employee-layout'
+import { EmployeeSelect } from '../../shared/components/employee-select'
 import { EmployeePageHeader } from '../../shared/components/employee-page-header'
 import { useTranslation } from 'react-i18next'
 import { useSaasIssueFormOptions } from '~/shared/api/generated/operations/saas-issues/saas-issue-form-options'
@@ -22,8 +24,9 @@ import { ISSUE_CATEGORY, ISSUE_IMPACT } from '../enums/issue-status'
 
 export function EmployeeReportIssue({ onCreated, onBack }: { onCreated: (id: string) => void; onBack: () => void }) {
   const { t: translate } = useTranslation('employee')
-  const { page, pageSize, onPage } = useEmployeePage()
-  const options = useSaasIssueFormOptions({ page, pageSize })
+  const { page, onPage } = useEmployeePage()
+  // One large page keeps every assignment searchable in the picker; extra pages stay reachable below it.
+  const options = useSaasIssueFormOptions({ page, pageSize: 100 })
   const [assignmentId, setAssignmentId] = useState('')
   const [category, setCategory] = useState<SubmitSaasIssueBodyDtoCategory>(ISSUE_CATEGORY.NO_ACCESS)
   const [impact, setImpact] = useState<SubmitSaasIssueBodyDtoImpact>(ISSUE_IMPACT.UNUSABLE)
@@ -54,8 +57,7 @@ export function EmployeeReportIssue({ onCreated, onBack }: { onCreated: (id: str
           </EmployeeButton>
         }
       />
-      <EmployeeSection title={translate('redesign.requestFields')}>
-        <p className='max-w-3xl text-sm text-muted-foreground'>{translate('issueHint')}</p>
+      <EmployeeSection title={translate('redesign.requestFields')} icon={MessageSquareWarning}>
         <form
           className='space-y-5'
           onSubmit={(event) => {
@@ -75,89 +77,94 @@ export function EmployeeReportIssue({ onCreated, onBack }: { onCreated: (id: str
         >
           <EmployeeFormErrors fields={feedback.invalidFields}>
             <fieldset disabled={mutation.isPending || feedback.blocked} className='space-y-5'>
-              <legend className='mb-3 text-sm font-medium'>{translate('chooseAssignment')}</legend>
-              <EmployeeQueryState
-                query={options}
-                empty={!options.data?.data?.items.length}
-                emptyTitle={translate('redesign.noAssignments')}
-                emptyDescription={translate('redesign.noAssignmentsHint')}
-              />
-              {!options.isError && (
-                <div className='grid gap-2 sm:grid-cols-2'>
-                  {options.data?.data?.items.map((assignment) => (
-                    <label
-                      key={assignment.assignmentId}
-                      className={`flex min-h-11 min-w-0 items-center gap-3 rounded-md border p-3 transition-colors ${assignmentId === assignment.assignmentId ? 'border-primary/50 bg-primary-soft/25' : 'border-border/60 hover:bg-surface-subtle'}`}
-                    >
-                      <input
-                        required
-                        type='radio'
-                        name='assignment'
-                        value={assignment.assignmentId}
-                        checked={assignmentId === assignment.assignmentId}
-                        onChange={() => setAssignmentId(assignment.assignmentId)}
-                      />
-                      <span className='truncate text-sm' title={assignment.plan.applicationName}>
-                        {assignment.plan.applicationName} · {assignment.plan.planName}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              )}
-              <EmployeePagination
-                pagination={options.data?.data?.pagination}
-                busy={options.isFetching}
-                onPage={(next) => {
-                  setAssignmentId('')
-                  onPage(next)
-                }}
-              />
-              <div className='grid gap-5 sm:grid-cols-2'>
-                <EmployeeField label={translate('category')}>
-                  <select
-                    className={employeeInputClass}
-                    value={category}
-                    onChange={(event) => {
-                      const next = Object.values(ISSUE_CATEGORY).find((value) => value === event.target.value)
-                      if (next) setCategory(next)
-                    }}
-                  >
-                    {Object.values(ISSUE_CATEGORY).map((value) => (
-                      <option value={value} key={value}>
-                        {translate(`statuses.${value}`)}
-                      </option>
-                    ))}
-                  </select>
+              <EmployeeFormStep step={1} title={translate('ui.issues.softwareStep')}>
+                <EmployeeField label={translate('chooseAssignment')}>
+                  <EmployeeSelect
+                    required
+                    name='assignment'
+                    value={assignmentId}
+                    placeholder={translate('ui.placeholders.issueAssignment')}
+                    loading={options.isFetching}
+                    emptyText={translate('redesign.noAssignments')}
+                    options={
+                      options.isError
+                        ? []
+                        : (options.data?.data?.items ?? []).map((assignment) => ({
+                            value: assignment.assignmentId,
+                            label: assignment.plan.applicationName,
+                            description: assignment.plan.planName
+                          }))
+                    }
+                    onChange={setAssignmentId}
+                  />
                 </EmployeeField>
-                <EmployeeField label={translate('impact')}>
-                  <select
-                    className={employeeInputClass}
-                    value={impact}
-                    onChange={(event) => {
-                      const next = Object.values(ISSUE_IMPACT).find((value) => value === event.target.value)
-                      if (next) setImpact(next)
-                    }}
-                  >
-                    {Object.values(ISSUE_IMPACT).map((value) => (
-                      <option value={value} key={value}>
-                        {translate(`statuses.${value}`)}
-                      </option>
-                    ))}
-                  </select>
-                </EmployeeField>
-                <EmployeeField label={translate('occurredAt')}>
-                  <EmployeeInput required type='datetime-local' name='occurredAt' />
-                </EmployeeField>
-              </div>
-              <EmployeeField label={translate('description')}>
-                <textarea
-                  className={employeeInputClass}
-                  required
-                  name='description'
-                  maxLength={options.data?.data?.descriptionMaxLength ?? 2000}
-                  rows={4}
+                {(options.isError || (options.isSuccess && !options.data?.data?.items.length)) && (
+                  <EmployeeQueryState
+                    query={options}
+                    empty={!options.data?.data?.items.length}
+                    emptyTitle={translate('redesign.noAssignments')}
+                    emptyDescription={translate('redesign.noAssignmentsHint')}
+                  />
+                )}
+                <EmployeePagination
+                  pagination={options.data?.data?.pagination}
+                  busy={options.isFetching}
+                  onPage={(next) => {
+                    setAssignmentId('')
+                    onPage(next)
+                  }}
                 />
-              </EmployeeField>
+              </EmployeeFormStep>
+              <EmployeeFormStep step={2} title={translate('ui.issues.detailsStep')}>
+                <div className='grid items-start gap-5 sm:grid-cols-2'>
+                  <EmployeeField label={translate('category')}>
+                    <EmployeeSelect
+                      required
+                      value={category}
+                      placeholder={translate('ui.placeholders.issueCategory')}
+                      options={Object.values(ISSUE_CATEGORY).map((value) => ({
+                        value,
+                        label: translate(`statuses.${value}`)
+                      }))}
+                      onChange={(value) => {
+                        const next = Object.values(ISSUE_CATEGORY).find((option) => option === value)
+                        if (next) setCategory(next)
+                      }}
+                    />
+                  </EmployeeField>
+                  <EmployeeField label={translate('impact')}>
+                    <EmployeeSelect
+                      required
+                      value={impact}
+                      placeholder={translate('ui.placeholders.issueImpact')}
+                      options={Object.values(ISSUE_IMPACT).map((value) => ({
+                        value,
+                        label: translate(`statuses.${value}`)
+                      }))}
+                      onChange={(value) => {
+                        const next = Object.values(ISSUE_IMPACT).find((option) => option === value)
+                        if (next) setImpact(next)
+                      }}
+                    />
+                  </EmployeeField>
+                  <EmployeeField label={translate('occurredAt')}>
+                    <EmployeeInput required type='datetime-local' name='occurredAt' />
+                  </EmployeeField>
+                </div>
+                <p role='note' className='soft-panel p-3 text-sm leading-relaxed text-muted-foreground'>
+                  {translate('issueHint')}
+                </p>
+                <EmployeeField label={translate('description')}>
+                  <textarea
+                    className={employeeInputClass}
+                    required
+                    name='description'
+                    maxLength={options.data?.data?.descriptionMaxLength ?? 2000}
+                    rows={4}
+                    placeholder={translate('ui.placeholders.issueDescription')}
+                  />
+                </EmployeeField>
+              </EmployeeFormStep>
             </fieldset>
             {feedback.unknownOutcome && (
               <p role='status' className='text-sm text-warning'>

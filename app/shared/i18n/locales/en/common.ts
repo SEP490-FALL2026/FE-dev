@@ -17,6 +17,13 @@ export const common = {
     phoneInvalid: 'Enter a valid work phone with 8–15 digits.',
     save: 'Save phone'
   },
+  searchSelect: {
+    empty: 'No matching results',
+    loading: 'Loading list…',
+    clear: 'Clear selection',
+    toggle: 'Open or close the list',
+    loadMore: 'Load more'
+  },
   brand: 'SaaS-Sentry',
   notifications: {
     messages: notificationMessages,

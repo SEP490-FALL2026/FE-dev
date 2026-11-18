@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { employeeList, getEmployeeListQueryKey } from '~/shared/api/generated/operations/employees/employee-list'
@@ -6,6 +6,7 @@ import { useEmployeeFirstPlacement } from '~/shared/api/generated/operations/emp
 import { getDepartmentGetQueryKey } from '~/shared/api/generated/operations/departments/department-get'
 import { getDepartmentMemberListQueryKey } from '~/shared/api/generated/operations/departments/department-member-list'
 import { AdminField, AdminFormDialog, adminInputClass } from '../../shared/components/admin-form'
+import { AdminSelect } from '../../shared/components/admin-select'
 import { AdminQueryState } from '../../shared/components/admin-query-state'
 import { usePersonnelMutationFeedback } from '../../shared/hooks/use-personnel-mutation-feedback'
 
@@ -68,19 +69,18 @@ export function DepartmentAddEmployee({
       <p className='text-sm text-muted-foreground'>{translate('addEmployeeHelp')}</p>
       <AdminQueryState query={query}>
         <AdminField label={translate('employeeId')}>
-          <select
+          <AdminSelect
             required
-            className={adminInputClass}
             value={employeeId}
-            onChange={(event) => setEmployeeId(event.target.value)}
-          >
-            <option value=''>{translate('chooseEmployee')}</option>
-            {query.data?.map((employee) => (
-              <option key={employee.id} value={employee.id}>
-                {employee.fullName} · {employee.employeeCode}
-              </option>
-            ))}
-          </select>
+            onChange={setEmployeeId}
+            options={(query.data ?? []).map((employee) => ({
+              value: employee.id,
+              label: employee.fullName,
+              description: employee.employeeCode
+            }))}
+            placeholder={translate('ui.pickUnplacedEmployee')}
+            emptyText={translate('ui.noUnplacedEmployees')}
+          />
         </AdminField>
       </AdminQueryState>
       <AdminField label={translate('effectiveFrom')}>

@@ -18,19 +18,20 @@ import { useEmployeeImportConfirm } from '~/shared/api/generated/operations/empl
 import { useEmployeeImportCancel } from '~/shared/api/generated/operations/employee-imports/employee-import-cancel'
 import { importTemplateGet } from '~/shared/api/generated/operations/import-templates/import-template-get'
 import { getAccountCandidatesListQueryKey } from '~/shared/api/generated/operations/app-users/account-candidates-list'
-import { AdminField, adminButtonClass, adminInputClass, adminPrimaryClass } from '../../shared/components/admin-form'
+import { AdminField, adminButtonClass, adminInputClass } from '../../shared/components/admin-form'
 import { AdminQueryState } from '../../shared/components/admin-query-state'
 import { AdminPagination } from '../../shared/components/admin-pagination'
 import { usePersonnelMutationFeedback } from '../../shared/hooks/use-personnel-mutation-feedback'
 import { PersonnelForm } from '../../shared/components/personnel-form'
 import { PersonnelCard, PersonnelCode, PersonnelList } from '../../shared/components/personnel-list'
-import { importStatuses, previewImport } from '../enums/import-status'
 import { importOutcomes } from '../enums/import-outcome'
 import { useAdminRetryDelay } from '../../shared/hooks/use-admin-retry-delay'
 import { useRecentEmployeeImports } from '../hooks/use-recent-employee-imports'
 import { importColumnField } from '../enums/import-column'
 import { useDashboardFormat } from '../../../dashboard-ui'
-import { ImportImpactSummary } from './import-impact-summary'
+import { ImportPreviewCard } from './import-preview-card'
+import { AdminSelect } from '../../shared/components/admin-select'
+import { AdminSectionTitle } from '../../shared/components/admin-page-header'
 
 export function ImportPanel() {
   const { t: translate } = useTranslation('adminPersonnel')
@@ -140,13 +141,16 @@ export function ImportPanel() {
       ) : (
         <>
           <div className='grid gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]'>
-            <div className='space-y-5 rounded-xl border border-border bg-surface p-5 sm:p-6'>
+            <div className='space-y-5 rounded-xl border border-border/80 bg-surface p-5 shadow-[0_1px_2px_rgb(0_0_0/4%),0_12px_28px_-24px_rgb(35_39_65/40%)] sm:p-6'>
               <div className='flex items-start gap-3'>
                 <span className='rounded-lg bg-primary-soft p-2.5 text-primary-ink'>
                   <UploadCloud aria-hidden className='size-5' strokeWidth={1.5} />
                 </span>
                 <div>
-                  <h2 className='font-semibold'>{translate('importUploadTitle')}</h2>
+                  <p className='text-[11px] font-semibold tracking-widest text-primary-ink uppercase'>
+                    {translate('ui.importStepUpload')}
+                  </p>
+                  <h2 className='mt-0.5 font-semibold'>{translate('importUploadTitle')}</h2>
                   <p className='mt-1 text-sm text-muted-foreground'>{translate('importUploadDescription')}</p>
                 </div>
               </div>
@@ -182,7 +186,7 @@ export function ImportPanel() {
                 </p>
               )}
             </div>
-            <div className='space-y-4 rounded-xl border border-border bg-surface p-5 sm:p-6'>
+            <div className='soft-panel space-y-4 p-5 sm:p-6'>
               <div className='flex items-start gap-3'>
                 <span className='rounded-lg bg-surface-subtle p-2.5 text-muted-foreground'>
                   <FileSpreadsheet aria-hidden className='size-5' strokeWidth={1.5} />
@@ -219,27 +223,25 @@ export function ImportPanel() {
           </div>
           {recentImports.length > 0 && (
             <div className='space-y-3 rounded-xl border border-border bg-surface p-5 sm:p-6'>
-              <h2 className='font-semibold'>{translate('recentImportsTitle')}</h2>
+              <h2 className='section-accent font-semibold'>{translate('recentImportsTitle')}</h2>
               <AdminField label={translate('fields.importId')} description={translate('recentImportsHelp')}>
-                <select
-                  className={`${adminInputClass} w-full max-w-xl`}
+                <AdminSelect
                   value=''
                   disabled={pending}
-                  onChange={(event) => {
-                    if (!event.target.value) return
-                    setImportId(event.target.value)
+                  onChange={(id) => {
+                    if (!id) return
+                    setImportId(id)
                     setPage(1)
                     setOutcome(undefined)
                     intents.current.clear()
                   }}
-                >
-                  <option value=''>{translate('choose')}</option>
-                  {recentImports.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {translate('recentImportOption', { file: item.fileName, date: formatDateTime(item.createdAt) })}
-                    </option>
-                  ))}
-                </select>
+                  options={recentImports.map((item) => ({
+                    value: item.id,
+                    label: item.fileName,
+                    description: formatDateTime(item.createdAt)
+                  }))}
+                  placeholder={translate('ui.pickRecentImport')}
+                />
               </AdminField>
             </div>
           )}
@@ -248,73 +250,40 @@ export function ImportPanel() {
       {importId && (
         <AdminQueryState query={query}>
           {data && (
-            <div className='space-y-4 rounded-lg border border-border bg-surface p-4'>
-              <h3 className='font-semibold'>{data.fileName}</h3>
-              <PersonnelCode code={data.status} values={importStatuses} />
-              <p>{translate('importVersion', { version: data.previewVersion })}</p>
-              <p>
-                {translate('importSummary', {
-                  valid: data.summary.valid,
-                  errors: data.summary.errors,
-                  same: data.summary.existingSame,
-                  different: data.summary.existingDifferent
-                })}
-              </p>
-              {data.result && (
-                <p>{translate('importResult', { created: data.result.created, errors: data.result.errors })}</p>
-              )}
-              {data.ignoredColumns.length > 0 && (
-                <p>{translate('ignoredColumns', { columns: data.ignoredColumns.map(columnLabel).join(', ') })}</p>
-              )}
-              {data.summary.duplicateOf && <p className='text-warning'>{translate('duplicateFile')}</p>}
-              <ImportImpactSummary summary={data.summary} />
-              {data.status === previewImport && (
-                <div className='flex flex-wrap gap-3'>
-                  <button
-                    className={adminButtonClass}
-                    disabled={pending || retrySeconds > 0}
-                    onClick={() => refresh.mutate({ id: importId })}
-                  >
-                    {translate('refreshPreview')}
-                  </button>
-                  <button
-                    className={adminPrimaryClass}
-                    disabled={pending || query.isFetching}
-                    onClick={() => {
-                      setVersion(data.previewVersion)
-                      setAction('confirm')
-                    }}
-                  >
-                    {translate('confirmImport')}
-                  </button>
-                  <button className={adminButtonClass} disabled={pending} onClick={() => setAction('cancel')}>
-                    {translate('cancelImport')}
-                  </button>
-                </div>
-              )}
-            </div>
+            <ImportPreviewCard
+              data={data}
+              ignoredColumns={data.ignoredColumns.map(columnLabel).join(', ')}
+              pending={pending}
+              refreshDisabled={pending || retrySeconds > 0}
+              confirmDisabled={pending || query.isFetching}
+              onRefresh={() => refresh.mutate({ id: importId })}
+              onConfirm={() => {
+                setVersion(data.previewVersion)
+                setAction('confirm')
+              }}
+              onCancel={() => setAction('cancel')}
+            />
           )}
         </AdminQueryState>
       )}
       {importId && (
         <>
-          <AdminField label={translate('allRows')} description={translate('fieldHelp.allRows')}>
-            <select
-              className={`${adminInputClass} max-w-xs`}
-              value={outcome ?? ''}
-              onChange={(event) => {
-                setOutcome(event.target.value ? (event.target.value as EmployeeImportRowListOutcome) : undefined)
-                setPage(1)
-              }}
-            >
-              <option value=''>{translate('allRows')}</option>
-              {importOutcomes.map((code) => (
-                <option key={code} value={code}>
-                  {translate(`codes.${code}`)}
-                </option>
-              ))}
-            </select>
-          </AdminField>
+          <AdminSectionTitle title={translate('ui.importRowsTitle')} hint={translate('ui.importRowsHint')} />
+          <div className='soft-panel p-4'>
+            <AdminField label={translate('allRows')} description={translate('fieldHelp.allRows')}>
+              <AdminSelect
+                className='max-w-sm'
+                value={outcome ?? ''}
+                clearable
+                onChange={(next) => {
+                  setOutcome(importOutcomes.find((code) => code === next))
+                  setPage(1)
+                }}
+                options={importOutcomes.map((code) => ({ value: code, label: translate(`codes.${code}`) }))}
+                placeholder={translate('ui.allOutcomes')}
+              />
+            </AdminField>
+          </div>
           <AdminQueryState query={rows}>
             <PersonnelList empty={!rows.data?.data?.items.length}>
               {rows.data?.data?.items.map((row) => (

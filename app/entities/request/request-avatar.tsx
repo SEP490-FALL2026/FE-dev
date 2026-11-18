@@ -7,7 +7,7 @@ export function RequestAvatar({ request, large = false }: { request: TeamRequest
   return failed ? (
     <span
       aria-hidden='true'
-      className={`flex shrink-0 items-center justify-center rounded-full bg-brand-100 font-semibold text-brand-600 ${large ? 'size-12 text-base' : 'size-8 text-xs'}`}
+      className={`flex shrink-0 items-center justify-center rounded-full bg-primary-soft font-semibold text-primary-ink ${large ? 'size-12 text-base' : 'size-8 text-xs'}`}
     >
       {request.initials}
     </span>

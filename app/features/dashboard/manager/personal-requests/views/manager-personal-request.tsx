@@ -128,6 +128,7 @@ export function ManagerPersonalRequest({ onOpen }: { onOpen: (id: string) => voi
               <ManagerField label={manager('reason')}>
                 <textarea
                   name='businessReason'
+                  placeholder={manager('ui.placeholders.personalReason')}
                   required
                   maxLength={1000}
                   rows={3}

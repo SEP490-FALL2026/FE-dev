@@ -9,6 +9,7 @@ import { DeviceIntakeRejectionListReasonCode } from '~/shared/api/generated/mode
 import { useWorkspaceFormat } from '~/shared/hooks/use-workspace-format'
 import { DevicePage } from './device-page'
 import { ItField, itInputClass } from '../../shared/components/it-form'
+import { ItChoiceSelect } from '../../shared/components/it-choice-select'
 import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { ItPagination } from '../../shared/components/it-pagination'
 
@@ -190,23 +191,22 @@ function Rejections({ id }: { id: string }) {
   const data = query.data?.data
   return (
     <div className='space-y-4'>
-      <ItField label={translate('reasonCode')} hint={translate('hints.reasonCode')}>
-        <select
-          className={itInputClass}
-          value={reasonCode ?? ''}
-          onChange={(event) => {
-            setReason(Object.values(DeviceIntakeRejectionListReasonCode).find((value) => value === event.target.value))
-            setPage(1)
-          }}
-        >
-          <option value=''>{translate('allReasons')}</option>
-          {Object.values(DeviceIntakeRejectionListReasonCode).map((value) => (
-            <option key={value} value={value}>
-              {translate(`reasons.${value}`, { defaultValue: value })}
-            </option>
-          ))}
-        </select>
-      </ItField>
+      <ItChoiceSelect
+        label={translate('reasonCode')}
+        hint={translate('hints.reasonCode')}
+        value={reasonCode ?? ''}
+        onChange={(next) => {
+          setReason(Object.values(DeviceIntakeRejectionListReasonCode).find((value) => value === next))
+          setPage(1)
+        }}
+        options={[
+          { value: '', label: translate('allReasons') },
+          ...Object.values(DeviceIntakeRejectionListReasonCode).map((value) => ({
+            value,
+            label: translate(`reasons.${value}`, { defaultValue: value })
+          }))
+        ]}
+      />
       <ItQueryState query={query}>
         {data?.items.length ? (
           <div className='divide-y divide-border/40'>

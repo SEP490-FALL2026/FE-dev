@@ -28,6 +28,7 @@ export function ProvisioningActionDialog({
   onClose: () => void
 }) {
   const { t: translate } = useTranslation('itProvisioning')
+  const { t: translatePlaceholder } = useTranslation('itPlaceholders')
   const [evidence, setEvidence] = useState('')
   const [reason, setReason] = useState('')
   const [note, setNote] = useState('')
@@ -225,6 +226,7 @@ export function ProvisioningActionDialog({
           {keyDisposition === 'WITHDRAW' && (
             <ItField label={translate('withdrawalReason')} hint={translate('withdrawalReasonHint')}>
               <textarea
+                placeholder={translatePlaceholder('withdrawalReason')}
                 className={itInputClass}
                 required
                 maxLength={500}

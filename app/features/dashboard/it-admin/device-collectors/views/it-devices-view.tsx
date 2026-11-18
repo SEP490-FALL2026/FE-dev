@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { Laptop } from 'lucide-react'
+import { ItPageHeader, ItSegmented } from '../../shared/components/it-page-header'
 import { useQuery } from '@tanstack/react-query'
 import { useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
@@ -13,7 +15,7 @@ import {
 } from '~/shared/api/generated/operations/departments/department-technical-member-list'
 import { useCatalogSearch } from '~/shared/hooks/use-catalog-search'
 import { useWorkspaceFormat } from '~/shared/hooks/use-workspace-format'
-import { ItField, itButtonClass, itInputClass, itPrimaryClass } from '../../shared/components/it-form'
+import { ItField, itInputClass, itPrimaryClass } from '../../shared/components/it-form'
 import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { ItPagination } from '../../shared/components/it-pagination'
 import { DeviceState } from '../enums/device-state'
@@ -31,30 +33,21 @@ export function ItDevicesView({ initialId }: { initialId?: string }) {
     params.get('deviceView') === 'mine' ? 'mine' : params.get('deviceView') === 'allowlist' ? 'allowlist' : 'registry'
   return (
     <section className='space-y-6'>
-      <header>
-        <h1 className='text-2xl font-semibold'>{translate('title')}</h1>
-        <p className='mt-1 text-sm text-muted-foreground'>{translate('subtitle')}</p>
-      </header>
-      <div className='flex flex-wrap gap-2'>
-        {(['registry', 'mine', 'allowlist'] as const).map((value) => (
-          <button
-            key={value}
-            type='button'
-            className={itButtonClass}
-            aria-pressed={view === value}
-            onClick={() =>
-              setParams((previous) => {
-                const next = new URLSearchParams(previous)
-                if (value === 'registry') next.delete('deviceView')
-                else next.set('deviceView', value)
-                return next
-              })
-            }
-          >
-            {translate(value)}
-          </button>
-        ))}
-      </div>
+      <ItPageHeader icon={Laptop} title={translate('title')} subtitle={translate('subtitle')}>
+        <ItSegmented
+          label={translate('title')}
+          value={view}
+          items={(['registry', 'mine', 'allowlist'] as const).map((key) => ({ key, label: translate(key) }))}
+          onChange={(value) =>
+            setParams((previous) => {
+              const next = new URLSearchParams(previous)
+              if (value === 'registry') next.delete('deviceView')
+              else next.set('deviceView', value)
+              return next
+            })
+          }
+        />
+      </ItPageHeader>
       <div hidden={view !== 'registry'}>
         <Registry initialId={initialId} active={view === 'registry'} />
       </div>
@@ -65,6 +58,7 @@ export function ItDevicesView({ initialId }: { initialId?: string }) {
 
 function Registry({ initialId, active }: { initialId?: string; active: boolean }) {
   const { t: translate } = useTranslation('itDevices')
+  const { t: translatePlaceholder } = useTranslation('itPlaceholders')
   const { formatDateTime } = useWorkspaceFormat()
   const { draft, setDraft, search, page, setPage } = useCatalogSearch()
   const [state, setState] = useState<DeviceState>()
@@ -149,9 +143,10 @@ function Registry({ initialId, active }: { initialId?: string; active: boolean }
     )
   return (
     <div className='space-y-4'>
-      <div className='grid gap-4 sm:grid-cols-2 xl:grid-cols-4 [&>.it-form-field]:row-span-3 [&>.it-form-field]:grid-rows-subgrid'>
+      <div className='soft-panel grid gap-4 p-4 sm:grid-cols-2 xl:grid-cols-4 [&>.it-form-field]:row-span-3 [&>.it-form-field]:grid-rows-subgrid'>
         <ItField label={translate('search')} hint={translate('hints.search')}>
           <input
+            placeholder={translatePlaceholder('searchDevice')}
             className={itInputClass}
             type='search'
             maxLength={100}
@@ -188,23 +183,19 @@ function Registry({ initialId, active }: { initialId?: string; active: boolean }
             setPage(1)
           }}
         />
-        <ItField label={translate('state')} hint={translate('hints.collectionState')}>
-          <select
-            className={itInputClass}
-            value={state ?? ''}
-            onChange={(event) => {
-              setState(Object.values(DeviceState).find((value) => value === event.target.value))
-              setPage(1)
-            }}
-          >
-            <option value=''>{translate('all')}</option>
-            {Object.values(DeviceState).map((value) => (
-              <option key={value} value={value}>
-                {translate(`values.${value}`)}
-              </option>
-            ))}
-          </select>
-        </ItField>
+        <ItChoiceSelect
+          label={translate('state')}
+          hint={translate('hints.collectionState')}
+          value={state ?? ''}
+          onChange={(next) => {
+            setState(Object.values(DeviceState).find((value) => value === next))
+            setPage(1)
+          }}
+          options={[
+            { value: '', label: translate('all') },
+            ...Object.values(DeviceState).map((value) => ({ value, label: translate(`values.${value}`) }))
+          ]}
+        />
       </div>
       {departments.isError && <ItQueryState query={departments}>{null}</ItQueryState>}
       {department && members.isError && <ItQueryState query={members}>{null}</ItQueryState>}

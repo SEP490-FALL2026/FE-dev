@@ -59,6 +59,8 @@ export function ManagerBudgetNavigation({
               min={2000}
               max={2200}
               step={1}
+              placeholder={t('ui.placeholders.year')}
+              aria-label={t('year')}
               value={year}
               onChange={(event) => changeYear(Number(event.target.value))}
             />

@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
-import { Boxes } from 'lucide-react'
+import { Boxes, Layers } from 'lucide-react'
 import { useMeSoftwareRightList } from '~/shared/api/generated/operations/me/me-software-right-list'
 import { useDashboardFormat } from '../../../dashboard-ui'
 import { EmployeeDataTable } from '../../shared/components/employee-data-table'
@@ -8,9 +8,10 @@ import {
   EmployeeField,
   EmployeePagination,
   EmployeeQueryState,
-  EmployeeSection,
-  employeeInputClass
+  EmployeeSection
 } from '../../shared/components/employee-api-ui'
+import { EmployeeToolbar } from '../../shared/components/employee-layout'
+import { EmployeeSelect } from '../../shared/components/employee-select'
 import { useEmployeePage } from '../../shared/hooks/use-employee-page'
 import { SOFTWARE_RIGHT_STATUS } from '../enums/software-right-status'
 import { SOFTWARE_RIGHT_VIEW } from '../enums/software-right-view'
@@ -39,6 +40,7 @@ export function EmployeeSoftwareRights() {
   return (
     <EmployeeSection
       title={translate('accessLists.software')}
+      icon={Layers}
       action={
         softwarePage && (
           <span className='font-mono text-xs text-muted-foreground tabular-nums'>
@@ -47,38 +49,39 @@ export function EmployeeSoftwareRights() {
         )
       }
     >
-      <div className='flex flex-wrap items-start justify-between gap-x-6 gap-y-2'>
-        <div className='w-full sm:max-w-xs'>
-          <EmployeeField label={translate('softwareRights.view')}>
-            <select
-              className={employeeInputClass}
-              value={view}
-              onChange={(event) =>
-                setParams((previous) => {
-                  const next = new URLSearchParams(previous)
-                  next.set('rightsView', event.target.value)
-                  next.delete('softwarePage')
-                  return next
-                })
-              }
-            >
-              {Object.values(SOFTWARE_RIGHT_VIEW).map((option) => (
-                <option key={option} value={option}>
-                  {translate(`softwareRights.views.${option}`)}
-                </option>
-              ))}
-            </select>
-          </EmployeeField>
+      <EmployeeToolbar label={translate('ui.lists.filters')}>
+        <div className='flex flex-wrap items-start justify-between gap-x-6 gap-y-2'>
+          <div className='w-full sm:max-w-sm'>
+            <EmployeeField label={translate('softwareRights.view')}>
+              <EmployeeSelect
+                value={view}
+                placeholder={translate('ui.placeholders.rightsView')}
+                options={Object.values(SOFTWARE_RIGHT_VIEW).map((option) => ({
+                  value: option,
+                  label: translate(`softwareRights.views.${option}`)
+                }))}
+                onChange={(value) =>
+                  setParams((previous) => {
+                    const next = new URLSearchParams(previous)
+                    if (value) next.set('rightsView', value)
+                    else next.delete('rightsView')
+                    next.delete('softwarePage')
+                    return next
+                  })
+                }
+              />
+            </EmployeeField>
+          </div>
+          {softwarePage && (
+            <p className='text-sm text-muted-foreground sm:pt-9'>
+              {translate('softwareRights.asOf', { date: formatDate(softwarePage.asOf) })}
+            </p>
+          )}
         </div>
-        {softwarePage && (
-          <p className='pt-2 text-sm text-muted-foreground sm:pt-9'>
-            {translate('softwareRights.asOf', { date: formatDate(softwarePage.asOf) })}
-          </p>
-        )}
-      </div>
-      <p className='text-sm leading-relaxed text-muted-foreground'>
-        {translate(view === SOFTWARE_RIGHT_VIEW.current ? 'softwareRights.currentHint' : 'softwareRights.endedHint')}
-      </p>
+        <p className='text-sm leading-relaxed text-muted-foreground'>
+          {translate(view === SOFTWARE_RIGHT_VIEW.current ? 'softwareRights.currentHint' : 'softwareRights.endedHint')}
+        </p>
+      </EmployeeToolbar>
       {!!items.length && <EmployeeQueryState query={query} />}
       <EmployeeDataTable
         label={translate('accessLists.software')}

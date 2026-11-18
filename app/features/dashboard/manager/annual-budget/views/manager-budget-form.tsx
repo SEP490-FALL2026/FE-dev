@@ -178,12 +178,14 @@ function ProposalForm({
                 <input
                   className={managerInputClass}
                   value={costCenterName ?? (validCostCenter ? translate('budgetForm.costCenter') : '')}
+                  placeholder={translate('ui.placeholders.costCenterAuto')}
                   readOnly
                 />
               </ManagerField>
               <ManagerField label={translate('year')}>
                 <input
                   name='year'
+                  placeholder={translate('ui.placeholders.year')}
                   className={managerInputClass}
                   type='number'
                   min={2000}
@@ -201,6 +203,7 @@ function ProposalForm({
               <ManagerField label={translate('amount')}>
                 <input
                   name='requestedAmount'
+                  placeholder={translate('ui.placeholders.requestedAmount')}
                   className={managerInputClass}
                   required
                   inputMode='numeric'
@@ -212,6 +215,7 @@ function ProposalForm({
               <ManagerField label={translate('note')}>
                 <textarea
                   name='note'
+                  placeholder={translate('ui.placeholders.budgetNote')}
                   className={managerInputClass}
                   maxLength={1000}
                   rows={3}

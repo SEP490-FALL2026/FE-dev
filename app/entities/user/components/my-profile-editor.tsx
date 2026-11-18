@@ -10,6 +10,7 @@ import { toast } from 'sonner'
 
 export function MyProfileEditor() {
   const { t } = useTranslation('common')
+  const { t: tEmployee } = useTranslation('employee')
   const me = useMeGet()
   const user = !me.isError ? me.data?.data : null
   const [phone, setPhone] = useState<string | null>(null)
@@ -111,6 +112,7 @@ export function MyProfileEditor() {
           type='tel'
           autoComplete='tel'
           maxLength={40}
+          placeholder={tEmployee('ui.placeholders.workPhone')}
           value={phone ?? user.workPhone ?? ''}
           onChange={(event) => {
             setPhone(event.target.value)

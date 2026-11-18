@@ -106,6 +106,7 @@ export const itAdmin = {
   loading: 'Đang tải dữ liệu',
   templateLoading: 'Đang tải tệp mẫu',
   selectPlaceholder: 'Chọn một giá trị',
+  choosePlaceholder: 'Chọn {{field}}, gõ để tìm',
   selectedCount: 'Đã chọn {{count}}',
   selectedList: 'Các mục đã chọn',
   removeSelection: 'Bỏ chọn {{name}}',
@@ -120,6 +121,14 @@ export const itAdmin = {
     inactive: 'Ngừng hoạt động'
   },
   directory: {
+    department: 'Phòng ban',
+    departmentPlaceholder: 'Chọn phòng ban (gõ để tìm)',
+    employee: 'Nhân viên',
+    employeePlaceholder: 'Chọn nhân viên (gõ để tìm)',
+    pickDepartmentFirst: 'Chọn phòng ban trước',
+    noEmployees: 'Phòng này không có nhân viên đang làm việc mà bạn được xem',
+    noDepartments: 'Không tìm thấy phòng ban phù hợp',
+    noAccess: 'Bạn không phụ trách hoặc đứng thay phòng này nên không xem được danh sách nhân viên. Chọn phòng khác.',
     people: 'Tra cứu nhân viên',
     departments: 'Tra cứu phòng ban',
     search: 'Tìm tên hoặc mã phòng ban',

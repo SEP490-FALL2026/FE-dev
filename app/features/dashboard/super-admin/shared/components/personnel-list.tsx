@@ -1,10 +1,22 @@
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AdminEmpty } from './admin-query-state'
+import { Inbox } from 'lucide-react'
+import { WorkspaceEmptyState } from '~/shared/ui/workspace-empty-state'
 import { adminButtonClass } from './admin-form'
 
 export function PersonnelList({ children, empty }: { children: ReactNode; empty: boolean }) {
-  return empty ? <AdminEmpty /> : <div className='grid gap-3'>{children}</div>
+  const { t: translate } = useTranslation('adminPersonnel')
+  return empty ? (
+    <div className='rounded-xl border border-dashed border-border bg-surface'>
+      <WorkspaceEmptyState
+        icon={Inbox}
+        title={translate('ui.emptyListTitle')}
+        description={translate('ui.emptyListHint')}
+      />
+    </div>
+  ) : (
+    <div className='grid gap-3'>{children}</div>
+  )
 }
 export function PersonnelCard({
   title,
@@ -17,7 +29,7 @@ export function PersonnelCard({
 }) {
   const { t: translate } = useTranslation('adminPersonnel')
   return (
-    <article className='rounded-lg border border-border bg-surface p-4'>
+    <article className='min-w-0 rounded-xl border border-border/80 bg-surface p-4 shadow-[0_1px_2px_rgb(0_0_0/4%)] transition-colors duration-150 hover:border-primary/30 sm:p-5'>
       <div className='flex flex-wrap items-start justify-between gap-3'>
         <h3 className='min-w-0 truncate font-semibold' title={title}>
           {title}

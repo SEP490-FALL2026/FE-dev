@@ -20,8 +20,10 @@ export function PolicyReportDialog({ code, onClose }: { code: string; onClose: (
       <button type='button' className={adminButtonClass} onClick={onClose}>
         {t('policies.back')}
       </button>
-      <header className='space-y-2'>
-        <h1 className='text-2xl font-semibold'>{t('policies.report')}</h1>
+      <header className='page-banner space-y-2'>
+        <h1 className='text-2xl leading-tight font-semibold tracking-tight [text-wrap:balance]'>
+          {t('policies.report')}
+        </h1>
         <h2 className='font-medium'>{policyName(code)}</h2>
         <p className='text-sm text-muted-foreground'>{t('policies.reportHelp')}</p>
       </header>

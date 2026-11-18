@@ -7,6 +7,7 @@ import {
   useDepartmentCreate
 } from '~/shared/api/generated/operations/departments'
 import { AdminField, AdminFormDialog, adminInputClass } from '../../shared/components/admin-form'
+import { AdminSelect } from '../../shared/components/admin-select'
 import { useAdminMutationFeedback } from '../../shared/hooks/use-admin-mutation-feedback'
 import { DepartmentItAdminSelect } from './department-it-admin-select'
 import { organizationSummaryQueryKeys } from '../hooks/organization-query-keys'
@@ -77,7 +78,7 @@ export function DepartmentForm({
       }}
     >
       <section className='grid gap-4'>
-        <h3 className='font-semibold'>{translate('departmentDetails')}</h3>
+        <h3 className='section-accent font-semibold'>{translate('departmentDetails')}</h3>
         {!department && (
           <AdminField label={translate('code')}>
             <input
@@ -134,7 +135,7 @@ export function DepartmentForm({
       {department && (
         <section className='grid gap-4 border-t border-border pt-4'>
           <div>
-            <h3 className='font-semibold'>{translate('head')}</h3>
+            <h3 className='section-accent font-semibold'>{translate('head')}</h3>
             <p className='mt-1 text-sm text-muted-foreground'>
               {department.head
                 ? `${department.head.employeeCode} — ${department.head.fullName}`
@@ -142,18 +143,17 @@ export function DepartmentForm({
             </p>
           </div>
           <AdminField label={translate('editor.headChoice')}>
-            <select
-              className={adminInputClass}
+            <AdminSelect
               value={headChange}
-              onChange={(event) => {
-                const next = event.target.value
+              onChange={(next) => {
                 if (next === 'keep' || next === 'assign' || next === 'vacate') setHeadChange(next)
               }}
-            >
-              <option value='keep'>{translate('editor.keepHead')}</option>
-              <option value='assign'>{translate('editor.assignHead')}</option>
-              <option value='vacate'>{translate('editor.vacateHead')}</option>
-            </select>
+              options={(['keep', 'assign', 'vacate'] as const).map((choice) => ({
+                value: choice,
+                label: translate(`editor.${choice}Head`)
+              }))}
+              placeholder={translate('ui.pickHeadChange')}
+            />
           </AdminField>
           {headChange !== 'keep' && (
             <AdminField label={translate('effectiveFrom')}>
@@ -200,7 +200,7 @@ export function DepartmentForm({
       )}
       {editor.reviewRequired && (
         <section className='grid gap-3 border-t border-border pt-4'>
-          <h3 className='font-semibold'>{translate('editor.latestTitle')}</h3>
+          <h3 className='section-accent font-semibold'>{translate('editor.latestTitle')}</h3>
           {editor.latest ? (
             <>
               <p className='break-words text-sm'>{editor.latest.name}</p>

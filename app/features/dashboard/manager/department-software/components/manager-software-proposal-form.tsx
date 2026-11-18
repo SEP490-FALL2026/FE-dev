@@ -61,7 +61,7 @@ export function ManagerSoftwareProposalForm({ departmentId, onClose }: { departm
           }}
         >
           <fieldset disabled={action.blocked} className='space-y-4'>
-            <div className='grid items-start gap-4 sm:grid-cols-2'>
+            <div className='grid items-start gap-x-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'>
               <ManagerCatalogApplication
                 value={application}
                 disabled={action.blocked}
@@ -89,6 +89,7 @@ export function ManagerSoftwareProposalForm({ departmentId, onClose }: { departm
                 name='reason'
                 maxLength={500}
                 rows={3}
+                placeholder={manager('ui.placeholders.proposalReason')}
                 value={reason}
                 onChange={(event) => setReason(event.target.value)}
                 className={managerInputClass}

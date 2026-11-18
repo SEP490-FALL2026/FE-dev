@@ -1,3 +1,4 @@
+import { managerUi } from './manager-ui'
 import { managerGhost } from './manager-ghost-seats'
 import { managerBudgetWorkspace } from './manager-budget-workspace'
 import { managerOverviewBudget } from './manager-overview-budget'
@@ -6,6 +7,7 @@ import { managerIntegration } from './manager-integration'
 import { managerRequestForm } from './manager-request-form'
 import { managerBudgetForm } from './manager-budget-form'
 export const manager = {
+  ui: managerUi,
   policies: 'Chính sách',
   ghostSeatReview: 'Rà soát suất không sử dụng',
   ghost: managerGhost,

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { employeeSoftwareItems } from '../../employee-data'
 import type { EmployeeTabKey } from '../../employee-nav'
 import { EmployeeRequestStepper } from '../../software-request/components/employee-request-stepper'
+import { EmployeeSelect } from '~/features/dashboard/employee/shared/components/employee-select'
 
 interface EmployeeTemporaryRenewalViewProps {
   onSelectTab: (tab: EmployeeTabKey, params?: Record<string, string>) => void
@@ -62,22 +63,20 @@ export function EmployeeTemporaryRenewalView({
           <label className='mb-2 block text-sm font-semibold text-foreground' htmlFor='employee-renewal-software'>
             {t('employee.temporaryRenewal.fieldSoftware')}
           </label>
-          <select
-            className='h-11 w-full rounded-xl border border-border bg-background px-3 text-base text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action sm:text-sm'
+          <EmployeeSelect
             id='employee-renewal-software'
-            onChange={(e) => setSelectedSoftwareId(e.target.value)}
+            onChange={(value) => setSelectedSoftwareId(value)}
+            options={employeeSoftwareItems.map((s) => ({
+              label: t('employee.temporaryRenewal.optionLabel', {
+                date: s.expirationDate || t('employee.mySoftware.noExpiration'),
+                name: s.name,
+                plan: s.plan
+              }),
+              value: s.id
+            }))}
+            placeholder={t('employee.temporaryRenewal.fieldSoftwarePlaceholder')}
             value={selectedSoftwareId}
-          >
-            {employeeSoftwareItems.map((s) => (
-              <option key={s.id} value={s.id}>
-                {t('employee.temporaryRenewal.optionLabel', {
-                  date: s.expirationDate || t('employee.mySoftware.noExpiration'),
-                  name: s.name,
-                  plan: s.plan
-                })}
-              </option>
-            ))}
-          </select>
+          />
         </div>
 
         <fieldset>

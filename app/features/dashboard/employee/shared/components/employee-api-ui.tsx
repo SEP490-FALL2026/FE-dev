@@ -33,7 +33,7 @@ export function EmployeeButton({
       {...props}
       aria-busy={busy || undefined}
       disabled={props.disabled || busy}
-      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-50 ${primary ? 'bg-primary text-foreground shadow-sm hover:bg-primary-hover' : 'border border-border/80 bg-surface hover:bg-surface-subtle'}`}
+      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-50 ${primary ? 'bg-primary text-primary-foreground shadow-sm hover:bg-primary-hover' : 'border border-border/80 bg-surface hover:bg-surface-subtle'}`}
     >
       {busy && <LoaderCircle aria-hidden='true' className='size-4 animate-spin' strokeWidth={1.5} />}
       {children}
@@ -64,7 +64,7 @@ export function EmployeeInput(props: InputHTMLAttributes<HTMLInputElement>) {
   return <input {...props} className={employeeInputClass} />
 }
 
-export { WorkspaceSection as EmployeeSection } from '~/shared/ui/workspace-section'
+export { EmployeeSection } from './employee-layout'
 
 export function EmployeeQueryState({
   query,

@@ -1,4 +1,4 @@
-import { ArrowLeft, FileSearch, History } from 'lucide-react'
+import { ArrowLeft, FileSearch, History, Landmark } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useBudgetVersionGet } from '~/shared/api/generated/operations/budget-versions/budget-version-get'
 import { useMeGet } from '~/shared/api/generated/operations/me/me-get'
@@ -32,6 +32,8 @@ export function ApprovalAnnualBudgetDetail({ itemId, onSelectTab }: ApprovalBudg
     document.getElementById(VERSION_DECISION_ANCHOR)?.scrollIntoView?.({ behavior: 'smooth', block: 'start' })
   return (
     <ApprovalsPage
+      icon={Landmark}
+      eyebrow={translate('versionTitle')}
       title={version ? version.costCenter.name : translate('versionTitle')}
       description={
         version
@@ -48,7 +50,7 @@ export function ApprovalAnnualBudgetDetail({ itemId, onSelectTab }: ApprovalBudg
       <ApprovalsQueryState query={query}>
         {version ? (
           <div className='space-y-6'>
-            <div className='flex flex-wrap items-center justify-between gap-3'>
+            <div className='soft-panel flex flex-wrap items-center justify-between gap-3 px-4 py-3'>
               <ApprovalsStatus value={version.state} />
               <div className='flex flex-wrap gap-2'>
                 {version.proposalId && (
@@ -75,7 +77,7 @@ export function ApprovalAnnualBudgetDetail({ itemId, onSelectTab }: ApprovalBudg
             </div>
             <ApprovalBudgetWaitingNotice reason={version.waitingReason} />
             {ownVersion && (
-              <p role='status' className='rounded-lg border border-border bg-surface-subtle p-4 text-sm'>
+              <p role='status' className='rounded-xl border border-border/70 bg-surface-subtle p-4 text-sm'>
                 {translate('ownVersion')}
               </p>
             )}

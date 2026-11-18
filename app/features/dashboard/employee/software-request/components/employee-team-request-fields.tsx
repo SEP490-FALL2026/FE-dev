@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { roleProfiles } from '../../../dashboard-data'
 import { employeeProfileData } from '../../employee-data'
 import { eligibleTeamMembers } from '../employee-team-request-draft'
+import { EmployeeSelect } from '~/features/dashboard/employee/shared/components/employee-select'
 
 interface EmployeeTeamRequestFieldsProps {
   selectedMemberIds: string[]
@@ -41,28 +42,23 @@ export function EmployeeTeamRequestFields({ selectedMemberIds, onChange }: Emplo
             {t('employee.requestNewSoftware.teamSeatCount', { count: selectedMemberIds.length + 1 })}
           </span>
         </div>
-        <select
-          className='h-11 w-full rounded-xl border border-border bg-background px-3 text-base text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-action disabled:opacity-60 sm:text-sm'
+        <EmployeeSelect
           disabled={availableMembers.length === 0}
           id='employee-team-member-select'
-          onChange={(event) => {
-            if (event.target.value) onChange([...selectedMemberIds, event.target.value])
+          onChange={(value) => {
+            if (value) onChange([...selectedMemberIds, value])
           }}
+          options={availableMembers.map((member) => ({
+            label: `${member.name} · ${member.email}`,
+            value: member.id
+          }))}
+          placeholder={t(
+            availableMembers.length > 0
+              ? 'employee.requestNewSoftware.selectTeamMember'
+              : 'employee.requestNewSoftware.allTeamMembersSelected'
+          )}
           value=''
-        >
-          <option value=''>
-            {t(
-              availableMembers.length > 0
-                ? 'employee.requestNewSoftware.selectTeamMember'
-                : 'employee.requestNewSoftware.allTeamMembersSelected'
-            )}
-          </option>
-          {availableMembers.map((member) => (
-            <option key={member.id} value={member.id}>
-              {member.name} · {member.email}
-            </option>
-          ))}
-        </select>
+        />
         <p className='mt-2 text-xs text-muted-foreground'>
           {t('employee.requestNewSoftware.teamMaximum', { count: eligibleTeamMembers.length + 1 })}
         </p>

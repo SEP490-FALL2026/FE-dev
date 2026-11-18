@@ -8,6 +8,9 @@ import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedba
 import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { ItField, itButtonClass, itInputClass } from '../../shared/components/it-form'
 import { DocumentStatus } from '../enums/document-status'
+import { useContractList } from '~/shared/api/generated/operations/contracts/contract-list'
+import { useCatalogSearch } from '~/shared/hooks/use-catalog-search'
+import { ItChoiceSelect } from '../../shared/components/it-choice-select'
 
 export function DocumentDetail({ id, contractId }: { id: string; contractId?: string }) {
   const { t: translate } = useTranslation('itPurchases')
@@ -66,30 +69,21 @@ export function DocumentDetail({ id, contractId }: { id: string; contractId?: st
           </div>
           {document.status === DocumentStatus.PENDING_ATTACH && (
             <form
-              className='flex flex-wrap items-end gap-3'
+              className='field-bar flex flex-wrap gap-3'
               onSubmit={(event) => {
                 event.preventDefault()
-                if (!attach.isPending) attach.mutate({ id, data: { contractId: target.trim() } })
+                if (!attach.isPending && target) attach.mutate({ id, data: { contractId: target } })
               }}
             >
               {!contractId && (
                 <div className='min-w-0 flex-1'>
-                  <ItField label={translate('contractId')} hint={translate('help.contractId')}>
-                    <input
-                      required
-                      pattern='[0-9a-fA-F-]{36}'
-                      value={target}
-                      onChange={(event) => setTarget(event.target.value)}
-                      placeholder={translate('contractPlaceholder')}
-                      className={itInputClass}
-                    />
-                  </ItField>
+                  <ContractPicker value={target} onChange={setTarget} />
                 </div>
               )}
               <button
                 type='submit'
                 className={itButtonClass}
-                disabled={attach.isPending || query.isFetching}
+                disabled={attach.isPending || query.isFetching || !target}
                 aria-busy={attach.isPending}
               >
                 {translate('attach')}
@@ -110,5 +104,40 @@ export function DocumentDetail({ id, contractId }: { id: string; contractId?: st
         <ItEmpty />
       )}
     </ItQueryState>
+  )
+}
+
+function ContractPicker({ value, onChange }: { value: string; onChange: (id: string) => void }) {
+  const { t: translate } = useTranslation('itPurchases')
+  const { t: translatePlaceholder } = useTranslation('itPlaceholders')
+  const { draft, setDraft, search, page } = useCatalogSearch()
+  const contracts = useContractList({ search: search || undefined, page, pageSize: 50 })
+  const options = (contracts.data?.data?.items ?? []).map((item) => ({
+    value: item.id,
+    label: item.name,
+    description: item.number ?? item.vendor?.name
+  }))
+  return (
+    <div className='grid gap-3 sm:grid-cols-2'>
+      <ItField label={translate('contractSearch')}>
+        <input
+          placeholder={translatePlaceholder('searchContract')}
+          type='search'
+          maxLength={100}
+          value={draft}
+          onChange={(event) => setDraft(event.target.value)}
+          className={itInputClass}
+        />
+      </ItField>
+      <ItChoiceSelect
+        label={translate('contractId')}
+        hint={translate('help.contractId')}
+        required
+        value={value}
+        options={options}
+        disabled={contracts.isError}
+        onChange={onChange}
+      />
+    </div>
   )
 }

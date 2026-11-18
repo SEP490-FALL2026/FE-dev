@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { Receipt } from 'lucide-react'
+import { ItPageHeader, ItSegmented } from '../../shared/components/it-page-header'
 import { useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { usePurchaseInvoiceList } from '~/shared/api/generated/operations/purchase-invoices/purchase-invoice-list'
@@ -72,22 +74,19 @@ export function ItInvoicesView() {
   const query = view === 'missing' ? missing : view === 'new' ? subscriptions : invoices
   return (
     <section className='space-y-5'>
-      <h1 className='text-2xl font-semibold'>{translate('title')}</h1>
-      <div className='flex flex-wrap gap-2' role='group' aria-label={translate('title')}>
-        {(['history', 'missing', 'new'] as const).map((value) => (
-          <button
-            key={value}
-            type='button'
-            className={itButtonClass}
-            aria-pressed={view === value}
-            onClick={() => update({ view: value, page: '1' })}
-          >
-            {translate(value === 'new' ? 'newInvoice' : value)}
-          </button>
-        ))}
-      </div>
+      <ItPageHeader icon={Receipt} title={translate('title')} subtitle={translate('subtitle')}>
+        <ItSegmented
+          label={translate('title')}
+          value={view}
+          items={(['history', 'missing', 'new'] as const).map((key) => ({
+            key,
+            label: translate(key === 'new' ? 'newInvoice' : key)
+          }))}
+          onChange={(value) => update({ view: value, page: '1' })}
+        />
+      </ItPageHeader>
       {view === 'history' && (
-        <div className='flex flex-wrap gap-2' role='group' aria-label={translate('all')}>
+        <div className='soft-panel flex flex-wrap gap-2 p-3' role='group' aria-label={translate('all')}>
           {([undefined, 'SUBMITTED', 'CONFIRMED', 'RETURNED'] as const).map(
             (value: PurchaseInvoiceListState | undefined) => (
               <button
@@ -114,13 +113,15 @@ export function ItInvoicesView() {
                     {item.servicePeriodMonth} ·{' '}
                     {translate(`states.${item.state}`, { defaultValue: translate('unavailable') })}
                   </p>
-                  <p className='text-right font-mono text-sm tabular-nums'>
+                </div>
+                <div className='flex items-center gap-4'>
+                  <p className='text-right font-mono text-sm font-medium tabular-nums'>
                     {formatMoney(item.netAmount, i18n.language)}
                   </p>
+                  <button type='button' className={itButtonClass} onClick={() => update({ invoiceId: item.id })}>
+                    {translate('open')}
+                  </button>
                 </div>
-                <button type='button' className={itButtonClass} onClick={() => update({ invoiceId: item.id })}>
-                  {translate('open')}
-                </button>
               </article>
             ))}
           {view === 'missing' &&

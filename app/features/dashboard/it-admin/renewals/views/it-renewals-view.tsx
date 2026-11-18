@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ItPageHeader, ItSegmented } from '../../shared/components/it-page-header'
 import { useTranslation } from 'react-i18next'
 import { CalendarClock } from 'lucide-react'
 import { useSubscriptionRenewalList } from '~/shared/api/generated/operations/subscription-renewals/subscription-renewal-list'
@@ -30,33 +31,21 @@ export function ItRenewalsView({
   if (selected) return <RenewalDetail id={selected} onBack={() => setSelected(undefined)} />
   return (
     <section className='space-y-5'>
-      <header>
-        <p className='it-eyebrow'>{translate('subscriptions')}</p>
-        <h1 className='mt-1 flex items-center gap-3 text-2xl font-semibold tracking-tight'>
-          <CalendarClock aria-hidden strokeWidth={1.5} className='size-6 text-primary' />
-          {translate('title')}
-        </h1>
-      </header>
-      <div role='group' aria-label={translate('title')} className='flex flex-wrap gap-2'>
-        {(['cases', 'subscriptions', 'events'] as const).map((key) => (
-          <button
-            key={key}
-            type='button'
-            aria-pressed={view === key}
-            className={itButtonClass}
-            onClick={() => setView(key)}
-          >
-            {translate(key)}
-          </button>
-        ))}
-      </div>
+      <ItPageHeader icon={CalendarClock} eyebrow={translate('subscriptions')} title={translate('title')}>
+        <ItSegmented
+          label={translate('title')}
+          value={view}
+          items={(['cases', 'subscriptions', 'events'] as const).map((key) => ({ key, label: translate(key) }))}
+          onChange={setView}
+        />
+      </ItPageHeader>
       {view === 'subscriptions' ? (
         <RenewalSubscriptions />
       ) : view === 'events' ? (
         <RenewalDeadlineEvents />
       ) : (
         <>
-          <div className='flex flex-wrap items-end gap-4'>
+          <div className='soft-panel flex flex-wrap items-end gap-4 p-4'>
             <div className='w-full sm:max-w-xs'>
               <ItChoiceSelect
                 label={translate('state')}

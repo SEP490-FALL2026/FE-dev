@@ -29,11 +29,13 @@ export function PolicyDetailDialog({ code, onClose }: { code: string; onClose: (
       <button type='button' className={adminButtonClass} onClick={onClose}>
         {t('policies.back')}
       </button>
-      <header className='space-y-2'>
-        <h1 className='text-2xl font-semibold'>{policyName(code, policy?.title)}</h1>
+      <header className='page-banner space-y-2'>
+        <h1 className='text-2xl leading-tight font-semibold tracking-tight [text-wrap:balance]'>
+          {policyName(code, policy?.title)}
+        </h1>
       </header>
-      <section className='space-y-3 rounded-lg border border-border bg-surface p-5'>
-        <h2 className='font-semibold'>{t('policies.versionHistory')}</h2>
+      <section className='space-y-3 rounded-xl border border-border/80 bg-surface p-5 shadow-[0_1px_2px_rgb(0_0_0/4%),0_12px_28px_-24px_rgb(35_39_65/40%)]'>
+        <h2 className='section-accent font-semibold'>{t('policies.versionHistory')}</h2>
         <p className='text-sm text-muted-foreground'>{t('policies.versionHelp')}</p>
         <AdminQueryState query={versionsQuery}>
           <div className='flex flex-wrap gap-2'>
@@ -60,9 +62,9 @@ export function PolicyDetailDialog({ code, onClose }: { code: string; onClose: (
       </section>
       <AdminQueryState query={query}>
         {policy && (
-          <article className='space-y-6 rounded-lg border border-border bg-surface p-5'>
+          <article className='space-y-6 rounded-xl border border-border/80 bg-surface p-5 shadow-[0_1px_2px_rgb(0_0_0/4%),0_12px_28px_-24px_rgb(35_39_65/40%)]'>
             <section>
-              <h2 className='font-semibold'>{t('policies.titleLabel')}</h2>
+              <h2 className='section-accent font-semibold'>{t('policies.titleLabel')}</h2>
               <p className='mt-2 text-sm'>{policy.title}</p>
             </section>
             <dl className='grid gap-3 text-sm sm:grid-cols-3'>
@@ -80,11 +82,11 @@ export function PolicyDetailDialog({ code, onClose }: { code: string; onClose: (
               </div>
             </dl>
             <section>
-              <h2 className='font-semibold'>{t('policies.changeNote')}</h2>
+              <h2 className='section-accent font-semibold'>{t('policies.changeNote')}</h2>
               <p className='mt-2 whitespace-pre-wrap text-sm'>{policy.changeNote}</p>
             </section>
             <section className='space-y-4'>
-              <h2 className='font-semibold'>{t('policies.sections')}</h2>
+              <h2 className='section-accent font-semibold'>{t('policies.sections')}</h2>
               {policy.content.sections.map((section, index) => (
                 <section key={index} className='space-y-2'>
                   <h3 className='font-medium'>{section.heading}</h3>
@@ -94,7 +96,7 @@ export function PolicyDetailDialog({ code, onClose }: { code: string; onClose: (
             </section>
             {!!policy.content.steps.length && (
               <section className='space-y-4'>
-                <h2 className='font-semibold'>{t('policies.steps')}</h2>
+                <h2 className='section-accent font-semibold'>{t('policies.steps')}</h2>
                 {policy.content.steps.map((step) => (
                   <section key={step.code} className='space-y-3 rounded-md bg-surface-subtle p-4'>
                     <h3 className='font-medium'>{stepName(step.code)}</h3>

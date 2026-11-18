@@ -2,6 +2,12 @@ export const approvals = {
   loading: 'Đang tải dữ liệu…',
   refreshing: 'Đang cập nhật dữ liệu…',
   empty: 'Không có bản ghi phù hợp.',
+  emptyHint: 'Thử đổi bộ lọc hoặc quay lại sau khi có hồ sơ mới gửi tới bạn.',
+  pageEyebrow: 'Người duyệt chi',
+  select: {
+    placeholder: 'Chọn {{subject}}, gõ để tìm',
+    empty: 'Không có lựa chọn khớp với nội dung đã gõ.'
+  },
   saved: 'Đã lưu thay đổi.',
   retry: 'Thử lại',
   retryAfter: 'Thử lại sau {{seconds}} giây',

@@ -63,8 +63,9 @@ export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) 
               })
             }}
           >
-            <fieldset disabled={action.blocked || !!pending} className='space-y-4'>
+            <fieldset disabled={action.blocked || !!pending} className='space-y-6'>
               <div className='space-y-4'>
+                <h3 className='section-accent text-sm font-semibold'>{translate('ui.create.softwareStep')}</h3>
                 <ManagerCatalogPicker
                   value={plan}
                   onChange={setPlan}
@@ -78,17 +79,30 @@ export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) 
                   inputClassName={managerInputClass}
                 />
               </div>
-              <ManagerPeoplePicker
-                value={people}
-                onChange={setPeople}
-                disabled={action.blocked}
-                multiple
-                limit={100}
-                invalid={action.fields.some((field) => field.startsWith('lines.'))}
-              />
-              <ManagerField label={translate('reason')}>
-                <textarea className={managerInputClass} name='businessReason' required maxLength={1000} />
-              </ManagerField>
+              <div className='space-y-4 border-t border-border/50 pt-5'>
+                <h3 className='section-accent text-sm font-semibold'>{translate('ui.create.peopleStep')}</h3>
+                <ManagerPeoplePicker
+                  value={people}
+                  onChange={setPeople}
+                  disabled={action.blocked}
+                  multiple
+                  limit={100}
+                  invalid={action.fields.some((field) => field.startsWith('lines.'))}
+                />
+              </div>
+              <div className='space-y-4 border-t border-border/50 pt-5'>
+                <h3 className='section-accent text-sm font-semibold'>{translate('ui.create.reasonStep')}</h3>
+                <ManagerField label={translate('reason')}>
+                  <textarea
+                    className={managerInputClass}
+                    name='businessReason'
+                    required
+                    maxLength={1000}
+                    rows={3}
+                    placeholder={translate('ui.placeholders.businessReason')}
+                  />
+                </ManagerField>
+              </div>
             </fieldset>
             <ManagerActionState action={action} />
             <div className='sticky bottom-0 flex justify-end border-t border-border/60 bg-surface py-4 pb-[calc(1rem+env(safe-area-inset-bottom))]'>
@@ -110,7 +124,7 @@ export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) 
             {created.map((item) => (
               <div
                 key={item.id}
-                className='flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-surface p-4 transition hover:border-primary/40'
+                className='flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-surface p-4 transition-colors hover:border-primary/40'
               >
                 <div className='flex items-center gap-3 min-w-0'>
                   <span

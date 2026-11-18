@@ -248,5 +248,38 @@ export const admin = {
       SPEND_APPROVAL: 'Duyệt chi',
       IT_ASSESSMENT: 'Thẩm định công nghệ'
     }
+  },
+  ui: {
+    pickGroupBy: 'Chọn cách nhóm kết quả',
+    allSources: 'Mọi nguồn',
+    noReportRows: 'Chưa có dữ liệu để hiển thị',
+    noReportRowsHint: 'Dữ liệu sẽ xuất hiện khi có hoạt động phù hợp với bộ lọc.',
+    allDeadlineKinds: 'Mọi loại hạn xử lý',
+    operationsEyebrow: 'Giám sát vận hành',
+    operationsHint: {
+      workflow: 'Theo dõi các bước đang chờ, quá hạn và trách nhiệm bị tắc nghẽn.',
+      sla: 'Xem thời gian xử lý so với cam kết theo từng nhóm.',
+      auditFlags: 'Các cảnh báo kiểm soát cần được rà soát.',
+      deadlines: 'Các hạn xử lý sắp đến và đã quá hạn.'
+    },
+    congestionHint: 'Những người đang giữ nhiều bước chờ xử lý nhất.',
+    noCongestionTitle: 'Không có tắc nghẽn',
+    noCongestionHint: 'Hiện chưa có trách nhiệm nào bị tắc nghẽn.',
+    pickCheckType: 'Chọn loại mục kiểm tra',
+    pickReack: 'Chọn có yêu cầu xác nhận lại hay không',
+    policiesEyebrow: 'Thư viện chính sách',
+    policyLibrary: 'Danh sách chính sách',
+    policyCount: '{{count}} chính sách',
+    noPoliciesTitle: 'Chưa có chính sách nào',
+    parametersEyebrow: 'Tham số vận hành',
+    noParametersTitle: 'Chưa có tham số nào',
+    parameterCount: '{{count}} tham số',
+    placeholders: {
+      sectionHeading: 'Ví dụ: Phạm vi áp dụng',
+      sectionBody: 'Ví dụ: Chính sách áp dụng cho mọi nhân viên sử dụng phần mềm của công ty',
+      stepTitle: 'Ví dụ: Gửi đề xuất cho trưởng phòng',
+      checklistText: 'Ví dụ: Tôi đã đọc và hiểu quy định sử dụng phần mềm',
+      policyTitle: 'Ví dụ: Chính sách vận hành chung, phiên bản bổ sung'
+    }
   }
 } as const

@@ -8,6 +8,9 @@ export const finance = {
   seatCharges: 'Cost by seat',
   budgetAdjustments: 'Budget adjustments',
   budgetParameters: 'Budget parameters',
+  ui: {
+    selectPlaceholder: 'Choose a value (type to search)'
+  },
   areas: {
     overview: 'Overview',
     budget: 'Cost centers & budgets',

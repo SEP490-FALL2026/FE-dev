@@ -7,13 +7,13 @@ import {
   type CreateAdjustmentBodyDto
 } from '~/shared/api/generated/model/budget-adjustments'
 import { useBudgetCycleGet, useBudgetCyclePackage } from '~/shared/api/generated/operations/budget-cycles'
-import { useCostCenterList } from '~/shared/api/generated/operations/cost-centers'
 import { AdminFormDialog } from '~/shared/ui/form-dialog'
 import { MoneyInput } from '~/shared/ui/money-input'
 import { FinanceField, FinanceSelect, financeInputClass } from '../../shared/components/finance-ui'
 import { formatMoney } from '../../shared/finance-money'
 import { isDecimal } from '../../shared/finance-money'
 import { useAdjustmentActions } from '../hooks/use-in-year-actions'
+import { CostCenterPicker } from './cost-center-picker'
 
 type Kind = CreateAdjustmentBodyDto['kind']
 
@@ -47,7 +47,6 @@ export function AdjustmentCreateDialog({ onClose }: { onClose: () => void }) {
   const [reason, setReason] = useState('')
   const [costChange, setCostChange] = useState(false)
   const [deadline, setDeadline] = useState<string | null>(null)
-  const costCenters = useCostCenterList({ pageSize: 100 })
   const cycleQuery = useBudgetCycleGet(Number(year), { query: { enabled: /^\d{4}$/.test(year), retry: false } })
   const { create } = useAdjustmentActions(onClose)
   // A supplement and a ceiling reduction are capped by the part of the ceiling nobody holds yet.
@@ -97,17 +96,15 @@ export function AdjustmentCreateDialog({ onClose }: { onClose: () => void }) {
     )
   }
 
-  const options = costCenters.data?.data?.items ?? []
   const costCenterSelect = (label: string, value: string, onChange: (next: string) => void, error = false) => (
     <FinanceField label={label} required error={error ? translate('adjustments.sameCostCenter') : null}>
-      <FinanceSelect value={value} required onChange={(event) => onChange(event.target.value)}>
-        <option value=''>—</option>
-        {options.map((costCenter) => (
-          <option key={costCenter.id} value={costCenter.id}>
-            {costCenter.code} · {costCenter.name}
-          </option>
-        ))}
-      </FinanceSelect>
+      <CostCenterPicker
+        value={value}
+        required
+        invalid={error}
+        placeholder={translate('ui.costCenterPlaceholder')}
+        onChange={onChange}
+      />
     </FinanceField>
   )
 
@@ -127,6 +124,8 @@ export function AdjustmentCreateDialog({ onClose }: { onClose: () => void }) {
             inputMode='numeric'
             min={MIN_YEAR}
             max={MAX_YEAR}
+            aria-invalid={!yearValid || undefined}
+            placeholder={translate('ui.yearPlaceholder', { year: new Date().getFullYear() })}
             className={`${financeInputClass} font-mono tabular-nums`}
             value={year}
             onChange={(event) => setYear(event.target.value)}
@@ -135,6 +134,8 @@ export function AdjustmentCreateDialog({ onClose }: { onClose: () => void }) {
         <FinanceField label={translate('adjustments.kind')} required hint={translate(`adjustments.kindHints.${kind}`)}>
           <FinanceSelect
             value={kind}
+            required
+            placeholder={translate('ui.kindPlaceholder')}
             onChange={(event) => {
               setKind(event.target.value as Kind)
               setFromId('')
@@ -163,6 +164,7 @@ export function AdjustmentCreateDialog({ onClose }: { onClose: () => void }) {
         >
           <MoneyInput
             maxLength={40}
+            placeholder={translate('ui.amountPlaceholder')}
             aria-invalid={Boolean(amount) && !amountValid}
             className={`${financeInputClass} font-mono tabular-nums`}
             value={amount}
@@ -171,8 +173,13 @@ export function AdjustmentCreateDialog({ onClose }: { onClose: () => void }) {
         </FinanceField>
       </div>
       {kind === CreateAdjustmentBodyDtoKind.TRANSFER && (
-        <label className='flex items-center gap-2 text-sm'>
-          <input type='checkbox' checked={costChange} onChange={(event) => setCostChange(event.target.checked)} />
+        <label className='soft-panel flex min-h-11 cursor-pointer items-center gap-2.5 px-3 text-sm'>
+          <input
+            type='checkbox'
+            className='size-4 accent-[var(--theme-primary)]'
+            checked={costChange}
+            onChange={(event) => setCostChange(event.target.checked)}
+          />
           {translate('adjustments.transferReason')}
         </label>
       )}
@@ -181,6 +188,7 @@ export function AdjustmentCreateDialog({ onClose }: { onClose: () => void }) {
           required
           rows={3}
           maxLength={1000}
+          placeholder={translate('ui.reasonPlaceholder')}
           className={`${financeInputClass} max-h-48 min-h-24 resize-y`}
           value={reason}
           onChange={(event) => setReason(event.target.value)}

@@ -1,9 +1,10 @@
-import { ChevronDown, ChevronLeft, ChevronRight, Inbox, LoaderCircle, Search } from 'lucide-react'
-import { useId, type ButtonHTMLAttributes, type ReactNode, type SelectHTMLAttributes } from 'react'
+import { ChevronLeft, ChevronRight, ClipboardCheck, Inbox, LoaderCircle, Search, type LucideIcon } from 'lucide-react'
+import { Children, useId, type ButtonHTMLAttributes, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
+import '~/shared/ui/workspace.css'
 import { useApprovalsRetry } from '../hooks/use-approvals-retry'
 
-export { ApprovalsSelect } from './approvals-select'
+export { ApprovalsNativeSelect, ApprovalsSelect } from './approvals-select'
 export { ApprovalsSkeleton } from './approvals-skeleton'
 
 export const approvalsInputClass =
@@ -29,24 +30,58 @@ export function ApprovalsPage({
   title,
   description,
   children,
-  actions
+  actions,
+  hero = false,
+  icon: Icon = ClipboardCheck,
+  eyebrow
 }: {
   title: string
   description?: string
   children: ReactNode
   actions?: ReactNode
+  /** Overview screens render the header as the brand band shared with the other roles' overviews. */
+  hero?: boolean
+  /** Icon tile of the decorated banner on inner screens. */
+  icon?: LucideIcon
+  /** Small line above the title; defaults to the role name. */
+  eyebrow?: string
 }) {
+  const { t: translate } = useTranslation('approvals')
   return (
-    <div className='space-y-6 [&_button:enabled]:cursor-pointer [&_select:enabled]:cursor-pointer [&_summary]:cursor-pointer'>
-      <header className='flex flex-wrap items-end justify-between gap-4 border-b border-border/60 pb-5'>
-        <div className='min-w-0 space-y-1'>
-          <h1 className='text-2xl leading-tight font-semibold tracking-tight text-foreground [text-wrap:balance]'>
-            {title}
-          </h1>
-          {description && <p className='max-w-2xl text-sm text-muted-foreground [text-wrap:pretty]'>{description}</p>}
-        </div>
-        {actions && <div className='flex flex-wrap items-center gap-2'>{actions}</div>}
-      </header>
+    <div className='space-y-6 [&_button:enabled]:cursor-pointer [&_summary]:cursor-pointer'>
+      {hero ? (
+        <header className='workspace-overview-hero workspace-hero-header flex flex-wrap items-end justify-between gap-4 rounded-xl px-5 py-6 sm:px-7 sm:py-7'>
+          <div className='min-w-0 space-y-1'>
+            <h1 className='text-2xl leading-tight font-semibold tracking-tight [text-wrap:balance]'>{title}</h1>
+            {description && (
+              <p className='max-w-2xl text-sm leading-relaxed [text-wrap:pretty] opacity-80'>{description}</p>
+            )}
+          </div>
+          {actions && <div className='flex flex-wrap items-center gap-2'>{actions}</div>}
+        </header>
+      ) : (
+        <header className='page-banner flex flex-wrap items-center justify-between gap-4'>
+          <div className='flex min-w-0 items-start gap-3.5'>
+            <span className='grid size-11 shrink-0 place-items-center rounded-lg border border-primary/15 bg-surface text-primary-ink shadow-[0_1px_2px_0_rgba(0,0,0,0.05)]'>
+              <Icon aria-hidden strokeWidth={1.5} className='size-5' />
+            </span>
+            <div className='min-w-0'>
+              <p className='mb-1 text-[11px] font-medium tracking-widest text-muted-foreground uppercase'>
+                {eyebrow ?? translate('pageEyebrow')}
+              </p>
+              <h1 className='text-xl leading-tight font-semibold tracking-tight [text-wrap:balance] text-foreground sm:text-2xl'>
+                {title}
+              </h1>
+              {description && (
+                <p className='mt-1.5 max-w-2xl text-sm leading-relaxed text-muted-foreground [text-wrap:pretty]'>
+                  {description}
+                </p>
+              )}
+            </div>
+          </div>
+          {actions && <div className='flex flex-wrap items-center gap-2'>{actions}</div>}
+        </header>
+      )}
       {children}
     </div>
   )
@@ -122,31 +157,9 @@ export function ApprovalsField({
   )
 }
 
-/** Native select with the same height, border states and chevron as the finance inputs. */
-export function ApprovalsNativeSelect({
-  className = '',
-  children,
-  ...props
-}: SelectHTMLAttributes<HTMLSelectElement> & { children: ReactNode }) {
-  return (
-    <div className='relative min-w-0'>
-      <select {...props} className={`${approvalsInputClass} cursor-pointer appearance-none pr-9 ${className}`}>
-        {children}
-      </select>
-      <ChevronDown
-        aria-hidden
-        strokeWidth={1.5}
-        className='pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-muted-foreground'
-      />
-    </div>
-  )
-}
-
 export function ApprovalsToolbar({ children }: { children: ReactNode }) {
   return (
-    <div className='flex flex-col gap-3 rounded-lg border border-border/70 bg-surface p-3 shadow-[0_1px_2px_0_rgba(0,0,0,0.04)] sm:flex-row sm:flex-wrap sm:items-end'>
-      {children}
-    </div>
+    <div className='soft-panel flex flex-col gap-3 p-3 sm:flex-row sm:flex-wrap sm:items-end sm:p-4'>{children}</div>
   )
 }
 
@@ -188,17 +201,28 @@ export function ApprovalsSearch({
   )
 }
 
-export function ApprovalsEmpty({ message }: { message?: string }) {
+export function ApprovalsEmpty({
+  message,
+  description,
+  icon: Icon = Inbox
+}: {
+  message?: string
+  description?: string
+  icon?: LucideIcon
+}) {
   const { t: translate } = useTranslation('approvals')
   return (
     <div
       role='status'
-      className='flex flex-col items-center gap-3 rounded-lg border border-dashed border-border bg-surface px-6 py-10 text-center'
+      className='flex flex-col items-center gap-2 rounded-xl border border-dashed border-primary/20 bg-surface px-6 py-10 text-center'
     >
-      <span className='grid size-10 place-items-center rounded-lg bg-surface-subtle text-muted-foreground'>
-        <Inbox aria-hidden className='size-5' strokeWidth={1.5} />
+      <span className='kpi-chip mb-1 grid size-12 place-items-center rounded-lg'>
+        <Icon aria-hidden className='size-6' strokeWidth={1.5} />
       </span>
-      <p className='text-sm text-muted-foreground'>{message ?? translate('empty')}</p>
+      <p className='text-sm font-semibold text-foreground'>{message ?? translate('empty')}</p>
+      <p className='max-w-md text-sm leading-relaxed text-muted-foreground [text-wrap:pretty]'>
+        {description ?? translate('emptyHint')}
+      </p>
     </div>
   )
 }
@@ -309,24 +333,38 @@ export function ApprovalsStatGrid({ children }: { children: ReactNode }) {
     <div className='overflow-hidden rounded-lg border border-border/70 bg-surface'>
       {/* Each stat draws its own right and bottom rule and the grid is pulled over the frame, so a last row with fewer
           stats than columns stays clean instead of showing the grid background. */}
-      <dl className='-mr-px -mb-px grid sm:grid-cols-2 lg:grid-cols-3'>{children}</dl>
+      <dl
+        className={`-mr-px -mb-px grid sm:grid-cols-2 sm:max-lg:[&>*:last-child:nth-child(odd)]:col-span-2 ${
+          Children.toArray(children).length === 4
+            ? 'xl:grid-cols-4'
+            : 'lg:grid-cols-3 lg:[&>*:last-child:nth-child(3n+1)]:col-span-3 lg:[&>*:last-child:nth-child(3n+2)]:col-span-2'
+        }`}
+      >
+        {children}
+      </dl>
     </div>
   )
 }
 
 export function ApprovalsSection({
   title,
+  description,
   actions,
   children
 }: {
   title: string
+  /** One short line under the title, e.g. what the list covers. */
+  description?: string
   actions?: ReactNode
   children: ReactNode
 }) {
   return (
     <section className='space-y-3'>
-      <div className='flex flex-wrap items-center justify-between gap-3'>
-        <h2 className='text-base font-semibold tracking-tight [text-wrap:balance]'>{title}</h2>
+      <div className='flex flex-wrap items-end justify-between gap-3'>
+        <div className='min-w-0 space-y-1'>
+          <h2 className='section-accent text-base font-semibold tracking-tight [text-wrap:balance]'>{title}</h2>
+          {description && <p className='pl-3 text-sm text-muted-foreground [text-wrap:pretty]'>{description}</p>}
+        </div>
         {actions && <div className='flex flex-wrap gap-2'>{actions}</div>}
       </div>
       {children}

@@ -8,11 +8,13 @@ import {
   FinancePage,
   FinancePagination,
   FinanceQueryState,
+  FinanceSection,
   FinanceStatus
 } from '../../shared/components/finance-ui'
 import { FinanceTable } from '../../shared/components/finance-table'
 import { useFinanceList } from '../../shared/hooks/use-finance-list'
 import { formatMoney } from '../../shared/finance-money'
+import { formatDay } from '../../shared/finance-date'
 import type { BudgetViewProps } from '../budget-view-props'
 import { BudgetListFilters } from '../components/budget-list-filters'
 import { BudgetVersionDetail } from '../components/budget-version-detail'
@@ -37,8 +39,9 @@ function VersionList({ onSelectTab }: BudgetViewProps) {
   return (
     <FinancePage
       title={translate('versions')}
+      description={translate('screen.versionsDescription')}
       actions={
-        <FinanceButton variant='primary' onClick={() => onSelectTab?.('annual-proposals')}>
+        <FinanceButton onClick={() => onSelectTab?.('annual-proposals')}>
           {translate('actions.openProposals')}
         </FinanceButton>
       }
@@ -53,48 +56,54 @@ function VersionList({ onSelectTab }: BudgetViewProps) {
           setPage(1)
         }}
       />
-      <FinanceQueryState query={query}>
-        <FinanceTable
-          items={result?.items ?? []}
-          rowKey={(version) => version.id}
-          onOpen={(version) => onSelectTab?.('budget-negotiation', { id: version.id })}
-          columns={[
-            { key: 'costCenter', label: translate('fields.costCenter'), render: (version) => version.costCenter.name },
-            {
-              key: 'year',
-              label: translate('fields.year'),
-              numeric: true,
-              align: 'center',
-              render: (version) => version.year
-            },
-            {
-              key: 'number',
-              label: translate('fields.number'),
-              numeric: true,
-              align: 'center',
-              render: (version) => version.number
-            },
-            {
-              key: 'state',
-              label: translate('fields.state'),
-              render: (version) => <FinanceStatus value={version.state} />
-            },
-            {
-              key: 'total',
-              label: translate('fields.total'),
-              numeric: true,
-              render: (version) => formatMoney(version.total, i18n.language)
-            },
-            {
-              key: 'sentAt',
-              label: translate('detail.sentColumn'),
-              numeric: true,
-              render: (version) => (version.sentAt ? new Date(version.sentAt).toLocaleDateString(i18n.language) : '—')
-            }
-          ]}
-        />
-        <FinancePagination pagination={result?.pagination} onPageChange={setPage} />
-      </FinanceQueryState>
+      <FinanceSection title={translate('screen.versionList')}>
+        <FinanceQueryState query={query}>
+          <FinanceTable
+            items={result?.items ?? []}
+            rowKey={(version) => version.id}
+            onOpen={(version) => onSelectTab?.('budget-negotiation', { id: version.id })}
+            columns={[
+              {
+                key: 'costCenter',
+                label: translate('fields.costCenter'),
+                render: (version) => version.costCenter.name
+              },
+              {
+                key: 'year',
+                label: translate('fields.year'),
+                numeric: true,
+                align: 'center',
+                render: (version) => version.year
+              },
+              {
+                key: 'number',
+                label: translate('fields.number'),
+                numeric: true,
+                align: 'center',
+                render: (version) => version.number
+              },
+              {
+                key: 'state',
+                label: translate('fields.state'),
+                render: (version) => <FinanceStatus value={version.state} />
+              },
+              {
+                key: 'total',
+                label: translate('fields.total'),
+                numeric: true,
+                render: (version) => formatMoney(version.total, i18n.language)
+              },
+              {
+                key: 'sentAt',
+                label: translate('detail.sentColumn'),
+                numeric: true,
+                render: (version) => formatDay(version.sentAt, i18n.language)
+              }
+            ]}
+          />
+          <FinancePagination pagination={result?.pagination} onPageChange={setPage} />
+        </FinanceQueryState>
+      </FinanceSection>
     </FinancePage>
   )
 }

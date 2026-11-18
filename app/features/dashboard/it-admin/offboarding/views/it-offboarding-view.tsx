@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { UserMinus } from 'lucide-react'
+import { ItPageHeader } from '../../shared/components/it-page-header'
 import { useSearchParams } from 'react-router'
 import { useDashboardFormat } from '../../../dashboard-ui'
 import { useTranslation } from 'react-i18next'
@@ -64,8 +66,8 @@ export function ItOffboardingView({
     return <OffboardingDetails key={selected} id={selected} onBack={() => select()} onSelectTab={onSelectTab} />
   return (
     <div className='space-y-5'>
-      <h1 className='text-2xl font-semibold tracking-tight [text-wrap:balance]'>{translate('title')}</h1>
-      <div className='flex flex-wrap gap-2' role='group' aria-label={translate('filter')}>
+      <ItPageHeader icon={UserMinus} title={translate('title')} subtitle={translate('subtitle')} />
+      <div className='soft-panel flex flex-wrap gap-2 p-3' role='group' aria-label={translate('filter')}>
         {[undefined, ...Object.values(OffboardingState)].map((value) => (
           <button
             key={value ?? 'all'}
@@ -91,7 +93,7 @@ export function ItOffboardingView({
       </div>
       <form
         key={String(lastWorkingDayFrom) + ':' + String(lastWorkingDayTo)}
-        className='grid items-end gap-4 rounded-lg border border-border/70 bg-surface p-4 sm:grid-cols-3'
+        className='field-bar grid gap-4 rounded-lg border border-border/70 bg-surface p-4 sm:grid-cols-3'
         onSubmit={(event) => {
           event.preventDefault()
           const form = new FormData(event.currentTarget)
@@ -122,13 +124,20 @@ export function ItOffboardingView({
           {data?.items.map((item) => (
             <button
               key={item.id}
-              className='space-y-2 rounded-lg border border-border bg-surface p-4 text-left transition-colors hover:bg-surface-subtle focus-visible:outline-primary'
+              className='flex flex-col gap-3 rounded-lg border border-border bg-surface p-4 text-left shadow-xs transition-colors hover:bg-surface-subtle focus-visible:outline-primary'
               onClick={() => select(item.id)}
             >
-              <p className='truncate font-semibold' title={item.employee.fullName}>
-                {item.employee.fullName}
-              </p>
-              <p className='text-sm text-muted-foreground'>{item.employee.employeeCode}</p>
+              <div className='flex items-start gap-3 border-b border-border/60 pb-3'>
+                <span className='grid size-10 shrink-0 place-items-center rounded-lg bg-primary-soft text-primary-ink'>
+                  <UserMinus aria-hidden strokeWidth={1.5} className='size-5' />
+                </span>
+                <div className='min-w-0'>
+                  <p className='truncate font-semibold' title={item.employee.fullName}>
+                    {item.employee.fullName}
+                  </p>
+                  <p className='text-sm text-muted-foreground'>{item.employee.employeeCode}</p>
+                </div>
+              </div>
               <p className='text-sm'>
                 {translate('lastDay')}: {formatDate(item.lastWorkingDay)}
               </p>

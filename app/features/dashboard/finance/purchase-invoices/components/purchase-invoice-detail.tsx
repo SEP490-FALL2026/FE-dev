@@ -1,3 +1,4 @@
+import { AlertTriangle, FileText } from 'lucide-react'
 import { useState, type FormEvent, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -44,6 +45,7 @@ export function PurchaseInvoiceDetail({ id, onBack, onOpenInvoice, onOpenRequest
     { pageSize: 100 },
     { query: { enabled: Boolean(invoice?.chargedCostCenterId) } }
   )
+  const dateTime = (value: string) => new Date(value).toLocaleString(i18n.language)
   const money = (value: { amount: string; currency: string } | null) =>
     value ? formatMoney(value, i18n.language) : translate('none')
   const awaiting = invoice?.state === 'SUBMITTED'
@@ -71,7 +73,7 @@ export function PurchaseInvoiceDetail({ id, onBack, onOpenInvoice, onOpenRequest
           </>
         }
       >
-        <FinanceQueryState query={query}>
+        <FinanceQueryState query={query} skeleton='detail'>
           {invoice && (
             <>
               <div className='flex flex-wrap items-center gap-3'>
@@ -84,103 +86,123 @@ export function PurchaseInvoiceDetail({ id, onBack, onOpenInvoice, onOpenRequest
                   <FinanceStatus key={flag} value='PENDING' label={translate(`invoice.flagNames.${flag}`)} />
                 ))}
               </div>
-              {awaiting && invoice.matchResult === 'PRICE_QUANTITY_EXCEPTION' && (
-                <p role='status' className='text-sm text-warning-ink'>
-                  {translate('invoice.exceptionWarning')}
+              {((awaiting && invoice.matchResult === 'PRICE_QUANTITY_EXCEPTION') || invoice.flags.length > 0) && (
+                <section
+                  role='status'
+                  className='flex gap-3 rounded-xl border border-warning/30 bg-warning/10 p-4 text-sm text-warning-ink'
+                >
+                  <AlertTriangle aria-hidden className='mt-0.5 size-5 shrink-0' strokeWidth={1.5} />
+                  <div className='space-y-1.5'>
+                    <h2 className='font-semibold'>{translate('ui.reviewNotes')}</h2>
+                    <ul className='list-inside list-disc space-y-1 leading-relaxed'>
+                      {awaiting && invoice.matchResult === 'PRICE_QUANTITY_EXCEPTION' && (
+                        <li>{translate('invoice.exceptionWarning')}</li>
+                      )}
+                      {invoice.flags.map((flag) => (
+                        <li key={flag}>{translate(`invoice.flagHints.${flag}`)}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </section>
+              )}
+              {awaiting && (
+                <p className='text-sm leading-relaxed text-muted-foreground [text-wrap:pretty]'>
+                  {translate('invoice.confirmHint')}
                 </p>
               )}
-              {invoice.flags.length > 0 && (
-                <ul className='list-inside list-disc text-sm text-warning-ink'>
-                  {invoice.flags.map((flag) => (
-                    <li key={flag}>{translate(`invoice.flagHints.${flag}`)}</li>
-                  ))}
-                </ul>
-              )}
-              {awaiting && <p className='text-sm text-muted-foreground'>{translate('invoice.confirmHint')}</p>}
               {invoice.state === 'RETURNED' && (
                 <p role='status' className='text-sm text-muted-foreground'>
                   {invoice.resubmittedAsId ? translate('invoice.resubmitted') : translate('invoice.notResubmitted')}
                 </p>
               )}
-              <FinanceStatGrid columns={4}>
-                <FinanceStat
-                  label={translate('invoice.spendAmount')}
-                  value={money(invoiceSpend(invoice.netAmount, invoice.nonDeductibleTax))}
-                  emphasis
-                />
-                <FinanceStat label={translate('invoice.netAmount')} value={money(invoice.netAmount)} />
-                <FinanceStat label={translate('invoice.deductibleTax')} value={money(invoice.deductibleTax)} />
-                <FinanceStat label={translate('invoice.nonDeductibleTax')} value={money(invoice.nonDeductibleTax)} />
-              </FinanceStatGrid>
-              <dl className='grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2'>
-                <Row
-                  label={translate('invoice.label')}
-                  value={invoiceLabelText(translate, invoice.label, invoice.periodIndex, invoice.periodCount)}
-                />
-                <Row label={translate('invoice.servicePeriodMonth')} value={invoice.servicePeriodMonth} />
-                <Row label={translate('invoice.issuedOn')} value={invoice.issuedOn} />
-                <Row
-                  label={translate('invoice.quantity')}
-                  value={`${invoice.quantity} × ${money(invoice.unitPriceOriginal)}`}
-                />
-                <Row
-                  label={translate('invoice.paymentSource')}
-                  value={translate(`invoice.sources.${invoice.paymentSource}`)}
-                />
-                <Row
-                  label={translate('invoice.linkedTo')}
-                  value={
-                    invoice.requestId && onOpenRequest ? (
-                      <FinanceButton variant='ghost' onClick={() => onOpenRequest(invoice.requestId as string)}>
-                        {translate('invoice.openRequest')}
-                      </FinanceButton>
-                    ) : (
-                      translate(`invoice.linkKinds.${invoice.linkKind}`)
-                    )
-                  }
-                />
-                <Row
-                  label={translate('invoice.chargedTo')}
-                  value={
-                    chargedCostCenter
-                      ? `${chargedCostCenter.code} · ${chargedCostCenter.name}`
-                      : invoice.chargedCostCenterId
-                        ? translate('invoice.chargedCostCenter')
-                        : translate(`invoice.chargedNone.${invoice.linkKind}`)
-                  }
-                />
-                <Row label={translate('invoice.submittedAt')} value={new Date(invoice.submittedAt).toLocaleString()} />
-                {invoice.decidedAt && (
-                  <Row label={translate('invoice.decidedAt')} value={new Date(invoice.decidedAt).toLocaleString()} />
-                )}
-                {invoice.state === 'CONFIRMED' && (
-                  <Row
-                    label={translate('invoice.booked')}
-                    value={invoice.invoiceId ? translate('invoice.bookedYes') : translate('invoice.bookedNo')}
+              <FinanceSection title={translate('ui.amounts')}>
+                <FinanceStatGrid columns={4}>
+                  <FinanceStat
+                    label={translate('invoice.spendAmount')}
+                    value={money(invoiceSpend(invoice.netAmount, invoice.nonDeductibleTax))}
+                    emphasis
                   />
-                )}
-                {invoice.returnReason && <Row label={translate('invoice.returnReason')} value={invoice.returnReason} />}
-                {invoice.resubmissionOfId && onOpenInvoice && (
+                  <FinanceStat label={translate('invoice.netAmount')} value={money(invoice.netAmount)} />
+                  <FinanceStat label={translate('invoice.deductibleTax')} value={money(invoice.deductibleTax)} />
+                  <FinanceStat label={translate('invoice.nonDeductibleTax')} value={money(invoice.nonDeductibleTax)} />
+                </FinanceStatGrid>
+              </FinanceSection>
+              <FinanceSection title={translate('ui.invoiceInfo')}>
+                <dl className='grid gap-x-8 gap-y-3 rounded-xl border border-border/70 bg-surface p-4 text-sm sm:grid-cols-2 sm:p-5'>
                   <Row
-                    label={translate('invoice.resubmissionOf')}
+                    label={translate('invoice.label')}
+                    value={invoiceLabelText(translate, invoice.label, invoice.periodIndex, invoice.periodCount)}
+                  />
+                  <Row label={translate('invoice.servicePeriodMonth')} value={invoice.servicePeriodMonth} />
+                  <Row label={translate('invoice.issuedOn')} value={invoice.issuedOn} />
+                  <Row
+                    label={translate('invoice.quantity')}
+                    value={`${invoice.quantity} × ${money(invoice.unitPriceOriginal)}`}
+                  />
+                  <Row
+                    label={translate('invoice.paymentSource')}
+                    value={translate(`invoice.sources.${invoice.paymentSource}`)}
+                  />
+                  <Row
+                    label={translate('invoice.linkedTo')}
                     value={
-                      <FinanceButton variant='ghost' onClick={() => onOpenInvoice(invoice.resubmissionOfId as string)}>
-                        {translate('invoice.openInvoice')}
-                      </FinanceButton>
+                      invoice.requestId && onOpenRequest ? (
+                        <FinanceButton variant='ghost' onClick={() => onOpenRequest(invoice.requestId as string)}>
+                          {translate('invoice.openRequest')}
+                        </FinanceButton>
+                      ) : (
+                        translate(`invoice.linkKinds.${invoice.linkKind}`)
+                      )
                     }
                   />
-                )}
-                {invoice.resubmittedAsId && onOpenInvoice && (
                   <Row
-                    label={translate('invoice.resubmittedAs')}
+                    label={translate('invoice.chargedTo')}
                     value={
-                      <FinanceButton variant='ghost' onClick={() => onOpenInvoice(invoice.resubmittedAsId as string)}>
-                        {translate('invoice.openInvoice')}
-                      </FinanceButton>
+                      chargedCostCenter
+                        ? `${chargedCostCenter.code} · ${chargedCostCenter.name}`
+                        : invoice.chargedCostCenterId
+                          ? translate('invoice.chargedCostCenter')
+                          : translate(`invoice.chargedNone.${invoice.linkKind}`)
                     }
                   />
-                )}
-              </dl>
+                  <Row label={translate('invoice.submittedAt')} value={dateTime(invoice.submittedAt)} />
+                  {invoice.decidedAt && (
+                    <Row label={translate('invoice.decidedAt')} value={dateTime(invoice.decidedAt)} />
+                  )}
+                  {invoice.state === 'CONFIRMED' && (
+                    <Row
+                      label={translate('invoice.booked')}
+                      value={invoice.invoiceId ? translate('invoice.bookedYes') : translate('invoice.bookedNo')}
+                    />
+                  )}
+                  {invoice.returnReason && (
+                    <Row label={translate('invoice.returnReason')} value={invoice.returnReason} />
+                  )}
+                  {invoice.resubmissionOfId && onOpenInvoice && (
+                    <Row
+                      label={translate('invoice.resubmissionOf')}
+                      value={
+                        <FinanceButton
+                          variant='ghost'
+                          onClick={() => onOpenInvoice(invoice.resubmissionOfId as string)}
+                        >
+                          {translate('invoice.openInvoice')}
+                        </FinanceButton>
+                      }
+                    />
+                  )}
+                  {invoice.resubmittedAsId && onOpenInvoice && (
+                    <Row
+                      label={translate('invoice.resubmittedAs')}
+                      value={
+                        <FinanceButton variant='ghost' onClick={() => onOpenInvoice(invoice.resubmittedAsId as string)}>
+                          {translate('invoice.openInvoice')}
+                        </FinanceButton>
+                      }
+                    />
+                  )}
+                </dl>
+              </FinanceSection>
               <FinanceSection title={translate('invoice.documents')}>
                 <ul className='flex flex-wrap gap-2'>
                   {invoice.documents.map((document, index) => (
@@ -189,6 +211,7 @@ export function PurchaseInvoiceDetail({ id, onBack, onOpenInvoice, onOpenRequest
                         pending={link.isPending && link.variables === document.documentId}
                         onClick={() => link.mutate(document.documentId)}
                       >
+                        <FileText aria-hidden className='size-4' strokeWidth={1.5} />
                         {translate('openFile')} {index + 1}
                       </FinanceButton>
                     </li>
@@ -218,9 +241,9 @@ export function PurchaseInvoiceDetail({ id, onBack, onOpenInvoice, onOpenRequest
 
 function Row({ label, value }: { label: string; value: ReactNode }) {
   return (
-    <div className='flex items-center justify-between gap-4 border-b border-border/40 pb-2'>
-      <dt className='text-muted-foreground'>{label}</dt>
-      <dd className='text-right font-medium'>{value}</dd>
+    <div className='flex min-w-0 items-center justify-between gap-4 border-b border-border/40 pb-2'>
+      <dt className='shrink-0 text-muted-foreground'>{label}</dt>
+      <dd className='min-w-0 text-right font-medium break-words'>{value}</dd>
     </div>
   )
 }
@@ -292,6 +315,7 @@ function ReturnDialog({ id, number, onClose }: { id: string; number: string; onC
           required
           rows={3}
           maxLength={1000}
+          placeholder={translate('ui.returnReasonPlaceholder')}
           className={`${financeInputClass} max-h-48 min-h-24 resize-y`}
           value={reason}
           onChange={(event) => setReason(event.target.value)}

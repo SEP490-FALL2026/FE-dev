@@ -12,7 +12,7 @@ export function UsagePeriod() {
   const valid = (!from && !to) || (!!from && !!to && days > 0 && days <= 366)
   return (
     <form
-      className='flex flex-wrap items-end gap-3'
+      className='field-bar flex flex-wrap gap-3'
       onSubmit={(event) => {
         event.preventDefault()
         if (valid) update({ from, to, softwarePage: undefined, overviewPage: undefined })

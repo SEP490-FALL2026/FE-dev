@@ -31,3 +31,11 @@ export function getDevicePrivacyError(error: unknown, writing = false) {
                 : 'unavailable'
   return { key, status }
 }
+
+/** The BE answers 404 MONITORING_NOTICE.NOT_PUBLISHED when no notice version exists yet: an empty state, not an error. */
+export function isMonitoringNoticeNotPublished(error: unknown) {
+  return (
+    axios.isAxiosError<{ error?: { code?: string } }>(error) &&
+    error.response?.data?.error?.code === 'MONITORING_NOTICE.NOT_PUBLISHED'
+  )
+}

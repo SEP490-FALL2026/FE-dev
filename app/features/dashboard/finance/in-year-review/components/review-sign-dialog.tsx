@@ -41,7 +41,10 @@ export function ReviewSignDialog({
         {translate(kind === 'QUARTER' ? 'periods.signHintQuarter' : 'periods.signHintMonth')}
       </p>
       {kind === 'QUARTER' && unexplained > 0 && (
-        <p role='status' className='text-sm text-warning-ink'>
+        <p
+          role='status'
+          className='rounded-xl border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning-ink'
+        >
           {translate(moreLines ? 'periods.unexplainedWarningMore' : 'periods.unexplainedWarning', {
             count: unexplained
           })}
@@ -51,6 +54,7 @@ export function ReviewSignDialog({
         <textarea
           rows={3}
           maxLength={2000}
+          placeholder={translate('ui.signNotePlaceholder')}
           className={`${financeInputClass} max-h-48 min-h-24 resize-y`}
           value={note}
           onChange={(event) => setNote(event.target.value)}

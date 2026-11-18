@@ -10,9 +10,9 @@ import {
   ManagerMoney,
   ManagerPagination,
   ManagerQueryState,
-  ManagerSection,
-  managerInputClass
+  ManagerSection
 } from '../../shared/components/manager-api-ui'
+import { ManagerSelect, enumOptions } from '../../shared/components/manager-select'
 import { useManagerPage } from '../../shared/hooks/use-manager-page'
 import { ADJUSTMENT_STATE } from '../enums/adjustment-state'
 import { ManagerBudgetLabel } from './manager-budget-label'
@@ -39,29 +39,26 @@ export function ManagerBudgetAdjustments({ year, costCenterId }: { year: number;
   const selected = items.find((item) => item.id === selectedId)
   return (
     <ManagerSection title={t('budgetWorkspace.views.adjustments')} description={t('budgetWorkspace.adjustmentHint')}>
-      <div className='max-w-56'>
+      <div className='soft-panel max-w-sm px-4 pt-3'>
         <ManagerField label={t('status')}>
-          <select
-            className={managerInputClass}
+          <ManagerSelect
             value={state ?? ''}
-            onChange={(event) => {
+            placeholder={t('ui.placeholders.state')}
+            options={[
+              { value: '', label: t('budgetWorkspace.allStates') },
+              ...enumOptions(Object.values(ADJUSTMENT_STATE), (value) => t(`budgetWorkspace.adjustmentStates.${value}`))
+            ]}
+            onChange={(value) => {
               setSelectedId(null)
               setParams((previous) => {
                 const next = new URLSearchParams(previous)
-                if (event.target.value) next.set('adjustmentState', event.target.value)
+                if (value) next.set('adjustmentState', value)
                 else next.delete('adjustmentState')
                 next.delete('adjustmentPage')
                 return next
               })
             }}
-          >
-            <option value=''>{t('budgetWorkspace.allStates')}</option>
-            {Object.values(ADJUSTMENT_STATE).map((value) => (
-              <option key={value} value={value}>
-                {t(`budgetWorkspace.adjustmentStates.${value}`)}
-              </option>
-            ))}
-          </select>
+          />
         </ManagerField>
       </div>
       <ManagerQueryState query={query} empty={!items.length} />

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { ItPageHeader } from '../../shared/components/it-page-header'
 import { useTranslation } from 'react-i18next'
 import { ArrowRight, FileText } from 'lucide-react'
 import { useContractGet } from '~/shared/api/generated/operations/contracts/contract-get'
@@ -39,19 +40,17 @@ export function ItPurchaseDocumentsView() {
       )}
       {view === 'lookup' && (
         <>
-          <header className='flex flex-wrap items-start justify-between gap-4 border-b border-border pb-5'>
-            <div className='space-y-2'>
-              <h1 className='flex items-center gap-3 text-2xl font-semibold tracking-tight'>
-                <FileText aria-hidden strokeWidth={1.5} className='size-6 text-primary' />
-                {translate('title')}
-              </h1>
-              <p className='max-w-3xl text-sm text-muted-foreground'>{translate('contractListHint')}</p>
-            </div>
-            <button type='button' className={itPrimaryClass} onClick={() => setCreating(true)}>
-              {translate('create')}
-            </button>
-          </header>
-          <h2 className='text-lg font-semibold'>{translate('listTitle')}</h2>
+          <ItPageHeader
+            icon={FileText}
+            title={translate('title')}
+            subtitle={translate('contractListHint')}
+            actions={
+              <button type='button' className={itPrimaryClass} onClick={() => setCreating(true)}>
+                {translate('create')}
+              </button>
+            }
+          />
+          <h2 className='section-accent text-lg font-semibold tracking-tight'>{translate('listTitle')}</h2>
           <ItQueryState query={contracts}>
             {contracts.data?.data?.items.length ? (
               <div className='grid gap-4 lg:grid-cols-2'>

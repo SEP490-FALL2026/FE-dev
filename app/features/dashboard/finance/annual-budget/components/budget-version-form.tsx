@@ -3,12 +3,12 @@ import { MoneyInput } from '~/shared/ui/money-input'
 import { useTranslation } from 'react-i18next'
 import type { VersionBodyDto } from '~/shared/api/generated/model/budget-versions/versionBodyDto'
 import { AdminFormDialog as FinanceFormDialog } from '~/shared/ui/form-dialog'
-import { FinanceField, financeInputClass } from '../../shared/components/finance-ui'
+import { FinanceField, FinanceSelect, financeInputClass } from '../../shared/components/finance-ui'
 import { isDecimal } from '../../shared/finance-money'
 import { useDefaultReservePercent } from '../../shared/hooks/use-default-reserve-percent'
 import { amountsEqual, isDefaultReserve } from '../../shared/finance-validation'
 
-const sectionTitleClass = 'text-xs font-semibold tracking-wider text-muted-foreground uppercase'
+const sectionTitleClass = 'section-accent text-sm font-semibold tracking-tight text-foreground'
 const amountClass = `${financeInputClass} text-right font-mono tabular-nums`
 
 type ProposalVersionBody = Extract<VersionBodyDto, { proposalId: string }>
@@ -125,14 +125,15 @@ export function BudgetVersionForm({
         </FinanceField>
         <div className='space-y-2'>
           <FinanceField label={translate('fields.reserveMode')}>
-            <select
-              className={financeInputClass}
+            <FinanceSelect
+              placeholder={translate('screen.reserveModePlaceholder')}
               value={mode}
-              onChange={(event) => setMode(event.target.value === 'amount' ? 'amount' : 'percent')}
-            >
-              <option value='percent'>{translate('reserveMode.percent')}</option>
-              <option value='amount'>{translate('reserveMode.amount')}</option>
-            </select>
+              onValueChange={(value) => setMode(value === 'amount' ? 'amount' : 'percent')}
+              options={[
+                { value: 'percent', label: translate('reserveMode.percent') },
+                { value: 'amount', label: translate('reserveMode.amount') }
+              ]}
+            />
           </FinanceField>
           {amountMode ? (
             <FinanceField
@@ -159,7 +160,7 @@ export function BudgetVersionForm({
                 maxLength={3}
                 aria-invalid={invalid && !percentOk}
                 className={amountClass}
-                placeholder={String(defaultPercent)}
+                placeholder={translate('screen.percentPlaceholder', { percent: defaultPercent })}
                 value={percent}
                 onChange={(event) => setPercent(event.target.value.trim())}
               />
@@ -178,6 +179,7 @@ export function BudgetVersionForm({
             rows={2}
             maxLength={1000}
             className={financeInputClass}
+            placeholder={translate('screen.baseReasonPlaceholder')}
             value={baseReason}
             onChange={(event) => setBaseReason(event.target.value)}
           />

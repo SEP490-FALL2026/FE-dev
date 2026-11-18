@@ -1,10 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useId, useState } from 'react'
+import { UserRound, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { useGroupRequestCandidateList } from '~/shared/api/generated/operations/group-requests/group-request-candidate-list'
-import { EmployeeChoiceSelect } from '../../shared/components/employee-choice-select'
-import { EmployeePagination, EmployeeQueryState } from '../../shared/components/employee-api-ui'
+import { getGroupRequestCandidateListQueryOptions } from '~/shared/api/generated/operations/group-requests/group-request-candidate-list'
+import { useDebouncedValue } from '~/shared/lib/use-debounced-value'
+import { EmployeeQueryState } from '../../shared/components/employee-api-ui'
+import { EmployeeSelect } from '../../shared/components/employee-select'
+import { usePagedOptions } from '../hooks/use-paged-options'
 import type { GroupSelection } from '../hooks/use-live-request-form'
 
+const MEMBER_LIMIT = 10
+
+/** Beneficiary picker: search colleagues by name or email, each pick is added to the list below (2-10 people). */
 export function LiveGroupMembers({
   members,
   onChange,
@@ -17,101 +23,97 @@ export function LiveGroupMembers({
   invalid?: boolean
 }) {
   const { t: translate } = useTranslation('employee')
-  const [open, setOpen] = useState(false)
+  const fieldId = useId()
   const [draft, setDraft] = useState('')
-  const [search, setSearch] = useState('')
-  const [page, setPage] = useState(1)
-  useEffect(() => {
-    if (draft.trim() === search) return
-    const timer = setTimeout(() => {
-      setSearch(draft.trim())
-      setPage(1)
-    }, 300)
-    return () => clearTimeout(timer)
-  }, [draft, search])
-  const query = useGroupRequestCandidateList(
-    { page, pageSize: 20, ...(search ? { q: search } : {}) },
-    { query: { enabled: open && !disabled } }
+  const search = useDebouncedValue(draft, 300)
+  const full = members.length >= MEMBER_LIMIT
+  const candidates = usePagedOptions(search, (page) =>
+    getGroupRequestCandidateListQueryOptions(
+      { page, pageSize: 20, ...(search ? { q: search } : {}) },
+      { query: { enabled: !disabled } }
+    )
   )
-  const current = draft.trim() === search && !query.isError
-  const candidates = current ? (query.data?.data?.items ?? []) : []
+  const chosen = new Set(members.map((member) => member.employeeId))
   return (
-    <section aria-label={translate('members')} className='space-y-4 border-t border-border/60 pt-5'>
-      <EmployeeChoiceSelect
-        label={translate('members')}
-        placeholder={translate('groupPicker.choosePeople')}
-        multiple
-        limit={10}
-        disabled={disabled}
+    <section aria-label={translate('members')} className='space-y-3'>
+      <div className='flex flex-wrap items-baseline justify-between gap-2'>
+        <label htmlFor={fieldId} className='text-sm font-medium'>
+          {translate('members')}
+          <span aria-hidden='true' className='ml-1 text-danger'>
+            *
+          </span>
+        </label>
+        <span className='font-mono text-xs text-muted-foreground tabular-nums'>
+          {translate('ui.create.memberCount', { count: members.length })}
+        </span>
+      </div>
+      <EmployeeSelect
+        id={fieldId}
+        value=''
+        placeholder={translate(full ? 'ui.placeholders.membersFull' : 'ui.placeholders.members')}
+        disabled={disabled || full}
         invalid={invalid}
-        selected={members.map((member) => ({
-          value: member.employeeId,
-          label: member.fullName,
-          description: member.workEmail
-        }))}
-        onChange={(choices) =>
-          onChange(
-            choices.map(
-              (choice) =>
-                members.find((member) => member.employeeId === choice.value) ?? {
-                  employeeId: choice.value,
-                  fullName: choice.label,
-                  workEmail: choice.description
-                }
-            )
-          )
-        }
-        onOpenChange={setOpen}
-        hint={translate('groupHint')}
-        search={{
-          label: translate('memberSearch'),
-          placeholder: translate('groupPicker.searchPeoplePlaceholder'),
-          value: draft,
-          onChange: setDraft
-        }}
-        options={candidates.map((candidate) => ({
+        loading={candidates.loading}
+        onSearchChange={setDraft}
+        hasMore={candidates.hasMore}
+        onLoadMore={candidates.loadMore}
+        emptyText={translate('groupPicker.noMatches')}
+        aria-describedby={`${fieldId}-hint`}
+        options={candidates.items.map((candidate) => ({
           value: candidate.employeeId,
           label: candidate.fullName,
-          description: candidate.workEmail
+          description: candidate.workEmail ?? undefined,
+          disabled: chosen.has(candidate.employeeId)
         }))}
-        state={
-          draft.trim() === search ? (
-            <EmployeeQueryState
-              query={query}
-              empty={!candidates.length}
-              emptyTitle={translate('groupPicker.noMatches')}
-            />
-          ) : (
-            <p role='status' className='py-4 text-sm text-muted-foreground'>
-              {translate('loading')}
-            </p>
-          )
-        }
-        footer={
-          current && (
-            <EmployeePagination pagination={query.data?.data?.pagination} onPage={setPage} busy={query.isFetching} />
-          )
-        }
+        onChange={(employeeId, option) => {
+          if (!option || chosen.has(employeeId) || full) return
+          onChange([...members, { employeeId, fullName: option.label, workEmail: option.description }])
+        }}
       />
-      {members.map((member) => (
-        <div
-          role='group'
-          aria-label={translate('groupPicker.memberDetails', { name: member.fullName, email: member.workEmail ?? '' })}
-          key={member.employeeId}
-          className='grid items-center gap-3 border-b border-border/40 pb-2 sm:grid-cols-2'
-        >
-          <div className='min-w-0 text-sm'>
-            <p className='truncate font-medium' title={member.fullName}>
-              {member.fullName}
-            </p>
-            {member.workEmail && (
-              <p className='truncate text-xs text-muted-foreground' title={member.workEmail}>
-                {member.workEmail}
-              </p>
-            )}
-          </div>
-        </div>
-      ))}
+      <p id={`${fieldId}-hint`} className='text-xs leading-relaxed text-muted-foreground'>
+        {translate('groupHint')}
+      </p>
+      {candidates.query?.isError && <EmployeeQueryState query={candidates.query} />}
+      {members.length > 0 && (
+        <ul aria-label={translate('selectedMembers')} className='grid gap-2 sm:grid-cols-2'>
+          {members.map((member) => (
+            <li
+              key={member.employeeId}
+              aria-label={translate('groupPicker.memberDetails', {
+                name: member.fullName,
+                email: member.workEmail ?? ''
+              })}
+              className='flex min-w-0 items-center gap-3 rounded-xl border border-border/60 bg-surface py-1 pr-1 pl-3'
+            >
+              <span
+                aria-hidden='true'
+                className='grid size-8 shrink-0 place-items-center rounded-lg bg-primary-soft text-primary-ink'
+              >
+                <UserRound strokeWidth={1.5} className='size-4' />
+              </span>
+              <span className='min-w-0 flex-1 text-sm'>
+                <span className='block truncate font-medium' title={member.fullName}>
+                  {member.fullName}
+                </span>
+                {member.workEmail && (
+                  <span className='block truncate text-xs text-muted-foreground' title={member.workEmail}>
+                    {member.workEmail}
+                  </span>
+                )}
+              </span>
+              <button
+                type='button'
+                disabled={disabled}
+                aria-label={translate('ui.create.removeMember', { name: member.fullName })}
+                className='grid size-11 shrink-0 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-danger/10 hover:text-danger-ink focus-visible:outline-2 focus-visible:outline-primary disabled:opacity-50'
+                onClick={() => onChange(members.filter((item) => item.employeeId !== member.employeeId))}
+              >
+                <X aria-hidden strokeWidth={1.5} className='size-4' />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   )
 }

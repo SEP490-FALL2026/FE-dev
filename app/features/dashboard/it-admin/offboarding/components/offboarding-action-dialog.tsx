@@ -21,6 +21,7 @@ export type OffboardingAction = {
 export function OffboardingActionDialog({ action, onClose }: { action: OffboardingAction; onClose: () => void }) {
   const { t: translate } = useTranslation('itOffboarding')
   const { t: translateError } = useTranslation('itAdmin')
+  const { t: translatePlaceholder } = useTranslation('itPlaceholders')
   const [note, setNote] = useState('')
   const [evidence, setEvidence] = useState('')
   const sending = useRef(false)
@@ -102,6 +103,7 @@ export function OffboardingActionDialog({ action, onClose }: { action: Offboardi
           hint={translate(['lock', 'cancel'].includes(action.kind) ? 'hints.noteRequired' : 'hints.noteOptional')}
         >
           <textarea
+            placeholder={translatePlaceholder('note')}
             required={['lock', 'cancel'].includes(action.kind)}
             maxLength={1000}
             value={note}
@@ -113,6 +115,7 @@ export function OffboardingActionDialog({ action, onClose }: { action: Offboardi
       {action.kind === 'cancel' && (
         <ItField label={translate('cancellationEvidence')} hint={translate('hints.cancellationEvidence')}>
           <textarea
+            placeholder={translatePlaceholder('evidence')}
             maxLength={1000}
             value={evidence}
             onChange={(event) => setEvidence(event.target.value)}

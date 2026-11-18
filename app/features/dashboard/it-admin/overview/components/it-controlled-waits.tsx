@@ -16,7 +16,7 @@ export function ItControlledWaits() {
   const query = useControlledWaitList({ page, pageSize: 20 })
   return (
     <section className='space-y-4'>
-      <h2 className='text-lg font-semibold [text-wrap:balance]'>{translate('waits')}</h2>
+      <h2 className='section-accent text-lg font-semibold tracking-tight [text-wrap:balance]'>{translate('waits')}</h2>
       <p className='max-w-3xl text-sm text-muted-foreground'>{translate('waitHint')}</p>
       <ItQueryState query={query}>
         {query.data?.data?.items.length ? (

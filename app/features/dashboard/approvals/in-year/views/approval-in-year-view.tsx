@@ -1,3 +1,4 @@
+import { CalendarClock, CalendarX2, ClipboardList, Scale } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { AdjustmentListResponseDtoDataItemsItem } from '~/shared/api/generated/model/budget-adjustments/adjustmentListResponseDtoDataItemsItem'
@@ -5,14 +6,15 @@ import { useBudgetAdjustmentList } from '~/shared/api/generated/operations/budge
 import { useBudgetReviewPeriodList } from '~/shared/api/generated/operations/budget-review-periods/budget-review-period-list'
 import { useDashboardFormat } from '../../../dashboard-ui'
 import {
-  ApprovalsButton,
-  ApprovalsField,
   ApprovalsPage,
   ApprovalsPagination,
+  ApprovalsSection,
   ApprovalsSelect,
   ApprovalsStatus,
-  approvalsInputClass
+  ApprovalsToolbar
 } from '../../shared/components/approvals-ui'
+import { ApprovalsSegmented } from '../../shared/components/approvals-segmented'
+import { useBudgetYearOptions } from '../../shared/hooks/use-budget-year-options'
 import { ApprovalsQueryState } from '../../shared/components/approvals-query-state'
 import { ApprovalsTable } from '../../shared/components/approvals-table'
 import { formatMoney } from '../../shared/approvals-money'
@@ -22,6 +24,8 @@ import { ADJUSTMENT_ID_PREFIX, AdjustmentById } from '../components/adjustment-b
 import { DeadlineEvents } from '../components/deadline-events'
 import { ReviewPeriodDetail } from '../components/review-period-detail'
 import { adjustmentState, IN_YEAR_SECTIONS, type AdjustmentState, type InYearSection } from '../enums/in-year'
+
+const SECTION_ICONS = { adjustments: Scale, periods: ClipboardList, deadlines: CalendarX2 } as const
 
 const isSection = (value: string | undefined): value is InYearSection =>
   (IN_YEAR_SECTIONS as readonly string[]).includes(value ?? '')
@@ -48,23 +52,17 @@ export function ApprovalInYearView(props: ApprovalBudgetViewProps) {
   const requested = props.itemId?.startsWith('section:') ? props.itemId.slice('section:'.length) : undefined
   const section: InYearSection = isSection(requested) ? requested : 'adjustments'
   return (
-    <ApprovalsPage title={translate('inYear.title')} description={translate('inYear.description')}>
-      <div
-        role='group'
-        aria-label={translate('inYear.title')}
-        className='inline-flex flex-wrap gap-1 rounded-lg border border-border/70 bg-surface-subtle p-1'
-      >
-        {IN_YEAR_SECTIONS.map((item) => (
-          <ApprovalsButton
-            key={item}
-            variant='ghost'
-            aria-pressed={section === item}
-            onClick={() => props.onSelectTab('in-year', { id: `section:${item}` })}
-          >
-            {translate(`inYear.${item}`)}
-          </ApprovalsButton>
-        ))}
-      </div>
+    <ApprovalsPage icon={CalendarClock} title={translate('inYear.title')} description={translate('inYear.description')}>
+      <ApprovalsSegmented
+        label={translate('inYear.title')}
+        value={section}
+        onChange={(item) => props.onSelectTab('in-year', { id: `section:${item}` })}
+        items={IN_YEAR_SECTIONS.map((item) => ({
+          key: item,
+          label: translate(`inYear.${item}`),
+          icon: SECTION_ICONS[item]
+        }))}
+      />
       {section === 'adjustments' && <AdjustmentList />}
       {section === 'periods' && <PeriodList onOpen={(id) => props.onSelectTab('in-year', { id: `period:${id}` })} />}
       {section === 'deadlines' && <DeadlineEvents />}
@@ -76,20 +74,16 @@ type Center = AdjustmentListResponseDtoDataItemsItem['from']
 
 function YearFilter({ value, onChange }: { value: string; onChange: (value: string) => void }) {
   const { t: translate } = useTranslation('approvalsBudget')
+  const years = useBudgetYearOptions()
   return (
-    <div className='w-40'>
-      <ApprovalsField label={translate('year')}>
-        <input
-          inputMode='numeric'
-          maxLength={4}
-          placeholder={translate('inYear.allYears')}
-          title={translate('inYear.yearHint')}
-          aria-label={`${translate('year')}. ${translate('inYear.yearHint')}`}
-          className={`${approvalsInputClass} font-mono tabular-nums`}
-          value={value}
-          onChange={(event) => onChange(event.target.value.replace(/\D/g, ''))}
-        />
-      </ApprovalsField>
+    <div className='w-full sm:w-48'>
+      <ApprovalsSelect
+        label={translate('year')}
+        value={value}
+        placeholder={translate('layout.yearPlaceholder')}
+        options={[{ value: '', label: translate('inYear.allYears') }, ...years.options]}
+        onChange={onChange}
+      />
     </div>
   )
 }
@@ -110,9 +104,9 @@ function AdjustmentList() {
   })
   const center = (value: Center) => (value ? `${value.code} · ${value.name}` : translate('inYear.none'))
   return (
-    <>
-      <div className='flex flex-wrap items-end gap-3'>
-        <div className='w-56'>
+    <ApprovalsSection title={translate('inYear.adjustments')} description={translate('inYear.adjustmentsNote')}>
+      <ApprovalsToolbar>
+        <div className='w-full sm:w-56'>
           <ApprovalsSelect
             label={translate('state')}
             value={state}
@@ -133,11 +127,8 @@ function AdjustmentList() {
             setPage(1)
           }}
         />
-      </div>
+      </ApprovalsToolbar>
       <ApprovalsQueryState query={query}>
-        <p role='note' className='text-sm text-muted-foreground'>
-          {translate('inYear.adjustmentsNote')}
-        </p>
         <ApprovalsTable
           items={query.data?.data?.items ?? []}
           rowKey={(adjustment) => adjustment.id}
@@ -210,7 +201,7 @@ function AdjustmentList() {
         <ApprovalsPagination pagination={query.data?.data?.pagination} onPageChange={setPage} />
       </ApprovalsQueryState>
       {deciding && <AdjustmentDecisionDialog adjustment={deciding} onClose={() => setDeciding(null)} />}
-    </>
+    </ApprovalsSection>
   )
 }
 
@@ -223,17 +214,16 @@ function PeriodList({ onOpen }: { onOpen: (id: string) => void }) {
   const query = useBudgetReviewPeriodList({ ...(year ? { year } : {}), page, pageSize: 20 })
   const person = (who: { fullName: string } | null) => who?.fullName ?? translate('inYear.none')
   return (
-    <>
-      <YearFilter
-        value={yearText}
-        onChange={(value) => {
-          setYearText(value)
-          setPage(1)
-        }}
-      />
-      <p role='note' className='text-sm text-muted-foreground'>
-        {translate('inYear.periodsNote')}
-      </p>
+    <ApprovalsSection title={translate('inYear.periods')} description={translate('inYear.periodsNote')}>
+      <ApprovalsToolbar>
+        <YearFilter
+          value={yearText}
+          onChange={(value) => {
+            setYearText(value)
+            setPage(1)
+          }}
+        />
+      </ApprovalsToolbar>
       <ApprovalsQueryState query={query}>
         <ApprovalsTable
           items={query.data?.data?.items ?? []}
@@ -311,6 +301,6 @@ function PeriodList({ onOpen }: { onOpen: (id: string) => void }) {
         />
         <ApprovalsPagination pagination={query.data?.data?.pagination} onPageChange={setPage} />
       </ApprovalsQueryState>
-    </>
+    </ApprovalsSection>
   )
 }

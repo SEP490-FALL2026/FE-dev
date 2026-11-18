@@ -1,11 +1,13 @@
 import { employeeRequestExtras } from './employee-request-extras'
 import { employeeRequestAssignment } from './employee-request-assignment'
+import { employeeUi } from './employee-ui'
 export const employee = {
   policies: 'Policies',
   estimatedBudgetYear: 'Estimated budget year',
   extensionMonths: 'Extension in months',
   requestAssignment: employeeRequestAssignment,
   requestExtras: employeeRequestExtras,
+  ui: employeeUi,
   workspace: 'Employee workspace',
   dashboardSummary: {
     title: 'Your work overview',

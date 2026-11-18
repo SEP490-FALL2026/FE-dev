@@ -233,7 +233,13 @@ function RenewalConfirmation({ renewal }: { renewal: SubscriptionRenewalResponse
           >
             <fieldset disabled={action.blocked} className='space-y-4'>
               <ManagerField label={translate('reason')}>
-                <textarea name='reason' maxLength={1000} className={managerInputClass} />
+                <textarea
+                  name='reason'
+                  maxLength={1000}
+                  rows={3}
+                  placeholder={translate('ui.placeholders.renewalReason')}
+                  className={managerInputClass}
+                />
               </ManagerField>
               {needsAcknowledgement && (
                 <label className='flex min-h-11 items-start gap-3 text-sm'>

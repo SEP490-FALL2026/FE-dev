@@ -1,4 +1,4 @@
-﻿import { useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useEffect } from 'react'
 import {
@@ -6,7 +6,7 @@ import {
   getDepartmentListQueryKey
 } from '~/shared/api/generated/operations/departments/department-list'
 import { AdminQueryState } from './admin-query-state'
-import { adminInputClass } from './admin-form'
+import { AdminSelect } from './admin-select'
 
 export function EmployeeDepartmentSelect({
   onReadyChange,
@@ -41,33 +41,33 @@ export function EmployeeDepartmentSelect({
   useEffect(() => {
     onReadyChange?.(query.isSuccess && !query.isFetching)
   }, [onReadyChange, query.isSuccess, query.isFetching])
+  const create = mode === 'create'
   return (
-    <div className='grid min-w-0 gap-1.5 text-sm font-medium'>
-      <label htmlFor='employee-department-code'>
-        {translate(mode === 'create' ? 'fields.departmentCode' : 'fields.departmentId')}
+    <div className='grid min-w-0 content-start gap-1.5 text-sm font-medium'>
+      <label htmlFor={`employee-department-${mode}`}>
+        {translate(create ? 'fields.departmentCode' : 'fields.departmentId')}
       </label>
       <AdminQueryState query={query}>
-        <select
-          id='employee-department-code'
-          aria-describedby={`employee-department-help${error ? ' employee-department-error' : ''}`}
-          aria-invalid={!!error || undefined}
-          name={mode === 'create' ? 'departmentCode' : 'departmentId'}
-          defaultValue=''
-          className={adminInputClass}
-        >
-          <option value=''>{translate(mode === 'create' ? 'noSelection' : 'directory.all')}</option>
-          {query.data?.map((department) => (
-            <option key={department.id} value={mode === 'create' ? department.code : department.id}>
-              {department.code} · {department.name}
-            </option>
-          ))}
-        </select>
+        <AdminSelect
+          id={`employee-department-${mode}`}
+          aria-describedby={`employee-department-help-${mode}${error ? ` employee-department-error-${mode}` : ''}`}
+          invalid={!!error}
+          name={create ? 'departmentCode' : 'departmentId'}
+          clearable
+          options={(query.data ?? []).map((department) => ({
+            value: create ? department.code : department.id,
+            label: department.name,
+            description: department.code
+          }))}
+          placeholder={translate(create ? 'ui.pickDepartmentOptional' : 'ui.allDepartments')}
+          emptyText={translate('ui.noDepartmentMatch')}
+        />
       </AdminQueryState>
-      <p id='employee-department-help' className='text-xs font-normal leading-relaxed text-muted-foreground'>
-        {translate(mode === 'create' ? 'fieldHelp.departmentCode' : 'fieldHelp.departmentId')}
+      <p id={`employee-department-help-${mode}`} className='text-xs leading-relaxed font-normal text-muted-foreground'>
+        {translate(create ? 'fieldHelp.departmentCode' : 'fieldHelp.departmentId')}
       </p>
       {error && (
-        <p id='employee-department-error' className='text-xs text-danger'>
+        <p id={`employee-department-error-${mode}`} className='text-xs text-danger'>
           {error}
         </p>
       )}

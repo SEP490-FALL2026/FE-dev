@@ -1,8 +1,7 @@
 export const itCatalogHelp = {
   name: 'Use the product name employees will recognize when requesting access.',
   vendor: 'Enter the supplier or publisher of this product. Internal software does not need an external vendor.',
-  owner:
-    'Select a working employee from a department, or paste their employee UUID. This person owns the business need.',
+  owner: 'Select a working employee from a department. This person owns the business need.',
   domains: 'Enter hostnames only, one per line. These identify the application in software discovery.',
   planName: 'Use the vendor plan or edition name to distinguish access and purchase options.',
   quantity: 'Record the seats covered by this purchase. Leave blank if the quantity has not been confirmed.',
@@ -15,7 +14,7 @@ export const itCatalogHelp = {
   noticePeriodDays: 'Days of advance notice required to cancel before the contract ends.',
   revocationNote:
     'Describe the steps for safe removal, including data export and handover. Required when removal causes data loss.',
-  department: 'Select the department that owns this purchase, or paste its department UUID.',
+  department: 'Select the department that owns this purchase from the department directory.',
   kind: 'SaaS uses vendor accounts, licensed software uses keys, and internal software is operated by the organization.',
   sensitivity: 'Choose the sensitivity of company information this application handles.',
   communication: 'Mark the communication features available in this application.',

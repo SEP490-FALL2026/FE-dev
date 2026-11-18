@@ -26,6 +26,7 @@ export function readPlanRules(values: FormData, provisioningType: CreateApplicat
 
 export function CatalogPlanRules({ provisioningType }: { provisioningType: string }) {
   const { t: translate } = useTranslation('itCatalog')
+  const { t: translatePlaceholder } = useTranslation('itPlaceholders')
   const [dataLoss, setDataLoss] = useState(false)
   return (
     <div className='space-y-4'>
@@ -71,7 +72,13 @@ export function CatalogPlanRules({ provisioningType }: { provisioningType: strin
       </label>
       {dataLoss && (
         <ItField label={translate('planRules.note')} hint={translate('help.revocationNote')}>
-          <textarea name='revocationNote' required maxLength={2000} className={itInputClass} />
+          <textarea
+            placeholder={translatePlaceholder('revocationNote')}
+            name='revocationNote'
+            required
+            maxLength={2000}
+            className={itInputClass}
+          />
         </ItField>
       )}
     </div>

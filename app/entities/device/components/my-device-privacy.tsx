@@ -8,6 +8,7 @@ import { WorkspaceDataTable } from '~/shared/ui/workspace-data-table'
 import { AcknowledgementState } from '../enums/acknowledgement-state'
 import { DeviceButton, DevicePagination, DeviceQueryState, DeviceValue } from './device-privacy-ui'
 import { DeviceAcknowledgement } from './device-acknowledgement'
+import { isMonitoringNoticeNotPublished } from '../device-privacy-errors'
 import { MonitoringNoticeContent } from './monitoring-notice-content'
 import { MyDeviceUsage } from './my-device-usage'
 import { MyDeviceToolStatus } from './my-device-tool-status'
@@ -23,6 +24,7 @@ export function MyDevicePrivacy() {
   const query = useMyDeviceList({ page, pageSize: 20 })
   const noticeQuery = useMonitoringNoticeCurrentGet()
   const data = !query.isError ? query.data?.data : undefined
+  const noticeUnpublished = isMonitoringNoticeNotPublished(noticeQuery.error)
   const notice = !noticeQuery.isError ? noticeQuery.data?.data : undefined
   const device = data?.items.find((item) => item.registrationId === registrationId)
   const knownState = device && Object.values(AcknowledgementState).includes(device.acknowledgementState)
@@ -30,7 +32,11 @@ export function MyDevicePrivacy() {
     <div className='space-y-6'>
       {!registrationId && (
         <WorkspaceSection title={translate('notice')}>
-          <DeviceQueryState query={noticeQuery} empty={!notice} emptyTitle={translate('noNotice')}>
+          <DeviceQueryState
+            query={noticeUnpublished ? { ...noticeQuery, isError: false } : noticeQuery}
+            empty={!notice}
+            emptyTitle={translate('noNotice')}
+          >
             {notice && (
               <details className='group'>
                 <summary className='min-h-11 cursor-pointer py-2 text-sm font-medium text-primary-ink focus-visible:outline-2 focus-visible:outline-primary'>

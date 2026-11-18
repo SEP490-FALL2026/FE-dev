@@ -1,4 +1,6 @@
 import { ItChoiceSelect } from '../../shared/components/it-choice-select'
+import { Bug } from 'lucide-react'
+import { ItPageHeader } from '../../shared/components/it-page-header'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSaasIssueList } from '~/shared/api/generated/operations/saas-issues/saas-issue-list'
@@ -28,8 +30,8 @@ export function ItSaasIssuesView({ initialIssueId }: { initialIssueId?: string; 
   if (!department)
     return (
       <section className='space-y-5'>
-        <h1 className='text-2xl font-semibold'>{translate('title')}</h1>
-        <h2 className='text-lg font-semibold'>{translate('chooseDepartment')}</h2>
+        <ItPageHeader icon={Bug} title={translate('title')} subtitle={translate('subtitle')} />
+        <h2 className='section-accent text-lg font-semibold tracking-tight'>{translate('chooseDepartment')}</h2>
         <ItQueryState query={me}>
           <ItQueryState query={departments}>
             {departments.data?.length ? (
@@ -59,8 +61,7 @@ export function ItSaasIssuesView({ initialIssueId }: { initialIssueId?: string; 
       >
         {translate('backDepartments')}
       </button>
-      <h1 className='text-2xl font-semibold tracking-tight [text-wrap:balance]'>{translate('title')}</h1>
-      <p className='text-sm text-muted-foreground'>{department.name}</p>
+      <ItPageHeader icon={Bug} eyebrow={department.name} title={translate('title')} />
       <div className='grid gap-3 sm:max-w-2xl sm:grid-cols-2'>
         <ItChoiceSelect
           label={translate('state')}

@@ -1,14 +1,10 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
-  SubscriptionDeadlineEventListKind,
   SubscriptionRenewalListLate,
   SubscriptionRenewalListState
 } from '~/shared/api/generated/model/subscription-renewals'
-import {
-  useSubscriptionDeadlineEventList,
-  useSubscriptionRenewalList
-} from '~/shared/api/generated/operations/subscription-renewals'
+import { useSubscriptionRenewalList } from '~/shared/api/generated/operations/subscription-renewals'
 import type { FinanceTabKey } from '../../enums'
 import {
   FinanceField,
@@ -18,8 +14,7 @@ import {
   FinanceSection,
   FinanceSelect,
   FinanceStatus,
-  FinanceToolbar,
-  financeInputClass
+  FinanceToolbar
 } from '../../shared/components/finance-ui'
 import { FinanceTable } from '../../shared/components/finance-table'
 import { formatDay } from '../../shared/finance-date'
@@ -36,7 +31,7 @@ const pick = <Value extends string>(values: Record<string, Value>, value: string
 
 /**
  * Subscription adjustments, read only: what IT Admin recorded for each shared-pool subscription at its adjustment
- * point, and the deadlines that passed without a recorded outcome. Finance is told about both and decides nothing.
+ * point. Finance reads it and decides nothing. Missed deadlines are not Finance data (reference/subscription-renewals).
  */
 export function FinanceSubscriptionRenewalsView({ itemId, onSelectTab }: Props) {
   if (itemId) return <SubscriptionRenewalDetail id={itemId} onBack={() => onSelectTab?.('subscription-renewals')} />
@@ -48,7 +43,6 @@ function RenewalsPage({ onOpen }: { onOpen: (id: string) => void }) {
   return (
     <FinancePage title={translate('renewals.title')} description={translate('renewals.description')}>
       <RenewalCases onOpen={onOpen} />
-      <DeadlineEvents />
     </FinancePage>
   )
 }
@@ -152,121 +146,6 @@ function RenewalCases({ onOpen }: { onOpen: (id: string) => void }) {
                   {item.lateFlagged && <FinanceStatus value='PENDING' label={translate('renewals.late')} />}
                 </span>
               )
-            }
-          ]}
-        />
-        <FinancePagination pagination={query.data?.data?.pagination} onPageChange={setPage} />
-      </FinanceQueryState>
-    </FinanceSection>
-  )
-}
-
-function DeadlineEvents() {
-  const { t: translate, i18n } = useTranslation('financeSettings')
-  const ownerLabel = useOwnerLabel()
-  const [kind, setKind] = useState<SubscriptionDeadlineEventListKind | ''>('')
-  const [from, setFrom] = useState('')
-  const [to, setTo] = useState('')
-  const [page, setPage] = useState(1)
-  const rangeInvalid = Boolean(from && to && from > to)
-  const query = useSubscriptionDeadlineEventList(
-    { page, pageSize: 20, ...(kind ? { kind } : {}), ...(from ? { from } : {}), ...(to ? { to } : {}) },
-    { query: { enabled: !rangeInvalid } }
-  )
-  return (
-    <FinanceSection title={translate('renewals.events.title')}>
-      <p className='text-sm text-muted-foreground'>{translate('renewals.events.hint')}</p>
-      <FinanceToolbar>
-        <div className='sm:w-64'>
-          <FinanceField label={translate('renewals.events.kind')}>
-            <FinanceSelect
-              value={kind}
-              onChange={(event) => {
-                setKind(pick(SubscriptionDeadlineEventListKind, event.target.value))
-                setPage(1)
-              }}
-            >
-              <option value=''>{translate('renewals.events.allKinds')}</option>
-              {Object.values(SubscriptionDeadlineEventListKind).map((value) => (
-                <option key={value} value={value}>
-                  {translate(`renewals.events.kinds.${value}`)}
-                </option>
-              ))}
-            </FinanceSelect>
-          </FinanceField>
-        </div>
-        <div className='sm:w-48'>
-          <FinanceField label={translate('from')}>
-            <input
-              type='date'
-              className={financeInputClass}
-              value={from}
-              onChange={(event) => {
-                setFrom(event.target.value)
-                setPage(1)
-              }}
-            />
-          </FinanceField>
-        </div>
-        <div className='sm:w-48'>
-          <FinanceField
-            label={translate('to')}
-            floatingError
-            error={rangeInvalid ? translate('dateRangeInvalid') : undefined}
-          >
-            <input
-              type='date'
-              aria-invalid={rangeInvalid}
-              className={financeInputClass}
-              value={to}
-              onChange={(event) => {
-                setTo(event.target.value)
-                setPage(1)
-              }}
-            />
-          </FinanceField>
-        </div>
-      </FinanceToolbar>
-      <FinanceQueryState query={query}>
-        <FinanceTable
-          items={query.data?.data?.items ?? []}
-          rowKey={(item) => item.id}
-          columns={[
-            {
-              key: 'software',
-              label: translate('renewals.software'),
-              render: (item) => (
-                <span className='flex flex-col'>
-                  <span className='font-medium'>
-                    {item.subscription.applicationName} · {item.subscription.planName}
-                  </span>
-                  <span className='text-xs text-muted-foreground'>
-                    {ownerLabel(item.subscription.ownerDepartmentId)}
-                  </span>
-                </span>
-              )
-            },
-            {
-              key: 'kind',
-              label: translate('renewals.events.kind'),
-              render: (item) => (
-                <FinanceStatus
-                  value={item.kind === 'AUTO_RENEWAL_INCIDENT' ? 'PENDING' : 'REJECTED'}
-                  label={translate(`renewals.events.kinds.${item.kind}`)}
-                />
-              )
-            },
-            {
-              key: 'milestone',
-              label: translate('renewals.events.milestoneDate'),
-              numeric: true,
-              render: (item) => formatDay(item.milestoneDate, i18n.language)
-            },
-            {
-              key: 'recorded',
-              label: translate('renewals.events.recordedOn'),
-              numeric: true,
-              render: (item) => formatDay(item.recordedOn, i18n.language)
             }
           ]}
         />

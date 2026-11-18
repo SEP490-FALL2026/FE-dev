@@ -30,6 +30,9 @@ export function ReviewLineCard({ line }: { line: Line }) {
   const money = (value: Money) => formatMoney(value, i18n.language)
   const explanation = line.explanation
   const needs = explanation?.knownNeedsToYearEnd
+  const figureCount = 8 + (line.paceBasisPoints !== null ? 1 : 0) + (isNonZero(line.changedAfterSnapshot) ? 1 : 0)
+  // 8, 9 and 10 figures fill whole rows in 4, 3 and 5 columns instead of leaving an orphan row.
+  const figureColumns = figureCount === 9 ? 'lg:grid-cols-3' : figureCount === 10 ? 'lg:grid-cols-5' : 'lg:grid-cols-4'
   const showStatus = line.explanationStatus !== 'NOT_REQUIRED'
 
   return (
@@ -50,7 +53,7 @@ export function ReviewLineCard({ line }: { line: Line }) {
         )}
       </header>
 
-      <dl className='grid gap-x-6 gap-y-3 sm:grid-cols-2 lg:grid-cols-4'>
+      <dl className={`grid gap-x-6 gap-y-3 sm:grid-cols-2 ${figureColumns}`}>
         <Figure label={translate('inYear.base')} value={money(line.base)} />
         <Figure label={translate('inYear.reserve')} value={money(line.reserve)} />
         <Figure label={translate('inYear.spent')} value={money(line.spent)} />

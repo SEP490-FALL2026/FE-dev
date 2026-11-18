@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useCostCenterList } from '~/shared/api/generated/operations/cost-centers'
 import { useSeatMonthChargeList } from '~/shared/api/generated/operations/seat-month-charges'
 import { useSubscriptionList } from '~/shared/api/generated/operations/subscriptions'
 import {
@@ -16,6 +15,7 @@ import {
 } from '../../shared/components/finance-ui'
 import { FinanceTable } from '../../shared/components/finance-table'
 import { formatMoney } from '../../shared/finance-money'
+import { CostCenterPicker } from '../components/cost-center-picker'
 
 const months = Array.from({ length: 12 }, (_, index) => index + 1)
 const validYear = (value: string) => /^\d{4}$/.test(value) && Number(value) >= 2000 && Number(value) <= 2100
@@ -28,7 +28,6 @@ export function FinanceSeatChargesView() {
   const [costCenterId, setCostCenterId] = useState('')
   const [subscriptionId, setSubscriptionId] = useState('')
   const [page, setPage] = useState(1)
-  const costCenters = useCostCenterList({ pageSize: 100 })
   // The seat-month and its pool line only carry the subscription id: the names come from the catalogue.
   const subscriptions = useSubscriptionList({ pageSize: 100 })
   const ready = validYear(year)
@@ -48,7 +47,15 @@ export function FinanceSeatChargesView() {
   const subscriptionNames = new Map(
     (subscriptions.data?.data?.items ?? []).map((item) => [item.id, `${item.applicationName} · ${item.planName}`])
   )
-  const subscriptionName = (id: string) => subscriptionNames.get(id) ?? id.slice(0, 8)
+  const subscriptionName = (id: string) => subscriptionNames.get(id) ?? translate('ui.unknownSubscription')
+  const subscriptionOptions = [
+    { value: '', label: translate('seats.allSubscriptions') },
+    ...(subscriptions.data?.data?.items ?? []).map((item) => ({
+      value: item.id,
+      label: item.applicationName,
+      description: item.planName
+    }))
+  ]
   const reset = () => setPage(1)
 
   return (
@@ -59,6 +66,10 @@ export function FinanceSeatChargesView() {
             <input
               type='number'
               inputMode='numeric'
+              min={2000}
+              max={2100}
+              aria-invalid={!ready || undefined}
+              placeholder={translate('ui.yearPlaceholder', { year: now.getFullYear() })}
               className={`${financeInputClass} font-mono tabular-nums`}
               value={year}
               onChange={(event) => {
@@ -72,6 +83,7 @@ export function FinanceSeatChargesView() {
           <FinanceField label={translate('month')}>
             <FinanceSelect
               value={month}
+              placeholder={translate('ui.monthPlaceholder')}
               onChange={(event) => {
                 setMonth(event.target.value)
                 reset()
@@ -87,101 +99,98 @@ export function FinanceSeatChargesView() {
         </div>
         <div className='sm:w-64'>
           <FinanceField label={translate('costCenter')}>
-            <FinanceSelect
+            <CostCenterPicker
               value={costCenterId}
-              onChange={(event) => {
-                setCostCenterId(event.target.value)
+              allLabel={translate('allCostCenters')}
+              placeholder={translate('ui.costCenterFilterPlaceholder')}
+              onChange={(next) => {
+                setCostCenterId(next)
                 reset()
               }}
-            >
-              <option value=''>{translate('allCostCenters')}</option>
-              {costCenters.data?.data?.items.map((costCenter) => (
-                <option key={costCenter.id} value={costCenter.id}>
-                  {costCenter.code} · {costCenter.name}
-                </option>
-              ))}
-            </FinanceSelect>
+            />
           </FinanceField>
         </div>
-        <div className='sm:w-72'>
+        <div className='sm:w-72 sm:flex-1'>
           <FinanceField label={translate('seats.subscription')}>
             <FinanceSelect
               value={subscriptionId}
-              onChange={(event) => {
-                setSubscriptionId(event.target.value)
+              options={subscriptionOptions}
+              loading={subscriptions.isFetching}
+              placeholder={translate('ui.subscriptionFilterPlaceholder')}
+              onValueChange={(next) => {
+                setSubscriptionId(next)
                 reset()
               }}
-            >
-              <option value=''>{translate('seats.allSubscriptions')}</option>
-              {subscriptions.data?.data?.items.map((subscription) => (
-                <option key={subscription.id} value={subscription.id}>
-                  {subscription.applicationName} · {subscription.planName}
-                </option>
-              ))}
-            </FinanceSelect>
+            />
           </FinanceField>
         </div>
       </FinanceToolbar>
       {!ready ? (
-        <p className='text-sm text-muted-foreground'>{translate('seats.chooseMonth')}</p>
+        <FinanceEmpty message={translate('seats.chooseMonth')} />
       ) : (
         <FinanceQueryState query={query}>
           {(result?.items.length ?? 0) === 0 && (result?.poolLines.length ?? 0) === 0 ? (
             <FinanceEmpty message={translate('seats.empty')} />
           ) : (
             <>
-              <FinanceTable
-                items={result?.items ?? []}
-                rowKey={(item) => item.id}
-                columns={[
-                  {
-                    key: 'subscription',
-                    label: translate('seats.subscription'),
-                    render: (item) => subscriptionName(item.subscriptionId)
-                  },
-                  {
-                    key: 'employee',
-                    label: translate('seats.employee'),
-                    render: (item) =>
-                      item.employee ? `${item.employee.fullName} (${item.employee.employeeCode})` : '—'
-                  },
-                  {
-                    key: 'department',
-                    label: translate('seats.department'),
-                    render: (item) => item.department?.name ?? '—'
-                  },
-                  {
-                    key: 'costCenter',
-                    label: translate('costCenter'),
-                    render: (item) =>
-                      item.costCenter ? `${item.costCenter.code} · ${item.costCenter.name}` : translate('noCostCenter')
-                  },
-                  {
-                    key: 'days',
-                    label: translate('seats.days'),
-                    numeric: true,
-                    align: 'center',
-                    render: (item) => `${item.days}/${item.daysInMonth}`
-                  },
-                  {
-                    key: 'monthlyPrice',
-                    label: translate('seats.monthlyPrice'),
-                    numeric: true,
-                    render: (item) => money(item.monthlyPrice)
-                  },
-                  { key: 'amount', label: translate('amount'), numeric: true, render: (item) => money(item.amount) },
-                  {
-                    key: 'applied',
-                    label: translate('seats.appliedToCommitment'),
-                    numeric: true,
-                    render: (item) => money(item.appliedToCommitment)
-                  }
-                ]}
-              />
-              <FinancePagination pagination={result?.pagination} onPageChange={setPage} />
+              <FinanceSection title={translate('ui.seatLines')}>
+                <FinanceTable
+                  items={result?.items ?? []}
+                  rowKey={(item) => item.id}
+                  columns={[
+                    {
+                      key: 'subscription',
+                      label: translate('seats.subscription'),
+                      render: (item) => subscriptionName(item.subscriptionId)
+                    },
+                    {
+                      key: 'employee',
+                      label: translate('seats.employee'),
+                      render: (item) =>
+                        item.employee ? `${item.employee.fullName} (${item.employee.employeeCode})` : '—'
+                    },
+                    {
+                      key: 'department',
+                      label: translate('seats.department'),
+                      render: (item) => item.department?.name ?? '—'
+                    },
+                    {
+                      key: 'costCenter',
+                      label: translate('costCenter'),
+                      render: (item) =>
+                        item.costCenter
+                          ? `${item.costCenter.code} · ${item.costCenter.name}`
+                          : translate('noCostCenter')
+                    },
+                    {
+                      key: 'days',
+                      label: translate('seats.days'),
+                      numeric: true,
+                      align: 'center',
+                      render: (item) => `${item.days}/${item.daysInMonth}`
+                    },
+                    {
+                      key: 'monthlyPrice',
+                      label: translate('seats.monthlyPrice'),
+                      numeric: true,
+                      render: (item) => money(item.monthlyPrice)
+                    },
+                    { key: 'amount', label: translate('amount'), numeric: true, render: (item) => money(item.amount) },
+                    {
+                      key: 'applied',
+                      label: translate('seats.appliedToCommitment'),
+                      numeric: true,
+                      render: (item) => money(item.appliedToCommitment)
+                    }
+                  ]}
+                />
+                <FinancePagination pagination={result?.pagination} onPageChange={setPage} />
+              </FinanceSection>
               {(result?.poolLines.length ?? 0) > 0 && (
                 <FinanceSection title={translate('seats.poolTitle')}>
-                  <p className='text-sm text-muted-foreground'>{translate('seats.poolHint')}</p>
+                  <p className='text-sm leading-relaxed text-muted-foreground [text-wrap:pretty]'>
+                    {translate('seats.poolHint')}
+                  </p>
                   <FinanceTable
                     items={result?.poolLines ?? []}
                     rowKey={(line) => line.subscriptionId}

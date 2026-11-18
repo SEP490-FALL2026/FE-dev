@@ -80,6 +80,7 @@ export function ManagerReturnForm({
             <ManagerField label={translate('reason')}>
               <textarea
                 name='reason'
+                placeholder={translate('ui.placeholders.returnReason')}
                 className={managerInputClass}
                 required
                 maxLength={1000}

@@ -42,7 +42,7 @@ export function SpendBatchList({ onOpen }: { onOpen: (batchId: string) => void }
 
   return (
     <div className='space-y-4'>
-      <div className='grid items-start gap-4 sm:grid-cols-3'>
+      <div className='soft-panel grid items-start gap-4 p-3 sm:grid-cols-3 sm:p-4'>
         <ApprovalsSelect
           label={translate('monitor.department')}
           value={departmentId}

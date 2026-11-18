@@ -5,6 +5,7 @@ import { accessRequestPropose } from '~/shared/api/generated/operations/access-r
 import { getMeAccessRequestListQueryKey } from '~/shared/api/generated/operations/me/me-access-request-list'
 import { useApiWrite } from '~/shared/api/use-api-write'
 import { useCatalogSearch } from '~/shared/hooks/use-catalog-search'
+import { SearchableSelect } from '~/shared/ui/searchable-select'
 import { TermMonthsField } from './term-months-field'
 import { softwareProposalPayload, existingSoftwareFromError, type ExistingSoftware } from '../software-proposal'
 import { requestContractErrorKey } from '../request-contract-errors'
@@ -26,7 +27,7 @@ export function SoftwareProposalForm({
   const [duplicate, setDuplicate] = useState<ExistingSoftware>()
   const search = useCatalogSearch()
   const apps = useRequestableApplicationList(
-    { search: search.search || undefined, page: search.page, pageSize: 20 },
+    { search: search.search || undefined, page: 1, pageSize: 50 },
     { query: { enabled: existing } }
   )
   const action = useApiWrite({
@@ -45,7 +46,7 @@ export function SoftwareProposalForm({
     },
     onError: (_code, error) => setDuplicate(existingSoftwareFromError(error))
   })
-  const field = (name: string, label: string, type = 'text', maxLength = 200) => (
+  const field = (name: string, label: string, placeholder: string, type = 'text', maxLength = 200) => (
     <label className='grid gap-2 text-sm font-medium'>
       {label}
       <input
@@ -57,6 +58,7 @@ export function SoftwareProposalForm({
         max={type === 'number' ? 1000000 : undefined}
         step={type === 'number' ? 1 : undefined}
         defaultValue={type === 'number' ? 1 : undefined}
+        placeholder={placeholder}
         className={input}
         aria-invalid={action.fields.includes(name) || undefined}
       />
@@ -67,8 +69,8 @@ export function SoftwareProposalForm({
   )
   const data = !apps.isError ? apps.data?.data : null
   return (
-    <section className='space-y-5 rounded-lg border border-border/60 bg-surface p-5'>
-      <h2 className='text-lg font-semibold'>{employee('proposal')}</h2>
+    <section className='space-y-5 rounded-2xl border border-border/60 bg-surface p-4 shadow-sm sm:p-5'>
+      <h2 className='section-accent text-base font-semibold'>{employee('proposal')}</h2>
       <form
         className='space-y-5'
         onSubmit={(event) => {
@@ -92,16 +94,6 @@ export function SoftwareProposalForm({
           </label>
           {existing && (
             <div className='space-y-3'>
-              <label className='grid gap-2 text-sm'>
-                {t('proposalForm.search')}
-                <input
-                  type='search'
-                  maxLength={100}
-                  value={search.draft}
-                  onChange={(event) => search.setDraft(event.target.value)}
-                  className={input}
-                />
-              </label>
               {apps.isError ? (
                 <div role='alert'>
                   <p>{t('proposalForm.loadError')}</p>
@@ -110,65 +102,43 @@ export function SoftwareProposalForm({
                   </button>
                 </div>
               ) : (
-                <label className='grid gap-2 text-sm'>
+                <label className='grid gap-2 text-sm font-medium'>
                   {t('proposalForm.application')}
-                  <select
+                  <SearchableSelect
                     name='existingApplicationId'
                     required
                     value={application?.id ?? ''}
-                    disabled={apps.isFetching || !search.current}
-                    className={input}
-                    onChange={(event) => {
-                      const item = data?.items.find((item) => item.id === event.target.value)
-                      setApplication(item ? { id: item.id, name: item.name } : null)
+                    selectedLabel={application?.name}
+                    placeholder={employee('ui.placeholders.application')}
+                    loading={apps.isFetching || !search.current}
+                    emptyText={t('proposalForm.empty')}
+                    onSearchChange={search.setDraft}
+                    options={(search.current ? (data?.items ?? []) : []).map((item) => ({
+                      value: item.id,
+                      label: item.name,
+                      description: item.vendorName ?? undefined
+                    }))}
+                    onChange={(id, option) => {
+                      setApplication(option ? { id, name: option.label } : null)
                       setDuplicate(undefined)
                     }}
-                  >
-                    <option value=''>{t(apps.isPending ? 'proposalForm.loading' : 'proposalForm.choose')}</option>
-                    {application && !data?.items.some((item) => item.id === application.id) && (
-                      <option value={application.id}>{application.name}</option>
-                    )}
-                    {search.current &&
-                      data?.items.map((item) => (
-                        <option key={item.id} value={item.id}>
-                          {item.name}
-                        </option>
-                      ))}
-                  </select>
+                  />
                 </label>
               )}
-              {data && search.current && !data.items.length && (
-                <p className='text-sm text-muted-foreground'>{t('proposalForm.empty')}</p>
-              )}
-              <div className='flex gap-2'>
-                <button
-                  type='button'
-                  className='min-h-11 px-3 text-sm'
-                  disabled={search.page <= 1 || apps.isFetching}
-                  onClick={() => search.setPage(search.page - 1)}
-                >
-                  {t('proposalForm.previous')}
-                </button>
-                <button
-                  type='button'
-                  className='min-h-11 px-3 text-sm'
-                  disabled={!data || search.page >= data.pagination.totalPages || apps.isFetching}
-                  onClick={() => search.setPage(search.page + 1)}
-                >
-                  {t('proposalForm.next')}
-                </button>
-              </div>
               <input type='hidden' name='softwareName' value={application?.name ?? ''} />
-              <div key={application?.id ?? 'none'}>{field('plannedPlanName', t('proposalForm.planName'))}</div>
+              <div key={application?.id ?? 'none'}>
+                {field('plannedPlanName', t('proposalForm.planName'), employee('ui.placeholders.plannedPlanName'))}
+              </div>
             </div>
           )}
           <div className='grid items-start gap-4 sm:grid-cols-2'>
-            {!existing && field('softwareName', employee('softwareName'))}
-            {field('homepageUrl', employee('homepage'), 'url', 500)}
-            {field('expectedUsers', employee('expectedUsers'), 'number')}
+            {!existing && field('softwareName', employee('softwareName'), employee('ui.placeholders.softwareName'))}
+            {field('homepageUrl', employee('homepage'), employee('ui.placeholders.homepage'), 'url', 500)}
+            {field('expectedUsers', employee('expectedUsers'), employee('ui.placeholders.expectedUsers'), 'number')}
             <TermMonthsField
               subject='NEW_SOFTWARE'
               inputClassName={input}
+              placeholder={employee('ui.placeholders.termMonths')}
               invalid={action.fields.includes('termMonths')}
             />
           </div>
@@ -180,6 +150,7 @@ export function SoftwareProposalForm({
                 name={name}
                 maxLength={1000}
                 rows={3}
+                placeholder={employee(`ui.placeholders.${name}`)}
                 className={input}
                 aria-invalid={action.fields.includes(name) || undefined}
               />

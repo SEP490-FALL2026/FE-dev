@@ -14,6 +14,7 @@ export function TermMonthsField({
   defaultMonths,
   maxMonths,
   inputClassName,
+  placeholder,
   onChange
 }: {
   subject: TermSubject | null | undefined
@@ -23,6 +24,8 @@ export function TermMonthsField({
   /** Lowers the upper bound, e.g. a supplement may only shorten the term. */
   maxMonths?: number
   inputClassName: string
+  /** Optional example shown in the empty months field. */
+  placeholder?: string
   onChange?: (months: number | undefined) => void
 }) {
   const { t: translate } = useTranslation('requestFlow')
@@ -51,6 +54,7 @@ export function TermMonthsField({
         required={!longTerm}
         disabled={longTerm}
         defaultValue={defaultMonths ?? undefined}
+        placeholder={placeholder}
         aria-invalid={invalid || !!refusalText || undefined}
         aria-describedby={hintId}
         className={inputClassName}

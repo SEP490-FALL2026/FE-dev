@@ -123,6 +123,7 @@ export function ManagerGhostSeatDetail({ id, onBack }: { id: string; onBack: () 
                         <input
                           type='date'
                           name='exemptUntil'
+                          placeholder={t('ui.placeholders.date')}
                           required
                           className={managerInputClass}
                           value={until}
@@ -133,6 +134,7 @@ export function ManagerGhostSeatDetail({ id, onBack }: { id: string; onBack: () 
                     <ManagerField label={t('ghost.reason')}>
                       <textarea
                         name='reason'
+                        placeholder={t('ui.placeholders.ghostReason')}
                         required
                         minLength={3}
                         maxLength={1000}

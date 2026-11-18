@@ -11,6 +11,7 @@ import { useLongLeaveConfirmReturn } from '~/shared/api/generated/operations/lon
 import { AdminQueryState } from '../../shared/components/admin-query-state'
 import { AdminPagination } from '../../shared/components/admin-pagination'
 import { adminButtonClass } from '../../shared/components/admin-form'
+import { AdminSectionTitle } from '../../shared/components/admin-page-header'
 import { usePersonnelMutationFeedback } from '../../shared/hooks/use-personnel-mutation-feedback'
 import { useDashboardFormat } from '../../../dashboard-ui'
 import { PersonnelForm, value } from '../../shared/components/personnel-form'
@@ -49,6 +50,10 @@ export function LeavePanel() {
         />
       ) : (
         <>
+          <AdminSectionTitle
+            title={translate('ui.leavesTitle')}
+            hint={data ? translate('ui.recordCount', { count: data.pagination.totalItems }) : undefined}
+          />
           <AdminQueryState query={query}>
             <PersonnelList empty={!data?.items.length}>
               {data?.items.map((item) => (

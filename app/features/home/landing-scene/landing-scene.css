@@ -1,0 +1,15 @@
+/* Soft stage glow behind the 3D hero, echoing the light backdrop of the reference illustration. */
+.landing-scene-glow {
+  background:
+    radial-gradient(
+      circle at 50% 55%,
+      color-mix(in oklab, var(--theme-primary-soft) 95%, transparent) 0%,
+      transparent 62%
+    ),
+    radial-gradient(circle at 30% 30%, color-mix(in oklab, var(--theme-primary) 10%, transparent) 0%, transparent 55%);
+  filter: blur(6px);
+}
+.landing-scene canvas {
+  display: block;
+  outline: none;
+}

@@ -14,6 +14,7 @@ import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedba
 
 export function DepartmentSoftwareAdd({ departmentId, onClose }: { departmentId: string; onClose: () => void }) {
   const { t: translate } = useTranslation('itDepartmentSoftware')
+  const { t: translatePlaceholder } = useTranslation('itPlaceholders')
   const { draft, setDraft, search, page, setPage } = useCatalogSearch()
   const [applicationId, setApplicationId] = useState('')
   const [planId, setPlanId] = useState('')
@@ -50,6 +51,7 @@ export function DepartmentSoftwareAdd({ departmentId, onClose }: { departmentId:
     >
       <ItField label={translate('search')} hint={translate('searchHint')}>
         <input
+          placeholder={translatePlaceholder('searchApp')}
           type='search'
           className={itInputClass}
           value={draft}
@@ -106,6 +108,7 @@ export function DepartmentSoftwareAdd({ departmentId, onClose }: { departmentId:
       )}
       <ItField label={translate('note')} hint={translate('noteHint')}>
         <textarea
+          placeholder={translatePlaceholder('note')}
           className={itInputClass}
           maxLength={500}
           value={note}

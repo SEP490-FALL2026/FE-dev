@@ -35,7 +35,7 @@ export function ContractDetailContent({
         </div>
       </header>
       <section className='rounded-lg border border-border bg-surface p-5'>
-        <h2 className='text-base font-semibold'>{t('contractInformation')}</h2>
+        <h2 className='section-accent text-base font-semibold tracking-tight'>{t('contractInformation')}</h2>
         <dl className='mt-4 grid gap-x-6 gap-y-4 text-sm sm:grid-cols-2 xl:grid-cols-4'>
           <div>
             <dt className='text-muted-foreground'>{t('vendor')}</dt>
@@ -72,7 +72,7 @@ export function ContractDetailContent({
       <section className='space-y-3'>
         <div className='flex items-center gap-2 border-b border-border pb-3'>
           <Layers3 aria-hidden strokeWidth={1.5} className='size-5 text-primary' />
-          <h2 className='text-lg font-semibold'>{t('subscriptions')}</h2>
+          <h2 className='section-accent text-lg font-semibold tracking-tight'>{t('subscriptions')}</h2>
         </div>
         {contract.subscriptions.length ? (
           <div className='divide-y divide-border rounded-lg border border-border bg-surface'>
@@ -104,7 +104,7 @@ export function ContractDetailContent({
         <header className='flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3'>
           <div className='flex items-center gap-2'>
             <FileText aria-hidden strokeWidth={1.5} className='size-5 text-primary' />
-            <h2 className='text-lg font-semibold'>{t('documents')}</h2>
+            <h2 className='section-accent text-lg font-semibold tracking-tight'>{t('documents')}</h2>
           </div>
         </header>
         {contract.documents.length ? (

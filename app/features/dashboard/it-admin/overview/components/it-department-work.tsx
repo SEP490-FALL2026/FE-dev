@@ -11,6 +11,7 @@ import { ItControlledWaits } from './it-controlled-waits'
 
 export function ItDepartmentWork({ onBack }: { onBack: () => void }) {
   const { t: translate } = useTranslation('itDepartmentWork')
+  const { t: translatePlaceholder } = useTranslation('itPlaceholders')
   const [view, setView] = useState<'departments' | 'warnings' | 'waits'>('departments')
   const [selected, setSelected] = useState<{ id: string; name: string; code: string }>()
   const { draft, setDraft, search, page, setPage } = useCatalogSearch()
@@ -55,6 +56,7 @@ export function ItDepartmentWork({ onBack }: { onBack: () => void }) {
           <div className='max-w-md'>
             <ItField label={translate('search')} hint={translate('searchHint')}>
               <input
+                placeholder={translatePlaceholder('searchEmployee')}
                 type='search'
                 maxLength={100}
                 value={draft}
@@ -106,7 +108,7 @@ function DepartmentWarnings({
   const query = useDepartmentWarningList({ page, pageSize: 20 })
   return (
     <section className='space-y-4'>
-      <h2 className='text-lg font-semibold'>{translate('warnings')}</h2>
+      <h2 className='section-accent text-lg font-semibold tracking-tight'>{translate('warnings')}</h2>
       <p className='text-sm text-muted-foreground'>{translate('warningHint')}</p>
       <ItQueryState query={query}>
         {query.data?.data?.items.length ? (

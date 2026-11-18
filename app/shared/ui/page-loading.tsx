@@ -1,4 +1,4 @@
-import { LoaderCircle } from 'lucide-react'
+import { SentryMascot } from './sentry-mascot'
 
 interface LoadingIndicatorProps {
   message: string
@@ -6,15 +6,16 @@ interface LoadingIndicatorProps {
 
 export function LoadingIndicator({ message }: LoadingIndicatorProps) {
   return (
-    <div role='status' aria-live='polite' className='flex flex-col items-center gap-7 text-center'>
-      <div className='flex size-28 items-center justify-center rounded-full bg-primary/10 sm:size-32'>
-        <LoaderCircle
-          aria-hidden='true'
-          className='size-16 animate-spin text-primary motion-reduce:animate-none sm:size-20'
-          strokeWidth={1.5}
-        />
+    <div role='status' aria-live='polite' className='flex flex-col items-center gap-5 text-center'>
+      <SentryMascot mood='hop' size={112} />
+      <div className='flex flex-col items-center gap-3'>
+        <p className='max-w-sm text-lg leading-relaxed font-medium text-foreground sm:text-xl'>{message}</p>
+        <span aria-hidden='true' className='page-loading-dots flex gap-1.5'>
+          <span className='size-1.5 rounded-full bg-primary' />
+          <span className='size-1.5 rounded-full bg-primary' />
+          <span className='size-1.5 rounded-full bg-primary' />
+        </span>
       </div>
-      <p className='max-w-sm text-lg font-medium leading-relaxed text-foreground sm:text-xl'>{message}</p>
     </div>
   )
 }

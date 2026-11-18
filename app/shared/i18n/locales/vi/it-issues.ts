@@ -1,9 +1,10 @@
 export const itIssues = {
   title: 'Báo lỗi phần mềm trực tuyến',
+  subtitle: 'Tiếp nhận, xử lý và đóng các phiếu báo lỗi phần mềm của phòng bạn phụ trách.',
   chooseDepartment: 'Chọn phòng ban',
   backDepartments: 'Quay lại phòng ban',
   fieldHints: {
-    duplicateId: 'Nhập mã báo lỗi đang có cho cùng một sự cố.',
+    duplicateId: 'Chọn phiếu báo lỗi đang có của cùng phòng ban mô tả cùng một sự cố.',
     vendorTicket: 'Nhập mã phiếu hỗ trợ của nhà cung cấp nếu đã tạo.',
     message: 'Mô tả sự cố hoặc cập nhật xử lý. Không nhập mật khẩu hay khóa bí mật.'
   },
@@ -30,8 +31,8 @@ export const itIssues = {
   ticketPlaceholder: 'Nhập mã đánh dấuet đã tạo với nhà cung cấp',
   resolutionPlaceholder: 'Mô tả cách xử lý và kết quả đã xác nhận',
   duplicate: 'Đánh dấu trùng',
-  duplicateId: 'Mã định danh phiếu gốc',
-  duplicatePlaceholder: 'Nhập mã định danh của phiếu gốc',
+  duplicateId: 'Phiếu gốc',
+  duplicatePlaceholder: 'Chọn phiếu gốc, gõ tiêu đề hoặc mã phiếu để tìm',
   reason: 'Lý do',
   reasonPlaceholder: 'Mô tả vì sao hai phiếu cùng một sự cố',
   save: 'Lưu thay đổi',

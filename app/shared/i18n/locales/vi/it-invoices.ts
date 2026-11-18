@@ -1,5 +1,6 @@
 export const itInvoices = {
   title: 'Hóa đơn mua phần mềm',
+  subtitle: 'Nộp hóa đơn sau mỗi lần mua, theo dõi hóa đơn bị trả lại và các kỳ chưa có hóa đơn.',
   vnd: 'Đồng Việt Nam',
   history: 'Hóa đơn đã nộp',
   missing: 'Kỳ chưa có hóa đơn',
@@ -10,7 +11,8 @@ export const itInvoices = {
   previewTitle: 'Kiểm tra hóa đơn',
   periodPosition: 'Kỳ {{index}} trên {{total}}',
   ongoing: 'thời gian sử dụng lâu dài',
-  chargedCostCenter: 'Mã trung tâm chi phí chịu khoản chi',
+  chargedCostCenter: 'Trung tâm chi phí chịu khoản chi',
+  allocated: 'Đã xác định trung tâm chi phí',
   commitmentRemaining: 'Số tiền cam kết còn lại',
   unallocated: 'Chưa phân bổ trung tâm chi phí',
   previewHint: 'Kiểm tra kỳ thanh toán, kết quả đối chiếu và cảnh báo trước khi gửi bộ phận tài chính.',

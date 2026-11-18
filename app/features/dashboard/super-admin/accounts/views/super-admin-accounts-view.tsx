@@ -5,8 +5,12 @@ import {
   AppUserListRole,
   AppUserListStatus
 } from '~/shared/api/generated/model'
-import { AdminField, adminButtonClass, adminInputClass, adminPrimaryClass } from '../../shared/components/admin-form'
-import { AdminQueryState, AdminEmpty } from '../../shared/components/admin-query-state'
+import { KeyRound, MailPlus } from 'lucide-react'
+import { WorkspaceEmptyState } from '~/shared/ui/workspace-empty-state'
+import { AdminField, adminButtonClass, adminPrimaryClass } from '../../shared/components/admin-form'
+import { AdminQueryState } from '../../shared/components/admin-query-state'
+import { AdminSelect } from '../../shared/components/admin-select'
+import { AdminPageHeader, AdminSectionTitle, AdminSegmented } from '../../shared/components/admin-page-header'
 import { AdminPagination } from '../../shared/components/admin-pagination'
 import { useSuperAdminAccounts } from '../hooks/use-super-admin-accounts'
 import { AccountInviteDialog } from '../components/account-invite-dialog'
@@ -44,105 +48,102 @@ export function SuperAdminAccountsView({
       />
     )
   return (
-    <section className='space-y-5'>
-      <header className='flex flex-wrap items-center justify-between gap-4'>
-        <h1 className='text-2xl font-semibold [text-wrap:balance]'>{translate('title')}</h1>
-        {state.tab === 'accounts' && (
-          <button className={adminPrimaryClass} onClick={() => state.setInviteOpen(true)}>
-            {translate('invite')}
-          </button>
-        )}
-      </header>
-      <div role='tablist' aria-label={translate('title')} className='flex gap-2 border-b border-border pb-3'>
-        {(['accounts', 'responsibilities'] as const).map((tab) => (
-          <button
-            key={tab}
-            role='tab'
-            aria-selected={state.tab === tab}
-            className={`${adminButtonClass} ${state.tab === tab ? 'border-primary text-primary' : ''}`}
-            onClick={() => state.setTab(tab)}
-          >
-            {translate(tab === 'accounts' ? 'list' : 'responsibilities')}
-          </button>
-        ))}
-      </div>
+    <section className='space-y-6'>
+      <AdminPageHeader
+        icon={KeyRound}
+        eyebrow={translate('ui.eyebrow')}
+        title={translate('title')}
+        actions={
+          state.tab === 'accounts' && (
+            <button type='button' className={adminPrimaryClass} onClick={() => state.setInviteOpen(true)}>
+              <MailPlus aria-hidden strokeWidth={1.5} className='size-4' />
+              {translate('invite')}
+            </button>
+          )
+        }
+      >
+        <AdminSegmented
+          label={translate('title')}
+          value={state.tab}
+          onChange={state.setTab}
+          items={(['accounts', 'responsibilities'] as const).map((tab) => ({
+            key: tab,
+            label: translate(tab === 'accounts' ? 'list' : 'responsibilities')
+          }))}
+        />
+      </AdminPageHeader>
       {state.tab === 'accounts' ? (
         <>
-          <div className='grid gap-3 sm:grid-cols-2 xl:grid-cols-4'>
-            <AdminField label={translate('status')}>
-              <select
-                className={adminInputClass}
+          <div className='soft-panel grid gap-4 p-4 sm:grid-cols-2 xl:grid-cols-4'>
+            <AdminField label={translate('status')} description=''>
+              <AdminSelect
                 value={filters.status ?? ''}
-                onChange={(event) =>
-                  state.changeFilter({
-                    status: AppUserListStatus[event.target.value as keyof typeof AppUserListStatus]
-                  })
+                clearable
+                onChange={(next) =>
+                  state.changeFilter({ status: AppUserListStatus[next as keyof typeof AppUserListStatus] })
                 }
-              >
-                <option value=''>{translate('all')}</option>
-                {accountStatuses.map((status) => (
-                  <option key={status} value={status}>
-                    {translate(`statuses.${status}`)}
-                  </option>
-                ))}
-              </select>
+                options={accountStatuses.map((status) => ({ value: status, label: translate(`statuses.${status}`) }))}
+                placeholder={translate('ui.allStatuses')}
+              />
             </AdminField>
-            <AdminField label={translate('activation')}>
-              <select
-                className={adminInputClass}
+            <AdminField label={translate('activation')} description=''>
+              <AdminSelect
                 value={filters.activationState ?? ''}
-                onChange={(event) =>
+                clearable
+                onChange={(next) =>
                   state.changeFilter({
-                    activationState:
-                      AppUserListActivationState[event.target.value as keyof typeof AppUserListActivationState]
+                    activationState: AppUserListActivationState[next as keyof typeof AppUserListActivationState]
                   })
                 }
-              >
-                <option value=''>{translate('all')}</option>
-                {activationStates.map((status) => (
-                  <option key={status} value={status}>
-                    {translate(`activationStates.${status}`)}
-                  </option>
-                ))}
-              </select>
+                options={activationStates.map((status) => ({
+                  value: status,
+                  label: translate(`activationStates.${status}`)
+                }))}
+                placeholder={translate('ui.allActivation')}
+              />
             </AdminField>
-            <AdminField label={translate('role')}>
-              <select
-                className={adminInputClass}
+            <AdminField label={translate('role')} description=''>
+              <AdminSelect
                 value={filters.role ?? ''}
-                onChange={(event) =>
-                  state.changeFilter({ role: AppUserListRole[event.target.value as keyof typeof AppUserListRole] })
-                }
-              >
-                <option value=''>{translate('all')}</option>
-                {Object.values(AppUserListRole).map((role) => (
-                  <option key={role} value={role}>
-                    {translate(`roles.${role}`)}
-                  </option>
-                ))}
-              </select>
+                clearable
+                onChange={(next) => state.changeFilter({ role: AppUserListRole[next as keyof typeof AppUserListRole] })}
+                options={Object.values(AppUserListRole).map((role) => ({
+                  value: role,
+                  label: translate(`roles.${role}`)
+                }))}
+                placeholder={translate('ui.allRoles')}
+              />
             </AdminField>
-            <AdminField label={translate('employment')}>
-              <select
-                className={adminInputClass}
+            <AdminField label={translate('employment')} description=''>
+              <AdminSelect
                 value={filters.employeeLeft ?? ''}
-                onChange={(event) =>
+                clearable
+                onChange={(next) =>
                   state.changeFilter({
-                    employeeLeft: AppUserListEmployeeLeft[event.target.value as keyof typeof AppUserListEmployeeLeft]
+                    employeeLeft: AppUserListEmployeeLeft[next as keyof typeof AppUserListEmployeeLeft]
                   })
                 }
-              >
-                <option value=''>{translate('all')}</option>
-                <option value='false'>{translate('working')}</option>
-                <option value='true'>{translate('left')}</option>
-              </select>
+                options={[
+                  { value: 'false', label: translate('working') },
+                  { value: 'true', label: translate('left') }
+                ]}
+                placeholder={translate('ui.allEmployment')}
+              />
             </AdminField>
           </div>
+          <AdminSectionTitle
+            title={translate('list')}
+            hint={data ? translate('ui.accountCount', { count: data.pagination.totalItems }) : undefined}
+          />
           <AdminQueryState query={query}>
             {!data?.items.length ? (
-              <AdminEmpty />
+              <WorkspaceEmptyState
+                icon={KeyRound}
+                title={translate('ui.noAccountsTitle')}
+                description={translate('ui.noAccountsHint')}
+              />
             ) : (
-              <div className='md:overflow-x-auto md:rounded-lg md:border md:border-border'>
+              <div className='md:overflow-x-auto md:rounded-xl md:border md:border-border/80 md:bg-surface md:shadow-[0_1px_2px_rgb(0_0_0/4%),0_12px_28px_-24px_rgb(35_39_65/40%)]'>
                 <table className='block w-full text-left text-sm md:table'>
                   <thead className='hidden bg-surface-subtle text-xs text-muted-foreground md:table-header-group'>
                     <tr>
@@ -159,13 +160,13 @@ export function SuperAdminAccountsView({
                     {data.items.map((account) => (
                       <tr
                         key={account.id}
-                        className='grid rounded-lg border border-border bg-surface p-4 md:table-row md:rounded-none md:border-0 md:p-0'
+                        className='grid rounded-xl border border-border/80 bg-surface p-4 md:table-row md:rounded-none md:border-0 md:p-0'
                       >
                         <td className='block min-w-0 py-2 md:table-cell md:px-4 md:py-3'>
                           <span className='block max-w-64 truncate font-medium' title={account.employee?.fullName}>
                             {account.employee?.fullName ?? translate('none')}
                           </span>
-                          <span className='block text-right font-mono text-xs tabular-nums text-muted-foreground'>
+                          <span className='block text-left font-mono text-xs tabular-nums text-muted-foreground'>
                             {account.employee?.employeeCode}
                           </span>
                         </td>

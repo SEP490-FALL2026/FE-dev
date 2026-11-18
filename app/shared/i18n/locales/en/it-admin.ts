@@ -106,6 +106,7 @@ export const itAdmin = {
     back: 'Back to plans'
   },
   selectPlaceholder: 'Choose an option',
+  choosePlaceholder: 'Choose {{field}}, type to search',
   selectedCount: '{{count}} selected',
   selectedList: 'Selected options',
   removeSelection: 'Remove {{name}}',
@@ -120,6 +121,14 @@ export const itAdmin = {
     inactive: 'Inactive'
   },
   directory: {
+    department: 'Department',
+    departmentPlaceholder: 'Choose a department (type to search)',
+    employee: 'Employee',
+    employeePlaceholder: 'Choose an employee (type to search)',
+    pickDepartmentFirst: 'Choose a department first',
+    noEmployees: 'No working people you can view in this department',
+    noDepartments: 'No matching departments',
+    noAccess: 'You do not manage or cover this department, so its people cannot be listed. Choose another department.',
     people: 'Browse people',
     departments: 'Browse departments',
     search: 'Search department name or code',

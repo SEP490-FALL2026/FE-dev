@@ -42,6 +42,7 @@ export function ManagerWithdrawDialog({
           <ManagerField label={translate('reason')}>
             <textarea
               name='reason'
+              placeholder={translate('ui.placeholders.withdrawReason')}
               className={managerInputClass}
               required
               maxLength={1000}

@@ -28,9 +28,9 @@ export function ParameterRow({
     <article className='grid min-w-0 gap-4 p-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-start'>
       <div className='min-w-0'>
         <div className='flex flex-wrap items-center gap-2.5'>
-          <h2 className='min-w-0 truncate font-semibold' title={name}>
+          <h3 className='min-w-0 truncate font-semibold' title={name}>
             {name}
-          </h2>
+          </h3>
           <span
             className={`rounded-md px-2 py-1 text-xs font-medium ${parameter.isDefault ? 'bg-surface-subtle text-muted-foreground' : 'bg-primary-soft text-primary-ink'}`}
           >
