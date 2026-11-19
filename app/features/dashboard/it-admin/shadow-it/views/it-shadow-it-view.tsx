@@ -1,0 +1,219 @@
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { ArrowLeft, ShieldQuestion } from 'lucide-react'
+import { ItPageHeader, ItSectionTitle } from '../../shared/components/it-page-header'
+import { AssessmentQueue } from '../components/assessment-queue'
+import { AssessmentDecisions } from '../components/assessment-decisions'
+import { useAccessRequestAssessmentGet } from '~/shared/api/generated/operations/access-requests/access-request-assessment-get'
+import { useMeGet } from '~/shared/api/generated/operations/me/me-get'
+import { useAccessRequestGet } from '~/shared/api/generated/operations/access-requests/access-request-get'
+import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
+import { itButtonClass, itPrimaryClass } from '../../shared/components/it-form'
+import { AssessmentDialog } from '../components/assessment-dialog'
+import { CatalogLinkSection } from '../components/catalog-link-section'
+import { InternalRegistrationDialog } from '../components/internal-registration-dialog'
+import { AssessmentStatus } from '../enums/assessment-status'
+import { AssessmentClassification } from '../enums/assessment-classification'
+import { AssessmentStepState } from '../enums/assessment-step-state'
+import { canCompleteAssessment } from '../hooks/assessment-gates'
+import type { ItAdminTabKey } from '../../it-admin-nav'
+
+export function ItShadowItView({
+  onSelectTab,
+  initialRequestId
+}: {
+  onSelectTab?: (tab: ItAdminTabKey) => void
+  initialRequestId?: string
+}) {
+  const { t: translate } = useTranslation('itNewSoftware')
+  const [id, setId] = useState(initialRequestId ?? '')
+  const [list, setList] = useState<'queue' | 'decisions'>('queue')
+  const [queueAllowsAction, setQueueAllowsAction] = useState<boolean | undefined>()
+  return (
+    <div className='space-y-5'>
+      <ItPageHeader
+        icon={ShieldQuestion}
+        eyebrow={translate('eyebrow')}
+        title={translate('title')}
+        subtitle={translate('subtitle')}
+        actions={
+          id && (
+            <button type='button' className={itButtonClass} onClick={() => setId('')}>
+              <ArrowLeft aria-hidden strokeWidth={1.5} className='size-4' />
+              {translate('queue.back')}
+            </button>
+          )
+        }
+      />
+      <div hidden={!!id}>
+        <div className='mb-4 flex gap-2'>
+          <button
+            type='button'
+            className={list === 'queue' ? itPrimaryClass : itButtonClass}
+            onClick={() => setList('queue')}
+          >
+            {translate('queue.title')}
+          </button>
+          <button
+            type='button'
+            className={list === 'decisions' ? itPrimaryClass : itButtonClass}
+            onClick={() => setList('decisions')}
+          >
+            {translate('decisions.title')}
+          </button>
+        </div>
+        {list === 'queue' ? (
+          <AssessmentQueue
+            onOpen={(requestId, canAct) => {
+              setQueueAllowsAction(canAct)
+              setId(requestId)
+            }}
+          />
+        ) : (
+          <AssessmentDecisions
+            onOpen={(requestId) => {
+              setQueueAllowsAction(undefined)
+              setId(requestId)
+            }}
+          />
+        )}
+      </div>
+      {id && <AssessmentDetail key={id} id={id} queueAllowsAction={queueAllowsAction} onSelectTab={onSelectTab} />}
+    </div>
+  )
+}
+function AssessmentDetail({
+  id,
+  onSelectTab,
+  queueAllowsAction
+}: {
+  id: string
+  onSelectTab?: (tab: ItAdminTabKey) => void
+  queueAllowsAction?: boolean
+}) {
+  const { t: translate } = useTranslation('itNewSoftware')
+  const query = useAccessRequestAssessmentGet(id)
+  const me = useMeGet()
+  const requestQuery = useAccessRequestGet(id, { query: { enabled: queueAllowsAction === undefined } })
+  const requestData = requestQuery.data?.data
+  const request = requestData && 'request' in requestData ? requestData.request : undefined
+  const employeeId = me.data?.data?.employee?.id
+  const independent =
+    request &&
+    !requestQuery.isError &&
+    !requestQuery.isFetching &&
+    !!employeeId &&
+    request.requester.employeeId !== employeeId &&
+    request.beneficiary?.employeeId !== employeeId
+  const [mode, setMode] = useState<'save' | 'complete' | 'reject' | 'return' | null>(null)
+  const [internalOpen, setInternalOpen] = useState(false)
+  const item = query.data?.data?.assessment
+  const authorized =
+    (queueAllowsAction === true || (queueAllowsAction === undefined && !!independent)) &&
+    !me.isError &&
+    (me.data?.data?.roles.includes('IT_ADMIN') ?? false)
+  const editable =
+    authorized &&
+    !query.isFetching &&
+    item?.status === AssessmentStatus.DRAFT &&
+    item.step?.state === AssessmentStepState.PENDING
+  if (item && mode === 'save') return <AssessmentDialog item={item} mode={mode} onClose={() => setMode(null)} />
+  if (item && internalOpen) return <InternalRegistrationDialog item={item} onClose={() => setInternalOpen(false)} />
+  return (
+    <ItQueryState query={query}>
+      {item ? (
+        <div className='space-y-4'>
+          <div className='soft-panel flex flex-wrap items-center justify-between gap-3 p-4'>
+            <div className='min-w-0'>
+              <h2
+                className='min-w-0 max-w-full truncate text-xl font-semibold [text-wrap:balance]'
+                title={item.proposal.softwareName}
+              >
+                {item.proposal.softwareName}
+              </h2>
+              <p className='text-sm text-muted-foreground'>
+                {translate(`values.${item.status}`, { defaultValue: translate('unknown') })}
+              </p>
+            </div>
+            <button className={itButtonClass} onClick={() => void query.refetch()}>
+              {translate('refresh')}
+            </button>
+          </div>
+          <ItSectionTitle title={translate('sections.proposal')} />
+          <dl className='grid gap-4 rounded-xl border border-border/70 bg-surface p-5 shadow-sm sm:grid-cols-2'>
+            {(['purpose', 'dataDescription', 'homepageUrl', 'expectedUsers'] as const).map((key) => (
+              <div key={key}>
+                <dt className='text-sm text-muted-foreground'>{translate(`proposal.${key}`)}</dt>
+                <dd className='break-words text-sm'>{item.proposal[key]}</dd>
+              </div>
+            ))}
+          </dl>
+          <ItSectionTitle title={translate('sections.assessment')} />
+          <dl className='grid gap-4 rounded-xl border border-border/70 bg-surface p-5 shadow-sm sm:grid-cols-2'>
+            {(
+              [
+                'classification',
+                'provisioningType',
+                'controlLevel',
+                'dataSensitivity',
+                'plannedPlanName',
+                'termsSummary',
+                'memberUsageMethod',
+                'grantRevokeMethod',
+                'controlRiskNote'
+              ] as const
+            ).map((key) => (
+              <div key={key}>
+                <dt className='text-sm text-muted-foreground'>{translate(`fields.${key}`)}</dt>
+                <dd className='break-words text-sm'>
+                  {item[key] == null
+                    ? translate('unfilled')
+                    : ['classification', 'provisioningType', 'controlLevel', 'dataSensitivity'].includes(key)
+                      ? translate(`values.${item[key]}`, { defaultValue: translate('unknown') })
+                      : item[key]}
+                </dd>
+              </div>
+            ))}
+          </dl>
+          {!item.complete && <p className='text-sm text-muted-foreground'>{translate('incomplete')}</p>}
+          {item.classification === AssessmentClassification.INTERNAL && (
+            <p className='text-sm text-muted-foreground'>{translate('internalHint')}</p>
+          )}
+          {item.rejection && <p className='rounded-lg border border-border p-4 text-sm'>{item.rejection.reason}</p>}
+          <CatalogLinkSection item={item} authorized={authorized} />
+          <div className='flex flex-wrap justify-end gap-2 border-t border-border/50 pt-4'>
+            {item.classification === AssessmentClassification.INTERNAL && (
+              <button className={itButtonClass} disabled={!editable} onClick={() => setInternalOpen(true)}>
+                {translate('registerInternal')}
+              </button>
+            )}
+            <button className={itPrimaryClass} disabled={!editable} onClick={() => setMode('save')}>
+              {translate('save')}
+            </button>
+            <button
+              className={itButtonClass}
+              disabled={!editable || !canCompleteAssessment(item, authorized)}
+              onClick={() => setMode('complete')}
+            >
+              {translate('complete')}
+            </button>
+            <button className={itButtonClass} disabled={!editable} onClick={() => setMode('reject')}>
+              {translate('reject')}
+            </button>
+            <button className={itButtonClass} disabled={!editable} onClick={() => setMode('return')}>
+              {translate('return')}
+            </button>
+            {onSelectTab && (
+              <button className={itButtonClass} onClick={() => onSelectTab('dept-catalog')}>
+                {translate('catalog')}
+              </button>
+            )}
+          </div>
+          {mode && <AssessmentDialog item={item} mode={mode} onClose={() => setMode(null)} />}
+        </div>
+      ) : (
+        <ItEmpty />
+      )}
+    </ItQueryState>
+  )
+}

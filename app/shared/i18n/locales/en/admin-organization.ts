@@ -1,0 +1,99 @@
+import { adminDepartmentEditor } from './admin-department-editor'
+
+export const adminOrganization = {
+  ...adminDepartmentEditor,
+  title: 'Organization',
+  subtitle: 'Manage departments and leadership.',
+  departments: 'Departments',
+  createDepartment: 'Create department',
+  editDepartment: 'Edit department',
+  departmentDetails: 'Department details',
+  code: 'Department code',
+  name: 'Name',
+  function: 'Function',
+  description: 'Description',
+  status: 'Status',
+  search: 'Search departments',
+  searchPlaceholder: 'Enter a department name or code',
+  allStatuses: 'All statuses',
+  head: 'Department head',
+  successor: 'Successor',
+  itAdmin: 'Information technology administrator',
+  itAdminId: 'Information technology administrator',
+  employeeId: 'Employee',
+  candidateIdPlaceholder: 'Choose an employee below',
+  costCenter: 'Cost center',
+  members: 'Members',
+  addEmployee: 'Add employee',
+  addEmployeeHelp: 'Choose an employee without a department. Moving an existing member requires a department transfer.',
+  chooseEmployee: 'Choose an employee',
+  unassigned: 'Unassigned',
+  unknown: 'Unknown status',
+  back: 'Back to departments',
+  viewDepartment: 'View {{name}}',
+  viewDetails: 'Details',
+  responsibilities: 'Responsible people',
+  needsAttention: 'Needs attention',
+  noFunction: 'No function description provided.',
+  memberSince: 'Member since',
+  actionsLabel: 'Actions',
+  effectiveFrom: 'Effective from',
+  hrBasis: 'Personnel authorization',
+  basis: { type: 'Document type', reference: 'Reference', issuer: 'Issuer', issuedOn: 'Issued on' },
+  departmentStatus: { ACTIVE: 'Active', INACTIVE: 'Retired' },
+  memberStatus: { ACTIVE: 'Active', TERMINATED: 'Terminated' },
+  workState: { WORKING: 'Working', ON_LONG_LEAVE: 'On long leave', HANDING_OVER: 'Handing over', LEFT: 'Left' },
+  warnings: {
+    MISSING_HEAD: 'No department head',
+    MISSING_IT_ADMIN: 'No eligible information technology administrator',
+    MISSING_COST_CENTER: 'No cost center'
+  },
+  actions: {
+    deactivate: 'Retire department',
+    assignHead: 'Assign department head',
+    vacateHead: 'Vacate department head',
+    designateSuccessor: 'Designate successor',
+    clearSuccessor: 'Clear successor'
+  },
+  actionHelp: {
+    deactivate:
+      'Retirement prevents new members and heads. The server checks for people, open work and outstanding obligations.',
+    assignHead:
+      'Choose a member on the effective date, today or later. The previous head ends the day before. The server checks eligibility.',
+    vacateHead:
+      'The department will have no head from the selected date, today or later. Department requests wait until a new head is assigned.',
+    designateSuccessor:
+      'A successor must start after today and be a department member on that date. A current head is required.',
+    clearSuccessor: 'Withdraw the future successor. The current head continues without the planned end date.'
+  },
+  candidateHelp:
+    'Browse active accounts or find employees without accounts by name or code. Super Admins are excluded. Department membership on the effective date is checked when saving.',
+  itAdminHelp:
+    'Browse active, activated information technology administrator accounts on every page. The server checks eligibility. Choose Unassigned to remove the assignment.',
+  headHistory: 'Head history',
+  viewHeadHistory: 'View head history',
+  openingHeadHistory: 'Opening history…',
+  noHistory: 'No head history',
+  historyLimited: 'Only recent department head history is available here.',
+  ongoing: 'Ongoing',
+  membersHelp: 'Membership is read from the personnel record. Record a personnel event to change departments.',
+  hasEmail: 'Work email recorded',
+  noEmail: 'No work email',
+  ui: {
+    eyebrow: 'Organization structure',
+    listCount: '{{count}} departments',
+    noMatchTitle: 'No matching departments',
+    noMatchHint: 'Change the keyword or filters to see more departments.',
+    emptyTitle: 'No departments yet',
+    emptyHint: 'Created departments will appear here.',
+    pickUnplacedEmployee: 'Choose an unplaced employee, type a name or code to search',
+    noUnplacedEmployees: 'No employees without a department remain',
+    pickHeadChange: 'Choose the new department head, type to search',
+    pickHead: 'Choose a department head, type a name or code to search',
+    noHeadCandidates: 'No employees available as department head',
+    pickItAdmin: 'Choose an IT administrator, type to search',
+    noItAdminMatch: 'No matching administrator found',
+    noMembersTitle: 'This department has no members',
+    noMembersHint: 'Add employees to the department and they will appear in this list.'
+  }
+}

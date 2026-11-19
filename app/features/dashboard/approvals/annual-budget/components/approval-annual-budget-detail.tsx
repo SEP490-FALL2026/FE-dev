@@ -1,0 +1,94 @@
+import { ArrowLeft, FileSearch, History, Landmark } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { useBudgetVersionGet } from '~/shared/api/generated/operations/budget-versions/budget-version-get'
+import { useMeGet } from '~/shared/api/generated/operations/me/me-get'
+import { ApprovalsButton, ApprovalsEmpty, ApprovalsPage, ApprovalsStatus } from '../../shared/components/approvals-ui'
+import { ApprovalsQueryState } from '../../shared/components/approvals-query-state'
+import { versionState } from '../enums/version-state'
+import type { ApprovalBudgetViewProps } from '../budget-view-props'
+import { ApprovalAnnualBudgetDecision, VERSION_DECISION_ANCHOR } from './approval-annual-budget-decision'
+import { ApprovalAnnualBudgetSummary, ApprovalBudgetWaitingNotice } from './approval-annual-budget-summary'
+import { ApprovalBudgetAttachments } from './approval-budget-attachments'
+
+export function ApprovalAnnualBudgetDetail({ itemId, onSelectTab }: ApprovalBudgetViewProps & { itemId: string }) {
+  const { t: translate } = useTranslation('approvalsBudget')
+  const query = useBudgetVersionGet(itemId)
+  const identity = useMeGet()
+  const version = query.data?.data?.version
+  const employeeId = identity.data?.data?.employee.id
+  const isSpendingApprover = identity.data?.data?.roles.includes('SPENDING_APPROVER') === true
+  const ownVersion = !!employeeId && employeeId === version?.createdBy?.employeeId
+  const canDecide =
+    version?.state === versionState.SENT &&
+    isSpendingApprover &&
+    !!employeeId &&
+    !ownVersion &&
+    !identity.isError &&
+    !identity.isFetching &&
+    !query.isError &&
+    !query.isFetching
+  // The decision is the last block of the page; the button at the top takes the approver there.
+  const scrollToDecision = () =>
+    document.getElementById(VERSION_DECISION_ANCHOR)?.scrollIntoView?.({ behavior: 'smooth', block: 'start' })
+  return (
+    <ApprovalsPage
+      icon={Landmark}
+      eyebrow={translate('versionTitle')}
+      title={version ? version.costCenter.name : translate('versionTitle')}
+      description={
+        version
+          ? translate('versionSubtitle', { code: version.costCenter.code, year: version.year, number: version.number })
+          : undefined
+      }
+      actions={
+        <ApprovalsButton variant='ghost' onClick={() => onSelectTab('annual-budget')}>
+          <ArrowLeft aria-hidden className='size-4' strokeWidth={1.5} />
+          {translate('back')}
+        </ApprovalsButton>
+      }
+    >
+      <ApprovalsQueryState query={query}>
+        {version ? (
+          <div className='space-y-6'>
+            <div className='soft-panel flex flex-wrap items-center justify-between gap-3 px-4 py-3'>
+              <ApprovalsStatus value={version.state} />
+              <div className='flex flex-wrap gap-2'>
+                {version.proposalId && (
+                  <ApprovalsButton
+                    variant='ghost'
+                    onClick={() => onSelectTab('annual-budget', { id: `proposal:${version.proposalId}` })}
+                  >
+                    <FileSearch aria-hidden className='size-4' strokeWidth={1.5} />
+                    {translate('relatedProposal')}
+                  </ApprovalsButton>
+                )}
+                <ApprovalsButton onClick={() => onSelectTab('version-history', { id: itemId })}>
+                  <History aria-hidden className='size-4' strokeWidth={1.5} />
+                  {translate('history')}
+                </ApprovalsButton>
+                <ApprovalsQueryState query={identity}>
+                  {canDecide && (
+                    <ApprovalsButton variant='primary' onClick={() => scrollToDecision()}>
+                      {translate('reviewDecision')}
+                    </ApprovalsButton>
+                  )}
+                </ApprovalsQueryState>
+              </div>
+            </div>
+            <ApprovalBudgetWaitingNotice reason={version.waitingReason} />
+            {ownVersion && (
+              <p role='status' className='rounded-xl border border-border/70 bg-surface-subtle p-4 text-sm'>
+                {translate('ownVersion')}
+              </p>
+            )}
+            <ApprovalAnnualBudgetSummary version={version} />
+            <ApprovalBudgetAttachments target='version' ownerId={itemId} />
+            {canDecide && <ApprovalAnnualBudgetDecision itemId={itemId} disabled={!canDecide} />}
+          </div>
+        ) : (
+          <ApprovalsEmpty />
+        )}
+      </ApprovalsQueryState>
+    </ApprovalsPage>
+  )
+}

@@ -1,0 +1,73 @@
+import { useTranslation } from 'react-i18next'
+import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router'
+
+import { AppProviders } from '~/providers/app-providers'
+import { PageLoading } from '~/shared/ui/page-loading'
+
+import type { Route } from './+types/root'
+import latoRegularUrl from './assets/fonts/lato/lato-normal.woff2?url'
+import './app.css'
+
+export function Layout({ children }: { children: React.ReactNode }) {
+  const { i18n } = useTranslation('common')
+
+  return (
+    <html lang={i18n.resolvedLanguage ?? 'vi'}>
+      <head>
+        <meta charSet='utf-8' />
+        <meta name='viewport' content='width=device-width, initial-scale=1' />
+        <link rel='icon' href='/favicon.svg' type='image/svg+xml' />
+        <link rel='apple-touch-icon' href='/apple-touch-icon.png' />
+        <link rel='preload' href={latoRegularUrl} as='font' type='font/woff2' crossOrigin='anonymous' />
+        <Meta />
+        <Links />
+      </head>
+      <body>
+        {children}
+        <ScrollRestoration />
+        <Scripts />
+      </body>
+    </html>
+  )
+}
+
+export default function App() {
+  return (
+    <AppProviders>
+      <Outlet />
+    </AppProviders>
+  )
+}
+
+export function HydrateFallback() {
+  const { t } = useTranslation('errors')
+
+  return <PageLoading message={t('loading')} />
+}
+
+export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+  const { t } = useTranslation('errors')
+  let message: string = t('genericTitle')
+  let details: string = t('genericDetails')
+  let stack: string | undefined
+
+  if (isRouteErrorResponse(error)) {
+    message = error.status === 404 ? t('notFoundTitle') : t('genericTitle')
+    details = error.status === 404 ? t('notFoundDetails') : error.statusText || details
+  } else if (import.meta.env.DEV && error && error instanceof Error) {
+    details = error.message
+    stack = error.stack
+  }
+
+  return (
+    <main className='container mx-auto p-6 pt-16'>
+      <h1 className='text-2xl font-semibold'>{message}</h1>
+      <p className='mt-2 text-muted-foreground'>{details}</p>
+      {stack && (
+        <pre className='mt-6 w-full overflow-x-auto rounded-lg border border-border bg-sidebar p-4 text-foreground'>
+          <code>{stack}</code>
+        </pre>
+      )}
+    </main>
+  )
+}

@@ -1,0 +1,31 @@
+export const FINANCE_TAB_KEYS = [
+  'overview',
+  'department-budget',
+  'budgets',
+  'budget-allocation',
+  'budget-periods',
+  'budget-cycles',
+  'decision-history',
+  'department-summary',
+  'annual-proposals',
+  'budget-negotiation',
+  'version-history',
+  'cost-forecast',
+  'cost-optimization',
+  'spend-batches',
+  'commitments',
+  'commitment-release',
+  'commitment-detail',
+  'saas-cost',
+  'spend-import',
+  'charge-exceptions',
+  'period-close',
+  'cost-analysis',
+  'period-report',
+  'cost-centers',
+  'request-monitor',
+  'purchase-invoices',
+  'invoice-discrepancies'
+] as const
+
+export type FinanceTabKey = (typeof FINANCE_TAB_KEYS)[number]

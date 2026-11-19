@@ -1,0 +1,308 @@
+import { Boxes, UsersRound } from 'lucide-react'
+import { useState } from 'react'
+import type { DepartmentMembersResponseDtoDataItemsItem } from '~/shared/api/generated/model/departments/departmentMembersResponseDtoDataItemsItem'
+import type { DepartmentToolsResponseDtoDataItemsItem } from '~/shared/api/generated/model/departments/departmentToolsResponseDtoDataItemsItem'
+import { ManagerReturnForm } from '../components/manager-return-form'
+import { useTranslation } from 'react-i18next'
+import { useSearchParams } from 'react-router'
+import { useDepartmentGet } from '~/shared/api/generated/operations/departments/department-get'
+import { useDepartmentMemberList } from '~/shared/api/generated/operations/departments/department-member-list'
+import { useDepartmentToolsInUse } from '~/shared/api/generated/operations/departments/department-tools-in-use'
+import { useDashboardFormat } from '../../../dashboard-ui'
+import { useManagerPage } from '../../shared/hooks/use-manager-page'
+import { ManagerDataTable } from '../../shared/components/manager-data-table'
+import { ManagerPageHeader } from '../../shared/components/manager-page-header'
+import { ManagerSearchToolbar } from '../../shared/components/manager-search-toolbar'
+import { WorkspaceEmptyState } from '~/shared/ui/workspace-empty-state'
+import { isResourceId } from '../../shared/manager-identifiers'
+import {
+  filterDepartmentPage,
+  useDepartmentMemberSearch,
+  useDepartmentToolSearch
+} from '../hooks/use-department-search'
+import {
+  ManagerPagination,
+  ManagerQueryState,
+  ManagerSection,
+  ManagerStatus
+} from '../../shared/components/manager-api-ui'
+
+export function ManagerLiveTeam({
+  departmentId,
+  tools = false,
+  embedded = false,
+  onReturnCreated,
+  onOpenMember,
+  onOpenTool
+}: {
+  departmentId?: string
+  tools?: boolean
+  embedded?: boolean
+  onReturnCreated?: (id: string) => void
+  onOpenMember?: (member: DepartmentMembersResponseDtoDataItemsItem) => void
+  onOpenTool?: (tool: DepartmentToolsResponseDtoDataItemsItem) => void
+}) {
+  const { t: translate } = useTranslation('manager')
+  const paging = useManagerPage()
+  const valid = isResourceId(departmentId ?? '')
+  const department = useDepartmentGet(departmentId ?? '', { query: { enabled: valid } })
+  return (
+    <div className='space-y-5'>
+      {!embedded && <ManagerPageHeader title={translate(tools ? 'tools' : 'team')} icon={tools ? Boxes : UsersRound} />}
+      <ManagerSearchToolbar
+        label={translate(tools ? 'toolSearch' : 'memberSearch')}
+        placeholder={translate(tools ? 'toolSearchPlaceholder' : 'memberSearchPlaceholder')}
+        disabled={!valid}
+      />
+      {!valid ? (
+        <ManagerSection>
+          <ManagerDataTable
+            label={translate(tools ? 'tools' : 'team')}
+            items={[]}
+            rowKey={() => ''}
+            columns={[
+              { key: 'name', label: translate(tools ? 'application' : 'employee'), render: () => null },
+              { key: 'status', label: translate('status'), render: () => null },
+              { key: 'since', label: translate('since'), align: 'right', render: () => null }
+            ]}
+            emptyState={
+              <WorkspaceEmptyState title={translate('selectDepartment')} description={translate('departmentListGap')} />
+            }
+          />
+        </ManagerSection>
+      ) : (
+        <ManagerQueryState query={department} />
+      )}
+      {valid &&
+        !department.isError &&
+        department.data?.data &&
+        (tools ? (
+          <Tools
+            departmentId={departmentId ?? ''}
+            paging={paging}
+            onReturnCreated={onReturnCreated}
+            onOpenTool={onOpenTool}
+          />
+        ) : (
+          <Members departmentId={departmentId ?? ''} paging={paging} onOpenMember={onOpenMember} />
+        ))}
+    </div>
+  )
+}
+function Members({
+  departmentId,
+  paging,
+  onOpenMember
+}: {
+  departmentId: string
+  paging: ReturnType<typeof useManagerPage>
+  onOpenMember?: (member: DepartmentMembersResponseDtoDataItemsItem) => void
+}) {
+  const { t: translate } = useTranslation('manager')
+  const { formatDate } = useDashboardFormat()
+  const [params] = useSearchParams()
+  const search = params.get('search') ?? ''
+  const paged = useDepartmentMemberList(
+    departmentId,
+    { page: paging.page, pageSize: paging.pageSize },
+    { query: { enabled: !search } }
+  )
+  const index = useDepartmentMemberSearch(departmentId, !!search)
+  const query = search ? index : paged
+  const data = query.isError
+    ? undefined
+    : search
+      ? index.isSuccess
+        ? filterDepartmentPage(index.data, search, paging.page, paging.pageSize, (member) => [
+            member.fullName,
+            member.employeeCode
+          ])
+        : undefined
+      : paged.data?.data
+  return (
+    <ManagerSection>
+      {data && (
+        <div className='flex justify-end'>
+          <span className='font-mono text-xs text-muted-foreground tabular-nums'>
+            {translate('tableTotal', { count: data.pagination.totalItems })}
+          </span>
+        </div>
+      )}
+      <ManagerQueryState
+        query={query}
+        empty={!data?.items.length}
+        emptyTitle={translate(search ? 'noSearchResults' : 'noMembers')}
+        emptyDescription={translate(search ? 'noSearchResultsHint' : 'noMembersHint')}
+      />
+      <ManagerDataTable
+        label={translate('team')}
+        items={data?.items ?? []}
+        rowKey={(member) => member.employeeCode}
+        onOpen={onOpenMember}
+        columns={[
+          {
+            key: 'employee',
+            label: translate('employee'),
+            render: (member) => (
+              <div className='flex min-w-0 items-center gap-3'>
+                <span
+                  aria-hidden
+                  className='grid size-9 shrink-0 place-items-center rounded-md border border-primary/15 bg-primary-soft/50 text-primary-ink'
+                >
+                  <UsersRound strokeWidth={1.5} className='size-4' />
+                </span>
+                <div className='min-w-0'>
+                  {onOpenMember ? (
+                    <button
+                      type='button'
+                      onClick={() => onOpenMember(member)}
+                      className='max-w-64 truncate text-left font-medium text-foreground hover:text-primary transition-colors focus-visible:outline-2 focus-visible:outline-primary'
+                      title={member.fullName}
+                    >
+                      {member.fullName}
+                    </button>
+                  ) : (
+                    <p className='max-w-64 truncate font-medium' title={member.fullName}>
+                      {member.fullName}
+                    </p>
+                  )}
+                  <p className='mt-1 font-mono text-xs text-muted-foreground'>{member.employeeCode}</p>
+                </div>
+              </div>
+            )
+          },
+          { key: 'status', label: translate('status'), render: (member) => <ManagerStatus value={member.workState} /> },
+          {
+            key: 'since',
+            label: translate('since'),
+            render: (member) => (
+              <span className='font-mono text-xs tabular-nums text-muted-foreground'>
+                {formatDate(member.memberSince)}
+              </span>
+            )
+          }
+        ]}
+      />
+      <ManagerPagination pagination={data?.pagination} onPage={paging.onPage} busy={query.isFetching} />
+    </ManagerSection>
+  )
+}
+function Tools({
+  departmentId,
+  paging,
+  onReturnCreated,
+  onOpenTool
+}: {
+  departmentId: string
+  paging: ReturnType<typeof useManagerPage>
+  onReturnCreated?: (id: string) => void
+  onOpenTool?: (tool: DepartmentToolsResponseDtoDataItemsItem) => void
+}) {
+  const [returning, setReturning] = useState<DepartmentToolsResponseDtoDataItemsItem | null>(null)
+  const { t: translate } = useTranslation('manager')
+  const { formatDate } = useDashboardFormat()
+  const [params] = useSearchParams()
+  const search = params.get('search') ?? ''
+  const paged = useDepartmentToolsInUse(
+    departmentId,
+    { page: paging.page, pageSize: paging.pageSize },
+    { query: { enabled: !search } }
+  )
+  const index = useDepartmentToolSearch(departmentId, !!search)
+  const query = search ? index : paged
+  const data = query.isError
+    ? undefined
+    : search
+      ? index.isSuccess
+        ? filterDepartmentPage(index.data, search, paging.page, paging.pageSize, (item) => [
+            item.application.name,
+            item.plan.name,
+            item.fullName,
+            item.employeeCode,
+            item.assignmentId
+          ])
+        : undefined
+      : paged.data?.data
+  return (
+    <ManagerSection>
+      <ManagerQueryState
+        query={query}
+        empty={!data?.items.length}
+        emptyTitle={translate(search ? 'noSearchResults' : 'noTools')}
+        emptyDescription={translate(search ? 'noSearchResultsHint' : 'noToolsHint')}
+      />
+      <ManagerDataTable
+        label={translate('tools')}
+        items={data?.items ?? []}
+        rowKey={(assignment) => assignment.assignmentId}
+        onOpen={onOpenTool ?? ((item) => setReturning(item))}
+        columns={[
+          {
+            key: 'application',
+            label: translate('application'),
+            render: (item) => (
+              <div className='flex items-center gap-3'>
+                <span
+                  aria-hidden='true'
+                  className='grid size-8 shrink-0 place-items-center rounded-lg border border-primary/20 bg-primary-soft text-primary-ink'
+                >
+                  <Boxes strokeWidth={1.5} className='size-4' />
+                </span>
+                <div className='min-w-0'>
+                  {onOpenTool ? (
+                    <button
+                      type='button'
+                      onClick={() => onOpenTool(item)}
+                      className='max-w-56 truncate text-left font-medium text-foreground hover:text-primary transition-colors focus-visible:outline-2 focus-visible:outline-primary'
+                      title={item.application.name}
+                    >
+                      {item.application.name}
+                    </button>
+                  ) : (
+                    <p className='max-w-56 truncate font-medium text-foreground' title={item.application.name}>
+                      {item.application.name}
+                    </p>
+                  )}
+                  <p className='mt-0.5 max-w-56 truncate text-xs text-muted-foreground' title={item.plan.name}>
+                    {item.plan.name}
+                  </p>
+                </div>
+              </div>
+            )
+          },
+          {
+            key: 'employee',
+            label: translate('employee'),
+            render: (item) => (
+              <div>
+                <p className='max-w-48 truncate' title={item.fullName}>
+                  {item.fullName}
+                </p>
+                <p className='mt-1 font-mono text-xs text-muted-foreground'>{item.employeeCode}</p>
+              </div>
+            )
+          },
+          { key: 'kind', label: translate('kind'), render: (item) => <ManagerStatus value={item.kind} /> },
+          {
+            key: 'since',
+            label: translate('since'),
+            render: (item) => (
+              <span className='font-mono text-xs tabular-nums text-muted-foreground'>
+                {formatDate(item.effectiveFrom)}
+              </span>
+            )
+          }
+        ]}
+      />
+      <ManagerPagination pagination={data?.pagination} onPage={paging.onPage} busy={query.isFetching} />
+      {returning && (
+        <ManagerReturnForm
+          assignment={returning}
+          departmentId={departmentId}
+          onClose={() => setReturning(null)}
+          onCreated={onReturnCreated}
+        />
+      )}
+    </ManagerSection>
+  )
+}

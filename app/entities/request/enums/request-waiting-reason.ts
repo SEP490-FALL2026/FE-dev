@@ -1,0 +1,1 @@
+export { AccessRequestResponseDtoDataRequestNeedStepWaitingReason as REQUEST_WAITING_REASON } from '~/shared/api/generated/model/access-requests/accessRequestResponseDtoDataRequestNeedStepWaitingReason'

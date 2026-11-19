@@ -1,0 +1,1 @@
+﻿export { OffboardingDetailResponseDtoDataChecklistRevokeAccessState as ChecklistState } from '~/shared/api/generated/model/offboarding-cases/offboardingDetailResponseDtoDataChecklistRevokeAccessState'

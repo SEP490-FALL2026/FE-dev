@@ -1,0 +1,215 @@
+import { cloneElement, isValidElement, useId, useRef, type ReactNode, type FormEvent } from 'react'
+import { createPortal } from 'react-dom'
+import { LoaderCircle, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { useAdminRetryDelay } from '../lib/use-retry-delay'
+import { ModalLayerDepth, useModalLayer } from './use-modal-layer'
+
+export const adminInputClass =
+  'min-h-11 w-full rounded-md border border-border bg-background px-3 py-2 text-base text-foreground outline-none placeholder:text-muted-foreground transition-colors duration-150 hover:border-primary/40 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/25 disabled:cursor-not-allowed disabled:opacity-50 md:min-h-10 md:text-sm'
+const adminControlClass =
+  'inline-flex min-h-11 items-center justify-center gap-2 rounded-md border px-4 py-2 text-sm font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:cursor-not-allowed disabled:opacity-50 md:min-h-10'
+export const adminButtonClass = `${adminControlClass} border-border bg-surface hover:bg-surface-subtle enabled:active:border-primary/50 enabled:active:bg-primary-soft enabled:active:text-primary-ink aria-selected:border-primary/40 aria-selected:bg-primary-soft aria-selected:text-primary-ink aria-pressed:border-primary/40 aria-pressed:bg-primary-soft aria-pressed:text-primary-ink aria-expanded:border-primary/40 aria-expanded:bg-primary-soft`
+export const adminPrimaryClass = `${adminControlClass} border-transparent bg-primary text-primary-foreground hover:bg-primary-hover enabled:active:bg-primary-hover enabled:active:shadow-inner`
+const adminDangerClass = `${adminControlClass} border-danger bg-danger text-white hover:bg-danger/90`
+
+export function AdminField({
+  label,
+  children,
+  error,
+  description,
+  required: requiredOverride
+}: {
+  label: string
+  children: ReactNode
+  error?: string
+  description?: string
+  required?: boolean
+}) {
+  const descriptionId = useId()
+  const errorId = useId()
+  const control = isValidElement<{
+    required?: boolean
+    disabled?: boolean
+    readOnly?: boolean
+    'aria-label'?: string
+    'aria-describedby'?: string
+    descriptionId?: string
+  }>(children)
+    ? children
+    : null
+  const describedBy =
+    [
+      control?.props['aria-describedby'] ?? control?.props.descriptionId,
+      description ? descriptionId : undefined,
+      error ? errorId : undefined
+    ]
+      .filter(Boolean)
+      .join(' ') || undefined
+  const required = !control?.props.disabled && !control?.props.readOnly && (requiredOverride ?? control?.props.required)
+  return (
+    <label className='grid min-w-0 content-start gap-1.5 text-sm font-medium'>
+      <span>
+        {label}
+        {required && (
+          <span aria-hidden='true' className='ml-1 text-danger'>
+            *
+          </span>
+        )}
+      </span>
+      {control && typeof control.type === 'string'
+        ? cloneElement(control, {
+            'aria-label': control.props['aria-label'] ?? label,
+            'aria-describedby': describedBy
+          })
+        : control
+          ? cloneElement(control, { descriptionId: describedBy })
+          : children}
+      {description && (
+        <span id={descriptionId} className='text-xs font-normal leading-relaxed text-muted-foreground'>
+          {description}
+        </span>
+      )}
+      {error && (
+        <span id={errorId} className='min-h-5 text-xs text-danger'>
+          {error}
+        </span>
+      )}
+    </label>
+  )
+}
+
+export function AdminFormDialog({
+  title,
+  children,
+  onClose,
+  onSubmit,
+  pending,
+  submitLabel,
+  submitDisabled = false,
+  page = false,
+  wide = false,
+  danger = false
+}: {
+  title: string
+  children: ReactNode
+  onClose: () => void
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void
+  pending: boolean
+  submitLabel?: string
+  submitDisabled?: boolean
+  page?: boolean
+  wide?: boolean
+  danger?: boolean
+}) {
+  const { t: translate } = useTranslation('admin')
+  const titleId = useId()
+  const retrySeconds = useAdminRetryDelay()
+  const panelRef = useRef<HTMLDivElement>(null)
+  const layerRef = useRef<HTMLDivElement>(null)
+  const depth = useModalLayer(layerRef, !page)
+  const submittingRef = useRef(false)
+  const content = (
+    <ModalLayerDepth value={depth + 1}>
+      <div
+        ref={layerRef}
+        className={
+          page
+            ? 'mx-auto w-full max-w-5xl'
+            : `fixed inset-0 z-50 flex bg-foreground/40 ${wide ? 'justify-end' : 'items-end justify-center md:items-center md:p-5'}`
+        }
+      >
+        <div
+          aria-labelledby={titleId}
+          aria-modal={page ? undefined : true}
+          aria-busy={pending}
+          role={page ? 'region' : 'dialog'}
+          ref={panelRef}
+          tabIndex={-1}
+          className={
+            page
+              ? 'flex w-full flex-col rounded-lg border border-border bg-surface outline-none'
+              : `flex max-h-[95dvh] min-h-0 w-full flex-col overflow-hidden border border-border bg-surface shadow-xl outline-none ${wide ? 'h-dvh md:max-w-[640px]' : 'rounded-t-lg md:max-w-lg md:rounded-lg'}`
+          }
+          onKeyDown={(event) => {
+            if (page) return
+            if (event.key === 'Escape') {
+              event.stopPropagation()
+              if (!pending) onClose()
+            }
+            if (event.key !== 'Tab') return
+            event.stopPropagation()
+            const controls = panelRef.current?.querySelectorAll<HTMLElement>(
+              'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex="0"]'
+            )
+            const first = controls?.[0]
+            const last = controls?.[controls.length - 1]
+            if (event.shiftKey && (document.activeElement === first || document.activeElement === panelRef.current)) {
+              event.preventDefault()
+              last?.focus()
+            } else if (!event.shiftKey && document.activeElement === last) {
+              event.preventDefault()
+              first?.focus()
+            }
+          }}
+        >
+          <header className='flex shrink-0 items-center justify-between border-b border-border p-5'>
+            <h2 id={titleId} className='text-lg font-semibold [text-wrap:balance]'>
+              {title}
+            </h2>
+            <button
+              aria-label={translate('close')}
+              type='button'
+              disabled={pending}
+              className='grid size-11 place-items-center rounded-md hover:bg-surface-subtle'
+              onClick={onClose}
+            >
+              <X aria-hidden strokeWidth={1.5} className='size-5' />
+            </button>
+          </header>
+          <form
+            className='flex min-h-0 flex-1 flex-col'
+            onSubmit={(event) => {
+              event.stopPropagation()
+              if (pending || submitDisabled || retrySeconds > 0 || submittingRef.current) {
+                event.preventDefault()
+                return
+              }
+              submittingRef.current = true
+              queueMicrotask(() => {
+                submittingRef.current = false
+              })
+              onSubmit(event)
+            }}
+          >
+            <div className={page ? 'min-w-0' : 'min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto'}>
+              <fieldset disabled={pending} className='grid min-w-0 grid-cols-[minmax(0,1fr)] content-start gap-4 p-5'>
+                {children}
+              </fieldset>
+            </div>
+            <footer className='flex shrink-0 justify-end gap-3 border-t border-border bg-surface p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]'>
+              <button type='button' disabled={pending} onClick={onClose} className={adminButtonClass}>
+                {translate('cancel')}
+              </button>
+              <button
+                type='submit'
+                disabled={pending || submitDisabled || retrySeconds > 0}
+                aria-busy={pending}
+                className={danger ? adminDangerClass : adminPrimaryClass}
+              >
+                {pending && <LoaderCircle aria-hidden className='size-4 animate-spin' strokeWidth={1.5} />}
+                {pending
+                  ? translate('saving')
+                  : retrySeconds > 0
+                    ? translate('retryIn', { count: retrySeconds })
+                    : (submitLabel ?? translate('save'))}
+              </button>
+            </footer>
+          </form>
+        </div>
+      </div>
+    </ModalLayerDepth>
+  )
+  if (page) return content
+  return typeof document === 'undefined' ? null : createPortal(content, document.body)
+}

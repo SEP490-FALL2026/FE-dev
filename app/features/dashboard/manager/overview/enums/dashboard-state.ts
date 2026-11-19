@@ -1,0 +1,1 @@
+export { ManagerDashboardResponseDtoDataSectionsDepartmentSoftwareState as DASHBOARD_STATE } from '~/shared/api/generated/model/dashboards/managerDashboardResponseDtoDataSectionsDepartmentSoftwareState'

@@ -1,0 +1,22 @@
+.admin-overview-hero {
+  color: #ffffff;
+  background: linear-gradient(120deg, var(--theme-hero) 0%, var(--theme-hero-deep) 100%);
+  box-shadow: 0 12px 32px color-mix(in oklab, var(--theme-hero) 24%, transparent);
+}
+/* Accents inside the indigo band: peach progress and mint success stay legible on the brand colour. */
+:root:not([data-theme='dark']) .admin-overview-hero {
+  --theme-primary: #ffb487;
+  --theme-primary-soft: rgb(255 255 255 / 16%);
+  --theme-success: #7be0b0;
+}
+
+[data-theme='dark'] .admin-overview-hero {
+  color: var(--theme-foreground);
+  background: color-mix(in oklab, var(--theme-surface) 80%, var(--theme-primary));
+}
+
+.admin-overview-surface {
+  background: var(--theme-surface);
+  border: 1px solid color-mix(in oklab, var(--theme-foreground) 12%, transparent);
+  box-shadow: 0 1px 3px color-mix(in oklab, var(--theme-foreground) 4%, transparent);
+}

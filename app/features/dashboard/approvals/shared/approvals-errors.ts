@@ -1,0 +1,69 @@
+import { isAxiosError } from 'axios'
+import type { approvals } from '~/shared/i18n/locales/en/approvals'
+
+type ApprovalsErrorKey = keyof typeof approvals.errors
+const errorKeys: Partial<Record<string, ApprovalsErrorKey>> = {
+  'AUTHORIZATION.FORBIDDEN': 'forbidden',
+  'SPEND.NOT_THE_ASSIGNEE': 'forbidden',
+  'BUDGET.NOT_SPENDING_APPROVER': 'forbidden',
+  'ACCESS_REQUEST.NOT_THE_ASSIGNEE': 'forbidden',
+  'SPEND.OWN_REQUEST': 'ownRequest',
+  'ACCESS_REQUEST.OWN_REQUEST': 'ownRequest',
+  'BUDGET.OWN_VERSION': 'ownVersion',
+  'BUDGET.CONFLICT_OF_INTEREST': 'conflictOfInterest',
+  'SPEND.RECHECKED_RETURNED_TO_HEAD': 'recheckedHead',
+  'SPEND.RECHECKED_RETURNED_TO_REQUESTER': 'recheckedRequester',
+  'SPEND.NO_SPEND_STEP': 'conflict',
+  'SPEND.NOT_CHECKABLE': 'conflict',
+  'BUDGET.VERSION_NOT_SENT': 'conflict',
+  'BUDGET.YEAR_ENDED': 'yearEnded',
+  'GROUP_REQUEST.LINES_MISMATCH': 'linesMismatch',
+  'GROUP_REQUEST.LINE_HOLDS_ACCESS': 'lineHoldsAccess',
+  'ACCESS_REQUEST.GROUP_USES_LINES': 'groupUsesLines',
+  'ACCESS_REQUEST.STEP_NOT_PENDING': 'stepNotPending',
+  'ACCESS_REQUEST.SPEND_NOT_APPLICABLE': 'spendNotApplicable',
+  'ACCESS_REQUEST.TERM_CONFIRMATION_REQUIRED': 'termConfirmation',
+  'ACCESS_REQUEST.PLAN_LINE_REQUIRED': 'planLineRequired',
+  'ACCESS_REQUEST.STILL_NEEDED_REQUIRED': 'stillNeeded',
+  'POLICY.CHECKLIST_INCOMPLETE': 'checklistIncomplete',
+  'POLICY.CHECKLIST_HAS_NO': 'checklistHasNo',
+  'POLICY.VERSION_CHANGED': 'versionChanged',
+  'POLICY.NOT_IN_FORCE': 'policyNotInForce',
+  'BUDGET_VERSION.OVER_CEILING': 'overCeiling',
+  'BUDGET_ADJUSTMENT.ALREADY_DECIDED': 'adjustmentDecided',
+  'BUDGET_ADJUSTMENT.BELOW_FORECAST_FLOOR': 'adjustmentRecheck',
+  'BUDGET_ADJUSTMENT.NO_BUDGET': 'adjustmentRecheck',
+  'BUDGET_ADJUSTMENT.OVER_BASE': 'adjustmentRecheck',
+  'BUDGET_ADJUSTMENT.OVER_REMAINING': 'adjustmentRecheck',
+  'BUDGET_ADJUSTMENT.OVER_UNALLOCATED': 'adjustmentRecheck',
+  'BUDGET_ADJUSTMENT.BUDGET_IN_PREPARATION': 'adjustmentBlocked',
+  'BUDGET_ADJUSTMENT.CYCLE_NOT_LOCKED': 'adjustmentBlocked',
+  'BUDGET_ADJUSTMENT.VERSION_IN_FLIGHT': 'adjustmentBlocked',
+  VALIDATION_ERROR: 'validation',
+  HTTP_TOO_MANY_REQUESTS: 'rateLimit'
+}
+
+export function getApprovalsError(error: unknown): { key: ApprovalsErrorKey; ambiguous: boolean; requestId?: string } {
+  const response = isAxiosError(error) ? error.response : undefined
+  const body = response?.data as { error?: { code?: string; requestId?: string } } | undefined
+  const status = response?.status
+  const fallback =
+    status === undefined
+      ? 'network'
+      : status === 403
+        ? 'forbidden'
+        : status === 404
+          ? 'notFound'
+          : status === 409
+            ? 'conflict'
+            : status === 422
+              ? 'validation'
+              : status === 429
+                ? 'rateLimit'
+                : 'unavailable'
+  return {
+    key: errorKeys[body?.error?.code ?? ''] ?? fallback,
+    ambiguous: status === undefined || status >= 500,
+    requestId: body?.error?.requestId
+  }
+}

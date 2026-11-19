@@ -1,0 +1,124 @@
+import { useState } from 'react'
+import { useSearchParams } from 'react-router'
+import { LeaveDetail } from './leave-detail'
+import { useTranslation } from 'react-i18next'
+import {
+  useLongLeaveList,
+  getLongLeaveListQueryKey
+} from '~/shared/api/generated/operations/long-leaves/long-leave-list'
+import { useLongLeaveChangeReturnDate } from '~/shared/api/generated/operations/long-leaves/long-leave-change-return-date'
+import { useLongLeaveConfirmReturn } from '~/shared/api/generated/operations/long-leaves/long-leave-confirm-return'
+import { AdminQueryState } from '../../shared/components/admin-query-state'
+import { AdminPagination } from '../../shared/components/admin-pagination'
+import { adminButtonClass } from '../../shared/components/admin-form'
+import { AdminSectionTitle } from '../../shared/components/admin-page-header'
+import { usePersonnelMutationFeedback } from '../../shared/hooks/use-personnel-mutation-feedback'
+import { useDashboardFormat } from '../../../dashboard-ui'
+import { PersonnelForm, value } from '../../shared/components/personnel-form'
+import { PersonnelCard, PersonnelCode, PersonnelList } from '../../shared/components/personnel-list'
+import { activeLeave, leaveStatuses } from '../enums/leave-status'
+
+type Action = { kind: 'change' | 'return'; id: string }
+export function LeavePanel() {
+  const { t: translate } = useTranslation('adminPersonnel')
+  const { formatDate } = useDashboardFormat()
+  const [page, setPage] = useState(1)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const selectedId = searchParams.get('longLeaveId')
+  const select = (id: string | null) =>
+    setSearchParams((previous) => {
+      const next = new URLSearchParams(previous)
+      if (id) next.set('longLeaveId', id)
+      else next.delete('longLeaveId')
+      return next
+    })
+  const [action, setAction] = useState<Action | null>(null)
+  const query = useLongLeaveList({ page, pageSize: 20, status: activeLeave }, { query: { enabled: !selectedId } })
+  const feedback = usePersonnelMutationFeedback([getLongLeaveListQueryKey()], () => setAction(null))
+  const change = useLongLeaveChangeReturnDate({ mutation: { ...feedback, retry: false } })
+  const confirm = useLongLeaveConfirmReturn({ mutation: { ...feedback, retry: false } })
+  const pending = change.isPending || confirm.isPending
+  const data = query.data?.data
+  return (
+    <section className='space-y-5'>
+      {selectedId ? (
+        <LeaveDetail
+          key={selectedId}
+          id={selectedId}
+          onClose={() => select(null)}
+          onAction={(kind) => setAction({ kind, id: selectedId })}
+        />
+      ) : (
+        <>
+          <AdminSectionTitle
+            title={translate('ui.leavesTitle')}
+            hint={data ? translate('ui.recordCount', { count: data.pagination.totalItems }) : undefined}
+          />
+          <AdminQueryState query={query}>
+            <PersonnelList empty={!data?.items.length}>
+              {data?.items.map((item) => (
+                <PersonnelCard
+                  key={item.id}
+                  title={item.employee.fullName}
+                  actions={
+                    <>
+                      <button type='button' className={adminButtonClass} onClick={() => select(item.id)}>
+                        {translate('details.view')}
+                      </button>
+                      {item.status === activeLeave ? (
+                        <>
+                          <button
+                            className={adminButtonClass}
+                            onClick={() => setAction({ kind: 'change', id: item.id })}
+                          >
+                            {translate('changeReturn')}
+                          </button>
+                          <button
+                            className={adminButtonClass}
+                            onClick={() => setAction({ kind: 'return', id: item.id })}
+                          >
+                            {translate('confirmReturn')}
+                          </button>
+                        </>
+                      ) : undefined}
+                    </>
+                  }
+                >
+                  <p className='font-mono tabular-nums'>
+                    {translate('leaveDates', {
+                      start: formatDate(item.startedOn),
+                      end: formatDate(item.approvedReturnOn)
+                    })}
+                  </p>
+                  <PersonnelCode code={item.status} values={leaveStatuses} />
+                  {item.overdueReturn && <p className='text-warning'>{translate('overdue')}</p>}
+                </PersonnelCard>
+              ))}
+            </PersonnelList>
+            <AdminPagination pagination={data?.pagination} onPageChange={setPage} disabled={query.isFetching} />
+          </AdminQueryState>
+        </>
+      )}
+      {action && (
+        <PersonnelForm
+          title={translate(action.kind === 'change' ? 'changeReturn' : 'confirmReturn')}
+          pending={pending}
+          basis='note'
+          onClose={() => setAction(null)}
+          fields={[{ name: action.kind === 'change' ? 'newApprovedReturnOn' : 'returnedOn', type: 'date' }]}
+          onSubmit={(values) => {
+            if (pending) return
+            const groundsNote = value(values, 'groundsNote')
+            if (action.kind === 'change')
+              change.mutate({
+                id: action.id,
+                data: { newApprovedReturnOn: value(values, 'newApprovedReturnOn'), groundsNote }
+              })
+            else if (action.id)
+              confirm.mutate({ id: action.id, data: { returnedOn: value(values, 'returnedOn'), groundsNote } })
+          }}
+        />
+      )}
+    </section>
+  )
+}

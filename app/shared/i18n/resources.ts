@@ -1,0 +1,185 @@
+import { requestFlow as enRequestFlow } from './locales/en/request-flow'
+import { requestFlow as viRequestFlow } from './locales/vi/request-flow'
+import { policy as enPolicy } from './locales/en/policy'
+import { policy as viPolicy } from './locales/vi/policy'
+import { auth as enAuth } from './locales/en/auth'
+import { approvals as enApprovals } from './locales/en/approvals'
+import { approvalsBudget as enApprovalsBudget } from './locales/en/approvals-budget'
+import { approvalsSpend as enApprovalsSpend } from './locales/en/approvals-spend'
+import { approvalsNeed as enApprovalsNeed } from './locales/en/approvals-need'
+import { finance as enFinance } from './locales/en/finance'
+import { financeBudget as enFinanceBudget } from './locales/en/finance-budget'
+import { financeReview as enFinanceReview } from './locales/en/finance-review'
+import { financePurchases as enFinancePurchases } from './locales/en/finance-purchases'
+import { financeRequests as enFinanceRequests } from './locales/en/finance-requests'
+import { financeSettings as enFinanceSettings } from './locales/en/finance-settings'
+import { admin as enAdmin } from './locales/en/admin'
+import { adminAccounts as enAdminAccounts } from './locales/en/admin-accounts'
+import { adminOrganization as enAdminOrganization } from './locales/en/admin-organization'
+import { adminPersonnel as enAdminPersonnel } from './locales/en/admin-personnel'
+import { common as enCommon } from './locales/en/common'
+import { dashboard as enDashboard } from './locales/en/dashboard'
+import { errors as enErrors } from './locales/en/errors'
+import { landing as enLanding } from './locales/en/landing'
+import { notFound as enNotFound } from './locales/en/not-found'
+import { policyAcknowledgement as enPolicyAcknowledgement } from './locales/en/policy-acknowledgement'
+import { theme as enTheme } from './locales/en/theme'
+import { auth as viAuth } from './locales/vi/auth'
+import { approvals as viApprovals } from './locales/vi/approvals'
+import { approvalsBudget as viApprovalsBudget } from './locales/vi/approvals-budget'
+import { approvalsSpend as viApprovalsSpend } from './locales/vi/approvals-spend'
+import { approvalsNeed as viApprovalsNeed } from './locales/vi/approvals-need'
+import { finance as viFinance } from './locales/vi/finance'
+import { financeBudget as viFinanceBudget } from './locales/vi/finance-budget'
+import { financeReview as viFinanceReview } from './locales/vi/finance-review'
+import { financePurchases as viFinancePurchases } from './locales/vi/finance-purchases'
+import { financeRequests as viFinanceRequests } from './locales/vi/finance-requests'
+import { financeSettings as viFinanceSettings } from './locales/vi/finance-settings'
+import { admin as viAdmin } from './locales/vi/admin'
+import { adminAccounts as viAdminAccounts } from './locales/vi/admin-accounts'
+import { adminOrganization as viAdminOrganization } from './locales/vi/admin-organization'
+import { adminPersonnel as viAdminPersonnel } from './locales/vi/admin-personnel'
+import { common as viCommon } from './locales/vi/common'
+import { dashboard as viDashboard } from './locales/vi/dashboard'
+import { errors as viErrors } from './locales/vi/errors'
+import { landing as viLanding } from './locales/vi/landing'
+import { notFound as viNotFound } from './locales/vi/not-found'
+import { policyAcknowledgement as viPolicyAcknowledgement } from './locales/vi/policy-acknowledgement'
+import { theme as viTheme } from './locales/vi/theme'
+import { itAdmin as enItAdmin } from './locales/en/it-admin'
+import { itDepartmentWork as enItDepartmentWork } from './locales/en/it-department-work'
+import { itDepartmentWork as viItDepartmentWork } from './locales/vi/it-department-work'
+import { itRenewals as enItRenewals } from './locales/en/it-renewals'
+import { itRenewals as viItRenewals } from './locales/vi/it-renewals'
+import { itPurchases as enItPurchases } from './locales/en/it-purchases'
+import { itPurchases as viItPurchases } from './locales/vi/it-purchases'
+import { itTransfers as enItTransfers } from './locales/en/it-transfers'
+import { itTransfers as viItTransfers } from './locales/vi/it-transfers'
+import { itAdmin as viItAdmin } from './locales/vi/it-admin'
+import { itProvisioning as enItProvisioning } from './locales/en/it-provisioning'
+import { itProvisioning as viItProvisioning } from './locales/vi/it-provisioning'
+import { itCatalog as enItCatalog } from './locales/en/it-catalog'
+import { itCatalog as viItCatalog } from './locales/vi/it-catalog'
+import { itOffboarding as enItOffboarding } from './locales/en/it-offboarding'
+import { itOffboarding as viItOffboarding } from './locales/vi/it-offboarding'
+import { itIssues as enItIssues } from './locales/en/it-issues'
+import { itIssues as viItIssues } from './locales/vi/it-issues'
+import { itNewSoftware as enItNewSoftware } from './locales/en/it-new-software'
+import { itNewSoftware as viItNewSoftware } from './locales/vi/it-new-software'
+import { employee as enEmployee } from './locales/en/employee'
+import { employee as viEmployee } from './locales/vi/employee'
+import { manager as enManager } from './locales/en/manager'
+import { manager as viManager } from './locales/vi/manager'
+import { itDevices as enItDevices } from './locales/en/it-devices'
+import { itDevices as viItDevices } from './locales/vi/it-devices'
+import { devicePrivacy as enDevicePrivacy } from './locales/en/device-privacy'
+import { devicePrivacy as viDevicePrivacy } from './locales/vi/device-privacy'
+
+import { itDepartmentSoftware as enItDepartmentSoftware } from './locales/en/it-department-software'
+import { itDepartmentSoftware as viItDepartmentSoftware } from './locales/vi/it-department-software'
+import { itInvoices as enItInvoices } from './locales/en/it-invoices'
+import { itInvoices as viItInvoices } from './locales/vi/it-invoices'
+import { itOptimization as enItOptimization } from './locales/en/it-optimization'
+import { itOptimization as viItOptimization } from './locales/vi/it-optimization'
+import { itReconciliation as enItReconciliation } from './locales/en/it-reconciliation'
+import { itReconciliation as viItReconciliation } from './locales/vi/it-reconciliation'
+import { itPlaceholders as enItPlaceholders } from './locales/en/it-placeholders'
+import { itPlaceholders as viItPlaceholders } from './locales/vi/it-placeholders'
+
+export { defaultNS } from './resource-config'
+
+export const resources = {
+  en: {
+    itReconciliation: enItReconciliation,
+    itPlaceholders: enItPlaceholders,
+    itOptimization: enItOptimization,
+    itInvoices: enItInvoices,
+    itDepartmentSoftware: enItDepartmentSoftware,
+    requestFlow: enRequestFlow,
+    policy: enPolicy,
+    devicePrivacy: enDevicePrivacy,
+    itDepartmentWork: enItDepartmentWork,
+    itDevices: enItDevices,
+    itRenewals: enItRenewals,
+    itPurchases: enItPurchases,
+    itTransfers: enItTransfers,
+    approvals: enApprovals,
+    approvalsBudget: enApprovalsBudget,
+    approvalsSpend: enApprovalsSpend,
+    approvalsNeed: enApprovalsNeed,
+    finance: enFinance,
+    financeBudget: enFinanceBudget,
+    financeReview: enFinanceReview,
+    financePurchases: enFinancePurchases,
+    financeRequests: enFinanceRequests,
+    financeSettings: enFinanceSettings,
+    itNewSoftware: enItNewSoftware,
+    itAdmin: enItAdmin,
+    itProvisioning: enItProvisioning,
+    itCatalog: enItCatalog,
+    itOffboarding: enItOffboarding,
+    itIssues: enItIssues,
+    manager: enManager,
+    employee: enEmployee,
+    admin: enAdmin,
+    adminAccounts: enAdminAccounts,
+    adminOrganization: enAdminOrganization,
+    adminPersonnel: enAdminPersonnel,
+    auth: enAuth,
+    common: enCommon,
+    dashboard: enDashboard,
+    errors: enErrors,
+    landing: enLanding,
+    notFound: enNotFound,
+    policyAcknowledgement: enPolicyAcknowledgement,
+    theme: enTheme
+  },
+  vi: {
+    itReconciliation: viItReconciliation,
+    itPlaceholders: viItPlaceholders,
+    itOptimization: viItOptimization,
+    itInvoices: viItInvoices,
+    itDepartmentSoftware: viItDepartmentSoftware,
+    requestFlow: viRequestFlow,
+    policy: viPolicy,
+    devicePrivacy: viDevicePrivacy,
+    itDepartmentWork: viItDepartmentWork,
+    itDevices: viItDevices,
+    itRenewals: viItRenewals,
+    itPurchases: viItPurchases,
+    itTransfers: viItTransfers,
+    approvals: viApprovals,
+    approvalsBudget: viApprovalsBudget,
+    approvalsSpend: viApprovalsSpend,
+    approvalsNeed: viApprovalsNeed,
+    finance: viFinance,
+    financeBudget: viFinanceBudget,
+    financeReview: viFinanceReview,
+    financePurchases: viFinancePurchases,
+    financeRequests: viFinanceRequests,
+    financeSettings: viFinanceSettings,
+    itNewSoftware: viItNewSoftware,
+    itAdmin: viItAdmin,
+    itProvisioning: viItProvisioning,
+    itCatalog: viItCatalog,
+    itOffboarding: viItOffboarding,
+    itIssues: viItIssues,
+    manager: viManager,
+    employee: viEmployee,
+    admin: viAdmin,
+    adminAccounts: viAdminAccounts,
+    adminOrganization: viAdminOrganization,
+    adminPersonnel: viAdminPersonnel,
+    auth: viAuth,
+    common: viCommon,
+    dashboard: viDashboard,
+    errors: viErrors,
+    landing: viLanding,
+    notFound: viNotFound,
+    policyAcknowledgement: viPolicyAcknowledgement,
+    theme: viTheme
+  }
+} as const
+
+export type SupportedLanguage = keyof typeof resources
+export type TranslationNamespace = keyof (typeof resources)['vi']

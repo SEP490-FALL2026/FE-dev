@@ -1,0 +1,282 @@
+import { motion, useReducedMotion } from 'motion/react'
+import { lazy, Suspense, useState, useSyncExternalStore } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useLocation, useNavigate, useSearchParams } from 'react-router'
+
+import type { UserRole } from '~/entities/user-role/user-role'
+import { useDocumentTitle } from '~/shared/lib/use-document-title'
+import { useMeGet } from '~/shared/api/generated/operations/me/me-get'
+import { LoadingIndicator } from '~/shared/ui/page-loading'
+import { getAuthState, subscribeAuthSession } from '../auth/auth-session'
+import { PolicyAcknowledgementGate } from '~/entities/policy/components/policy-acknowledgement-gate'
+
+import { DashboardHeader } from './components/dashboard-header'
+import { DashboardSidebar } from './components/dashboard-sidebar'
+import './components/dashboard-shell.css'
+
+// Role views
+import { getParentMenuKey, isValidItAdminTab, type ItAdminTabKey, ItAdminScreen } from './it-admin'
+
+import { EmployeeScreen, getParentEmployeeMenuKey, isValidEmployeeTab, type EmployeeTabKey } from './employee'
+
+import { getParentApprovalMenuKey, isValidApprovalTab, type ApprovalTabKey, ApprovalScreen } from './approvals'
+
+import { isValidFinanceTab, type FinanceTabKey, FinanceScreen } from './finance'
+
+import { getParentManagerMenuKey, isValidManagerTab, type ManagerTabKey, ManagerScreen } from './manager'
+import './manager/manager-workspace.css'
+
+import { isValidSuperAdminTab, type SuperAdminTabKey, SuperAdminScreen } from './super-admin'
+
+const DefaultDashboardView = lazy(() =>
+  import('./components/default-dashboard-view').then((module) => ({ default: module.DefaultDashboardView }))
+)
+
+export function DashboardPage({ role }: { role: UserRole }) {
+  const { i18n, t } = useTranslation('dashboard')
+  const { t: tErrors } = useTranslation('errors')
+  const shouldReduceMotion = useReducedMotion()
+  const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false)
+  const auth = useSyncExternalStore(subscribeAuthSession, getAuthState, getAuthState)
+  const fullName = auth.session?.user.employee.fullName ?? ''
+  const profile = {
+    displayName: fullName,
+    initials: fullName
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((part) => part[0])
+      .slice(-2)
+      .join('')
+  }
+  const locale = i18n.resolvedLanguage === 'en' ? 'en-US' : 'vi-VN'
+
+  const isItAdmin = role === 'it-admin'
+  const isEmployee = role === 'employee'
+  const isFinance = role === 'finance'
+  const isManager = role === 'manager'
+  const isApprover = role === 'spending-approver'
+  const isSuperAdmin = role === 'super-admin'
+  const me = useMeGet({ query: { enabled: isManager || isEmployee, refetchInterval: 12 * 60 * 1000 } })
+  const managerSelfService =
+    isManager && !me.isError && !!me.data?.data && me.data.data.roles.includes('MANAGER') && !me.data.data.managerScope
+
+  const [searchParams, setSearchParams] = useSearchParams()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const tabParam = searchParams.get('tab')
+
+  // IT Admin Tabs
+  const activeTab: ItAdminTabKey = isItAdmin && isValidItAdminTab(tabParam) ? tabParam : 'overview'
+  const activeParent = isItAdmin ? getParentMenuKey(activeTab) : 'overview'
+
+  const personalTab =
+    tabParam === 'personal-request' ? 'create-request' : tabParam === 'request-approval' ? 'request-detail' : tabParam
+  const managerBudget =
+    isManager && (tabParam === 'annual-budget' || location.pathname.startsWith('/dashboard/manager/annual-budget/'))
+  const managerPersonal =
+    managerSelfService && !managerBudget && (personalTab === null || isValidEmployeeTab(personalTab))
+
+  // Employee Tabs
+  const activeEmployeeTab: EmployeeTabKey =
+    (isEmployee || managerPersonal) && isValidEmployeeTab(personalTab) ? personalTab : 'overview'
+  const activeEmployeeParent =
+    isEmployee || managerSelfService ? getParentEmployeeMenuKey(activeEmployeeTab) : 'overview'
+
+  // Manager Tabs
+  const managerFormPage = isManager && location.pathname.startsWith('/dashboard/manager/annual-budget/')
+  const activeManagerTab: ManagerTabKey = managerFormPage
+    ? 'annual-budget'
+    : isManager && isValidManagerTab(tabParam)
+      ? tabParam
+      : 'overview'
+  const activeManagerParent = isManager
+    ? getParentManagerMenuKey(activeManagerTab, searchParams.get('from'))
+    : 'overview'
+
+  // Approval Tabs
+  const activeApprovalTab: ApprovalTabKey = isApprover && isValidApprovalTab(tabParam) ? tabParam : 'overview'
+  const activeApprovalParent = isApprover ? getParentApprovalMenuKey(activeApprovalTab) : 'overview'
+
+  // Finance Tabs
+  const activeFinanceTab: FinanceTabKey = isFinance && isValidFinanceTab(tabParam) ? tabParam : 'overview'
+
+  // Super Admin Tabs
+  const personnelFormPage = isSuperAdmin && location.pathname.startsWith('/dashboard/super-admin/personnel/')
+  const activeSuperAdminTab: SuperAdminTabKey = personnelFormPage
+    ? 'personnel'
+    : isSuperAdmin && isValidSuperAdminTab(tabParam)
+      ? tabParam
+      : 'overview'
+
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    licenses: true,
+    optimize: true,
+    'software-catalog': true,
+    people: true,
+    'usage-sources': true
+  })
+
+  const toggleSection = (key: string) => {
+    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }))
+  }
+
+  const updateTab = (tab: string, extraParams?: Record<string, string>) => {
+    const nextParams = new URLSearchParams()
+    if (tab !== 'overview') {
+      nextParams.set('tab', tab)
+    }
+    if (extraParams) {
+      Object.entries(extraParams).forEach(([k, v]) => nextParams.set(k, v))
+    }
+    if (personnelFormPage) void navigate({ pathname: '/dashboard/super-admin', search: nextParams.toString() })
+    else if (managerSelfService && location.pathname !== '/dashboard/manager')
+      void navigate({ pathname: '/dashboard/manager', search: nextParams.toString() })
+    else setSearchParams(nextParams)
+    setMobileNavigationOpen(false)
+  }
+
+  const handleSelectTab = (tab: ItAdminTabKey, extraParams?: Record<string, string>) => updateTab(tab, extraParams)
+  const handleSelectEmployeeTab = (tab: EmployeeTabKey, extraParams?: Record<string, string>) =>
+    updateTab(tab, extraParams)
+  const handleSelectManagerTab = (tab: ManagerTabKey, extraParams?: Record<string, string>) => {
+    const departmentId = searchParams.get('departmentId')
+    const next = new URLSearchParams({
+      ...(departmentId ? { departmentId } : {}),
+      ...(tab === 'overview' ? {} : { tab }),
+      ...extraParams
+    })
+    if (managerFormPage) void navigate({ pathname: '/dashboard/manager', search: next.toString() })
+    else setSearchParams(next)
+    setMobileNavigationOpen(false)
+  }
+  const handleSelectApprovalTab = (tab: ApprovalTabKey, extraParams?: Record<string, string>) =>
+    updateTab(tab, extraParams)
+  const handleSelectFinanceTab = (tab: FinanceTabKey, extraParams?: Record<string, string>) =>
+    updateTab(tab, extraParams)
+  const handleSelectSuperAdminTab = (tab: SuperAdminTabKey, extraParams?: Record<string, string>) =>
+    updateTab(tab, extraParams)
+
+  const formatCurrency = (value: number) =>
+    new Intl.NumberFormat(locale, { currency: 'VND', maximumFractionDigits: 0, style: 'currency' }).format(value)
+  const formatCompact = (value: number) =>
+    new Intl.NumberFormat(locale, { maximumFractionDigits: 1, notation: 'compact' }).format(value)
+  const formatNumber = (value: number) => new Intl.NumberFormat(locale).format(value)
+  const formatDate = (value: string) =>
+    new Intl.DateTimeFormat(locale, { day: '2-digit', month: '2-digit', year: 'numeric' }).format(
+      new Date(`${value}T00:00:00`)
+    )
+  const formatMonth = (value: string) =>
+    new Intl.DateTimeFormat(locale, { month: 'short' }).format(new Date(`${value}T00:00:00`))
+
+  useDocumentTitle(t('documentTitle'))
+
+  return (
+    <div className='dashboard-shell flex h-screen overflow-hidden'>
+      <DashboardSidebar
+        employeeSelfServiceOnly={false}
+        managerSelfService={managerSelfService}
+        managerUpcomingBudget={managerSelfService && !!me.data?.data?.upcomingUnits.length}
+        activeApprovalParent={activeApprovalParent}
+        activeApprovalTab={activeApprovalTab}
+        activeEmployeeParent={activeEmployeeParent}
+        activeEmployeeTab={activeEmployeeTab}
+        activeFinanceTab={activeFinanceTab}
+        activeManagerParent={activeManagerParent}
+        activeManagerTab={activeManagerTab}
+        activeParent={activeParent}
+        activeSuperAdminTab={activeSuperAdminTab}
+        activeTab={activeTab}
+        mobileNavigationOpen={mobileNavigationOpen}
+        onCloseMobileNavigation={() => setMobileNavigationOpen(false)}
+        onSelectApprovalTab={handleSelectApprovalTab}
+        onSelectEmployeeTab={handleSelectEmployeeTab}
+        onSelectFinanceTab={handleSelectFinanceTab}
+        onSelectItAdminTab={handleSelectTab}
+        onSelectManagerTab={handleSelectManagerTab}
+        onSelectSuperAdminTab={handleSelectSuperAdminTab}
+        openSections={openSections}
+        role={role}
+        toggleSection={toggleSection}
+      />
+
+      <div className='flex h-full min-w-0 flex-1 flex-col lg:pl-[19.5rem]'>
+        <DashboardHeader
+          activeEmployeeTab={activeEmployeeTab}
+          activeManagerTab={activeManagerTab}
+          employeeAvatarUrl={me.data?.data?.avatar?.url ?? null}
+          mobileNavigationOpen={mobileNavigationOpen}
+          onOpenProfile={
+            isEmployee
+              ? () => handleSelectEmployeeTab('profile')
+              : isManager
+                ? () => handleSelectManagerTab('profile')
+                : undefined
+          }
+          onToggleMobileNavigation={() => setMobileNavigationOpen((open) => !open)}
+          profile={profile}
+          role={role}
+        />
+
+        <motion.main
+          animate={{ opacity: 1, y: 0 }}
+          className={`dashboard-main mx-auto min-h-0 w-full max-w-[100rem] flex-1 overflow-y-auto p-4 sm:p-6 lg:px-8 lg:pt-4 lg:pb-8 ${isManager ? 'manager-workspace' : ''}`}
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
+          key={
+            isItAdmin
+              ? activeTab
+              : isEmployee
+                ? activeEmployeeTab
+                : isFinance
+                  ? activeFinanceTab
+                  : isApprover
+                    ? `${activeApprovalTab}-${searchParams.get('id') ?? ''}`
+                    : 'general'
+          }
+          transition={{ duration: 0.25, ease: 'easeOut' }}
+        >
+          <PolicyAcknowledgementGate>
+            {isItAdmin ? (
+              <ItAdminScreen
+                tab={activeTab}
+                itemId={searchParams.get('id') ?? undefined}
+                onSelectTab={handleSelectTab}
+              />
+            ) : isEmployee || managerPersonal ? (
+              <EmployeeScreen tab={activeEmployeeTab} onSelectTab={handleSelectEmployeeTab} />
+            ) : isManager ? (
+              <ManagerScreen tab={activeManagerTab} onSelectTab={handleSelectManagerTab} />
+            ) : isApprover ? (
+              <ApprovalScreen
+                displayName={profile.displayName}
+                formatCurrency={formatCurrency}
+                itemId={searchParams.get('id') || undefined}
+                onSelectTab={handleSelectApprovalTab}
+                tab={activeApprovalTab}
+              />
+            ) : isFinance ? (
+              <FinanceScreen
+                formatCurrency={formatCurrency}
+                itemId={searchParams.get('id') || undefined}
+                onSelectTab={handleSelectFinanceTab}
+                tab={activeFinanceTab}
+              />
+            ) : isSuperAdmin ? (
+              <SuperAdminScreen tab={activeSuperAdminTab} onSelectTab={handleSelectSuperAdminTab} />
+            ) : (
+              <Suspense fallback={<LoadingIndicator message={tErrors('loading')} />}>
+                <DefaultDashboardView
+                  displayName={profile.displayName}
+                  formatCompact={formatCompact}
+                  formatCurrency={formatCurrency}
+                  formatDate={formatDate}
+                  formatMonth={formatMonth}
+                  formatNumber={formatNumber}
+                />
+              </Suspense>
+            )}
+          </PolicyAcknowledgementGate>
+        </motion.main>
+      </div>
+    </div>
+  )
+}

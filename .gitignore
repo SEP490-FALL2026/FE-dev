@@ -1,0 +1,19 @@
+.DS_Store
+
+# Local environment values must never be committed (applies in every directory).
+.env
+.env.*
+# Commit only the shared template with non-sensitive example values.
+!.env.example
+mainflows.md
+
+.index.md
+/node_modules/
+/.pnpm-store/
+
+# React Router
+/.react-router/
+/build/
+/coverage/
+/.vercel/
+/design/

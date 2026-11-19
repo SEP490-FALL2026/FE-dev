@@ -1,0 +1,370 @@
+import { SPEND_QUEUE_STAGE } from '../enums/spend-queue-stage'
+import { BUDGET_OUTCOME } from '../enums/budget-outcome'
+import { useState } from 'react'
+import { Boxes, Files, Send, Users } from 'lucide-react'
+import { ManagerPageHeader } from '../../shared/components/manager-page-header'
+import { ManagerDataTable } from '../../shared/components/manager-data-table'
+import { useTranslation } from 'react-i18next'
+import { useSearchParams } from 'react-router'
+import {
+  useSpendQueueList,
+  getSpendQueueListQueryKey
+} from '~/shared/api/generated/operations/spend-submission/spend-queue-list'
+import { spendBatchSubmit } from '~/shared/api/generated/operations/spend-submission/spend-batch-submit'
+import { useSpendBatchGet } from '~/shared/api/generated/operations/spend-submission/spend-batch-get'
+import { useSpendBatchItemList } from '~/shared/api/generated/operations/spend-submission/spend-batch-item-list'
+import { getAccessRequestGetQueryKey } from '~/shared/api/generated/operations/access-requests/access-request-get'
+import type { QueueResponseDtoDataItemsItem } from '~/shared/api/generated/model/spend-submission/queueResponseDtoDataItemsItem'
+import { ManagerReserveConfirmation } from '../components/manager-reserve-confirmation'
+import { Dialog } from '../../../dashboard-ui'
+import { useManagerPage } from '../../shared/hooks/use-manager-page'
+import { useManagerAction } from '../../shared/hooks/use-manager-action'
+import { POLICY_STEP } from '~/entities/policy/policy-steps'
+import { usePolicyChecklist } from '~/entities/policy/hooks/use-policy-checklist'
+import { PolicyChecklist } from '~/entities/policy/components/policy-checklist'
+import { isPolicyVersionChanged } from '~/entities/policy/policy-errors'
+import { isResourceId } from '../../shared/manager-identifiers'
+import {
+  ManagerActionState,
+  ManagerButton,
+  ManagerMoney,
+  ManagerPagination,
+  ManagerQueryState,
+  ManagerSection,
+  ManagerStatus
+} from '../../shared/components/manager-api-ui'
+
+export function ManagerLiveBatch({
+  onOpen,
+  onCreateGroup
+}: {
+  onOpen: (id: string) => void
+  onCreateGroup?: () => void
+}) {
+  const { t: translate } = useTranslation('manager')
+  const { t: flow } = useTranslation('requestFlow')
+  const paging = useManagerPage()
+  const [params, setParams] = useSearchParams()
+  const query = useSpendQueueList({ page: paging.page, pageSize: paging.pageSize })
+  const [selected, setSelected] = useState<string[]>([])
+  const [confirm, setConfirm] = useState(false)
+  const [reserveReasons, setReserveReasons] = useState<Record<string, string>>({})
+  const [reserving, setReserving] = useState<QueueResponseDtoDataItemsItem | null>(null)
+  const requiresReason = (item: QueueResponseDtoDataItemsItem) => item.budgetOutcome === BUDGET_OUTCOME.USES_RESERVE
+  const currentItems = !query.isError ? (query.data?.data?.items ?? []) : []
+  const selectedItems = currentItems.filter((item) => selected.includes(item.requestId))
+  const reserveItems = selectedItems.filter(requiresReason)
+  // Confirming reserve use inside the batch is step 1.6: one checklist covers every confirmation of the batch.
+  const checklist = usePolicyChecklist(POLICY_STEP.RESERVE_CONFIRMATION, confirm && reserveItems.length > 0)
+  const reserveReady = !reserveItems.length || (!!checklist.body && !checklist.hasNo)
+  const action = useManagerAction({
+    mutationFn: (requestIds: string[]) =>
+      spendBatchSubmit({
+        requestIds,
+        ...(reserveItems.length && checklist.body
+          ? {
+              reserveConfirmations: reserveItems.map((item) => ({
+                requestId: item.requestId,
+                reason: reserveReasons[item.requestId]?.trim() ?? ''
+              })),
+              checklist: checklist.body
+            }
+          : {})
+      }),
+    invalidate: [getSpendQueueListQueryKey(), ...selected.map((id) => getAccessRequestGetQueryKey(id))],
+    onSuccess: (result) => {
+      setConfirm(false)
+      setSelected([])
+      const id = result.data?.batch.id
+      if (id)
+        setParams((previous) => {
+          const next = new URLSearchParams(previous)
+          next.set('batchId', id)
+          return next
+        })
+    },
+    onError: (error) => {
+      if (isPolicyVersionChanged(error)) checklist.reload()
+    }
+  })
+  const batchId = params.get('batchId') ?? ''
+  return (
+    <div className='space-y-6'>
+      <ManagerPageHeader
+        title={translate('batch')}
+        description={translate('batchHint')}
+        icon={Files}
+        actions={
+          <>
+            <ManagerButton onClick={onCreateGroup}>
+              <Users aria-hidden strokeWidth={1.5} className='size-4' />
+              {translate('createGroupRequest')}
+            </ManagerButton>
+            <ManagerButton
+              primary
+              disabled={!selectedItems.length || action.blocked || query.isFetching}
+              busy={action.isPending}
+              onClick={() => setConfirm(true)}
+            >
+              <Send aria-hidden strokeWidth={1.5} className='size-4' />
+              {action.retrySeconds ? translate('retryAfter', { seconds: action.retrySeconds }) : translate('submit')}
+            </ManagerButton>
+          </>
+        }
+      />
+      <ManagerSection
+        title={translate('batchQueue')}
+        action={
+          <span className='rounded-md bg-primary-soft/50 px-2.5 py-1.5 text-xs font-medium text-primary-ink'>
+            {translate('selected', { count: selected.length })}
+          </span>
+        }
+      >
+        <ManagerQueryState
+          query={query}
+          empty={!query.data?.data?.items.length}
+          emptyTitle={translate('noQueue')}
+          emptyDescription={translate('noQueueHint')}
+        />
+        {!query.isError && (
+          <ManagerDataTable
+            label={translate('batchQueue')}
+            items={query.data?.data?.items ?? []}
+            rowKey={(item) => item.requestId}
+            columns={[
+              {
+                key: 'application',
+                label: translate('application'),
+                render: (item) => (
+                  <div className='flex min-w-0 items-center gap-3'>
+                    <input
+                      type='checkbox'
+                      aria-label={item.plan?.applicationName ?? item.softwareName ?? translate('application')}
+                      checked={selected.includes(item.requestId)}
+                      disabled={
+                        !item.readyToSubmit ||
+                        item.budgetOutcome === BUDGET_OUTCOME.BLOCKED ||
+                        action.blocked ||
+                        query.isFetching
+                      }
+                      onChange={(event) =>
+                        setSelected((previous) =>
+                          event.target.checked
+                            ? [...previous, item.requestId]
+                            : previous.filter((id) => id !== item.requestId)
+                        )
+                      }
+                    />
+                    <div className='flex min-w-0 items-center gap-2'>
+                      <span
+                        aria-hidden='true'
+                        className='grid size-7 shrink-0 place-items-center rounded-lg border border-primary/20 bg-primary-soft text-primary-ink'
+                      >
+                        <Boxes strokeWidth={1.5} className='size-3.5' />
+                      </span>
+                      <p
+                        className='min-w-0 truncate font-medium'
+                        title={item.plan?.applicationName ?? item.softwareName ?? ''}
+                      >
+                        {item.plan?.applicationName ?? item.softwareName}
+                      </p>
+                    </div>
+                  </div>
+                )
+              },
+              {
+                key: 'employee',
+                label: translate('employee'),
+                render: (item) => (
+                  <p className='max-w-48 truncate' title={item.requester.fullName}>
+                    {item.requester.fullName}
+                  </p>
+                )
+              },
+              {
+                key: 'amount',
+                label: translate('amount'),
+                align: 'right',
+                render: (item) => <ManagerMoney money={item.amount} />
+              },
+              {
+                key: 'status',
+                label: translate('status'),
+                render: (item) => (
+                  <div className='space-y-2'>
+                    <ManagerStatus value={item.stage} />
+                    {item.budgetOutcome && <p className='text-xs'>{flow(item.budgetOutcome)}</p>}
+                    {item.blockedReasons.map((reason) => (
+                      <p key={reason} className='text-xs text-warning'>
+                        {flow(reason)}
+                      </p>
+                    ))}
+                    {item.overBy && <ManagerMoney money={item.overBy} />}
+                    {item.stage === SPEND_QUEUE_STAGE.RESERVE_CONFIRMATION && (
+                      <ManagerButton
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          setReserving(item)
+                        }}
+                      >
+                        {flow('confirmReserve')}
+                      </ManagerButton>
+                    )}
+                    <p className={`text-xs ${item.readyToSubmit ? 'text-success' : 'text-warning'}`}>
+                      {translate(item.readyToSubmit ? 'ready' : 'notReady')}
+                    </p>
+                  </div>
+                )
+              }
+            ]}
+            onOpen={(item) => onOpen(item.requestId)}
+          />
+        )}
+        <ManagerPagination
+          pagination={query.data?.data?.pagination}
+          onPage={paging.onPage}
+          busy={query.isFetching || action.isPending}
+        />
+        <ManagerActionState action={action} />
+      </ManagerSection>
+      {reserving && <ManagerReserveConfirmation id={reserving.requestId} onClose={() => setReserving(null)} />}
+      {isResourceId(batchId) && (
+        <ManagerSection title={translate('batchResult')}>
+          <BatchResult key={batchId} id={batchId} onOpen={onOpen} />
+        </ManagerSection>
+      )}
+      {confirm && (
+        <Dialog
+          presentation='sheet'
+          title={translate('batch')}
+          hint={translate('confirmAction')}
+          onClose={() => {
+            if (!action.isPending) setConfirm(false)
+          }}
+        >
+          <div className='mb-5 space-y-3'>
+            <div className='flex items-center gap-3.5 rounded-xl border border-primary/20 bg-primary-soft/30 p-4'>
+              <span
+                aria-hidden='true'
+                className='grid size-10 shrink-0 place-items-center rounded-lg bg-primary-soft text-primary-ink'
+              >
+                <Send strokeWidth={1.5} className='size-5' />
+              </span>
+              <div className='min-w-0'>
+                <p className='text-sm font-semibold text-foreground'>
+                  {translate('selected', { count: selected.length })}
+                </p>
+                <p className='text-xs text-muted-foreground'>{translate('batchHint')}</p>
+              </div>
+            </div>
+          </div>
+          {!!reserveItems.length && (
+            <div className='mb-4'>
+              <PolicyChecklist checklist={checklist} disabled={action.blocked} blockingNo />
+            </div>
+          )}
+          {reserveItems.map((item) => (
+            <label key={item.requestId} className='mb-4 grid gap-2 text-sm'>
+              {item.plan?.applicationName ?? item.softwareName} · {flow('reserveReason')}
+              <textarea
+                className='min-h-20 rounded-md border border-border bg-background p-3 text-base md:text-sm'
+                maxLength={500}
+                placeholder={translate('ui.placeholders.reserveReason')}
+                value={reserveReasons[item.requestId] ?? ''}
+                disabled={action.blocked}
+                onChange={(event) =>
+                  setReserveReasons((previous) => ({ ...previous, [item.requestId]: event.target.value }))
+                }
+              />
+            </label>
+          ))}
+          <div className='flex justify-end gap-3'>
+            <ManagerButton disabled={action.isPending} onClick={() => setConfirm(false)}>
+              {translate('cancel')}
+            </ManagerButton>
+            <ManagerButton
+              primary
+              busy={action.isPending}
+              disabled={
+                action.blocked ||
+                query.isFetching ||
+                !reserveReady ||
+                selectedItems.length !== selected.length ||
+                selectedItems.some(
+                  (item) =>
+                    !item.readyToSubmit ||
+                    item.budgetOutcome === BUDGET_OUTCOME.BLOCKED ||
+                    (requiresReason(item) && !reserveReasons[item.requestId]?.trim())
+                )
+              }
+              onClick={() => {
+                if (
+                  !action.blocked &&
+                  !query.isFetching &&
+                  reserveReady &&
+                  selectedItems.length === selected.length &&
+                  selectedItems.every(
+                    (item) =>
+                      item.readyToSubmit &&
+                      item.budgetOutcome !== BUDGET_OUTCOME.BLOCKED &&
+                      (!requiresReason(item) || reserveReasons[item.requestId]?.trim())
+                  )
+                )
+                  action.mutate(selected)
+              }}
+            >
+              {translate('confirm')}
+            </ManagerButton>
+          </div>
+        </Dialog>
+      )}
+    </div>
+  )
+}
+function BatchResult({ id, onOpen }: { id: string; onOpen: (id: string) => void }) {
+  const { t: translate } = useTranslation('manager')
+  const paging = useManagerPage('batchPage')
+  const batch = useSpendBatchGet(id)
+  const items = useSpendBatchItemList(
+    id,
+    { page: paging.page, pageSize: paging.pageSize },
+    { query: { enabled: !!batch.data?.data && !batch.isError } }
+  )
+  return (
+    <div>
+      <ManagerQueryState query={batch} />
+      {!batch.isError && batch.data?.data && (
+        <div className='space-y-4'>
+          <ManagerQueryState query={items} empty={!items.data?.data?.items.length} />
+          {!items.isError && (
+            <div className='space-y-2'>
+              {items.data?.data?.items.map((item) => (
+                <div
+                  key={item.requestId}
+                  className='flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-surface p-3.5 transition hover:border-primary/40'
+                >
+                  <div className='flex items-center gap-3'>
+                    <span className='grid size-7 shrink-0 place-items-center rounded-lg bg-surface-subtle font-mono text-xs font-semibold text-muted-foreground'>
+                      #{item.position}
+                    </span>
+                    <p className='text-sm font-medium text-foreground'>
+                      {translate('batchItem', { position: item.position })}
+                    </p>
+                  </div>
+                  <div className='flex items-center gap-2'>
+                    <span className='text-xs text-muted-foreground'>
+                      {translate(`statuses.${item.outcome}`, { defaultValue: translate('unknownStatus') })}
+                    </span>
+                    <ManagerStatus value={item.requestState} />
+                    <ManagerButton onClick={() => onOpen(item.requestId)}>{translate('open')}</ManagerButton>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          <ManagerPagination pagination={items.data?.data?.pagination} onPage={paging.onPage} busy={items.isFetching} />
+        </div>
+      )}
+    </div>
+  )
+}

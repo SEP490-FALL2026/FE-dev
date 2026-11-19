@@ -1,0 +1,357 @@
+import { ItChoiceSelect } from '../../shared/components/it-choice-select'
+import { useState } from 'react'
+import { useMutation } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
+import type { RevocationCompletionBodyDto, TaskResponseDtoDataTask } from '~/shared/api/generated/model'
+import * as api from '~/shared/api/generated/operations/provisioning-tasks'
+import { getSubscriptionListQueryKey } from '~/shared/api/generated/operations/subscriptions/subscription-list'
+import { getAssignmentExpiryQueueListQueryKey } from '~/shared/api/generated/operations/assignment-expiry'
+import { getGrantQueueListQueryKey } from '~/shared/api/generated/operations/grant-queue/grant-queue-list'
+import {
+  getLicenseKeyListQueryKey,
+  useLicenseKeyList
+} from '~/shared/api/generated/operations/license-keys/license-key-list'
+import { ItField, ItFormDialog, itInputClass } from '../../shared/components/it-form'
+import { ItQueryState } from '../../shared/components/it-query-state'
+import { ItPagination } from '../../shared/components/it-pagination'
+import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
+import type { TaskAction } from '../task-actions'
+import { buildK1Checklist, K1ChecklistFields, k1ChecklistProblem, type K1ChecklistTicks } from './k1-checklist-fields'
+
+export function ProvisioningActionDialog({
+  task,
+  action,
+  onClose
+}: {
+  task: TaskResponseDtoDataTask
+  action: TaskAction
+  onClose: () => void
+}) {
+  const { t: translate } = useTranslation('itProvisioning')
+  const { t: translatePlaceholder } = useTranslation('itPlaceholders')
+  const departureRevocation =
+    action === 'revocation' && ['DEPARTURE', 'ABRUPT_DEPARTURE'].includes(task.revocation?.source ?? '')
+  const [evidence, setEvidence] = useState('')
+  const [reason, setReason] = useState('')
+  const [note, setNote] = useState('')
+  const [completion, setCompletion] = useState<RevocationCompletionBodyDto['completion']>(
+    task.plan?.provisioningType === 'K1'
+      ? 'RENEWAL_CANCELLED'
+      : task.plan?.provisioningType === 'K5'
+        ? 'OFF_SYSTEM_REVOKED'
+        : task.plan?.provisioningType === 'K4'
+          ? 'KEY_DEACTIVATED'
+          : 'ACCOUNT_REMOVED'
+  )
+  const [keyDisposition, setKeyDisposition] = useState<'RETURN_TO_STORE' | 'WITHDRAW'>('RETURN_TO_STORE')
+  const [withdrawalReason, setWithdrawalReason] = useState('')
+  const [keyId, setKeyId] = useState('')
+  const [keyPage, setKeyPage] = useState(1)
+  const needsKey = action === 'complete' && task.kind === 'GRANT' && task.plan?.provisioningType === 'K4'
+  const keys = useLicenseKeyList(
+    { subscriptionId: task.subscriptionId ?? '', status: 'IN_STORE', withdrawn: 'false', page: keyPage, pageSize: 20 },
+    { query: { enabled: needsKey && !!task.subscriptionId } }
+  )
+  const availableKeys = (keys.data?.data?.items ?? []).filter(
+    (key) => key.subscriptionId === task.subscriptionId && key.status === 'IN_STORE' && !key.withdrawnAt
+  )
+  const [accessState, setAccessState] = useState<'CUT' | 'UNTIL_PAID_END'>('UNTIL_PAID_END')
+  const [paidThroughOn, setPaidThroughOn] = useState('')
+  const [accessCutOn, setAccessCutOn] = useState('')
+  const [accessEvidence, setAccessEvidence] = useState('')
+  const [k1Ticks, setK1Ticks] = useState<K1ChecklistTicks>({})
+  const grantsK1 = action === 'complete' && task.kind === 'GRANT' && task.plan?.provisioningType === 'K1'
+  const completesK1 = grantsK1 || (action === 'revocation' && completion === 'RENEWAL_CANCELLED')
+  // The server decides the steps (5 or 6 for a departure, 2 otherwise) and they can change while another K1 seat
+  // of the same person is revoked, so the card is always read again before completing.
+  const card = api.useProvisioningTaskGet(task.id, { query: { enabled: completesK1, staleTime: 0 } })
+  const k1Template = completesK1 ? (card.data?.data?.task.k1Checklist ?? null) : null
+  const k1Problem = k1Template ? k1ChecklistProblem(k1Template, k1Ticks) : null
+  const feedback = useItMutationFeedback(
+    [
+      ['it-provisioning'],
+      ['it-grant-queue'],
+      api.getProvisioningTaskListQueryKey(),
+      api.getProvisioningTaskGetQueryKey(task.id),
+      getSubscriptionListQueryKey(),
+      getLicenseKeyListQueryKey(),
+      getAssignmentExpiryQueueListQueryKey(),
+      getGrantQueueListQueryKey()
+    ],
+    onClose
+  )
+  const mutation = useMutation({
+    mutationFn: async () => {
+      const id = task.id
+      switch (action) {
+        case 'claim':
+          return api.provisioningTaskClaim(id)
+        case 'complete':
+          return api.provisioningTaskComplete(id, {
+            evidence: evidence.trim(),
+            ...(grantsK1 && k1Template ? { k1Checklist: buildK1Checklist(k1Template, k1Ticks) } : {}),
+            ...(needsKey ? { licenseKeyId: keyId } : {})
+          })
+        case 'failure':
+          return api.provisioningTaskReportFailure(id, { reason: reason.trim() })
+        case 'retry':
+          return api.provisioningTaskRetry(id)
+        case 'handOff':
+          return api.provisioningTaskHandOff(id, {})
+        case 'closeFailed':
+          return api.provisioningTaskCloseFailed(id, { reason: reason.trim() })
+        case 'cancel':
+          return api.provisioningTaskCancel(id)
+        case 'accessCut':
+          return api.provisioningTaskRecordAccessCut(id, { accessCutOn, evidence: evidence.trim() })
+        case 'revocation':
+          return api.provisioningTaskCompleteRevocation(id, {
+            completion,
+            ...(completion === 'ALREADY_GONE'
+              ? { note: note.trim(), ...(departureRevocation ? { evidence: evidence.trim() } : {}) }
+              : { evidence: evidence.trim() }),
+            ...(completion === 'KEY_DEACTIVATED'
+              ? {
+                  keyDisposition,
+                  ...(keyDisposition === 'WITHDRAW' ? { withdrawalReason: withdrawalReason.trim() } : {})
+                }
+              : {}),
+            ...(completion === 'RENEWAL_CANCELLED'
+              ? {
+                  paidThroughOn,
+                  accessState,
+                  ...(accessState === 'CUT' ? { accessCutOn, accessEvidence: accessEvidence.trim() } : {}),
+                  ...(k1Template ? { k1Checklist: buildK1Checklist(k1Template, k1Ticks) } : {})
+                }
+              : {})
+          })
+      }
+    },
+    ...feedback,
+    onError: async (error) => {
+      setKeyId('')
+      await feedback.onError(error)
+    }
+  })
+  const needsEvidence =
+    ['complete', 'accessCut'].includes(action) ||
+    (action === 'revocation' && (completion !== 'ALREADY_GONE' || departureRevocation))
+  return (
+    <ItFormDialog
+      wide={action === 'revocation'}
+      title={translate(`actions.${action}`)}
+      onClose={onClose}
+      onSubmit={(event) => {
+        event.preventDefault()
+        if (!mutation.isPending && !(completesK1 && (card.isFetching || card.isError || !k1Template || k1Problem)))
+          mutation.mutate()
+      }}
+      pending={mutation.isPending}
+      submitLabel={translate('confirm')}
+      submitDisabled={
+        (needsEvidence && !evidence.trim()) ||
+        (needsKey &&
+          (!task.subscriptionId ||
+            !availableKeys.some((key) => key.id === keyId) ||
+            keys.isError ||
+            keys.isFetching)) ||
+        (['failure', 'closeFailed'].includes(action) && !reason.trim()) ||
+        (action === 'revocation' &&
+          completion === 'KEY_DEACTIVATED' &&
+          keyDisposition === 'WITHDRAW' &&
+          !withdrawalReason.trim()) ||
+        (action === 'revocation' && completion === 'ALREADY_GONE' && !note.trim()) ||
+        (completesK1 && (card.isFetching || card.isError || !k1Template || Boolean(k1Problem)))
+      }
+    >
+      <p className='text-sm text-muted-foreground'>
+        {translate(departureRevocation ? 'departureConfirmHint' : action === 'cancel' ? 'cancelHint' : 'confirmHint')}
+      </p>
+      {grantsK1 && (
+        <ItQueryState query={card}>
+          {k1Template && <K1ChecklistFields template={k1Template} ticks={k1Ticks} onChange={setK1Ticks} />}
+        </ItQueryState>
+      )}
+      {needsKey &&
+        (task.subscriptionId ? (
+          <ItQueryState query={keys}>
+            {availableKeys.length ? (
+              <>
+                <ItChoiceSelect
+                  label={translate('availableKey')}
+                  value={keyId}
+                  options={availableKeys.map((item) => ({ value: item.id, label: item.masked }))}
+                  onChange={setKeyId}
+                />
+                <ItPagination
+                  page={keyPage}
+                  pageSize={20}
+                  total={keys.data?.data?.pagination.totalItems ?? 0}
+                  onChange={(page) => {
+                    setKeyPage(page)
+                    setKeyId('')
+                  }}
+                />
+              </>
+            ) : (
+              <p role='status' className='text-sm'>
+                {translate('noFreeKeys')}
+              </p>
+            )}
+          </ItQueryState>
+        ) : (
+          <p role='status' className='text-sm'>
+            {translate('keySubscriptionUnavailable')}
+          </p>
+        ))}
+      {action === 'revocation' && task.plan?.provisioningType === 'K2' && (
+        <ItChoiceSelect
+          label={translate('completion')}
+          value={completion}
+          options={(['ACCOUNT_REMOVED', 'ALREADY_GONE'] as const).map((value) => ({
+            value,
+            label: translate(`values.${value}`)
+          }))}
+          onChange={(value) => {
+            if (value === 'ACCOUNT_REMOVED' || value === 'ALREADY_GONE') setCompletion(value)
+          }}
+        />
+      )}
+      {action === 'revocation' && task.plan?.provisioningType !== 'K2' && (
+        <dl className='space-y-1 text-sm'>
+          <dt className='text-muted-foreground'>{translate('completion')}</dt>
+          <dd className='font-medium'>{translate(`values.${completion}`)}</dd>
+        </dl>
+      )}
+      {action === 'revocation' && completion === 'KEY_DEACTIVATED' && (
+        <>
+          <ItChoiceSelect
+            label={translate('keyDisposition')}
+            value={keyDisposition}
+            options={(['RETURN_TO_STORE', 'WITHDRAW'] as const).map((value) => ({
+              value,
+              label: translate(`keyDispositions.${value}`)
+            }))}
+            onChange={(value) => {
+              if (value === 'RETURN_TO_STORE' || value === 'WITHDRAW') setKeyDisposition(value)
+            }}
+          />
+          {keyDisposition === 'WITHDRAW' && (
+            <ItField label={translate('withdrawalReason')} hint={translate('withdrawalReasonHint')}>
+              <textarea
+                placeholder={translatePlaceholder('withdrawalReason')}
+                className={itInputClass}
+                required
+                maxLength={500}
+                value={withdrawalReason}
+                onChange={(event) => setWithdrawalReason(event.target.value)}
+              />
+            </ItField>
+          )}
+        </>
+      )}
+      {needsEvidence && (
+        <ItField
+          label={translate('evidence')}
+          hint={translate(departureRevocation ? 'departureEvidenceHint' : 'fieldHints.evidence')}
+        >
+          {departureRevocation ? (
+            <input
+              type='url'
+              className={itInputClass}
+              required
+              maxLength={2000}
+              placeholder={translate('departureEvidencePlaceholder')}
+              value={evidence}
+              onChange={(event) => setEvidence(event.target.value)}
+            />
+          ) : (
+            <textarea
+              className={itInputClass}
+              required
+              maxLength={2000}
+              placeholder={translate('placeholders.evidence')}
+              value={evidence}
+              onChange={(event) => setEvidence(event.target.value)}
+            />
+          )}
+        </ItField>
+      )}
+      {['failure', 'closeFailed'].includes(action) && (
+        <ItField label={translate('reason')} hint={translate('fieldHints.reason')}>
+          <textarea
+            className={itInputClass}
+            required
+            maxLength={1000}
+            placeholder={translate('placeholders.reason')}
+            value={reason}
+            onChange={(event) => setReason(event.target.value)}
+          />
+        </ItField>
+      )}
+      {action === 'revocation' && completion === 'ALREADY_GONE' && (
+        <ItField label={translate('note')} hint={translate('fieldHints.note')}>
+          <textarea
+            required
+            className={itInputClass}
+            maxLength={1000}
+            placeholder={translate('placeholders.note')}
+            value={note}
+            onChange={(event) => setNote(event.target.value)}
+          />
+        </ItField>
+      )}
+      {action === 'revocation' && completion === 'RENEWAL_CANCELLED' && (
+        <>
+          <ItField label={translate('paidThroughOn')} hint={translate('fieldHints.paidThroughOn')}>
+            <input
+              required
+              type='date'
+              className={itInputClass}
+              value={paidThroughOn}
+              onChange={(event) => setPaidThroughOn(event.target.value)}
+            />
+          </ItField>
+          <ItChoiceSelect
+            label={translate('accessState')}
+            value={accessState}
+            options={(['UNTIL_PAID_END', 'CUT'] as const).map((value) => ({
+              value,
+              label: translate(`values.${value}`)
+            }))}
+            onChange={(value) => {
+              if (value === 'UNTIL_PAID_END' || value === 'CUT') setAccessState(value)
+            }}
+          />
+          {accessState === 'CUT' && (
+            <ItField label={translate('accessEvidence')} hint={translate('fieldHints.accessEvidence')}>
+              <textarea
+                required
+                maxLength={2000}
+                className={itInputClass}
+                placeholder={translate('placeholders.accessEvidence')}
+                value={accessEvidence}
+                onChange={(event) => setAccessEvidence(event.target.value)}
+              />
+            </ItField>
+          )}
+          <ItQueryState query={card}>
+            {k1Template && <K1ChecklistFields template={k1Template} ticks={k1Ticks} onChange={setK1Ticks} />}
+          </ItQueryState>
+        </>
+      )}
+      {(action === 'accessCut' ||
+        (action === 'revocation' && completion === 'RENEWAL_CANCELLED' && accessState === 'CUT')) && (
+        <ItField label={translate('accessCutOn')} hint={translate('fieldHints.accessCutOn')}>
+          <input
+            required
+            type='date'
+            className={itInputClass}
+            value={accessCutOn}
+            onChange={(event) => setAccessCutOn(event.target.value)}
+          />
+        </ItField>
+      )}
+    </ItFormDialog>
+  )
+}

@@ -1,0 +1,430 @@
+/*
+ * Dashboard shell shared by all six roles: soft tinted canvas, floating sidebar panel, active nav indicator and a
+ * short staggered entrance for the first blocks of each screen. Colours come from the theme tokens only, so the dark
+ * palette stays exactly as defined in app.css.
+ */
+
+.dashboard-shell {
+  background:
+    radial-gradient(
+      70rem 36rem at 92% -12%,
+      color-mix(in oklab, var(--theme-primary) 11%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(
+      52rem 30rem at -6% 108%,
+      color-mix(in oklab, var(--theme-chart-2) 8%, transparent),
+      transparent 64%
+    ),
+    var(--theme-background);
+}
+[data-theme='dark'] .dashboard-shell {
+  background:
+    radial-gradient(
+      70rem 36rem at 92% -12%,
+      color-mix(in oklab, var(--theme-primary) 14%, transparent),
+      transparent 62%
+    ),
+    var(--theme-background);
+}
+
+/* Sidebar: full-height drawer on mobile, floating rounded panel from lg up. */
+.dashboard-sidebar {
+  box-shadow: 0 10px 40px -12px color-mix(in oklab, var(--theme-foreground) 14%, transparent);
+}
+@media (min-width: 1024px) {
+  .dashboard-sidebar {
+    top: 0.75rem;
+    bottom: 0.75rem;
+    left: 0.75rem;
+    border: 1px solid color-mix(in oklab, var(--theme-foreground) 7%, transparent);
+    border-radius: 1rem;
+    box-shadow:
+      0 1px 2px color-mix(in oklab, var(--theme-foreground) 4%, transparent),
+      0 12px 32px -14px color-mix(in oklab, var(--theme-primary) 22%, transparent);
+  }
+  [data-theme='dark'] .dashboard-sidebar {
+    border-color: rgb(255 255 255 / 7%);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 4%),
+      0 16px 40px -18px rgb(0 0 0 / 60%);
+  }
+}
+
+/* Top bar: floating panel that mirrors the sidebar, so the header no longer reads as an empty strip. Sticky, so the
+ * blur is allowed here (content scrolls underneath it). */
+.dashboard-topbar {
+  position: relative;
+  border: 1px solid color-mix(in oklab, var(--theme-foreground) 7%, transparent);
+  background:
+    radial-gradient(
+      26rem 8rem at 0% 0%,
+      color-mix(in oklab, var(--theme-primary-soft) 70%, transparent),
+      transparent 70%
+    ),
+    color-mix(in oklab, var(--theme-surface) 86%, transparent);
+  backdrop-filter: blur(14px);
+  box-shadow:
+    0 1px 2px color-mix(in oklab, var(--theme-foreground) 4%, transparent),
+    0 12px 32px -18px color-mix(in oklab, var(--theme-primary) 26%, transparent);
+}
+.dashboard-topbar::after {
+  content: '';
+  position: absolute;
+  inset: 0 1.5rem auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 70%), transparent);
+  pointer-events: none;
+}
+[data-theme='dark'] .dashboard-topbar {
+  border-color: rgb(255 255 255 / 7%);
+  background:
+    radial-gradient(26rem 8rem at 0% 0%, color-mix(in oklab, var(--theme-primary) 16%, transparent), transparent 70%),
+    color-mix(in oklab, var(--theme-sidebar) 88%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 4%),
+    0 16px 40px -18px rgb(0 0 0 / 60%);
+}
+[data-theme='dark'] .dashboard-topbar::after {
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 10%), transparent);
+}
+
+/* Active navigation item: tinted fill plus a short accent bar on the left edge. Same box size as idle items. */
+.dashboard-sidebar nav button {
+  position: relative;
+  transition:
+    background-color 150ms ease-out,
+    color 150ms ease-out;
+}
+.dashboard-sidebar nav button[aria-current='page'] {
+  background: linear-gradient(
+    90deg,
+    var(--theme-primary-soft) 0%,
+    color-mix(in oklab, var(--theme-primary-soft) 55%, transparent) 100%
+  );
+  color: var(--theme-primary-ink);
+}
+.dashboard-sidebar nav button[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  top: 22%;
+  bottom: 22%;
+  left: 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--theme-primary);
+}
+.dashboard-sidebar nav button[aria-current='page'] svg {
+  color: var(--theme-primary);
+}
+
+/* Role card at the bottom of the sidebar. */
+.dashboard-role-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--theme-hero) 0%, var(--theme-hero-deep) 100%);
+}
+.dashboard-role-card::before,
+.dashboard-role-card::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  border-radius: 9999px;
+  pointer-events: none;
+}
+.dashboard-role-card::before {
+  top: -2.5rem;
+  right: -2rem;
+  width: 7rem;
+  height: 7rem;
+  background: rgb(255 255 255 / 10%);
+}
+.dashboard-role-card::after {
+  bottom: -3.25rem;
+  left: -2.5rem;
+  width: 6rem;
+  height: 6rem;
+  border: 14px solid rgb(255 180 135 / 22%);
+}
+[data-theme='dark'] .dashboard-role-card {
+  color: var(--theme-foreground);
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--theme-surface-subtle) 70%, var(--theme-primary)) 0%,
+    var(--theme-surface-subtle) 100%
+  );
+}
+[data-theme='dark'] .dashboard-role-card::after {
+  border-color: color-mix(in oklab, var(--theme-primary) 26%, transparent);
+}
+.dashboard-role-card-action {
+  color: inherit;
+  background: rgb(255 255 255 / 14%);
+  transition: background-color 150ms ease-out;
+}
+.dashboard-role-card-action:hover {
+  background: rgb(255 255 255 / 24%);
+}
+.dashboard-role-card-action:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* Overview heroes (Employee, Super Admin): decorative rings echoing the role card. */
+:is(.workspace-overview-hero, .admin-overview-hero, .manager-overview-hero) {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+:is(.workspace-overview-hero, .admin-overview-hero, .manager-overview-hero)::before,
+:is(.workspace-overview-hero, .admin-overview-hero, .manager-overview-hero)::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  border-radius: 9999px;
+  pointer-events: none;
+}
+/* Autumn leaves taken from the mascot artwork drift in the top-right corner; tiles on the band are opaque so the leaves never show through them. */
+:is(.workspace-overview-hero, .admin-overview-hero, .manager-overview-hero)::before {
+  top: -0.5rem;
+  right: -0.75rem;
+  width: min(24rem, 46%);
+  height: 70%;
+  border-radius: 0;
+  background:
+    url('../../../assets/mascot/hero-leaves.webp') right top / contain no-repeat,
+    radial-gradient(circle at 60% 20%, rgb(255 255 255 / 12%) 0%, transparent 60%);
+  opacity: 0.5;
+}
+[data-theme='dark'] :is(.workspace-overview-hero, .admin-overview-hero, .manager-overview-hero)::before {
+  opacity: 0.32;
+}
+@keyframes dashboard-leaves-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(-10px, 6px, 0) rotate(-1.5deg);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  :is(.workspace-overview-hero, .admin-overview-hero, .manager-overview-hero)::before {
+    animation: dashboard-leaves-drift 9s ease-in-out infinite;
+  }
+}
+:is(.workspace-overview-hero, .admin-overview-hero, .manager-overview-hero)::after {
+  bottom: -5rem;
+  left: -3rem;
+  width: 11rem;
+  height: 11rem;
+  border: 22px solid rgb(255 255 255 / 6%);
+}
+
+/* Compact stat/link tiles placed on a hero band (translucent so they sit on the brand gradient). */
+.hero-stat {
+  position: relative;
+  color: inherit;
+  border: 1px solid rgb(255 255 255 / 22%);
+  background: color-mix(in oklab, var(--theme-hero-deep, var(--theme-primary)) 78%, #ffffff);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 14%);
+}
+.hero-stat:hover {
+  background: color-mix(in oklab, var(--theme-hero-deep, var(--theme-primary)) 70%, #ffffff);
+}
+.hero-stat:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+[data-theme='dark'] .hero-stat {
+  border-color: rgb(255 255 255 / 12%);
+  background: color-mix(in oklab, var(--theme-surface-subtle) 92%, #ffffff);
+}
+[data-theme='dark'] .hero-stat:hover {
+  background: color-mix(in oklab, var(--theme-surface-subtle) 84%, #ffffff);
+}
+
+/* Page headers rendered as the hero band (Finance, Spending Approver, IT Admin overviews): secondary controls and muted
+ * text inside the band switch to translucent white so they stay legible on the brand gradient. */
+:root:not([data-theme='dark']) .workspace-hero-header {
+  --theme-foreground: #ffffff;
+  --theme-muted-foreground: rgb(255 255 255 / 78%);
+  --theme-surface: rgb(255 255 255 / 12%);
+  --theme-surface-subtle: rgb(255 255 255 / 20%);
+  --theme-border: rgb(255 255 255 / 28%);
+  --theme-primary-ink: #ffd9c2;
+}
+.workspace-hero-header button {
+  box-shadow: none;
+}
+
+/* Cards in the content area: on hover, tint the border and lift the shadow slightly without changing size. */
+:root:not([data-theme='dark'])
+  .dashboard-main
+  :is(.rounded-lg, .rounded-xl).border.bg-surface:not(:is(button, a, input, select, textarea, tr, td)) {
+  transition:
+    box-shadow 150ms ease-out,
+    border-color 150ms ease-out;
+}
+:root:not([data-theme='dark'])
+  .dashboard-main
+  :is(.rounded-lg, .rounded-xl).border.bg-surface:not(:is(button, a, input, select, textarea, tr, td)):hover {
+  border-color: color-mix(in oklab, var(--theme-primary) 22%, var(--theme-border));
+  box-shadow:
+    0 1px 2px 0 rgb(35 39 65 / 4%),
+    0 10px 24px -12px color-mix(in oklab, var(--theme-primary) 28%, transparent);
+}
+[data-theme='dark'] .dashboard-main :is(.rounded-lg, .rounded-xl).border.bg-surface {
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 3.5%);
+}
+
+/* Entrance: the first blocks of a screen fade up once per mount, staggered. Tables and rows are not animated.
+ * Fill mode is `backwards` (not `both`): a lingering transform would turn every block into the containing block of
+ * position:fixed popovers such as the SearchableSelect list. */
+@keyframes dashboard-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .dashboard-main
+    :is([class*='space-y-'], [class*='grid']):not(:is(table *, ul, ol, form *, dialog *))
+    > :is(header, section, div):not(:is([role='dialog'], [aria-modal='true'], .fixed, .absolute, .sticky)) {
+    animation: dashboard-rise 420ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+  .dashboard-main :is([class*='space-y-'], [class*='grid']) > :nth-child(2) {
+    animation-delay: 50ms;
+  }
+  .dashboard-main :is([class*='space-y-'], [class*='grid']) > :nth-child(3) {
+    animation-delay: 100ms;
+  }
+  .dashboard-main :is([class*='space-y-'], [class*='grid']) > :nth-child(4) {
+    animation-delay: 150ms;
+  }
+  .dashboard-main :is([class*='space-y-'], [class*='grid']) > :nth-child(n + 5) {
+    animation-delay: 200ms;
+  }
+}
+
+/* KPI icon chips: tinted tiles that rotate through the categorical palette so neighbouring cards read apart. */
+.kpi-chip {
+  --kpi-tone: var(--theme-chart-1);
+  color: var(--kpi-tone);
+  background: color-mix(in oklab, var(--kpi-tone) 13%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--kpi-tone) 16%, transparent);
+}
+.kpi-tone-grid > :nth-child(4n + 2) .kpi-chip {
+  --kpi-tone: var(--theme-chart-3);
+}
+.kpi-tone-grid > :nth-child(4n + 3) .kpi-chip {
+  --kpi-tone: var(--theme-chart-2);
+}
+.kpi-tone-grid > :nth-child(4n + 4) .kpi-chip {
+  --kpi-tone: var(--theme-chart-4);
+}
+:root .kpi-tone-grid > :nth-child(n) .kpi-chip[data-tone='warning'] {
+  --kpi-tone: var(--theme-warning-ink);
+}
+[data-theme='dark'] .kpi-chip {
+  --kpi-tone: var(--theme-primary-ink);
+}
+[data-theme='dark'] .kpi-tone-grid > :nth-child(4n + 2) .kpi-chip {
+  --kpi-tone: var(--theme-success);
+}
+[data-theme='dark'] .kpi-tone-grid > :nth-child(4n + 3) .kpi-chip {
+  --kpi-tone: var(--theme-chart-2);
+}
+[data-theme='dark'] .kpi-tone-grid > :nth-child(4n + 4) .kpi-chip {
+  --kpi-tone: var(--theme-warning);
+}
+
+/*
+ * Inner-page decoration shared by every role (reference: soft lavender course-dashboard style).
+ * .page-banner      soft tinted band that wraps a page header (icon tile, eyebrow, title, actions)
+ * .section-accent   short brand bar before a section title
+ * .soft-panel       quiet tinted panel for filter bars and summaries
+ */
+.page-banner {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid color-mix(in oklab, var(--theme-primary) 12%, var(--theme-border));
+  border-radius: 1rem;
+  padding: 1.1rem 1.25rem;
+  background:
+    radial-gradient(
+      28rem 10rem at 100% 0%,
+      color-mix(in oklab, var(--theme-primary-soft) 85%, transparent),
+      transparent 70%
+    ),
+    linear-gradient(
+      135deg,
+      var(--theme-surface) 0%,
+      color-mix(in oklab, var(--theme-primary-soft) 38%, var(--theme-surface)) 100%
+    );
+  box-shadow:
+    0 1px 2px color-mix(in oklab, var(--theme-foreground) 4%, transparent),
+    0 14px 30px -22px color-mix(in oklab, var(--theme-primary) 45%, transparent);
+}
+@media (min-width: 640px) {
+  .page-banner {
+    padding: 1.35rem 1.6rem;
+  }
+}
+.page-banner::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: -0.4rem;
+  right: -0.5rem;
+  width: min(15rem, 40%);
+  height: 85%;
+  background: url('../../../assets/mascot/hero-leaves.webp') right top / contain no-repeat;
+  opacity: 0.22;
+  pointer-events: none;
+}
+[data-theme='dark'] .page-banner {
+  border-color: rgb(255 255 255 / 8%);
+  background:
+    radial-gradient(
+      28rem 10rem at 100% 0%,
+      color-mix(in oklab, var(--theme-primary) 16%, transparent),
+      transparent 70%
+    ),
+    var(--theme-surface);
+}
+[data-theme='dark'] .page-banner::after {
+  opacity: 0.14;
+}
+
+.section-accent {
+  position: relative;
+  padding-left: 0.75rem;
+}
+.section-accent::before {
+  content: '';
+  position: absolute;
+  top: 0.15em;
+  bottom: 0.15em;
+  left: 0;
+  width: 3px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, var(--theme-primary), color-mix(in oklab, var(--theme-primary) 40%, #ff9a6b));
+}
+
+.soft-panel {
+  border: 1px solid color-mix(in oklab, var(--theme-primary) 10%, var(--theme-border));
+  border-radius: 0.75rem;
+  background: color-mix(in oklab, var(--theme-primary-soft) 28%, var(--theme-surface));
+}
+[data-theme='dark'] .soft-panel {
+  border-color: rgb(255 255 255 / 7%);
+  background: color-mix(in oklab, var(--theme-surface-subtle) 70%, var(--theme-surface));
+}
