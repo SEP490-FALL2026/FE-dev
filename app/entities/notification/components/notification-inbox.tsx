@@ -1,3 +1,5 @@
+import type { UserRole } from '~/entities/user-role/user-role'
+import { notificationText } from '../notification-text'
 import { notificationTarget } from '../notification-target'
 import { NotificationCopy } from './notification-copy'
 import type { NotificationTarget } from '../notification-target'
@@ -22,8 +24,8 @@ export function NotificationInbox({
   labelId: string
   unreadCount?: number
   onClose: () => void
-  onOpenRequest: (id: string) => void
-  audience?: 'employee' | 'manager'
+  onOpenRequest?: (id: string) => void
+  audience?: UserRole
   onOpenTarget?: (target: NotificationTarget) => void
 }) {
   const { t: translate, i18n } = useTranslation('common')
@@ -87,6 +89,7 @@ export function NotificationInbox({
         )}
         <ul className='divide-y divide-border/60'>
           {notifications.map((notification) => {
+            const serverText = notificationText(notification)
             const requestId = notificationRequestId(notification)
             const target = audience && onOpenTarget ? notificationTarget(notification, audience) : undefined
             const known = i18n.exists('notifications.messages.' + notification.code, { ns: 'common' })
@@ -112,7 +115,7 @@ export function NotificationInbox({
                       <h3
                         className={`min-w-0 flex-1 basis-48 text-sm leading-6 ${notification.readAt ? 'font-medium' : 'font-semibold'}`}
                       >
-                        {title}
+                        {serverText.title ?? title}
                       </h3>
                       <time
                         dateTime={notification.createdAt}
@@ -121,13 +124,17 @@ export function NotificationInbox({
                         {formatDateTime(notification.createdAt, i18n.resolvedLanguage)}
                       </time>
                     </div>
-                    {!audience && (
-                      <p className='mt-1 break-words text-sm leading-6 text-muted-foreground'>
-                        {translate('notifications.updateHint')}
-                      </p>
+                    {serverText.message ? (
+                      <p className='mt-1 break-words text-sm leading-6 text-muted-foreground'>{serverText.message}</p>
+                    ) : (
+                      !audience && (
+                        <p className='mt-1 break-words text-sm leading-6 text-muted-foreground'>
+                          {translate('notifications.updateHint')}
+                        </p>
+                      )
                     )}
-                    {audience && known && <NotificationCopy notification={notification} />}
-                    <NotificationPersonnelContext notification={notification} />
+                    {!serverText.message && audience && known && <NotificationCopy notification={notification} />}
+                    {!serverText.message && <NotificationPersonnelContext notification={notification} />}
                     <div className='mt-2 flex flex-wrap items-center gap-2'>
                       {!notification.readAt && (
                         <button
@@ -145,7 +152,7 @@ export function NotificationInbox({
                           {translate('notifications.markRead')}
                         </button>
                       )}
-                      {audience && known && target && onOpenTarget ? (
+                      {audience && target && onOpenTarget ? (
                         <button
                           type='button'
                           className={`${buttonClass} text-primary-ink`}
@@ -155,7 +162,8 @@ export function NotificationInbox({
                         </button>
                       ) : (
                         !audience &&
-                        requestId && (
+                        requestId &&
+                        onOpenRequest && (
                           <button
                             type='button'
                             className={`${buttonClass} text-primary-ink`}

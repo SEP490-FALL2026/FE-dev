@@ -1,3 +1,4 @@
+import type { UserRole } from '~/entities/user-role/user-role'
 import type { NotificationTarget } from '../notification-target'
 import { Bell } from 'lucide-react'
 import { useId, useRef } from 'react'
@@ -15,8 +16,8 @@ export function NotificationBell({
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onOpenRequest: (id: string) => void
-  audience?: 'employee' | 'manager'
+  onOpenRequest?: (id: string) => void
+  audience?: UserRole
   onOpenTarget?: (target: NotificationTarget) => void
 }) {
   const { t: translate } = useTranslation('common')
@@ -62,10 +63,14 @@ export function NotificationBell({
               close()
               trigger.current?.focus()
             }}
-            onOpenRequest={(requestId) => {
-              close()
-              onOpenRequest(requestId)
-            }}
+            onOpenRequest={
+              onOpenRequest
+                ? (requestId) => {
+                    close()
+                    onOpenRequest(requestId)
+                  }
+                : undefined
+            }
           />
         </AnchoredPopover>
       )}

@@ -1,3 +1,5 @@
+import type { UserRole } from '~/entities/user-role/user-role'
+import { serverNotificationTarget } from './server-notification-target'
 import { NOTIFICATION_SUBJECT as SUBJECT } from './enums/notification-subject'
 import type { NotificationListResponseDtoDataItemsItem } from '~/shared/api/generated/model'
 
@@ -7,8 +9,21 @@ export type NotificationTarget = { tab: string; params: Record<string, string> }
 /** Build local dashboard targets only. Never navigate to params.viewPath or arbitrary server URLs. */
 export function notificationTarget(
   notification: NotificationListResponseDtoDataItemsItem,
-  role: 'employee' | 'manager'
+  role: UserRole
 ): NotificationTarget | undefined {
+  // Newer contracts provide an authorization-aware target. Explicit null means no destination.
+  if (Object.hasOwn(notification, 'target')) {
+    const target = (notification as typeof notification & { target?: unknown }).target
+    const destination = serverNotificationTarget(target, role)
+    if (destination?.tab === 'annual-budget' && role === 'manager') {
+      const year = notification.params.year
+      const departmentId = notification.params.departmentId
+      if (typeof year === 'number' && Number.isInteger(year) && year >= 2000 && year <= 2200)
+        destination.params.year = String(year)
+      if (uuid(departmentId)) destination.params.departmentId = departmentId
+    }
+    return destination
+  } else if (role !== 'employee' && role !== 'manager') return
   const { subject, params, code } = notification
   const id = uuid(subject?.id) ? subject.id : undefined
   const manager = role === 'manager'

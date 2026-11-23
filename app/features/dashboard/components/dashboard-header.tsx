@@ -6,12 +6,10 @@ import { LanguageSwitch } from '~/shared/ui/language-switch'
 import { SentryMascot } from '~/shared/ui/sentry-mascot'
 import { ThemeSwitch } from '~/shared/ui/theme-switch'
 import type { RoleProfile } from '../dashboard-data'
-import { EmployeeNotificationBell } from '../employee'
-import { ManagerNotificationBell } from '../manager'
+import { DashboardNotificationBell } from './dashboard-notification-bell'
 
 export interface DashboardHeaderProps {
-  activeEmployeeTab?: string
-  activeManagerTab?: string
+  profileActive: boolean
   employeeAvatarUrl: string | null
   mobileNavigationOpen: boolean
   onOpenProfile?: () => void
@@ -21,8 +19,7 @@ export interface DashboardHeaderProps {
 }
 
 export function DashboardHeader({
-  activeEmployeeTab,
-  activeManagerTab,
+  profileActive,
   employeeAvatarUrl,
   mobileNavigationOpen,
   onOpenProfile,
@@ -49,11 +46,7 @@ export function DashboardHeader({
     translate(`shell.mascot.tips.${role}.second`),
     translate('shell.mascot.goodbye')
   ]
-  const isEmployee = role === 'employee'
-  const isManager = role === 'manager'
   const [brokenAvatar, setBrokenAvatar] = useState<string | null>(null)
-  const isProfileActive =
-    (isEmployee && activeEmployeeTab === 'profile') || (isManager && activeManagerTab === 'profile')
 
   return (
     <header className='dashboard-topbar-wrap sticky top-0 z-30 px-3 pt-3 pb-1 sm:px-6 lg:px-8 lg:pt-3'>
@@ -92,25 +85,18 @@ export function DashboardHeader({
         <div className='ml-auto flex items-center gap-2 sm:gap-2.5'>
           <ThemeSwitch />
           <LanguageSwitch />
-          {isEmployee && <EmployeeNotificationBell />}
-          {isManager && <ManagerNotificationBell />}
+          <DashboardNotificationBell role={role} />
 
           <button
-            aria-current={isProfileActive ? 'page' : undefined}
-            aria-label={
-              isEmployee
-                ? translate('employee.profile.openProfile')
-                : isManager
-                  ? translate('manager.profile.openProfile', { defaultValue: 'Hồ sơ cá nhân' })
-                  : undefined
-            }
+            aria-current={profileActive ? 'page' : undefined}
+            aria-label={translate('employee.profile.openProfile')}
             className='flex min-w-0 items-center gap-2.5 rounded-xl border border-border bg-surface py-1.5 pr-1.5 pl-1.5 text-left transition-colors enabled:hover:border-primary/50 enabled:hover:bg-primary-soft/30 enabled:focus-visible:outline-2 enabled:focus-visible:outline-offset-2 enabled:focus-visible:outline-primary md:pr-3'
             disabled={!onOpenProfile}
             onClick={onOpenProfile}
             type='button'
           >
             <span className='grid size-8 shrink-0 place-items-center overflow-hidden rounded-lg bg-primary text-xs font-bold text-primary-foreground ring-1 ring-black/10 ring-inset'>
-              {(isEmployee || isManager) && employeeAvatarUrl && employeeAvatarUrl !== brokenAvatar ? (
+              {employeeAvatarUrl && employeeAvatarUrl !== brokenAvatar ? (
                 <img
                   alt=''
                   className='size-full object-cover'

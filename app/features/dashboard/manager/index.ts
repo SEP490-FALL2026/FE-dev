@@ -8,3 +8,5 @@ export {
   type ManagerTranslationKey
 } from './manager-nav'
 export { MANAGER_TAB_KEYS, type ManagerTabKey } from './enums'
+
+export { ManagerProfileDetails } from './team/views/manager-profile-details'
