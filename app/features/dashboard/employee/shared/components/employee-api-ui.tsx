@@ -92,7 +92,6 @@ export function EmployeeQueryState({
     return (
       <div role='alert' className='space-y-3 py-4'>
         <p>{translate(`errors.${failure.key}`)}</p>
-        {failure.requestId && <p className='text-xs font-mono'>{translate('requestId', { id: failure.requestId })}</p>}
         <EmployeeButton busy={query.isFetching} onClick={() => void query.refetch()}>
           {translate('retry')}
         </EmployeeButton>

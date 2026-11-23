@@ -8,7 +8,6 @@ import {
   Layers,
   LineChart,
   ReceiptText,
-  RefreshCw,
   Store
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
@@ -28,14 +27,8 @@ export type FinanceTranslationKey =
   | 'requestMonitor'
   | 'purchaseInvoices'
   | 'invoiceDiscrepancies'
-  | 'outOfProcess'
   | 'catalog'
-  | 'vendorTax'
-  | 'subscriptionRenewals'
   | 'periodClose'
-  | 'seatCharges'
-  | 'budgetAdjustments'
-  | 'budgetParameters'
 
 export interface FinanceTab {
   key: FinanceTabKey
@@ -72,28 +65,18 @@ export const financeAreas: readonly FinanceArea[] = [
       { key: 'commitments', icon: ReceiptText, translationKey: 'commitments' },
       { key: 'request-monitor', icon: Layers, translationKey: 'requestMonitor' },
       { key: 'purchase-invoices', icon: FileInput, translationKey: 'purchaseInvoices' },
-      { key: 'invoice-discrepancies', icon: Layers, translationKey: 'invoiceDiscrepancies' },
-      { key: 'out-of-process', icon: FileText, translationKey: 'outOfProcess' }
+      { key: 'invoice-discrepancies', icon: Layers, translationKey: 'invoiceDiscrepancies' }
     ]
   },
   {
     key: 'catalog',
     icon: Store,
-    tabs: [
-      { key: 'saas-cost', icon: Store, translationKey: 'catalog' },
-      { key: 'subscription-renewals', icon: RefreshCw, translationKey: 'subscriptionRenewals' },
-      { key: 'vendor-tax', icon: ReceiptText, translationKey: 'vendorTax' }
-    ]
+    tabs: [{ key: 'saas-cost', icon: Store, translationKey: 'catalog' }]
   },
   {
     key: 'close',
     icon: FileText,
-    tabs: [
-      { key: 'period-close', icon: CalendarRange, translationKey: 'periodClose' },
-      { key: 'seat-charges', icon: Layers, translationKey: 'seatCharges' },
-      { key: 'budget-adjustments', icon: Landmark, translationKey: 'budgetAdjustments' },
-      { key: 'budget-parameters', icon: FileText, translationKey: 'budgetParameters' }
-    ]
+    tabs: [{ key: 'period-close', icon: CalendarRange, translationKey: 'periodClose' }]
   }
 ]
 

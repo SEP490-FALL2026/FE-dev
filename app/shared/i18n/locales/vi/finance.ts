@@ -3,11 +3,7 @@ export const finance = {
   requestMonitor: 'Theo dõi yêu cầu',
   purchaseInvoices: 'Hóa đơn mua',
   invoiceDiscrepancies: 'Sai lệch hóa đơn',
-  outOfProcess: 'Chi ngoài quy trình',
   periodClose: 'Rà soát ngân sách',
-  seatCharges: 'Chi phí theo suất',
-  budgetAdjustments: 'Điều chỉnh ngân sách',
-  budgetParameters: 'Tham số ngân sách',
   ui: {
     selectPlaceholder: 'Chọn một giá trị (gõ để tìm)'
   },
@@ -185,9 +181,7 @@ export const finance = {
   versions: 'Phiên bản ngân sách',
   budgets: 'Ngân sách hiện hành',
   costCenters: 'Trung tâm chi phí',
-  vendorTax: 'Hồ sơ thuế nhà cung cấp',
   catalog: 'Danh mục phần mềm',
-  subscriptionRenewals: 'Điều chỉnh thuê bao',
   analytics: {
     title: 'Ngân sách và cam kết',
     view: 'Kiểu hiển thị',

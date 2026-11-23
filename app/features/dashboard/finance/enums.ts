@@ -21,17 +21,11 @@ export const FINANCE_TAB_KEYS = [
   'charge-exceptions',
   'period-close',
   'cost-analysis',
-  'seat-charges',
-  'budget-adjustments',
-  'budget-parameters',
   'period-report',
   'cost-centers',
-  'vendor-tax',
   'request-monitor',
   'purchase-invoices',
-  'invoice-discrepancies',
-  'out-of-process',
-  'subscription-renewals'
+  'invoice-discrepancies'
 ] as const
 
 export type FinanceTabKey = (typeof FINANCE_TAB_KEYS)[number]

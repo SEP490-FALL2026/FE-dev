@@ -97,7 +97,9 @@ export function ItOptimizationView() {
               <dl className='grid gap-4 rounded-lg border border-border bg-surface p-5 sm:grid-cols-2'>
                 <div>
                   <dt className='text-sm text-muted-foreground'>{t('optimization.holder')}</dt>
-                  <dd>{selected.holder?.employeeCode ?? t('unavailable')}</dd>
+                  <dd>
+                    {selected.holder?.employeeCode ?? t(selected.group === 'G1' ? 'vacantHolder' : 'holderUnavailable')}
+                  </dd>
                 </div>
                 <div>
                   <dt className='text-sm text-muted-foreground'>{t('optimization.group')}</dt>
@@ -210,6 +212,7 @@ export function ItOptimizationView() {
             ...Object.values(GhostSeatRecommendationListTier).map((value) => ({ value, label: t(value) }))
           ]}
         />
+        <p className='text-sm text-muted-foreground sm:col-span-2'>{t('selectionHint')}</p>
         <button
           type='button'
           className={`${itButtonClass} sm:col-span-2 sm:justify-self-end`}
@@ -223,39 +226,48 @@ export function ItOptimizationView() {
         {query.data?.data?.items.length ? (
           <div className='divide-y divide-border rounded-lg border border-border bg-surface'>
             {query.data.data.items.map((item) => (
-              <article key={item.id} className='flex flex-wrap items-center justify-between gap-4 p-4'>
+              <article key={item.id} className='flex items-center gap-3 p-4'>
                 {(item.group === 'G3' || item.group === 'G4') && item.tier === 'MONITOR' && item.state === 'OPEN' && (
-                  <input
-                    type='checkbox'
-                    aria-label={t('select', {
-                      employee: item.holder?.employeeCode ?? t('unavailable'),
-                      application: item.application.applicationName
-                    })}
-                    checked={!!selectedIds[item.id]}
-                    disabled={!selectedIds[item.id] && Object.keys(selectedIds).length >= 100}
-                    onChange={(event) =>
-                      setSelectedIds((previous) => {
-                        const next = { ...previous }
-                        if (event.target.checked)
-                          next[item.id] = [item.holder?.employeeCode, item.application.applicationName]
-                            .filter(Boolean)
-                            .join(' · ')
-                        else delete next[item.id]
-                        return next
-                      })
-                    }
-                  />
+                  <label className='flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-md hover:bg-surface-subtle has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-primary'>
+                    <input
+                      type='checkbox'
+                      className='size-4 cursor-pointer'
+                      aria-label={t('select', {
+                        employee: item.holder?.employeeCode ?? t('unavailable'),
+                        application: item.application.applicationName
+                      })}
+                      checked={!!selectedIds[item.id]}
+                      disabled={!selectedIds[item.id] && Object.keys(selectedIds).length >= 100}
+                      onChange={(event) =>
+                        setSelectedIds((previous) => {
+                          const next = { ...previous }
+                          if (event.target.checked)
+                            next[item.id] = [item.holder?.employeeCode, item.application.applicationName]
+                              .filter(Boolean)
+                              .join(' · ')
+                          else delete next[item.id]
+                          return next
+                        })
+                      }
+                    />
+                  </label>
                 )}
-                <div>
+                <div className='min-w-0 flex-1'>
                   <h2 className='font-medium'>
                     {item.application.applicationName} · {item.plan.planName}
                   </h2>
-                  <p className='text-sm text-muted-foreground'>{item.holder?.employeeCode ?? t('unavailable')}</p>
+                  <p className='text-sm text-muted-foreground'>
+                    {item.holder?.employeeCode ?? t(item.group === 'G1' ? 'vacantHolder' : 'holderUnavailable')}
+                  </p>
+                  <p className='text-sm text-muted-foreground'>
+                    {t(`optimization.groups.${item.group}`, { defaultValue: t('unavailable') })}
+                    {item.tier && <> · {t(item.tier, { defaultValue: t('unavailable') })}</>}
+                  </p>
                   <p className='text-sm'>
                     {t(`optimization.states.${item.state}`, { defaultValue: t('unavailable') })}
                   </p>
                 </div>
-                <button type='button' className={itButtonClass} onClick={() => setSelectedId(item.id)}>
+                <button type='button' className={`${itButtonClass} shrink-0`} onClick={() => setSelectedId(item.id)}>
                   {t('details')}
                 </button>
               </article>

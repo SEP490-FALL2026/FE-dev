@@ -6,6 +6,7 @@ import { CatalogPurchaseForm } from './catalog-purchase-form'
 import { CatalogSubscriptionEditor } from './catalog-subscription-editor'
 import { CatalogWorkspaceSetup } from './catalog-workspace-setup'
 import { CatalogPlanTerms } from './catalog-plan-terms'
+import { CatalogPlanSubscriptions } from './catalog-plan-subscriptions'
 
 export type SetupPlan = Pick<
   NonNullable<PlanResponseDtoData>,
@@ -40,7 +41,8 @@ export function CatalogPlanSetup({
         </p>
       </header>
       <p className='text-sm text-muted-foreground'>{translate('setup.intro')}</p>
-      {(plan.provisioningType === 'K2' || plan.provisioningType === 'K4') && (
+      {plan.provisioningType !== 'K5' && <CatalogPlanSubscriptions planId={plan.id} onEdit={setSubscriptionId} />}
+      {(plan.provisioningType === 'K1' || plan.provisioningType === 'K2' || plan.provisioningType === 'K4') && (
         <article className='space-y-2 rounded-lg border border-border bg-surface p-4'>
           <h2 className='font-semibold'>{translate('setup.subscription')}</h2>
           <p className='text-sm text-muted-foreground'>{translate('setup.subscriptionHint')}</p>
@@ -71,9 +73,8 @@ export function CatalogPlanSetup({
           applicationKind={applicationKind}
           planId={plan.id}
           onClose={() => setView('summary')}
-          onSubscriptionCreated={(id) => {
+          onSubscriptionCreated={() => {
             setView('summary')
-            setSubscriptionId(id)
           }}
         />
       )}

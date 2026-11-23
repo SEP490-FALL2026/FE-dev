@@ -21,7 +21,7 @@ import { customAxios } from '../../../mutator/custom-axios'
 import type { ErrorType, BodyType } from '../../../mutator/custom-axios'
 
 /**
- * @summary Record the outcome of a renewal
+ * @summary Record the outcome of a renewal decided before (legacy)
  */
 export const subscriptionRenewalRecordOutcome = (
   id: string,
@@ -84,7 +84,7 @@ export type SubscriptionRenewalRecordOutcomeMutationBody = BodyType<Subscription
 export type SubscriptionRenewalRecordOutcomeMutationError = ErrorType<ErrorEnvelopeDto>
 
 /**
- * @summary Record the outcome of a renewal
+ * @summary Record the outcome of a renewal decided before (legacy)
  */
 export const useSubscriptionRenewalRecordOutcome = <TError = ErrorType<ErrorEnvelopeDto>, TContext = unknown>(
   options?: {

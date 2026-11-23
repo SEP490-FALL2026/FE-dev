@@ -24,6 +24,10 @@ export const itOptimization = {
     }
   },
   escalate: 'Gửi đến trưởng phòng',
+  selectionHint:
+    'Chỉ chọn khuyến nghị đang mở ở mức Theo dõi để gửi sớm. Các khuyến nghị đã gửi hoặc đã đóng không thể chọn.',
+  vacantHolder: 'Ghế trống · chưa có người giữ',
+  holderUnavailable: 'Chưa có mã nhân viên',
   escalateHint:
     'Chỉ gửi khuyến nghị đang theo dõi. Trả lời đủ câu hỏi trước khi gửi. Thao tác này yêu cầu xem xét, không thu hồi quyền.',
   select: 'Chọn {{employee}} · {{application}}',

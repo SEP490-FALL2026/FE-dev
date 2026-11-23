@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { ArrowLeft, ShieldQuestion } from 'lucide-react'
 import { ItPageHeader, ItSectionTitle } from '../../shared/components/it-page-header'
 import { AssessmentQueue } from '../components/assessment-queue'
+import { AssessmentDecisions } from '../components/assessment-decisions'
 import { useAccessRequestAssessmentGet } from '~/shared/api/generated/operations/access-requests/access-request-assessment-get'
 import { useMeGet } from '~/shared/api/generated/operations/me/me-get'
 import { useAccessRequestGet } from '~/shared/api/generated/operations/access-requests/access-request-get'
@@ -26,6 +27,7 @@ export function ItShadowItView({
 }) {
   const { t: translate } = useTranslation('itNewSoftware')
   const [id, setId] = useState(initialRequestId ?? '')
+  const [list, setList] = useState<'queue' | 'decisions'>('queue')
   const [queueAllowsAction, setQueueAllowsAction] = useState<boolean | undefined>()
   return (
     <div className='space-y-5'>
@@ -44,12 +46,37 @@ export function ItShadowItView({
         }
       />
       <div hidden={!!id}>
-        <AssessmentQueue
-          onOpen={(requestId, canAct) => {
-            setQueueAllowsAction(canAct)
-            setId(requestId)
-          }}
-        />
+        <div className='mb-4 flex gap-2'>
+          <button
+            type='button'
+            className={list === 'queue' ? itPrimaryClass : itButtonClass}
+            onClick={() => setList('queue')}
+          >
+            {translate('queue.title')}
+          </button>
+          <button
+            type='button'
+            className={list === 'decisions' ? itPrimaryClass : itButtonClass}
+            onClick={() => setList('decisions')}
+          >
+            {translate('decisions.title')}
+          </button>
+        </div>
+        {list === 'queue' ? (
+          <AssessmentQueue
+            onOpen={(requestId, canAct) => {
+              setQueueAllowsAction(canAct)
+              setId(requestId)
+            }}
+          />
+        ) : (
+          <AssessmentDecisions
+            onOpen={(requestId) => {
+              setQueueAllowsAction(undefined)
+              setId(requestId)
+            }}
+          />
+        )}
       </div>
       {id && <AssessmentDetail key={id} id={id} queueAllowsAction={queueAllowsAction} onSelectTab={onSelectTab} />}
     </div>
@@ -78,7 +105,7 @@ function AssessmentDetail({
     !!employeeId &&
     request.requester.employeeId !== employeeId &&
     request.beneficiary?.employeeId !== employeeId
-  const [mode, setMode] = useState<'save' | 'complete' | 'reject' | null>(null)
+  const [mode, setMode] = useState<'save' | 'complete' | 'reject' | 'return' | null>(null)
   const [internalOpen, setInternalOpen] = useState(false)
   const item = query.data?.data?.assessment
   const authorized =
@@ -172,6 +199,9 @@ function AssessmentDetail({
             </button>
             <button className={itButtonClass} disabled={!editable} onClick={() => setMode('reject')}>
               {translate('reject')}
+            </button>
+            <button className={itButtonClass} disabled={!editable} onClick={() => setMode('return')}>
+              {translate('return')}
             </button>
             {onSelectTab && (
               <button className={itButtonClass} onClick={() => onSelectTab('dept-catalog')}>

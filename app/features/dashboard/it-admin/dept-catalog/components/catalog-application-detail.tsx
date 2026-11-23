@@ -12,7 +12,6 @@ import { useApplicationGet } from '~/shared/api/generated/operations/application
 import { usePlanList } from '~/shared/api/generated/operations/plans/plan-list'
 import { useSubscriptionList } from '~/shared/api/generated/operations/subscriptions/subscription-list'
 import { useSubscriptionSeatUsage } from '~/shared/api/generated/operations/subscriptions/subscription-seat-usage'
-import { CatalogSeatBaseline } from './catalog-seat-baseline'
 import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { ItPagination } from '../../shared/components/it-pagination'
 import { itButtonClass } from '../../shared/components/it-form'
@@ -175,19 +174,23 @@ export function CatalogApplicationDetail({ id, onBack }: { id: string; onBack: (
             <article className='space-y-3 rounded-lg border border-border p-4' key={subscription.id}>
               <div className='flex flex-wrap items-center justify-between gap-3'>
                 <div>
-                  <button
-                    className='min-h-11 text-left font-medium text-primary hover:underline'
-                    onClick={() => setEditingSubscription(subscription.id)}
-                  >
-                    {subscription.planName}
-                  </button>
+                  <p className='font-medium'>{subscription.planName}</p>
                   <p className='text-sm text-muted-foreground'>
                     {translate(`enums.${subscription.status}`, { defaultValue: translate('unknown') })}
                   </p>
                 </div>
-                <button className={itButtonClass} onClick={() => setSeatId(subscription.id)}>
-                  {translate('seats')}
-                </button>
+                <div className='flex flex-wrap gap-2'>
+                  <button
+                    type='button'
+                    className={itButtonClass}
+                    onClick={() => setEditingSubscription(subscription.id)}
+                  >
+                    {translate('editSubscription')}
+                  </button>
+                  <button type='button' className={itButtonClass} onClick={() => setSeatId(subscription.id)}>
+                    {translate('seats')}
+                  </button>
+                </div>
               </div>
             </article>
           ))}
@@ -205,7 +208,6 @@ export function CatalogApplicationDetail({ id, onBack }: { id: string; onBack: (
           <SeatUsage id={seatId} />
         </ItDetailDialog>
       )}
-      <CatalogSeatBaseline applicationId={id} applicationKind={application.data?.data?.kind} />
       <CatalogRetirement id={id} application={application.data?.data} />
       {editingPlan && <CatalogPlanEditor id={editingPlan} onClose={() => setEditingPlan(undefined)} />}
       {editingSubscription && (

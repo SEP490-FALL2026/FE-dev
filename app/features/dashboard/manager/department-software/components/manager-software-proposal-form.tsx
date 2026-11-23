@@ -41,6 +41,7 @@ export function ManagerSoftwareProposalForm({ departmentId, onClose }: { departm
   return (
     <Dialog
       presentation='sheet'
+      size='lg'
       title={t('departmentSoftware.propose')}
       hint={t('departmentSoftware.proposalHint')}
       onClose={() => {
@@ -61,24 +62,22 @@ export function ManagerSoftwareProposalForm({ departmentId, onClose }: { departm
           }}
         >
           <fieldset disabled={action.blocked} className='space-y-4'>
-            <div className='grid items-start gap-x-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'>
-              <ManagerCatalogApplication
-                value={application}
-                disabled={action.blocked}
-                onChange={(choice) => {
-                  setApplication(choice)
-                  setPlan(null)
-                }}
-              />
-              <ManagerCatalogPlans
-                key={application?.value ?? 'none'}
-                applicationId={application?.value ?? ''}
-                value={plan}
-                onChange={setPlan}
-                disabled={action.blocked || !application}
-                guidanceOnly
-              />
-            </div>
+            <ManagerCatalogApplication
+              value={application}
+              disabled={action.blocked}
+              onChange={(choice) => {
+                setApplication(choice)
+                setPlan(null)
+              }}
+            />
+            <ManagerCatalogPlans
+              key={application?.value ?? 'none'}
+              applicationId={application?.value ?? ''}
+              value={plan}
+              onChange={setPlan}
+              disabled={action.blocked || !application}
+              guidanceOnly
+            />
             <div className='flex flex-wrap items-center justify-between gap-2 text-sm text-muted-foreground'>
               <p className='max-w-prose'>{t('departmentSoftware.optionalPlan')}</p>
               {plan && <ManagerButton onClick={() => setPlan(null)}>{t('departmentSoftware.allPlans')}</ManagerButton>}

@@ -40,8 +40,7 @@ export function useEmployeeFeedback(queryKeys: readonly QueryKey[]) {
         .catch(() => undefined)
     const contractKey = requestContractErrorKey(error)
     toast.error(contractKey ? flow(contractKey) : translate(`errors.${key}`), {
-      id: 'employee-write',
-      description: failure.requestId ? translate('requestId', { id: failure.requestId }) : undefined
+      id: 'employee-write'
     })
   }
   return {

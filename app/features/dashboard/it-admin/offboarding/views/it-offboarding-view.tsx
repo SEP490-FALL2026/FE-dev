@@ -31,8 +31,10 @@ export function ItOffboardingView({
   const selected = searchParams.get('id') ?? fallbackId
   const requestedPage = Number(searchParams.get('page') ?? 1)
   const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1
-  const state = Object.values(OffboardingState).find((value) => value === searchParams.get('state')) ?? fallbackState
   const overdueOnly = searchParams.get('revocationOverdue') === 'true'
+  const state = overdueOnly
+    ? undefined
+    : (Object.values(OffboardingState).find((value) => value === searchParams.get('state')) ?? fallbackState)
   const lastWorkingDayFrom = searchParams.get('lastWorkingDayFrom') || undefined
   const lastWorkingDayTo = searchParams.get('lastWorkingDayTo') || undefined
   function update(values: Record<string, string | undefined>) {
@@ -72,10 +74,10 @@ export function ItOffboardingView({
           <button
             key={value ?? 'all'}
             className={itButtonClass}
-            aria-pressed={state === value}
+            aria-pressed={!overdueOnly && state === value}
             onClick={() => {
               setFallbackState(undefined)
-              update({ state: value, page: '1' })
+              update({ state: value, revocationOverdue: undefined, page: '1' })
             }}
           >
             {value ? translate(`states.${value}`) : translate('all')}
@@ -85,7 +87,8 @@ export function ItOffboardingView({
           className={itButtonClass}
           aria-pressed={overdueOnly}
           onClick={() => {
-            update({ revocationOverdue: overdueOnly ? undefined : 'true', page: '1' })
+            setFallbackState(undefined)
+            update({ state: undefined, revocationOverdue: 'true', page: '1' })
           }}
         >
           {translate('overdueFilter')}

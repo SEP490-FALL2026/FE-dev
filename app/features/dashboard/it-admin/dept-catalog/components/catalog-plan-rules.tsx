@@ -14,12 +14,16 @@ export function readPlanRules(values: FormData, provisioningType: CreateApplicat
   )
   const dataLossOnRemoval = values.has('dataLossOnRemoval')
   const revocationNote = String(values.get('revocationNote') ?? '').trim()
+  const referenceAmount = String(values.get('referencePrice') ?? '').trim()
   if ((provisioningType !== 'K5' && !controlLevel) || (dataLossOnRemoval && !revocationNote)) return null
   return {
     ...(provisioningType !== 'K5' && controlLevel ? { controlLevel } : {}),
     ...(sharingPolicy ? { sharingPolicy } : {}),
     dataLossOnRemoval,
     ...(revocationNote ? { revocationNote } : {}),
+    ...(provisioningType !== 'K5' && referenceAmount
+      ? { referencePrice: { amount: referenceAmount, currency: 'VND' } }
+      : {}),
     ...(provisioningType === 'K4' ? { hasAdminConsole: values.has('hasAdminConsole') } : {})
   }
 }
@@ -30,6 +34,20 @@ export function CatalogPlanRules({ provisioningType }: { provisioningType: strin
   const [dataLoss, setDataLoss] = useState(false)
   return (
     <div className='space-y-4'>
+      {provisioningType !== 'K5' && (
+        <ItField
+          label={translate('referencePrice')}
+          hint={translate(provisioningType === 'K4' ? 'referencePriceKeyHint' : 'referencePriceSeatHint')}
+        >
+          <input
+            name='referencePrice'
+            inputMode='decimal'
+            pattern='[0-9]+([.][0-9]+)?'
+            maxLength={40}
+            className={itInputClass}
+          />
+        </ItField>
+      )}
       {provisioningType && provisioningType !== 'K5' && (
         <fieldset>
           <legend className='font-medium'>

@@ -5,7 +5,6 @@ import { useDashboardFormat } from '../../../dashboard-ui'
 import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { itButtonClass, itPrimaryClass } from '../../shared/components/it-form'
 import { RenewalOutcomeDialog } from './renewal-outcome-dialog'
-import { RenewalSeatRanking } from './renewal-seat-ranking'
 import { RenewalState } from '../enums/renewal-state'
 
 export function RenewalDetail({ id, onBack }: { id: string; onBack: () => void }) {
@@ -14,18 +13,8 @@ export function RenewalDetail({ id, onBack }: { id: string; onBack: () => void }
   const query = useSubscriptionRenewalGet(id)
   const item = query.data?.data?.renewal
   const [outcomeOpen, setOutcomeOpen] = useState(false)
-  const [rankingOpen, setRankingOpen] = useState(false)
   if (outcomeOpen && item) return <RenewalOutcomeDialog renewal={item} onClose={() => setOutcomeOpen(false)} />
-  if (rankingOpen)
-    return (
-      <section className='space-y-5'>
-        <button type='button' className={itButtonClass} onClick={() => setRankingOpen(false)}>
-          {translate('back')}
-        </button>
-        <h1 className='text-2xl font-semibold'>{translate('ranking')}</h1>
-        <RenewalSeatRanking id={id} />
-      </section>
-    )
+
   return (
     <section className='space-y-5'>
       <button type='button' className={itButtonClass} onClick={onBack}>
@@ -134,14 +123,6 @@ export function RenewalDetail({ id, onBack }: { id: string; onBack: () => void }
                 )}
               </section>
             )}
-            <button
-              type='button'
-              className={itButtonClass}
-              aria-expanded={rankingOpen}
-              onClick={() => setRankingOpen(!rankingOpen)}
-            >
-              {translate('ranking')}
-            </button>
           </>
         ) : (
           <ItEmpty />

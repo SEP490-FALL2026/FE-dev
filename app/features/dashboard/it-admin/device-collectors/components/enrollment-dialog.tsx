@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
-import { ItFormDialog } from '../../shared/components/it-form'
+import { toast } from 'sonner'
+import { ItFormDialog, itButtonClass } from '../../shared/components/it-form'
 import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
 import { useEnrollmentCode } from '../hooks/use-enrollment-code'
 
@@ -32,6 +33,20 @@ export function EnrollmentDialog({ registrationId, onClose }: { registrationId: 
           <output className='block select-all break-all rounded-md bg-surface-subtle p-4 font-mono text-xl'>
             {operation.secret.code}
           </output>
+          <button
+            type='button'
+            className={itButtonClass}
+            onClick={async () => {
+              try {
+                await navigator.clipboard.writeText(operation.secret!.code)
+                toast.success(translate('codeCopied'), { id: 'device-enrollment-copy' })
+              } catch {
+                toast.error(translate('codeCopyFailed'), { id: 'device-enrollment-copy' })
+              }
+            }}
+          >
+            {translate('copyCode')}
+          </button>
           <p className='text-xs text-muted-foreground'>
             {translate('expires', {
               value: new Intl.DateTimeFormat(undefined, { dateStyle: 'short', timeStyle: 'short' }).format(

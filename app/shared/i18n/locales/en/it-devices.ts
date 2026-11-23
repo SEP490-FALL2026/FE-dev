@@ -1,6 +1,22 @@
 export const itDevices = {
+  stopRequests: 'Collection stop requests',
+  stopRequestedAt: 'Requested',
+  stopDueAt: 'Due',
+  stopOverdue: 'Overdue',
+  stopComplete: 'Complete collection stop',
+  stopConfirm:
+    'Confirm that collection should stop for this registration. The collector credentials remain valid. Collection can resume after the holder acknowledges the notice again.',
+  stopSelfHandled: 'Completed by the device holder',
+  stopDevice: 'View device',
+  stopStates: { OPEN: 'Awaiting handling', COMPLETED: 'Completed', INVALID: 'Invalid' },
+  stopReasons: {
+    DUPLICATE: 'An open request already exists.',
+    ALREADY_STOPPED: 'Collection has already stopped.',
+    REGISTRATION_ENDED: 'The handover registration has ended.',
+    IT_ADMIN: 'Marked invalid by the system.'
+  },
   title: 'Devices and collectors',
-  subtitle: 'Register company machines, record signed notices and review collector results.',
+  subtitle: 'Manage company devices, their holders and collection activity.',
   registry: 'Device registry',
   mine: 'My devices',
   allowlist: 'Collector allowlist',
@@ -20,6 +36,13 @@ export const itDevices = {
   hostname: 'Hostname',
   os: 'Operating system',
   holderEmployeeId: 'Device holder',
+  deviceInformation: 'Device information',
+  holderAndHandover: 'Holder and handover',
+  collectionActivity: 'Collection activity',
+  deviceActions: 'Device actions',
+  usageHolder: 'Holder when usage was recorded',
+  holderLoading: 'Loading holder history',
+  holderUnresolved: 'Holder could not be identified',
   filterDepartment: 'Department',
   filterHolder: 'Device holder',
   allDepartments: 'All departments',
@@ -38,6 +61,9 @@ export const itDevices = {
   upload: 'Upload and record signature',
   enroll: 'Enrollment code',
   generate: 'Generate one-time code',
+  copyCode: 'Copy code',
+  codeCopied: 'Code copied.',
+  codeCopyFailed: 'Could not copy the code. Select it and copy it manually.',
   secretWarning:
     'Copy this code now for the collector installer. It clears after 60 seconds, when you leave this window or hide this tab.',
   expires: 'Expires: {{value}}',
@@ -89,6 +115,7 @@ export const itDevices = {
   acknowledgedFrom: 'Collection permitted from',
   retirementReason: 'Retirement reason',
   latestSignatureRecord: 'Latest signed notice',
+  openSignature: 'Open signed notice',
   latestAcknowledgement: 'Latest acknowledgement',
   lastEnd: 'Previous registration',
   recordedAt: 'Recorded',
@@ -172,12 +199,12 @@ export const itDevices = {
       'Pick a department, then pick the employee receiving the device from the directory. The system checks eligibility.',
     handedOverOn: 'Optional. Defaults to today; cannot be in the future or before the employee was hired.',
     holder:
-      'Changing the holder ends the current registration and revokes its collector credentials. The new holder must sign and acknowledge a notice.',
+      'Changing the holder ends the current handover and revokes the old collector credentials. The new holder must sign, acknowledge the notice and reinstall the collector with a new code.',
     retire:
       'Retirement ends the registration and revokes its collector credentials. Confirm only when this machine is no longer in use.',
     reason: 'Describe the operational reason; this will remain in the audit record.',
     enroll:
-      'Generate an AI collector code for this registration after the holder acknowledges the notice. Give it to the installer who runs the collector CLI on the machine.',
+      'Generate the collector code after recording the signed notice. The collector can send data only after the holder acknowledges the notice.',
     documentId: 'Reference a completed upload with SIGNATURE_RECORD purpose, or upload the signed file here.',
     noticeVersionId:
       'Use the UUID of the exact monitoring notice the holder signed. The current notice ID is prefilled.',

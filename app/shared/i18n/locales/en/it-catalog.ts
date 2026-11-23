@@ -1,9 +1,34 @@
 import { itCatalogTerms } from './it-catalog-terms'
 import { itCatalogHelp } from './it-catalog-help'
 export const itCatalog = {
+  referencePrice: 'Reference price (VND, before tax)',
+  referencePriceKeyHint: 'Price per key; leave blank if unknown.',
+  referencePriceSeatHint: 'Price per seat per month; leave blank if unknown.',
+  subscriptionCreate: {
+    invalidTerms: 'Annual billing requires a 12-month commitment.',
+    k1Terms: 'Individual plans require monthly billing and a one-month commitment.',
+    workspaceHint:
+      'Set up the workspace with at least two eligible IT administrators before activating the subscription. You can save a draft if it is not ready.',
+    requiredOnlyHint:
+      'Additional details are optional; an incomplete subscription will be saved as a draft. If no IT Admin is selected, the application’s responsible IT Admin is used when eligible.',
+    renewalDetails: 'Renewal and cancellation notice',
+    originalHint: 'The vendor quote for invoice matching; no conversion to VND is performed.',
+    departmentHint: 'Optional. Leave blank when no department owns the subscription.'
+  },
+  subscriptionExtra: {
+    legacyPrice:
+      'Previous price: {{amount}} {{currency}}. Enter a confirmed VND price to update it; no conversion is performed.',
+    title: 'Vendor and responsibility',
+    originalAmount: 'Vendor original price',
+    originalHint: 'Reference price on the invoice, without conversion to VND. Clear the amount to remove it.',
+    originalCurrency: 'Original price currency',
+    minimum: 'Minimum seats',
+    minimumHint: 'Leave blank when the vendor has no minimum.',
+    primary: 'Use as the primary subscription for this plan'
+  },
   setup: {
     action: 'Set up',
-    commitment: 'Commitment period',
+    commitment: 'When seats can be reduced',
     monthCount: '{{count}} months',
     intro:
       'Continue setting up this plan. A draft subscription is not ready for allocation until its required information is completed.',
@@ -222,7 +247,7 @@ export const itCatalog = {
   dataLoss: 'Removal causes data loss',
   revocationNote: 'Revocation instructions',
   missingData: 'Missing data',
-  unitAmount: 'Unit price',
+  unitAmount: 'Unit price (VND)',
   currency: 'Currency (ISO code)',
   startDate: 'Start date',
   endDate: 'End date',

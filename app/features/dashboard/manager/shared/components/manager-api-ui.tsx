@@ -129,7 +129,6 @@ export function ManagerQueryState({
     return (
       <div role='alert' className='space-y-3 py-4'>
         <p>{translate(`errors.${failure.key}`)}</p>
-        {failure.requestId && <p className='font-mono text-xs'>{translate('requestId', { id: failure.requestId })}</p>}
         <ManagerButton busy={query.isFetching} onClick={() => void query.refetch()}>
           {translate('retry')}
         </ManagerButton>

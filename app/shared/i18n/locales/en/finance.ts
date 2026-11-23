@@ -3,11 +3,7 @@ export const finance = {
   requestMonitor: 'Request monitor',
   purchaseInvoices: 'Purchase invoices',
   invoiceDiscrepancies: 'Invoice discrepancies',
-  outOfProcess: 'Out-of-process spend',
   periodClose: 'Budget review',
-  seatCharges: 'Cost by seat',
-  budgetAdjustments: 'Budget adjustments',
-  budgetParameters: 'Budget parameters',
   ui: {
     selectPlaceholder: 'Choose a value (type to search)'
   },
@@ -186,9 +182,7 @@ export const finance = {
   versions: 'Budget versions',
   budgets: 'Current budgets',
   costCenters: 'Cost centers',
-  vendorTax: 'Vendor tax profiles',
   catalog: 'Software catalog',
-  subscriptionRenewals: 'Subscription adjustments',
   analytics: {
     title: 'Budget and commitments',
     view: 'Display',

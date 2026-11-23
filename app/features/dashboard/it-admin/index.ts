@@ -9,3 +9,5 @@ export {
   type ItAdminMenuItem
 } from './it-admin-nav'
 export { IT_ADMIN_TAB_KEYS, type ItAdminTabKey } from './enums'
+
+export { ItNotificationBell } from './shared/components/it-notification-bell'

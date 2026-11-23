@@ -14,6 +14,8 @@ import { recordAdminRetryDelay } from '~/shared/lib/use-retry-delay'
 import { getMeGetQueryOptions } from '~/shared/api/generated/operations/me/me-get'
 import { AssessmentFields } from './assessment-fields'
 import { ItQueryState } from '../../shared/components/it-query-state'
+import { canSubmitAssessmentDecision } from '../hooks/assessment-decision'
+import { CatalogLinkPlanPicker } from './catalog-link-plan-picker'
 
 export function AssessmentDialog({
   item,
@@ -21,7 +23,7 @@ export function AssessmentDialog({
   onClose
 }: {
   item: AssessmentResponseDtoDataAssessment
-  mode: 'save' | 'complete' | 'reject'
+  mode: 'save' | 'complete' | 'reject' | 'return'
   onClose: () => void
 }) {
   const { t: translate } = useTranslation('itNewSoftware')
@@ -30,6 +32,8 @@ export function AssessmentDialog({
   const [draft, setDraft] = useState<AssessmentPatchDto>({})
   const [reason, setReason] = useState('')
   const [alternative, setAlternative] = useState('')
+  const [alternativeApplication, setAlternativeApplication] = useState('')
+  const [alternativePlan, setAlternativePlan] = useState('')
   const [kind, setKind] = useState<'UNCONTROLLABLE' | 'NOT_ELIGIBLE'>('NOT_ELIGIBLE')
   const [answers, setAnswers] = useState<{ version: string; values: Record<string, 'YES' | 'NO'> }>({
     version: '',
@@ -53,15 +57,18 @@ export function AssessmentDialog({
         answers: questions.map((entry) => ({ itemCode: entry.code, answer: answers.values[entry.code] }))
       }
     : null
+  const decisionReady =
+    mode === 'save' ||
+    (checklistReady &&
+      canSubmitAssessmentDecision(
+        mode,
+        reason,
+        questions.map((entry) => answers.values[entry.code])
+      ) &&
+      (mode !== 'reject' || kind !== 'UNCONTROLLABLE' || !!alternative.trim() || !!alternativePlan))
   const pending = save.isPending || complete.isPending || reject.isPending
   async function submit() {
-    if (
-      lock.current ||
-      pending ||
-      (mode !== 'save' && (!checklistReady || !checklist)) ||
-      (mode === 'reject' && !reason.trim())
-    )
-      return
+    if (lock.current || pending || (mode !== 'save' && (!decisionReady || !checklist))) return
     lock.current = true
     try {
       if (mode === 'save') await save.mutateAsync({ id: item.requestId, data: draft })
@@ -72,15 +79,23 @@ export function AssessmentDialog({
           data: {
             decision: 'REJECT',
             kind,
-            reason: reason.trim(),
+            ...(reason.trim() ? { reason: reason.trim() } : {}),
             ...(alternative.trim() ? { alternativeNote: alternative.trim() } : {}),
+            ...(alternativePlan ? { alternativePlanId: alternativePlan } : {}),
             checklist
           }
+        })
+      if (mode === 'return' && checklist)
+        await reject.mutateAsync({
+          id: item.requestId,
+          data: { decision: 'RETURN', ...(reason.trim() ? { reason: reason.trim() } : {}), checklist }
         })
       await client.invalidateQueries({
         predicate: (query) =>
           query.queryKey.some(
-            (key) => typeof key === 'string' && /access-requests|assessment-queue|dashboards\/it-admin/.test(key)
+            (key) =>
+              typeof key === 'string' &&
+              /access-requests|assessment-queue|assessment-decisions|dashboards\/it-admin/.test(key)
           )
       })
       toast.success(translate('saved'), { id: 'it-assessment' })
@@ -89,7 +104,6 @@ export function AssessmentDialog({
       recordAdminRetryDelay(client, error)
       if (mode !== 'save') {
         await policy.refetch()
-        setAnswers({ version: '', values: {} })
       }
       if (getItError(error).key === 'forbidden')
         await client.fetchQuery({ ...getMeGetQueryOptions(), staleTime: 0, retry: false }).catch(() => undefined)
@@ -111,9 +125,7 @@ export function AssessmentDialog({
       pending={pending}
       onClose={onClose}
       submitLabel={translate('confirm')}
-      submitDisabled={
-        mode === 'save' ? Object.keys(draft).length === 0 : !checklistReady || (mode === 'reject' && !reason.trim())
-      }
+      submitDisabled={mode === 'save' ? Object.keys(draft).length === 0 : !decisionReady}
       onSubmit={(event) => {
         event.preventDefault()
         void submit()
@@ -164,36 +176,55 @@ export function AssessmentDialog({
           )}
         </ItQueryState>
       )}
-      {mode === 'reject' && (
+      {(mode === 'reject' || mode === 'return') && (
         <>
-          <fieldset className='space-y-2'>
-            <legend>{translate('rejectionKind')}</legend>
-            {(['NOT_ELIGIBLE', 'UNCONTROLLABLE'] as const).map((value) => (
-              <label key={value} className='flex min-h-11 items-center gap-2'>
-                <input type='radio' name='kind' checked={kind === value} onChange={() => setKind(value)} />
-                {translate(`values.${value}`)}
-              </label>
-            ))}
-          </fieldset>
+          {mode === 'reject' && (
+            <fieldset className='space-y-2'>
+              <legend>{translate('rejectionKind')}</legend>
+              {(['NOT_ELIGIBLE', 'UNCONTROLLABLE'] as const).map((value) => (
+                <label key={value} className='flex min-h-11 items-center gap-2'>
+                  <input type='radio' name='kind' checked={kind === value} onChange={() => setKind(value)} />
+                  {translate(`values.${value}`)}
+                </label>
+              ))}
+            </fieldset>
+          )}
           <ItField label={translate('reason')} hint={translate('reasonHint')}>
             <textarea
               placeholder={translatePlaceholder('reason')}
               className={itInputClass}
-              required
               maxLength={1000}
               value={reason}
               onChange={(event) => setReason(event.target.value)}
             />
           </ItField>
-          <ItField label={translate('alternative')} hint={translate('alternativeHint')}>
-            <textarea
-              placeholder={translatePlaceholder('alternative')}
-              className={itInputClass}
-              maxLength={1000}
-              value={alternative}
-              onChange={(event) => setAlternative(event.target.value)}
-            />
-          </ItField>
+          {mode === 'reject' && (
+            <ItField label={translate('alternative')} hint={translate('alternativeHint')}>
+              <textarea
+                placeholder={translatePlaceholder('alternative')}
+                className={itInputClass}
+                maxLength={1000}
+                value={alternative}
+                onChange={(event) => setAlternative(event.target.value)}
+              />
+            </ItField>
+          )}
+          {mode === 'reject' && (
+            <fieldset className='space-y-2'>
+              <legend className='font-medium'>{translate('fields.equivalentPlanId')}</legend>
+              <CatalogLinkPlanPicker
+                optional
+                disabled={pending}
+                applicationId={alternativeApplication}
+                planId={alternativePlan}
+                onApplicationChange={(id) => {
+                  setAlternativeApplication(id)
+                  setAlternativePlan('')
+                }}
+                onPlanChange={setAlternativePlan}
+              />
+            </fieldset>
+          )}
         </>
       )}
     </ItFormDialog>

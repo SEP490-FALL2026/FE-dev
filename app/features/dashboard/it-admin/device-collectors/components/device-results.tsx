@@ -12,6 +12,7 @@ import { ItField, itInputClass } from '../../shared/components/it-form'
 import { ItChoiceSelect } from '../../shared/components/it-choice-select'
 import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { ItPagination } from '../../shared/components/it-pagination'
+import { useDeviceHolders } from '../hooks/use-device-holders'
 
 export function DeviceResults({
   id,
@@ -48,6 +49,7 @@ function Usage({ id, mine }: { id: string; mine: boolean }) {
   const adminQuery = useDeviceUsageList(id, params, { query: { enabled: !mine } })
   const myQuery = useMyDeviceUsageList(id, params, { query: { enabled: mine } })
   const query = mine ? myQuery : adminQuery
+  const holders = useDeviceHolders(id, !mine)
   const data = query.data?.data
   return (
     <div className='space-y-4'>
@@ -77,6 +79,7 @@ function Usage({ id, mine }: { id: string; mine: boolean }) {
           />
         </ItField>
       </div>
+      {!mine && holders.isError && <ItQueryState query={holders}>{null}</ItQueryState>}
       <ItQueryState query={query}>
         {data?.items.length ? (
           <div className='divide-y divide-border/40'>
@@ -89,6 +92,16 @@ function Usage({ id, mine }: { id: string; mine: boolean }) {
                   )}
                 </p>
                 <p className='text-xs text-muted-foreground'>{formatDate(item.date)}</p>
+                {!mine && 'registrationId' in item && typeof item.registrationId === 'string' && (
+                  <div className='text-sm'>
+                    <p className='text-muted-foreground'>{translate('usageHolder')}</p>
+                    <p>
+                      {holders.isPending
+                        ? translate('holderLoading')
+                        : (holders.data?.[item.registrationId] ?? translate('holderUnresolved'))}
+                    </p>
+                  </div>
+                )}
                 {item.coverage === 'PARTIAL' && (
                   <p className='text-xs text-muted-foreground'>{translate('partialCoverage')}</p>
                 )}

@@ -17,6 +17,7 @@ export const device: MyDevicePageResponseDtoDataItemsItem = {
   deviceId,
   registrationId,
   assetCode: 'COMPANY-001',
+  stopRequestPending: false,
   hostname: 'company-laptop',
   os: 'Windows',
   validFrom: '2026-11-01',

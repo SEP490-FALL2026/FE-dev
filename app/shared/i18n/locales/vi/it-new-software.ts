@@ -6,9 +6,9 @@ export const itNewSoftware = {
     searchApplication: 'Tìm theo tên ứng dụng đã có trong danh mục dùng chung.',
     softwareName: 'Nhập tên hiển thị của phần mềm nội bộ sẽ được tạo trong danh mục.'
   },
-  checklistHint: 'Trả lời từng câu hỏi để hoàn tất đánh giá.',
-  reasonHint: 'Mô tả lý do từ chối để người gửi hiểu quyết định.',
-  alternativeHint: 'Ghi phương án thay thế nếu có.',
+  checklistHint: 'Trả lời từng câu hỏi. Chọn Không sẽ chặn hoàn tất và có thể làm lý do từ chối hoặc trả về.',
+  reasonHint: 'Ghi lý do hoặc chọn Không ở câu hỏi liên quan để hệ thống ghi lý do.',
+  alternativeHint: 'Khi không kiểm soát được, cần ghi phương án thay thế hoặc chọn gói trong danh mục.',
   title: 'Yêu cầu phần mềm ngoài danh mục',
   eyebrow: 'Thẩm định phần mềm mới',
   subtitle: 'Mở một yêu cầu trong hàng đợi để phân loại, ghi báo giá và đưa phần mềm vào danh mục.',
@@ -41,7 +41,8 @@ export const itNewSoftware = {
       COMPLETABLE: 'Đủ điều kiện hoàn tất',
       INCOMPLETE: 'Chưa đủ thông tin',
       INTERNAL_BY_REGISTRATION: 'Cần đăng ký phần mềm nội bộ',
-      UNCONTROLLABLE: 'Cần rà soát rủi ro kiểm soát'
+      UNCONTROLLABLE: 'Cần rà soát rủi ro kiểm soát',
+      FREE_PLAN: 'Cần đăng ký gói nội bộ và từ chối đề xuất'
     }
   },
   catalogLink: {
@@ -93,6 +94,8 @@ export const itNewSoftware = {
   save: 'Lưu thẩm định',
   complete: 'Hoàn tất thẩm định',
   reject: 'Từ chối đề xuất',
+  return: 'Trả về bổ sung',
+  decisions: { title: 'Đã thẩm định' },
   confirm: 'Xác nhận',
   saved: 'Đã cập nhật thẩm định',
   reason: 'Lý do',

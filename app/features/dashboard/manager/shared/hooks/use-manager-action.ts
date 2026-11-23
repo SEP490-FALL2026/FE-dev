@@ -64,8 +64,7 @@ export function useManagerAction<Result, Variables = void>(options: {
           ? flow(contractKey)
           : translate(`errors.${failure.key}`)
       toast.error(message, {
-        id: 'manager-write',
-        description: failure.requestId ? translate('requestId', { id: failure.requestId }) : undefined
+        id: 'manager-write'
       })
       if (active.current) options.onError?.(error)
     }

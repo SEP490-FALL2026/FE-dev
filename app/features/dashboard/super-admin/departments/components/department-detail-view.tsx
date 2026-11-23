@@ -65,7 +65,7 @@ export function DepartmentDetailView({ id, onBack }: { id: string; onBack: () =>
         {!department && <AdminEmpty />}
         {department && (
           <>
-            <header className='page-banner flex min-w-0 flex-wrap items-center gap-5'>
+            <header className='page-banner z-20 flex min-w-0 flex-wrap items-center gap-5 !overflow-visible after:top-0 after:right-0'>
               <div className='flex w-full min-w-0 items-center gap-4 sm:w-auto sm:flex-1'>
                 <span className='grid size-14 shrink-0 place-items-center rounded-xl bg-surface text-primary shadow-sm ring-1 ring-primary/15'>
                   <Building2 aria-hidden className='size-7' strokeWidth={1.5} />

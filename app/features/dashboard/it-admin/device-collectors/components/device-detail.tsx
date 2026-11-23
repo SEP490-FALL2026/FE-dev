@@ -5,8 +5,6 @@ import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { itButtonClass } from '../../shared/components/it-form'
 import { DeviceHistory } from './device-history'
 import { DeviceActionDialog } from './device-forms'
-import { SignatureDialog } from './signature-dialog'
-import { EnrollmentDialog } from './enrollment-dialog'
 import { CredentialList } from './credential-list'
 import { DeviceResults } from './device-results'
 import { DeviceState } from '../enums/device-state'
@@ -32,7 +30,7 @@ export function DeviceDetail({
   const { t: translate } = useTranslation('itDevices')
   const query = useDeviceGet(id)
   const device = query.data?.data
-  const [action, setAction] = useState<'holder' | 'retire' | 'signature' | 'enroll'>()
+  const [action, setAction] = useState<'holder' | 'retire'>()
   const [localSection, setLocalSection] = useState<DeviceSection>('detail')
   const section = controlledSection ?? localSection
   const navigate = (next: DeviceSection, historyRegistrationId?: string, backTo?: 'history') => {
@@ -63,10 +61,6 @@ export function DeviceDetail({
   if (device) {
     if (action === 'holder' || action === 'retire')
       return <DeviceActionDialog device={device} action={action} onClose={back} />
-    if (action === 'signature' && device.registrationId)
-      return <SignatureDialog deviceId={id} registrationId={device.registrationId} onClose={back} />
-    if (action === 'enroll' && device.registrationId)
-      return <EnrollmentDialog registrationId={device.registrationId} onClose={back} />
   }
   const known = device && Object.values(DeviceState).some((value) => value === device.state)
   return (
@@ -78,39 +72,35 @@ export function DeviceDetail({
       <ItQueryState query={query}>
         {device ? (
           <div className='space-y-5'>
-            <div className='flex flex-wrap gap-2'>
-              {known && device.state !== DeviceState.RETIRED && (
-                <>
-                  <button type='button' className={itButtonClass} onClick={() => setAction('holder')}>
-                    {translate('holder')}
-                  </button>
-                  <button type='button' className={itButtonClass} onClick={() => setAction('retire')}>
-                    {translate('retire')}
-                  </button>
-                  {device.registrationId && (
-                    <button type='button' className={itButtonClass} onClick={() => setAction('signature')}>
-                      {translate('signature')}
-                    </button>
-                  )}
-                  {device.registrationId && device.state === DeviceState.ACTIVE && (
-                    <button type='button' className={itButtonClass} onClick={() => setAction('enroll')}>
-                      {translate('enroll')}
-                    </button>
-                  )}
-                </>
-              )}
-              {device.registrationId && (
-                <button type='button' className={itButtonClass} onClick={() => navigate('credentials')}>
-                  {translate('credentials')}
-                </button>
-              )}
-              {(['history', 'usage', 'status', 'rejections'] as const).map((kind) => (
-                <button key={kind} type='button' className={itButtonClass} onClick={() => navigate(kind)}>
-                  {translate(kind)}
-                </button>
-              ))}
-            </div>
             <DeviceHistory device={device} />
+            <section
+              className='space-y-4 rounded-lg border border-border bg-surface p-5'
+              aria-label={translate('deviceActions')}
+            >
+              <h3 className='text-base font-semibold'>{translate('deviceActions')}</h3>
+              <div className='flex flex-wrap gap-2'>
+                {known && device.state !== DeviceState.RETIRED && (
+                  <>
+                    <button type='button' className={itButtonClass} onClick={() => setAction('holder')}>
+                      {translate('holder')}
+                    </button>
+                    <button type='button' className={itButtonClass} onClick={() => setAction('retire')}>
+                      {translate('retire')}
+                    </button>
+                  </>
+                )}
+                {device.registrationId && (
+                  <button type='button' className={itButtonClass} onClick={() => navigate('credentials')}>
+                    {translate('credentials')}
+                  </button>
+                )}
+                {(['history', 'usage', 'status', 'rejections'] as const).map((kind) => (
+                  <button key={kind} type='button' className={itButtonClass} onClick={() => navigate(kind)}>
+                    {translate(kind)}
+                  </button>
+                ))}
+              </div>
+            </section>
           </div>
         ) : (
           <ItEmpty />

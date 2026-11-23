@@ -47,6 +47,7 @@ export const adminPersonnelHelp = {
     newApprovedReturnOn: 'The new approved return date for the active long leave.',
     returnedOn: 'The actual return date confirmed by the authorized source.',
     lastWorkingDay: 'The employee’s official last working day. Optional only when access is blocked immediately.',
+    lastWorkingDayNotice: 'Official last working day recorded for the notice.',
     blockAccessNow: 'Block access immediately. Without a last working day the server uses the prior business day.',
     cancelPendingTransfer: 'Cancel a pending department transfer as part of recording this departure.',
     abrupt: 'Record an unplanned departure using the verified authoritative source.',

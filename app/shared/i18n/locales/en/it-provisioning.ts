@@ -108,6 +108,12 @@
   noAvailableSubscription: 'No subscription is available for this selection.',
   serviceAccountRequired: 'Enter the service account identifier.',
   accountHint: 'Enter the account identifier if known.',
+  accountEmail: 'Account email',
+  viewInvoice: 'View purchase invoice',
+  accountEmailHint: 'Use a company email. Leave blank to use the beneficiary’s work email.',
+  missingWorkEmail:
+    'No work email on the employee profile. Ask a Super Admin to add one, or enter another company email.',
+  workEmail: 'Beneficiary work email',
   approvedResponsible: 'Use the approved responsible employee',
   boundaryDecision: 'Boundary decision',
   boundaryDecisions: { ACCEPT: 'Accept non-human account', REJECT: 'Reject boundary' },
@@ -138,6 +144,9 @@
   reason: 'Reason',
   confirm: 'Confirm',
   confirmHint: 'Confirm only after performing the required work. Evidence must describe the verified result.',
+  departureConfirmHint: 'Confirm only after completing the revocation and saving the evidence images.',
+  departureEvidenceHint: 'Paste the Drive link to the images showing the completed revocation.',
+  departureEvidencePlaceholder: 'https://drive.google.com/...',
   cancelHint: 'Cancel only when the linked request has been withdrawn. The server checks this prerequisite.',
   completion: 'Revocation result',
   k1Checklist: {

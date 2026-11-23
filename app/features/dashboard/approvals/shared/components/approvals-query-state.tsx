@@ -37,11 +37,6 @@ export function ApprovalsQueryState({
     return (
       <div role='alert' className='space-y-3 rounded-lg border border-border bg-surface p-6'>
         <p className='text-sm'>{translate(`errors.${failure.key}`)}</p>
-        {failure.requestId && (
-          <p className='text-right font-mono text-xs text-muted-foreground'>
-            {translate('requestId', { value: failure.requestId })}
-          </p>
-        )}
         {failure.key !== 'forbidden' && (
           <button
             type='button'

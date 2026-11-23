@@ -28,6 +28,7 @@ import { grantStockDecision } from '../grant-stock'
 import { ItDirectoryLookup } from '../../shared/components/it-directory-lookup'
 import { allProvisioningPages } from '../hooks/use-provisioning-departments'
 import { useAccumulatedOptions } from '../../shared/hooks/use-accumulated-options'
+import { usePlanGet } from '~/shared/api/generated/operations/plans/plan-get'
 
 function GrantDialog({
   request,
@@ -42,18 +43,29 @@ function GrantDialog({
   const { t: translatePlaceholder } = useTranslation('itPlaceholders')
   const [draft, setDraft] = useState<GrantBodyDto>({
     requestId: request.requestId,
-    beneficiaryEmployeeId: request.beneficiary.employeeId
+    ...(request.type === 'GROUP_GRANT' ? { beneficiaryEmployeeId: request.beneficiary.employeeId } : {})
   })
+  const [accountEmail, setAccountEmail] = useState(
+    request.type === 'SERVICE_ACCOUNT' ? '' : (request.beneficiary.workEmail ?? '')
+  )
   const [page, setPage] = useState(1)
   const [purchaseReason, setPurchaseReason] = useState('')
   const [purchaseConfirmed, setPurchaseConfirmed] = useState(false)
   const needsPurchase = !!request.stock && request.stock.kind !== 'NONE' && request.stock.free === 0
   const decision = request.stock ? grantStockDecision(request.stock, purchaseReason) : { allowed: false as const }
-  const canSubmit = decision.allowed && (!needsPurchase || purchaseConfirmed)
+  const plan = usePlanGet(request.plan.planId, { query: { enabled: request.stock?.kind === 'NONE' } })
   const subscriptions = useQuery({
     queryKey: getSubscriptionListQueryKey({ planId: request.plan.planId, status: 'ACTIVE', page, pageSize: 20 }),
     queryFn: () => subscriptionList({ planId: request.plan.planId, status: 'ACTIVE', page, pageSize: 20 })
   })
+  const isNoStockPlan = request.stock?.kind === 'NONE'
+  const isK1 = isNoStockPlan && plan.data?.data?.provisioningType === 'K1'
+  const canSubmit =
+    decision.allowed &&
+    (!needsPurchase || purchaseConfirmed) &&
+    (!isNoStockPlan || (plan.isSuccess && !plan.isFetching && !!plan.data?.data?.provisioningType)) &&
+    (!isK1 ||
+      (subscriptions.isSuccess && !subscriptions.isFetching && !!subscriptions.data?.data?.pagination.totalItems))
   const feedback = useItMutationFeedback([
     ['it-provisioning'],
     ['it-grant-queue'],
@@ -66,6 +78,10 @@ function GrantDialog({
     mutationFn: () =>
       provisioningTaskGrant({
         ...draft,
+        ...(accountEmail.trim() &&
+        (request.type === 'SERVICE_ACCOUNT' || accountEmail.trim() !== request.beneficiary.workEmail?.trim())
+          ? { accountIdentifier: accountEmail.trim() }
+          : {}),
         ...(decision.allowed && 'purchase' in decision ? { purchase: decision.purchase } : {})
       }),
     onError: feedback.onError,
@@ -108,6 +124,16 @@ function GrantDialog({
           {translate('stockUnavailable')}
         </p>
       )}
+      {isNoStockPlan && <ItQueryState query={plan}>{null}</ItQueryState>}
+      {isK1 && <ItQueryState query={subscriptions}>{null}</ItQueryState>}
+      {isK1 &&
+        subscriptions.isSuccess &&
+        !subscriptions.isFetching &&
+        !subscriptions.data?.data?.pagination.totalItems && (
+          <p role='status' className='text-sm'>
+            {translate('noAvailableSubscription')}
+          </p>
+        )}
       {request.stock && request.stock.kind !== 'NONE' && (
         <div className='space-y-3'>
           <p className='text-sm'>
@@ -150,15 +176,18 @@ function GrantDialog({
         onLoadMore={() => setPage((current) => current + 1)}
         onChange={(value) => update('subscriptionId', value)}
       />
-      <ItField label={translate('account')} hint={translate('accountHint')}>
+      {request.type !== 'SERVICE_ACCOUNT' && request.beneficiary.workEmail === null && (
+        <p role='status' className='text-sm text-muted-foreground'>
+          {translate('missingWorkEmail')}
+        </p>
+      )}
+      <ItField label={translate('accountEmail')} hint={translate('accountEmailHint')}>
         <input
           className={itInputClass}
           maxLength={254}
           placeholder={translate('placeholders.account')}
-          value={draft.accountIdentifier ?? ''}
-          onChange={(event) =>
-            setDraft((previous) => ({ ...previous, accountIdentifier: event.target.value || undefined }))
-          }
+          value={accountEmail}
+          onChange={(event) => setAccountEmail(event.target.value)}
         />
       </ItField>
       {request.expectedEndDate && (

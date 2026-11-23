@@ -8,6 +8,7 @@ import { ThemeSwitch } from '~/shared/ui/theme-switch'
 import type { RoleProfile } from '../dashboard-data'
 import { EmployeeNotificationBell } from '../employee'
 import { ManagerNotificationBell } from '../manager'
+import { ItNotificationBell } from '../it-admin'
 
 export interface DashboardHeaderProps {
   activeEmployeeTab?: string
@@ -94,6 +95,7 @@ export function DashboardHeader({
           <LanguageSwitch />
           {isEmployee && <EmployeeNotificationBell />}
           {isManager && <ManagerNotificationBell />}
+          {role === 'it-admin' && <ItNotificationBell />}
 
           <button
             aria-current={isProfileActive ? 'page' : undefined}

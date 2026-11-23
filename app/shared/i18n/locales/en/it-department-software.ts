@@ -7,6 +7,7 @@ export const itDepartmentSoftware = {
   back: 'Back to departments',
   add: 'Add software',
   editSelection: 'Choose packages',
+  currentSelection: 'Selected software',
   editSelectionHint: 'Select the packages to suggest to this department. Changes are kept across pages.',
   coveredByApplication: 'The whole application is already included',
   changesCount: '{{add}} to add · {{remove}} to remove',

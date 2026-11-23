@@ -17,7 +17,7 @@ import { customAxios } from '../../../mutator/custom-axios'
 import type { ErrorType, BodyType } from '../../../mutator/custom-axios'
 
 /**
- * @summary Propose the renewal of a subscription period
+ * @summary Record the result of the adjustment of a subscription period
  */
 export const subscriptionRenewalPropose = (
   subscriptionRenewalProposeBodyDto: BodyType<SubscriptionRenewalProposeBodyDto>,
@@ -79,7 +79,7 @@ export type SubscriptionRenewalProposeMutationBody = BodyType<SubscriptionRenewa
 export type SubscriptionRenewalProposeMutationError = ErrorType<ErrorEnvelopeDto>
 
 /**
- * @summary Propose the renewal of a subscription period
+ * @summary Record the result of the adjustment of a subscription period
  */
 export const useSubscriptionRenewalPropose = <TError = ErrorType<ErrorEnvelopeDto>, TContext = unknown>(
   options?: {

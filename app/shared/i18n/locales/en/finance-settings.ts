@@ -154,12 +154,7 @@ export const financeSettings = {
     rename: 'Rename',
     renameTitle: 'Rename {{code}}',
     renameSubmit: 'Save name',
-    renameHint: 'Only the name changes; the code, the department and the history stay.',
-    deactivate: 'Retire',
-    deactivateTitle: 'Retire {{code}}',
-    deactivateSubmit: 'Retire cost center',
-    deactivateHint:
-      'The department goes back to an incomplete finance setup, so its Requests with a cost cannot be sent until a new cost center is added. This is refused while Requests or commitments still sit on it.'
+    renameHint: 'Only the name changes; the code, the department and the history stay.'
   },
   costCentersDescription: 'Each department cost center with its current budget for the year.',
   vendorTaxDescription: 'Tax group and tax lines per vendor, used to estimate after-tax cost.',

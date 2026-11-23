@@ -41,10 +41,8 @@ export function LoginPage() {
     onError: (error) => {
       const seconds = getRetryDelaySeconds(error)
       setRetrySeconds(seconds)
-      const requestId = axios.isAxiosError(error) ? error.response?.data?.error?.requestId : undefined
       toast.error(translate(getLoginErrorKey(error, seconds), { seconds }), {
-        id: 'auth-login',
-        description: typeof requestId === 'string' ? translate('errors.requestId', { requestId }) : undefined
+        id: 'auth-login'
       })
     },
     onSuccess: (session) => {

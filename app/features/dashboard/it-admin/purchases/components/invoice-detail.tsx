@@ -66,25 +66,27 @@ export function InvoiceDetail({
             <h1 className='text-2xl font-semibold'>{invoice.vendorInvoiceNumber}</h1>
             <p>{translate(`states.${invoice.state}`, { defaultValue: translate('unavailable') })}</p>
             <dl className='grid gap-4 rounded-lg border border-border bg-surface p-5 sm:grid-cols-2'>
-              <div>
+              <div className='flex min-w-0 items-baseline justify-between gap-4'>
                 <dt>{translate('issuedOn')}</dt>
                 <dd className='text-right font-mono tabular-nums'>{formatDate(invoice.issuedOn)}</dd>
               </div>
-              <div>
+              <div className='flex min-w-0 items-baseline justify-between gap-4'>
                 <dt>{translate('month')}</dt>
                 <dd className='text-right font-mono tabular-nums'>{invoice.servicePeriodMonth}</dd>
               </div>
-              <div>
+              <div className='flex min-w-0 items-baseline justify-between gap-4'>
                 <dt>{translate('quantity')}</dt>
                 <dd className='text-right font-mono tabular-nums'>{invoice.quantity}</dd>
               </div>
-              <div>
+              <div className='flex min-w-0 items-baseline justify-between gap-4'>
                 <dt>{translate('amount')}</dt>
                 <dd className='text-right font-mono tabular-nums'>{formatMoney(invoice.netAmount, i18n.language)}</dd>
               </div>
-              <div>
+              <div className='flex min-w-0 items-baseline justify-between gap-4'>
                 <dt>{translate('paymentSource')}</dt>
-                <dd>{translate(`sources.${invoice.paymentSource}`, { defaultValue: translate('unavailable') })}</dd>
+                <dd className='text-right'>
+                  {translate(`sources.${invoice.paymentSource}`, { defaultValue: translate('unavailable') })}
+                </dd>
               </div>
             </dl>
             <p>{translate(`matches.${invoice.matchResult}`, { defaultValue: translate('unavailable') })}</p>

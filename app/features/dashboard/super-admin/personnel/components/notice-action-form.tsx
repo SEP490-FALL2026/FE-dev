@@ -58,9 +58,20 @@ export function NoticeActionForm({
           { name: 'approvedReturnOn', type: 'date' }
         ]
       : [
-          { name: 'lastWorkingDay', type: 'date', initial: notice.proposedOn },
+          {
+            name: 'lastWorkingDay',
+            type: 'date',
+            initial: notice.proposedOn || new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()),
+            description: translate('fieldHelp.lastWorkingDayNotice')
+          },
+          {
+            name: 'blockAccessNow',
+            type: 'checkbox' as const,
+            optional: true,
+            initial: notice.kind === 'ABRUPT_DEPARTURE' ? 'true' : undefined
+          },
           ...successorFields,
-          { name: 'transferCancellationReason', optional: true, maxLength: 2000 }
+          { name: 'cancelPendingTransfer', type: 'checkbox' as const, optional: true }
         ]
   return (
     <PersonnelForm
@@ -105,13 +116,16 @@ export function NoticeActionForm({
             }
           : leave
             ? { startedOn: value(values, 'startedOn'), approvedReturnOn: value(values, 'approvedReturnOn') }
-            : {
-                lastWorkingDay: value(values, 'lastWorkingDay'),
-                successor: readSuccessor(values),
-                ...(value(values, 'transferCancellationReason')
-                  ? { pendingTransferCancellation: { reason: value(values, 'transferCancellationReason') } }
-                  : {})
-              }
+            : (() => {
+                const blockNow = Boolean(values.get('blockAccessNow'))
+                const today = new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
+                return {
+                  lastWorkingDay: value(values, 'lastWorkingDay') || (blockNow ? today : value(values, 'lastWorkingDay')),
+                  accessBlockMode: blockNow ? 'BLOCK_NOW' : 'WITH_LAST_DAY',
+                  successor: readSuccessor(values),
+                  ...(values.get('cancelPendingTransfer') ? { cancelPendingTransfer: true as const } : {})
+                }
+              })()
         onRecord({ verification, grounds: readBasis(values), event })
       }}
     />

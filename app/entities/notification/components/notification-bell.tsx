@@ -16,7 +16,7 @@ export function NotificationBell({
   open: boolean
   onOpenChange: (open: boolean) => void
   onOpenRequest: (id: string) => void
-  audience?: 'employee' | 'manager'
+  audience?: 'employee' | 'manager' | 'it-admin'
   onOpenTarget?: (target: NotificationTarget) => void
 }) {
   const { t: translate } = useTranslation('common')

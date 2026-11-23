@@ -1,9 +1,34 @@
 import { itCatalogTerms } from './it-catalog-terms'
 import { itCatalogHelp } from './it-catalog-help'
 export const itCatalog = {
+  referencePrice: 'Giá tham chiếu (VND, chưa thuế)',
+  referencePriceKeyHint: 'Giá cho một khóa; để trống nếu chưa có.',
+  referencePriceSeatHint: 'Giá cho một ghế mỗi tháng; để trống nếu chưa có.',
+  subscriptionCreate: {
+    invalidTerms: 'Trả theo năm cần kỳ cam kết 12 tháng.',
+    k1Terms: 'Gói cá nhân chỉ có chu kỳ thanh toán tháng và kỳ cam kết 1 tháng.',
+    workspaceHint:
+      'Hãy thiết lập hồ sơ workspace với ít nhất hai IT Admin đủ điều kiện trước khi kích hoạt thuê bao. Anh có thể lưu thuê bao nháp nếu chưa hoàn tất.',
+    requiredOnlyHint:
+      'Các thông tin bổ sung có thể để trống; thuê bao chưa đủ điều kiện sẽ được lưu nháp. Nếu không chọn IT Admin, hệ thống dùng người phụ trách ứng dụng khi đủ điều kiện.',
+    renewalDetails: 'Gia hạn và báo hủy',
+    originalHint: 'Giá nhà cung cấp báo để đối chiếu hóa đơn; không tự quy đổi sang VND.',
+    departmentHint: 'Tùy chọn. Để trống nếu thuê bao không có phòng sở hữu.'
+  },
+  subscriptionExtra: {
+    legacyPrice:
+      'Giá cũ {{amount}} {{currency}}. Nhập đơn giá VND đã xác nhận khi cần cập nhật; hệ thống không quy đổi.',
+    title: 'Thông tin nhà cung cấp và phụ trách',
+    originalAmount: 'Giá gốc nhà cung cấp',
+    originalHint: 'Giá tham khảo trên hóa đơn, không được quy đổi sang VND. Xóa số tiền để bỏ giá gốc.',
+    originalCurrency: 'Loại tiền giá gốc',
+    minimum: 'Số ghế tối thiểu',
+    minimumHint: 'Để trống nếu nhà cung cấp không quy định mức tối thiểu.',
+    primary: 'Dùng làm thuê bao chính của gói'
+  },
   setup: {
     action: 'Thiết lập',
-    commitment: 'Thời hạn cam kết',
+    commitment: 'Khi nào được giảm số ghế',
     monthCount: '{{count}} tháng',
     intro: 'Tiếp tục thiết lập gói. Thuê bao nháp chỉ sẵn sàng cấp phát sau khi hoàn tất thông tin cần thiết.',
     subscription: 'Thuê bao',
@@ -221,7 +246,7 @@ export const itCatalog = {
   dataLoss: 'Thu hồi làm mất dữ liệu',
   revocationNote: 'Hướng dẫn thu hồi',
   missingData: 'Dữ liệu còn thiếu',
-  unitAmount: 'Đơn giá',
+  unitAmount: 'Đơn giá VND',
   currency: 'Tiền tệ (mã ISO)',
   startDate: 'Ngày bắt đầu',
   endDate: 'Ngày kết thúc',
