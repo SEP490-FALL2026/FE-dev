@@ -11,7 +11,7 @@ import { notificationMarkRead } from '~/shared/api/generated/operations/notifica
 import { notificationMarkAllRead } from '~/shared/api/generated/operations/notifications/notification-mark-all-read'
 import { getNotificationUnreadCountQueryKey } from '~/shared/api/generated/operations/notifications/notification-unread-count'
 
-export function useNotificationInbox(serverLanguage = false) {
+export function useNotificationInbox() {
   const client = useQueryClient()
   const { t: translate, i18n } = useTranslation('common')
   const language = i18n.resolvedLanguage === 'en' ? 'en' : 'vi'
@@ -24,17 +24,10 @@ export function useNotificationInbox(serverLanguage = false) {
   }, [retrySeconds])
 
   const query = useInfiniteQuery({
-    queryKey: [
-      ...getNotificationListQueryKey(),
-      { presentation: 'inbox', pageSize: 10, ...(serverLanguage ? { language } : {}) }
-    ],
+    queryKey: [...getNotificationListQueryKey(), { presentation: 'inbox', pageSize: 10, language }],
     initialPageParam: 1,
     queryFn: ({ pageParam, signal }) =>
-      notificationList(
-        { page: pageParam, pageSize: 10 },
-        serverLanguage ? { headers: { 'Accept-Language': language } } : undefined,
-        signal
-      ),
+      notificationList({ page: pageParam, pageSize: 10 }, { headers: { 'Accept-Language': language } }, signal),
     getNextPageParam: (response) => {
       const pagination = response.data?.pagination
       return pagination && pagination.page < pagination.totalPages ? pagination.page + 1 : undefined

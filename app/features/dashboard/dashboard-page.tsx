@@ -11,6 +11,7 @@ import { getAuthState, subscribeAuthSession } from '../auth/auth-session'
 import { PolicyAcknowledgementGate } from '~/entities/policy/components/policy-acknowledgement-gate'
 
 import { DashboardHeader } from './components/dashboard-header'
+import { SharedProfileView } from './components/shared-profile-view'
 import { DashboardSidebar } from './components/dashboard-sidebar'
 import './components/dashboard-shell.css'
 
@@ -23,7 +24,13 @@ import { getParentApprovalMenuKey, isValidApprovalTab, type ApprovalTabKey, Appr
 
 import { isValidFinanceTab, type FinanceTabKey, FinanceScreen } from './finance'
 
-import { getParentManagerMenuKey, isValidManagerTab, type ManagerTabKey, ManagerScreen } from './manager'
+import {
+  getParentManagerMenuKey,
+  isValidManagerTab,
+  type ManagerTabKey,
+  ManagerScreen,
+  ManagerProfileDetails
+} from './manager'
 import './manager/manager-workspace.css'
 
 import { isValidSuperAdminTab, type SuperAdminTabKey, SuperAdminScreen } from './super-admin'
@@ -56,7 +63,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
   const isManager = role === 'manager'
   const isApprover = role === 'spending-approver'
   const isSuperAdmin = role === 'super-admin'
-  const me = useMeGet({ query: { enabled: isManager || isEmployee, refetchInterval: 12 * 60 * 1000 } })
+  const me = useMeGet({ query: { enabled: true, refetchInterval: 12 * 60 * 1000 } })
   const managerSelfService =
     isManager && !me.isError && !!me.data?.data && me.data.data.roles.includes('MANAGER') && !me.data.data.managerScope
 
@@ -129,7 +136,7 @@ export function DashboardPage({ role }: { role: UserRole }) {
       Object.entries(extraParams).forEach(([k, v]) => nextParams.set(k, v))
     }
     if (personnelFormPage) void navigate({ pathname: '/dashboard/super-admin', search: nextParams.toString() })
-    else if (managerSelfService && location.pathname !== '/dashboard/manager')
+    else if (isManager && location.pathname !== '/dashboard/manager')
       void navigate({ pathname: '/dashboard/manager', search: nextParams.toString() })
     else setSearchParams(nextParams)
     setMobileNavigationOpen(false)
@@ -201,17 +208,10 @@ export function DashboardPage({ role }: { role: UserRole }) {
 
       <div className='flex h-full min-w-0 flex-1 flex-col lg:pl-[19.5rem]'>
         <DashboardHeader
-          activeEmployeeTab={activeEmployeeTab}
-          activeManagerTab={activeManagerTab}
+          profileActive={tabParam === 'profile'}
           employeeAvatarUrl={me.data?.data?.avatar?.url ?? null}
           mobileNavigationOpen={mobileNavigationOpen}
-          onOpenProfile={
-            isEmployee
-              ? () => handleSelectEmployeeTab('profile')
-              : isManager
-                ? () => handleSelectManagerTab('profile')
-                : undefined
-          }
+          onOpenProfile={() => updateTab('profile')}
           onToggleMobileNavigation={() => setMobileNavigationOpen((open) => !open)}
           profile={profile}
           role={role}
@@ -235,7 +235,9 @@ export function DashboardPage({ role }: { role: UserRole }) {
           transition={{ duration: 0.25, ease: 'easeOut' }}
         >
           <PolicyAcknowledgementGate>
-            {isItAdmin ? (
+            {tabParam === 'profile' ? (
+              <SharedProfileView additionalDetails={isManager ? <ManagerProfileDetails /> : undefined} />
+            ) : isItAdmin ? (
               <ItAdminScreen
                 tab={activeTab}
                 itemId={searchParams.get('id') ?? undefined}
