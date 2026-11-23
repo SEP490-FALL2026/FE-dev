@@ -1,3 +1,5 @@
+import type { UserRole } from '~/entities/user-role/user-role'
+import { serverNotificationTarget } from './server-notification-target'
 import { NOTIFICATION_SUBJECT as SUBJECT } from './enums/notification-subject'
 import type { NotificationListResponseDtoDataItemsItem } from '~/shared/api/generated/model'
 
@@ -7,35 +9,21 @@ export type NotificationTarget = { tab: string; params: Record<string, string> }
 /** Build local dashboard targets only. Never navigate to params.viewPath or arbitrary server URLs. */
 export function notificationTarget(
   notification: NotificationListResponseDtoDataItemsItem,
-  role: 'employee' | 'manager' | 'it-admin'
+  role: UserRole
 ): NotificationTarget | undefined {
-  if (role === 'it-admin') {
-    const operation = notification.target?.operationId
-    if (operation === 'deviceStopRequestList')
-      return { tab: 'device-collectors', params: { deviceView: 'stopRequests' } }
-    if (operation === 'subscriptionRenewalGet' && uuid(notification.target?.pathParams.id))
-      return { tab: 'renewals', params: { id: notification.target.pathParams.id } }
-    const renewalAlert = [
-      'SUBSCRIPTION_RENEWAL_ALERT',
-      'SUBSCRIPTION_RENEWAL_RED_ALERT',
-      'SUBSCRIPTION_RENEWAL_KEPT'
-    ].includes(notification.code)
-    if (operation === 'subscriptionGet' && !renewalAlert && uuid(notification.target?.pathParams.id))
-      return { tab: 'dept-catalog', params: { subscriptionId: notification.target.pathParams.id } }
-    if (operation === 'subscriptionRenewalAdjustmentGet' || (operation === 'subscriptionGet' && renewalAlert))
-      return {
-        tab: 'renewals',
-        params: {
-          view: 'subscriptions',
-          ...(uuid(notification.target?.pathParams.id)
-            ? { subscriptionId: notification.target.pathParams.id }
-            : uuid(notification.params.subscriptionId)
-              ? { subscriptionId: notification.params.subscriptionId }
-              : {})
-        }
-      }
-    return
-  }
+  // Newer contracts provide an authorization-aware target. Explicit null means no destination.
+  if (Object.hasOwn(notification, 'target')) {
+    const target = (notification as typeof notification & { target?: unknown }).target
+    const destination = serverNotificationTarget(target, role)
+    if (destination?.tab === 'annual-budget' && role === 'manager') {
+      const year = notification.params.year
+      const departmentId = notification.params.departmentId
+      if (typeof year === 'number' && Number.isInteger(year) && year >= 2000 && year <= 2200)
+        destination.params.year = String(year)
+      if (uuid(departmentId)) destination.params.departmentId = departmentId
+    }
+    return destination
+  } else if (role !== 'employee' && role !== 'manager') return
   const { subject, params, code } = notification
   const id = uuid(subject?.id) ? subject.id : undefined
   const manager = role === 'manager'
