@@ -29,6 +29,8 @@ export function ProvisioningActionDialog({
 }) {
   const { t: translate } = useTranslation('itProvisioning')
   const { t: translatePlaceholder } = useTranslation('itPlaceholders')
+  const departureRevocation =
+    action === 'revocation' && ['DEPARTURE', 'ABRUPT_DEPARTURE'].includes(task.revocation?.source ?? '')
   const [evidence, setEvidence] = useState('')
   const [reason, setReason] = useState('')
   const [note, setNote] = useState('')
@@ -63,7 +65,7 @@ export function ProvisioningActionDialog({
   // The server decides the steps (5 or 6 for a departure, 2 otherwise) and they can change while another K1 seat
   // of the same person is revoked, so the card is always read again before completing.
   const card = api.useProvisioningTaskGet(task.id, { query: { enabled: completesK1, staleTime: 0 } })
-  const k1Template = completesK1 ? (card.data?.data?.task.k1Checklist ?? task.k1Checklist ?? null) : null
+  const k1Template = completesK1 ? (card.data?.data?.task.k1Checklist ?? null) : null
   const k1Problem = k1Template ? k1ChecklistProblem(k1Template, k1Ticks) : null
   const feedback = useItMutationFeedback(
     [
@@ -105,7 +107,9 @@ export function ProvisioningActionDialog({
         case 'revocation':
           return api.provisioningTaskCompleteRevocation(id, {
             completion,
-            ...(completion === 'ALREADY_GONE' ? { note: note.trim() } : { evidence: evidence.trim() }),
+            ...(completion === 'ALREADY_GONE'
+              ? { note: note.trim(), ...(departureRevocation ? { evidence: evidence.trim() } : {}) }
+              : { evidence: evidence.trim() }),
             ...(completion === 'KEY_DEACTIVATED'
               ? {
                   keyDisposition,
@@ -130,7 +134,8 @@ export function ProvisioningActionDialog({
     }
   })
   const needsEvidence =
-    ['complete', 'accessCut'].includes(action) || (action === 'revocation' && completion !== 'ALREADY_GONE')
+    ['complete', 'accessCut'].includes(action) ||
+    (action === 'revocation' && (completion !== 'ALREADY_GONE' || departureRevocation))
   return (
     <ItFormDialog
       wide={action === 'revocation'}
@@ -159,7 +164,9 @@ export function ProvisioningActionDialog({
         (completesK1 && (card.isFetching || card.isError || !k1Template || Boolean(k1Problem)))
       }
     >
-      <p className='text-sm text-muted-foreground'>{translate(action === 'cancel' ? 'cancelHint' : 'confirmHint')}</p>
+      <p className='text-sm text-muted-foreground'>
+        {translate(departureRevocation ? 'departureConfirmHint' : action === 'cancel' ? 'cancelHint' : 'confirmHint')}
+      </p>
       {grantsK1 && (
         <ItQueryState query={card}>
           {k1Template && <K1ChecklistFields template={k1Template} ticks={k1Ticks} onChange={setK1Ticks} />}
@@ -210,6 +217,12 @@ export function ProvisioningActionDialog({
           }}
         />
       )}
+      {action === 'revocation' && task.plan?.provisioningType !== 'K2' && (
+        <dl className='space-y-1 text-sm'>
+          <dt className='text-muted-foreground'>{translate('completion')}</dt>
+          <dd className='font-medium'>{translate(`values.${completion}`)}</dd>
+        </dl>
+      )}
       {action === 'revocation' && completion === 'KEY_DEACTIVATED' && (
         <>
           <ItChoiceSelect
@@ -238,15 +251,30 @@ export function ProvisioningActionDialog({
         </>
       )}
       {needsEvidence && (
-        <ItField label={translate('evidence')} hint={translate('fieldHints.evidence')}>
-          <textarea
-            className={itInputClass}
-            required
-            maxLength={2000}
-            placeholder={translate('placeholders.evidence')}
-            value={evidence}
-            onChange={(event) => setEvidence(event.target.value)}
-          />
+        <ItField
+          label={translate('evidence')}
+          hint={translate(departureRevocation ? 'departureEvidenceHint' : 'fieldHints.evidence')}
+        >
+          {departureRevocation ? (
+            <input
+              type='url'
+              className={itInputClass}
+              required
+              maxLength={2000}
+              placeholder={translate('departureEvidencePlaceholder')}
+              value={evidence}
+              onChange={(event) => setEvidence(event.target.value)}
+            />
+          ) : (
+            <textarea
+              className={itInputClass}
+              required
+              maxLength={2000}
+              placeholder={translate('placeholders.evidence')}
+              value={evidence}
+              onChange={(event) => setEvidence(event.target.value)}
+            />
+          )}
         </ItField>
       )}
       {['failure', 'closeFailed'].includes(action) && (
@@ -307,7 +335,9 @@ export function ProvisioningActionDialog({
               />
             </ItField>
           )}
-          {k1Template && <K1ChecklistFields template={k1Template} ticks={k1Ticks} onChange={setK1Ticks} />}
+          <ItQueryState query={card}>
+            {k1Template && <K1ChecklistFields template={k1Template} ticks={k1Ticks} onChange={setK1Ticks} />}
+          </ItQueryState>
         </>
       )}
       {(action === 'accessCut' ||

@@ -9,17 +9,11 @@ import { FinanceCommitmentsView } from './commitments/views/finance-commitments-
 import { FinanceRequestMonitorView } from './request-monitor/views/finance-request-monitor-view'
 import { FinancePurchaseInvoicesView } from './purchase-invoices/views/finance-purchase-invoices-view'
 import { FinanceDiscrepanciesView } from './reconciliation/views/finance-discrepancies-view'
-import { FinanceOutOfProcessView } from './reconciliation/views/finance-out-of-process-view'
 import { FinanceCommitmentReleaseView } from './commitments/views/finance-commitment-release-view'
 import { FinanceCommitmentDetailView } from './commitments/views/finance-commitment-detail-view'
-import { FinanceVendorTaxView } from './vendor-tax/views/finance-vendor-tax-view'
 import { FinanceCatalogView } from './catalog/views/finance-catalog-view'
 import { FinanceOverviewView } from './overview/views/finance-overview-view'
 import { FinanceReviewPeriodsView } from './in-year-review/views/finance-review-periods-view'
-import { FinanceSeatChargesView } from './in-year-review/views/finance-seat-charges-view'
-import { FinanceAdjustmentsView } from './in-year-review/views/finance-adjustments-view'
-import { FinanceBudgetParametersView } from './budget-parameters/views/finance-budget-parameters-view'
-import { FinanceSubscriptionRenewalsView } from './subscription-renewals/views/finance-subscription-renewals-view'
 import { FinanceUnavailable } from './shared/components/finance-unavailable'
 
 interface FinanceScreenProps {
@@ -60,8 +54,6 @@ export function FinanceScreen({ itemId, onSelectTab, tab }: FinanceScreenProps) 
       return <FinancePurchaseInvoicesView {...details} />
     case 'invoice-discrepancies':
       return <FinanceDiscrepanciesView {...details} />
-    case 'out-of-process':
-      return <FinanceOutOfProcessView />
     case 'commitments':
       return <FinanceCommitmentsView onSelectTab={onSelectTab} />
     case 'commitment-detail':
@@ -70,18 +62,8 @@ export function FinanceScreen({ itemId, onSelectTab, tab }: FinanceScreenProps) 
       return <FinanceCommitmentReleaseView itemId={itemId} onSelectTab={onSelectTab} />
     case 'period-close':
       return <FinanceReviewPeriodsView {...details} />
-    case 'seat-charges':
-      return <FinanceSeatChargesView />
-    case 'budget-adjustments':
-      return <FinanceAdjustmentsView />
-    case 'budget-parameters':
-      return <FinanceBudgetParametersView />
-    case 'vendor-tax':
-      return <FinanceVendorTaxView itemId={itemId} />
     case 'saas-cost':
       return <FinanceCatalogView />
-    case 'subscription-renewals':
-      return <FinanceSubscriptionRenewalsView {...details} />
     default:
       return <FinanceUnavailable onSelectTab={onSelectTab} />
   }

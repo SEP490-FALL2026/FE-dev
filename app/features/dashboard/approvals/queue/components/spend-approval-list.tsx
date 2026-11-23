@@ -81,7 +81,7 @@ export function SpendApprovalList({ onOpen }: { onOpen: (requestId: string, batc
                     detail={item.plan?.planName}
                   />
                   <div className='flex flex-wrap gap-1'>
-                    {item.routing.mode === SPEND_ROUTING_MODE.ONE_STEP && (
+                    {item.routing?.mode === SPEND_ROUTING_MODE.ONE_STEP && (
                       <Flag tone='neutral'>{translate('routingOneStep')}</Flag>
                     )}
                     {item.lineCount > 1 && (

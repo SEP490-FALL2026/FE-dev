@@ -11,7 +11,6 @@ import {
 import { formatDay } from '../../shared/finance-date'
 import { formatMoney } from '../../shared/finance-money'
 import { SubscriptionAdjustmentPanel } from '../../subscription-renewals/components/subscription-adjustment-panel'
-import { useOwnerLabel } from '../../subscription-renewals/hooks/use-owner-label'
 import { CatalogFacts } from './catalog-facts'
 
 /**
@@ -30,7 +29,6 @@ export function CatalogSubscriptionDetail({
 }) {
   const { t: translate, i18n } = useTranslation('financeSettings')
   const query = useSubscriptionGet(subscriptionId)
-  const ownerLabel = useOwnerLabel()
   const subscription = query.data?.data
   const none = translate('unavailable')
   const day = (value: string | null | undefined) => formatDay(value, i18n.language)
@@ -64,7 +62,6 @@ export function CatalogSubscriptionDetail({
             <FinanceSection title={translate('catalogDetail.periodTitle')}>
               <CatalogFacts
                 rows={[
-                  [translate('renewals.owner'), ownerLabel(subscription.ownerDepartmentId)],
                   [translate('vendor'), subscription.vendor?.name ?? none],
                   [translate('kind'), translate(`enum.${subscription.kind}`, { defaultValue: subscription.kind })],
                   [

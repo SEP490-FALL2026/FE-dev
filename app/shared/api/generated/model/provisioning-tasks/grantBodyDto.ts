@@ -10,7 +10,10 @@ import type { GrantBodyDtoPurchase } from './grantBodyDtoPurchase'
 export interface GrantBodyDto {
   requestId: string
   subscriptionId?: string
-  /** @maxLength 254 */
+  /**
+   * The company address to grant a paid right to. Leave it empty or omit the field to use the work email of the person.
+   * @maxLength 254
+   */
   accountIdentifier?: string
   responsibleEmployeeId?: string
   beneficiaryEmployeeId?: string

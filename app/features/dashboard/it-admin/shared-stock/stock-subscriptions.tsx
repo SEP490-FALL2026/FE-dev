@@ -4,7 +4,6 @@ import { useSubscriptionList } from '~/shared/api/generated/operations/subscript
 import { useSubscriptionSeatUsage } from '~/shared/api/generated/operations/subscriptions/subscription-seat-usage'
 import type { PlanPageResponseDtoDataItemsItem } from '~/shared/api/generated/model/plans'
 import { CatalogKeyVault } from '../dept-catalog/components/catalog-license-keys'
-import { CatalogSeatBaseline } from '../dept-catalog/components/catalog-seat-baseline'
 import { ItPagination } from '../shared/components/it-pagination'
 import { ItQueryState } from '../shared/components/it-query-state'
 import { itButtonClass, itPrimaryClass } from '../shared/components/it-form'
@@ -42,25 +41,8 @@ export function StockSubscriptions({
   const { formatDate } = useDashboardFormat()
   const [page, setPage] = useState(1)
   const [vault, setVault] = useState<string>()
-  const [baseline, setBaseline] = useState(false)
   const [holders, setHolders] = useState<string>()
   const query = useSubscriptionList({ planId: plan.id, page, pageSize: 20 })
-  if (baseline)
-    return (
-      <section className='space-y-5'>
-        <button type='button' className={itButtonClass} onClick={() => setBaseline(false)}>
-          {t('back')}
-        </button>
-        <h1 className='text-2xl font-semibold'>
-          {plan.applicationName} · {plan.name}
-        </h1>
-        <p className='max-w-3xl text-sm text-muted-foreground'>{t('stock.baselineDescription')}</p>
-        <div className='space-y-2 text-sm text-muted-foreground'>
-          <p>{t('stock.csvColumns')}</p>
-        </div>
-        <CatalogSeatBaseline applicationId={plan.applicationId} planId={plan.id} />
-      </section>
-    )
   if (vault)
     return (
       <section className='space-y-5'>
@@ -93,21 +75,12 @@ export function StockSubscriptions({
         <h1 className='text-2xl font-semibold tracking-tight'>{plan.applicationName}</h1>
         <p className='text-base font-medium text-muted-foreground'>{plan.name}</p>
       </header>
-      {(plan.provisioningType === 'K2' || plan.provisioningType === 'K4') && (
+      {plan.provisioningType === 'K4' && (
         <div className='flex flex-wrap items-start justify-between gap-4 rounded-lg border border-border bg-surface p-5'>
           <div className='max-w-2xl space-y-1'>
-            <h2 className='font-semibold'>
-              {t(plan.provisioningType === 'K2' ? 'stock.baseline' : 'stock.keyActionTitle')}
-            </h2>
-            <p className='text-sm text-muted-foreground'>
-              {t(plan.provisioningType === 'K2' ? 'stock.baselineDescription' : 'stock.keyActionDescription')}
-            </p>
+            <h2 className='font-semibold'>{t('stock.keyActionTitle')}</h2>
+            <p className='text-sm text-muted-foreground'>{t('stock.keyActionDescription')}</p>
           </div>
-          {plan.provisioningType === 'K2' && (
-            <button type='button' className={itPrimaryClass} onClick={() => setBaseline(true)}>
-              {t('stock.baseline')}
-            </button>
-          )}
         </div>
       )}
       {plan.provisioningType === 'K2' && onOpenGrants && (

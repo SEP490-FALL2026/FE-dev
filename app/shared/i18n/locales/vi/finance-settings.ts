@@ -154,12 +154,7 @@ export const financeSettings = {
     rename: 'Đổi tên',
     renameTitle: 'Đổi tên {{code}}',
     renameSubmit: 'Lưu tên',
-    renameHint: 'Chỉ đổi tên; mã, phòng và lịch sử giữ nguyên.',
-    deactivate: 'Ngừng dùng',
-    deactivateTitle: 'Ngừng dùng {{code}}',
-    deactivateSubmit: 'Ngừng dùng trung tâm chi phí',
-    deactivateHint:
-      'Phòng sẽ quay lại trạng thái cấu hình tài chính chưa hoàn tất nên yêu cầu có tiền của phòng chưa gửi được cho tới khi thêm trung tâm chi phí mới. Bị từ chối khi còn yêu cầu hoặc khoản cam kết đang gắn vào.'
+    renameHint: 'Chỉ đổi tên; mã, phòng và lịch sử giữ nguyên.'
   },
   costCentersDescription: 'Trung tâm chi phí của từng phòng ban cùng ngân sách hiện hành theo năm.',
   vendorTaxDescription: 'Nhóm thuế và dòng thuế của từng nhà cung cấp, dùng để ước tính chi phí sau thuế.',

@@ -82,10 +82,8 @@ export function AuthActionPage({ action }: { action: AuthAction }) {
       if (isInvalidTokenError(error)) return
       const seconds = getRetryDelaySeconds(error)
       setRetrySeconds(seconds)
-      const requestId = axios.isAxiosError(error) ? error.response?.data?.error?.requestId : undefined
       toast.error(translate(getActionErrorKey(error, seconds, action), { seconds }), {
-        id: `auth-${action}`,
-        description: typeof requestId === 'string' ? translate('errors.requestId', { requestId }) : undefined
+        id: `auth-${action}`
       })
     },
     onSuccess: () => {

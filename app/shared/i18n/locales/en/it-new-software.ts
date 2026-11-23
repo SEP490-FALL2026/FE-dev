@@ -6,9 +6,9 @@
     searchApplication: 'Search by the name of an existing application in the shared catalogue.',
     softwareName: 'Enter the display name for the internal software being added to the catalogue.'
   },
-  checklistHint: 'Answer each question before completing the assessment.',
-  reasonHint: 'Explain the reason for refusal to the requester.',
-  alternativeHint: 'Describe an alternative if available.',
+  checklistHint: 'Answer each question. A No blocks completion and can provide the reason for rejection or return.',
+  reasonHint: 'Enter a reason or answer No to a relevant checklist question.',
+  alternativeHint: 'For uncontrollable software, describe an alternative or select a catalog plan.',
   title: 'Software requests outside the catalog',
   eyebrow: 'New software assessment',
   subtitle: 'Open a request from the queue to classify it, record the quote and add the software to the catalog.',
@@ -41,7 +41,8 @@
       COMPLETABLE: 'Ready to complete',
       INCOMPLETE: 'Assessment incomplete',
       INTERNAL_BY_REGISTRATION: 'Internal registration required',
-      UNCONTROLLABLE: 'Control risk requires review'
+      UNCONTROLLABLE: 'Control risk requires review',
+      FREE_PLAN: 'Register an internal plan and reject the proposal'
     }
   },
   catalogLink: {
@@ -94,6 +95,8 @@
   save: 'Save assessment',
   complete: 'Complete assessment',
   reject: 'Reject proposal',
+  return: 'Return for revision',
+  decisions: { title: 'Assessment decisions' },
   confirm: 'Confirm',
   saved: 'Assessment updated',
   reason: 'Reason',

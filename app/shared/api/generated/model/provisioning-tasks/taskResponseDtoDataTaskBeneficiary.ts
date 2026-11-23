@@ -13,4 +13,9 @@ export type TaskResponseDtoDataTaskBeneficiary = {
   employeeId: string
   employeeCode: string
   fullName: string
+  /**
+   * The work email on the profile, as stored (not normalized): the address a grant is made to when the IT Admin names no other one; null when the profile has none.
+   * @nullable
+   */
+  workEmail: string | null
 } | null

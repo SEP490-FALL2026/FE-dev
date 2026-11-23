@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router'
+import { CatalogSubscriptionEditor } from '../components/catalog-subscription-editor'
 import { LibraryBig } from 'lucide-react'
 import { ItPageHeader, ItSegmented } from '../../shared/components/it-page-header'
 import { useTranslation } from 'react-i18next'
@@ -29,6 +31,8 @@ export function ItDeptCatalogView({
   onBackToDepartments?: () => void
 }) {
   const { t: translate } = useTranslation('itCatalog')
+  const [params, setParams] = useSearchParams()
+  const linkedSubscriptionId = params.get('subscriptionId') ?? ''
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
   useEffect(() => {
@@ -44,8 +48,21 @@ export function ItDeptCatalogView({
   const [setup, setSetup] = useState<{ plan: SetupPlan; kind: string }>()
   const query = useApplicationList(
     { search: debouncedSearch || undefined, page, pageSize: 20 },
-    { query: { enabled: view === 'applications' && !termsPlan } }
+    { query: { enabled: view === 'applications' && !termsPlan && !linkedSubscriptionId } }
   )
+  if (/^[0-9a-f-]{36}$/i.test(linkedSubscriptionId))
+    return (
+      <CatalogSubscriptionEditor
+        id={linkedSubscriptionId}
+        onClose={() =>
+          setParams((previous) => {
+            const next = new URLSearchParams(previous)
+            next.delete('subscriptionId')
+            return next
+          })
+        }
+      />
+    )
   if (departmentId)
     return (
       <DepartmentSoftware

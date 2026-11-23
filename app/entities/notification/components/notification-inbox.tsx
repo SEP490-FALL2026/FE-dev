@@ -23,11 +23,11 @@ export function NotificationInbox({
   unreadCount?: number
   onClose: () => void
   onOpenRequest: (id: string) => void
-  audience?: 'employee' | 'manager'
+  audience?: 'employee' | 'manager' | 'it-admin'
   onOpenTarget?: (target: NotificationTarget) => void
 }) {
   const { t: translate, i18n } = useTranslation('common')
-  const { query, notifications, mutation, retrySeconds, markRead } = useNotificationInbox()
+  const { query, notifications, mutation, retrySeconds, markRead } = useNotificationInbox(audience === 'it-admin')
   const blocked = mutation.isPending || retrySeconds > 0
   const hasUnread = (unreadCount ?? 0) > 0 || notifications.some((notification) => !notification.readAt)
   return (
@@ -90,12 +90,14 @@ export function NotificationInbox({
             const requestId = notificationRequestId(notification)
             const target = audience && onOpenTarget ? notificationTarget(notification, audience) : undefined
             const known = i18n.exists('notifications.messages.' + notification.code, { ns: 'common' })
-            const title = translate(
-              audience
-                ? (`notifications.messages.${notification.code}.title` as 'notifications.messages.REQUEST_SUBMITTED.title')
-                : (`notifications.codes.${notification.code}` as 'notifications.codes.REQUEST_SUBMITTED'),
-              { replace: notification.params, defaultValue: translate('notifications.fallback') }
-            )
+            const title =
+              (audience === 'it-admin' && notification.title) ||
+              translate(
+                audience
+                  ? (`notifications.messages.${notification.code}.title` as 'notifications.messages.REQUEST_SUBMITTED.title')
+                  : (`notifications.codes.${notification.code}` as 'notifications.codes.REQUEST_SUBMITTED'),
+                { replace: notification.params, defaultValue: translate('notifications.fallback') }
+              )
             return (
               <li key={notification.id}>
                 <article
@@ -126,7 +128,13 @@ export function NotificationInbox({
                         {translate('notifications.updateHint')}
                       </p>
                     )}
-                    {audience && known && <NotificationCopy notification={notification} />}
+                    {audience === 'it-admin' ? (
+                      <p className='mt-1 whitespace-pre-wrap break-words text-sm text-muted-foreground'>
+                        {notification.message}
+                      </p>
+                    ) : (
+                      audience && known && <NotificationCopy notification={notification} />
+                    )}
                     <NotificationPersonnelContext notification={notification} />
                     <div className='mt-2 flex flex-wrap items-center gap-2'>
                       {!notification.readAt && (
@@ -145,7 +153,7 @@ export function NotificationInbox({
                           {translate('notifications.markRead')}
                         </button>
                       )}
-                      {audience && known && target && onOpenTarget ? (
+                      {audience && (known || audience === 'it-admin') && target && onOpenTarget ? (
                         <button
                           type='button'
                           className={`${buttonClass} text-primary-ink`}

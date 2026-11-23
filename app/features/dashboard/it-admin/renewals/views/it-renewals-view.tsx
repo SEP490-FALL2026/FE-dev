@@ -26,7 +26,9 @@ export function ItRenewalsView({
   const [view, setView] = useState(initialView)
   const [selected, setSelected] = useState(initialId)
   const [params, setParams] = useState<SubscriptionRenewalListParams>({ page: 1, pageSize: 20 })
-  const query = useSubscriptionRenewalList(params, { query: { enabled: view === 'cases' && !selected } })
+  const [mine, setMine] = useState(true)
+  const queryParams = { ...params, ...(mine && { mine: 'true' as const }) }
+  const query = useSubscriptionRenewalList(queryParams, { query: { enabled: view === 'cases' && !selected } })
   const data = query.data?.data
   if (selected) return <RenewalDetail id={selected} onBack={() => setSelected(undefined)} />
   return (
@@ -40,12 +42,23 @@ export function ItRenewalsView({
         />
       </ItPageHeader>
       {view === 'subscriptions' ? (
-        <RenewalSubscriptions />
+        <RenewalSubscriptions onOpenCase={setSelected} />
       ) : view === 'events' ? (
         <RenewalDeadlineEvents />
       ) : (
         <>
           <div className='soft-panel flex flex-wrap items-end gap-4 p-4'>
+            <label className='flex min-h-11 items-center gap-2 text-sm'>
+              <input
+                type='checkbox'
+                checked={mine}
+                onChange={(event) => {
+                  setMine(event.target.checked)
+                  setParams((previous) => ({ ...previous, page: 1 }))
+                }}
+              />
+              {translate('mine')}
+            </label>
             <div className='w-full sm:max-w-xs'>
               <ItChoiceSelect
                 label={translate('state')}

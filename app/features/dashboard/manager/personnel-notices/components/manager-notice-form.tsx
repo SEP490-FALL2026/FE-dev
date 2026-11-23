@@ -17,6 +17,12 @@ import {
 import { ManagerFormSelect, ManagerSelect, enumOptions } from '../../shared/components/manager-select'
 import { NOTICE_KIND } from '../enums/notice-status'
 
+const ALLOWED_NOTICE_KINDS: readonly SendNoticeBodyDto['kind'][] = [
+  NOTICE_KIND.DEPARTURE,
+  NOTICE_KIND.ABRUPT_DEPARTURE,
+  NOTICE_KIND.LONG_LEAVE
+]
+
 export function ManagerNoticeForm({ onClose, onCreated }: { onClose: () => void; onCreated: (id: string) => void }) {
   const { t: translate } = useTranslation('manager')
   const [kind, setKind] = useState<SendNoticeBodyDto['kind']>(NOTICE_KIND.DEPARTURE)
@@ -77,9 +83,9 @@ export function ManagerNoticeForm({ onClose, onCreated }: { onClose: () => void;
                   required
                   value={kind}
                   placeholder={translate('ui.placeholders.noticeKind')}
-                  options={enumOptions(Object.values(NOTICE_KIND), (choice) => translate(`statuses.${choice}`))}
+                  options={enumOptions(ALLOWED_NOTICE_KINDS, (choice) => translate(`statuses.${choice}`))}
                   onChange={(next) => {
-                    const choice = Object.values(NOTICE_KIND).find((value) => value === next)
+                    const choice = ALLOWED_NOTICE_KINDS.find((value) => value === next)
                     if (choice) setKind(choice)
                   }}
                 />

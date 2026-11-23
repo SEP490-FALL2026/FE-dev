@@ -32,7 +32,7 @@ import { customAxios } from '../../../mutator/custom-axios'
 import type { ErrorType } from '../../../mutator/custom-axios'
 
 /**
- * @summary List the milestones that passed with no renewal decision
+ * @summary List the renewal days that passed with no result recorded
  */
 export const subscriptionDeadlineEventList = (
   params?: SubscriptionDeadlineEventListParams,
@@ -128,7 +128,7 @@ export function useSubscriptionDeadlineEventList<
   queryClient?: QueryClient
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary List the milestones that passed with no renewal decision
+ * @summary List the renewal days that passed with no result recorded
  */
 
 export function useSubscriptionDeadlineEventList<

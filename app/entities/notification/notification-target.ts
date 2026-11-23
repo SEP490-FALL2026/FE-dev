@@ -7,8 +7,35 @@ export type NotificationTarget = { tab: string; params: Record<string, string> }
 /** Build local dashboard targets only. Never navigate to params.viewPath or arbitrary server URLs. */
 export function notificationTarget(
   notification: NotificationListResponseDtoDataItemsItem,
-  role: 'employee' | 'manager'
+  role: 'employee' | 'manager' | 'it-admin'
 ): NotificationTarget | undefined {
+  if (role === 'it-admin') {
+    const operation = notification.target?.operationId
+    if (operation === 'deviceStopRequestList')
+      return { tab: 'device-collectors', params: { deviceView: 'stopRequests' } }
+    if (operation === 'subscriptionRenewalGet' && uuid(notification.target?.pathParams.id))
+      return { tab: 'renewals', params: { id: notification.target.pathParams.id } }
+    const renewalAlert = [
+      'SUBSCRIPTION_RENEWAL_ALERT',
+      'SUBSCRIPTION_RENEWAL_RED_ALERT',
+      'SUBSCRIPTION_RENEWAL_KEPT'
+    ].includes(notification.code)
+    if (operation === 'subscriptionGet' && !renewalAlert && uuid(notification.target?.pathParams.id))
+      return { tab: 'dept-catalog', params: { subscriptionId: notification.target.pathParams.id } }
+    if (operation === 'subscriptionRenewalAdjustmentGet' || (operation === 'subscriptionGet' && renewalAlert))
+      return {
+        tab: 'renewals',
+        params: {
+          view: 'subscriptions',
+          ...(uuid(notification.target?.pathParams.id)
+            ? { subscriptionId: notification.target.pathParams.id }
+            : uuid(notification.params.subscriptionId)
+              ? { subscriptionId: notification.params.subscriptionId }
+              : {})
+        }
+      }
+    return
+  }
   const { subject, params, code } = notification
   const id = uuid(subject?.id) ? subject.id : undefined
   const manager = role === 'manager'

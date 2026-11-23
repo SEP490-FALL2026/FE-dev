@@ -203,7 +203,7 @@ export function ManagerScreen({
       <div className='space-y-5'>
         <ManagerPageHeader title={translate('tools')} icon={Boxes} />
         <nav aria-label={translate('tools')} className='flex gap-2 overflow-x-auto border-b border-border/60 pb-3'>
-          {(['assigned', 'department', 'proposals', 'returns'] as const).map((view) => (
+          {(['assigned', 'department', 'returns'] as const).map((view) => (
             <button
               key={view}
               type='button'
@@ -213,17 +213,16 @@ export function ManagerScreen({
                 onSelectTab('team-software', { toolsView: view, ...(validDepartment ? { departmentId } : {}) })
               }
             >
-              {view === 'department' || view === 'proposals'
-                ? flow(`departmentSoftware.${view}`)
+              {view === 'department'
+                ? flow('departmentSoftware.department')
                 : translate(view === 'returns' ? 'integration.returns' : 'integration.assigned')}
             </button>
           ))}
         </nav>
-        {(params.get('toolsView') === 'department' || params.get('toolsView') === 'proposals') && user.managerScope ? (
+        {params.get('toolsView') === 'department' && user.managerScope ? (
           <ManagerDepartmentSoftware
-            key={`${user.managerScope.departmentId}:${params.get('toolsView')}`}
+            key={user.managerScope.departmentId}
             departmentId={user.managerScope.departmentId}
-            proposals={params.get('toolsView') === 'proposals'}
           />
         ) : params.get('toolsView') === 'returns' ? (
           <ManagerReturns onOpen={openReturn} />

@@ -22,6 +22,7 @@ export interface PersonnelField {
   pattern?: string
   eventSource?: NoticeEventSource
   employeeId?: string
+  description?: string
 }
 export const basisFields: PersonnelField[] = [
   { name: 'type', options: ['HR_DECISION', 'APPROVED_APPLICATION', 'WRITTEN_DIRECTIVE'] },
@@ -81,7 +82,13 @@ export function PersonnelForm({
   const { t: translate } = useTranslation('adminPersonnel')
   const [validation, setValidation] = useState(false)
   const [departmentReady, setDepartmentReady] = useState(false)
-  const [checkedFields, setCheckedFields] = useState<Record<string, boolean>>({})
+  const [checkedFields, setCheckedFields] = useState<Record<string, boolean>>(() =>
+    Object.fromEntries(
+      fields
+        .filter((field) => field.type === 'checkbox' && (field.initial === 'true' || field.initial === 'on' || Boolean(field.initial)))
+        .map((field) => [field.name, true])
+    )
+  )
   const [employmentType, setEmploymentType] = useState(
     fields.find((field) => field.name === 'employmentType')?.initial ?? ''
   )
@@ -127,7 +134,10 @@ export function PersonnelForm({
                   !field.fixed &&
                   !(field.optionalWhenChecked && checkedFields[field.optionalWhenChecked])
                 }
-                description={translate(`fieldHelp.${field.name}`, { defaultValue: translate('fieldHelp.default') })}
+                description={
+                  field.description ??
+                  translate(`fieldHelp.${field.name}`, { defaultValue: translate('fieldHelp.default') })
+                }
                 error={errors[field.name]}
               >
                 {field.fixed ? (
@@ -177,7 +187,12 @@ export function PersonnelForm({
                     pattern={field.type === 'uuid' ? uuidPattern : field.pattern}
                     minLength={field.minLength}
                     maxLength={field.maxLength}
-                    defaultValue={field.initial}
+                    defaultValue={field.type === 'checkbox' ? undefined : field.initial}
+                    defaultChecked={
+                      field.type === 'checkbox'
+                        ? field.initial === 'true' || field.initial === 'on' || Boolean(field.initial)
+                        : undefined
+                    }
                     placeholder={
                       field.type === 'checkbox' || field.type === 'date'
                         ? undefined

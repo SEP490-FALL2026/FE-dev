@@ -1,34 +1,17 @@
-import { useState } from 'react'
 import { Boxes, RefreshCw, UserRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import type { SubscriptionRenewalResponseDtoDataRenewal } from '~/shared/api/generated/model/subscription-renewals/subscriptionRenewalResponseDtoDataRenewal'
-import {
-  useSubscriptionRenewalList,
-  getSubscriptionRenewalListQueryKey
-} from '~/shared/api/generated/operations/subscription-renewals/subscription-renewal-list'
-import {
-  useSubscriptionRenewalGet,
-  getSubscriptionRenewalGetQueryKey
-} from '~/shared/api/generated/operations/subscription-renewals/subscription-renewal-get'
-import { subscriptionRenewalDecide } from '~/shared/api/generated/operations/subscription-renewals/subscription-renewal-decide'
+import { useSubscriptionRenewalList } from '~/shared/api/generated/operations/subscription-renewals/subscription-renewal-list'
+import { useSubscriptionRenewalGet } from '~/shared/api/generated/operations/subscription-renewals/subscription-renewal-get'
 import { useSubscriptionRenewalSeatRanking } from '~/shared/api/generated/operations/subscription-renewals/subscription-renewal-seat-ranking'
 import { useDashboardFormat } from '../../../dashboard-ui'
 import { ManagerPageHeader } from '../../shared/components/manager-page-header'
 import { ManagerDataTable } from '../../shared/components/manager-data-table'
-import {
-  ManagerActionState,
-  ManagerButton,
-  ManagerField,
-  ManagerPagination,
-  ManagerQueryState,
-  ManagerSection,
-  managerInputClass
-} from '../../shared/components/manager-api-ui'
+import { ManagerPagination, ManagerQueryState, ManagerSection } from '../../shared/components/manager-api-ui'
 import { useManagerPage } from '../../shared/hooks/use-manager-page'
-import { useManagerAction } from '../../shared/hooks/use-manager-action'
 import { isResourceId } from '../../shared/manager-identifiers'
-import { RENEWAL_DECISION, RENEWAL_STATE } from '../enums/renewal-state'
+import { RENEWAL_STATE } from '../enums/renewal-state'
 
 export function ManagerSubscriptionRenewals() {
   const { t: translate } = useTranslation('manager')
@@ -37,7 +20,6 @@ export function ManagerSubscriptionRenewals() {
   const [params, setParams] = useSearchParams()
   const id = params.get('renewalId') ?? ''
   const query = useSubscriptionRenewalList({
-    state: RENEWAL_STATE.PROPOSED,
     page: paging.page,
     pageSize: paging.pageSize
   })
@@ -104,19 +86,9 @@ export function ManagerSubscriptionRenewals() {
 
 function RenewalConfirmation({ renewal }: { renewal: SubscriptionRenewalResponseDtoDataRenewal }) {
   const { t: translate } = useTranslation('manager')
-  const [acknowledged, setAcknowledged] = useState(false)
   const paging = useManagerPage('seatPage')
   const ranking = useSubscriptionRenewalSeatRanking(renewal.id, { page: paging.page, pageSize: paging.pageSize })
-  const action = useManagerAction({
-    mutationFn: ({ reason }: { reason: string }) =>
-      subscriptionRenewalDecide(renewal.id, {
-        decision: RENEWAL_DECISION.CONFIRM,
-        ...(reason ? { reason } : {}),
-        ...(acknowledged ? { acknowledgeActiveUsers: true } : {})
-      }),
-    invalidate: [getSubscriptionRenewalListQueryKey(), getSubscriptionRenewalGetQueryKey(renewal.id)]
-  })
-  const needsAcknowledgement = renewal.proposedChoice === 'CANCEL' && renewal.period.seatsInUse > 0
+
   return (
     <ManagerSection title={renewal.subscription.applicationName}>
       <div className='space-y-5'>
@@ -221,51 +193,6 @@ function RenewalConfirmation({ renewal }: { renewal: SubscriptionRenewalResponse
             busy={ranking.isFetching}
           />
         </div>
-
-        {renewal.state === RENEWAL_STATE.PROPOSED && (
-          <form
-            className='space-y-4 border-t border-border/50 pt-4'
-            onSubmit={(event) => {
-              event.preventDefault()
-              if (action.blocked || (needsAcknowledgement && !acknowledged)) return
-              action.mutate({ reason: String(new FormData(event.currentTarget).get('reason') ?? '').trim() })
-            }}
-          >
-            <fieldset disabled={action.blocked} className='space-y-4'>
-              <ManagerField label={translate('reason')}>
-                <textarea
-                  name='reason'
-                  maxLength={1000}
-                  rows={3}
-                  placeholder={translate('ui.placeholders.renewalReason')}
-                  className={managerInputClass}
-                />
-              </ManagerField>
-              {needsAcknowledgement && (
-                <label className='flex min-h-11 items-start gap-3 text-sm'>
-                  <input
-                    type='checkbox'
-                    required
-                    checked={acknowledged}
-                    onChange={(event) => setAcknowledged(event.target.checked)}
-                  />
-                  {translate('renewal.acknowledge')}
-                </label>
-              )}
-            </fieldset>
-            <ManagerActionState action={action} />
-            <div className='flex justify-end'>
-              <ManagerButton
-                primary
-                type='submit'
-                busy={action.isPending}
-                disabled={action.blocked || (needsAcknowledgement && !acknowledged)}
-              >
-                {translate('renewal.confirm')}
-              </ManagerButton>
-            </div>
-          </form>
-        )}
       </div>
     </ManagerSection>
   )

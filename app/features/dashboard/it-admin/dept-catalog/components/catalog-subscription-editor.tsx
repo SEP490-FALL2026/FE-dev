@@ -1,23 +1,23 @@
-import { useQueryClient } from '@tanstack/react-query'
 import { useCatalogEditorSnapshot } from '../hooks/use-catalog-editor-snapshot'
 import { getSubscriptionSeatUsageQueryKey } from '~/shared/api/generated/operations/subscriptions/subscription-seat-usage'
-import { env } from '~/shared/config/env'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useDashboardFormat } from '../../../dashboard-ui'
-import { NoticeDeadlineSource } from '../enums/notice-deadline-source'
 import { useSubscriptionGet } from '~/shared/api/generated/operations/subscriptions/subscription-get'
+import { usePlanGet } from '~/shared/api/generated/operations/plans/plan-get'
 import { useSubscriptionUpdate } from '~/shared/api/generated/operations/subscriptions/subscription-update'
 import { useSubscriptionComplete } from '~/shared/api/generated/operations/subscriptions/subscription-complete'
 import { getSubscriptionListQueryKey } from '~/shared/api/generated/operations/subscriptions/subscription-list'
-import { UpdateSubscriptionBodyDtoBillingCycle } from '~/shared/api/generated/model/subscriptions/updateSubscriptionBodyDtoBillingCycle'
-import type { SubscriptionResponseDtoData, UpdateSubscriptionBodyDto } from '~/shared/api/generated/model/subscriptions'
+import { SubscriptionBillingFields } from './subscription-billing-fields'
+import type { SubscriptionResponseDtoData } from '~/shared/api/generated/model/subscriptions'
+import { buildSubscriptionUpdate } from '../subscription-update'
+import { SubscriptionExtraFields } from './subscription-extra-fields'
 import { CatalogSubscriptionStatus } from '../enums/subscription-status'
 import { ItQueryState } from '../../shared/components/it-query-state'
 import { ItField, ItFormDialog, itInputClass, itButtonClass } from '../../shared/components/it-form'
 import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
 export function CatalogSubscriptionEditor({ id, onClose }: { id: string; onClose: () => void }) {
   const query = useSubscriptionGet(id, { query: { staleTime: 0, refetchOnMount: 'always' } })
+  const plan = usePlanGet(query.data?.data?.planId ?? '', { query: { enabled: !!query.data?.data?.planId } })
   const editor = useCatalogEditorSnapshot(query)
   return (
     <ItQueryState
@@ -31,9 +31,10 @@ export function CatalogSubscriptionEditor({ id, onClose }: { id: string; onClose
         <SubscriptionFields
           key={editor.version}
           subscription={editor.snapshot}
+          planType={plan.data?.data?.provisioningType}
           onClose={onClose}
           queryKey={query.queryKey}
-          blocked={editor.blocked}
+          blocked={editor.blocked || !plan.data?.data || plan.isError || plan.isFetching}
           onDirty={editor.markDirty}
           changed={editor.changed || query.isError}
           onReload={() => {
@@ -47,6 +48,7 @@ export function CatalogSubscriptionEditor({ id, onClose }: { id: string; onClose
 }
 function SubscriptionFields({
   subscription,
+  planType,
   onClose,
   queryKey,
   blocked,
@@ -55,6 +57,7 @@ function SubscriptionFields({
   onReload
 }: {
   subscription: NonNullable<SubscriptionResponseDtoData>
+  planType?: string
   onClose: () => void
   queryKey: readonly unknown[]
   blocked: boolean
@@ -63,25 +66,9 @@ function SubscriptionFields({
   onReload: () => void
 }) {
   const { t: translate } = useTranslation('itCatalog')
-  const { formatDate } = useDashboardFormat()
   const [dirty, setDirty] = useState(false)
-  const queryClient = useQueryClient()
-  const previewKeys = queryClient
-    .getQueryCache()
-    .findAll({ type: 'active' })
-    .filter(
-      (query) =>
-        typeof query.queryKey[0] === 'string' &&
-        query.queryKey[0].startsWith(`${env.API_BASE_URL}/api/v1/seat-baseline-imports/`)
-    )
-    .map((query) => query.queryKey)
-  const affected = [
-    ...previewKeys,
-    getSubscriptionListQueryKey(),
-    queryKey,
-    getSubscriptionSeatUsageQueryKey(subscription.id),
-    [`${env.API_BASE_URL}/api/v1/seat-baseline-imports`]
-  ]
+  const [termError, setTermError] = useState<'invalidTerms' | 'k1Terms'>()
+  const affected = [getSubscriptionListQueryKey(), queryKey, getSubscriptionSeatUsageQueryKey(subscription.id)]
   const feedback = useItMutationFeedback(affected, onClose)
   const update = useSubscriptionUpdate({ mutation: feedback })
   const completeFeedback = useItMutationFeedback(affected)
@@ -93,34 +80,26 @@ function SubscriptionFields({
       wide
       title={translate('editSubscription')}
       pending={pending}
-      submitDisabled={blocked}
+      submitDisabled={blocked || !dirty}
       submitLabel={translate('save')}
       onClose={onClose}
       onSubmit={(event) => {
         event.preventDefault()
         if (blocked || pending) return
         const values = new FormData(event.currentTarget)
-        const read = (key: string) => String(values.get(key) ?? '').trim()
-        const quantity = read('quantity')
-        const amount = read('amount')
-        const billingCycle = Object.values(UpdateSubscriptionBodyDtoBillingCycle).find(
-          (value) => value === values.get('billingCycle')
-        )
-        const commitmentTerm = values.get('commitmentTermMonths')
-        const commitmentTermMonths = commitmentTerm === '1' ? 1 : commitmentTerm === '12' ? 12 : undefined
-        const data: UpdateSubscriptionBodyDto = {
-          ...(quantity ? { purchasedQuantity: Number(quantity) } : {}),
-          ...(amount ? { unitPrice: { amount, currency: 'VND' } } : {}),
-          ...(billingCycle ? { billingCycle } : {}),
-          ...(commitmentTermMonths ? { commitmentTermMonths } : {}),
-          ...(read('startDate') ? { startDate: read('startDate') } : {}),
-          endDate: read('endDate') || null,
-          renewalDate: read('renewalDate') || null,
-          noticeDeadline: read('noticeDeadline') || null,
-          noticePeriodDays: read('noticePeriodDays') ? Number(read('noticePeriodDays')) : null,
-          autoRenew: values.has('autoRenew'),
-          allowsMidTermReduction: values.has('allowsMidTermReduction')
+        const data = buildSubscriptionUpdate(values, subscription)
+        if (!Object.keys(data).length) return
+        const cycle = data.billingCycle ?? subscription.billingCycle
+        const commitment = data.commitmentTermMonths ?? subscription.commitmentTermMonths
+        if (planType === 'K1' && ((cycle && cycle !== 'MONTHLY') || (commitment && commitment !== 1))) {
+          setTermError('k1Terms')
+          return
         }
+        if (cycle === 'ANNUAL' && commitment === 1) {
+          setTermError('invalidTerms')
+          return
+        }
+        setTermError(undefined)
         update.mutate({ id: subscription.id, data })
       }}
     >
@@ -171,136 +150,60 @@ function SubscriptionFields({
             inputMode='numeric'
             pattern='[0-9]{1,16}'
             maxLength={16}
-            defaultValue={subscription.unitPrice?.amount ?? ''}
+            defaultValue={subscription.unitPrice?.currency === 'VND' ? subscription.unitPrice.amount : ''}
             className={itInputClass}
           />
         </ItField>
-        <ItField label={translate('currency')} hint={translate('help.currency')}>
-          <input
-            placeholder={translate('placeholders.currency')}
-            name='currency'
-            pattern='VND'
-            maxLength={3}
-            value='VND'
-            readOnly
-            className={itInputClass}
-          />
-        </ItField>
-        {(['startDate', 'endDate', 'renewalDate'] as const).map((key) => (
-          <ItField key={key} label={translate(key)} hint={translate(`help.${key}`)}>
-            <input name={key} type='date' defaultValue={subscription[key] ?? ''} className={itInputClass} />
-          </ItField>
-        ))}
-        <ItField label={translate('deadline.declared')} hint={translate('deadline.hint')}>
-          <input
-            name='noticeDeadline'
-            type='date'
-            defaultValue={
-              subscription.noticeDeadline?.source === NoticeDeadlineSource.DECLARED
-                ? (subscription.noticeDeadline.value ?? '')
-                : ''
-            }
-            className={itInputClass}
-          />
-        </ItField>
-        <ItField label={translate('noticePeriodDays')} hint={translate('help.noticePeriodDays')}>
-          <input
-            placeholder={translate('placeholders.days')}
-            name='noticePeriodDays'
-            type='number'
-            min={0}
-            max={3650}
-            step={1}
-            defaultValue={subscription.noticePeriodDays ?? ''}
-            className={itInputClass}
-          />
+        {subscription.unitPrice && subscription.unitPrice.currency !== 'VND' && (
+          <p className='text-sm text-muted-foreground sm:col-span-2'>
+            {translate('subscriptionExtra.legacyPrice', {
+              amount: subscription.unitPrice.amount,
+              currency: subscription.unitPrice.currency
+            })}
+          </p>
+        )}
+        <ItField label={translate('startDate')} hint={translate('help.startDate')}>
+          <input name='startDate' type='date' defaultValue={subscription.startDate ?? ''} className={itInputClass} />
         </ItField>
       </div>
-      {subscription.noticeDeadline && (
-        <dl className='grid gap-3 rounded-md bg-surface-subtle p-3 text-sm sm:grid-cols-2'>
-          <div>
-            <dt className='text-xs text-muted-foreground'>{translate('deadline.effective')}</dt>
-            <dd className='mt-1 text-right font-mono tabular-nums'>
-              {subscription.noticeDeadline.value ? formatDate(subscription.noticeDeadline.value) : translate('unknown')}
-            </dd>
-          </div>
-          <div>
-            <dt className='text-xs text-muted-foreground'>{translate('deadline.source')}</dt>
-            <dd className='mt-1'>
-              {translate(`deadline.values.${subscription.noticeDeadline.source}`, {
-                defaultValue: translate('unknown')
-              })}
-            </dd>
-          </div>
-        </dl>
-      )}
-      <fieldset
-        onChange={() => {
+      <SubscriptionBillingFields
+        subscription={subscription}
+        planType={planType}
+        onDirty={() => {
           setDirty(true)
           onDirty()
         }}
-      >
-        <legend>{translate('billingCycle')}</legend>
-        <p className='text-xs font-normal text-muted-foreground'>{translate('help.billingCycle')}</p>
-        {Object.values(UpdateSubscriptionBodyDtoBillingCycle).map((value) => (
-          <label key={value} className='mr-4 inline-flex min-h-11 items-center gap-2'>
-            <input
-              type='radio'
-              name='billingCycle'
-              value={value}
-              defaultChecked={value === subscription.billingCycle}
-            />
-            {translate(`enums.${value}`, { defaultValue: translate('unknown') })}
-          </label>
-        ))}
-      </fieldset>
-      {subscription.kind === 'TERM' && (
-        <fieldset
-          onChange={() => {
-            setDirty(true)
-            onDirty()
-          }}
-        >
-          <legend>{translate('setup.commitment')}</legend>
-          {([1, 12] as const).map((months) => (
-            <label key={months} className='mr-4 inline-flex min-h-11 items-center gap-2'>
-              <input
-                type='radio'
-                name='commitmentTermMonths'
-                value={months}
-                defaultChecked={subscription.commitmentTermMonths === months}
-              />
-              {translate('setup.monthCount', { count: months })}
-            </label>
-          ))}
-        </fieldset>
+      />
+      {termError && (
+        <p role='alert' className='text-sm text-danger'>
+          {translate(`subscriptionCreate.${termError}`)}
+        </p>
       )}
-      {(['autoRenew', 'allowsMidTermReduction'] as const).map((key) => (
-        <label key={key} className='flex min-h-11 items-center gap-2'>
-          <input
-            type='checkbox'
-            name={key}
-            defaultChecked={subscription[key]}
-            onChange={() => {
-              setDirty(true)
-              onDirty()
-            }}
-          />
-          {translate(key)}
-        </label>
-      ))}
-      <p className='text-xs text-muted-foreground'>
-        {translate(subscription.missing.length > 0 && canComplete ? 'fxRecoveryHint' : 'completeHint')}
-      </p>
-      <button
-        type='button'
-        className={itButtonClass}
-        disabled={!canComplete || pending || dirty || blocked}
-        aria-busy={complete.isPending}
-        onClick={() => complete.mutate({ id: subscription.id })}
-      >
-        {translate(complete.isPending ? 'activating' : 'activate')}
-      </button>
+      <SubscriptionExtraFields
+        subscription={subscription}
+        minimal
+        allowPrimary={false}
+        onDirty={() => {
+          setDirty(true)
+          onDirty()
+        }}
+      />
+      {subscription.status === CatalogSubscriptionStatus.DRAFT && (
+        <>
+          <p className='text-xs text-muted-foreground'>
+            {translate(subscription.missing.length > 0 && canComplete ? 'fxRecoveryHint' : 'completeHint')}
+          </p>
+          <button
+            type='button'
+            className={itButtonClass}
+            disabled={!canComplete || pending || dirty || blocked}
+            aria-busy={complete.isPending}
+            onClick={() => complete.mutate({ id: subscription.id })}
+          >
+            {translate(complete.isPending ? 'activating' : 'activate')}
+          </button>
+        </>
+      )}
     </ItFormDialog>
   )
 }

@@ -25,6 +25,10 @@ export const itOptimization = {
     }
   },
   escalate: 'Send to department head',
+  selectionHint:
+    'Only open monitoring recommendations can be sent early. Recommendations already awaiting a decision or closed cannot be selected.',
+  vacantHolder: 'Available seat · no holder',
+  holderUnavailable: 'Employee code unavailable',
   escalateHint:
     'Only open monitoring recommendations can be sent. Answer every question before submitting. This sends a review request; it does not revoke access.',
   select: 'Select {{employee}} · {{application}}',

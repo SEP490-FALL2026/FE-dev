@@ -50,25 +50,23 @@ export function GrantDialog({
         subscriptionList({ planId: request.plan.planId, status: 'ACTIVE', page, pageSize: 100 })
       )
       const subscriptions = await Promise.all(
-        purchases
-          .filter((item) => item.ownerDepartmentId === department.id)
-          .map(async (item) => {
-            const usage = await subscriptionSeatUsage(item.id)
-            if (!usage.data) throw new Error('Missing seat availability')
-            return { ...item, usage: usage.data }
-          })
+        purchases.map(async (item) => {
+          const usage = await subscriptionSeatUsage(item.id)
+          if (!usage.data) throw new Error('Missing seat availability')
+          return { ...item, usage: usage.data }
+        })
       )
       return {
         type,
         subscriptions: subscriptions.filter((item) => {
+          if (type === 'K1') return true
           const today = item.usage.asOf
           return (
             item.usage.free !== null &&
             item.usage.free > 0 &&
             !!item.startDate &&
-            !!item.endDate &&
             item.startDate <= today &&
-            item.endDate >= today
+            (!item.endDate || item.endDate >= today)
           )
         })
       }
@@ -80,7 +78,11 @@ export function GrantDialog({
     getSubscriptionListQueryKey()
   ])
   const mutation = useMutation({
-    mutationFn: () => provisioningTaskGrant(draft),
+    mutationFn: () =>
+      provisioningTaskGrant({
+        ...draft,
+        subscriptionId: draft.subscriptionId ?? availability.data?.subscriptions[0]?.id
+      }),
     onError: async (error) => {
       await feedback.onError(error)
       await availability.refetch()
@@ -98,7 +100,7 @@ export function GrantDialog({
     availability.isSuccess &&
     !availability.isFetching &&
     !unsupported &&
-    (internal || eligible.some((item) => item.id === draft.subscriptionId)) &&
+    (internal || eligible.some((item) => item.id === (draft.subscriptionId ?? eligible[0]?.id))) &&
     (request.type !== 'SERVICE_ACCOUNT' ||
       (members.isSuccess &&
         !members.isFetching &&
@@ -151,7 +153,7 @@ export function GrantDialog({
         ) : eligible.length ? (
           <ItChoiceSelect
             label={translate('subscription')}
-            value={draft.subscriptionId ?? ''}
+            value={draft.subscriptionId ?? eligible[0]?.id ?? ''}
             disabled={mutation.isPending || availability.isFetching}
             options={eligible.map((item, index) => ({
               value: item.id,

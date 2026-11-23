@@ -7,6 +7,7 @@ export const itDepartmentSoftware = {
   back: 'Quay lại phòng ban',
   add: 'Thêm phần mềm',
   editSelection: 'Chọn gói phần mềm',
+  currentSelection: 'Phần mềm đã chọn',
   editSelectionHint: 'Chọn các gói gợi ý cho phòng ban. Lựa chọn được giữ khi chuyển trang.',
   coveredByApplication: 'Toàn bộ ứng dụng đã được chọn',
   changesCount: '{{add}} gói thêm · {{remove}} gói bỏ',

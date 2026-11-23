@@ -34,11 +34,6 @@ export function FinanceQueryState({
     return (
       <div role='alert' className='space-y-3 rounded-xl border border-danger/25 bg-danger/5 p-6'>
         <p className='text-sm'>{translate(`errors.${failure.key}`)}</p>
-        {failure.requestId && (
-          <p className='font-mono text-xs text-muted-foreground'>
-            {translate('requestId', { value: failure.requestId })}
-          </p>
-        )}
         {failure.key !== 'forbidden' && (
           <button
             type='button'

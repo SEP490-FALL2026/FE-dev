@@ -93,6 +93,7 @@ export const accessRequest: AccessRequestResponseDtoDataRequest = {
   cost: null
 }
 export const requestPreview: PreviewResponseDtoDataPreview = {
+  priceSource: null,
   limitExemption: null,
   termMonths: 6,
   termRefusal: null,

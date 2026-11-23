@@ -6,7 +6,7 @@ import type { FinanceTabKey } from '../../enums'
 import { financeAreas } from '../../finance-nav'
 import { FinanceQueryState, FinanceSection } from '../../shared/components/finance-ui'
 
-const shortcutTabs: readonly FinanceTabKey[] = ['cost-centers', 'vendor-tax', 'saas-cost']
+const shortcutTabs: readonly FinanceTabKey[] = ['cost-centers', 'saas-cost']
 
 export function OverviewWorkQueue({ onSelectTab }: { onSelectTab: (tab: FinanceTabKey) => void }) {
   const { t: translate } = useTranslation('finance')

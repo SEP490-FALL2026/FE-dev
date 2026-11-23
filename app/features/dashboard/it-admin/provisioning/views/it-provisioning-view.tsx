@@ -22,6 +22,7 @@ import { ProvisioningActionDialog } from '../components/provisioning-action-dial
 import { taskActions, type TaskAction } from '../task-actions'
 import { SubscriptionExpiry } from '../components/subscription-expiry'
 import { ProvisioningDirectory } from '../components/provisioning-directory'
+import { ProvisioningInvoiceAction } from '../components/provisioning-invoice-action'
 import { TaskStatus } from '../enums/task-status'
 import { TaskChannel } from '../enums/task-channel'
 import { TaskScope } from '../enums/task-scope'
@@ -57,6 +58,7 @@ export function ItProvisioningView({
     enabled: authorized && !!selectedTask
   })
   const task = detail.data?.data?.task
+  const claimedByMe = !!task?.claimedBy && actorIds.includes(task.claimedBy)
   const requestQuery = useAccessRequestGet(task?.requestId ?? '', {
     query: { enabled: authorized && task?.kind === 'GRANT' && task.status === TaskStatus.FAILED && !!task.requestId }
   })
@@ -113,6 +115,10 @@ export function ItProvisioningView({
                   </dd>
                 </div>
                 <div>
+                  <dt className='text-muted-foreground'>{translate('workEmail')}</dt>
+                  <dd className='break-all'>{task.beneficiary?.workEmail ?? translate('unavailable')}</dd>
+                </div>
+                <div>
                   <dt className='text-muted-foreground'>{translate('account')}</dt>
                   <dd className='break-all'>{task.accountIdentifier}</dd>
                 </div>
@@ -123,16 +129,6 @@ export function ItProvisioningView({
                 <div>
                   <dt className='text-muted-foreground'>{translate('kind')}</dt>
                   <dd>{translate(`values.${task.kind}`, { defaultValue: translate('unavailable') })}</dd>
-                </div>
-                <div>
-                  <dt className='text-muted-foreground'>{translate('channel')}</dt>
-                  <dd>{translate(`values.${task.channel}`, { defaultValue: translate('unavailable') })}</dd>
-                </div>
-                <div>
-                  <dt className='text-muted-foreground'>{translate('attempts')}</dt>
-                  <dd className='font-mono tabular-nums'>
-                    {translate('attemptCount', { count: task.attempts, max: task.maxAttempts })}
-                  </dd>
                 </div>
               </dl>
               {task.claimableNow === false && task.notBefore && (
@@ -173,13 +169,7 @@ export function ItProvisioningView({
                 </div>
               )}
               {task.kind === 'GRANT' && task.requestId && onSelectTab && (
-                <button
-                  type='button'
-                  className={itButtonClass}
-                  onClick={() => onSelectTab('purchase-invoices', { requestId: task.requestId ?? '', view: 'new' })}
-                >
-                  {translate('submitInvoice')}
-                </button>
+                <ProvisioningInvoiceAction requestId={task.requestId} onSelectTab={onSelectTab} />
               )}
               {task.revocation?.paidThroughOn && (
                 <p className='text-sm'>
@@ -190,7 +180,8 @@ export function ItProvisioningView({
                 {taskActions(task, withdrawn)
                   .filter(
                     (item) =>
-                      !['complete', 'failure', 'revocation'].includes(item) || actorIds.includes(task.claimedBy ?? '')
+                      (item !== 'claim' || !claimedByMe) &&
+                      (!['complete', 'failure', 'revocation'].includes(item) || claimedByMe)
                   )
                   .map((item) => (
                     <button key={item} className={itButtonClass} onClick={() => setAction(item)}>
@@ -208,6 +199,9 @@ export function ItProvisioningView({
           <div className='flex flex-wrap gap-2' role='group' aria-label={translate('queue')}>
             <button className={itButtonClass} aria-pressed={queue === 'grants'} onClick={() => setQueue('grants')}>
               {translate('grants')}
+            </button>
+            <button className={itButtonClass} aria-pressed={queue === 'tasks'} onClick={() => setQueue('tasks')}>
+              {translate('tasks')}
             </button>
             <button className={itButtonClass} aria-pressed={queue === 'expiry'} onClick={() => setQueue('expiry')}>
               {translate('expiry')}
@@ -261,8 +255,7 @@ export function ItProvisioningView({
                           <p className='truncate text-sm text-muted-foreground' title={item.beneficiary?.fullName}>
                             {item.beneficiary?.fullName} ·{' '}
                             {translate(`values.${item.kind}`, { defaultValue: translate('unavailable') })} ·{' '}
-                            {translate(`values.${item.status}`, { defaultValue: translate('unavailable') })} ·{' '}
-                            {translate(`values.${item.channel}`, { defaultValue: translate('unavailable') })}
+                            {translate(`values.${item.status}`, { defaultValue: translate('unavailable') })}
                           </p>
                           <p className='mt-1 font-mono text-xs tabular-nums text-muted-foreground'>
                             {translate('waitSeconds', { count: item.elapsedSeconds })}

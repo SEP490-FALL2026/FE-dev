@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { DeviceStopRequests } from '../components/device-stop-requests'
 import { Laptop } from 'lucide-react'
 import { ItPageHeader, ItSegmented } from '../../shared/components/it-page-header'
 import { useQuery } from '@tanstack/react-query'
@@ -30,14 +31,23 @@ export function ItDevicesView({ initialId }: { initialId?: string }) {
   const { t: translate } = useTranslation('itDevices')
   const [params, setParams] = useSearchParams()
   const view =
-    params.get('deviceView') === 'mine' ? 'mine' : params.get('deviceView') === 'allowlist' ? 'allowlist' : 'registry'
+    params.get('deviceView') === 'stopRequests'
+      ? 'stopRequests'
+      : params.get('deviceView') === 'mine'
+        ? 'mine'
+        : params.get('deviceView') === 'allowlist'
+          ? 'allowlist'
+          : 'registry'
   return (
     <section className='space-y-6'>
       <ItPageHeader icon={Laptop} title={translate('title')} subtitle={translate('subtitle')}>
         <ItSegmented
           label={translate('title')}
           value={view}
-          items={(['registry', 'mine', 'allowlist'] as const).map((key) => ({ key, label: translate(key) }))}
+          items={(['registry', 'mine'] as const).map((key) => ({
+            key,
+            label: translate(key)
+          }))}
           onChange={(value) =>
             setParams((previous) => {
               const next = new URLSearchParams(previous)
@@ -51,7 +61,13 @@ export function ItDevicesView({ initialId }: { initialId?: string }) {
       <div hidden={view !== 'registry'}>
         <Registry initialId={initialId} active={view === 'registry'} />
       </div>
-      {view === 'mine' ? <MyDevices /> : view === 'allowlist' ? <AllowlistView /> : null}
+      {view === 'stopRequests' ? (
+        <DeviceStopRequests />
+      ) : view === 'mine' ? (
+        <MyDevices />
+      ) : view === 'allowlist' ? (
+        <AllowlistView />
+      ) : null}
     </section>
   )
 }

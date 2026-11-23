@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import {
   ArrowUpRight,
   CalendarClock,
@@ -17,7 +17,6 @@ import { useDashboardFormat } from '../../../dashboard-ui'
 import type { ItAdminTabKey } from '../../enums'
 import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { itButtonClass } from '../../shared/components/it-form'
-import { ItDepartmentWork } from './it-department-work'
 import { ItUsageChart } from './it-usage-chart'
 import '~/shared/ui/workspace.css'
 
@@ -39,16 +38,13 @@ export function ItOperationsOverview({
   onSelectTab: (tab: ItAdminTabKey, params?: Record<string, string>) => void
 }) {
   const { t: translate } = useTranslation('itAdmin')
-  const { t: departmentText } = useTranslation('itDepartmentWork')
-  const [departmentsOpen, setDepartmentsOpen] = useState(false)
   const pageRef = useRef<HTMLElement>(null)
   useEffect(() => {
     pageRef.current?.focus()
-  }, [departmentsOpen])
+  }, [])
   const { formatNumber, formatDate } = useDashboardFormat()
-  const query = useItAdminDashboardGet({ query: { enabled: !departmentsOpen } })
+  const query = useItAdminDashboardGet()
   const data = query.data?.data
-  if (departmentsOpen) return <ItDepartmentWork onBack={() => setDepartmentsOpen(false)} />
   return (
     <section ref={pageRef} tabIndex={-1} className='space-y-6 outline-none'>
       <header className='workspace-overview-hero workspace-hero-header flex flex-wrap items-start justify-between gap-4 rounded-xl px-5 py-6 sm:px-7 sm:py-7'>
@@ -76,9 +72,6 @@ export function ItOperationsOverview({
           {translate('overview.refresh')}
         </button>
       </header>
-      <button type='button' className={itButtonClass} onClick={() => setDepartmentsOpen(true)}>
-        {departmentText('title')}
-      </button>
       <ItUsageChart />
       <ItQueryState query={query}>
         {data ? (

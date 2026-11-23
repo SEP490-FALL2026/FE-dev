@@ -17,7 +17,7 @@ import { customAxios } from '../../../mutator/custom-axios'
 import type { ErrorType, BodyType } from '../../../mutator/custom-axios'
 
 /**
- * @summary Withdraw a request that is still waiting
+ * @summary Withdraw a request nobody has decided yet
  */
 export const accessRequestWithdraw = (
   id: string,
@@ -78,7 +78,7 @@ export type AccessRequestWithdrawMutationBody = BodyType<WithdrawBodyDto>
 export type AccessRequestWithdrawMutationError = ErrorType<ErrorEnvelopeDto>
 
 /**
- * @summary Withdraw a request that is still waiting
+ * @summary Withdraw a request nobody has decided yet
  */
 export const useAccessRequestWithdraw = <TError = ErrorType<ErrorEnvelopeDto>, TContext = unknown>(
   options?: {

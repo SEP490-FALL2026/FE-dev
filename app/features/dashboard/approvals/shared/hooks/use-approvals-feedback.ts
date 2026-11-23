@@ -29,8 +29,7 @@ export function useApprovalsFeedback(queryKeys: readonly QueryKey[], onSuccess?:
       toast.error(
         contractKey ? flow(contractKey) : translate(`errors.${failure.ambiguous ? 'ambiguous' : failure.key}`),
         {
-          id: 'approvals-write',
-          description: failure.requestId ? translate('requestId', { value: failure.requestId }) : undefined
+          id: 'approvals-write'
         }
       )
     }

@@ -75,6 +75,7 @@ function PlanFields({
           (value) => value === values.get('controlLevel')
         )
         const name = String(values.get('name') ?? '').trim()
+        const referenceAmount = String(values.get('referencePrice') ?? '').trim()
         if (!name) return
         update.mutate({
           id: plan.id,
@@ -82,6 +83,9 @@ function PlanFields({
             name,
             dataLossOnRemoval: dataLoss,
             revocationNote: String(values.get('note') ?? '').trim() || null,
+            ...(plan.provisioningType !== 'K5' && referenceAmount !== (plan.referencePrice?.amount ?? '')
+              ? { referencePrice: referenceAmount ? { amount: referenceAmount, currency: 'VND' } : null }
+              : {}),
             ...(plan.provisioningType !== 'K5' ? { controlLevel } : {})
           }
         })
@@ -109,6 +113,21 @@ function PlanFields({
         <p className='text-sm text-muted-foreground'>
           {translate(`enums.${plan.provisioningType}`, { defaultValue: translate('unknown') })}
         </p>
+        {plan.provisioningType !== 'K5' && (
+          <ItField
+            label={translate('referencePrice')}
+            hint={translate(plan.provisioningType === 'K4' ? 'referencePriceKeyHint' : 'referencePriceSeatHint')}
+          >
+            <input
+              name='referencePrice'
+              inputMode='decimal'
+              pattern='[0-9]+([.][0-9]+)?'
+              maxLength={40}
+              defaultValue={plan.referencePrice?.amount ?? ''}
+              className={itInputClass}
+            />
+          </ItField>
+        )}
         {plan.provisioningType !== 'K5' &&
           ([['controlLevel', DeclarePlanBodyDtoControlLevel, plan.controlLevel]] as const).map(
             ([key, options, initial]) => (

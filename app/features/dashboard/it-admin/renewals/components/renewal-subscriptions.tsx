@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router'
+import { useSubscriptionGet } from '~/shared/api/generated/operations/subscriptions/subscription-get'
 import { useTranslation } from 'react-i18next'
 import { useSubscriptionList } from '~/shared/api/generated/operations/subscriptions/subscription-list'
 import { useDashboardFormat } from '../../../dashboard-ui'
@@ -8,13 +10,36 @@ import { itButtonClass } from '../../shared/components/it-form'
 import { RenewalProposalDialog } from './renewal-proposal-dialog'
 import type { SubscriptionPageResponseDtoDataItemsItem } from '~/shared/api/generated/model/subscriptions'
 
-export function RenewalSubscriptions() {
+export function RenewalSubscriptions({ onOpenCase }: { onOpenCase: (id: string) => void }) {
   const { t: translate } = useTranslation('itRenewals')
   const { formatDate, formatNumber } = useDashboardFormat()
+  const [params, setParams] = useSearchParams()
+  const subscriptionId = params.get('subscriptionId') ?? ''
+  const linked = useSubscriptionGet(subscriptionId, { query: { enabled: /^[0-9a-f-]{36}$/i.test(subscriptionId) } })
   const [page, setPage] = useState(1)
   const [selected, setSelected] = useState<SubscriptionPageResponseDtoDataItemsItem>()
-  const query = useSubscriptionList({ page, pageSize: 20, status: 'ACTIVE' })
+  const query = useSubscriptionList(
+    { page, pageSize: 20, status: 'ACTIVE', kind: 'TERM' },
+    { query: { enabled: !selected && !subscriptionId } }
+  )
   const data = query.data?.data
+  const selection = selected ?? linked.data?.data
+  if (selection)
+    return (
+      <RenewalProposalDialog
+        key={selection.id}
+        subscription={selection}
+        onOpenCase={onOpenCase}
+        onClose={() => {
+          setSelected(undefined)
+          setParams((previous) => {
+            const next = new URLSearchParams(previous)
+            next.delete('subscriptionId')
+            return next
+          })
+        }}
+      />
+    )
   return (
     <section className='space-y-4'>
       <p className='text-sm text-muted-foreground'>{translate('deadlinePageHint')}</p>
@@ -56,7 +81,7 @@ export function RenewalSubscriptions() {
         )}
       </ItQueryState>
       {data && <ItPagination page={page} total={data.pagination.totalItems} pageSize={20} onChange={setPage} />}
-      {selected && <RenewalProposalDialog subscription={selected} onClose={() => setSelected(undefined)} />}
+      {subscriptionId && <ItQueryState query={linked}>{null}</ItQueryState>}
     </section>
   )
 }

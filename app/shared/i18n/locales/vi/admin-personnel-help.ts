@@ -47,6 +47,7 @@ export const adminPersonnelHelp = {
     newApprovedReturnOn: 'Ngày trở lại mới đã được duyệt cho kỳ nghỉ đang diễn ra.',
     returnedOn: 'Ngày thực tế trở lại làm việc, được xác nhận từ nguồn có thẩm quyền.',
     lastWorkingDay: 'Ngày làm việc cuối chính thức. Chỉ được để trống khi chặn truy cập ngay.',
+    lastWorkingDayNotice: 'Ngày làm việc cuối chính thức được ghi nhận.',
     blockAccessNow: 'Chặn truy cập ngay. Nếu bỏ trống ngày cuối, hệ thống dùng ngày nghiệp vụ liền trước.',
     cancelPendingTransfer: 'Hủy đợt điều chuyển đang chờ khi ghi hồ sơ nghỉ việc này.',
     abrupt: 'Ghi nghỉ đột xuất theo nguồn có thẩm quyền đã xác minh.',

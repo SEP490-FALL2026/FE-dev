@@ -1,8 +1,4 @@
 import {
-  getBudgetAdjustmentListQueryKey,
-  useBudgetAdjustmentCreate
-} from '~/shared/api/generated/operations/budget-adjustments'
-import {
   getBudgetReviewPeriodGetQueryKey,
   getBudgetReviewPeriodListQueryKey,
   useBudgetReviewPeriodClose,
@@ -30,9 +26,4 @@ export function useReviewPeriodActions(periodId?: string, onClosed?: (periodId: 
     }),
     sign: useBudgetReviewPeriodSign({ mutation: feedback })
   }
-}
-
-export function useAdjustmentActions(onCreated?: () => void) {
-  const feedback = useFinanceFeedback([getBudgetAdjustmentListQueryKey()], onCreated)
-  return { create: useBudgetAdjustmentCreate({ mutation: feedback }) }
 }
