@@ -32,7 +32,7 @@ export function ManagerField({ label, children }: { label: string; children: Rea
     !!input?.props.name &&
     fields.some((field) => field === input.props.name || field.startsWith(`${input.props.name}.`))
   return (
-    <label className='grid min-w-0 gap-2 text-sm font-medium'>
+    <label className='grid min-w-0 content-start self-start gap-2 text-sm font-medium'>
       {label}
       {input
         ? cloneElement(input, { 'aria-invalid': invalid || undefined, 'aria-describedby': invalid ? id : undefined })

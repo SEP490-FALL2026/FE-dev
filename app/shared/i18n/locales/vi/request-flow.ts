@@ -1,5 +1,7 @@
 import { requestPersonnel } from './request-personnel'
+import { requestProgress } from './request-progress'
 export const requestFlow = {
+  progress: requestProgress,
   proposalForm: {
     existing: 'Ứng dụng đã có, tôi cần xin thêm gói khác',
     search: 'Tìm ứng dụng',

@@ -106,19 +106,19 @@ export function ManagerSeatMonthCharges({ year, costCenterId }: { year: number; 
               <dd className='mt-1 break-words'>{selected.costCenter?.name}</dd>
             </div>
             <div>
-              <dt className='text-muted-foreground'>{t('budgetWorkspace.month')}</dt>
+              <dt className='text-right text-muted-foreground'>{t('budgetWorkspace.month')}</dt>
               <dd className='mt-1 text-right font-mono tabular-nums'>
                 {t('budgetWorkspace.monthYear', { month: formatNumber(month), year })}
               </dd>
             </div>
             <div>
-              <dt className='text-muted-foreground'>{t('amount')}</dt>
+              <dt className='text-right text-muted-foreground'>{t('amount')}</dt>
               <dd className='mt-1 text-right font-mono tabular-nums'>
                 <ManagerMoney money={selected.amount} />
               </dd>
             </div>
             <div>
-              <dt className='text-muted-foreground'>{t('budgetWorkspace.appliedToCommitment')}</dt>
+              <dt className='text-right text-muted-foreground'>{t('budgetWorkspace.appliedToCommitment')}</dt>
               <dd className='mt-1 text-right font-mono tabular-nums'>
                 <ManagerMoney money={selected.appliedToCommitment} />
               </dd>

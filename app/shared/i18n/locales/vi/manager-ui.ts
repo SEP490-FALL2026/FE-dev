@@ -1,5 +1,7 @@
 /** Presentation copy of the redesigned Manager screens (pickers, placeholders, section titles). */
 export const managerUi = {
+  currency: 'VND',
+  amountFormat: 'Nhập số tiền VND nguyên, không âm, tối đa 16 chữ số.',
   loadFailed: 'Không tải được danh sách. Đóng rồi mở lại để thử lại.',
   statePlaceholder: 'Chọn trạng thái (gõ để tìm)',
   create: {
@@ -24,11 +26,11 @@ export const managerUi = {
     persistence: 'Chọn tính chất của khoản chênh lệch (gõ để tìm)',
     cause: 'Ví dụ: Tuyển thêm 3 nhân viên thiết kế nên tăng số suất Figma từ tháng 7',
     action: 'Ví dụ: Thu hồi 2 suất không dùng trong quý tới để bù phần vượt',
-    knownAmount: 'Nhập số tiền VND, ví dụ 12000000',
+    knownAmount: 'Ví dụ: 12.000.000',
     knownNote: 'Ví dụ: Gia hạn Adobe vào tháng 11 cho nhóm truyền thông',
     year: 'Nhập năm, ví dụ 2027',
     costCenterAuto: 'Lấy theo phòng bạn phụ trách',
-    requestedAmount: 'Nhập số tiền đề nghị cả năm (VND, chưa thuế), ví dụ 250000000',
+    requestedAmount: 'Chưa thuế, ví dụ 250.000.000',
     budgetNote: 'Ví dụ: Tăng ngân sách do mở rộng nhóm sản phẩm thêm 5 người',
     businessReason: 'Ví dụ: Nhóm thiết kế cần Figma cho dự án ứng dụng khách hàng trong quý I',
     personalReason: 'Ví dụ: Cần Miro để điều phối các buổi họp lập kế hoạch của phòng',

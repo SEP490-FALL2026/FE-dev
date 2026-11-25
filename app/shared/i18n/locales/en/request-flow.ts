@@ -1,5 +1,7 @@
 import { requestPersonnel } from './request-personnel'
+import { requestProgress } from './request-progress'
 export const requestFlow = {
+  progress: requestProgress,
   proposalForm: {
     existing: 'The application already exists; I need another plan',
     search: 'Find an application',

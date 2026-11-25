@@ -16,6 +16,7 @@ import {
 import { ManagerFormSelect, enumOptions } from '../../shared/components/manager-select'
 import { EXPLANATION_PERSISTENCE } from '../enums/explanation-persistence'
 import { budgetAmountPattern } from '../budget-limits'
+import { ManagerBudgetAmountInput } from './manager-budget-amount-input'
 
 export function ManagerBudgetExplanation({
   periodId,
@@ -61,19 +62,21 @@ export function ManagerBudgetExplanation({
             const cause = String(form.get('cause') ?? '').trim()
             const nextAction = String(form.get('action') ?? '').trim()
             const note = String(form.get('knownNeedsToYearEnd.note') ?? '').trim()
+            const amount = String(form.get('knownNeedsToYearEnd.amount.amount') ?? '')
             if (!cause || !nextAction || !note) return
+            if (!new RegExp(`^${budgetAmountPattern}$`).test(amount)) return
             action.mutate({
               cause,
               persistence,
               action: nextAction,
               knownNeedsToYearEnd: {
-                amount: { amount: String(form.get('knownNeedsToYearEnd.amount.amount') ?? '').trim() },
+                amount: { amount },
                 note
               }
             })
           }}
         >
-          <fieldset disabled={disabled || action.blocked} className='grid gap-4 sm:grid-cols-2'>
+          <fieldset disabled={disabled || action.blocked} className='grid items-start gap-4 sm:grid-cols-2'>
             <div className='sm:col-span-2'>
               <ManagerField label={t('budgetWorkspace.cause')}>
                 <textarea
@@ -99,13 +102,9 @@ export function ManagerBudgetExplanation({
               />
             </ManagerField>
             <ManagerField label={t('budgetWorkspace.knownAmount')}>
-              <input
-                className={managerInputClass}
+              <ManagerBudgetAmountInput
                 name='knownNeedsToYearEnd.amount.amount'
                 placeholder={t('ui.placeholders.knownAmount')}
-                inputMode='numeric'
-                pattern={budgetAmountPattern}
-                maxLength={16}
                 required
                 defaultValue={previous?.knownNeedsToYearEnd.amount?.amount ?? '0'}
               />

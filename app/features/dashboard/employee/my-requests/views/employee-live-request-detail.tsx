@@ -38,7 +38,7 @@ import { LiveRequestTimings } from '../components/live-request-timings'
 import { EmployeeMoney } from '../../shared/components/employee-money'
 import { LiveRequestAssessment } from '../components/live-request-assessment'
 import { RequestFlowSummary } from '~/entities/request/components/request-flow-summary'
-import { RequestEventTimeline } from '~/entities/request/components/request-event-timeline'
+import { RequestHistoryDisclosure } from '~/entities/request/components/request-history-disclosure'
 import { requestTermLabel } from '~/entities/request/term-months'
 import { RequestRevision } from '~/entities/request/components/request-revision'
 
@@ -94,7 +94,8 @@ export function EmployeeLiveRequestDetail({
           </EmployeeButton>
         }
       />
-      <div className='grid items-start gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]'>
+      {request && <LiveRequestTimings id={id} state={request.state} />}
+      <div className='space-y-6'>
         <div className='space-y-6'>
           <EmployeeSection title={translate('redesign.requestSummary')}>
             <EmployeeQueryState query={query} empty={!request && !draft} />
@@ -255,6 +256,7 @@ export function EmployeeLiveRequestDetail({
                   </dd>
                 </div>
 
+                <RequestHistoryDisclosure key={id} id={id} />
                 <RequestFlowSummary request={request} />
                 {request.state === ACCESS_REQUEST_STATE.AWAITING_REQUESTER_REVISION &&
                   request.requester.employeeId === employeeId && (
@@ -281,14 +283,7 @@ export function EmployeeLiveRequestDetail({
             )}
           </EmployeeSection>
           {request?.proposal && <LiveRequestAssessment id={id} />}
-          {request && <RequestEventTimeline id={id} />}
         </div>
-
-        {request && (
-          <aside className='min-w-0'>
-            <LiveRequestTimings id={id} />
-          </aside>
-        )}
       </div>
 
       {confirming && (

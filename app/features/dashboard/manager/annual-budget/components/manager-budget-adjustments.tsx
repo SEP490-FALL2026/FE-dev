@@ -123,13 +123,13 @@ export function ManagerBudgetAdjustments({ year, costCenterId }: { year: number;
               <dd className='mt-1 break-words'>{selected.to?.name ?? t('notReported')}</dd>
             </div>
             <div>
-              <dt className='text-muted-foreground'>{t('amount')}</dt>
+              <dt className='text-right text-muted-foreground'>{t('amount')}</dt>
               <dd className='mt-1 text-right font-mono tabular-nums'>
                 <ManagerMoney money={selected.amount} />
               </dd>
             </div>
             <div>
-              <dt className='text-muted-foreground'>{t('budgetWorkspace.createdAt')}</dt>
+              <dt className='text-right text-muted-foreground'>{t('budgetWorkspace.createdAt')}</dt>
               <dd className='mt-1 text-right font-mono tabular-nums'>{formatDateTime(selected.createdAt)}</dd>
             </div>
             <div className='sm:col-span-2'>
@@ -144,7 +144,7 @@ export function ManagerBudgetAdjustments({ year, costCenterId }: { year: number;
             )}
             {selected.decidedAt && (
               <div>
-                <dt className='text-muted-foreground'>{t('budgetWorkspace.decidedAt')}</dt>
+                <dt className='text-right text-muted-foreground'>{t('budgetWorkspace.decidedAt')}</dt>
                 <dd className='mt-1 text-right font-mono tabular-nums'>{formatDateTime(selected.decidedAt)}</dd>
               </div>
             )}

@@ -54,12 +54,12 @@ export function ManagerBudgetReviewDetail({
             </div>
             <dl className='grid gap-4 text-sm sm:grid-cols-3'>
               <div>
-                <dt className='text-muted-foreground'>{t('budgetWorkspace.closedAt')}</dt>
+                <dt className='text-right text-muted-foreground'>{t('budgetWorkspace.closedAt')}</dt>
                 <dd className='mt-1 text-right font-mono tabular-nums'>{formatDateTime(data.period.closedAt)}</dd>
               </div>
               {data.period.explanationsDueOn && (
                 <div>
-                  <dt className='text-muted-foreground'>{t('budgetWorkspace.dueOn')}</dt>
+                  <dt className='text-right text-muted-foreground'>{t('budgetWorkspace.dueOn')}</dt>
                   <dd className='mt-1 text-right font-mono tabular-nums'>
                     {formatDate(data.period.explanationsDueOn)}
                   </dd>
@@ -67,7 +67,7 @@ export function ManagerBudgetReviewDetail({
               )}
               {data.period.signedAt && (
                 <div>
-                  <dt className='text-muted-foreground'>{t('budgetWorkspace.signedAt')}</dt>
+                  <dt className='text-right text-muted-foreground'>{t('budgetWorkspace.signedAt')}</dt>
                   <dd className='mt-1 text-right font-mono tabular-nums'>{formatDateTime(data.period.signedAt)}</dd>
                 </div>
               )}
@@ -114,14 +114,14 @@ export function ManagerBudgetReviewDetail({
                     ] as const
                   ).map((key) => (
                     <div key={key}>
-                      <dt className='text-muted-foreground'>{t(`budgetWorkspace.figures.${key}`)}</dt>
+                      <dt className='text-right text-muted-foreground'>{t(`budgetWorkspace.figures.${key}`)}</dt>
                       <dd className='mt-1 text-right font-mono tabular-nums'>
                         <ManagerMoney money={line[key]} />
                       </dd>
                     </div>
                   ))}
                   <div>
-                    <dt className='text-muted-foreground'>{t('budgetWorkspace.pace')}</dt>
+                    <dt className='text-right text-muted-foreground'>{t('budgetWorkspace.pace')}</dt>
                     <dd className='mt-1 text-right font-mono tabular-nums'>
                       {line.paceBasisPoints === null ? t('notReported') : formatPercent(line.paceBasisPoints / 10000)}
                     </dd>
@@ -146,7 +146,7 @@ export function ManagerBudgetReviewDetail({
                         </dd>
                       </div>
                       <div>
-                        <dt className='text-muted-foreground'>{t('budgetWorkspace.knownAmount')}</dt>
+                        <dt className='text-right text-muted-foreground'>{t('budgetWorkspace.knownAmount')}</dt>
                         <dd className='mt-1 text-right font-mono tabular-nums'>
                           <ManagerMoney money={line.explanation.knownNeedsToYearEnd.amount} />
                         </dd>

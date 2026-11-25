@@ -33,6 +33,7 @@ import { ManagerBudgetContext } from '../components/manager-budget-context'
 import { ManagerBudgetTemplate } from '../components/manager-budget-template'
 import { useBudgetContext } from '../hooks/use-budget-context'
 import { budgetAmountPattern, BUDGET_PROPOSAL_FILE_LIMIT } from '../budget-limits'
+import { ManagerBudgetAmountInput } from '../components/manager-budget-amount-input'
 
 export function ManagerBudgetForm({
   id,
@@ -162,10 +163,12 @@ function ProposalForm({
             return
           const form = new FormData(event.currentTarget)
           const note = String(form.get('note') ?? '').trim()
+          const amount = String(form.get('requestedAmount') ?? '')
+          if (!new RegExp(`^${budgetAmountPattern}$`).test(amount)) return
           action.mutate({
             year: Number(form.get('year')),
             costCenterId,
-            requestedAmount: { amount: String(form.get('requestedAmount') ?? '').trim() },
+            requestedAmount: { amount },
             ...(note ? { note } : {}),
             attachmentIds: attachments.selected
           })
@@ -173,7 +176,7 @@ function ProposalForm({
       >
         <fieldset disabled={action.blocked} className='space-y-6'>
           <ManagerSection title={translate('proposal')}>
-            <div className='grid gap-4 sm:grid-cols-2'>
+            <div className='grid items-start gap-4 sm:grid-cols-2'>
               <ManagerField label={translate('budgetForm.costCenter')}>
                 <input
                   className={managerInputClass}
@@ -201,14 +204,10 @@ function ProposalForm({
                 />
               </ManagerField>
               <ManagerField label={translate('amount')}>
-                <input
+                <ManagerBudgetAmountInput
                   name='requestedAmount'
                   placeholder={translate('ui.placeholders.requestedAmount')}
-                  className={managerInputClass}
                   required
-                  inputMode='numeric'
-                  pattern={budgetAmountPattern}
-                  maxLength={16}
                   defaultValue={initialAmount}
                 />
               </ManagerField>

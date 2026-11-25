@@ -57,7 +57,7 @@ export function ManagerOverviewBudget() {
           ) : (
             <>
               <div className='grid items-end gap-5 border-y border-border/60 py-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)]'>
-                <div>
+                <div className='min-w-0 text-right'>
                   <p className='text-sm text-muted-foreground'>{translate('overviewBudget.effective')}</p>
                   <p className='mt-1 break-all text-right font-mono text-2xl font-semibold tabular-nums tracking-tight'>
                     <ManagerMoney money={budget.effectiveBudget.total} />
@@ -65,13 +65,13 @@ export function ManagerOverviewBudget() {
                 </div>
                 <dl className='grid gap-4 text-sm sm:grid-cols-2'>
                   <div>
-                    <dt className='text-muted-foreground'>{translate('overviewBudget.allocated')}</dt>
+                    <dt className='text-right text-muted-foreground'>{translate('overviewBudget.allocated')}</dt>
                     <dd className='mt-1 text-right font-mono tabular-nums'>
                       <ManagerMoney money={budget.total} />
                     </dd>
                   </div>
                   <div>
-                    <dt className='text-muted-foreground'>{translate('overviewBudget.adjustment')}</dt>
+                    <dt className='text-right text-muted-foreground'>{translate('overviewBudget.adjustment')}</dt>
                     <dd className='mt-1 text-right font-mono tabular-nums'>
                       <ManagerMoney money={budget.effectiveBudget.adjustment} />
                     </dd>

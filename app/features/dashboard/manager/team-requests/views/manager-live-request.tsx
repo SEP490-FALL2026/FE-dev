@@ -16,7 +16,7 @@ import { isHeadWithdrawalStage } from '../enums/withdrawal'
 import { ManagerSimilarSeats } from '../components/manager-similar-seats'
 import { useManagerNeedRequirements } from '../hooks/use-manager-need-requirements'
 import { RequestFlowSummary } from '~/entities/request/components/request-flow-summary'
-import { RequestEventTimeline } from '~/entities/request/components/request-event-timeline'
+import { RequestHistoryDisclosure } from '~/entities/request/components/request-history-disclosure'
 import { requestTermLabel } from '~/entities/request/term-months'
 import { RequestRevision } from '~/entities/request/components/request-revision'
 
@@ -82,11 +82,14 @@ export function ManagerLiveRequest({
       </div>
 
       <ManagerQueryState query={query} empty={!request} />
+      {request && <ManagerRequestTimings id={id} state={request.state} />}
 
       {request && (
         <div
           className={
-            request.type === REQUEST_TYPE.GROUP_GRANT ? 'space-y-6' : 'grid items-stretch gap-6 lg:grid-cols-2'
+            request.type === REQUEST_TYPE.GROUP_GRANT || !canDecide
+              ? 'space-y-6'
+              : 'grid items-start gap-6 xl:grid-cols-[minmax(0,1.3fr)_minmax(20rem,0.9fr)]'
           }
         >
           {/* Left Column: Request Details Card */}
@@ -190,6 +193,7 @@ export function ManagerLiveRequest({
                 <p className='whitespace-pre-wrap [overflow-wrap:anywhere]'>{request.businessReason}</p>
               </dd>
             </div>
+            <RequestHistoryDisclosure key={id} id={id} />
           </ManagerSection>
 
           {/* Right Column: Decision Actions */}
@@ -216,11 +220,11 @@ export function ManagerLiveRequest({
                 <ManagerSimilarSeats id={id} />
               </div>
             </ManagerSection>
-          ) : canDecide ? null : (
+          ) : !canDecide && request.state === REQUEST_STATE.PENDING ? (
             <ManagerSection title={translate('requestDetail.decisionTitle')}>
               <p className='py-4 text-center text-sm text-muted-foreground'>{translate('noPermission')}</p>
             </ManagerSection>
-          )}
+          ) : null}
         </div>
       )}
       {request && (
@@ -240,14 +244,6 @@ export function ManagerLiveRequest({
             request.state === REQUEST_STATE.AWAITING_SPEND_SUBMISSION &&
             request.requester.employeeId !== employeeId && <ManagerSpendCorrections id={id} request={request} />}
         </>
-      )}
-      {request && (
-        <div className='grid items-stretch gap-6 lg:grid-cols-2'>
-          <ManagerRequestTimings id={id} />
-          <ManagerSection title={flow('timeline')}>
-            <RequestEventTimeline id={id} bare />
-          </ManagerSection>
-        </div>
       )}
       {request?.proposal && <ManagerRequestAssessment id={id} />}
     </div>

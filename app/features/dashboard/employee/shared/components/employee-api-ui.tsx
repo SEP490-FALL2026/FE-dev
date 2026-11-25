@@ -48,7 +48,7 @@ export function EmployeeField({ label, children }: { label: string; children: Re
   const input = isValidElement<InputHTMLAttributes<HTMLInputElement>>(children) ? children : null
   const invalid = !!input?.props.name && fields.includes(input.props.name)
   return (
-    <label className='grid min-w-0 gap-2 text-sm font-medium'>
+    <label className='grid min-w-0 content-start self-start gap-2 text-sm font-medium'>
       {label}
       {input
         ? cloneElement(input, { 'aria-invalid': invalid || undefined, 'aria-describedby': invalid ? id : undefined })

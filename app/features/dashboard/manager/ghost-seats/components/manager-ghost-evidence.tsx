@@ -27,37 +27,42 @@ export function ManagerGhostEvidence({ item }: { item: RecommendationResponseDto
     <div className='space-y-5'>
       <h2 className='font-semibold'>{t('ghost.evidence')}</h2>
       <dl className='grid gap-x-6 gap-y-4 sm:grid-cols-2'>
-        {[
-          [t('ghost.activity'), item.activityStatus ? t(`ghost.activityStatuses.${item.activityStatus}`) : t('empty')],
-          [t('ghost.lastActive'), date(evidence.lastActiveDate ?? item.lastActiveDate)],
-          [t('ghost.inactive'), count(evidence.inactiveDays ?? item.inactiveDays)],
-          [t('ghost.coverage'), count(evidence.coverageDays)],
+        {(
           [
-            t('ghost.confidence'),
-            confidence === GHOST_CONFIDENCE.HIGH ||
-            confidence === GHOST_CONFIDENCE.MEDIUM ||
-            confidence === GHOST_CONFIDENCE.LOW
-              ? t(`ghost.confidences.${confidence}`)
-              : t('empty')
-          ],
-          [
-            t('ghost.timeBound'),
-            evidence.timeBound === true
-              ? t('ghost.limited')
-              : evidence.timeBound === false
-                ? t('ghost.unlimited')
+            [
+              t('ghost.activity'),
+              item.activityStatus ? t(`ghost.activityStatuses.${item.activityStatus}`) : t('empty')
+            ],
+            [t('ghost.lastActive'), date(evidence.lastActiveDate ?? item.lastActiveDate), true],
+            [t('ghost.inactive'), count(evidence.inactiveDays ?? item.inactiveDays), true],
+            [t('ghost.coverage'), count(evidence.coverageDays), true],
+            [
+              t('ghost.confidence'),
+              confidence === GHOST_CONFIDENCE.HIGH ||
+              confidence === GHOST_CONFIDENCE.MEDIUM ||
+              confidence === GHOST_CONFIDENCE.LOW
+                ? t(`ghost.confidences.${confidence}`)
                 : t('empty')
-          ],
-          [t('ghost.reviewThreshold'), count(thresholds.reviewDays)],
-          [t('ghost.actionThreshold'), count(thresholds.actionDays)]
-        ].map(([label, value]) => (
+            ],
+            [
+              t('ghost.timeBound'),
+              evidence.timeBound === true
+                ? t('ghost.limited')
+                : evidence.timeBound === false
+                  ? t('ghost.unlimited')
+                  : t('empty')
+            ],
+            [t('ghost.reviewThreshold'), count(thresholds.reviewDays), true],
+            [t('ghost.actionThreshold'), count(thresholds.actionDays), true]
+          ] satisfies [string, string, boolean?][]
+        ).map(([label, value, numeric]) => (
           <div key={label} className='border-b border-border/40 pb-3'>
-            <dt className='text-xs text-muted-foreground'>{label}</dt>
-            <dd className='mt-1 text-right font-mono text-sm tabular-nums'>{value}</dd>
+            <dt className={`text-xs text-muted-foreground ${numeric ? 'text-right' : ''}`}>{label}</dt>
+            <dd className={`mt-1 text-sm ${numeric ? 'text-right font-mono tabular-nums' : ''}`}>{value}</dd>
           </div>
         ))}
         <div>
-          <dt className='text-xs text-muted-foreground'>{t('ghost.saving')}</dt>
+          <dt className='text-right text-xs text-muted-foreground'>{t('ghost.saving')}</dt>
           <dd className='mt-1 text-right text-sm'>
             <ManagerMoney
               money={

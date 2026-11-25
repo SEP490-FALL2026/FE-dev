@@ -17,7 +17,7 @@ export function ManagerBudgetContext({ year, context }: { year: number; context:
     <ManagerSection title={translate('budgetCycle')}>
       <ManagerQueryState query={query} empty={!budget} emptyTitle={manager('budgetWorkspace.unavailable')} />
       {budget && (
-        <dl className='grid gap-4 text-sm sm:grid-cols-4'>
+        <dl className='grid gap-x-6 gap-y-4 text-sm sm:grid-cols-2 xl:grid-cols-4'>
           <div>
             <dt className='text-xs text-muted-foreground'>{translate('budgetCycle')}</dt>
             <dd>
@@ -31,18 +31,18 @@ export function ManagerBudgetContext({ year, context }: { year: number; context:
           {cycle && (
             <>
               <div>
-                <dt className='text-xs text-muted-foreground'>{translate('submissionDue')}</dt>
+                <dt className='text-right text-xs text-muted-foreground'>{translate('submissionDue')}</dt>
                 <dd className='text-right font-mono tabular-nums'>{formatDate(cycle.submissionDeadline)}</dd>
               </div>
               <div>
-                <dt className='text-xs text-muted-foreground'>{translate('approvalDue')}</dt>
+                <dt className='text-right text-xs text-muted-foreground'>{translate('approvalDue')}</dt>
                 <dd className='text-right font-mono tabular-nums'>{formatDate(cycle.decisionDeadline)}</dd>
               </div>
             </>
           )}
           {budget.effectiveBudget && (
             <div>
-              <dt className='text-xs text-muted-foreground'>{translate('effectiveBudget')}</dt>
+              <dt className='text-right text-xs text-muted-foreground'>{translate('effectiveBudget')}</dt>
               <dd className='text-right font-mono tabular-nums'>
                 <ManagerMoney money={budget.effectiveBudget.total} />
               </dd>

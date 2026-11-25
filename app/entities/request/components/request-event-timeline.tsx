@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAccessRequestEventList } from '~/shared/api/generated/operations/access-requests/access-request-event-list'
 import { useWorkspaceFormat } from '~/shared/hooks/use-workspace-format'
@@ -26,24 +27,29 @@ export function RequestEventTimeline({ id, bare = false }: { id: string; bare?: 
       {data?.items.length === 0 && <p className='text-sm text-muted-foreground'>{t('noEvents')}</p>}
       <ol className='divide-y divide-border/40'>
         {data?.items.map((event) => (
-          <li key={event.id} className='space-y-1 py-3 text-sm'>
-            <div className='flex flex-wrap justify-between gap-2'>
-              <span>{t(`events.${event.kind}`, { defaultValue: t('unknown') })}</span>
-              <time className='text-right font-mono text-xs tabular-nums' dateTime={event.occurredAt}>
-                {formatDateTime(event.occurredAt)}
-              </time>
-            </div>
+          <li key={event.id} className='grid gap-x-6 gap-y-1 py-3 text-sm sm:grid-cols-[minmax(0,1fr)_auto]'>
+            <p className='min-w-0 font-medium'>{t(`events.${event.kind}`, { defaultValue: t('unknown') })}</p>
+            <time
+              className='whitespace-nowrap font-mono text-xs leading-5 tabular-nums text-muted-foreground sm:col-start-2 sm:row-span-2 sm:row-start-1 sm:text-right'
+              dateTime={event.occurredAt}
+            >
+              {formatDateTime(event.occurredAt)}
+            </time>
             {event.actor && (
-              <p className='truncate text-xs text-muted-foreground' title={event.actor.fullName}>
+              <p className='min-w-0 truncate text-xs text-muted-foreground sm:col-start-1' title={event.actor.fullName}>
                 {event.actor.fullName}
               </p>
             )}
             {event.line && (
-              <p className='truncate' title={event.line.fullName}>
+              <p className='min-w-0 truncate sm:col-span-2' title={event.line.fullName}>
                 {event.line.fullName}
               </p>
             )}
-            {event.reason && <p className='whitespace-pre-wrap [overflow-wrap:anywhere]'>{event.reason}</p>}
+            {event.reason && (
+              <p className='whitespace-pre-wrap text-muted-foreground [overflow-wrap:anywhere] sm:col-span-2'>
+                {event.reason}
+              </p>
+            )}
           </li>
         ))}
       </ol>
@@ -55,7 +61,7 @@ export function RequestEventTimeline({ id, bare = false }: { id: string; bare?: 
             onClick={() => setPage(page - 1)}
             aria-label={t('previous')}
           >
-            ←
+            <ArrowLeft aria-hidden strokeWidth={1.5} className='size-4' />
           </button>
           <span className='self-center font-mono text-sm'>
             {page} / {data.pagination.totalPages}
@@ -66,7 +72,7 @@ export function RequestEventTimeline({ id, bare = false }: { id: string; bare?: 
             onClick={() => setPage(page + 1)}
             aria-label={t('next')}
           >
-            →
+            <ArrowRight aria-hidden strokeWidth={1.5} className='size-4' />
           </button>
         </nav>
       )}

@@ -25,7 +25,7 @@ export function AssessmentFinancials({ assessment }: { assessment: AssessmentRes
       {assessment.quote && (
         <dl className='grid gap-4 rounded-md bg-surface-subtle p-4 text-sm sm:grid-cols-2 lg:grid-cols-4'>
           <div>
-            <dt className='text-xs text-muted-foreground'>{translate('assessment.unitPrice')}</dt>
+            <dt className='text-right text-xs text-muted-foreground'>{translate('assessment.unitPrice')}</dt>
             <dd className='mt-2 text-right'>
               <EmployeeMoney value={assessment.quote.unitPrice} />
             </dd>
@@ -35,11 +35,11 @@ export function AssessmentFinancials({ assessment }: { assessment: AssessmentRes
             <dd className='mt-2'>{label(assessment.quote.billingCycle)}</dd>
           </div>
           <div>
-            <dt className='text-xs text-muted-foreground'>{translate('assessment.quoteFrom')}</dt>
+            <dt className='text-right text-xs text-muted-foreground'>{translate('assessment.quoteFrom')}</dt>
             <dd className='mt-2 text-right font-mono tabular-nums'>{formatDate(assessment.quote.validFrom)}</dd>
           </div>
           <div>
-            <dt className='text-xs text-muted-foreground'>{translate('assessment.quoteUntil')}</dt>
+            <dt className='text-right text-xs text-muted-foreground'>{translate('assessment.quoteUntil')}</dt>
             <dd className='mt-2 text-right font-mono tabular-nums'>
               {assessment.quote.validUntil
                 ? formatDate(assessment.quote.validUntil)
@@ -51,13 +51,13 @@ export function AssessmentFinancials({ assessment }: { assessment: AssessmentRes
       {assessment.costEstimate && (
         <dl className='grid gap-4 text-sm sm:grid-cols-2'>
           <div>
-            <dt className='text-muted-foreground'>{translate('estimatedCost')}</dt>
+            <dt className='text-right text-muted-foreground'>{translate('estimatedCost')}</dt>
             <dd className='mt-2 text-right'>
               <EmployeeMoney value={assessment.costEstimate.estimatedCost} />
             </dd>
           </div>
           <div>
-            <dt className='text-muted-foreground'>{translate('assessment.totalPayable')}</dt>
+            <dt className='text-right text-muted-foreground'>{translate('assessment.totalPayable')}</dt>
             <dd className='mt-2 text-right'>
               <EmployeeMoney value={assessment.costEstimate.totalPayable} />
             </dd>
