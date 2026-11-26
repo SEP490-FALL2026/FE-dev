@@ -1,7 +1,9 @@
 import { useTranslation } from 'react-i18next'
 import { useCurrencyList } from '~/shared/api/generated/operations/currencies/currency-list'
+import { MoneyInput } from '~/shared/ui/money-input'
 import { ItField, itInputClass } from '../../shared/components/it-form'
 import { ItChoiceSelect } from '../../shared/components/it-choice-select'
+import { itMoneyPattern } from '../../shared/components/it-money-pattern'
 
 export type InvoiceDraft = {
   number: string
@@ -24,7 +26,7 @@ export function InvoiceFields({
   onChange: (key: keyof InvoiceDraft, value: string) => void
   disabled: boolean
 }) {
-  const { t: translate } = useTranslation('itInvoices')
+  const { t: translate, i18n } = useTranslation('itInvoices')
   const { t: translatePlaceholder } = useTranslation('itPlaceholders')
   const currencies = useCurrencyList()
   return (
@@ -42,6 +44,22 @@ export function InvoiceFields({
         ] as const
       ).map((key) => {
         const required = key !== 'deductibleTax' && key !== 'nonDeductibleTax'
+        if (key === 'unitPrice' || key === 'netAmount' || key === 'deductibleTax' || key === 'nonDeductibleTax') {
+          return (
+            <ItField key={key} label={translate(key)} hint={translate(`hints.${key}`)}>
+              <MoneyInput
+                placeholder={translatePlaceholder(`invoice.${key}`)}
+                className={`${itInputClass} text-left font-mono tabular-nums`}
+                inputMode={key === 'unitPrice' ? 'decimal' : 'numeric'}
+                required={required}
+                disabled={disabled}
+                value={draft[key]}
+                pattern={`(?=(?:[^0-9]*[0-9]){1,${key === 'unitPrice' ? 32 : 16}}[^0-9]*$)${itMoneyPattern(i18n.resolvedLanguage, key === 'unitPrice')}`}
+                onValueChange={(value) => onChange(key, value)}
+              />
+            </ItField>
+          )
+        }
         const type = key === 'issuedOn' ? 'date' : key === 'month' ? 'month' : key === 'quantity' ? 'number' : 'text'
         return (
           <ItField key={key} label={translate(key)} hint={translate(`hints.${key}`)}>
@@ -56,13 +74,6 @@ export function InvoiceFields({
               max={key === 'quantity' ? 1000000 : undefined}
               step={key === 'quantity' ? 1 : undefined}
               maxLength={key === 'number' ? 64 : 32}
-              pattern={
-                ['netAmount', 'deductibleTax', 'nonDeductibleTax'].includes(key)
-                  ? '[0-9]{1,16}'
-                  : key === 'unitPrice'
-                    ? '[0-9]+([.][0-9]+)?'
-                    : undefined
-              }
               onChange={(event) => onChange(key, event.target.value)}
             />
           </ItField>

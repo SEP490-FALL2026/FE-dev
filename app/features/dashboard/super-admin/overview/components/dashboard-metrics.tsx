@@ -76,7 +76,7 @@ export function DashboardMetrics({
                 </span>
               </div>
               <p
-                className={`mt-4 ${counted ? 'text-right font-mono text-3xl font-semibold tabular-nums' : 'text-sm font-medium text-muted-foreground'}`}
+                className={`mt-4 ${counted ? 'font-mono text-3xl font-semibold tabular-nums' : 'text-sm font-medium text-muted-foreground'}`}
               >
                 {counted && typeof count === 'number'
                   ? formatNumber(count)

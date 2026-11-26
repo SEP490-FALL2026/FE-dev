@@ -96,6 +96,7 @@ export const requestFlow = {
   TWO_STEP: 'Duyệt nhu cầu và duyệt chi',
   unknown: 'Chưa có thông tin',
   timeline: 'Lịch sử yêu cầu',
+  businessReason: 'Lý do nghiệp vụ',
   noEvents: 'Chưa có sự kiện',
   retry: 'Thử lại',
   loading: 'Đang tải…',

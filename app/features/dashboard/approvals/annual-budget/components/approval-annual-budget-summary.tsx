@@ -10,6 +10,7 @@ import {
   ApprovalsStatus
 } from '../../shared/components/approvals-ui'
 import { formatMoney } from '../../shared/approvals-money'
+import { subtractDecimal } from '../../shared/subtract-decimal'
 
 export function ApprovalBudgetWaitingNotice({ reason }: { reason: string | null }) {
   const { t: translate } = useTranslation('approvalsBudget')
@@ -29,10 +30,7 @@ function Fact({ label, value, numeric = false }: { label: string; value: string;
   return (
     <div className='min-w-0'>
       <dt className='text-xs text-muted-foreground'>{label}</dt>
-      <dd
-        className={`mt-1 truncate text-sm ${numeric ? 'text-right font-mono tabular-nums sm:text-left' : ''}`}
-        title={value}
-      >
+      <dd className={`mt-1 truncate text-sm ${numeric ? 'font-mono tabular-nums' : ''}`} title={value}>
         {value}
       </dd>
     </div>
@@ -54,12 +52,18 @@ function Notice({ tone, children }: { tone: 'danger' | 'info'; children: string 
 }
 
 /** The department's own request next to the version Finance built from it: the approver weighs the two. */
-function ProposalComparison({ proposalId, base }: { proposalId: string; base: { amount: string; currency: string } }) {
+export function ProposalComparison({
+  proposalId,
+  base
+}: {
+  proposalId: string
+  base: { amount: string; currency: string }
+}) {
   const { t: translate, i18n } = useTranslation('approvalsBudget')
   const query = useBudgetProposalGet(proposalId)
   const requested = query.data?.data?.proposal.requestedAmount
   if (!requested) return null
-  const difference = Number(base.amount) - Number(requested.amount)
+  const difference = base.currency === requested.currency ? subtractDecimal(base.amount, requested.amount) : null
   return (
     <ApprovalsSection title={translate('comparisonTitle')}>
       <ApprovalsStatGrid>
@@ -68,9 +72,11 @@ function ProposalComparison({ proposalId, base }: { proposalId: string; base: { 
         <ApprovalsStat
           label={translate('baseVsRequested')}
           value={
-            difference === 0
-              ? translate('sameAsRequested')
-              : formatMoney({ amount: String(difference), currency: base.currency }, i18n.language)
+            difference === null
+              ? translate('unavailable')
+              : difference === '0'
+                ? translate('sameAsRequested')
+                : formatMoney({ amount: difference, currency: base.currency }, i18n.language)
           }
         />
       </ApprovalsStatGrid>

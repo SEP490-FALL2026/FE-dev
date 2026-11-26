@@ -1,4 +1,6 @@
 import { AlertTriangle, Clock } from 'lucide-react'
+import { RequestProgressPanel } from '~/entities/request/components/request-progress-panel'
+import { RequestHistoryDisclosure } from '~/entities/request/components/request-history-disclosure'
 import { useTranslation } from 'react-i18next'
 import type { spendApprovalGet } from '~/shared/api/generated/operations/spend-approvals/spend-approval-get'
 import {
@@ -52,6 +54,7 @@ export function SpendRequestFacts({ approval, isGroup }: { approval: SpendApprov
   const headlineCost = cost?.totalPayable ?? cost?.estimatedCost ?? null
   return (
     <div className='space-y-6'>
+      <RequestProgressPanel id={approval.requestId} state={request.state} />
       <div className='flex flex-wrap items-center gap-3'>
         <ApprovalsStatus value={step.state} />
       </div>
@@ -238,6 +241,7 @@ export function SpendRequestFacts({ approval, isGroup }: { approval: SpendApprov
             <dd className='mt-1 text-sm whitespace-pre-wrap [overflow-wrap:anywhere]'>{request.businessReason}</dd>
           </div>
         </dl>
+        <RequestHistoryDisclosure key={approval.requestId} id={approval.requestId} />
       </ApprovalsSection>
       {cost && (
         <ApprovalsSection title={translate('costs')} actions={<ApprovalsStatus value={cost.label} />}>

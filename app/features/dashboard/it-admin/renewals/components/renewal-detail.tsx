@@ -55,13 +55,11 @@ export function RenewalDetail({ id, onBack }: { id: string; onBack: () => void }
               </div>
               <div>
                 <dt className='text-xs text-muted-foreground'>{translate('milestone')}</dt>
-                <dd className='mt-1 text-right font-mono text-sm tabular-nums'>
-                  {formatDate(item.milestone.baseDate)}
-                </dd>
+                <dd className='mt-1 font-mono text-sm tabular-nums'>{formatDate(item.milestone.baseDate)}</dd>
               </div>
               <div>
                 <dt className='text-xs text-muted-foreground'>{translate('purchasedQuantity')}</dt>
-                <dd className='mt-1 text-right font-mono text-sm tabular-nums'>
+                <dd className='mt-1 font-mono text-sm tabular-nums'>
                   {item.period.purchasedQuantity === null
                     ? translate('unknown')
                     : formatNumber(item.period.purchasedQuantity)}
@@ -69,9 +67,7 @@ export function RenewalDetail({ id, onBack }: { id: string; onBack: () => void }
               </div>
               <div>
                 <dt className='text-xs text-muted-foreground'>{translate('seatsInUse')}</dt>
-                <dd className='mt-1 text-right font-mono text-sm tabular-nums'>
-                  {formatNumber(item.period.seatsInUse)}
-                </dd>
+                <dd className='mt-1 font-mono text-sm tabular-nums'>{formatNumber(item.period.seatsInUse)}</dd>
               </div>
             </dl>
             {item.waitingReason && (

@@ -54,7 +54,7 @@ export function ManagerBudgetNavigation({
               <ChevronLeft aria-hidden strokeWidth={1.5} className='size-4' />
             </ManagerButton>
             <input
-              className={`${managerInputClass} w-28 text-right font-mono tabular-nums`}
+              className={`${managerInputClass} w-28 text-left font-mono tabular-nums`}
               type='number'
               min={2000}
               max={2200}

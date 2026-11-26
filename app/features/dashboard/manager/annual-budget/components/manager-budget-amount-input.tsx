@@ -64,7 +64,7 @@ export function ManagerBudgetAmountInput({
         {...props}
         ref={inputRef}
         type='text'
-        className={`${managerInputClass} pr-14 text-right font-mono tabular-nums`}
+        className={`${managerInputClass} pr-14 text-left font-mono tabular-nums`}
         value={compositionValue ?? display}
         onChange={(event) => {
           const text = event.target.value

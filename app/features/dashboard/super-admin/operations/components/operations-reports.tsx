@@ -119,7 +119,7 @@ function RevocationReport() {
                   className='rounded-xl border border-border/80 bg-surface p-4 shadow-[0_1px_2px_rgb(0_0_0/4%)]'
                 >
                   <dt className='text-sm text-muted-foreground'>{translate(`oversight.${key}`)}</dt>
-                  <dd className='mt-2 text-right font-mono text-2xl tabular-nums'>{formatNumber(data[key])}</dd>
+                  <dd className='mt-2 font-mono text-2xl tabular-nums'>{formatNumber(data[key])}</dd>
                 </div>
               ))}
             </dl>

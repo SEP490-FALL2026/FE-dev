@@ -1,5 +1,7 @@
 ﻿import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { MoneyInput } from '~/shared/ui/money-input'
+import { itMoneyPattern } from '../../shared/components/it-money-pattern'
 import { CreateApplicationBodyDtoPlanControlLevel } from '~/shared/api/generated/model/applications/createApplicationBodyDtoPlanControlLevel'
 import { CreateApplicationBodyDtoPlanSharingPolicy } from '~/shared/api/generated/model/applications/createApplicationBodyDtoPlanSharingPolicy'
 import type { CreateApplicationBodyDtoPlan } from '~/shared/api/generated/model/applications'
@@ -29,24 +31,29 @@ export function readPlanRules(values: FormData, provisioningType: CreateApplicat
 }
 
 export function CatalogPlanRules({ provisioningType }: { provisioningType: string }) {
-  const { t: translate } = useTranslation('itCatalog')
+  const { t: translate, i18n } = useTranslation('itCatalog')
   const { t: translatePlaceholder } = useTranslation('itPlaceholders')
   const [dataLoss, setDataLoss] = useState(false)
+  const [referencePrice, setReferencePrice] = useState('')
+  const pricePattern = itMoneyPattern(i18n.resolvedLanguage)
   return (
     <div className='space-y-4'>
       {provisioningType !== 'K5' && (
-        <ItField
-          label={translate('referencePrice')}
-          hint={translate(provisioningType === 'K4' ? 'referencePriceKeyHint' : 'referencePriceSeatHint')}
-        >
-          <input
-            name='referencePrice'
-            inputMode='decimal'
-            pattern='[0-9]+([.][0-9]+)?'
-            maxLength={40}
-            className={itInputClass}
-          />
-        </ItField>
+        <>
+          <input type='hidden' name='referencePrice' value={referencePrice} />
+          <ItField
+            label={translate('referencePrice')}
+            hint={translate(provisioningType === 'K4' ? 'referencePriceKeyHint' : 'referencePriceSeatHint')}
+          >
+            <MoneyInput
+              pattern={pricePattern}
+              maxLength={40}
+              value={referencePrice}
+              onValueChange={setReferencePrice}
+              className={itInputClass}
+            />
+          </ItField>
+        </>
       )}
       {provisioningType && provisioningType !== 'K5' && (
         <fieldset>

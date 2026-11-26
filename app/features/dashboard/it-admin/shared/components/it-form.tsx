@@ -7,6 +7,7 @@ export {
 
 import { cloneElement, isValidElement, useId, type ReactElement, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
+import { MoneyInput } from '~/shared/ui/money-input'
 
 export function ItField({
   label,
@@ -23,8 +24,8 @@ export function ItField({
   const id = useId()
   const control =
     isValidElement(children) &&
-    typeof children.type === 'string' &&
-    ['input', 'textarea', 'select'].includes(children.type)
+    ((typeof children.type === 'string' && ['input', 'textarea', 'select'].includes(children.type)) ||
+      children.type === MoneyInput)
       ? (children as ReactElement<{
           id?: string
           type?: string
@@ -40,7 +41,8 @@ export function ItField({
   const descriptionId = `${controlId}-description`
   const supportsPlaceholder =
     control &&
-    (control.type === 'textarea' ||
+    (control.type === MoneyInput ||
+      control.type === 'textarea' ||
       (control.type === 'input' && !['date', 'file', 'checkbox', 'radio'].includes(control.props.type ?? 'text')))
   return (
     <div className='it-form-field grid min-w-0 content-start gap-1.5 text-sm font-medium'>

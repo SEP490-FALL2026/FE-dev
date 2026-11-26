@@ -106,12 +106,12 @@ export function ReconciliationRecordDetail({
             </div>
             <div>
               <dt className='text-xs text-muted-foreground'>{translate('openedAt')}</dt>
-              <dd className='mt-1 text-right font-mono text-sm tabular-nums'>{formatDateTime(record.item.openedAt)}</dd>
+              <dd className='mt-1 font-mono text-sm tabular-nums'>{formatDateTime(record.item.openedAt)}</dd>
             </div>
             {record.item.amount && (
               <div>
                 <dt className='text-xs text-muted-foreground'>{translate('recordedAmount')}</dt>
-                <dd className='mt-1 text-right font-mono text-sm tabular-nums'>
+                <dd className='mt-1 font-mono text-sm tabular-nums'>
                   {formatMoney(record.item.amount, i18n.language)}
                 </dd>
               </div>

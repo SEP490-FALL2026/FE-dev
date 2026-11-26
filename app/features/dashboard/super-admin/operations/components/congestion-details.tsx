@@ -38,19 +38,19 @@ export function CongestionDetails({
             <dl className='grid gap-3 sm:grid-cols-3'>
               <div className='grid gap-1'>
                 <dt className='text-muted-foreground'>{translate('operations.createdAt')}</dt>
-                <dd className='text-right font-mono text-xs tabular-nums'>
+                <dd className='font-mono text-xs tabular-nums'>
                   <time dateTime={item.createdAt}>{formatDateTime(item.createdAt)}</time>
                 </dd>
               </div>
               <div className='grid gap-1'>
                 <dt className='text-muted-foreground'>{translate('operations.dueAt')}</dt>
-                <dd className='text-right font-mono text-xs tabular-nums'>
+                <dd className='font-mono text-xs tabular-nums'>
                   <time dateTime={item.dueAt}>{formatDateTime(item.dueAt)}</time>
                 </dd>
               </div>
               <div className='grid gap-1'>
                 <dt className='text-muted-foreground'>{translate('operations.reminders')}</dt>
-                <dd className='text-right font-mono text-xs tabular-nums'>{formatNumber(item.reminders)}</dd>
+                <dd className='font-mono text-xs tabular-nums'>{formatNumber(item.reminders)}</dd>
               </div>
             </dl>
           </article>

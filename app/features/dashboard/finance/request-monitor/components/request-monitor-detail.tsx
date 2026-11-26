@@ -1,6 +1,8 @@
 import { ArrowLeft } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { requestTerm } from '~/entities/request/request-term'
+import { RequestProgressPanel } from '~/entities/request/components/request-progress-panel'
+import { RequestHistoryDisclosure } from '~/entities/request/components/request-history-disclosure'
 import { useAccessRequestGet } from '~/shared/api/generated/operations/access-requests/access-request-get'
 import {
   FinanceButton,
@@ -53,6 +55,7 @@ export function RequestMonitorDetail({ id, onBack }: { id: string; onBack: () =>
       <FinanceQueryState query={query} skeleton='detail'>
         {request ? (
           <>
+            <RequestProgressPanel id={id} state={request.state} />
             <FinanceStatGrid columns={4}>
               <FinanceStat
                 label={translate('stateLabel')}
@@ -87,13 +90,12 @@ export function RequestMonitorDetail({ id, onBack }: { id: string; onBack: () =>
                 {row(translate('budgetYear'), request.budgetYear)}
               </dl>
             </FinanceSection>
-            {request.businessReason && (
-              <FinanceSection title={translate('detail.reason')}>
-                <p className='rounded-xl border border-border/70 bg-surface p-4 text-sm leading-relaxed wrap-break-word whitespace-pre-wrap shadow-[0_1px_2px_0_rgba(0,0,0,0.04)] sm:p-5'>
-                  {request.businessReason}
-                </p>
-              </FinanceSection>
-            )}
+            <FinanceSection title={translate('detail.reason')}>
+              <p className='rounded-xl border border-border/70 bg-surface p-4 text-sm leading-relaxed wrap-break-word whitespace-pre-wrap shadow-[0_1px_2px_0_rgba(0,0,0,0.04)] sm:p-5'>
+                {request.businessReason}
+              </p>
+              <RequestHistoryDisclosure key={id} id={id} />
+            </FinanceSection>
             <RequestBudgetCheck requestId={id} />
           </>
         ) : (

@@ -178,7 +178,7 @@ export function InvoiceEntry({
               </div>
               <div>
                 <dt className='text-muted-foreground'>{translate('commitmentRemaining')}</dt>
-                <dd className='text-right font-mono tabular-nums'>
+                <dd className='font-mono tabular-nums'>
                   {preview.commitment
                     ? formatMoney(preview.commitment.remaining, i18n.language)
                     : translate('unavailable')}

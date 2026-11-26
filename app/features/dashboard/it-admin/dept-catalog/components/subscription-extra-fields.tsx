@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
+import { MoneyInput } from '~/shared/ui/money-input'
+import { itMoneyPattern } from '../../shared/components/it-money-pattern'
 import { itAdminList, getItAdminListQueryKey } from '~/shared/api/generated/operations/it-admins/it-admin-list'
 import type { SubscriptionResponseDtoData } from '~/shared/api/generated/model/subscriptions'
 import { ItField, itInputClass } from '../../shared/components/it-form'
@@ -18,9 +20,10 @@ export function SubscriptionExtraFields({
   minimal?: boolean
   onDirty: () => void
 }) {
-  const { t } = useTranslation('itCatalog')
+  const { t, i18n } = useTranslation('itCatalog')
   const [responsible, setResponsible] = useState(subscription?.responsibleItAdminEmployeeId ?? '')
   const [originalAmount, setOriginalAmount] = useState(subscription?.originalPrice?.amount ?? '')
+  const pricePattern = itMoneyPattern(i18n.resolvedLanguage)
   const admins = useQuery({
     queryKey: [...getItAdminListQueryKey(), 'subscription-editor'],
     queryFn: async ({ signal }) => {
@@ -55,17 +58,16 @@ export function SubscriptionExtraFields({
       {!minimal && <legend className='mb-3 font-semibold'>{t('subscriptionExtra.title')}</legend>}
       {!minimal && (
         <>
+          <input type='hidden' name='originalAmount' value={originalAmount} />
           <ItField
             label={t('subscriptionExtra.originalAmount')}
             hint={t(subscription ? 'subscriptionExtra.originalHint' : 'subscriptionCreate.originalHint')}
           >
-            <input
-              name='originalAmount'
-              inputMode='decimal'
-              pattern='[0-9]+([.][0-9]+)?'
+            <MoneyInput
+              pattern={pricePattern}
               maxLength={40}
               value={originalAmount}
-              onChange={(event) => setOriginalAmount(event.target.value)}
+              onValueChange={setOriginalAmount}
               className={itInputClass}
             />
           </ItField>

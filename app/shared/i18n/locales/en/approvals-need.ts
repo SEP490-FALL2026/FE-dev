@@ -53,6 +53,8 @@ export const approvalsNeed = {
   businessReason: 'Business reason',
   term: 'Requested term (months)',
   cost: 'Estimated cost',
+  assignedAt: 'Assigned on',
+  currentDecision: 'Current decision',
   unknown: 'Unavailable',
   decision: 'Need decision',
   approve: 'Approve need',

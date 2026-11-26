@@ -1,6 +1,8 @@
 import { useCatalogEditorSnapshot } from '../hooks/use-catalog-editor-snapshot'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { MoneyInput } from '~/shared/ui/money-input'
+import { itMoneyPattern } from '../../shared/components/it-money-pattern'
 import { usePlanGet } from '~/shared/api/generated/operations/plans/plan-get'
 import { usePlanUpdate } from '~/shared/api/generated/operations/plans/plan-update'
 import { getPlanListQueryKey } from '~/shared/api/generated/operations/plans/plan-list'
@@ -55,8 +57,10 @@ function PlanFields({
   changed: boolean
   onReload: () => void
 }) {
-  const { t: translate } = useTranslation('itCatalog')
+  const { t: translate, i18n } = useTranslation('itCatalog')
   const [dataLoss, setDataLoss] = useState(plan.dataLossOnRemoval)
+  const [referencePrice, setReferencePrice] = useState(plan.referencePrice?.amount ?? '')
+  const pricePattern = itMoneyPattern(i18n.resolvedLanguage)
   const feedback = useItMutationFeedback([getPlanListQueryKey(), queryKey], onClose)
   const update = usePlanUpdate({ mutation: feedback })
   return (
@@ -114,19 +118,21 @@ function PlanFields({
           {translate(`enums.${plan.provisioningType}`, { defaultValue: translate('unknown') })}
         </p>
         {plan.provisioningType !== 'K5' && (
-          <ItField
-            label={translate('referencePrice')}
-            hint={translate(plan.provisioningType === 'K4' ? 'referencePriceKeyHint' : 'referencePriceSeatHint')}
-          >
-            <input
-              name='referencePrice'
-              inputMode='decimal'
-              pattern='[0-9]+([.][0-9]+)?'
-              maxLength={40}
-              defaultValue={plan.referencePrice?.amount ?? ''}
-              className={itInputClass}
-            />
-          </ItField>
+          <>
+            <input type='hidden' name='referencePrice' value={referencePrice} />
+            <ItField
+              label={translate('referencePrice')}
+              hint={translate(plan.provisioningType === 'K4' ? 'referencePriceKeyHint' : 'referencePriceSeatHint')}
+            >
+              <MoneyInput
+                pattern={pricePattern}
+                maxLength={40}
+                value={referencePrice}
+                onValueChange={setReferencePrice}
+                className={itInputClass}
+              />
+            </ItField>
+          </>
         )}
         {plan.provisioningType !== 'K5' &&
           ([['controlLevel', DeclarePlanBodyDtoControlLevel, plan.controlLevel]] as const).map(

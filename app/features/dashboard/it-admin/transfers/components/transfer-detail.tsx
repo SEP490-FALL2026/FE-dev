@@ -56,7 +56,7 @@ export function TransferDetail({ id, onBack }: { id: string; onBack: () => void 
               </div>
               <div>
                 <dt className='text-xs text-muted-foreground'>{translate('effectiveOn')}</dt>
-                <dd className='mt-1 text-right font-mono text-sm tabular-nums'>{formatDate(transfer.effectiveOn)}</dd>
+                <dd className='mt-1 font-mono text-sm tabular-nums'>{formatDate(transfer.effectiveOn)}</dd>
               </div>
               <div>
                 <dt className='text-xs text-muted-foreground'>{translate('phase')}</dt>
@@ -68,15 +68,11 @@ export function TransferDetail({ id, onBack }: { id: string; onBack: () => void 
                 <>
                   <div>
                     <dt className='text-xs text-muted-foreground'>{translate('graceEndsOn')}</dt>
-                    <dd className='mt-1 text-right font-mono text-sm tabular-nums'>
-                      {formatDate(transfer.grace.endsOn)}
-                    </dd>
+                    <dd className='mt-1 font-mono text-sm tabular-nums'>{formatDate(transfer.grace.endsOn)}</dd>
                   </div>
                   <div>
                     <dt className='text-xs text-muted-foreground'>{translate('graceReminderOn')}</dt>
-                    <dd className='mt-1 text-right font-mono text-sm tabular-nums'>
-                      {formatDate(transfer.grace.reminderOn)}
-                    </dd>
+                    <dd className='mt-1 font-mono text-sm tabular-nums'>{formatDate(transfer.grace.reminderOn)}</dd>
                   </div>
                 </>
               )}
@@ -84,7 +80,7 @@ export function TransferDetail({ id, onBack }: { id: string; onBack: () => void 
                 <div className='sm:col-span-2'>
                   <dt className='text-xs text-muted-foreground'>{translate('commitmentsReleased')}</dt>
                   {transfer.commitmentsReleased.map((released) => (
-                    <dd key={released.currency} className='mt-1 text-right font-mono text-sm tabular-nums'>
+                    <dd key={released.currency} className='mt-1 font-mono text-sm tabular-nums'>
                       {formatMoney(moneyFromMinor(released.amountMinor, released.currency), i18n.language)}
                     </dd>
                   ))}

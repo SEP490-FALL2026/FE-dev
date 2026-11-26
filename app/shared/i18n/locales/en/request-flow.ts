@@ -99,6 +99,7 @@ export const requestFlow = {
   TWO_STEP: 'Department review and spending approval',
   unknown: 'Not available',
   timeline: 'Request history',
+  businessReason: 'Business reason',
   noEvents: 'No events recorded',
   retry: 'Retry',
   loading: 'Loading…',

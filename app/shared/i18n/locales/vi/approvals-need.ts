@@ -53,6 +53,8 @@ export const approvalsNeed = {
   businessReason: 'Lý do nghiệp vụ',
   term: 'Thời hạn đề nghị (tháng)',
   cost: 'Chi phí ước tính',
+  assignedAt: 'Ngày được giao',
+  currentDecision: 'Quyết định hiện tại',
   unknown: 'Chưa có thông tin',
   decision: 'Quyết định nhu cầu',
   approve: 'Duyệt nhu cầu',

@@ -96,7 +96,7 @@ export function TransferDetail({
                 <div className='space-y-2 border-t border-border pt-4'>
                   <h3 className='font-semibold'>{translate('details.commitmentsReleased')}</h3>
                   {data.commitmentsReleased.map((money) => (
-                    <p key={money.currency} className='text-right font-mono tabular-nums'>
+                    <p key={money.currency} className='font-mono tabular-nums'>
                       {formatMoney(moneyFromMinor(money.amountMinor, money.currency), i18n.language)}
                     </p>
                   ))}

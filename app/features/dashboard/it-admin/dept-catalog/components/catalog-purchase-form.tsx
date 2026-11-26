@@ -1,6 +1,8 @@
 import { CatalogProvisioningType } from '../enums/provisioning-type'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { MoneyInput } from '~/shared/ui/money-input'
+import { itMoneyPattern } from '../../shared/components/it-money-pattern'
 import { DeclareSubscriptionBodyDtoKind } from '~/shared/api/generated/model/subscriptions/declareSubscriptionBodyDtoKind'
 import { usePlanCreate } from '~/shared/api/generated/operations/plans/plan-create'
 import { getPlanListQueryKey } from '~/shared/api/generated/operations/plans/plan-list'
@@ -35,7 +37,8 @@ export function CatalogPurchaseForm({
   onPlanCreated?: (plan: NonNullable<PlanResponseDtoData>) => void
   onSubscriptionCreated?: (id: string) => void
 }) {
-  const { t: translate } = useTranslation('itCatalog')
+  const { t: translate, i18n } = useTranslation('itCatalog')
+  const [unitAmount, setUnitAmount] = useState('')
   const [selectedType, setSelectedType] = useState('')
   const [kind, setKind] = useState('')
   const [invalidTerms, setInvalidTerms] = useState(false)
@@ -192,8 +195,16 @@ export function CatalogPurchaseForm({
                 <input name='quantity' type='number' min={0} max={1000000000} step={1} className={itInputClass} />
               </ItField>
               <ItField label={translate('unitAmount')} hint={translate('help.unitAmount')}>
-                <input name='amount' inputMode='numeric' pattern='[0-9]{1,16}' className={itInputClass} />
+                <MoneyInput
+                  inputMode='numeric'
+                  pattern={itMoneyPattern(i18n.resolvedLanguage, false)}
+                  maxLength={16}
+                  value={unitAmount}
+                  onValueChange={setUnitAmount}
+                  className={itInputClass}
+                />
               </ItField>
+              <input type='hidden' name='amount' value={unitAmount} />
               <ItField label={translate('startDate')} hint={translate('help.startDate')}>
                 <input name='startDate' type='date' className={itInputClass} />
               </ItField>

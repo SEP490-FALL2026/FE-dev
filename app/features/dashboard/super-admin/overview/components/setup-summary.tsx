@@ -113,7 +113,7 @@ export function SetupSummary({ steps }: { steps: SetupStep[] }) {
               </span>
             </div>
             <dd
-              className={`mt-4 text-right font-mono text-3xl font-semibold tracking-tight tabular-nums ${key === 'attention' && value ? 'text-warning-ink' : 'text-foreground'}`}
+              className={`mt-4 font-mono text-3xl font-semibold tracking-tight tabular-nums ${key === 'attention' && value ? 'text-warning-ink' : 'text-foreground'}`}
             >
               {value === undefined ? translate('overview.redesign.notReported') : formatNumber(value)}
             </dd>

@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { RequestProgressPanel } from '~/entities/request/components/request-progress-panel'
+import { RequestHistoryDisclosure } from '~/entities/request/components/request-history-disclosure'
 import { useTranslation } from 'react-i18next'
 import { ArrowLeft, ShieldQuestion } from 'lucide-react'
 import { ItPageHeader, ItSectionTitle } from '../../shared/components/it-page-header'
@@ -92,9 +94,10 @@ function AssessmentDetail({
   queueAllowsAction?: boolean
 }) {
   const { t: translate } = useTranslation('itNewSoftware')
+  const { t: requestFlow } = useTranslation('requestFlow')
   const query = useAccessRequestAssessmentGet(id)
   const me = useMeGet()
-  const requestQuery = useAccessRequestGet(id, { query: { enabled: queueAllowsAction === undefined } })
+  const requestQuery = useAccessRequestGet(id)
   const requestData = requestQuery.data?.data
   const request = requestData && 'request' in requestData ? requestData.request : undefined
   const employeeId = me.data?.data?.employee?.id
@@ -123,6 +126,7 @@ function AssessmentDetail({
     <ItQueryState query={query}>
       {item ? (
         <div className='space-y-4'>
+          {request && <RequestProgressPanel id={id} state={request.state} />}
           <div className='soft-panel flex flex-wrap items-center justify-between gap-3 p-4'>
             <div className='min-w-0'>
               <h2
@@ -148,6 +152,13 @@ function AssessmentDetail({
               </div>
             ))}
           </dl>
+          {request && (
+            <section className='space-y-3 rounded-xl border border-border/70 bg-surface p-5 shadow-sm'>
+              <h3 className='text-sm font-medium text-muted-foreground'>{requestFlow('businessReason')}</h3>
+              <p className='text-sm whitespace-pre-wrap [overflow-wrap:anywhere]'>{request.businessReason}</p>
+              <RequestHistoryDisclosure key={id} id={id} />
+            </section>
+          )}
           <ItSectionTitle title={translate('sections.assessment')} />
           <dl className='grid gap-4 rounded-xl border border-border/70 bg-surface p-5 shadow-sm sm:grid-cols-2'>
             {(

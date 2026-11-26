@@ -7,6 +7,8 @@ import { useDashboardFormat } from '../../../dashboard-ui'
 import { formatMoney } from '../../shared/approvals-money'
 import { useRequestTermText } from '../../shared/hooks/use-request-term-text'
 import { requestTerm } from '~/entities/request/request-term'
+import { RequestProgressPanel } from '~/entities/request/components/request-progress-panel'
+import { RequestHistoryDisclosure } from '~/entities/request/components/request-history-disclosure'
 import { ApprovalsQueryState } from '../../shared/components/approvals-query-state'
 import {
   ApprovalsButton,
@@ -65,6 +67,7 @@ function MonitorDetailContent({ requestId }: { requestId: string }) {
     <ApprovalsQueryState query={query}>
       {request && (
         <div className='space-y-6'>
+          <RequestProgressPanel id={requestId} state={request.state} />
           <ApprovalsStatGrid>
             <ApprovalsStat label={translate('monitor.state')} value={<ApprovalsStatus value={request.state} />} />
             <ApprovalsStat
@@ -104,6 +107,7 @@ function MonitorDetailContent({ requestId }: { requestId: string }) {
                 <dd className='text-sm whitespace-pre-wrap'>{request.businessReason}</dd>
               </div>
             </dl>
+            <RequestHistoryDisclosure key={requestId} id={requestId} />
           </ApprovalsSection>
           {request.spend?.refusalReason && (
             <ApprovalsSection title={translate('monitor.refusalReason')}>

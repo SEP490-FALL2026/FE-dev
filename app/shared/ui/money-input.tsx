@@ -51,10 +51,10 @@ type Props = Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange' | 
 const isDigit = (char: string) => char >= '0' && char <= '9'
 
 /** Amount field that shows 1000 as 1.000 (vi) or 1,000 (en) while the form keeps the plain number. */
-export function MoneyInput({ value, onValueChange, inputMode = 'decimal', maxLength, ...props }: Props) {
+export function MoneyInput({ value, onValueChange, inputMode = 'decimal', maxLength, onKeyDown, ...props }: Props) {
   const { i18n } = useTranslation()
   const locale = i18n.language
-  const { decimal } = separatorsOf(locale)
+  const { decimal, group } = separatorsOf(locale)
   const ref = useRef<HTMLInputElement>(null)
   const caret = useRef<number | null>(null)
   const display = formatMoneyInput(value, locale)
@@ -79,8 +79,46 @@ export function MoneyInput({ value, onValueChange, inputMode = 'decimal', maxLen
     const before = text.slice(0, event.target.selectionStart ?? text.length)
     caret.current = [...before].filter((char) => isDigit(char) || char === decimal).length
     // maxLength counts the digits of the number, not the separators the field adds.
-    onValueChange(parseMoneyInput(text, locale).slice(0, maxLength))
+    const inputType = (event.nativeEvent as InputEvent).inputType
+    // A grouping separator left behind while editing (1.000 -> 1.00) is not a decimal.
+    // Keep the plain-decimal paste fallback for values such as 1000.5 in Vietnamese.
+    const edited = inputType && inputType !== 'insertFromPaste' ? text.split(group).join('') : text
+    onValueChange(parseMoneyInput(edited, locale).slice(0, maxLength))
   }
 
-  return <input {...props} ref={ref} inputMode={inputMode} autoComplete='off' value={display} onChange={change} />
+  return (
+    <input
+      {...props}
+      ref={ref}
+      inputMode={inputMode}
+      autoComplete='off'
+      value={display}
+      onChange={change}
+      onKeyDown={(event) => {
+        onKeyDown?.(event)
+        if (
+          event.defaultPrevented ||
+          event.altKey ||
+          event.ctrlKey ||
+          event.metaKey ||
+          event.nativeEvent.isComposing ||
+          props.readOnly
+        )
+          return
+        const start = event.currentTarget.selectionStart ?? 0
+        if (start !== event.currentTarget.selectionEnd) return
+        const backward = event.key === 'Backspace' && display[start - 1] === group
+        const forward = event.key === 'Delete' && display[start] === group
+        if (!backward && !forward) return
+        const offset = [...display.slice(0, start)].filter((char) => isDigit(char) || char === decimal).length
+        const index = backward ? offset - 1 : offset
+        if (index < 0 || index >= value.length || value[index] === '.') return
+        event.preventDefault()
+        const next = value.slice(0, index) + value.slice(index + 1)
+        const normalized = next.replace(/^0+(?=\d)/, '')
+        caret.current = Math.max(0, index - (next.length - normalized.length))
+        onValueChange(normalized)
+      }}
+    />
+  )
 }

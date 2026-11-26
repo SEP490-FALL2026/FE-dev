@@ -27,7 +27,7 @@ function SeatUsage({ id }: { id: string }) {
         {(['purchased', 'occupied', 'free'] as const).map((key) => (
           <div key={key}>
             <dt className='text-xs text-muted-foreground'>{translate(key)}</dt>
-            <dd className='text-right font-mono tabular-nums'>{query.data?.data?.[key] ?? translate('unknown')}</dd>
+            <dd className='font-mono tabular-nums'>{query.data?.data?.[key] ?? translate('unknown')}</dd>
           </div>
         ))}
       </dl>

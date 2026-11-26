@@ -2,6 +2,8 @@ import { useCatalogEditorSnapshot } from '../hooks/use-catalog-editor-snapshot'
 import { getSubscriptionSeatUsageQueryKey } from '~/shared/api/generated/operations/subscriptions/subscription-seat-usage'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { MoneyInput } from '~/shared/ui/money-input'
+import { itMoneyPattern } from '../../shared/components/it-money-pattern'
 import { useSubscriptionGet } from '~/shared/api/generated/operations/subscriptions/subscription-get'
 import { usePlanGet } from '~/shared/api/generated/operations/plans/plan-get'
 import { useSubscriptionUpdate } from '~/shared/api/generated/operations/subscriptions/subscription-update'
@@ -65,8 +67,11 @@ function SubscriptionFields({
   changed: boolean
   onReload: () => void
 }) {
-  const { t: translate } = useTranslation('itCatalog')
+  const { t: translate, i18n } = useTranslation('itCatalog')
   const [dirty, setDirty] = useState(false)
+  const [unitAmount, setUnitAmount] = useState(
+    subscription.unitPrice?.currency === 'VND' ? subscription.unitPrice.amount : ''
+  )
   const [termError, setTermError] = useState<'invalidTerms' | 'k1Terms'>()
   const affected = [getSubscriptionListQueryKey(), queryKey, getSubscriptionSeatUsageQueryKey(subscription.id)]
   const feedback = useItMutationFeedback(affected, onClose)
@@ -144,16 +149,17 @@ function SubscriptionFields({
           />
         </ItField>
         <ItField label={translate('unitAmount')} hint={translate('help.unitAmount')}>
-          <input
+          <MoneyInput
             placeholder={translate('placeholders.amount')}
-            name='amount'
             inputMode='numeric'
-            pattern='[0-9]{1,16}'
+            pattern={itMoneyPattern(i18n.resolvedLanguage, false)}
             maxLength={16}
-            defaultValue={subscription.unitPrice?.currency === 'VND' ? subscription.unitPrice.amount : ''}
+            value={unitAmount}
+            onValueChange={setUnitAmount}
             className={itInputClass}
           />
         </ItField>
+        <input type='hidden' name='amount' value={unitAmount} />
         {subscription.unitPrice && subscription.unitPrice.currency !== 'VND' && (
           <p className='text-sm text-muted-foreground sm:col-span-2'>
             {translate('subscriptionExtra.legacyPrice', {

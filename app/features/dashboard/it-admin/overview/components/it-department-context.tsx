@@ -98,7 +98,7 @@ function DepartmentMembers({ id }: { id: string }) {
             </div>
             <div>
               <dt className='text-muted-foreground'>{translate('effectiveOn')}</dt>
-              <dd className='text-right font-mono tabular-nums'>{formatDate(selected.effectiveOn)}</dd>
+              <dd className='font-mono tabular-nums'>{formatDate(selected.effectiveOn)}</dd>
             </div>
           </dl>
         </ItDetailDialog>
@@ -165,12 +165,12 @@ function DepartmentTools({ id }: { id: string }) {
             </div>
             <div>
               <dt className='text-muted-foreground'>{translate('effectiveFrom')}</dt>
-              <dd className='text-right font-mono tabular-nums'>{formatDate(selected.effectiveFrom)}</dd>
+              <dd className='font-mono tabular-nums'>{formatDate(selected.effectiveFrom)}</dd>
             </div>
             {selected.terminating && (
               <div>
                 <dt className='text-muted-foreground'>{translate('terminatingUntil')}</dt>
-                <dd className='text-right font-mono tabular-nums'>
+                <dd className='font-mono tabular-nums'>
                   {selected.terminatingUntil ? formatDate(selected.terminatingUntil) : translate('unknown')}
                 </dd>
               </div>

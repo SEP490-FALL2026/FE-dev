@@ -32,13 +32,11 @@ export function CatalogRetirement({ id }: { id: string; application: Application
               <dl className='grid gap-3 text-sm sm:grid-cols-2'>
                 <div>
                   <dt className='text-muted-foreground'>{translate('ownerReview.assignments')}</dt>
-                  <dd className='text-right font-mono tabular-nums'>
-                    {retirement.data.data.retirement.blockers.assignmentTotal}
-                  </dd>
+                  <dd className='font-mono tabular-nums'>{retirement.data.data.retirement.blockers.assignmentTotal}</dd>
                 </div>
                 <div>
                   <dt className='text-muted-foreground'>{translate('ownerReview.subscriptions')}</dt>
-                  <dd className='text-right font-mono tabular-nums'>
+                  <dd className='font-mono tabular-nums'>
                     {retirement.data.data.retirement.blockers.subscriptionTotal}
                   </dd>
                 </div>

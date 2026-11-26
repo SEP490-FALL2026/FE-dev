@@ -46,7 +46,7 @@ export function CatalogPlanTerms({ planId, onBack }: { planId: string; onBack: (
                 <div key={key}>
                   <dt className='text-xs text-muted-foreground'>{translate(`terms.${key}`)}</dt>
                   <dd
-                    className={`mt-1 break-words text-sm ${key === 'lastReviewedOn' ? 'text-right font-mono tabular-nums' : ''}`}
+                    className={`mt-1 break-words text-sm ${key === 'lastReviewedOn' ? 'font-mono tabular-nums' : ''}`}
                   >
                     {data.terms?.[key]
                       ? key === 'lastReviewedOn'
@@ -58,7 +58,7 @@ export function CatalogPlanTerms({ planId, onBack }: { planId: string; onBack: (
               ))}
               <div>
                 <dt className='text-xs text-muted-foreground'>{translate('terms.maxDevicesPerKey')}</dt>
-                <dd className='mt-1 text-right font-mono text-sm tabular-nums'>
+                <dd className='mt-1 font-mono text-sm tabular-nums'>
                   {data.terms?.installLimit?.maxDevicesPerKey ?? translate('unknown')}
                 </dd>
               </div>

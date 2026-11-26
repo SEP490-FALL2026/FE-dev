@@ -45,6 +45,28 @@ describe('MoneyInput', () => {
     expect(raw).toBe('1234567.5')
   })
 
+  it('keeps grouped integers as integers when deleting digits in Vietnamese', () => {
+    let raw = ''
+    render(<Harness onRaw={(next) => (raw = next)} />)
+    const input = screen.getByTestId('amount') as HTMLInputElement
+    fireEvent.change(input, { target: { value: '1000' } })
+    fireEvent.input(input, { target: { value: '1.00' }, inputType: 'deleteContentBackward' })
+    expect(raw).toBe('100')
+    expect(input.value).toBe('100')
+  })
+
+  it('deletes the adjacent digit when backspacing over a grouping separator', () => {
+    let raw = ''
+    render(<Harness onRaw={(next) => (raw = next)} />)
+    const input = screen.getByTestId('amount') as HTMLInputElement
+    fireEvent.change(input, { target: { value: '1000' } })
+    input.focus()
+    input.setSelectionRange(2, 2)
+    fireEvent.keyDown(input, { key: 'Backspace' })
+    expect(raw).toBe('0')
+    expect(input.value).toBe('0')
+  })
+
   it('keeps exact digits beyond the safe integer range and drops letters', () => {
     expect(parseMoneyInput('9007199254740993,25', 'vi')).toBe('9007199254740993.25')
     expect(formatMoneyInput('9007199254740993.25', 'vi')).toBe('9.007.199.254.740.993,25')

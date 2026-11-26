@@ -12,9 +12,7 @@ export function ImportImpactSummary({ summary }: { summary: EmployeeImportRespon
         <div className='space-y-2'>
           <dl>
             <dt className='text-sm text-muted-foreground'>{translate('importImpact.unplaced')}</dt>
-            <dd className='mt-1 text-right font-mono text-2xl font-semibold tabular-nums'>
-              {formatNumber(summary.newUnplaced)}
-            </dd>
+            <dd className='mt-1 font-mono text-2xl font-semibold tabular-nums'>{formatNumber(summary.newUnplaced)}</dd>
           </dl>
           {summary.newUnplaced > 0 && (
             <p className='text-xs text-muted-foreground'>{translate('importImpact.unplacedHelp')}</p>

@@ -178,13 +178,13 @@ export function RenewalProposalDialog({
               }).map(([key, value]) => (
                 <div key={key}>
                   <dt className='text-xs text-muted-foreground'>{translate(key as 'target')}</dt>
-                  <dd className='mt-1 text-right font-mono tabular-nums'>{formatNumber(value)}</dd>
+                  <dd className='mt-1 font-mono tabular-nums'>{formatNumber(value)}</dd>
                 </div>
               ))}
               {(['adjustmentPointOn', 'renewalOn'] as const).map((key) => (
                 <div key={key}>
                   <dt className='text-xs text-muted-foreground'>{translate(key)}</dt>
-                  <dd className='mt-1 text-right font-mono text-sm tabular-nums'>{formatDate(adjustment[key])}</dd>
+                  <dd className='mt-1 font-mono text-sm tabular-nums'>{formatDate(adjustment[key])}</dd>
                 </div>
               ))}
             </dl>

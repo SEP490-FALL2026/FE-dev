@@ -1,4 +1,6 @@
 import { Clock } from 'lucide-react'
+import { RequestProgressPanel } from '~/entities/request/components/request-progress-panel'
+import { RequestHistoryDisclosure } from '~/entities/request/components/request-history-disclosure'
 import { useTranslation } from 'react-i18next'
 import type { AccessRequestResponseDtoDataRequest } from '~/shared/api/generated/model/access-requests/accessRequestResponseDtoDataRequest'
 import { useDashboardFormat } from '../../../dashboard-ui'
@@ -22,6 +24,7 @@ export function NeedRequestSummary({ request }: { request: AccessRequestResponse
   ]
   return (
     <div className='space-y-6'>
+      <RequestProgressPanel id={request.id} state={request.state} />
       <div className='flex flex-wrap items-center justify-between gap-3'>
         <h2 className='max-w-full min-w-0 truncate text-lg font-semibold' title={softwareName}>
           {softwareName}
@@ -67,6 +70,7 @@ export function NeedRequestSummary({ request }: { request: AccessRequestResponse
             <dd className='mt-1 text-sm whitespace-pre-wrap [overflow-wrap:anywhere]'>{request.businessReason}</dd>
           </div>
         </dl>
+        <RequestHistoryDisclosure key={request.id} id={request.id} />
       </ApprovalsSection>
       {request.needDecision && (
         <ApprovalsSection title={translate('currentDecision')}>

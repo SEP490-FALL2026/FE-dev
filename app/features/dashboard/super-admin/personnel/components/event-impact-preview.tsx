@@ -44,7 +44,7 @@ export function EventImpactPreview({ impact }: { impact: EventImpact }) {
               <CalendarDays aria-hidden='true' className='mt-0.5 size-5 shrink-0 text-primary-ink' strokeWidth={1.5} />
               <div className='min-w-0 flex-1'>
                 <dt className='text-primary-ink'>{date.label}</dt>
-                <dd className='mt-1 text-right font-mono text-lg font-semibold tabular-nums text-primary-ink'>
+                <dd className='mt-1 font-mono text-lg font-semibold tabular-nums text-primary-ink'>
                   {formatDate(date.value)}
                 </dd>
               </div>
@@ -110,7 +110,7 @@ export function EventImpactPreview({ impact }: { impact: EventImpact }) {
             {impact.commitmentToRelease.length > 0 && (
               <div className='space-y-2'>
                 <dt className='font-semibold text-foreground'>{translate('impact.commitmentReleased')}</dt>
-                <dd className='space-y-1 break-words text-right font-mono font-medium tabular-nums text-foreground'>
+                <dd className='space-y-1 break-words font-mono font-medium tabular-nums text-foreground'>
                   {impact.commitmentToRelease.map((money) => (
                     <div key={money.currency}>
                       {formatMoney(moneyFromMinor(money.amountMinor, money.currency), i18n.language)}
