@@ -76,7 +76,6 @@ export function SuperAdminDepartmentsView(_props: { onSelectTab?: (tab: SuperAdm
     <div className='grid gap-6'>
       <AdminPageHeader
         icon={Building2}
-        eyebrow={translate('ui.eyebrow')}
         title={translate('title')}
         subtitle={translate('subtitle')}
         actions={

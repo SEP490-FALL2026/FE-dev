@@ -12,8 +12,8 @@ export function ManagerRequestLookup({ history, onOpen }: { history?: boolean; o
       <ManagerPageHeader title={translate('requests')} icon={ClipboardCheck} />
       {!history && (
         <>
-          <SpendQueueAiSummary onOpen={onOpen} />
           <ManagerNeedQueue onOpen={onOpen} />
+          <SpendQueueAiSummary onOpen={onOpen} />
         </>
       )}
       <ManagerDepartmentRequests ended={history} onOpen={onOpen} />

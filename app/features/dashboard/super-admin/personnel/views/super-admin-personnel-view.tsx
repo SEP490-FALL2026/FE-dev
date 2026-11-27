@@ -53,7 +53,6 @@ export function SuperAdminPersonnelView({
     <div className='space-y-6'>
       <AdminPageHeader
         icon={UsersRound}
-        eyebrow={translate('ui.eyebrow')}
         title={translate('title')}
         subtitle={formPage ? undefined : translate(`ui.sectionHint.${tab}`)}
         actions={

@@ -178,6 +178,8 @@ export const finance = {
   overviewDescription: 'Work waiting for Finance and shortcuts to frequently used records.',
   shortcuts: 'Quick access',
   overviewHint: 'Work waiting for Finance',
+  invoicesAwaitingSignature: 'Invoices awaiting signature',
+  countUnavailable: 'Data unavailable',
   proposals: 'Submitted proposals',
   versions: 'Budget versions',
   budgets: 'Current budgets',

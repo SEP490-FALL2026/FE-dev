@@ -82,7 +82,6 @@ export function ApprovalCycleDetail({ itemId, onSelectTab }: ApprovalBudgetViewP
   return (
     <ApprovalsPage
       icon={CalendarRange}
-      eyebrow={translate('title')}
       title={translate('cycles.detailTitle', { year: raw })}
       actions={
         <ApprovalsButton variant='ghost' onClick={() => onSelectTab('annual-budget')}>

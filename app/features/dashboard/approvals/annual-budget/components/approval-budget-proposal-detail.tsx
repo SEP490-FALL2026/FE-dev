@@ -33,7 +33,6 @@ export function ApprovalBudgetProposalDetail({ itemId, onSelectTab }: ApprovalBu
   return (
     <ApprovalsPage
       icon={FileStack}
-      eyebrow={translate('proposalTitle')}
       title={proposal ? proposal.costCenter.name : translate('proposalTitle')}
       description={translate('readOnly')}
       actions={

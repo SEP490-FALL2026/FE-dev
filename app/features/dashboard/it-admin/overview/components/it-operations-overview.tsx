@@ -47,10 +47,9 @@ export function ItOperationsOverview({
   const data = query.data?.data
   return (
     <section ref={pageRef} tabIndex={-1} className='space-y-6 outline-none'>
-      <header className='workspace-overview-hero workspace-hero-header flex flex-wrap items-start justify-between gap-4 rounded-xl px-5 py-6 sm:px-7 sm:py-7'>
-        <div>
-          <p className='it-eyebrow'>{translate('overview.workspace')}</p>
-          <h1 className='mt-1 text-2xl font-semibold tracking-tight [text-wrap:balance]'>{translate('title')}</h1>
+      <header className='flex flex-wrap items-start justify-between gap-4'>
+        <div className='min-w-0 flex-1 basis-64'>
+          <h1 className='text-xl font-semibold tracking-tight [text-wrap:balance] sm:text-2xl'>{translate('title')}</h1>
           {data && (
             <p className='mt-2 text-sm text-muted-foreground'>
               <span>{translate('overview.scope', { count: data.scope.departments })}</span>
@@ -72,50 +71,53 @@ export function ItOperationsOverview({
           {translate('overview.refresh')}
         </button>
       </header>
-      <ItUsageChart />
       <ItQueryState query={query}>
         {data ? (
           <>
-            <div className='flex items-center justify-between gap-3 border-b border-border/60 pb-3'>
+            <div className='flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-3'>
               <h2 className='text-sm font-semibold'>{translate('overview.workload')}</h2>
               <span className='text-xs text-muted-foreground'>{translate('overview.serverScope')}</span>
             </div>
-            <div className='grid gap-4 sm:grid-cols-2 xl:grid-cols-3'>
+            <div className='grid gap-3 sm:grid-cols-2 xl:grid-cols-3'>
               {metrics.map(({ key, icon: Icon, tab, params }) => {
                 const metric = data.sections[key]
                 if (!metric) return null
-                const counted = metric.state === 'COUNTED' && metric.count !== null
-                const available = metric.state === 'COUNTED' || metric.state === 'AT_SOURCE'
+                const counted =
+                  metric.state === 'COUNTED' &&
+                  typeof metric.count === 'number' &&
+                  Number.isSafeInteger(metric.count) &&
+                  metric.count >= 0
+                const available = counted || metric.state === 'AT_SOURCE'
                 return (
                   <button
                     key={key}
                     type='button'
-                    className='it-metric group flex min-h-40 flex-col items-stretch rounded-lg border border-border/70 bg-surface p-5 text-left disabled:cursor-default'
+                    className='it-metric group flex min-w-0 items-start gap-3 rounded-lg border border-border/70 bg-surface p-4 text-left focus-visible:outline-2 focus-visible:outline-primary disabled:cursor-default'
                     disabled={!available}
                     onClick={() => onSelectTab(tab, { ...params })}
                   >
-                    <span className='flex items-start justify-between gap-3'>
+                    <Icon
+                      aria-hidden
+                      strokeWidth={1.5}
+                      className={`mt-0.5 size-5 shrink-0 ${available ? 'text-primary-ink' : 'text-muted-foreground'}`}
+                    />
+                    <span className='min-w-0 flex-1 space-y-2'>
+                      <span className='block text-sm font-medium'>{translate(`overview.metrics.${key}`)}</span>
                       <span
-                        className={`grid size-9 place-items-center rounded-md ${available ? 'bg-primary-soft text-primary-ink' : 'bg-surface-subtle text-muted-foreground'}`}
+                        className={`block ${counted ? 'text-right font-mono text-2xl font-semibold tabular-nums tracking-tight' : 'text-sm text-muted-foreground'}`}
                       >
-                        <Icon aria-hidden strokeWidth={1.5} className='size-4.5' />
+                        {counted && metric.count !== null
+                          ? formatNumber(metric.count)
+                          : translate(metric.state === 'AT_SOURCE' ? 'overview.atSource' : 'overview.notAvailable')}
                       </span>
-                      {available && (
-                        <ArrowUpRight
-                          aria-hidden
-                          strokeWidth={1.5}
-                          className='size-4 text-muted-foreground group-hover:text-primary'
-                        />
-                      )}
                     </span>
-                    <span className='mt-4 text-sm font-medium'>{translate(`overview.metrics.${key}`)}</span>
-                    <span
-                      className={`mt-2 ${counted ? 'text-right font-mono text-3xl font-semibold tabular-nums tracking-tight' : 'text-sm text-muted-foreground'}`}
-                    >
-                      {counted && metric.count !== null
-                        ? formatNumber(metric.count)
-                        : translate(metric.state === 'AT_SOURCE' ? 'overview.atSource' : 'overview.notAvailable')}
-                    </span>
+                    {available && (
+                      <ArrowUpRight
+                        aria-hidden
+                        strokeWidth={1.5}
+                        className='size-4 shrink-0 text-muted-foreground group-hover:text-primary-ink'
+                      />
+                    )}
                   </button>
                 )
               })}
@@ -125,6 +127,7 @@ export function ItOperationsOverview({
           <ItEmpty />
         )}
       </ItQueryState>
+      <ItUsageChart />
     </section>
   )
 }

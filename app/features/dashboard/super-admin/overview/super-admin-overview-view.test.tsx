@@ -146,6 +146,10 @@ describe('Super Admin overview localization', () => {
     fireEvent.click(stage)
     expect(stage).toHaveAttribute('aria-expanded', 'true')
     expect(within(screen.getByRole('region', { name: 'Plans and subscriptions' })).getByText('8')).toBeInTheDocument()
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    fireEvent.click(stage)
+    expect(stage).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.queryByRole('region', { name: 'Plans and subscriptions' })).not.toBeInTheDocument()
   })
 
   it('refreshes both API sources and never substitutes invented totals when data is absent', async () => {

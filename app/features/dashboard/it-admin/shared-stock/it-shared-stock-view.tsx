@@ -41,12 +41,7 @@ export function ItSharedStockView({ onOpenGrants }: { onOpenGrants?: () => void 
     return <StockSubscriptions plan={selected} onBack={() => setSelected(undefined)} onOpenGrants={onOpenGrants} />
   return (
     <section className='space-y-6'>
-      <ItPageHeader
-        icon={Boxes}
-        eyebrow={t('stock.eyebrow')}
-        title={t('stock.title')}
-        subtitle={t('stock.catalogHint')}
-      />
+      <ItPageHeader icon={Boxes} title={t('stock.title')} subtitle={t('stock.catalogHint')} />
       <div className='space-y-1'>
         <h2 className='section-accent text-lg font-semibold tracking-tight'>{t('stock.choosePlan')}</h2>
         <p className='text-sm text-muted-foreground'>{t('stock.choosePlanHint')}</p>

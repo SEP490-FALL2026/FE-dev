@@ -31,7 +31,6 @@ export function ApprovalRequestView({
   return (
     <ApprovalsPage
       icon={FileCheck2}
-      eyebrow={translate('queue')}
       title={translate('detail')}
       actions={
         <>

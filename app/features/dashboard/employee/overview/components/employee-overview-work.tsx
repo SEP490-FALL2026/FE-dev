@@ -4,10 +4,7 @@ import { useAccessRequestDraftList } from '~/shared/api/generated/operations/acc
 import { useDashboardFormat } from '../../../dashboard-ui'
 import type { EmployeeTabKey } from '../../enums'
 
-/**
- * Saved-draft total, shown as a compact link inside the overview hero. The total comes from the draft list
- * pagination of the BE; it is kept apart from the four dashboard metrics as before, but no longer as an orphan card.
- */
+/** Draft navigation stays separate from the dashboard's four backend metrics. */
 export function EmployeeOverviewWork({
   selfServiceOnly,
   onSelectTab
@@ -21,34 +18,45 @@ export function EmployeeOverviewWork({
   if (selfServiceOnly) return null
   const total = drafts.data?.data?.pagination.totalItems
   return (
-    <button
-      type='button'
-      aria-label={translate('redesign.savedDrafts')}
-      className='hero-stat group flex min-h-11 min-w-44 items-center gap-3 rounded-lg px-3.5 py-2.5 text-left transition-colors'
-      onClick={() => onSelectTab('my-requests')}
-    >
-      <span className='grid size-9 shrink-0 place-items-center rounded-md bg-white/15'>
-        <FileText aria-hidden strokeWidth={1.5} className='size-4.5' />
-      </span>
-      <span className='min-w-0 flex-1'>
-        <span className='block text-xs opacity-80'>{translate('redesign.savedDrafts')}</span>
-        {drafts.isPending ? (
-          <span
-            role='status'
-            aria-label={translate('loading')}
-            className='mt-1 block h-5 w-10 animate-pulse rounded bg-white/25'
-          />
-        ) : (
-          <span className='block font-mono text-lg leading-tight font-semibold'>
-            {total === undefined ? translate('noValue') : formatNumber(total)}
-          </span>
-        )}
-      </span>
-      <ArrowRight
-        aria-hidden
-        strokeWidth={1.5}
-        className='size-4 shrink-0 opacity-70 transition-transform group-hover:translate-x-0.5'
-      />
-    </button>
+    <div className='flex flex-wrap items-center gap-2'>
+      <button
+        type='button'
+        aria-label={translate('redesign.savedDrafts')}
+        className='group flex min-h-11 items-center gap-3 rounded-md px-3 py-2 text-left text-primary-ink transition-colors hover:bg-primary-soft'
+        onClick={() => onSelectTab('my-requests')}
+      >
+        <span className='grid size-8 shrink-0 place-items-center rounded-md bg-primary-soft'>
+          <FileText aria-hidden strokeWidth={1.5} className='size-4.5' />
+        </span>
+        <span className='flex min-w-0 flex-1 items-center gap-2'>
+          <span className='text-sm'>{translate('redesign.savedDrafts')}</span>
+          {drafts.isPending ? (
+            <span
+              role='status'
+              aria-label={translate('loading')}
+              className='block h-5 w-8 animate-pulse rounded bg-primary-soft'
+            />
+          ) : (
+            <span className='font-mono text-sm font-semibold tabular-nums'>
+              {drafts.isError || total === undefined ? translate('noValue') : formatNumber(total)}
+            </span>
+          )}
+        </span>
+        <ArrowRight
+          aria-hidden
+          strokeWidth={1.5}
+          className='size-4 shrink-0 opacity-70 transition-transform group-hover:translate-x-0.5'
+        />
+      </button>
+      {drafts.isError && (
+        <button
+          type='button'
+          className='min-h-11 rounded-md px-3 text-sm text-primary-ink hover:bg-primary-soft'
+          onClick={() => void drafts.refetch()}
+        >
+          {translate('retry')}
+        </button>
+      )}
+    </div>
   )
 }

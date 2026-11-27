@@ -50,6 +50,8 @@ it('reads the dashboard, keeps source-only and unavailable sections uncounted, a
     </QueryClientProvider>
   )
   const metrics = await screen.findByRole('region', { name: 'Operational overview' })
+  const readiness = await screen.findByRole('region', { name: 'Organization readiness' })
+  expect(metrics.compareDocumentPosition(readiness) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   expect(within(metrics).getByText('4')).toBeInTheDocument()
   expect(within(metrics).getByText('7')).toBeInTheDocument()
   expect(within(metrics).getAllByText('0')).toHaveLength(1)

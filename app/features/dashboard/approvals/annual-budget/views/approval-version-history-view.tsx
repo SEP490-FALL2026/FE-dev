@@ -13,7 +13,6 @@ export function ApprovalVersionHistoryView({ itemId, onSelectTab }: ApprovalBudg
   return (
     <ApprovalsPage
       icon={History}
-      eyebrow={translate('versionTitle')}
       title={translate('history')}
       description={
         version

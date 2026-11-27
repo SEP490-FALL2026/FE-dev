@@ -43,6 +43,12 @@ it('uses the scoped dashboard and preserves unavailable and at-source metrics', 
           }
         }
       })
+    ),
+    http.get('*/api/v1/usage-overview', () =>
+      HttpResponse.json({
+        success: true,
+        data: { items: [], pagination: { page: 1, pageSize: 100, totalItems: 0, totalPages: 0 } }
+      })
     )
   )
   const navigate = vi.fn()
@@ -56,6 +62,10 @@ it('uses the scoped dashboard and preserves unavailable and at-source metrics', 
   expect(screen.getAllByText('Not available')).toHaveLength(1)
   expect(screen.getByText('View at source')).toBeInTheDocument()
   expect(screen.getAllByText('0')).toHaveLength(1)
+  const workload = screen.getByRole('heading', { name: 'Operations at a glance' })
+  const trend = screen.getByRole('heading', { name: 'Usage over time' })
+  expect(workload.compareDocumentPosition(trend) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  expect(screen.getByRole('button', { name: /Unconfirmed devices/ })).toBeDisabled()
   fireEvent.click(screen.getByRole('button', { name: /Pending grants/ }))
-  expect(navigate).toHaveBeenCalledWith('provisioning', { scope: 'MINE' })
+  expect(navigate).toHaveBeenCalledWith('provisioning', { scope: 'MINE', queue: 'tasks' })
 })

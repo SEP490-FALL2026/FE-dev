@@ -232,10 +232,10 @@ export function FinanceStatus({ value, label: customLabel }: { value?: string | 
   return (
     <span
       title={label}
-      className={`inline-flex max-w-full items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-medium whitespace-nowrap ring-1 ring-inset ${toneClasses[financeStatusTone(value)]}`}
+      className={`inline-flex max-w-full items-center gap-1.5 rounded-md px-2 py-0.5 text-left text-xs font-medium ring-1 ring-inset ${toneClasses[financeStatusTone(value)]}`}
     >
-      <span aria-hidden className='size-1.5 rounded-full bg-current' />
-      {label}
+      <span aria-hidden className='size-1.5 shrink-0 rounded-full bg-current' />
+      <span className='min-w-0 [overflow-wrap:anywhere]'>{label}</span>
     </span>
   )
 }
@@ -251,10 +251,10 @@ export function FinanceStat({
   emphasis?: boolean
 }) {
   return (
-    <div className='min-w-48 flex-1 basis-56 space-y-1 bg-surface p-4'>
+    <div className='min-w-0 space-y-1 bg-surface p-4'>
       <dt className='text-xs font-medium tracking-wider text-muted-foreground uppercase'>{label}</dt>
       <dd
-        className={`break-words font-mono text-lg font-semibold tabular-nums ${emphasis ? 'text-primary-ink' : 'text-foreground'}`}
+        className={`text-right font-mono text-lg font-semibold tabular-nums [overflow-wrap:anywhere] ${emphasis ? 'text-primary-ink' : 'text-foreground'}`}
       >
         {value}
       </dd>
@@ -265,7 +265,7 @@ export function FinanceStat({
 export function FinanceStatGrid({ children, columns = 3 }: { children: ReactNode; columns?: 3 | 4 }) {
   return (
     <dl
-      className={`flex flex-wrap gap-px overflow-hidden rounded-xl border border-border/70 bg-border/70 shadow-[0_1px_2px_0_rgba(0,0,0,0.04)] ${columns === 4 ? '[&>div]:basis-60' : '[&>div]:basis-72'}`}
+      className={`grid gap-px overflow-hidden rounded-lg border border-border/70 bg-border/70 shadow-sm sm:grid-cols-2 ${columns === 4 ? 'xl:grid-cols-4' : 'xl:grid-cols-3'}`}
     >
       {children}
     </dl>

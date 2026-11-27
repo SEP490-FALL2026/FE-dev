@@ -71,12 +71,12 @@ export function DashboardMetrics({
                 <h3 className='text-sm font-medium leading-relaxed text-muted-foreground first-letter:uppercase'>
                   {name}
                 </h3>
-                <span className='kpi-chip grid size-9 shrink-0 place-items-center rounded-lg'>
+                <span className='shrink-0 text-primary-ink'>
                   <Icon aria-hidden strokeWidth={1.5} className='size-4' />
                 </span>
               </div>
               <p
-                className={`mt-4 ${counted ? 'font-mono text-3xl font-semibold tabular-nums' : 'text-sm font-medium text-muted-foreground'}`}
+                className={`mt-3 ${counted ? 'text-right font-mono text-2xl font-semibold tabular-nums' : 'text-sm font-medium text-muted-foreground'}`}
               >
                 {counted && typeof count === 'number'
                   ? formatNumber(count)

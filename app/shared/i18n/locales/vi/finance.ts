@@ -177,6 +177,8 @@ export const finance = {
   overviewDescription: 'Việc đang chờ Tài chính xử lý và lối tắt tới các danh mục thường dùng.',
   shortcuts: 'Truy cập nhanh',
   overviewHint: 'Công việc đang chờ Tài chính',
+  invoicesAwaitingSignature: 'Hóa đơn chờ ký',
+  countUnavailable: 'Chưa tải được số liệu',
   proposals: 'Đề xuất đã gửi',
   versions: 'Phiên bản ngân sách',
   budgets: 'Ngân sách hiện hành',

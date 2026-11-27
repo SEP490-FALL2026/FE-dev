@@ -2,6 +2,12 @@ import { employeeRequestExtras } from './employee-request-extras'
 import { employeeRequestAssignment } from './employee-request-assignment'
 import { employeeUi } from './employee-ui'
 export const employee = {
+  unsaved: {
+    title: 'Change request type?',
+    hint: 'The information entered in this form has not been saved. Changing the request type will discard it.',
+    keep: 'Keep editing',
+    discard: 'Discard and switch'
+  },
   policies: 'Policies',
   estimatedBudgetYear: 'Estimated budget year',
   extensionMonths: 'Extension in months',
@@ -232,6 +238,7 @@ export const employee = {
     returns: 'Return requests'
   },
   softwareRights: {
+    actionsFor: 'Actions for {{name}}',
     view: 'Access period',
     views: { current: 'Current and upcoming', ended: 'Ended' },
     total: '{{count}} software rights',

@@ -112,12 +112,7 @@ function Members({
       <button type='button' className={itButtonClass} onClick={onBack}>
         {t('back')}
       </button>
-      <ItPageHeader
-        icon={Activity}
-        eyebrow={t('usage.title')}
-        title={department.name}
-        subtitle={t('usage.chooseMember')}
-      />
+      <ItPageHeader icon={Activity} title={department.name} subtitle={t('usage.chooseMember')} />
       <ItQueryState query={query}>
         {query.data?.data?.items.length ? (
           <div className='divide-y divide-border rounded-lg border border-border bg-surface'>
@@ -168,7 +163,7 @@ function Software({
       <button type='button' className={itButtonClass} onClick={onBack}>
         {t('back')}
       </button>
-      <ItPageHeader icon={Activity} eyebrow={employee.code} title={t('usage.chooseSoftware')}>
+      <ItPageHeader icon={Activity} context={employee.code} title={t('usage.chooseSoftware')}>
         <UsagePeriod />
       </ItPageHeader>
       <ItQueryState query={query}>

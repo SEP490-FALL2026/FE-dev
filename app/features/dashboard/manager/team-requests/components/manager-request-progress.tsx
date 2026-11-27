@@ -21,7 +21,6 @@ export function ManagerRequestTimings({ id, state }: { id: string; state?: Acces
   const { t: translate } = useTranslation('employee')
   const query = useAccessRequestTimingsGet(id)
   const timings = !query.isError ? query.data?.data?.timings : null
-
   return (
     <ManagerSection title={translate('timeline')}>
       <ManagerQueryState query={query} empty={!timings} />

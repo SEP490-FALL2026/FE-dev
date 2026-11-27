@@ -24,6 +24,66 @@ export function ManagerDashboardSummary({
   const { formatDate, formatNumber } = useDashboardFormat()
   const query = useManagerDashboardGet()
   const data = !query.isError ? query.data?.data : null
+  const renderCard = (card: (typeof cards)[number], secondary = false) => {
+    if (!data) return null
+
+    const section = data.sections[card.key]
+    const counted =
+      section.state === DASHBOARD_STATE.COUNTED &&
+      typeof section.count === 'number' &&
+      Number.isSafeInteger(section.count) &&
+      section.count >= 0
+    const content = (
+      <>
+        <span className='flex items-start justify-between gap-3'>
+          <span className='text-sm text-muted-foreground'>{translate(`integration.metrics.${card.key}`)}</span>
+          {!secondary && (
+            <span className='kpi-chip hidden size-8 shrink-0 place-items-center rounded-md sm:grid'>
+              <card.icon aria-hidden strokeWidth={1.5} className='size-4' />
+            </span>
+          )}
+        </span>
+        <span className={`${secondary ? '' : 'mt-3'} flex items-end justify-between gap-3`}>
+          <span
+            className={
+              counted
+                ? `font-mono ${secondary ? 'text-base' : 'text-2xl'} font-semibold tabular-nums`
+                : 'text-sm text-muted-foreground'
+            }
+          >
+            {counted && section.count !== null
+              ? formatNumber(section.count)
+              : translate(
+                  section.state === DASHBOARD_STATE.AT_SOURCE
+                    ? 'integration.seeList'
+                    : Object.values(DASHBOARD_STATE).includes(section.state)
+                      ? 'notReported'
+                      : 'unknownStatus'
+                )}
+          </span>
+          {'tab' in card && <ArrowUpRight aria-hidden strokeWidth={1.5} className='size-4 shrink-0' />}
+        </span>
+      </>
+    )
+    const classes = secondary
+      ? 'flex items-center justify-between gap-3 px-1 py-2 text-left'
+      : 'min-h-24 rounded-lg border border-border/60 bg-surface-subtle/40 p-3.5 text-left'
+    return 'tab' in card ? (
+      <button
+        key={card.key}
+        type='button'
+        aria-label={translate(`integration.metrics.${card.key}`)}
+        className={`${classes} transition-colors hover:border-primary/30 hover:bg-primary-soft/20 focus-visible:outline-2 focus-visible:outline-primary`}
+        onClick={() => onSelectTab(card.tab, { departmentId: data.department.id })}
+      >
+        {content}
+      </button>
+    ) : (
+      <div key={card.key} className={classes}>
+        {content}
+      </div>
+    )
+  }
   return (
     <ManagerSection
       title={translate('integration.overview')}
@@ -37,59 +97,13 @@ export function ManagerDashboardSummary({
     >
       <ManagerQueryState query={query} empty={!data} />
       {data && (
-        <div className='kpi-tone-grid grid gap-3 sm:grid-cols-2 xl:grid-cols-4'>
-          {cards.map((card) => {
-            const section = data.sections[card.key]
-            const counted =
-              section.state === DASHBOARD_STATE.COUNTED &&
-              typeof section.count === 'number' &&
-              Number.isSafeInteger(section.count) &&
-              section.count >= 0
-            const content = (
-              <>
-                <span className='flex items-start justify-between gap-3'>
-                  <span className='text-sm text-muted-foreground'>{translate(`integration.metrics.${card.key}`)}</span>
-                  <span className='kpi-chip grid size-9 shrink-0 place-items-center rounded-lg'>
-                    <card.icon aria-hidden strokeWidth={1.5} className='size-4' />
-                  </span>
-                </span>
-                <span className='mt-4 flex items-end justify-between gap-3'>
-                  <span
-                    className={
-                      counted ? 'font-mono text-2xl font-semibold tabular-nums' : 'text-sm text-muted-foreground'
-                    }
-                  >
-                    {counted && section.count !== null
-                      ? formatNumber(section.count)
-                      : translate(
-                          section.state === DASHBOARD_STATE.AT_SOURCE
-                            ? 'integration.seeList'
-                            : Object.values(DASHBOARD_STATE).includes(section.state)
-                              ? 'notReported'
-                              : 'unknownStatus'
-                        )}
-                  </span>
-                  {'tab' in card && <ArrowUpRight aria-hidden strokeWidth={1.5} className='size-4 shrink-0' />}
-                </span>
-              </>
-            )
-            const classes = 'min-h-32 rounded-lg border border-border/60 bg-surface-subtle/40 p-4 text-left'
-            return 'tab' in card ? (
-              <button
-                key={card.key}
-                type='button'
-                aria-label={translate(`integration.metrics.${card.key}`)}
-                className={`${classes} transition-colors hover:border-primary/30 hover:bg-primary-soft/20 focus-visible:outline-2 focus-visible:outline-primary`}
-                onClick={() => onSelectTab(card.tab, { departmentId: data.department.id })}
-              >
-                {content}
-              </button>
-            ) : (
-              <div key={card.key} className={classes}>
-                {content}
-              </div>
-            )
-          })}
+        <div className='kpi-tone-grid space-y-3'>
+          <div className='grid grid-cols-2 gap-3 xl:grid-cols-4'>
+            {cards.slice(0, 4).map((card) => renderCard(card))}
+          </div>
+          <div className='grid gap-x-5 gap-y-2 border-t border-border/50 pt-2 md:grid-cols-3'>
+            {cards.slice(4).map((card) => renderCard(card, true))}
+          </div>
         </div>
       )}
     </ManagerSection>

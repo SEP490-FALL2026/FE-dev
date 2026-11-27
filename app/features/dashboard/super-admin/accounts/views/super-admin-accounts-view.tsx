@@ -51,7 +51,6 @@ export function SuperAdminAccountsView({
     <section className='space-y-6'>
       <AdminPageHeader
         icon={KeyRound}
-        eyebrow={translate('ui.eyebrow')}
         title={translate('title')}
         actions={
           state.tab === 'accounts' && (
@@ -149,7 +148,10 @@ export function SuperAdminAccountsView({
                     <tr>
                       {(['employee', 'loginEmail', 'status', 'activation', 'directRoles', 'actions'] as const).map(
                         (key) => (
-                          <th key={key} className='px-4 py-3 font-medium'>
+                          <th
+                            key={key}
+                            className={`px-4 py-3 font-medium ${key === 'actions' ? 'sticky right-0 z-10 bg-surface-subtle text-right' : ''}`}
+                          >
                             {translate(key)}
                           </th>
                         )

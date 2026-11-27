@@ -170,7 +170,7 @@ it('uses requirement flags from the matching cached NEED step to build the decis
   await screen.findByRole('radio', { name: 'Approve need' })
   expect(screen.queryByLabelText(/Reason for confirming a term/)).not.toBeInTheDocument()
 })
-it('shows proposal assessment and timings in Manager detail', async () => {
+it('shows timings above request information without expanding and keeps proposal assessment', async () => {
   server.use(
     http.get('*/api/v1/access-requests/:id', () =>
       HttpResponse.json({
@@ -184,13 +184,29 @@ it('shows proposal assessment and timings in Manager detail', async () => {
     http.get('*/api/v1/access-requests/:id/timings', () =>
       HttpResponse.json({
         success: true,
-        data: { timings: { segments: { NEED: { startedAt: '2026-11-01T03:00:00Z', endedAt: null } } } }
+        data: {
+          timings: {
+            requestId,
+            submittedAt: managerRequest.submittedAt,
+            approvedAt: null,
+            grantCompletedAt: null,
+            approvalSeconds: null,
+            grantSeconds: null,
+            totalSeconds: null,
+            countedInKpi: false,
+            segments: { NEED: { startedAt: '2026-11-01T03:00:00Z', endedAt: null } }
+          }
+        }
       })
     )
   )
   mount(<ManagerLiveRequest id={requestId} employeeId={employeeId} onBack={vi.fn()} />)
   expect(await screen.findByText('Test vendor')).toBeInTheDocument()
-  expect(screen.getByRole('heading', { name: 'Processing timeline' })).toBeInTheDocument()
+  const timeline = screen.getByRole('heading', { name: 'Processing timeline' })
+  expect(timeline).toBeVisible()
+  expect(screen.getByRole('list', { name: 'Processing progress' })).toBeVisible()
+  const requestInfo = screen.getByRole('heading', { name: 'Request Information' })
+  expect(timeline.compareDocumentPosition(requestInfo) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   expect(screen.queryByRole('button', { name: 'Withdraw request' })).not.toBeInTheDocument()
 })
 it('withdraws at a head stage with a required reason and invalidates the detail', async () => {

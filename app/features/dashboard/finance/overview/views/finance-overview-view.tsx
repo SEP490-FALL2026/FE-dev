@@ -17,7 +17,7 @@ export function FinanceOverviewView({ onSelectTab }: { onSelectTab: (tab: Financ
   const { t: translate } = useTranslation('finance')
   const [period, setPeriod] = useState(currentPeriod)
   return (
-    <FinancePage hero title={translate('overview')} description={translate('overviewDescription')}>
+    <FinancePage title={translate('overview')} description={translate('overviewDescription')}>
       <OverviewWorkQueue onSelectTab={onSelectTab} />
       <OverviewPeriodFilter period={period} onChange={setPeriod} />
       <OverviewAnalyticsSection period={period} />

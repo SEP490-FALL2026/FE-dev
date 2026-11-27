@@ -1,4 +1,4 @@
-import { Boxes, Filter } from 'lucide-react'
+import { Boxes, ClockAlert, Filter } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import { useNeedDecisionList } from '~/shared/api/generated/operations/need-decisions/need-decision-list'
@@ -23,6 +23,8 @@ export function ManagerNeedQueue({ onOpen }: { onOpen: (id: string) => void }) {
   const type = Object.values(NEED_QUEUE_TYPE).find((value) => value === params.get('needType'))
   const query = useNeedDecisionList({ page: paging.page, pageSize: paging.pageSize, ...(type ? { type } : {}) })
   const data = !query.isError ? query.data?.data : null
+  const now = new Date()
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
   return (
     <ManagerSection title={translate('needQueue')}>
       <div className='soft-panel flex flex-wrap items-center justify-between gap-4 p-3.5'>
@@ -111,7 +113,22 @@ export function ManagerNeedQueue({ onOpen }: { onOpen: (id: string) => void }) {
               </p>
             )
           },
-          { key: 'due', label: translate('integration.dueOn'), align: 'right', render: (row) => formatDate(row.dueOn) },
+          {
+            key: 'due',
+            label: translate('integration.dueOn'),
+            align: 'right',
+            render: (row) => (
+              <div className='space-y-1'>
+                <span>{formatDate(row.dueOn)}</span>
+                {row.dueOn && row.dueOn.slice(0, 10) < today && (
+                  <span className='flex items-center justify-end gap-1 font-sans text-xs font-medium text-danger-ink'>
+                    <ClockAlert aria-hidden strokeWidth={1.5} className='size-3.5' />
+                    {translate('overdue')}
+                  </span>
+                )}
+              </div>
+            )
+          },
           {
             key: 'status',
             label: translate('status'),

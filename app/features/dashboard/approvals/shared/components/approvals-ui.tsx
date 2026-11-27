@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, ClipboardCheck, Inbox, LoaderCircle, Search, type LucideIcon } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Inbox, LoaderCircle, Search, type LucideIcon } from 'lucide-react'
 import { Children, useId, type ButtonHTMLAttributes, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import '~/shared/ui/workspace.css'
@@ -31,57 +31,30 @@ export function ApprovalsPage({
   description,
   children,
   actions,
-  hero = false,
-  icon: Icon = ClipboardCheck,
-  eyebrow
+  icon: Icon
 }: {
   title: string
   description?: string
   children: ReactNode
   actions?: ReactNode
-  /** Overview screens render the header as the brand band shared with the other roles' overviews. */
-  hero?: boolean
-  /** Icon tile of the decorated banner on inner screens. */
   icon?: LucideIcon
-  /** Small line above the title; defaults to the role name. */
-  eyebrow?: string
 }) {
-  const { t: translate } = useTranslation('approvals')
   return (
-    <div className='space-y-6 [&_button:enabled]:cursor-pointer [&_summary]:cursor-pointer'>
-      {hero ? (
-        <header className='workspace-overview-hero workspace-hero-header flex flex-wrap items-end justify-between gap-4 rounded-xl px-5 py-6 sm:px-7 sm:py-7'>
-          <div className='min-w-0 space-y-1'>
-            <h1 className='text-2xl leading-tight font-semibold tracking-tight [text-wrap:balance]'>{title}</h1>
-            {description && (
-              <p className='max-w-2xl text-sm leading-relaxed [text-wrap:pretty] opacity-80'>{description}</p>
-            )}
-          </div>
-          {actions && <div className='flex flex-wrap items-center gap-2'>{actions}</div>}
-        </header>
-      ) : (
-        <header className='page-banner flex flex-wrap items-center justify-between gap-4'>
-          <div className='flex min-w-0 items-start gap-3.5'>
-            <span className='grid size-11 shrink-0 place-items-center rounded-lg border border-primary/15 bg-surface text-primary-ink shadow-[0_1px_2px_0_rgba(0,0,0,0.05)]'>
-              <Icon aria-hidden strokeWidth={1.5} className='size-5' />
-            </span>
-            <div className='min-w-0'>
-              <p className='mb-1 text-[11px] font-medium tracking-widest text-muted-foreground uppercase'>
-                {eyebrow ?? translate('pageEyebrow')}
-              </p>
-              <h1 className='text-xl leading-tight font-semibold tracking-tight [text-wrap:balance] text-foreground sm:text-2xl'>
-                {title}
-              </h1>
-              {description && (
-                <p className='mt-1.5 max-w-2xl text-sm leading-relaxed text-muted-foreground [text-wrap:pretty]'>
-                  {description}
-                </p>
-              )}
-            </div>
-          </div>
-          {actions && <div className='flex flex-wrap items-center gap-2'>{actions}</div>}
-        </header>
-      )}
+    <div className='min-w-0 space-y-6 [&_button:enabled]:cursor-pointer [&_summary]:cursor-pointer'>
+      <header className='flex flex-wrap items-start justify-between gap-4'>
+        <div className='min-w-0 flex-1 basis-64'>
+          <h1 className='flex items-start gap-2.5 text-xl leading-tight font-semibold tracking-tight text-foreground [overflow-wrap:anywhere] sm:text-2xl'>
+            {Icon && <Icon aria-hidden strokeWidth={1.5} className='mt-0.5 size-6 shrink-0 text-primary-ink' />}
+            {title}
+          </h1>
+          {description && (
+            <p className='mt-1.5 max-w-2xl text-sm leading-relaxed text-muted-foreground [text-wrap:pretty]'>
+              {description}
+            </p>
+          )}
+        </div>
+        {actions && <div className='flex flex-wrap items-center gap-2'>{actions}</div>}
+      </header>
       {children}
     </div>
   )
@@ -298,10 +271,11 @@ export function ApprovalsStatus({ value }: { value?: string | null }) {
   const label = value ? translate(`status.${value}`, { defaultValue: translate('unknown') }) : translate('unknown')
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-medium whitespace-nowrap ring-1 ring-inset ${toneClasses[approvalsStatusTone(value)]}`}
+      title={label}
+      className={`inline-flex max-w-full items-center gap-1.5 rounded-md px-2 py-0.5 text-left text-xs font-medium ring-1 ring-inset ${toneClasses[approvalsStatusTone(value)]}`}
     >
-      <span aria-hidden className='size-1.5 rounded-full bg-current' />
-      {label}
+      <span aria-hidden className='size-1.5 shrink-0 rounded-full bg-current' />
+      <span className='min-w-0 [overflow-wrap:anywhere]'>{label}</span>
     </span>
   )
 }
@@ -320,7 +294,7 @@ export function ApprovalsStat({
     <div className='min-w-0 space-y-1 border-r border-b border-border/70 bg-surface p-4'>
       <dt className='text-xs font-medium tracking-wider text-muted-foreground uppercase'>{label}</dt>
       <dd
-        className={`break-words font-mono text-lg font-semibold tabular-nums ${emphasis ? 'text-primary-ink' : 'text-foreground'}`}
+        className={`text-right font-mono text-lg font-semibold tabular-nums [overflow-wrap:anywhere] ${emphasis ? 'text-primary-ink' : 'text-foreground'}`}
       >
         {value}
       </dd>

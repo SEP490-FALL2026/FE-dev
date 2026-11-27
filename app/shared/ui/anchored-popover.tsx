@@ -6,13 +6,15 @@ export function AnchoredPopover({
   id,
   labelId,
   onClose,
-  children
+  children,
+  compact = false
 }: {
   anchor: RefObject<HTMLButtonElement | null>
   id: string
   labelId: string
   onClose: () => void
   children: ReactNode
+  compact?: boolean
 }) {
   const panel = useRef<HTMLDivElement>(null)
 
@@ -21,7 +23,10 @@ export function AnchoredPopover({
       if (!anchor.current || !panel.current) return
       const bounds = anchor.current.getBoundingClientRect()
       const margin = 16
-      const top = bounds.bottom + 12
+      const below = bounds.bottom + 12
+      const height = panel.current.scrollHeight
+      const top =
+        compact && below + height + margin > window.innerHeight ? Math.max(margin, bounds.top - height - 8) : below
       panel.current.style.left = `${Math.max(margin, Math.min(bounds.right - panel.current.offsetWidth, window.innerWidth - panel.current.offsetWidth - margin))}px`
       panel.current.style.top = `${top}px`
       panel.current.style.maxHeight = `${Math.max(0, window.innerHeight - top - margin)}px`
@@ -33,7 +38,7 @@ export function AnchoredPopover({
       window.removeEventListener('resize', position)
       window.removeEventListener('scroll', position, true)
     }
-  }, [anchor])
+  }, [anchor, compact])
 
   useEffect(() => {
     panel.current?.focus()
@@ -72,7 +77,7 @@ export function AnchoredPopover({
       role='dialog'
       aria-labelledby={labelId}
       tabIndex={-1}
-      className='fixed z-40 flex w-[min(36rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-xl border border-border bg-surface text-foreground shadow-xl outline-none'
+      className={`fixed z-40 flex ${compact ? 'w-56 max-w-[calc(100vw-2rem)] overflow-y-auto rounded-lg' : 'w-[min(36rem,calc(100vw-2rem))] overflow-hidden rounded-xl'} flex-col border border-border bg-surface text-foreground shadow-xl outline-none`}
     >
       {children}
     </div>,

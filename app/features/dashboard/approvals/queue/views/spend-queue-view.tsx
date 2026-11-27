@@ -30,7 +30,6 @@ export function ApprovalQueueView({
       />
       {view === 'requests' ? (
         <>
-          <SpendQueueAiSummary onOpen={(requestId) => onSelectTab('request', { id: requestId })} />
           <ApprovalsSection title={translate('layout.requestsTitle')} description={translate('pageScope')}>
             <SpendApprovalList
               onOpen={(requestId, batchId) =>
@@ -38,6 +37,7 @@ export function ApprovalQueueView({
               }
             />
           </ApprovalsSection>
+          <SpendQueueAiSummary onOpen={(requestId) => onSelectTab('request', { id: requestId })} />
         </>
       ) : (
         <ApprovalsSection title={translate('layout.batchesTitle')} description={translate('layout.batchesDescription')}>

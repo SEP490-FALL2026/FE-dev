@@ -41,7 +41,7 @@ export function AdjustmentById({ id, onBack }: { id: string; onBack: () => void 
   })
   const adjustment = query.data
   return (
-    <ApprovalsPage icon={Scale} eyebrow={translate('inYear.adjustments')} title={translate('inYear.adjustmentTitle')}>
+    <ApprovalsPage icon={Scale} title={translate('inYear.adjustmentTitle')}>
       <ApprovalsQueryState query={query}>
         {adjustment ? (
           adjustment.state === adjustmentState.PENDING ? (

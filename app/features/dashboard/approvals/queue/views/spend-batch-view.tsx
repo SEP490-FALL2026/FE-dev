@@ -44,7 +44,6 @@ export function ApprovalBatchView({ itemId, onSelectTab }: ApprovalBatchViewProp
   return (
     <ApprovalsPage
       icon={Layers}
-      eyebrow={translate('queue')}
       title={translate('batch')}
       actions={
         <ApprovalsButton variant='ghost' onClick={() => onSelectTab('queue')}>

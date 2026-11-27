@@ -55,8 +55,8 @@ export function FinancePurchaseInvoicesView({ itemId, onSelectTab }: Props) {
         mode={mode}
         onChange={setMode}
         counts={{
-          queue: awaiting.data?.data?.pagination.totalItems,
-          missing: missing.data?.data?.pagination.totalItems
+          queue: !awaiting.isError ? awaiting.data?.data?.pagination.totalItems : undefined,
+          missing: !missing.isError ? missing.data?.data?.pagination.totalItems : undefined
         }}
       />
       {mode === 'queue' ? <InvoiceQueue onSelectTab={onSelectTab} /> : <MissingPeriods />}

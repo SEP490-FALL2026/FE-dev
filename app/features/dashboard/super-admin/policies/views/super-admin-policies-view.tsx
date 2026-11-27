@@ -61,12 +61,7 @@ export function SuperAdminPoliciesView() {
 
   return (
     <section className='space-y-6'>
-      <AdminPageHeader
-        icon={BookOpen}
-        eyebrow={t('ui.policiesEyebrow')}
-        title={t('policies.title')}
-        subtitle={t('policies.description')}
-      />
+      <AdminPageHeader icon={BookOpen} title={t('policies.title')} subtitle={t('policies.description')} />
       {query.data?.data && (
         <AdminSectionTitle
           title={t('ui.policyLibrary')}

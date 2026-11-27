@@ -32,11 +32,10 @@ function cellClass(column: { numeric?: boolean; actions?: boolean; align?: 'cent
 /** Long text wraps over two lines and is cut at 12rem wide; the full text stays reachable as a tooltip. */
 function CellContent({ numeric, children }: { numeric?: boolean; children: ReactNode }) {
   if (numeric) return <div>{children}</div>
+  if (typeof children !== 'string' && typeof children !== 'number')
+    return <div className='max-w-80 [overflow-wrap:anywhere]'>{children}</div>
   return (
-    <div
-      className='line-clamp-2 max-w-48 [overflow-wrap:anywhere]'
-      title={typeof children === 'string' ? children : undefined}
-    >
+    <div className='line-clamp-2 max-w-48 [overflow-wrap:anywhere]' title={String(children)}>
       {children}
     </div>
   )
@@ -67,9 +66,14 @@ export function FinanceTable<Item>({
           >
             <dl className='space-y-2'>
               {columns.map((column) => (
-                <div key={column.key} className='flex items-start justify-between gap-4 text-sm'>
-                  <dt className='text-muted-foreground'>{column.label}</dt>
-                  <dd className={`min-w-0 text-right ${column.numeric ? 'font-mono tabular-nums' : ''}`}>
+                <div
+                  key={column.key}
+                  className='grid grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] items-start gap-3 text-sm'
+                >
+                  <dt className='min-w-0 text-muted-foreground [overflow-wrap:anywhere]'>{column.label}</dt>
+                  <dd
+                    className={`min-w-0 text-right [overflow-wrap:anywhere] ${column.numeric ? 'font-mono tabular-nums' : ''}`}
+                  >
                     {column.render(item)}
                   </dd>
                 </div>
@@ -96,13 +100,13 @@ export function FinanceTable<Item>({
                 <th
                   key={column.key}
                   scope='col'
-                  className={`px-3 py-2.5 align-bottom text-[11px] leading-snug font-semibold tracking-wider text-muted-foreground uppercase ${alignClass(column)} ${column.width ?? ''}`}
+                  className={`px-3 py-2.5 align-bottom text-[11px] leading-snug font-semibold tracking-wider text-muted-foreground uppercase ${alignClass(column)} ${column.actions ? 'sticky right-0 z-10 bg-surface-subtle' : ''} ${column.width ?? ''}`}
                 >
                   {column.label}
                 </th>
               ))}
               {onOpen && (
-                <th scope='col' className='px-4 py-2.5 text-right'>
+                <th scope='col' className='sticky right-0 z-10 bg-surface-subtle px-4 py-2.5 text-right'>
                   <span className='sr-only'>{translate('actions')}</span>
                 </th>
               )}

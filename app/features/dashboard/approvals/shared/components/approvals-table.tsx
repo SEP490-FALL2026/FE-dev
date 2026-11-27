@@ -52,9 +52,14 @@ export function ApprovalsTable<Item>({
             )}
             <dl className='space-y-2'>
               {restColumns.map((column) => (
-                <div key={column.key} className='flex items-start justify-between gap-4 text-sm'>
-                  <dt className='shrink-0 text-muted-foreground'>{column.label}</dt>
-                  <dd className={`min-w-0 text-right break-words ${column.numeric ? 'font-mono tabular-nums' : ''}`}>
+                <div
+                  key={column.key}
+                  className='grid grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] items-start gap-3 text-sm'
+                >
+                  <dt className='min-w-0 text-muted-foreground [overflow-wrap:anywhere]'>{column.label}</dt>
+                  <dd
+                    className={`min-w-0 text-right [overflow-wrap:anywhere] ${column.numeric ? 'font-mono tabular-nums' : ''}`}
+                  >
                     {column.render(item)}
                   </dd>
                 </div>
@@ -63,7 +68,7 @@ export function ApprovalsTable<Item>({
             {onOpen && (
               <button
                 type='button'
-                className='min-h-11 w-full rounded-md border border-border bg-surface px-3 text-sm font-medium text-primary-ink transition-colors duration-150 hover:bg-primary-soft/60'
+                className='min-h-11 w-full rounded-md border border-border bg-surface px-3 text-sm font-medium text-primary-ink transition-colors duration-150 hover:bg-primary-soft/60 focus-visible:outline-2 focus-visible:outline-primary'
                 onClick={() => onOpen(item)}
               >
                 {translate('open')}
@@ -86,7 +91,7 @@ export function ApprovalsTable<Item>({
                 </th>
               ))}
               {onOpen && (
-                <th scope='col' className='px-4 py-3 text-right'>
+                <th scope='col' className='sticky right-0 z-10 bg-surface-subtle px-4 py-3 text-right'>
                   <span className='sr-only'>{translate('actions')}</span>
                 </th>
               )}
@@ -100,7 +105,16 @@ export function ApprovalsTable<Item>({
                   const title = typeof content === 'string' || typeof content === 'number' ? String(content) : undefined
                   return (
                     <td key={column.key} className={`px-4 py-3 ${cellAlign(column)}`}>
-                      <div className={column.numeric ? '' : 'max-w-64 truncate'} title={title}>
+                      <div
+                        className={
+                          column.numeric
+                            ? 'whitespace-nowrap'
+                            : title !== undefined
+                              ? 'max-w-64 truncate'
+                              : 'max-w-80 [overflow-wrap:anywhere]'
+                        }
+                        title={title}
+                      >
                         {content}
                       </div>
                     </td>
@@ -110,7 +124,7 @@ export function ApprovalsTable<Item>({
                   <td className='sticky right-0 bg-surface px-4 py-3 text-right transition-colors duration-150 group-hover:bg-surface-subtle'>
                     <button
                       type='button'
-                      className='min-h-8 rounded-md px-2.5 text-sm font-medium whitespace-nowrap text-primary-ink transition-colors duration-150 hover:bg-primary-soft/60'
+                      className='min-h-8 rounded-md px-2.5 text-sm font-medium whitespace-nowrap text-primary-ink transition-colors duration-150 hover:bg-primary-soft/60 focus-visible:outline-2 focus-visible:outline-primary'
                       onClick={() => onOpen(item)}
                     >
                       {translate('open')}

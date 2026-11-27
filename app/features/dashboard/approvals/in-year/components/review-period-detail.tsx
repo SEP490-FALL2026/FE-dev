@@ -42,7 +42,6 @@ export function ReviewPeriodDetail({ itemId, onSelectTab }: ApprovalBudgetViewPr
   return (
     <ApprovalsPage
       icon={ClipboardList}
-      eyebrow={translate('inYear.periods')}
       title={
         period
           ? translate('inYear.periodTitle', { month: period.month, year: period.year })

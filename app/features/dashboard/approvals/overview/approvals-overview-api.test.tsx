@@ -73,7 +73,7 @@ it('shows server totals for every work queue and opens the matching screen', asy
       <ApprovalsOverviewView onSelectTab={onSelectTab} />
     </QueryClientProvider>
   )
-  for (const total of ['37', '5', '4']) expect(await screen.findByText(total)).toBeInTheDocument()
+  for (const total of ['37', '4']) expect(await screen.findByText(total)).toBeInTheDocument()
   fireEvent.click(screen.getByRole('button', { name: /spendQueue/ }))
   expect(onSelectTab).toHaveBeenCalledWith('queue')
   fireEvent.click(screen.getByRole('button', { name: /annualBudget/ }))
@@ -84,7 +84,12 @@ it('shows server totals for every work queue and opens the matching screen', asy
   expect(requests.every((request) => !request.url.endsWith('/notifications'))).toBe(true)
 })
 
-it('opens the need list inside the queue instead of repeating it on the overview', async () => {
+it('keeps a queue reachable when its count is unavailable instead of reporting zero', async () => {
+  const normalAdapter = apiClient.defaults.adapter
+  apiClient.defaults.adapter = async (config) => {
+    if (config.url?.endsWith('/budget-versions')) throw new Error('offline')
+    return (normalAdapter as import('axios').AxiosAdapter)(config)
+  }
   const onSelectTab = vi.fn()
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   render(
@@ -92,13 +97,15 @@ it('opens the need list inside the queue instead of repeating it on the overview
       <ApprovalsOverviewView onSelectTab={onSelectTab} />
     </QueryClientProvider>
   )
-  expect(await screen.findByText('5')).toBeInTheDocument()
+  const budgets = await screen.findByRole('button', { name: /annualBudget\s*overview.countUnavailable/ })
+  expect(budgets).not.toHaveTextContent('0')
   expect(screen.queryByText('Need application')).not.toBeInTheDocument()
-  fireEvent.click(screen.getByRole('button', { name: /overview.needs/ }))
-  expect(onSelectTab).toHaveBeenCalledWith('queue', { list: 'need' })
+  fireEvent.click(budgets)
+  expect(onSelectTab).toHaveBeenCalledWith('annual-budget')
+  client.clear()
 })
 
-const spendItem = (stepId: string, costCenter: string, amount: string, dueOn: string, primaryCode: string) => ({
+const spendItem = (stepId: string, costCenter: string, amount: string, dueOn: string, outcome: string) => ({
   requestId: `${stepId}-request`,
   stepId,
   stepKind: 'SPEND_APPROVAL',
@@ -112,7 +119,7 @@ const spendItem = (stepId: string, costCenter: string, amount: string, dueOn: st
   lineCount: 1,
   costCenter: { id: costCenter, code: costCenter },
   amount: { amount, currency: 'VND' },
-  primaryCode,
+  outcome,
   samePersonAsSpend: false,
   noIndependentReview: false,
   batchId: stepId === 'late' ? 'batch-1' : null
@@ -132,9 +139,9 @@ const version = (id: string, costCenter: string, amount: string, state: string) 
 it('builds figures and charts from every waiting request and the budget versions of the year', async () => {
   const today = localToday()
   const spendItems = [
-    spendItem('late', 'CC-ENG', '1500000', addDays(today, -1), 'BUDGET_OK'),
-    spendItem('soon', 'CC-ENG', '800000', today, 'INSUFFICIENT_BUDGET'),
-    spendItem('later', 'CC-SAL', '1000000', addDays(today, 7), 'BUDGET_OK')
+    spendItem('late', 'CC-ENG', '1500000', addDays(today, -1), 'WITHIN_BASE'),
+    spendItem('soon', 'CC-ENG', '800000', today, 'BLOCKED'),
+    spendItem('later', 'CC-SAL', '1000000', addDays(today, 7), 'WITHIN_BASE')
   ]
   const versions = [
     version('v1', 'CC-ENG', '50000000', 'APPROVED'),
@@ -169,8 +176,8 @@ it('builds figures and charts from every waiting request and the budget versions
   expect(screen.getByText('insights.overdue').nextElementSibling).toHaveTextContent('1')
   expect(screen.getByText('insights.dueSoon').nextElementSibling).toHaveTextContent('1')
   // Donut legends name every part with its count, so identity never rests on colour alone.
-  expect(screen.getByText('status.BUDGET_OK').closest('li')).toHaveTextContent('2')
-  expect(screen.getByText('status.INSUFFICIENT_BUDGET').closest('li')).toHaveTextContent('1')
+  expect(screen.getByText('status.WITHIN_BASE').closest('li')).toHaveTextContent('2')
+  expect(screen.getByText('status.BLOCKED').closest('li')).toHaveTextContent('1')
   expect((await screen.findByText('status.APPROVED')).closest('li')).toHaveTextContent('2')
   expect(screen.getByText('status.SENT').closest('li')).toHaveTextContent('1')
   const [spendTable, budgetTable] = await screen.findAllByRole('button', { name: 'insights.views.table' })

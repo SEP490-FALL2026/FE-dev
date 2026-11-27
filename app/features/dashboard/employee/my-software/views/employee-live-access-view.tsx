@@ -50,7 +50,7 @@ export function EmployeeLiveAccessView({
           })
         }
       />
-      {list === ACCESS_LIST.SOFTWARE && <EmployeeSoftwareRights />}
+      {list === ACCESS_LIST.SOFTWARE && <EmployeeSoftwareRights onSelectTab={onSelectTab} />}
       {list === ACCESS_LIST.EXPIRY && <EmployeeExpiryReminders onSelectTab={onSelectTab} />}
       {list === ACCESS_LIST.RETURNS && <EmployeeAccessReturns onSelectTab={onSelectTab} />}
     </div>

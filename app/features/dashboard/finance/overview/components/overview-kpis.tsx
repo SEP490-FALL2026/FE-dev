@@ -23,7 +23,9 @@ function KpiTile({
   return (
     <div className='flex min-w-0 flex-col gap-2 bg-surface p-4 sm:p-5'>
       <dt className='text-[11px] font-semibold tracking-wider text-muted-foreground uppercase'>{label}</dt>
-      <dd className='truncate font-mono text-2xl leading-none font-semibold tracking-tight tabular-nums'>{value}</dd>
+      <dd className='text-right font-mono text-xl leading-snug font-semibold tracking-tight tabular-nums [overflow-wrap:anywhere] sm:text-2xl'>
+        {value}
+      </dd>
       {ratio !== undefined && (
         <div aria-hidden className='h-1.5 w-full overflow-hidden rounded-sm bg-surface-subtle'>
           <div
@@ -43,7 +45,8 @@ export function OverviewKpis({
   money,
   periodLabel,
   periodCommitments,
-  commitmentsPending
+  commitmentsPending,
+  commitmentsError
 }: {
   query: QueryLike
   totals: BudgetTotals
@@ -51,6 +54,7 @@ export function OverviewKpis({
   periodLabel: string
   periodCommitments: { amount: number; count: number }
   commitmentsPending: boolean
+  commitmentsError: boolean
 }) {
   const { t: translate, i18n } = useTranslation('finance')
   const percent = (value: number) =>
@@ -86,11 +90,19 @@ export function OverviewKpis({
           value={
             commitmentsPending ? (
               <LoaderCircle aria-label={translate('loading')} className='size-5 animate-spin' strokeWidth={1.5} />
+            ) : commitmentsError ? (
+              <span className='font-sans text-sm font-normal text-muted-foreground'>
+                {translate('countUnavailable')}
+              </span>
             ) : (
               money.full(periodCommitments.amount)
             )
           }
-          caption={translate('analytics.kpis.periodCount', { count: periodCommitments.count })}
+          caption={
+            commitmentsPending || commitmentsError
+              ? null
+              : translate('analytics.kpis.periodCount', { count: periodCommitments.count })
+          }
         />
       </dl>
     </FinanceQueryState>

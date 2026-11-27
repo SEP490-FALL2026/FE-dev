@@ -86,7 +86,6 @@ export function ItOptimizationView() {
             <>
               <ItPageHeader
                 icon={Ghost}
-                eyebrow={t('optimization.title')}
                 title={`${selected.application.applicationName} · ${selected.plan.planName}`}
                 actions={
                   <button type='button' className={itButtonClass} onClick={() => setSelectedId('')}>

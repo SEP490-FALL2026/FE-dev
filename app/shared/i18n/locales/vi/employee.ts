@@ -2,6 +2,12 @@ import { employeeRequestExtras } from './employee-request-extras'
 import { employeeRequestAssignment } from './employee-request-assignment'
 import { employeeUi } from './employee-ui'
 export const employee = {
+  unsaved: {
+    title: 'Đổi loại yêu cầu?',
+    hint: 'Nội dung trong biểu mẫu chưa được lưu. Đổi loại yêu cầu sẽ xóa nội dung đang nhập.',
+    keep: 'Tiếp tục nhập',
+    discard: 'Bỏ nội dung và chuyển'
+  },
   policies: 'Chính sách',
   estimatedBudgetYear: 'Năm ngân sách tạm tính',
   extensionMonths: 'Số tháng gia hạn',
@@ -227,6 +233,7 @@ export const employee = {
     returns: 'Yêu cầu hoàn trả'
   },
   softwareRights: {
+    actionsFor: 'Thao tác với {{name}}',
     view: 'Thời hạn quyền sử dụng',
     views: { current: 'Hiện tại và sắp có hiệu lực', ended: 'Đã kết thúc' },
     total: '{{count}} quyền sử dụng',

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useRequestableApplicationList } from '~/shared/api/generated/operations/requestable-software/requestable-application-list'
 import { accessRequestPropose } from '~/shared/api/generated/operations/access-requests/access-request-propose'
@@ -14,10 +14,12 @@ import type { ProposalBodyDto } from '~/shared/api/generated/model'
 const input = 'min-h-11 w-full rounded-md border border-border bg-background px-3 py-2 text-base md:text-sm'
 export function SoftwareProposalForm({
   onCreated,
-  onUsePlan
+  onUsePlan,
+  onBusyChange
 }: {
   onCreated: (id: string) => void
   onUsePlan: (planId: string) => void
+  onBusyChange?: (busy: boolean) => void
 }) {
   const { t } = useTranslation('requestFlow')
   const { t: employee } = useTranslation('employee')
@@ -67,6 +69,9 @@ export function SoftwareProposalForm({
       </span>
     </label>
   )
+  useEffect(() => {
+    onBusyChange?.(action.isPending)
+  }, [action.isPending, onBusyChange])
   const data = !apps.isError ? apps.data?.data : null
   return (
     <section className='space-y-5 rounded-2xl border border-border/60 bg-surface p-4 shadow-sm sm:p-5'>

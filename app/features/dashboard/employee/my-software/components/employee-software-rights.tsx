@@ -15,18 +15,24 @@ import { EmployeeSelect } from '../../shared/components/employee-select'
 import { useEmployeePage } from '../../shared/hooks/use-employee-page'
 import { SOFTWARE_RIGHT_STATUS } from '../enums/software-right-status'
 import { SOFTWARE_RIGHT_VIEW } from '../enums/software-right-view'
+import { EmployeeSoftwareActions } from './employee-software-actions'
+import type { EmployeeTabKey } from '../../enums'
 
 const statusTone: Record<string, string> = {
-  [SOFTWARE_RIGHT_STATUS.ACTIVE]: 'bg-success/10 text-success',
+  [SOFTWARE_RIGHT_STATUS.ACTIVE]: 'bg-success/10 text-success-ink',
   [SOFTWARE_RIGHT_STATUS.UPCOMING]: 'bg-primary-soft text-primary-ink',
   [SOFTWARE_RIGHT_STATUS.PROVISIONING]: 'bg-primary-soft text-primary-ink',
-  [SOFTWARE_RIGHT_STATUS.EXPIRED]: 'bg-warning/10 text-warning',
-  [SOFTWARE_RIGHT_STATUS.REVOKING]: 'bg-warning/10 text-warning',
-  [SOFTWARE_RIGHT_STATUS.ENDING]: 'bg-warning/10 text-warning',
+  [SOFTWARE_RIGHT_STATUS.EXPIRED]: 'bg-warning/10 text-warning-ink',
+  [SOFTWARE_RIGHT_STATUS.REVOKING]: 'bg-warning/10 text-warning-ink',
+  [SOFTWARE_RIGHT_STATUS.ENDING]: 'bg-warning/10 text-warning-ink',
   [SOFTWARE_RIGHT_STATUS.ENDED]: 'bg-surface-subtle text-muted-foreground'
 }
 
-export function EmployeeSoftwareRights() {
+export function EmployeeSoftwareRights({
+  onSelectTab
+}: {
+  onSelectTab: (tab: EmployeeTabKey, params?: Record<string, string>) => void
+}) {
   const { t: translate } = useTranslation('employee')
   const { formatDate } = useDashboardFormat()
   const [params, setParams] = useSearchParams()
@@ -87,6 +93,12 @@ export function EmployeeSoftwareRights() {
         label={translate('accessLists.software')}
         items={items}
         rowKey={(item) => item.assignmentId}
+        actionLabel={translate('redesign.actions')}
+        renderAction={
+          view === SOFTWARE_RIGHT_VIEW.current
+            ? (item) => <EmployeeSoftwareActions item={item} onSelectTab={onSelectTab} />
+            : undefined
+        }
         emptyState={
           <EmployeeQueryState
             query={query}
@@ -163,7 +175,9 @@ export function EmployeeSoftwareRights() {
                     </span>
                   )}
                   {item.expiringSoon && (
-                    <p className='mt-1 font-sans text-xs text-warning'>{translate('softwareRights.expiringSoon')}</p>
+                    <p className='mt-1 font-sans text-xs text-warning-ink'>
+                      {translate('softwareRights.expiringSoon')}
+                    </p>
                   )}
                 </div>
               )

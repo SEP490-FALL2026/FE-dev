@@ -43,6 +43,7 @@ export function OverviewAnalyticsSection({ period }: { period: OverviewPeriod })
         periodLabel={periodLabel}
         periodCommitments={inPeriod}
         commitmentsPending={commitments.isPending}
+        commitmentsError={commitments.isError}
       />
       <div className='grid gap-4 xl:grid-cols-5'>
         <OverviewChartCard

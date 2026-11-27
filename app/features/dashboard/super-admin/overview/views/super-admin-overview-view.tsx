@@ -23,11 +23,8 @@ export function SuperAdminOverviewView({ onSelectTab }: { onSelectTab: SuperAdmi
   return (
     <div className='space-y-6'>
       <header className='flex flex-wrap items-start justify-between gap-4'>
-        <div>
-          <p className='mb-2 text-[11px] font-medium uppercase tracking-widest text-primary-ink'>
-            {translate('overview.redesign.eyebrow')}
-          </p>
-          <h1 className='text-2xl font-semibold leading-tight tracking-tight [text-wrap:balance]'>
+        <div className='min-w-0 flex-1 basis-64'>
+          <h1 className='text-xl font-semibold leading-tight tracking-tight [text-wrap:balance] sm:text-2xl'>
             {translate('overview.title')}
           </h1>
           <p className='mt-2 max-w-2xl text-sm text-muted-foreground'>{translate('overview.redesign.subtitle')}</p>
@@ -45,6 +42,17 @@ export function SuperAdminOverviewView({ onSelectTab }: { onSelectTab: SuperAdmi
           {translate('overview.redesign.refresh')}
         </button>
       </header>
+      <AdminQueryState query={dashboard}>
+        {dashboard.data?.data ? (
+          <DashboardMetrics
+            sections={dashboard.data.data.sections}
+            asOf={dashboard.data.data.asOf}
+            onSelectTab={onSelectTab}
+          />
+        ) : (
+          <p className='text-sm text-muted-foreground'>{translate('overview.metrics.missing')}</p>
+        )}
+      </AdminQueryState>
       <div className='grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]'>
         <AdminQueryState query={checklist}>
           <SetupSummary steps={steps} />
@@ -65,17 +73,6 @@ export function SuperAdminOverviewView({ onSelectTab }: { onSelectTab: SuperAdmi
           <SetupChecklist steps={steps} onSelectTab={onSelectTab} />
         </div>
       )}
-      <AdminQueryState query={dashboard}>
-        {dashboard.data?.data ? (
-          <DashboardMetrics
-            sections={dashboard.data.data.sections}
-            asOf={dashboard.data.data.asOf}
-            onSelectTab={onSelectTab}
-          />
-        ) : (
-          <p className='text-sm text-muted-foreground'>{translate('overview.metrics.missing')}</p>
-        )}
-      </AdminQueryState>
     </div>
   )
 }

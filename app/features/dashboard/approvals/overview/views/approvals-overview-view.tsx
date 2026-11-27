@@ -31,8 +31,8 @@ export function ApprovalsOverviewView({ onSelectTab }: OverviewProps) {
   const spend = useSpendApprovalList(countParams)
   const budgets = useBudgetVersionList({ ...countParams, state: BudgetVersionListState.SENT })
   return (
-    <ApprovalsPage hero title={translate('title')} description={translate('overview.description')}>
-      <div className='grid gap-4 sm:grid-cols-2'>
+    <ApprovalsPage title={translate('title')} description={translate('overview.description')}>
+      <div className='grid gap-3 sm:grid-cols-2'>
         <ApprovalsWorkCard
           icon={ClipboardCheck}
           title={translate('spendQueue')}

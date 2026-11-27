@@ -44,7 +44,6 @@ export function SuperAdminRemindersView() {
     <div className='space-y-6'>
       <AdminPageHeader
         icon={SlidersHorizontal}
-        eyebrow={translate('ui.parametersEyebrow')}
         title={translate('parameters.title')}
         subtitle={translate('parameters.futureOnly')}
       />

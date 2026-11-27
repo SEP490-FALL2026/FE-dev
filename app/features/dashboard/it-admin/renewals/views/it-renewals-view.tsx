@@ -33,7 +33,7 @@ export function ItRenewalsView({
   if (selected) return <RenewalDetail id={selected} onBack={() => setSelected(undefined)} />
   return (
     <section className='space-y-5'>
-      <ItPageHeader icon={CalendarClock} eyebrow={translate('subscriptions')} title={translate('title')}>
+      <ItPageHeader icon={CalendarClock} title={translate('title')}>
         <ItSegmented
           label={translate('title')}
           value={view}

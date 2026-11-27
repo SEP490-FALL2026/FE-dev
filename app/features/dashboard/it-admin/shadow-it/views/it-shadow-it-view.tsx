@@ -35,7 +35,6 @@ export function ItShadowItView({
     <div className='space-y-5'>
       <ItPageHeader
         icon={ShieldQuestion}
-        eyebrow={translate('eyebrow')}
         title={translate('title')}
         subtitle={translate('subtitle')}
         actions={

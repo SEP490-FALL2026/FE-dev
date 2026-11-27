@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { act, configure, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, configure, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
 import { MemoryRouter, useLocation } from 'react-router'
@@ -15,7 +15,7 @@ import { EmployeeLiveCreateView } from './views/employee-live-create-view'
 const secondId = '99999999-9999-4999-8999-999999999999'
 const right: MySoftwarePageResponseDtoDataItemsItem = {
   assignmentId,
-  application: { id: planId, name: 'Team Software' },
+  application: { id: planId, name: 'Team Software', logoUrl: null },
   plan: { id: planId, name: 'Standard' },
   provisioningType: 'K2',
   status: 'ACTIVE',
@@ -88,6 +88,34 @@ function fillRenewal() {
   fireEvent.change(screen.getByLabelText('Extension in months'), { target: { value: '3' } })
   fireEvent.change(screen.getByLabelText('Business reason'), { target: { value: 'Continue project work' } })
 }
+it('keeps entered data when cancelling or escaping a request-type change', async () => {
+  mount('individual')
+  fireEvent.change(await screen.findByLabelText('Business reason'), { target: { value: 'Keep my project context' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Group access' }))
+  const dialog = screen.getByRole('dialog', { name: 'Change request type?' })
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Keep editing' }))
+  expect(screen.getByLabelText('Business reason')).toHaveValue('Keep my project context')
+  expect(screen.getByTestId('current-url')).toHaveTextContent('mode=individual')
+  fireEvent.click(screen.getByRole('button', { name: 'Return access' }))
+  fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' })
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  expect(screen.getByLabelText('Business reason')).toHaveValue('Keep my project context')
+})
+it('changes type only after confirming the unsaved data discard', async () => {
+  mount('individual')
+  fireEvent.change(await screen.findByLabelText('Business reason'), { target: { value: 'Unsaved reason' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Return access' }))
+  fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Discard and switch' }))
+  expect(await screen.findByRole('combobox', { name: 'Software access' })).toBeInTheDocument()
+  expect(screen.getByLabelText('Business reason')).toHaveValue('')
+  expect(screen.getByTestId('current-url')).toHaveTextContent('mode=return')
+})
+it('switches an untouched form without a discard prompt', async () => {
+  mount('individual')
+  fireEvent.click(screen.getByRole('button', { name: 'Return access' }))
+  expect(await screen.findByRole('combobox', { name: 'Software access' })).toBeInTheDocument()
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+})
 it('removes the service-account tab and redirects old links without opening its drawer', async () => {
   mount('service')
   await screen.findByRole('combobox', { name: 'Software' })
@@ -108,7 +136,7 @@ it('reads all personal-right pages, searches by software name and sends the sele
         response(
           params.get('page') === '1'
             ? [right]
-            : [{ ...right, assignmentId: secondId, application: { id: planId, name: 'Phần mềm khác' } }],
+            : [{ ...right, assignmentId: secondId, application: { id: planId, name: 'Phần mềm khác', logoUrl: null } }],
           Number(params.get('page')),
           2
         )
@@ -122,7 +150,7 @@ it('reads all personal-right pages, searches by software name and sends the sele
   const { navigate } = mount()
   expect(screen.queryByLabelText('Assignment ID')).not.toBeInTheDocument()
   await openPicker()
-  fireEvent.change(screen.getByRole('searchbox', { name: 'Search software or plan name' }), {
+  fireEvent.change(screen.getByRole('combobox', { name: 'Software access' }), {
     target: { value: 'phan mem' }
   })
   fireEvent.click(await screen.findByRole('option', { name: /Phần mềm khác/ }))
@@ -152,7 +180,9 @@ it('resolves preselected links on later pages and submits a strict renewal paylo
     })
   )
   const { navigate } = mount('renewal', secondId)
-  await waitFor(() => expect(screen.getByRole('combobox', { name: 'Software access' })).toHaveTextContent('Extended'))
+  await waitFor(() =>
+    expect(screen.getByRole('combobox', { name: 'Software access' })).toHaveValue('Team Software · Extended')
+  )
   expect(screen.getByLabelText('Extension in months')).toHaveAttribute('min', '1')
   fillRenewal()
   fireEvent.click(screen.getByRole('button', { name: 'Submit request' }))
@@ -243,7 +273,7 @@ it('keeps an empty renewal form neutral until the dropdown is opened', async () 
   ).not.toBeInTheDocument()
   await openPicker()
   expect(screen.getByText('You currently have no software access available to select for renewal.')).toBeInTheDocument()
-  fireEvent.keyDown(screen.getByRole('searchbox'), { key: 'Escape' })
+  fireEvent.keyDown(screen.getByRole('combobox', { name: 'Software access' }), { key: 'Escape' })
   expect(
     screen.queryByText('You currently have no software access available to select for renewal.')
   ).not.toBeInTheDocument()
@@ -270,7 +300,7 @@ it('clears the submitted ID and blocks submission when a selected right disappea
   server.use(http.get('*/api/v1/me/software-rights', () => HttpResponse.json(response(available ? [right] : []))))
   const { client } = mount('renewal', assignmentId)
   await waitFor(() =>
-    expect(screen.getByRole('combobox', { name: 'Software access' })).toHaveTextContent('Team Software')
+    expect(screen.getByRole('combobox', { name: 'Software access' })).toHaveValue('Team Software · Standard')
   )
   available = false
   await act(async () => {

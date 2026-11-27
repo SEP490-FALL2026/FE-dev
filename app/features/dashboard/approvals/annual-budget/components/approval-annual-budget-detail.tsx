@@ -33,7 +33,6 @@ export function ApprovalAnnualBudgetDetail({ itemId, onSelectTab }: ApprovalBudg
   return (
     <ApprovalsPage
       icon={Landmark}
-      eyebrow={translate('versionTitle')}
       title={version ? version.costCenter.name : translate('versionTitle')}
       description={
         version

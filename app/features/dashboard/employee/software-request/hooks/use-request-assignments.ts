@@ -1,25 +1,12 @@
-import { PROVISIONING_TYPE } from '~/entities/request/enums/provisioning-type'
 import { useQuery } from '@tanstack/react-query'
-import type { MySoftwarePageResponseDtoDataItemsItem } from '~/shared/api/generated/model/me/mySoftwarePageResponseDtoDataItemsItem'
 import {
   getMeSoftwareRightListQueryKey,
   meSoftwareRightList
 } from '~/shared/api/generated/operations/me/me-software-right-list'
 import type { RequestMode } from './use-live-request-form'
-import { REQUEST_ASSIGNMENT_STATUS, REQUEST_ASSIGNMENT_VIEW } from '../enums/request-assignment'
+import { REQUEST_ASSIGNMENT_VIEW } from '../enums/request-assignment'
+import { canSelectRequestAssignment } from '../../shared/request-assignment-actions'
 
-export function canSelectRequestAssignment(item: MySoftwarePageResponseDtoDataItemsItem, mode: RequestMode) {
-  // This list exposes no pending-request flags. Final eligibility remains a server check.
-  const held = item.status === REQUEST_ASSIGNMENT_STATUS.ACTIVE || item.status === REQUEST_ASSIGNMENT_STATUS.EXPIRED
-  return (
-    held &&
-    (mode === 'return' ||
-      (mode === 'renewal' &&
-        item.provisioningType !== PROVISIONING_TYPE.K4 &&
-        !!item.expectedEndDate &&
-        !item.successorAssignmentId))
-  )
-}
 export function useRequestAssignments(mode: RequestMode) {
   const query = useQuery({
     queryKey: [...getMeSoftwareRightListQueryKey({ view: REQUEST_ASSIGNMENT_VIEW.current }), 'request-picker'],

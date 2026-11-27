@@ -1,6 +1,6 @@
 import { ACCESS_REQUEST_ROUTING } from '~/entities/request/enums/access-request-routing'
 import { ACCESS_REQUEST_STATE } from '~/entities/request/enums/access-request-state'
-import { ArrowLeft, Boxes, Building2, Calendar, UserCheck, UserRound } from 'lucide-react'
+import { ArrowLeft, Building2, Calendar, UserCheck, UserRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAccessRequestGet } from '~/shared/api/generated/operations/access-requests/access-request-get'
 import { useDashboardFormat } from '../../../dashboard-ui'
@@ -64,7 +64,7 @@ export function ManagerLiveRequest({
             type='button'
             onClick={onBack}
             aria-label={translate('back')}
-            className='grid size-10 shrink-0 place-items-center rounded-xl border border-border bg-surface text-muted-foreground transition hover:border-primary hover:bg-surface-subtle hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary'
+            className='grid size-11 shrink-0 place-items-center rounded-md border border-border bg-surface text-muted-foreground transition hover:border-primary hover:bg-surface-subtle hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary'
           >
             <ArrowLeft strokeWidth={1.5} className='size-5' />
           </button>
@@ -94,24 +94,6 @@ export function ManagerLiveRequest({
         >
           {/* Left Column: Request Details Card */}
           <ManagerSection title={translate('requestDetail.requestInfo')}>
-            {/* Software Spotlight Banner */}
-            <div className='flex items-center gap-3.5 rounded-xl border border-border/60 bg-surface-subtle/50 p-4'>
-              <span
-                aria-hidden='true'
-                className='grid size-12 shrink-0 place-items-center rounded-xl border border-primary/20 bg-primary-soft text-primary-ink'
-              >
-                <Boxes strokeWidth={1.5} className='size-6' />
-              </span>
-              <div className='min-w-0'>
-                <h2 className='truncate text-lg font-bold text-foreground' title={softwareTitle}>
-                  {softwareTitle}
-                </h2>
-                <p className='truncate text-xs text-muted-foreground' title={planSubtitle}>
-                  {planSubtitle}
-                </p>
-              </div>
-            </div>
-
             {/* Financial & Scope Metrics Strip */}
             <div className='grid grid-cols-2 gap-3 sm:grid-cols-3'>
               <div className='rounded-xl border border-border/60 bg-surface p-3.5'>

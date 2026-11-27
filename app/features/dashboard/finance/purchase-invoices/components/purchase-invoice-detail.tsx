@@ -48,7 +48,7 @@ export function PurchaseInvoiceDetail({ id, onBack, onOpenInvoice, onOpenRequest
   const dateTime = (value: string) => new Date(value).toLocaleString(i18n.language)
   const money = (value: { amount: string; currency: string } | null) =>
     value ? formatMoney(value, i18n.language) : translate('none')
-  const awaiting = invoice?.state === 'SUBMITTED'
+  const awaiting = query.isSuccess && !query.isFetching && invoice?.state === 'SUBMITTED'
   const chargedCostCenter = invoice?.chargedCostCenterId
     ? costCenters.data?.data?.items.find((item) => item.id === invoice.chargedCostCenterId)
     : null

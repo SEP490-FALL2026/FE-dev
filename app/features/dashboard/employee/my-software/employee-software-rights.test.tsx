@@ -11,7 +11,7 @@ import { EmployeeLiveAccessView } from './views/employee-live-access-view'
 
 const rights: MySoftwarePageResponseDtoDataItemsItem = {
   assignmentId,
-  application: { id: planId, name: 'Granted Software' },
+  application: { id: planId, name: 'Granted Software', logoUrl: null },
   plan: { id: planId, name: 'Team plan' },
   provisioningType: 'K4',
   status: 'ACTIVE',
@@ -76,6 +76,34 @@ function mount(url = '/?tab=my-software') {
 }
 
 describe('Employee software access lists', () => {
+  it('opens a return for the exact right and excludes unsupported K4 renewals', async () => {
+    const { onSelectTab } = mount()
+    fireEvent.click(await screen.findByRole('button', { name: 'Actions for Granted Software' }, { timeout: 5000 }))
+    const dialog = screen.getByRole('dialog', { name: 'Actions for Granted Software' })
+    expect(within(dialog).queryByRole('button', { name: 'Renew access' })).not.toBeInTheDocument()
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Return access' }))
+    expect(onSelectTab).toHaveBeenCalledWith('create-request', { mode: 'return', assignmentId })
+  })
+  it('renews an eligible right and returns focus when the action popup is dismissed', async () => {
+    server.use(
+      http.get('*/api/v1/me/software-rights', () =>
+        HttpResponse.json(response([{ ...rights, provisioningType: 'K2' }]))
+      )
+    )
+    const { onSelectTab } = mount()
+    const trigger = await screen.findByRole('button', { name: 'Actions for Granted Software' })
+    fireEvent.click(trigger)
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' })
+    expect(trigger).toHaveFocus()
+    fireEvent.click(trigger)
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Renew access' }))
+    expect(onSelectTab).toHaveBeenCalledWith('create-request', { mode: 'renewal', assignmentId })
+  })
+  it('hides request actions for ended rights', async () => {
+    mount('/?tab=my-software&rightsView=ended')
+    await screen.findByText('Granted Software')
+    expect(screen.queryByRole('button', { name: 'Actions for Granted Software' })).not.toBeInTheDocument()
+  })
   it('defaults to the granted software API and displays real metadata without fetching hidden lists', async () => {
     mount()
     expect(await screen.findByText('Granted Software')).toBeInTheDocument()
@@ -113,7 +141,11 @@ describe('Employee software access lists', () => {
         requests(params.toString())
         const current = Number(params.get('page'))
         return HttpResponse.json(
-          response([{ ...rights, application: { id: planId, name: `Software page ${current}` } }], current, 2)
+          response(
+            [{ ...rights, application: { id: planId, name: `Software page ${current}`, logoUrl: null } }],
+            current,
+            2
+          )
         )
       })
     )
@@ -122,7 +154,8 @@ describe('Employee software access lists', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Next' }))
     expect(await screen.findByText('Software page 2')).toBeInTheDocument()
     expect(screen.getByText('21 software rights')).toBeInTheDocument()
-    fireEvent.change(screen.getByLabelText('Access period'), { target: { value: 'ended' } })
+    fireEvent.click(screen.getByRole('combobox', { name: 'Access period' }))
+    fireEvent.click(screen.getByRole('option', { name: 'Ended' }))
     await waitFor(() => expect(requests.mock.calls.at(-1)?.[0]).toContain('view=ended&page=1'))
     expect(await screen.findByText('Software page 1')).toBeInTheDocument()
     expect(screen.getByRole('columnheader', { name: 'Access ended on' })).toBeInTheDocument()
@@ -186,7 +219,8 @@ describe('Employee software access lists', () => {
     server.use(http.get('*/api/v1/me/software-rights', () => HttpResponse.json(response([]))))
     mount()
     expect(await screen.findByText('No software access yet')).toBeInTheDocument()
-    fireEvent.change(screen.getByLabelText('Access period'), { target: { value: 'ended' } })
+    fireEvent.click(screen.getByRole('combobox', { name: 'Access period' }))
+    fireEvent.click(screen.getByRole('option', { name: 'Ended' }))
     expect(await screen.findByText('No ended software access')).toBeInTheDocument()
   })
 

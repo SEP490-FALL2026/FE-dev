@@ -28,7 +28,6 @@ export function ApprovalMonitorDetail({ requestId, onBack }: { requestId?: strin
   return (
     <ApprovalsPage
       icon={FileSearch}
-      eyebrow={translate('monitor.title')}
       title={translate('monitor.detailTitle')}
       actions={
         <ApprovalsButton variant='ghost' onClick={onBack}>

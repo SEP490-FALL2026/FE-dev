@@ -7,6 +7,7 @@ import { managerIntegration } from './manager-integration'
 import { managerRequestForm } from './manager-request-form'
 import { managerBudgetForm } from './manager-budget-form'
 export const manager = {
+  overdue: 'Quá hạn',
   ui: managerUi,
   policies: 'Chính sách',
   ghostSeatReview: 'Rà soát suất không sử dụng',

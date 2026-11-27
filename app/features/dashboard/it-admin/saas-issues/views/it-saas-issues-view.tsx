@@ -61,7 +61,7 @@ export function ItSaasIssuesView({ initialIssueId }: { initialIssueId?: string; 
       >
         {translate('backDepartments')}
       </button>
-      <ItPageHeader icon={Bug} eyebrow={department.name} title={translate('title')} />
+      <ItPageHeader icon={Bug} context={department.name} title={translate('title')} />
       <div className='grid gap-3 sm:max-w-2xl sm:grid-cols-2'>
         <ItChoiceSelect
           label={translate('state')}

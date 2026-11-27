@@ -52,7 +52,7 @@ export function SpendInsights({ onOpen }: { onOpen: (requestId: string, batchId:
                 totals.length ? (
                   <span className='flex flex-col'>
                     {totals.map((total) => (
-                      <span key={total.currency} className='truncate'>
+                      <span key={total.currency} className='[overflow-wrap:anywhere]'>
                         {formatMoney(total, i18n.language)}
                       </span>
                     ))}

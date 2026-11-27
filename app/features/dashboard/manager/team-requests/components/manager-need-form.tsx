@@ -68,7 +68,7 @@ export function ManagerNeedForm({ id }: { id: string }) {
   return (
     <ManagerFormErrors fields={action.fields}>
       <form
-        className='space-y-5'
+        className='@container space-y-5'
         onSubmit={(event) => {
           event.preventDefault()
           if (action.blocked || !ready || !checklist.body) return
@@ -81,7 +81,7 @@ export function ManagerNeedForm({ id }: { id: string }) {
       >
         <fieldset disabled={action.blocked} className='space-y-4'>
           <PolicyChecklist checklist={checklist} disabled={action.blocked} />
-          <div className='grid gap-3 sm:grid-cols-3'>
+          <div className='grid gap-2 @min-[36rem]:grid-cols-3'>
             {decisionOptions.map((option) => {
               const Icon = option.icon
               const selected = effectiveDecision === option.value

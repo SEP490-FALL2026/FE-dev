@@ -34,7 +34,6 @@ export function SuperAdminOperationsView() {
     <div className='space-y-6'>
       <AdminPageHeader
         icon={Activity}
-        eyebrow={translate('ui.operationsEyebrow')}
         title={translate('operations.title')}
         subtitle={translate(`ui.operationsHint.${report}`)}
       >
